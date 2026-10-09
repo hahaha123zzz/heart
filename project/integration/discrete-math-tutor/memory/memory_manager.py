@@ -58,6 +58,9 @@ class MemoryManager:
     def list_knowledge_points(self, student_id: str) -> List[str]:
         return self.repo.list_knowledge_points(student_id)
 
+    def list_learning_points(self, student_id: str) -> List[str]:
+        return self.repo.list_learning_points(student_id)
+
     # ---- Conversation 记忆 -----------------------------------------
     def get_history(self, student_id: str, limit: int = MAX_HISTORY) -> List[Dict[str, str]]:
         return self.repo.get_conversation(student_id, limit)
@@ -65,8 +68,9 @@ class MemoryManager:
     def append(
         self, student_id: str, role: str, content: str,
         figure_ids: list[str] | None = None,
+        selection_ref: dict | None = None,
     ) -> None:
-        self.repo.append_conversation(student_id, role, content, figure_ids)
+        self.repo.append_conversation(student_id, role, content, figure_ids, selection_ref)
 
     # ---- Learning 记忆 ---------------------------------------------
     def get_state(self, student_id: str, knowledge_point: str) -> StudentState:

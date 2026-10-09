@@ -11,9 +11,10 @@ from sqlalchemy import select
 
 from database.database import session_scope
 from database.models import (ConversationRow, KnowledgeStateRow, MisconceptionRow,
-                             QuizAttemptRow, ResourceViewRow)
+                             QuizAttemptRow, ResourceViewRow, ExerciseSubmissionRow)
 from knowledge.figures import get_figure, section_figures
 from knowledge.content import section_blocks
+from knowledge.pdf_reader import section_pdf
 from knowledge.course import (CHAPTER_TITLES, chapter_summary, get_chapter,
                               get_section, grade_quiz, public_quiz, QUIZZES)
 
@@ -74,6 +75,7 @@ def course_section(chapter_id: int, section_id: int):
             "source": chapter["source"], **section,
             "figures": section_figures(chapter_id, section_id),
             "blocks": section_blocks(chapter_id, section_id),
+            "pdf": section_pdf(chapter_id, section_id),
             "figure_note": "图、公式和表格来自原 Word。公式保留原图，可点击放大；绘图锚点预览可能含多个子图，图号未逐一核定。"}
 
 
@@ -154,6 +156,20 @@ def dashboard(student_id: str):
             common_errors.append({"chapter_id": question["chapter_id"],
                 "question": question["question"], "wrong_count": count,
                 "correct_option": question["options"][question["correct"]]})
+        from practice_api import catalog
+        exercise_attempts = session.scalars(select(ExerciseSubmissionRow).where(ExerciseSubmissionRow.student_id==student_id, ExerciseSubmissionRow.version==catalog()['version']).order_by(ExerciseSubmissionRow.created_at)).all()
+        latest = {r.question_id:r for r in exercise_attempts if r.status=='completed'}
+        confirmed_scores=[];answered_parts=0;pending_review=0
+        for qid,row in latest.items():
+            q=catalog()['by_id'].get(qid)
+            if not q:continue
+            for item in row.result.get('parts',[]):
+                answered_parts+=1
+                if item.get('confirmed'):
+                    confirmed_scores.append(item['score'])
+                    if item['score']<100:
+                        common_errors.append({'chapter_id':q['chapter_id'],'question_id':qid,'question':q['knowledge_point']+' · 练习'+q['group_id']+' 第'+str(q['number'])+'题 '+item['part_id'],'wrong_count':1,'correct_option':str(item.get('reference_answer',''))})
+                else:pending_review+=1
         today = datetime.utcnow().date()
         days = [(today - timedelta(days=6-i)).isoformat() for i in range(7)]
         activity = defaultdict(int)
@@ -161,7 +177,10 @@ def dashboard(student_id: str):
             activity[row.created_at.date().isoformat()] += 1
         for row in chats:
             activity[row.created_at.date().isoformat()] += 1
+        for row in exercise_attempts:
+            activity[row.created_at.date().isoformat()] += 1
         return {
+            "exercise_stats": {"submissions":len(exercise_attempts),"answered_questions":len(latest),"answered_parts":answered_parts,"needs_review_parts":pending_review,"confirmed_average":round(sum(confirmed_scores)/len(confirmed_scores)) if confirmed_scores else None},
             "viewed_chapters": len({row.chapter_id for row in views}),
             "view_count": len(views), "quiz_attempts": len(attempts),
             "average_best_score": round(sum(best.values()) / len(best)) if best else None,
@@ -196,6 +215,15 @@ def review_items(student_id: str):
                    "reason": row.remaining_gap or "这个知识点还需要一次小练习。",
                    "kind": "low_mastery", "mastery": row.mastery}
                   for row in states if row.knowledge_point not in existing]
+        from practice_api import catalog
+        rows=session.scalars(select(ExerciseSubmissionRow).where(ExerciseSubmissionRow.student_id==student_id,ExerciseSubmissionRow.version==catalog()['version'],ExerciseSubmissionRow.status=='completed').order_by(ExerciseSubmissionRow.created_at)).all()
+        latest={r.question_id:r for r in rows}
+        for qid,row in latest.items():
+            q=catalog()['by_id'].get(qid)
+            if not q:continue
+            weak=[p for p in row.result.get('parts',[]) if p.get('confirmed') and p['score']<100]
+            pending=[p for p in row.result.get('parts',[]) if p.get('verdict')=='uncertain']
+            if weak or pending:items.append({'point':q['knowledge_point']+' · 练习'+q['group_id']+' 第'+str(q['number'])+'题','reason':str(len(weak))+' 个小题需要订正' if weak else '本题反馈待核对，可重新作答或请 AI 解释','kind':'exercise_review','question_id':qid,'chapter_id':q['chapter_id']})
         return items
 
 
@@ -206,6 +234,7 @@ def conversation_history(student_id: str):
     rows = orchestrator.memory.repo.get_conversation_with_figures(student_id, limit=40)
     return [
         {"role": row["role"], "content": row["content"],
+         "selection_ref": row.get("selection_ref"),
          "image_refs": [figure.public() for figure_id in row["image_ref_ids"]
                         if (figure := get_figure(figure_id)) is not None]}
         for row in rows

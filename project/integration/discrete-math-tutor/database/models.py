@@ -211,3 +211,49 @@ class ActiveStateRow(Base):
     )
     knowledge_point: Mapped[str] = mapped_column(String(128), default="")
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now, onupdate=_now)
+
+
+class PDFCitationRow(Base):
+    """选区引用单独存表，兼容已有对话表与旧数据。"""
+    __tablename__ = 'pdf_citations'
+    conversation_id: Mapped[int] = mapped_column(Integer, ForeignKey('conversations.id', ondelete='CASCADE'), primary_key=True)
+    reference: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class ExerciseDraftRow(Base):
+    __tablename__ = 'exercise_drafts'
+    __table_args__ = (UniqueConstraint('student_id','question_id'),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey('students.student_id', ondelete='CASCADE'), index=True)
+    question_id: Mapped[str] = mapped_column(String(64))
+    version: Mapped[str] = mapped_column(String(64))
+    answers: Mapped[dict] = mapped_column(JSON, default=dict)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class ExerciseSubmissionRow(Base):
+    __tablename__ = 'exercise_submissions'
+    __table_args__ = (UniqueConstraint('student_id','request_id'),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey('students.student_id', ondelete='CASCADE'), index=True)
+    request_id: Mapped[str] = mapped_column(String(64))
+    question_id: Mapped[str] = mapped_column(String(64), index=True)
+    version: Mapped[str] = mapped_column(String(64))
+    answers: Mapped[dict] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(String(24), default='queued')
+    result: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class ExerciseHelpRow(Base):
+    __tablename__ = 'exercise_help'
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey('students.student_id', ondelete='CASCADE'), index=True)
+    question_id: Mapped[str] = mapped_column(String(64), index=True)
+    version: Mapped[str] = mapped_column(String(64))
+    part_id: Mapped[str] = mapped_column(String(20))
+    action: Mapped[str] = mapped_column(String(20))
+    level: Mapped[int] = mapped_column(Integer)
+    answers: Mapped[dict] = mapped_column(JSON)
+    response: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)

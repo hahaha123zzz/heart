@@ -1,0 +1,35 @@
+{
+    "source_sha256":  "12a2d776c519bc3f9e97168777da5d491fc49f23d3119624c06af5e8a75c12cd",
+    "sections":  [
+                     {
+                         "title":  "第6章  形式系统与推理技术",
+                         "method":  "Word Find heading pagination",
+                         "id":  1,
+                         "page":  1,
+                         "word_start":  0
+                     },
+                     {
+                         "title":  "6.1 谓词演算形式系统FC",
+                         "method":  "Word Find heading pagination",
+                         "id":  2,
+                         "page":  1,
+                         "word_start":  645
+                     },
+                     {
+                         "title":  "6.1.2  系统内的推理：证明与演绎",
+                         "method":  "Word Find heading pagination",
+                         "id":  3,
+                         "page":  1,
+                         "word_start":  1337
+                     },
+                     {
+                         "title":  "6.2 自然推理形式系统ND",
+                         "method":  "Word Find heading pagination",
+                         "id":  4,
+                         "page":  6,
+                         "word_start":  8494
+                     }
+                 ],
+    "source":  "第6章形式系统（新）.doc",
+    "chapter_id":  6
+}

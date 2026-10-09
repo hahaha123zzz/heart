@@ -33,3 +33,67 @@ Windows 双击 `2-chat.bat`，或在本目录运行 `.venv\Scripts\python.exe ch
 检索使用本地正文关键词和资产关联：表格保持行列；公式按邻近正文检索，再把原公式图片交给视觉模型；插图按图注、邻近正文或已核定图号定位。回复、质检和历史记录共用同一组图像引用，每轮最多附两张。公式尚未自动转成 LaTeX，也没有独立的图片向量索引。
 
 可试问：“根据绝对值函数的表格，x=-3 时 f(x) 是多少？”、“解释牛顿二项式定理公式中的 C(n,k)”、“结合特殊图章节的完全匹配配图，解释粗边表示什么”。新增绘图显示对象编号；已核定的图 7.8、7.20、7.23 保留教材图号。
+
+
+## PDF 教材阅读与选区问答（v0.8）
+
+教材内容区域使用局部 React + PDF.js + react-pdf-highlighter 阅读器，平台其他页面仍沿用原实现。十章原 Word 已导出为 223 页 PDF，小节映射经过 Word 原生查找与 PDF 标题行校验。
+
+- 文字：鼠标划选后点击“向 AI 提问”。
+- 图、公式和表格：点击“框选图 / 公式”，拖动框选同一页内的区域，再点击“向 AI 提问”。触屏使用同一开关进行框选。
+- 输入框显示教材引用预览；可以修改问题、发送，或点击 × 移除引用。保留引用可针对同一内容继续追问。
+- 回复带教材页码引用，点击可返回原选区并继续提问；对话引用刷新后可恢复。
+- 字体较小时收起目录或选择 125%/150%/200% 缩放。PDF 保留整页布局，放大后阅读区域可横向滚动。
+
+后台使用文档版本和页坐标重建正文、从原 PDF 裁图，并筛选当前学生的相关学习状态、误解、偏好与历史。选区提问不推断掌握度，不自动推进课程。生成与质量检查均使用相同裁图，页面显示实际处理进度。
+
+### 重建教材 PDF
+
+先停止 Demo 服务，避免 Windows 文件句柄阻止替换 PDF。以下命令在本目录的 PowerShell 运行：
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 -c "import json; from pathlib import Path; from knowledge.course import chapters; Path('knowledge/pdf_sections.json').write_text(json.dumps(chapters(),ensure_ascii=False),encoding='utf-8')"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\export_textbook_pdf.ps1
+.\.venv\Scripts\python.exe -X utf8 -m scripts.index_textbook_pdf
+```
+
+导出脚本只读打开原始 Word；源文件哈希变化时重新导出。添加 -Reindex 仅重算标题位置，添加 -ForceExport 强制重新导出。原文件不会保存或覆盖。
+
+### 重建阅读器
+
+```powershell
+cd reader
+node D:/nodejs/node_modules/npm/bin/npm-cli.js ci --proxy=http://127.0.0.1:7890 --https-proxy=http://127.0.0.1:7890
+node D:/nodejs/node_modules/npm/bin/npm-cli.js run build
+```
+
+构建产物、PDF worker、字体和 CMap 由本机服务提供；安装版本由 reader/package-lock.json 锁定。
+
+真实模型与浏览器验收结果见 docs/superpowers/specs/2026-10-09-pdf-reader-results.md；回答中的数学表达式由 KaTeX 排版。
+
+### 教材与练习分离
+
+教材阅读器显示去除练习后的正文，讲解例题保留。十章31组习题已导入“测验练习”的逐题交互系统，详见下节。阅读区点击“读完了，去练习”，答疑区点击“学完了，去练习”即可进入对应章节及小节。答疑入口优先采用当前选区。测验章节独立，不改变教材阅读位置。
+
+正文 PDF 保留页面尺寸与原坐标，通过 frontend/textbook/manifest.json 的 page_map 将圈选、引用关联到原教材。原教材文件不修改，重新导入教材后运行 `.venv/Scripts/python.exe -X utf8 split_textbook_exercises.py` 重建正文和练习版本，再构建 reader。
+
+
+## 教材逐题交互练习（2026-10-09）
+
+“测验练习”已改为结构化题卡，覆盖十章31组、341道大题、788个小题。题面保留原 Word 的公式、图片、表格，按原 PDF 核对大题编号和跨页范围。阅读区仍使用不含章后练习的阅读 PDF。
+
+- 输入：选择、判断、可增减的多空、MathLive 数学公式、文字证明、矩阵/真值表网格、SVG 构图。
+- 进度：自动保存、断网本地副本、刷新恢复、提交历史、重做、分步提示与 AI 讲解。
+- 判分：当前17个小题有核验过的规则标准（7个选择、1个多空集合、9个真值表）；其他771个小题由模型按题型评分项提供辅助反馈，均保留待复核标记。未确认的反馈不计入规则成绩，不据此设置掌握状态。
+- 构图支持顶点、边、重边、自环和有向边；可附文字说明。手写图片上传尚未启用。
+- AI 输入来自服务端原题裁图、正文上下文、当前答案、作答历史和当前学生相关记忆；模型无法识别或题意有歧义时应返回待核对。
+
+### 数据与接口
+
+题库：knowledge/exercises/catalog.json；原题号审计：import_audit.json；仅服务器访问的标准：answer_keys.json；评分项：knowledge/exercise_rubrics.py。
+
+重新导入：`.venv/Scripts/python.exe -X utf8 import_exercises.py`。31组任一题号范围不匹配时拒绝发布。
+
+接口均在 `/api/practice`：章节题目索引、逐题详情、PUT 草稿、POST submit、提交状态轮询、POST help。草稿和提交绑定题库及判分版本；request_id 幂等；服务重启会把未完成批改标记为可重试，保留答案。新数据表使用学生外键级联删除，沿用24小时测试账户政策。
+
+验证：`.venv/Scripts/python.exe -X utf8 -m unittest tests.test_interactive_practice -v`；浏览器脚本 `tests/browser/interactive-practice.cjs`，通过本机 Playwright skill 的 run.js 执行。详见 docs/2026-10-09-interactive-exercises-delivery.md。

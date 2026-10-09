@@ -1,0 +1,634 @@
+{
+  "1": {
+    "source_version": "4a7b1d777ee6249a15a47e485286e983308386f67824c77a445c64a5fa7b2ca6",
+    "reading_url": "/static/textbook/chapter-01-reading.pdf",
+    "page_map": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      17,
+      18,
+      19
+    ],
+    "exercise_url": "/static/textbook/chapter-01-exercises.pdf",
+    "exercise_page_map": [
+      4,
+      5,
+      6,
+      14,
+      15,
+      16,
+      17,
+      19,
+      20
+    ],
+    "groups": [
+      {
+        "title": "练习1.1",
+        "start_page": 4,
+        "start_y": 260.0619812011719,
+        "end_page": 6,
+        "end_y": 213.2319793701172,
+        "pdf_page": 1
+      },
+      {
+        "title": "练习1.2",
+        "start_page": 14,
+        "start_y": 228.8319549560547,
+        "end_page": 17,
+        "end_y": 193.76795959472656,
+        "pdf_page": 4
+      },
+      {
+        "title": "练习1.3",
+        "start_page": 19,
+        "start_y": 540.8819580078125,
+        "end_page": 21,
+        "end_y": -1,
+        "pdf_page": 8
+      }
+    ]
+  },
+  "2": {
+    "source_version": "a90c6510fd472277a6896cc49e80bf3169d800aedb6d309d3f5b1e8bb5a00911",
+    "reading_url": "/static/textbook/chapter-02-reading.pdf",
+    "page_map": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "exercise_url": "/static/textbook/chapter-02-exercises.pdf",
+    "exercise_page_map": [
+      5,
+      6,
+      10,
+      11
+    ],
+    "groups": [
+      {
+        "title": "练习 2.1",
+        "start_page": 5,
+        "start_y": 727.7279663085938,
+        "end_page": 6,
+        "end_y": 680.927978515625,
+        "pdf_page": 1
+      },
+      {
+        "title": "练习2.2",
+        "start_page": 10,
+        "start_y": 634.623291015625,
+        "end_page": 12,
+        "end_y": -1,
+        "pdf_page": 3
+      }
+    ]
+  },
+  "3": {
+    "source_version": "6dafbd0ba020b2d7910ade9e08fd72af93fb47ed1efa7e5414f13d3c3744d940",
+    "reading_url": "/static/textbook/chapter-03-reading.pdf",
+    "page_map": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28
+    ],
+    "exercise_url": "/static/textbook/chapter-03-exercises.pdf",
+    "exercise_page_map": [
+      4,
+      5,
+      8,
+      9,
+      16,
+      17,
+      28,
+      29
+    ],
+    "groups": [
+      {
+        "title": "练习3.1",
+        "start_page": 4,
+        "start_y": 322.0780029296875,
+        "end_page": 5,
+        "end_y": 306.4779968261719,
+        "pdf_page": 1
+      },
+      {
+        "title": "练习3.2",
+        "start_page": 8,
+        "start_y": 494.5010070800781,
+        "end_page": 9,
+        "end_y": 665.3280029296875,
+        "pdf_page": 3
+      },
+      {
+        "title": "练习3.3",
+        "start_page": 16,
+        "start_y": 462.49798583984375,
+        "end_page": 17,
+        "end_y": 353.2779846191406,
+        "pdf_page": 5
+      },
+      {
+        "title": "练习3.4",
+        "start_page": 28,
+        "start_y": 99.32795715332031,
+        "end_page": 30,
+        "end_y": -1,
+        "pdf_page": 7
+      }
+    ]
+  },
+  "4": {
+    "source_version": "1f2163e36ef3b3fce40a5c267e192ccbe92b118b95b2bcf1324ecd134bc3e9ab",
+    "reading_url": "/static/textbook/chapter-04-reading.pdf",
+    "page_map": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "exercise_url": "/static/textbook/chapter-04-exercises.pdf",
+    "exercise_page_map": [
+      7,
+      8,
+      9,
+      13,
+      14,
+      15,
+      20,
+      21
+    ],
+    "groups": [
+      {
+        "title": "练习4.1",
+        "start_page": 7,
+        "start_y": 384.4779968261719,
+        "end_page": 9,
+        "end_y": 337.6780090332031,
+        "pdf_page": 1
+      },
+      {
+        "title": "练习4.2",
+        "start_page": 13,
+        "start_y": 572.5010375976562,
+        "end_page": 15,
+        "end_y": 119.24800109863281,
+        "pdf_page": 4
+      },
+      {
+        "title": "练习4.3",
+        "start_page": 20,
+        "start_y": 380.87799072265625,
+        "end_page": 22,
+        "end_y": -1,
+        "pdf_page": 7
+      }
+    ]
+  },
+  "5": {
+    "source_version": "05094eba88b63402e477fb39e1e4ea44bc41fc9d40d4b5748073d7155142df81",
+    "reading_url": "/static/textbook/chapter-05-reading.pdf",
+    "page_map": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      9,
+      10,
+      11,
+      12,
+      13,
+      15,
+      16
+    ],
+    "exercise_url": "/static/textbook/chapter-05-exercises.pdf",
+    "exercise_page_map": [
+      6,
+      7,
+      8,
+      9,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "groups": [
+      {
+        "title": "练习5.1",
+        "start_page": 6,
+        "start_y": 447.281982421875,
+        "end_page": 9,
+        "end_y": 197.6320037841797,
+        "pdf_page": 1
+      },
+      {
+        "title": "练习5.2",
+        "start_page": 13,
+        "start_y": 400.46197509765625,
+        "end_page": 15,
+        "end_y": 603.281982421875,
+        "pdf_page": 5
+      },
+      {
+        "title": "练习5.3",
+        "start_page": 16,
+        "start_y": 650.1119995117188,
+        "end_page": 18,
+        "end_y": -1,
+        "pdf_page": 8
+      }
+    ]
+  },
+  "6": {
+    "source_version": "bfdf8f82bdb0e444e076e0f15149bb9b83abf51b2ba3c2a99cb1a9dca7cf5c65",
+    "reading_url": "/static/textbook/chapter-06-reading.pdf",
+    "page_map": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "exercise_url": "/static/textbook/chapter-06-exercises.pdf",
+    "exercise_page_map": [
+      5,
+      6,
+      14,
+      15
+    ],
+    "groups": [
+      {
+        "title": "练习6.1",
+        "start_page": 5,
+        "start_y": 572.546630859375,
+        "end_page": 6,
+        "end_y": 384.8619689941406,
+        "pdf_page": 1
+      },
+      {
+        "title": "练习6.2",
+        "start_page": 14,
+        "start_y": 260.81890869140625,
+        "end_page": 16,
+        "end_y": -1,
+        "pdf_page": 3
+      }
+    ]
+  },
+  "7": {
+    "source_version": "f19cfaef9be00fc45e0285660618530f6305ec7b45a7e00d31f28e31452af2f1",
+    "reading_url": "/static/textbook/chapter-07-reading.pdf",
+    "page_map": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "exercise_url": "/static/textbook/chapter-07-exercises.pdf",
+    "exercise_page_map": [
+      5,
+      6,
+      7,
+      12,
+      13,
+      14,
+      19,
+      20,
+      25
+    ],
+    "groups": [
+      {
+        "title": "练习7.1",
+        "start_page": 5,
+        "start_y": 600.0789184570312,
+        "end_page": 7,
+        "end_y": 587.6820068359375,
+        "pdf_page": 1
+      },
+      {
+        "title": "练习7.2",
+        "start_page": 12,
+        "start_y": 479.23895263671875,
+        "end_page": 14,
+        "end_y": 540.8819580078125,
+        "pdf_page": 4
+      },
+      {
+        "title": "练习7.3",
+        "start_page": 19,
+        "start_y": 572.08203125,
+        "end_page": 20,
+        "end_y": 556.4819946289062,
+        "pdf_page": 7
+      },
+      {
+        "title": "练习7.4",
+        "start_page": 25,
+        "start_y": 88.43199157714844,
+        "end_page": 26,
+        "end_y": -1,
+        "pdf_page": 9
+      }
+    ]
+  },
+  "8": {
+    "source_version": "51ec3bef76d43ff3b0a0a4748c5a4fa677504660fca10a9f7e9c5846a2389b86",
+    "reading_url": "/static/textbook/chapter-08-reading.pdf",
+    "page_map": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "exercise_url": "/static/textbook/chapter-08-exercises.pdf",
+    "exercise_page_map": [
+      5,
+      6,
+      13,
+      14,
+      25,
+      26,
+      27
+    ],
+    "groups": [
+      {
+        "title": "练习8.1",
+        "start_page": 5,
+        "start_y": 400.46197509765625,
+        "end_page": 6,
+        "end_y": 150.8319549560547,
+        "pdf_page": 1
+      },
+      {
+        "title": "练习8.2",
+        "start_page": 13,
+        "start_y": 416.0619812011719,
+        "end_page": 14,
+        "end_y": 360.42962646484375,
+        "pdf_page": 3
+      },
+      {
+        "title": "练习8.3",
+        "start_page": 25,
+        "start_y": 400.46197509765625,
+        "end_page": 28,
+        "end_y": -1,
+        "pdf_page": 5
+      }
+    ]
+  },
+  "9": {
+    "source_version": "d8a1946a9a3b0a69f987e8ca1cf8f991aec33bf1a9afbfa2d82e9b5ce0d39fc1",
+    "reading_url": "/static/textbook/chapter-09-reading.pdf",
+    "page_map": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      17,
+      18,
+      19,
+      20,
+      21,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ],
+    "exercise_url": "/static/textbook/chapter-09-exercises.pdf",
+    "exercise_page_map": [
+      13,
+      14,
+      15,
+      16,
+      17,
+      21,
+      22,
+      23,
+      30,
+      31,
+      32
+    ],
+    "groups": [
+      {
+        "title": "练习9.1",
+        "start_page": 13,
+        "start_y": 322.46197509765625,
+        "end_page": 17,
+        "end_y": 260.0619812011719,
+        "pdf_page": 1
+      },
+      {
+        "title": "练习9.2",
+        "start_page": 21,
+        "start_y": 743.7080078125,
+        "end_page": 23,
+        "end_y": 650.1119995117188,
+        "pdf_page": 6
+      },
+      {
+        "title": "练习9.3",
+        "start_page": 30,
+        "start_y": 166.43199157714844,
+        "end_page": 33,
+        "end_y": -1,
+        "pdf_page": 9
+      }
+    ]
+  },
+  "10": {
+    "source_version": "93ed235106c7f628d3ece197da0d222748b2d4f3b487a94aaf458faad181117f",
+    "reading_url": "/static/textbook/chapter-10-reading.pdf",
+    "page_map": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "exercise_url": "/static/textbook/chapter-10-exercises.pdf",
+    "exercise_page_map": [
+      7,
+      8,
+      9,
+      13,
+      14,
+      16,
+      17,
+      25,
+      26
+    ],
+    "groups": [
+      {
+        "title": "练习10.1",
+        "start_page": 7,
+        "start_y": 728.8689575195312,
+        "end_page": 9,
+        "end_y": 150.8319549560547,
+        "pdf_page": 1
+      },
+      {
+        "title": "练习10.2",
+        "start_page": 13,
+        "start_y": 182.7889404296875,
+        "end_page": 14,
+        "end_y": 72.83195495605469,
+        "pdf_page": 4
+      },
+      {
+        "title": "练习10.3",
+        "start_page": 16,
+        "start_y": 478.4819641113281,
+        "end_page": 17,
+        "end_y": 135.2319793701172,
+        "pdf_page": 6
+      },
+      {
+        "title": "练习10.4",
+        "start_page": 25,
+        "start_y": 260.0619812011719,
+        "end_page": 27,
+        "end_y": -1,
+        "pdf_page": 8
+      }
+    ]
+  }
+}

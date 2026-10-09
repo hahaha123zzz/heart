@@ -17,6 +17,7 @@ from database.models import (
     ConversationRow,
     EvidenceRow,
     FigureCitationRow,
+    PDFCitationRow,
     KnowledgeStateRow,
     LearnerProfileRow,
     MisconceptionRow,
@@ -136,6 +137,14 @@ class Repository:
                 .all()
             )
             return list(dict.fromkeys(rows))
+
+    def list_learning_points(self, student_id: str) -> List[str]:
+        """包括已有证据/误解但尚未创建知识状态的知识点。"""
+        with session_scope() as session:
+            query=select(KnowledgeStateRow.knowledge_point).where(KnowledgeStateRow.student_id==student_id).union(
+                select(MisconceptionRow.knowledge_point).where(MisconceptionRow.student_id==student_id),
+                select(EvidenceRow.knowledge_point).where(EvidenceRow.student_id==student_id))
+            return list(session.scalars(query).all())
 
     # ---- learner profile --------------------------------------------------
     def get_profile(self, student_id: str) -> LearnerProfile:
@@ -379,8 +388,11 @@ class Repository:
                     select(FigureCitationRow).where(FigureCitationRow.conversation_id.in_(ids))
                 ).all()
             } if ids else {}
+            pdf_citations = {r.conversation_id:r.reference for r in session.scalars(
+                select(PDFCitationRow).where(PDFCitationRow.conversation_id.in_(ids))).all()} if ids else {}
             return [
                 {"role": row.role, "content": row.content,
+                 "selection_ref": pdf_citations.get(row.id),
                  "image_ref_ids": citations.get(row.id, [])}
                 for row in reversed(rows)
             ]
@@ -388,11 +400,14 @@ class Repository:
     def append_conversation(
         self, student_id: str, role: str, content: str,
         figure_ids: list[str] | None = None,
+        selection_ref: dict | None = None,
     ) -> None:
         with session_scope() as session:
             row = ConversationRow(student_id=student_id, role=role, content=content)
             session.add(row)
             session.flush()
+            if selection_ref:
+                session.add(PDFCitationRow(conversation_id=row.id, reference=selection_ref))
             if figure_ids:
                 session.add(FigureCitationRow(
                     conversation_id=row.id, figure_ids=list(figure_ids)

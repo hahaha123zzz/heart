@@ -20,3 +20,6 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+reader/node_modules/
+knowledge/pdf/crops/

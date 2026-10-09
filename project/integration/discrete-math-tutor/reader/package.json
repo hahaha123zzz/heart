@@ -1,0 +1,22 @@
+{
+  "name": "discrete-math-pdf-reader",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "katex": "0.19.0",
+    "mathlive": "^0.111.1",
+    "pdfjs-dist": "4.4.168",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-pdf-highlighter": "7.0.0"
+  },
+  "devDependencies": {
+    "vite": "6.4.1"
+  },
+  "overrides": {
+    "pdfjs-dist": "4.4.168"
+  }
+}

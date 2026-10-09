@@ -1,0 +1,98 @@
+{
+    "source_sha256":  "4deea601332d9a336b2a04df0652d205342dab808c7a549d8c36b125d363f064",
+    "sections":  [
+                     {
+                         "title":  "第3章 组合论基础------计数",
+                         "method":  "Word Find heading pagination",
+                         "id":  1,
+                         "page":  1,
+                         "word_start":  0
+                     },
+                     {
+                         "title":  "3.1  计数基本原理",
+                         "method":  "Word Find heading pagination",
+                         "id":  2,
+                         "page":  1,
+                         "word_start":  249
+                     },
+                     {
+                         "title":  "3.1.1 加法原理和乘法原理",
+                         "method":  "Word Find heading pagination",
+                         "id":  3,
+                         "page":  1,
+                         "word_start":  305
+                     },
+                     {
+                         "title":  "3.1.2包含排斥原理",
+                         "method":  "Word Find heading pagination",
+                         "id":  4,
+                         "page":  1,
+                         "word_start":  1379
+                     },
+                     {
+                         "title":  "3.2.1 排列的计数",
+                         "method":  "Word Find heading pagination",
+                         "id":  5,
+                         "page":  5,
+                         "word_start":  5324
+                     },
+                     {
+                         "title":  "3.2.2 组合的计数",
+                         "method":  "Word Find heading pagination",
+                         "id":  6,
+                         "page":  6,
+                         "word_start":  7060
+                     },
+                     {
+                         "title":  "3.3 重集的排列与组合",
+                         "method":  "Word Find heading pagination",
+                         "id":  7,
+                         "page":  9,
+                         "word_start":  10792
+                     },
+                     {
+                         "title":  "3.3.1 重集的排列",
+                         "method":  "Word Find heading pagination",
+                         "id":  8,
+                         "page":  10,
+                         "word_start":  11175
+                     },
+                     {
+                         "title":  "3.3.2 重集的组合",
+                         "method":  "Word Find heading pagination",
+                         "id":  9,
+                         "page":  12,
+                         "word_start":  14013
+                     },
+                     {
+                         "title":  "3.3.3禁位排列的计数",
+                         "method":  "Word Find heading pagination",
+                         "id":  10,
+                         "page":  14,
+                         "word_start":  17769
+                     },
+                     {
+                         "title":  "3.4 递归关系",
+                         "method":  "Word Find heading pagination",
+                         "id":  11,
+                         "page":  17,
+                         "word_start":  21708
+                     },
+                     {
+                         "title":  "3.4.1 一个重要的递归关系",
+                         "method":  "Word Find heading pagination",
+                         "id":  12,
+                         "page":  18,
+                         "word_start":  22733
+                     },
+                     {
+                         "title":  "3.4.2 递归关系的求解",
+                         "method":  "Word Find heading pagination",
+                         "id":  13,
+                         "page":  21,
+                         "word_start":  26375
+                     }
+                 ],
+    "source":  "第3章 计数（新）.doc",
+    "chapter_id":  3
+}

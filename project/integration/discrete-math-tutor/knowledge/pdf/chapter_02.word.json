@@ -1,0 +1,42 @@
+{
+    "source_sha256":  "09db07a607cbd3864692630a6d2b03c77357b3b28d8b49c637b72270dd3afa8a",
+    "sections":  [
+                     {
+                         "title":  "第2章 两个常用数学基本原理",
+                         "method":  "Word Find heading pagination",
+                         "id":  1,
+                         "page":  1,
+                         "word_start":  0
+                     },
+                     {
+                         "title":  "2.1 归纳原理",
+                         "method":  "Word Find heading pagination",
+                         "id":  2,
+                         "page":  1,
+                         "word_start":  84
+                     },
+                     {
+                         "title":  "2.1.1结构归纳原理",
+                         "method":  "Word Find heading pagination",
+                         "id":  3,
+                         "page":  1,
+                         "word_start":  134
+                     },
+                     {
+                         "title":  "2.1.2数学归纳原理",
+                         "method":  "Word Find heading pagination",
+                         "id":  4,
+                         "page":  2,
+                         "word_start":  1397
+                     },
+                     {
+                         "title":  "2.2.1鸽笼原理的基本形式",
+                         "method":  "Word Find heading pagination",
+                         "id":  5,
+                         "page":  7,
+                         "word_start":  7473
+                     }
+                 ],
+    "source":  "第2章两个数学基本原理（新）.doc",
+    "chapter_id":  2
+}

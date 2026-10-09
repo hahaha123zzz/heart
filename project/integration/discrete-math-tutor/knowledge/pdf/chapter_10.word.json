@@ -1,0 +1,84 @@
+{
+    "source_sha256":  "013989c9a235cd21517700e99b2b23b9fcbd2a80fc2f496e93c78b44cf34a650",
+    "sections":  [
+                     {
+                         "title":  "第10章   函    数",
+                         "method":  "Word Find heading pagination",
+                         "id":  1,
+                         "page":  1,
+                         "word_start":  0
+                     },
+                     {
+                         "title":  "10.1 函数及函数的合成",
+                         "method":  "Word Find heading pagination",
+                         "id":  2,
+                         "page":  1,
+                         "word_start":  355
+                     },
+                     {
+                         "title":  "10.1.1函数的基本概念",
+                         "method":  "Word Find heading pagination",
+                         "id":  3,
+                         "page":  1,
+                         "word_start":  419
+                     },
+                     {
+                         "title":  "10.1.3  函数的合成",
+                         "method":  "Word Find heading pagination",
+                         "id":  4,
+                         "page":  5,
+                         "word_start":  5707
+                     },
+                     {
+                         "title":  "10.1.4  函数的递归定义",
+                         "method":  "Word Find heading pagination",
+                         "id":  5,
+                         "page":  6,
+                         "word_start":  7807
+                     },
+                     {
+                         "title":  "10.2.1 单射的、满射的和双射的函数",
+                         "method":  "Word Find heading pagination",
+                         "id":  6,
+                         "page":  9,
+                         "word_start":  10841
+                     },
+                     {
+                         "title":  "10.3  函数的逆",
+                         "method":  "Word Find heading pagination",
+                         "id":  7,
+                         "page":  14,
+                         "word_start":  17260
+                     },
+                     {
+                         "title":  "10.4.1 有限集、可数集与不可数集",
+                         "method":  "Word Find heading pagination",
+                         "id":  8,
+                         "page":  17,
+                         "word_start":  21952
+                     },
+                     {
+                         "title":  "10.4.2  无限集的特性",
+                         "method":  "Word Find heading pagination",
+                         "id":  9,
+                         "page":  20,
+                         "word_start":  26128
+                     },
+                     {
+                         "title":  "10.4.3  有限集和无限集的基数",
+                         "method":  "Word Find heading pagination",
+                         "id":  10,
+                         "page":  21,
+                         "word_start":  27186
+                     },
+                     {
+                         "title":  "10.4.4  基数比较",
+                         "method":  "Word Find heading pagination",
+                         "id":  11,
+                         "page":  22,
+                         "word_start":  28620
+                     }
+                 ],
+    "source":  "第10章函数（新）.doc",
+    "chapter_id":  10
+}

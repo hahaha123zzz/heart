@@ -93,7 +93,12 @@ class LLMClient:
         parts: list[dict[str, Any]] = [{"type": "text", "text": content}]
         for image_path in image_paths[:2]:
             resolved = image_path.resolve()
-            if resolved not in allowed or not allowed[resolved].is_valid():
+            if resolved in allowed:
+                valid = allowed[resolved].is_valid()
+            else:
+                from knowledge.pdf_reader import crop_path
+                valid = crop_path(resolved.stem) == resolved
+            if not valid:
                 raise LLMError("图片不在已审核教材目录中")
             image = resolved.read_bytes()
             if len(image) > 8 * 1024 * 1024:

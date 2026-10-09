@@ -1,0 +1,138 @@
+{
+  "ex-01-01-001": {
+    "p1": {
+      "kind": "choice",
+      "expected": [
+        "A"
+      ],
+      "explanation": "集合的元素须能明确判断；某页上的文字有确定范围。"
+    },
+    "p2": {
+      "kind": "choice",
+      "expected": [
+        "B"
+      ],
+      "explanation": "“比较小”没有明确标准，无法确定成员。"
+    },
+    "p3": {
+      "kind": "choice",
+      "expected": [
+        "A"
+      ],
+      "explanation": "x²−1=0 的实数解为 −1 和 1，集合不空。"
+    },
+    "p4": {
+      "kind": "choice",
+      "expected": [
+        "A"
+      ],
+      "explanation": "B⊆C 表示 B 的每个元素属于 C；A∈B 所以 A∈C。"
+    },
+    "p5": {
+      "kind": "choice",
+      "expected": [
+        "C"
+      ],
+      "explanation": "A−B=∅ 等价于 A 的每个元素都属于 B，即 A⊆B。"
+    },
+    "p7": {
+      "kind": "choice",
+      "expected": [
+        "B"
+      ],
+      "explanation": "空集没有任何元素，因此 ∅∉∅；但 ∅ 是每个集合的子集。"
+    },
+    "p8": {
+      "kind": "choice",
+      "expected": [
+        "D"
+      ],
+      "explanation": "1∈T，因此 {1}⊆T；集合 {1} 与元素 1 不相同。"
+    }
+  },
+  "ex-01-01-002": {
+    "p1": {
+      "kind": "set_fill",
+      "expected": [
+        "{1,3,5,7}",
+        "{1/4,2/3,3/2,4}"
+      ],
+      "explanation": "正奇数 x 满足 x²<50 时取 1、3、5、7。p、q 为正整数且和为5，有四种分配，分别得 1/4、2/3、3/2、4；集合不计排列顺序。"
+    }
+  },
+  "ex-04-01-004": {
+    "p1": {
+      "kind": "truth_table",
+      "formula": "┐(p)",
+      "variables": [
+        "p"
+      ]
+    },
+    "p3": {
+      "kind": "truth_table",
+      "formula": "(p∨q)→p",
+      "variables": [
+        "p",
+        "q"
+      ]
+    },
+    "p4": {
+      "kind": "truth_table",
+      "formula": "p→(p∨q)",
+      "variables": [
+        "p",
+        "q"
+      ]
+    },
+    "p5": {
+      "kind": "truth_table",
+      "formula": "p∧(p→q)→q",
+      "variables": [
+        "p",
+        "q"
+      ]
+    },
+    "p6": {
+      "kind": "truth_table",
+      "formula": "p∧(p→q)∧(p→┐q)",
+      "variables": [
+        "p",
+        "q"
+      ]
+    },
+    "p7": {
+      "kind": "truth_table",
+      "formula": "┐(p∨q)↔┐q∧┐p",
+      "variables": [
+        "p",
+        "q"
+      ]
+    },
+    "p8": {
+      "kind": "truth_table",
+      "formula": "┐p∨q↔(p→q)",
+      "variables": [
+        "p",
+        "q"
+      ]
+    },
+    "p9": {
+      "kind": "truth_table",
+      "formula": "(p→q)∧(q→r)→(r→p)",
+      "variables": [
+        "p",
+        "q",
+        "r"
+      ]
+    },
+    "p10": {
+      "kind": "truth_table",
+      "formula": "(p∨q→r)↔(p→r)∧(q→r)",
+      "variables": [
+        "p",
+        "q",
+        "r"
+      ]
+    }
+  }
+}

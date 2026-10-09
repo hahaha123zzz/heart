@@ -1,0 +1,70 @@
+{
+    "source_sha256":  "09748520200add0cb294f2453dfc3ac3f1bd07b81d371faa3bdd5f99d41ad475",
+    "sections":  [
+                     {
+                         "title":  "第8章 二分图、平面图和树",
+                         "method":  "Word Find heading pagination",
+                         "id":  1,
+                         "page":  1,
+                         "word_start":  0
+                     },
+                     {
+                         "title":  "8.1.1 二分图的基本概念",
+                         "method":  "Word Find heading pagination",
+                         "id":  2,
+                         "page":  1,
+                         "word_start":  69
+                     },
+                     {
+                         "title":  "8.1.2  匹配",
+                         "method":  "Word Find heading pagination",
+                         "id":  3,
+                         "page":  2,
+                         "word_start":  1365
+                     },
+                     {
+                         "title":  "8.2.1 平面图的基本概念",
+                         "method":  "Word Find heading pagination",
+                         "id":  4,
+                         "page":  6,
+                         "word_start":  5152
+                     },
+                     {
+                         "title":  "8.2.2  欧拉公式和库拉托夫斯基定理",
+                         "method":  "Word Find heading pagination",
+                         "id":  5,
+                         "page":  7,
+                         "word_start":  6951
+                     },
+                     {
+                         "title":  "8.3  树",
+                         "method":  "Word Find heading pagination",
+                         "id":  6,
+                         "page":  14,
+                         "word_start":  13225
+                     },
+                     {
+                         "title":  "8.3.1  树的基本概念",
+                         "method":  "Word Find heading pagination",
+                         "id":  7,
+                         "page":  14,
+                         "word_start":  13309
+                     },
+                     {
+                         "title":  "8.3.2 生成树",
+                         "method":  "Word Find heading pagination",
+                         "id":  8,
+                         "page":  16,
+                         "word_start":  15310
+                     },
+                     {
+                         "title":  "8.3.3  根树",
+                         "method":  "Word Find heading pagination",
+                         "id":  9,
+                         "page":  19,
+                         "word_start":  19850
+                     }
+                 ],
+    "source":  "第8章特殊图（新）.doc",
+    "chapter_id":  8
+}

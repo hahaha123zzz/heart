@@ -116,6 +116,20 @@ def chapter_blocks(chapter_id: int) -> dict[int, list[dict]]:
             visit(paragraph)
             return result
 
+        numbering = {}
+        if 'word/numbering.xml' in package.namelist():
+            nums = ET.fromstring(package.read('word/numbering.xml'))
+            w = '{' + NS['w'] + '}'
+            abstracts = {a.get(w+'abstractNumId'):a for a in nums.findall('w:abstractNum', NS)}
+            for n in nums.findall('w:num', NS):
+                a = abstracts.get(n.find('w:abstractNumId', NS).get(w+'val'))
+                if a is None: continue
+                for lvl in a.findall('w:lvl', NS):
+                    level_id = int(lvl.get(w+'ilvl', '0'))
+                    fmt = lvl.find('w:numFmt', NS); txt = lvl.find('w:lvlText', NS); start = lvl.find('w:start', NS)
+                    override = n.find(f"w:lvlOverride[@w:ilvl='{level_id}']/w:startOverride", NS)
+                    numbering[(n.get(w+'numId'), level_id)] = {'format':txt.get(w+'val','') if txt is not None else '', 'kind':fmt.get(w+'val','') if fmt is not None else '', 'start':int((override if override is not None else start).get(w+'val','1')) if override is not None or start is not None else 1}
+        counters = {}
         section_id = chapter["sections"][0]["id"]
         records = {b["block_index"]: b for b in document["blocks"]}
         for index, node in enumerate(raw_blocks):
@@ -127,7 +141,17 @@ def chapter_blocks(chapter_id: int) -> dict[int, list[dict]]:
             if kind == "p":
                 parts = segments(node)
                 if any(p["type"] != "text" or p.get("text", "").strip() for p in parts):
-                    out[section_id].append({"type": "paragraph", "segments": parts})
+                    num = node.find('w:pPr/w:numPr/w:numId', NS)
+                    level = node.find('w:pPr/w:numPr/w:ilvl', NS)
+                    num_id = num.attrib.get(f"{{{NS['w']}}}val") if num is not None else None
+                    num_level = int(level.attrib.get(f"{{{NS['w']}}}val",'0')) if level is not None else 0
+                    info = numbering.get((num_id, num_level), {})
+                    if num_id:
+                        counters[(num_id,num_level)] = counters.get((num_id,num_level),info.get('start',1)-1)+1
+                    out[section_id].append({"type": "paragraph", "segments": parts, "block_index":index,
+                        "list_format":info.get('format',''), "list_kind":info.get('kind',''), "list_number":counters.get((num_id,num_level)),
+                        "list_id":num.attrib.get(f"{{{NS['w']}}}val") if num is not None else None,
+                        "list_level":int(level.attrib.get(f"{{{NS['w']}}}val",'0')) if level is not None else 0})
             elif kind == "tbl":
                 rows = []
                 for row in node.findall("w:tr", NS):
@@ -153,9 +177,9 @@ def chapter_blocks(chapter_id: int) -> dict[int, list[dict]]:
                         else:
                             active.pop(column, None)
                         column += cell["colspan"]
-                out[section_id].append({"type": "table", "rows": rows})
+                out[section_id].append({"type": "table", "rows": rows,"block_index":index})
             for figure in vectors.get(index, []):
-                out[section_id].append({"type": "image", "asset": figure})
+                out[section_id].append({"type": "image", "asset": figure,"block_index":index})
     return out
 
 def section_blocks(chapter_id: int, section_id: int) -> list[dict]:

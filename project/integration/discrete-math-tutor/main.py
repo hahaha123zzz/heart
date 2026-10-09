@@ -13,29 +13,38 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+import mimetypes
+# Windows 注册表可能将 .js 标成 text/plain；模块与 PDF worker 需要正确 MIME。
+mimetypes.add_type("application/javascript", ".js")
+mimetypes.add_type("application/javascript", ".mjs")
+from pydantic import BaseModel, Field
+from knowledge.pdf_reader import PDFSelection, validate_selection
 
 from database.database import init_db
 from knowledge.figures import get_figure
 from orchestrator import TutorOrchestrator
 from web_api import router as web_router
 
-app = FastAPI(title="离散数学 AI 助教", version="0.7.0")
+app = FastAPI(title="离散数学 AI 助教", version="0.8.0")
 app.include_router(web_router)
+from practice_api import router as practice_router, recover_interrupted_submissions
+app.include_router(practice_router)
 FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 orchestrator = TutorOrchestrator()
 
 # 启动时建表 + 清理过期测试账户
 init_db()
+recover_interrupted_submissions()
 _PURGED = orchestrator.memory.cleanup_expired()
 
 
 class ChatRequest(BaseModel):
-    student_id: str = "default"
-    message: str
+    student_id: str = Field(default="default", min_length=1, max_length=64)
+    message: str = Field(min_length=1, max_length=4000)
     learning_goal: Optional[str] = None
     account_type: str = "test"
+    selection: Optional[PDFSelection] = None
 
 
 class TestAccountRequest(BaseModel):
@@ -47,7 +56,7 @@ class TestAccountRequest(BaseModel):
 def health():
     return {
         "status": "ok",
-        "version": "0.7.0",
+        "version": "0.8.0",
         "mock_mode": orchestrator.llm.mock,
         "purged_expired_accounts": _PURGED,
     }
@@ -68,6 +77,7 @@ def figure_image(figure_id: str):
 
 @app.post("/api/chat")
 def chat(request: ChatRequest):
+    _validate_pdf_request(request)
     return _run_turn(request)
 
 
@@ -135,6 +145,10 @@ def _run_turn(request: ChatRequest, progress=None):
     if progress:
         progress("queued", "等待处理", "请求已接收")
     with _turn_locks[index]:
+        if request.selection:
+            from agents.pdf_selection_tutor import explain_selection
+            return explain_selection(orchestrator, request.student_id, request.message,
+                                     request.selection, request.account_type, progress)
         return orchestrator.handle_turn(
             request.student_id, request.message, request.learning_goal,
             request.account_type, progress=progress,
@@ -142,6 +156,7 @@ def _run_turn(request: ChatRequest, progress=None):
 
 @app.post("/api/chat/stream")
 async def chat_stream(request: ChatRequest):
+    _validate_pdf_request(request)
     async def events():
         loop = asyncio.get_running_loop()
         queue = asyncio.Queue()
@@ -193,3 +208,29 @@ async def chat_stream(request: ChatRequest):
 
     return StreamingResponse(events(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
+
+
+def _validate_pdf_request(request):
+    if request.selection:
+        try: validate_selection(request.selection)
+        except ValueError as exc: raise HTTPException(422,str(exc)) from exc
+
+@app.get('/api/pdf/documents/{document_id}/file', include_in_schema=False)
+def textbook_pdf_file(document_id: str):
+    from knowledge.pdf_reader import document, pdf_path
+    record=document(document_id)
+    if not record: raise HTTPException(404,'教材 PDF 不存在')
+    return FileResponse(pdf_path(record),media_type='application/pdf',headers={'Cache-Control':'no-cache'})
+
+@app.get('/api/pdf/crops/{crop_id}/image', include_in_schema=False)
+def textbook_pdf_crop(crop_id: str):
+    from knowledge.pdf_reader import crop_path
+    path=crop_path(crop_id)
+    if not path: raise HTTPException(404,'教材选区不存在或已更新')
+    return FileResponse(path,media_type='image/png')
+
+@app.post('/api/pdf/selection/preview')
+def preview_pdf_selection(selection: PDFSelection):
+    from knowledge.pdf_reader import resolve_selection
+    try: return resolve_selection(selection)['reference']
+    except ValueError as exc: raise HTTPException(422,str(exc)) from exc

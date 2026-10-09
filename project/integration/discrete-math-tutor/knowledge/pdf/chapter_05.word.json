@@ -1,0 +1,70 @@
+{
+    "source_sha256":  "ceab38fa01c33a09fce40228ec8491ccad6e69c75bb66f9e65e673a81b47baa7",
+    "sections":  [
+                     {
+                         "title":  "第5章  逻辑代数（下）：谓词演算",
+                         "method":  "Word Find heading pagination",
+                         "id":  1,
+                         "page":  1,
+                         "word_start":  0
+                     },
+                     {
+                         "title":  "5.1.1  个体与个体域",
+                         "method":  "Word Find heading pagination",
+                         "id":  2,
+                         "page":  1,
+                         "word_start":  700
+                     },
+                     {
+                         "title":  "5.1.2  谓词与谓词填式",
+                         "method":  "Word Find heading pagination",
+                         "id":  3,
+                         "page":  1,
+                         "word_start":  1193
+                     },
+                     {
+                         "title":  "5.1.3  量词及其辖域",
+                         "method":  "Word Find heading pagination",
+                         "id":  4,
+                         "page":  3,
+                         "word_start":  2858
+                     },
+                     {
+                         "title":  "5.1.4  谓词公式及语句的形式化",
+                         "method":  "Word Find heading pagination",
+                         "id":  5,
+                         "page":  4,
+                         "word_start":  4452
+                     },
+                     {
+                         "title":  "5.2.1  谓词公式的真值规定",
+                         "method":  "Word Find heading pagination",
+                         "id":  6,
+                         "page":  9,
+                         "word_start":  11061
+                     },
+                     {
+                         "title":  "5.2.2  谓词演算永真式",
+                         "method":  "Word Find heading pagination",
+                         "id":  7,
+                         "page":  10,
+                         "word_start":  12837
+                     },
+                     {
+                         "title":  "5.2.3  关于永真式的几个基本原理",
+                         "method":  "Word Find heading pagination",
+                         "id":  8,
+                         "page":  12,
+                         "word_start":  15576
+                     },
+                     {
+                         "title":  "5.3  谓词公式的前束范式",
+                         "method":  "Word Find heading pagination",
+                         "id":  9,
+                         "page":  15,
+                         "word_start":  20595
+                     }
+                 ],
+    "source":  "第5章逻辑代数（下）（新）.doc",
+    "chapter_id":  5
+}
