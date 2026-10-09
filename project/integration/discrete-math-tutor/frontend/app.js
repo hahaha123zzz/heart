@@ -77,7 +77,9 @@ function formatParagraph(text) {
 function renderFigure(figure) {
   const url = String(figure.image_url || "");
   if (!/^\/api\/figures\/(?:figure-\d+-\d+|formula-\d+-\d+|image-\d+-\d+)\/image$/.test(url)) return "";
-  return `<figure class="textbook-figure"><a href="${esc(url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(url)}" alt="${esc(figure.label)}：${esc(figure.caption)}" loading="lazy"></a><figcaption><strong>${esc(figure.label)}</strong> ${esc(figure.caption)}<small>来源：${esc(figure.source)}</small></figcaption></figure>`;
+  const label = String(figure.label || "").replace(/插图对象\s*\d+/g, "教材插图").replace(/公式对象\s*\d+/g, "教材公式");
+  const caption = String(figure.caption || "").replace(/Word 锚点 \d+，/g, "");
+  return `<figure class="textbook-figure"><a href="${esc(url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(url)}" alt="${esc(label)}：${esc(caption)}" loading="lazy"></a><figcaption><strong>${esc(label)}</strong> ${esc(caption)}<small>来源：${esc(figure.source)}</small></figcaption></figure>`;
 }
 
 
