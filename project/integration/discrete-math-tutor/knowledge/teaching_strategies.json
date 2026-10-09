@@ -1,0 +1,110 @@
+{
+  "version": "1.0",
+  "note": "教学策略库（Teaching Strategy Library）。来源：教育学/ITS 研究 + TACT 的 Tutor-Strategy Taxonomy（13 种）+ 用户整理的策略表。策略是 Teaching Action，不是 Agent。",
+  "strategies": [
+    {
+      "id": "direct_explanation",
+      "name_cn": "直接讲解",
+      "when_to_use": "学生缺少基础知识，或明确要求解释",
+      "fits_moves": ["question", "statement", "attempt_problematic"],
+      "contraindications": ["学生已掌握，重复讲解会拖慢"],
+      "render_hint": "直接给出知识要点（1-3句），不绕弯，之后用一个小问题确认"
+    },
+    {
+      "id": "socratic_questioning",
+      "name_cn": "苏格拉底提问",
+      "when_to_use": "学生有基础，需要自己推理得出结论",
+      "fits_moves": ["question", "attempt_adequate"],
+      "contraindications": ["学生完全没基础", "连续多轮无效提问"],
+      "render_hint": "用连续提问引导学生自己得出结论，不要直接给答案"
+    },
+    {
+      "id": "hint",
+      "name_cn": "提示",
+      "when_to_use": "学生卡住但仍有能力解决",
+      "fits_moves": ["attempt_problematic", "attempt_partial"],
+      "contraindications": ["学生完全无基础"],
+      "render_hint": "只给一点线索，不给解法，让学生接着做"
+    },
+    {
+      "id": "scaffolding",
+      "name_cn": "支架",
+      "when_to_use": "当前任务超出学生能力",
+      "fits_moves": ["statement", "attempt_problematic", "attempt_partial"],
+      "contraindications": ["任务对学生太简单"],
+      "render_hint": "把任务拆成小步，每步只给刚好够用的支持"
+    },
+    {
+      "id": "worked_example",
+      "name_cn": "样例示范",
+      "when_to_use": "学生不知道怎么做",
+      "fits_moves": ["statement", "question", "attempt_problematic"],
+      "contraindications": ["学生已会做，只是粗心"],
+      "render_hint": "完整示范一个例子，边做边解释关键步骤"
+    },
+    {
+      "id": "conceptual_comparison",
+      "name_cn": "概念对比",
+      "when_to_use": "两个概念容易混淆",
+      "fits_moves": ["question", "attempt_problematic", "attempt_partial"],
+      "contraindications": ["只有一个概念在讨论"],
+      "render_hint": "并列对比两个易混淆概念，用例子突出关键差异"
+    },
+    {
+      "id": "counterexample",
+      "name_cn": "反例",
+      "when_to_use": "学生存在错误概念",
+      "fits_moves": ["attempt_problematic", "statement"],
+      "contraindications": ["学生没有表现出误解"],
+      "render_hint": "给一个反例，请学生找出错在哪里"
+    },
+    {
+      "id": "self_explanation",
+      "name_cn": "自我解释",
+      "when_to_use": "检查学生是否真正理解",
+      "fits_moves": ["attempt_adequate", "acknowledgement"],
+      "contraindications": ["学生已表现出困惑"],
+      "render_hint": "让学生解释自己的推理过程（如'你是怎么想到的'）"
+    },
+    {
+      "id": "retrieval_practice",
+      "name_cn": "提取练习",
+      "when_to_use": "检查能否从记忆中提取",
+      "fits_moves": ["acknowledgement", "attempt_adequate"],
+      "contraindications": ["学生刚学完还没掌握"],
+      "render_hint": "让学生凭记忆复述或应用，不要重读材料"
+    },
+    {
+      "id": "guided_revision",
+      "name_cn": "引导修正",
+      "when_to_use": "学生答案部分正确",
+      "fits_moves": ["attempt_partial"],
+      "contraindications": ["答案完全正确或完全错误"],
+      "render_hint": "指出对的部分，引导他自己修正错误的部分"
+    },
+    {
+      "id": "direct_correction",
+      "name_cn": "直接纠正",
+      "when_to_use": "明确错误且需要纠正",
+      "fits_moves": ["attempt_problematic"],
+      "contraindications": ["学生只是表达不清，理解正确"],
+      "render_hint": "明确指出错在哪、正确的是什么（简短），然后确认"
+    },
+    {
+      "id": "transfer",
+      "name_cn": "迁移应用",
+      "when_to_use": "当前知识已经基本掌握",
+      "fits_moves": ["attempt_adequate"],
+      "contraindications": ["基础还不牢"],
+      "render_hint": "给一个新情境，让学生把知识用过去"
+    },
+    {
+      "id": "summary",
+      "name_cn": "总结",
+      "when_to_use": "一个教学阶段完成",
+      "fits_moves": ["acknowledgement", "attempt_adequate"],
+      "contraindications": ["阶段尚未完成"],
+      "render_hint": "小结要点（1-3句），并预告下一步"
+    }
+  ]
+}

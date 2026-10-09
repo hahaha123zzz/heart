@@ -1,0 +1,23 @@
+# Local credentials and machine-specific configuration
+.env
+.env.*
+!.env.example
+
+# Runtime databases and generated state
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+
+# Virtual environments and generated frontend output
+.venv/
+venv/
+node_modules/
+dist/
+build/

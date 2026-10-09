@@ -1,0 +1,33 @@
+# 本地密钥和机器配置
+.env
+.env.*
+*.env
+!.env.example
+
+# 虚拟环境、依赖和缓存
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+
+# 数据库、日志和测试产物
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.log
+project/integration/discrete-math-tutor/artifacts/
+
+# 本地打包副本和构建输出
+/agent-extracted-full-project-for-github.zip
+dist/
+build/
+
+# 编辑器和系统文件
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

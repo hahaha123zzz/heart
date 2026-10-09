@@ -1,0 +1,79 @@
+[
+  {
+    "question": "请根据教材绝对值函数的表格，说明x=-3和x=2时f(x)分别是多少。",
+    "reply": "教材表格里，x=-3 时 f(x)=3；x=2 时 f(x)=2。这个函数是绝对值函数，所以负号被“去掉”，比如 f(-3)=|-3|=3，f(2)=|2|=2[1]。\n\n你再看一眼表格：x=-2 和 x=2 对应的 f(x) 相等吗？分别是多少？",
+    "image_refs": [],
+    "textbook_sources": [
+      "第10章函数（新）.txt／10.1.1函数的基本概念",
+      "第10章函数（新）.txt／10.1.1函数的基本概念"
+    ],
+    "quality": {
+      "passed": true,
+      "issues": [],
+      "suggestions": "回复符合 worked_example 与 explain 计划，先直接回应学生询问的 x=-3 和 x=2 的函数值，再以表格追问对称关系；但可更明确地让学生先观察表格再总结规律，以增强引导性。"
+    },
+    "step_advanced": false
+  },
+  {
+    "question": "请结合特殊图章节的完全匹配配图，解释粗边表示什么。",
+    "reply": "图8.2中各图的粗线表示匹配中的边，简称匹配边[1]。也就是说，粗边就是被选入匹配M的那些边，它们两两没有公共端点。\n\n在(c)中，粗边构成G的完全匹配，X和Y中每个顶点都是匹配边的端点，因此它也是最大的[1]。\n\n那你看(b)图：它的粗边是X-完全匹配，那它是不是G的完全匹配呢？为什么？\n教材图像：第8章插图对象 9055。",
+    "image_refs": [
+      {
+        "id": "image-08-9055",
+        "label": "第8章插图对象 9055",
+        "caption": "第8章教材绘图（Word 锚点 1670，图号未核定）",
+        "source": "第8章特殊图（新）.txt",
+        "chapter_id": 8,
+        "section_id": 0,
+        "kind": "image",
+        "image_url": "/api/figures/image-08-9055/image"
+      }
+    ],
+    "textbook_sources": [
+      "第8章特殊图（新）.txt／第8章教材绘图",
+      "第8章特殊图（新）.txt／第8章教材绘图"
+    ],
+    "quality": {
+      "passed": true,
+      "issues": [],
+      "suggestions": "回复符合worked_example与explain计划，先解释粗边含义并引用教材，再以(b)图反问引导，未直接泄露完全匹配结论，可保持。"
+    },
+    "step_advanced": false
+  },
+  {
+    "question": "请引用教材原公式，解释牛顿二项式定理公式中的C(n,k)。",
+    "reply": "教材里牛顿二项式定理写为 (x+y)^n = C(n,0)x^n + C(n,1)x^(n-1)y + … + C(n,n-1)xy^(n-1) + C(n,n)y^n [1]。其中 C(n,k) 表示从 n 个元素中选出 k 个的组合数，即不计顺序的选法数，也常记作 n 选 k [1]。\n\n你能用自己的话说说，C(n,k) 为什么表示“不计顺序”的选法数吗？\n教材图像：第3章公式对象 0118、第3章公式对象 0119。",
+    "image_refs": [
+      {
+        "id": "formula-03-0118",
+        "label": "第3章公式对象 0118",
+        "caption": "3.2.2 组合的计数",
+        "source": "第3章 计数（新）.txt",
+        "chapter_id": 3,
+        "section_id": 17,
+        "kind": "formula",
+        "image_url": "/api/figures/formula-03-0118/image"
+      },
+      {
+        "id": "formula-03-0119",
+        "label": "第3章公式对象 0119",
+        "caption": "3.2.2 组合的计数",
+        "source": "第3章 计数（新）.txt",
+        "chapter_id": 3,
+        "section_id": 17,
+        "kind": "formula",
+        "image_url": "/api/figures/formula-03-0119/image"
+      }
+    ],
+    "textbook_sources": [
+      "第3章 计数（新）.txt／3.2.2 组合的计数",
+      "第3章 计数（新）.txt／3.2.2 组合的计数"
+    ],
+    "quality": {
+      "passed": true,
+      "issues": [],
+      "suggestions": "回复符合 worked_example/explain 计划，公式转述与教材原图一致，且以反问引导复述，无需修改。"
+    },
+    "step_advanced": false
+  }
+]

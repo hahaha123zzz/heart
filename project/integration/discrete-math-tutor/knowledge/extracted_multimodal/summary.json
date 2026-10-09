@@ -1,0 +1,92 @@
+[
+  {
+    "chapter_id": 10,
+    "source": "第10章函数（新）.txt",
+    "blocks": 797,
+    "tables": 2,
+    "formula_objects": 45,
+    "images": 0,
+    "assets": 113
+  },
+  {
+    "chapter_id": 1,
+    "source": "第1章集合代数(新).txt",
+    "blocks": 583,
+    "tables": 0,
+    "formula_objects": 147,
+    "images": 0,
+    "assets": 439
+  },
+  {
+    "chapter_id": 2,
+    "source": "第2章两个数学基本原理（新）.txt",
+    "blocks": 216,
+    "tables": 0,
+    "formula_objects": 86,
+    "images": 0,
+    "assets": 305
+  },
+  {
+    "chapter_id": 3,
+    "source": "第3章 计数（新）.txt",
+    "blocks": 712,
+    "tables": 0,
+    "formula_objects": 415,
+    "images": 0,
+    "assets": 1448
+  },
+  {
+    "chapter_id": 4,
+    "source": "第4章逻辑代数（新）.txt",
+    "blocks": 627,
+    "tables": 13,
+    "formula_objects": 22,
+    "images": 0,
+    "assets": 82
+  },
+  {
+    "chapter_id": 5,
+    "source": "第5章逻辑代数（下）（新）.txt",
+    "blocks": 535,
+    "tables": 1,
+    "formula_objects": 12,
+    "images": 0,
+    "assets": 29
+  },
+  {
+    "chapter_id": 6,
+    "source": "第6章形式系统（新）.txt",
+    "blocks": 497,
+    "tables": 0,
+    "formula_objects": 28,
+    "images": 0,
+    "assets": 58
+  },
+  {
+    "chapter_id": 7,
+    "source": "第7章图（新）.txt",
+    "blocks": 709,
+    "tables": 1,
+    "formula_objects": 68,
+    "images": 3,
+    "assets": 179
+  },
+  {
+    "chapter_id": 8,
+    "source": "第8章特殊图（新）.txt",
+    "blocks": 896,
+    "tables": 0,
+    "formula_objects": 28,
+    "images": 0,
+    "assets": 64
+  },
+  {
+    "chapter_id": 9,
+    "source": "第9章关系（新）.txt",
+    "blocks": 1043,
+    "tables": 3,
+    "formula_objects": 57,
+    "images": 1,
+    "assets": 165
+  }
+]

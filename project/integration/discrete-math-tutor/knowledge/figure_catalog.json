@@ -1,0 +1,47 @@
+[
+  {
+    "id": "figure-7-8",
+    "label": "图7.8",
+    "chapter_id": 7,
+    "section_id": 4,
+    "source": "第7章图（新）.doc",
+    "source_sha256": "d742d4c98abae48b11229c87cb76378167e9c39b6be187f79bd372cce0b187a8",
+    "source_offset": 134219,
+    "source_byte_length": 5885,
+    "caption": "练习7.1中的编号迷宫",
+    "context": "练习7.1第7题：图中数字表示迷宫的通道和死胡同，要求用结点与边表示各处之间的可到达关系。",
+    "filename": "figure_7_8.png",
+    "sha256": "5bb318c20f1409584b38af3cc655c627a4d8678506ee780e40f2a089a2a0786c",
+    "review_status": "approved"
+  },
+  {
+    "id": "figure-7-20",
+    "label": "图7.20",
+    "chapter_id": 7,
+    "section_id": 8,
+    "source": "第7章图（新）.doc",
+    "source_sha256": "d742d4c98abae48b11229c87cb76378167e9c39b6be187f79bd372cce0b187a8",
+    "source_offset": 547374,
+    "source_byte_length": 7760,
+    "caption": "哈密顿图与正十二面体的平面投影",
+    "context": "例7.12：图7.20（a）为哈密顿图，粗线表示哈密顿回路；图7.20（b）为正十二面体的平面投影。",
+    "filename": "figure_7_20.png",
+    "sha256": "d3d833605582d9d0dbca1d7eb13b4a99824c114fba6576578125460ba3da2ce4",
+    "review_status": "approved"
+  },
+  {
+    "id": "figure-7-23",
+    "label": "图7.23",
+    "chapter_id": 7,
+    "section_id": 8,
+    "source": "第7章图（新）.doc",
+    "source_sha256": "d742d4c98abae48b11229c87cb76378167e9c39b6be187f79bd372cce0b187a8",
+    "source_offset": 140129,
+    "source_byte_length": 4467,
+    "caption": "定理7.14中 n=5 时的哈密顿回路图示",
+    "context": "教材在定理7.14证明中以 n=5 为例，图7.23用于展示完全图 K5 中互不共边的哈密顿回路。",
+    "filename": "figure_7_23.png",
+    "sha256": "94d65db7520654f38aca2e1e5c4bcca829a4848c414852c83396dd22494012ed",
+    "review_status": "approved"
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "图": [
+    {"type": "vertex_edge_confusion", "description": "混淆顶点与边"},
+    {"type": "directed_undirected_confusion", "description": "混淆有向边与无向边"},
+    {"type": "path_cycle_confusion", "description": "混淆路径、闭路径和回路"}
+  ],
+  "集合": [
+    {"type": "set_element_confusion", "description": "混淆集合与集合的元素"}
+  ],
+  "关系": [
+    {"type": "relation_function_confusion", "description": "把一般二元关系误当成函数"}
+  ],
+  "逻辑代数": [
+    {"type": "implication_converse_confusion", "description": "混淆命题的蕴含与逆命题"}
+  ]
+}

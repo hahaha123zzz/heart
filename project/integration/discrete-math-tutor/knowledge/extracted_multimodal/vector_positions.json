@@ -1,0 +1,933 @@
+[
+    {
+        "id":  "image-10-9001",
+        "chapter_id":  10,
+        "block_index":  26,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9002",
+        "chapter_id":  10,
+        "block_index":  73,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9003",
+        "chapter_id":  10,
+        "block_index":  146,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9004",
+        "chapter_id":  10,
+        "block_index":  145,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9005",
+        "chapter_id":  10,
+        "block_index":  214,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9006",
+        "chapter_id":  10,
+        "block_index":  272,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9007",
+        "chapter_id":  10,
+        "block_index":  292,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9008",
+        "chapter_id":  10,
+        "block_index":  336,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9009",
+        "chapter_id":  10,
+        "block_index":  369,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9010",
+        "chapter_id":  10,
+        "block_index":  458,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9011",
+        "chapter_id":  10,
+        "block_index":  469,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9012",
+        "chapter_id":  10,
+        "block_index":  606,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9013",
+        "chapter_id":  10,
+        "block_index":  607,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9014",
+        "chapter_id":  10,
+        "block_index":  608,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9015",
+        "chapter_id":  10,
+        "block_index":  609,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9016",
+        "chapter_id":  10,
+        "block_index":  586,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-10-9017",
+        "chapter_id":  10,
+        "block_index":  680,
+        "body_block_count":  797,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-03-9001",
+        "chapter_id":  3,
+        "block_index":  248,
+        "body_block_count":  712,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-03-9002",
+        "chapter_id":  3,
+        "block_index":  666,
+        "body_block_count":  712,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9001",
+        "chapter_id":  7,
+        "block_index":  32,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9002",
+        "chapter_id":  7,
+        "block_index":  72,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9003",
+        "chapter_id":  7,
+        "block_index":  181,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9004",
+        "chapter_id":  7,
+        "block_index":  196,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9005",
+        "chapter_id":  7,
+        "block_index":  258,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9006",
+        "chapter_id":  7,
+        "block_index":  252,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9007",
+        "chapter_id":  7,
+        "block_index":  453,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9008",
+        "chapter_id":  7,
+        "block_index":  592,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9009",
+        "chapter_id":  7,
+        "block_index":  591,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9010",
+        "chapter_id":  7,
+        "block_index":  666,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9011",
+        "chapter_id":  7,
+        "block_index":  693,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9012",
+        "chapter_id":  7,
+        "block_index":  56,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9013",
+        "chapter_id":  7,
+        "block_index":  136,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9014",
+        "chapter_id":  7,
+        "block_index":  221,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9015",
+        "chapter_id":  7,
+        "block_index":  270,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9016",
+        "chapter_id":  7,
+        "block_index":  309,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9017",
+        "chapter_id":  7,
+        "block_index":  373,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9018",
+        "chapter_id":  7,
+        "block_index":  415,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9019",
+        "chapter_id":  7,
+        "block_index":  437,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9020",
+        "chapter_id":  7,
+        "block_index":  489,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9021",
+        "chapter_id":  7,
+        "block_index":  525,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9022",
+        "chapter_id":  7,
+        "block_index":  535,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9023",
+        "chapter_id":  7,
+        "block_index":  513,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9024",
+        "chapter_id":  7,
+        "block_index":  544,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9025",
+        "chapter_id":  7,
+        "block_index":  555,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9026",
+        "chapter_id":  7,
+        "block_index":  394,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9027",
+        "chapter_id":  7,
+        "block_index":  618,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9028",
+        "chapter_id":  7,
+        "block_index":  4,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9029",
+        "chapter_id":  7,
+        "block_index":  54,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9030",
+        "chapter_id":  7,
+        "block_index":  106,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-07-9031",
+        "chapter_id":  7,
+        "block_index":  122,
+        "body_block_count":  709,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9001",
+        "chapter_id":  8,
+        "block_index":  132,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9002",
+        "chapter_id":  8,
+        "block_index":  159,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9003",
+        "chapter_id":  8,
+        "block_index":  169,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9004",
+        "chapter_id":  8,
+        "block_index":  185,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9005",
+        "chapter_id":  8,
+        "block_index":  189,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9006",
+        "chapter_id":  8,
+        "block_index":  186,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9007",
+        "chapter_id":  8,
+        "block_index":  187,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9008",
+        "chapter_id":  8,
+        "block_index":  195,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9009",
+        "chapter_id":  8,
+        "block_index":  194,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9010",
+        "chapter_id":  8,
+        "block_index":  216,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9011",
+        "chapter_id":  8,
+        "block_index":  238,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9012",
+        "chapter_id":  8,
+        "block_index":  253,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9013",
+        "chapter_id":  8,
+        "block_index":  348,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9014",
+        "chapter_id":  8,
+        "block_index":  360,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9015",
+        "chapter_id":  8,
+        "block_index":  378,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9016",
+        "chapter_id":  8,
+        "block_index":  379,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9017",
+        "chapter_id":  8,
+        "block_index":  381,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9018",
+        "chapter_id":  8,
+        "block_index":  382,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9019",
+        "chapter_id":  8,
+        "block_index":  380,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9020",
+        "chapter_id":  8,
+        "block_index":  387,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9021",
+        "chapter_id":  8,
+        "block_index":  412,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9022",
+        "chapter_id":  8,
+        "block_index":  429,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9023",
+        "chapter_id":  8,
+        "block_index":  434,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9024",
+        "chapter_id":  8,
+        "block_index":  430,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9025",
+        "chapter_id":  8,
+        "block_index":  435,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9026",
+        "chapter_id":  8,
+        "block_index":  432,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9027",
+        "chapter_id":  8,
+        "block_index":  433,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9028",
+        "chapter_id":  8,
+        "block_index":  448,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9029",
+        "chapter_id":  8,
+        "block_index":  449,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9030",
+        "chapter_id":  8,
+        "block_index":  450,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9031",
+        "chapter_id":  8,
+        "block_index":  454,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9032",
+        "chapter_id":  8,
+        "block_index":  453,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9033",
+        "chapter_id":  8,
+        "block_index":  451,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9034",
+        "chapter_id":  8,
+        "block_index":  452,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9035",
+        "chapter_id":  8,
+        "block_index":  555,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9036",
+        "chapter_id":  8,
+        "block_index":  469,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9037",
+        "chapter_id":  8,
+        "block_index":  520,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9038",
+        "chapter_id":  8,
+        "block_index":  576,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9039",
+        "chapter_id":  8,
+        "block_index":  602,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9040",
+        "chapter_id":  8,
+        "block_index":  636,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9041",
+        "chapter_id":  8,
+        "block_index":  654,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9042",
+        "chapter_id":  8,
+        "block_index":  692,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9043",
+        "chapter_id":  8,
+        "block_index":  704,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9044",
+        "chapter_id":  8,
+        "block_index":  712,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9045",
+        "chapter_id":  8,
+        "block_index":  729,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9046",
+        "chapter_id":  8,
+        "block_index":  740,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9047",
+        "chapter_id":  8,
+        "block_index":  786,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9048",
+        "chapter_id":  8,
+        "block_index":  787,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9049",
+        "chapter_id":  8,
+        "block_index":  792,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9050",
+        "chapter_id":  8,
+        "block_index":  797,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9051",
+        "chapter_id":  8,
+        "block_index":  809,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9052",
+        "chapter_id":  8,
+        "block_index":  858,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9053",
+        "chapter_id":  8,
+        "block_index":  884,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9054",
+        "chapter_id":  8,
+        "block_index":  885,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9055",
+        "chapter_id":  8,
+        "block_index":  43,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9056",
+        "chapter_id":  8,
+        "block_index":  66,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9057",
+        "chapter_id":  8,
+        "block_index":  83,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9058",
+        "chapter_id":  8,
+        "block_index":  98,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9059",
+        "chapter_id":  8,
+        "block_index":  108,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9060",
+        "chapter_id":  8,
+        "block_index":  332,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9061",
+        "chapter_id":  8,
+        "block_index":  331,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9062",
+        "chapter_id":  8,
+        "block_index":  774,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-08-9063",
+        "chapter_id":  8,
+        "block_index":  6,
+        "body_block_count":  896,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9001",
+        "chapter_id":  9,
+        "block_index":  39,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9002",
+        "chapter_id":  9,
+        "block_index":  448,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9003",
+        "chapter_id":  9,
+        "block_index":  45,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9004",
+        "chapter_id":  9,
+        "block_index":  44,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9005",
+        "chapter_id":  9,
+        "block_index":  56,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9006",
+        "chapter_id":  9,
+        "block_index":  213,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9007",
+        "chapter_id":  9,
+        "block_index":  593,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9008",
+        "chapter_id":  9,
+        "block_index":  766,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9009",
+        "chapter_id":  9,
+        "block_index":  756,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9010",
+        "chapter_id":  9,
+        "block_index":  791,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9011",
+        "chapter_id":  9,
+        "block_index":  825,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9012",
+        "chapter_id":  9,
+        "block_index":  617,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9013",
+        "chapter_id":  9,
+        "block_index":  639,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9014",
+        "chapter_id":  9,
+        "block_index":  55,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9015",
+        "chapter_id":  9,
+        "block_index":  979,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9016",
+        "chapter_id":  9,
+        "block_index":  992,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9017",
+        "chapter_id":  9,
+        "block_index":  1008,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9018",
+        "chapter_id":  9,
+        "block_index":  595,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9019",
+        "chapter_id":  9,
+        "block_index":  642,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    },
+    {
+        "id":  "image-09-9020",
+        "chapter_id":  9,
+        "block_index":  413,
+        "body_block_count":  1043,
+        "method":  "Word in-memory bookmark"
+    }
+]

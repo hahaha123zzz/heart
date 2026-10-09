@@ -1,0 +1,22 @@
+# Local secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+deepseek.env
+.venv/
+
+# Runtime databases and local state
+*.db
+*.sqlite
+*.sqlite3
+
+# Python bytecode and test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# OS/editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

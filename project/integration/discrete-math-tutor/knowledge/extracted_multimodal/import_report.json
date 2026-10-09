@@ -1,0 +1,14 @@
+{
+  "chapters": 10,
+  "word_tables": 20,
+  "formula_blocks": 908,
+  "formula_previews": 1209,
+  "embedded_images": 4,
+  "vector_anchor_previews": 133,
+  "extra_rag_chunks": 1065,
+  "notes": [
+    "公式以原始预览图片保存，尚未转换为 LaTeX；仅通过公式附近正文检索。",
+    "绘图按 Word 锚点导出，一个预览可能包含多个图或标注；未自动认定教材图号。",
+    "表格数量指 Word 表格对象，不包含图片中的表格或文本模拟的表格。"
+  ]
+}

@@ -1,0 +1,711 @@
+第3章 组合论基础------计数
+组合论(combinatorial mathematics)是数学的一个分支，主要研究在给定模式下的可能配置，配置的存在性，配置的数目，配置的性质等等。我们已经介绍过的鸽笼原理常被列入组合数学范畴，它被用于可能配置的存在性讨论。计数（computing）是组合数学领域的重要课题，其主要任务是上述配置数目的计算技术的研究。高中阶段数学课程中的排列、组合及二项式定理等教学内容，皆属于计数这一范畴。计数技术广泛应用于概率统计理论，以及计算机算法复杂性研究等领域。
+3.1  计数基本原理
+计数基本原理包括加法原理和乘法原理，是高中阶段数学课程中的学习内容，我们只作简要回顾。
+3.1.1 加法原理和乘法原理
+加法原理：若事件的有限集合  EMBED Equation.3    [公式或对象]  ，且  EMBED Equation.3    [公式或对象]  两两不相交，那么
+                           EMBED Equation.3    [公式或对象]  
+也就是说，如果事件集合S可以分为两两不相交的子集S1,…,Sn，那么要对S中事件计数时，可对子集S1,…,Sn分别计数，然后相加来求得。
+加法原理的另一个说法是：n个独立事件分别有a1，…，an种方式发生，那么这n个事件之一发生的方式总计为a1+ … +an种。
+乘法原理：若事件的有限集合  EMBED Equation.3    [公式或对象]  是依次取自有限集合  EMBED Equation.3    [公式或对象]  中事件的序列的集合，那么
+  EMBED Equation.3    [公式或对象]  
+也就是说，如果集合S中的事件，是由集合S1,…,Sn中事件相继发生而形成的事件序列所构成，且Si中每一事件的发生，可以导致Si+1中所有事件的发生（i = 1 ,2 , … ，n – 1）。那么，对S中的事件序列计数时，可对集合S1,…,Sn分别计数，然后相乘来求得。
+乘法原理的另一个说法是：n个独立事件分别有a1，…，an种方式发生，那么这n个事件同时发生的方式总计为a1(…(an种。
+两个原理的正确性都是十分明白的。
+例3.1（1）从上海直达天津可以乘坐汽车、火车和飞机旅行。已知每天汽车有3个班次，火车有4个班次，飞机有2个班次，问每天从上海直达到天津有多少种旅行方式？ 
+（2）从上海直达天津可以乘坐汽车、火车和飞机旅行，已知汽车有3个班次，火车有4个班次，飞机有2个班次。从天津直达大连可以乘坐轮船和飞机旅行，已知轮船有2个班次，飞机有3个班次。问从上海经天津到大连有多少种旅行方式？ 
+解.（1）从上海直达到天津有3 + 4 + 2 = 9种旅行方式（加法原理）。
+（2）从上海经天津到大连有9·(2 + 3)= 45种旅行方式（加法原理和乘法原理）
+    例3.2 一家服装厂用4种式样，5种颜色，8种尺寸生产男式服装；用6种式样，5种颜色，6种尺寸生产女式服装，问这家服装厂共计生产男女服装多少种？
+    解. 男式服装为
+                      EMBED Equation.3    [公式或对象]        （乘法原理）
+女式服装为
+  EMBED Equation.3    [公式或对象]        （乘法原理）
+合计 160 + 180 = 340（种） （加法原理）
+
+3.1.2包含排斥原理
+我们注意到，在加法原理中，集合  EMBED Equation.3    [公式或对象]  两两不相交。若没有这一限制，那么  EMBED Equation.3    [公式或对象]  的计算要复杂得多。
+定理3.1考虑集合  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，那么
+                           EMBED Equation.3    [公式或对象]  
+证.由于  EMBED Equation.3    [公式或对象]  是  EMBED Equation.3    [公式或对象]  元素个数与  EMBED Equation.3    [公式或对象]  元素个数之和，其中  EMBED Equation.3    [公式或对象]  的公共元素被两次计数，所以  EMBED Equation.3    [公式或对象]  。
+定理3.2 考虑集合  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，那么
+  EMBED Equation.3    [公式或对象]  
+       EMBED Equation.3    [公式或对象]  
+    证  n＝l时，左边=  EMBED Equation.3    [公式或对象]  ，右边  EMBED Equation.3    [公式或对象]  ，因此等式成立。
+    n＝2时，待证等式为
+             EMBED Equation.3    [公式或对象]  
+它正是定理3.1。
+    设 n= k时，等式成立，现对n＝k＋l论证。由于n=k十1，那么
+  EMBED Equation.3    [公式或对象]  
+    EMBED Equation.3    [公式或对象]  
+    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+    EMBED Equation.3   [公式或对象]  
+  EMBED Equation.3   [公式或对象]     EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]    
+  EMBED Equation.3   [公式或对象]  
+归纳完成，命题得证。
+定理3.3 考虑集合  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，令  EMBED Equation.3    [公式或对象]  为  EMBED Equation.3    [公式或对象]  或  EMBED Equation.3    [公式或对象]  那么
+(  EMBED Equation.3    [公式或对象]  ( =   EMBED Equation.3    [公式或对象]  
+定理3.4 考虑集合   EMBED Equation.3    [公式或对象]   ，已知   EMBED Equation.3    [公式或对象]  。现将  EMBED Equation.3    [公式或对象]  记为  EMBED Equation.3    [公式或对象]  或  EMBED Equation.3    [公式或对象]  那么
+(  EMBED Equation.3    [公式或对象]  ( = 
+  EMBED Equation.3    [公式或对象]  
+定理3.4就是人们常说的包含排斥原理（简称“容斥原理”）。它是定理3.2的明显推论。“容斥原理”的一个常用的说法是：用  EMBED Equation.3    [公式或对象]  分别表示集合  EMBED Equation.3    [公式或对象]  中具有性质  EMBED Equation.3    [公式或对象]  的元素的子集合，用  EMBED Equation.3    [公式或对象]  分别表示集合  EMBED Equation.3    [公式或对象]  中不具有性质  EMBED Equation.3    [公式或对象]  的元素的子集合，那么，  EMBED Equation.3    [公式或对象]  中不具有性质  EMBED Equation.3    [公式或对象]  不具有性质  EMBED Equation.3    [公式或对象]  也不具有性质  EMBED Equation.3    [公式或对象]  的元素的个数是
+(  EMBED Equation.3    [公式或对象]  ( = 
+  EMBED Equation.3    [公式或对象]  
+在上述公式中，如果诸  EMBED Equation.3    [公式或对象]  都相等，记为  EMBED Equation.3    [公式或对象]  ，诸  EMBED Equation.3    [公式或对象]  都相等，记为  EMBED Equation.3    [公式或对象]  ，诸  EMBED Equation.3    [公式或对象]  都相等，记为  EMBED Equation.3    [公式或对象]  ，……，如此等等，那么情况就简单得多。若令(  EMBED Equation.3    [公式或对象]  ( =  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  =  EMBED Equation.3    [公式或对象]  ，我们有
+  EMBED Equation.3    [公式或对象]  =  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+(C(n,i)即  EMBED Equation.3    [公式或对象]  ,是从n个元素中取出i个元素的组合数)这个式子被称为对称筛公式。
+例3.3（1）试计算在集合{1，2，3，…，1000}中有多少元素至少能被5，6，8这三个数中的一个整除。
+（2）试计算在集合{1，2，3，…，1000}中有多少元素不能被5，6，8这三个数中的任何一个整除。
+解. 集合{1，2，3，…，1000}中能被5，6，8这三个数整除的元素的集合分别是  EMBED Equation.3    [公式或对象]  ，
+那么（用  EMBED Equation.3    [公式或对象]  表示x的整数部分。注意，一个数被若干个数同时整除当且仅当这个数被它们的最小公倍数整除。）
+          EMBED Equation.3    [公式或对象]   ，  EMBED Equation.3    [公式或对象]   ，  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]   ，因此
+（1）至少能被5，6，8这三个数中的一个整除的元素有 
+  EMBED Equation.3    [公式或对象]  （个）
+（2）不能被5，6，8这三个数中的任何一个整除的元素有
+(  EMBED Equation.3    [公式或对象]  ( =   EMBED Equation.3    [公式或对象]  （个）
+或
+     (  EMBED Equation.3    [公式或对象]  ( =   EMBED Equation.3    [公式或对象]  （个）
+
+练习3.1
+选择题
+(1) 加法原理的适用范围是(  )
+   A. 事件之间是相容的，独立的；
+   B. 事件之间是不相容的，不独立；
+   C. 事件之间相互独立，但不相容；
+   D. 事件之间不独立，但相容；
+(2) 乘法原理的适用范围是（ ）
+A. 步骤间是相依的，步骤内的方式不独立；
+   B. 步骤间是相依的，步骤内的方式是独立；
+   C. 步骤间不相依的，步骤内的方式不独立；
+   D. 步骤间不相依的，步骤内的方式是独立；
+填空题
+(1) 某班有学生50人，有26人在第一次考试中得优，有21人在第二次考试中得优，有17人在两次考试都没得优，那么两次考试都得优的学生人数是______。
+某校有足球队员38人，篮球队员15人，排球队员20人，三队队员总数为58人，且其中只有3人同时参加3种球队，那么仅仅参加两种球队的队员人数是______。
+把n个人分配到A、B、C三室的分配方法有______种。
+200人中,有150人喜欢游泳或慢跑或同时喜爱两者.若85人喜爱游泳，60人同时喜爱游泳和慢跑，有______人喜爱慢跑?
+3、学校为学生提供3门计算机硬件课程，4门计算机程序设计语言课程。问
+(1) 如果学生可以且只可以在这两类课程中选一门课程，学生有多少选择方式？
+(2) 如果学生可以且只可以在这两类课程中各选一门课程，学生有多少选择方式？
+4、在1000与9999之间有多少个数字互不相同的奇数？
+5、用定理3.2证明定理3.4。
+6、 (1) 在例3.3中计算“至多可以被三个数中的两个整除的元素个数”。
+(2) 在例3.3中计算“恰被三个数都整除的元素个数”。   
+(3) 在例3.3中计算“恰被三个数中的一个整除的元素个数”。
+(4) 把例3.3中（2）的要求改为“有多少元素不能被3，5，6，8，这四个数中的任何
+一个整除”，试计算之。
+7、某学院语言学系有200个学生，他们至少要选修德、英、法三种语言中的一种。已知在这些学生中有90人学德语，130人学英语，84人学法语，30人学法语和德语，40人学法语和英语，50人学德语和英语。问同时学三种语言的学生有多少？仅学英语的学生有多少？德、英、法三种语言均不选修的学生有多少？
+8、试计算在集合{1，2，3，…，10000}中有多少元素既不是完全平方数，也不是完全立方数，更不是完全四次方数？（提示：可以用  EMBED Equation.3    [公式或对象]  表示“对x的n次方根取整”）
+9、已知：密钥是长度为A的0，1序列，为安全起见，须对密钥进行变换。变换方式是：对于被p或q整除的各位改变其奇偶性。问：作此改变后，未改变奇偶性的有多少位？
+为了使改变奇偶性的位尽可能地多，p,q 应满足什么性质？
+
+3.2 排列与组合
+3.2.1 排列的计数
+对中学课程中已经学习过的排列的计数，我们给出一个纲要。
+定义3.1 用  EMBED Equation.3    [公式或对象]  或  EMBED Equation.3    [公式或对象]  表示“从n个元素的集合中每次取出r个元素进行有序排列时可得到的排列的总数”。  EMBED Equation.3    [公式或对象]  或  EMBED Equation.3    [公式或对象]  简称为r-排列数，  EMBED Equation.3    [公式或对象]  简称为n-全排列数。
+我们知道：
+定理3.5 对任意正整数n , r , r≤n , 从n个元素的集合中每次取出r个元素进行有序排列时可得到的排列的总数是：（约定  EMBED Equation.3    [公式或对象]   ，  EMBED Equation.3    [公式或对象]  ）
+  EMBED Equation.3    [公式或对象]  
+特别地，  EMBED Equation.3    [公式或对象]    ，   EMBED Equation.3    [公式或对象]  
+例3.4问有多少个大于5400，又同时满足下列两个性质的整数：
+各位数字都不相同。
+数中不出现数字2与7。
+解. 由于要求各位数字都不相同，并且数中不出现数字2与7，因此满足条件的数只能是四位数、五位数、六位数、七位数和八位数。其中五位数、六位数、七位数和八位数的数目可以如下分别计算：第一位有非0，2，7的七种安排方法，其它各位则可从剩余的七个数字里再选取i 个（i = 4，5，6，7）进行排列，因此它们的数目分别是
+                         EMBED Equation.3    [公式或对象]  
+而五位数、六位数、七位数和八位数的数的总数应当是
+        EMBED Equation.3    [公式或对象]  
+另外，满足要求的四位数可如下计算：
+千位数大于5的有  EMBED Equation.3    [公式或对象]  个（千位数有3种排法，6，8，9，其余各位则可从剩余的7个数字里再选取3个来排列）。
+千位数是5，而百位数大于或等于4的有  EMBED Equation.3    [公式或对象]  个（千位数确定，百位数有4种排法，4，6，8，9，其余各位则可从剩余的6个数字里再选取2个来排列）。
+故满足上述两个性质的整数共计有
+             94080 + 630 + 120 = 94830 （个）
+本例中大量使用了加法原理。
+以上所说的排列有人称之为线排列，而将以下的排列称之为圆排列：从n个元素的集合中每次取出r个元素，围绕一个圆周进行有序排列。这种排列的总数显然可以如下确定。
+定理3.6 对任意正整数n , r , r≤n , 从n个元素的集合中每次取出r个元素，围绕一个圆周进行有序排列时可得到的排列的总数是： 
+              EMBED Equation.3    [公式或对象]  
+特别地，全取n个元素的圆排列的数目是：  EMBED Equation.3    [公式或对象]  。
+证. 观察一个r个元素的圆排列，设想在圆排列的r个间隔处将其切断，每一个不同的切断均产生一个不同的线排列，换言之，一个圆排列对应 r个线排列。因此，r个元素的圆排列的总数应当等于r个元素的线排列的总数除以r ，即  EMBED Equation.3    [公式或对象]   。
+例3.5位女士和六位先生围着一张圆桌聚餐，要求安排女士和先生交替就座。问：有多少可能的安排方案。
+解. 由于要求安排女士和先生交替就座，因此可以先安排六位女士坐下，两位之间留出一个空位，然后再安排先生就座。安排六位女士坐下（圆排列）的方案数是
+  EMBED Equation.3    [公式或对象]  （种）
+由于已经有女士在位，安排先生在六个空位上就座时，就不再是圆排列了，因为原先被看成相同圆排列的六位先生的就座方式所产生的全体人员的圆排列是不同的。故安排先生在六个空位上就座的方案数是
+                         EMBED Equation.3    [公式或对象]  
+于是我们得到满足要求安排方案共计有
+                          EMBED Equation.3    [公式或对象]  （种）
+    本例中主要使用了乘法原理，读者可以细细体会之。
+
+3.2.2 组合的计数
+    组合的计数以及组合数的性质，在中学课程中也均有涉及，我们在作简要回顾的同时，适度地加以提高。
+定义3.2 用  EMBED Equation.3    [公式或对象]  或  EMBED Equation.3    [公式或对象]  表示“从n个元素的集合中每次取出r个元素（不进行有序排列）组成子集合的总数。  EMBED Equation.3    [公式或对象]  或  EMBED Equation.3    [公式或对象]  简称为r-组合数。
+我们知道：
+定理3.7 对任意正整数n , r , r≤n , 从n个元素的集合中每次取出r个元素组成子集合的总数是： 
+  EMBED Equation.3    [公式或对象]  
+特别地，  EMBED Equation.3    [公式或对象]   ，  EMBED Equation.3    [公式或对象]   ，约定  EMBED Equation.3    [公式或对象]   。
+例3.6 一个足球队有15名队员，其中5人能踢后场，8人能踢前场，2人既能踢后场又能踢前场。今需从中选取7名前锋和4名后卫参加比赛，问：有多少种不同的选法（只考虑队员的前后场特长组合，不考虑同一位置上的左右区别）。
+解. 把15人按其特长分为三个集合：  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  由能踢后场的5人组成，  EMBED Equation.3    [公式或对象]  由能踢前场的8人组成，  EMBED Equation.3    [公式或对象]  既能踢后场又能踢前场的2人组成。分下列情况进行讨论：
+不用  EMBED Equation.3    [公式或对象]  人员的选法有   EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  (种)
+用  EMBED Equation.3    [公式或对象]  中一个人员的选法有
+   用  EMBED Equation.3    [公式或对象]  人员踢前锋的选法有 2  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  (种)
+   用  EMBED Equation.3    [公式或对象]  人员踢后卫的选法有 2  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  (种)
+(3) 用  EMBED Equation.3    [公式或对象]  中两个人员的选法有
+   用  EMBED Equation.3    [公式或对象]  中两个人员踢前锋的选法有   EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  (种)
+   用  EMBED Equation.3    [公式或对象]  中两个人员踢后卫的选法有   EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  (种)
+   用  EMBED Equation.3    [公式或对象]  中的一个人员踢后卫、另一个人踢前锋的选法有（注意这两个人可以互换位置）
+                                  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  (种)
+因此，不同的选法共计有
+                     40 + 280 + 160+280 + 80 + 560 = 1400(种) 
+本例中综合使用了加法原理和乘法原理。
+组合数  EMBED Equation.3    [公式或对象]  有许多有趣的性质。
+定理3.8 对任意正整数n , r , r≤n , 
+（1）  EMBED Equation.3    [公式或对象]  
+（2）  EMBED Equation.3    [公式或对象]  
+两式均由定理3.7立即可得。   
+在介绍组合数  EMBED Equation.3    [公式或对象]  其它性质之前，我们回忆一下牛顿二项式定理：对任意正整数 n
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+定理3.9 对任意正整数n ，
+(1)   EMBED Equation.3    [公式或对象]  。
+(2)   EMBED Equation.3    [公式或对象]  。
+证. 根据牛顿二项式定理：
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+定理3.10 对于满足条件1≤ k ≤ n – 1的任意正整数k和n ，有
+                  EMBED Equation.3    [公式或对象]  
+证. 等式的左边  EMBED Equation.3    [公式或对象]  表示从n个元素的集合中每次取出k个元素组成子集合的总数。我们从另外一个角度来考虑这些子集合。取定元素a，这些子集合可以分为两类，（1）不含元素a的k个元素组成的子集合，其个数是  EMBED Equation.3    [公式或对象]  ；（2）必含元素a的k个元素组成的子集合，其个数是  EMBED Equation.3    [公式或对象]  。因此，  EMBED Equation.3    [公式或对象]  。
+
+练习3.2
+选择题
+(1) 从数字1,2,3,4,…,9九个数中，每次取出两个数字，把其和为奇数的情形与偶数的情形相比较，知（　）
+A.　偶数多于奇数；
+B.　奇数多于偶数；
+C.　两类数的个数相同；
+D.　为4:5;
+(2) 每次从男生五人﹑女生六人中选出两人排成一行，排法种数为（   ）
+A.   EMBED Equation.3    [公式或对象]  种      B.  EMBED Equation.3    [公式或对象]  种    C.  EMBED Equation.3    [公式或对象]   种       D.4!  EMBED Equation.3    [公式或对象]  种
+(3) 某市电话号码原为5个数码，今要改成6个数码，这样可增加用户（假定0不能做为第一个数码）是(  )
+A   EMBED Equation.3    [公式或对象]  个   B.  EMBED Equation.3    [公式或对象]  个    C.  EMBED Equation.3   [公式或对象]  个   D.  EMBED Equation.3    [公式或对象]  个
+(4) 某一天的课程要排入语文、数学、物理、化学、德育、体育六节课，如果第一节不排体育，最后一节不排数学，则共有各种不同的排法为（  ）
+A   EMBED Equation.3   [公式或对象]  种  B.  EMBED Equation.3   [公式或对象]  种  C.4  EMBED Equation.3   [公式或对象]  种   D.21  EMBED Equation.3   [公式或对象]  种
+(5) 父母与四个子女一起围坐一张圆桌，父母肩并肩就坐的排列法为（  ）
+A.（6-1）！种     
+B.（4-1）！+2！种     
+C.  (5-1)!×2种    
+D.  (4-1)!×2种
+2、填空题
+全班有50名同学，两两握手一次，共握手____次；两两互赠一张照片，共需照片___张。
+从1到10的十个自然数中，任取两个相加，所得和为奇数的情形有     种。
+投大小两颗骰子，向上一面两个骰子的点数合为偶数的情形有     种。
+平面上有10个点，每两点的连线都不平行，且无三条直线过同一点，除原来的10点外，这些点的连线的交点还有            个。 
+3、某产品加工需要“甲、乙、丙、丁、戊”等五道工序。问
+(1) 当规定工序丁必须紧接着工序丙安排加工，五道工序的安排方法有多少种？
+(2) 当规定工序乙必须安排在工序戊的前面加工，五道工序的安排方法有多少种？
+4、今有12个人围着圆桌就座，如果其中有两个人不愿坐在相邻的位置上，问：有多少种不同的坐法？
+5、从集合{1，2，3，…，300}中任取3个数，使得它们的和能被3整除。问有多少种取法？
+6、一个俱乐部有10名男成员，12名女成员，现从中选出4人组成一个委员会，若
+(1)至少要有2名女的。
+(2)除上述要求外，又指定M，N两女士不能同时入选。
+那么，各有多少种不同的选法？
+7、证明定理3.8 (1) , (2)。
+8、证明：对任意正整数 n , k , r , 若r ≤ k ≤ n , 则
+(1)  EMBED Equation.3    [公式或对象]  
+(2)  EMBED Equation.3    [公式或对象]  
+9、如下分割集合S：从集合S起，每一次都把多于一个元素的一个集合分成两个非空集合，直到所有集合都只有一个成员为止。问：有多少种不同的分割过程。（提示：可以考虑分割以后再合并的过程有多少种）
+10、从集合{1，2，…，n+1}中选出3个数组成三元序组<x,y,z>,使得x<z ,y<z 。
+(1) 证明：当z = k+1时，这样的三元序组的个数恰为k2个(1≤ k ≤ n)。
+(2) 这样的三元序组可以依据x=y,x<y,y<x分为三类，分别计算这三类三元序组的数目。
+(3) 根据（1）（2）的计算，可以作出一个重要的恒等式。写出这个恒等式。
+
+3.3 重集的排列与组合
+我们知道，集合是互相区别的对象的总体。而本节要讨论的重集则是允许多个相同的对象同时出现的对象的总体。重集中的对象仍称为重集的元素，重集中相同元素的个数称为元素的重数。具有  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，…，  EMBED Equation.3    [公式或对象]  的重集，称之为  EMBED Equation.3    [公式或对象]  个元素的m元重集，可以表示为
+                EMBED Equation.3    [公式或对象]  
+约定  EMBED Equation.3    [公式或对象]  表示a在重集中可出现任意多次，因此，重集  EMBED Equation.3    [公式或对象]  中的所有元素均可以任意多次地出现。含有  EMBED Equation.3    [公式或对象]  的重集，称为有无穷元素的m元重集。
+
+3.3.1 重集的排列
+定义3.3 重集的r-排列是指从重集  EMBED Equation.3    [公式或对象]  （其中各  EMBED Equation.3    [公式或对象]  可以是  EMBED Equation.3    [公式或对象]  ）中每次取出r个元素进行有序的排列，此时可得到的排列的总数称为r-排列数。当  EMBED Equation.3    [公式或对象]  时，称此r-排列为全排列，此时可得到的排列的总数称为全排列数。
+定理3.11 无穷重数的m元重集  EMBED Equation.3    [公式或对象]  的r-排列数是  EMBED Equation.3    [公式或对象]  。
+证. 无穷重数的m元重集  EMBED Equation.3    [公式或对象]  的r-排列的每一个位置上均可选取m个不同元素中的每一个，因此每一个位置上元素的排放法有m种，故而r-排列数应当是  EMBED Equation.3    [公式或对象]  。
+例3.7（1）用7颗六彩的珠子串成长链，可以串出多少种不同的长链？（假定六彩的珠子取之不尽，并且不考虑链子的反转）
+（2）用7颗六彩的珠子串成环链，至少用两种颜色的珠子，可以串出多少种不同的环链？（假定六彩的珠子取之不尽，并且不考虑链子的反转）
+解. （1）用7颗六彩的珠子串成长链，可以串出不同的长链
+                         EMBED Equation.3    [公式或对象]  (种)
+（2）用7颗六彩的珠子串成环链，至少用两种颜色的珠子，可以串出不同的环链
+                          EMBED Equation.3    [公式或对象]  （种）
+注意：这里重集的圆排列元素个数r必须是质数，否则一个r-圆排列未必可以展开成r个（线）排列（请读者自行给出反例）。
+定理3.12  m元重集  EMBED Equation.3    [公式或对象]  的全排列数是
+                              EMBED Equation.3    [公式或对象]  
+其中  EMBED Equation.3    [公式或对象]  。
+证. 先从n个排列的位置中选取n1个,放置元素a1，放置方法有  EMBED Equation.3    [公式或对象]  种，再从n - n1  个排列的位置中选取n2个,放置元素a2，放置方法有  EMBED Equation.3    [公式或对象]  种，…，最后从n - n1- n2…- nm-1 个排列的位置中选取nm个,放置元素am，放置方法有  EMBED Equation.3    [公式或对象]  种。因此，m元重集  EMBED Equation.3    [公式或对象]  的全排列数是
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  …  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  …  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]    （注意：  EMBED Equation.3    [公式或对象]  ）
+
+例3.8一位秘书在某大厦B.工作，该大厦在她家（H）东边9个街段，北边7个街段（如图3.1所示，图中线段表示街道）。假定她每天从家里到大厦去上班都不走回头路（即只向东和向北行走）。问她可以有多少种不同的走法？又若图中的AC段积水，使她无法通过，这时她又可以有多少种不同的走法？
+解. 为图3.1建立坐标系，H点坐标为（0，0），B点坐标为（9，7），A点坐标为（4，3），C点坐标为（5，3）。因为她只向东和向北行走，因此可以用9·E表示她可选择的向东
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+                                  图3.1
+
+的九个街段，用7·N表示她可选择的向北的七个街段。于是她的一种走法就对应于重集{9·E，7·N}的一个全排列，故她可以有的不同的走法是
+  EMBED Equation.3    [公式或对象]  （种） 
+我们先来计算必经AC街段时她的走法总数，可以分为两个阶段来计算。从A到H的走法、从C到B的走法各有有
+                     EMBED Equation.3    [公式或对象]  （种）      ，      EMBED Equation.3    [公式或对象]  （种）
+因此，必经AC街段时她的走法总数是  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  （种）
+若图中的AC段积水，使她无法通过，那么她的走法数目应当是
+            EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  （种）
+例3.9（1）问方程  EMBED Equation.3    [公式或对象]  有多少组自然数解？
+（2）问方程  EMBED Equation.3    [公式或对象]  有多少组正整数解？
+解. （1）考虑由m – 1个0和r个1组成的0，1序列。我们把这样一个0，1序列看成是m – 1个0把r个1分成m组的一个分割：第一个0的左边的1看作为第一组1，第一个0和第二个0之间的1看作为第二组1，……，第m – 1个0右边的1看作为第m组1。这样，一个0，1序列的分割对应于方程的一组自然数解，反之，方程的一组自然数解也对应于一个0，1序列分割。例如m=5，r=4时，01011001对应的方程   EMBED Equation.3    [公式或对象]  
+的一组解是
+   EMBED Equation.3    [公式或对象]  
+因此，方程  EMBED Equation.3    [公式或对象]  自然数解的数目等同于重集  EMBED Equation.3    [公式或对象]  的全排列数，即
+                          EMBED Equation.3    [公式或对象]  
+（2）考虑r个1组成的序列，用  EMBED Equation.3    [公式或对象]  来表示r个1之间的r – 1个间隔。取  EMBED Equation.3    [公式或对象]  中的m – 1个，并在这些位置的每一个上插入一个0。我们把得到的这样一个0，1序列看成是m – 1个0把r个1分成m组的一个分割：第一个0的左边的1看作为第一段1，第一个0和第二个0之间的1看作为第二段1，……，第m – 1个0右边的1看作为第m段1。由于任意两个0之间至少有一个1，因此，所得0，1序列中的各个幺段对应于方程的一组正整数解；反之，方程的一组正整数解也对应于一个这样的0，1序列中的各个幺段。因此，方程  EMBED Equation.3    [公式或对象]  正整数解的数目等同于集合  EMBED Equation.3    [公式或对象]  的(m – 1)-组合数：
+                       EMBED Equation.3    [公式或对象]  
+
+3.3.2 重集的组合
+定义3.4 重集的r-组合是指从重集  EMBED Equation.3    [公式或对象]  （其中各  EMBED Equation.3    [公式或对象]  可以是  EMBED Equation.3    [公式或对象]  ）中每次取出r个元素组成子重集，此时可得到的子重集的总数称为r-组合数。
+定理3.13无穷重数的m元重集   EMBED Equation.3    [公式或对象]   的r-组合数是  EMBED Equation.3    [公式或对象]  。
+证. m元重集  EMBED Equation.3    [公式或对象]  的r-组合是r个元素组成子重集
+  EMBED Equation.3    [公式或对象]  
+因此，r-组合数与方程  EMBED Equation.3    [公式或对象]  的自然数解的数目相等，根据例3.9（1），m元重集  EMBED Equation.3    [公式或对象]  的r-组合数是
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  。
+事实上，此结论对于  EMBED Equation.3    [公式或对象]  均不小于r的重集  EMBED Equation.3    [公式或对象]  也成立。
+定理3.14要求无穷重数的m元重集  EMBED Equation.3    [公式或对象]  的r-组合中  EMBED Equation.3    [公式或对象]  均至少选入一次的r-组合数是  EMBED Equation.3    [公式或对象]  。
+证. 无穷重数的m元重集  EMBED Equation.3    [公式或对象]  的r-组合是r个元素组成子重集
+  EMBED Equation.3    [公式或对象]  
+且  EMBED Equation.3    [公式或对象]  均为正整数，因此，r-组合数与方程  EMBED Equation.3    [公式或对象]  的正整数解的数目相等，根据例3.9（2），m元重集  EMBED Equation.3    [公式或对象]  的r-组合中  EMBED Equation.3    [公式或对象]  均至少选入一次的r-组合数是  EMBED Equation.3    [公式或对象]  。
+    例3.10一家面包店卖6种面包，假如你要买12个面包，可以有多少种选择方案(假定各种面包的数量都大大超过12只)？假如你要买12个面包，且每种面包至少一只，可以有多少种选择方案？
+解. 第一问是一个求重集  EMBED Equation.3    [公式或对象]  的12-组合数的问题。因此其解是
+       EMBED Equation.3    [公式或对象]  （种）
+第二问则是求重集  EMBED Equation.3    [公式或对象]  的、每个元素至少取一个的12-组合数的问题。因此其解是
+       EMBED Equation.3    [公式或对象]  （种）
+例3.11设  EMBED Equation.3    [公式或对象]  ，求S的r-组合数。
+解. 将S分为两个子集
+  EMBED Equation.3    [公式或对象]  和  EMBED Equation.3    [公式或对象]  
+那么，S的r-组合可以如下构成：先从S1中选出i个元素( i = 0，1，2，…，t ) ,再从 S2中选出r–i个元素。因此，S的r-组合数是  （下式中将原式中的K 改成了m）
+                   EMBED Equation.3    [公式或对象]  
+定理3.13、例3.10例3.11给出了一些情况比较特殊的重集的r-组合数求解方法，更加一般的重集的r-组合数求解方法要借助于容斥原理，我们只用一个例子来介绍这种方法的要领。
+例3.12试计算重集  EMBED Equation.3    [公式或对象]  的10-组合数。
+解.考虑重集  EMBED Equation.3    [公式或对象]  的所有10-组合集合K。令  EMBED Equation.3    [公式或对象]  表示性质：“  EMBED Equation.3    [公式或对象]  的10-组合中多于3个a”，  EMBED Equation.3    [公式或对象]  表示性质：“  EMBED Equation.3    [公式或对象]  的10-组合中多于4个b”，  EMBED Equation.3    [公式或对象]  表示性质：“  EMBED Equation.3    [公式或对象]  的10-组合中多于5个c”。那么，  EMBED Equation.3    [公式或对象]  的10-组合数等于不具有性质  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  的  EMBED Equation.3    [公式或对象]  的10-组合数。我们利用容斥原理来计算  EMBED Equation.3    [公式或对象]  的10-组合数。将具有性质  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  的  EMBED Equation.3    [公式或对象]  的10-组合数分别记为(  EMBED Equation.3    [公式或对象]  (，(  EMBED Equation.3    [公式或对象]  (，(  EMBED Equation.3    [公式或对象]  (;将同时具有性质  EMBED Equation.3    [公式或对象]  和  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  和  EMBED Equation.3    [公式或对象]  ,以及  EMBED Equation.3    [公式或对象]  和  EMBED Equation.3    [公式或对象]  的  EMBED Equation.3    [公式或对象]  的10-组合数分别记为(  EMBED Equation.3    [公式或对象]  (，(  EMBED Equation.3    [公式或对象]  (，(  EMBED Equation.3    [公式或对象]  (;将同时具有性质  EMBED Equation.3    [公式或对象]  ,  EMBED Equation.3    [公式或对象]  和  EMBED Equation.3    [公式或对象]  的10-组合数记为(  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  (,将同时不具有性质  EMBED Equation.3    [公式或对象]  ,  EMBED Equation.3    [公式或对象]  和  EMBED Equation.3    [公式或对象]  的10-组合数记为  EMBED Equation.3    [公式或对象]  。
+此外，   EMBED Equation.3    [公式或对象]  的10-组合数记为(  EMBED Equation.3    [公式或对象]  ( 。根据定理3.13
+(  EMBED Equation.3    [公式或对象]  ( =   EMBED Equation.3    [公式或对象]               
+   (  EMBED Equation.3    [公式或对象]  ( =   EMBED Equation.3    [公式或对象]  （取定4个a后，再取  EMBED Equation.3    [公式或对象]  的一个6-组合）
+(  EMBED Equation.3    [公式或对象]  ( =   EMBED Equation.3    [公式或对象]  （取定5个b后，再取  EMBED Equation.3    [公式或对象]  的一个5-组合）
+(  EMBED Equation.3    [公式或对象]  ( =   EMBED Equation.3    [公式或对象]  （取定6个c后，再取  EMBED Equation.3    [公式或对象]  的一个4-组合）
+   (  EMBED Equation.3    [公式或对象]  ( =  EMBED Equation.3    [公式或对象]  （取定4个a, 5个b后，再取  EMBED Equation.3    [公式或对象]  的一个1-组合）
+   (  EMBED Equation.3    [公式或对象]  ( =  EMBED Equation.3    [公式或对象]  （取定4个a, 6个c后，再取  EMBED Equation.3    [公式或对象]  的一个0-组合）
+   (  EMBED Equation.3    [公式或对象]  ( = 0 （取定5个b, 6个c的  EMBED Equation.3    [公式或对象]  的10-组合不存在）
+(  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  ( = 0 （取定4个a,5个b, 6个c的  EMBED Equation.3    [公式或对象]  的10-组合不存在）
+根据容斥原理
+  EMBED Equation.3    [公式或对象]  =(  EMBED Equation.3    [公式或对象]  (-(  EMBED Equation.3    [公式或对象]  (-(  EMBED Equation.3    [公式或对象]  (-(  EMBED Equation.3    [公式或对象]  (+(  EMBED Equation.3    [公式或对象]  (+(  EMBED Equation.3    [公式或对象]  (+(  EMBED Equation.3    [公式或对象]  (-(  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  (
+           = 66-28-21-15+3+1+0-0 = 6
+这就是说，重集  EMBED Equation.3    [公式或对象]  的10-组合数为6 。
+
+3.3.3禁位排列的计数
+定义3.5集合{1，2，3，…，n}的全排列，使得每个数i都不在第i位上，称这样的排列为{1，2，3，…，n}的一个错置。
+定理3.15集合{1，2，3，…，n}的错置的总数（记为  EMBED Equation.3    [公式或对象]  ）是
+       EMBED Equation.3    [公式或对象]     
+约定  EMBED Equation.3    [公式或对象]  。
+证.设S是{1，2，3，…，n}的全排列的集合，  EMBED Equation.3    [公式或对象]  。令  EMBED Equation.3    [公式或对象]  表示性质：“数i放置在排列的第i个位置上”(i=1，2，…，n)。  EMBED Equation.3    [公式或对象]  表示具有性质  EMBED Equation.3    [公式或对象]  的{1，2，3，…，n}的全排列的集合。由于集合{1，2，3，…，n}的错置的总数，就是同时不具有所有性质  EMBED Equation.3    [公式或对象]  (i=1，2，…，n)的{1，2，3，…，n}的全排列的总数，因此
+                        EMBED Equation.3    [公式或对象]  =  EMBED Equation.3    [公式或对象]  
+可以用容斥原理来求解。
+    由于“数i放置在排列的第i个位置上”的排列数，等同于其余n-1个数的全排列，因此
+                           EMBED Equation.3    [公式或对象]  
+而同时满足  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  的排列数，等同于其余n-2个数的全排列，因此
+                         EMBED Equation.3    [公式或对象]  
+如此等等，一般地有
+                         EMBED Equation.3    [公式或对象]  
+故
+    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  
+     EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    
+     EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+     EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+      EMBED Equation.3    [公式或对象]  的下列性质被称为它的“递推公式”。我们将在第7章来讨论这类递推公式。
+    定理3.16（1）  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+              （2）  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+    证.（1）设{1，2，3，…，n}的一个错置是
+                                  EMBED Equation.3    [公式或对象]  
+因为  EMBED Equation.3    [公式或对象]  ，所以  EMBED Equation.3    [公式或对象]  有n-1种取法。设  EMBED Equation.3    [公式或对象]  ，分两种情况来讨论：
+    （1.1）  EMBED Equation.3    [公式或对象]  。这时  EMBED Equation.3    [公式或对象]  取决于其余n-2个数的错置，这些错置的数目是
+  EMBED Equation.3    [公式或对象]   。
+    （1.2）  EMBED Equation.3    [公式或对象]  。这时  EMBED Equation.3    [公式或对象]  取决于其余n-1个数的错置：“1不可放置在第i
+位，其它各数j不可放置在第j位”，这些错置的数目是  EMBED Equation.3    [公式或对象]   。因此，由加法原理和乘法
+原理
+                       EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+    （2）容易明白  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，用它们和（1）不难得到本结论。
+定义3.6集合{1，2，3，…，n}的全排列，使得每个数i都不紧邻在数i-1的后面，把{1，2，3，…，n}的这样的禁位全排列的总数记为  EMBED Equation.3    [公式或对象]  。
+定理3.17 定义3.6中的集合{1，2，3，…，n}的禁位全排列总数
+       EMBED Equation.3    [公式或对象]     
+证.设S是{1，2，3，…，n}的全排列的集合，  EMBED Equation.3    [公式或对象]  。令  EMBED Equation.3    [公式或对象]  表示性质：“排列中数i+1放置在数i的后面”(i=1，2，…，n)。  EMBED Equation.3    [公式或对象]  表示具有性质  EMBED Equation.3    [公式或对象]  的{1，2，3，…，n}的全排列的集合。由于集合{1，2，3，…，n}的  EMBED Equation.3    [公式或对象]  ，就是同时不具有所有性质  EMBED Equation.3    [公式或对象]  (i=1，2，…，n-1)的{1，2，3，…，n}的全排列的总数，因此
+                        EMBED Equation.3    [公式或对象]  =  EMBED Equation.3    [公式或对象]  
+可以用容斥原理来求解。
+    由于“排列中数i+1放置在数i的后面”的排列数，等同于其余n-2个数与i(i+1)的全排列，因此
+                           EMBED Equation.3    [公式或对象]  
+同理，同时满足  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  的排列数，等同于其余n-4个数与i(i+1)，与j(j+1)的全排列，因此
+                         EMBED Equation.3    [公式或对象]  
+如此等等，一般地有
+                         EMBED Equation.3    [公式或对象]  
+故
+    EMBED Equation.3    [公式或对象]  =  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  =   EMBED Equation.3    [公式或对象]  -  EMBED Equation.3    [公式或对象]  +  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  
+练习3.3
+1、填空题
+(1)从8人中选取4人，4人中有两人是特定，排成一列，有      种排列法。
+(2)把十只苹果，八只梨，分给4个小孩，有      种分法。
+(3)把四种不同颜色的手帕各一条装入A、B、C三只盒子。规定：A盒内不能超过三条；B盒内不能超过两条；C盒内不能超过一条，但有的盒内可以不装，共有        种装法。
+2、r个有区别的球，放入n个有区别的盒子，盒子内球数不限，可以为0。问：有多少不同的放置方法？
+3、n个有区别的球，放入K个有区别的盒子B1，B2，…，BK，要求在盒子Bi中放置ni个球，i=1，2，…，k，且  EMBED Equation.3    [公式或对象]   。证明放置的不同方式有
+                              EMBED Equation.3    [公式或对象]  （种）
+4、某大楼要排成一行悬挂15面彩旗。其中红、黄、蓝、绿、橙五种颜色各3面，问：
+(1)这些彩旗有多少种不同的排列方法？
+(2)若不允许有两面蓝旗相邻，又有多少种不同的排列方法？
+5、n个相同的球放入r个有标记的盒子中，（r≤ n）允许有盒子是空的。证明放置方法数为  EMBED Equation.3    [公式或对象]  。
+6、求方程  EMBED Equation.3    [公式或对象]  的整数解，要求
+(a)   EMBED Equation.3    [公式或对象]  
+(b)   EMBED Equation.3    [公式或对象]  
+7、 n个相同的球放入r个有标记的盒子中，（r≤ n）使得没有一个盒子是空的。证明放置方法数为  EMBED Equation.3    [公式或对象]  。
+8、两个十位数，如果重排其中的一个可以得到另外一个，那么称这两个十位数是“同码的”。问：有多少个同码的十位数。
+9、计算，由数字1，1，2，3，3，4可以组成多少个四位数。
+10、证明：把x个1和y个0排成一行（x≤y+1），使得没有两个1是相邻的排列数为  EMBED Equation.3    [公式或对象]  。
+11、一个面包店只剩下6个巧克力面包，7个黄棕色面包和3个普通面包。这时要从这16个面包中任选12个装成一盒，问：有多少种不同的选法？
+
+3.4 递归关系
+    我们在前一节的禁位排列的计数中曾指出，集合{1，2，3，…，n}的错置数  EMBED Equation.3    [公式或对象]  满足以下性质
+（1）  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+    （2）  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+式（1）（2）被称为递归关系（recurrence relations）式。递归关系式是指运用函数的前驱值来计算函数当前值的关系式。例如，在（1）中，运用  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  可以计算  EMBED Equation.3    [公式或对象]  ；在（2）中，运用  EMBED Equation.3    [公式或对象]  便可以计算  EMBED Equation.3    [公式或对象]  。我们还注意到，式（1）连同初值  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  ，可以唯一地确定函数  EMBED Equation.3    [公式或对象]  。利用递归关系进行计数问题的求解，是组合论的重要内容之一。
+定义3.7 下列方程组
+  EMBED Equation.3    [公式或对象]  
+称为定义数列（自然数函数）  EMBED Equation.3    [公式或对象]  的常系数线性齐次递归式(linear homogeneous recurrence relations with constant efficient) 。若方程组的最后一式为
+  EMBED Equation.3    [公式或对象]  
+那么，方程组称为定义数列（自然数函数）  EMBED Equation.3    [公式或对象]  的常系数线性非齐次递归式(linear non homogeneous recurrence relations with constant efficient)。
+递归关系式是求解组合数学问题的重要工具，几乎在所有的数学分支中都有重要应用，本教材的第11章将用它作为研究函数的重要手段。本章对递归关系式的研究的主要目的是：
+（1）针对要求解的问题建立递归关系式。
+（2）由递归关系式解出数列（自然数函数）的解析式。
+（3）利用递归关系式解决一些重要的计数问题。
+
+3.4.1 一个重要的递归关系
+我们从一个重要而且典型的递归关系式来开始本章的讨论。
+十三世纪意大利数学家费波那契（Fibonacci）提出了一个有趣的兔子繁殖的问题：在一年的年初把一对刚出生的小兔子放进养殖场。小兔子一个月长成，长成后即可生育，每月可生产一雌一雄的小兔子一对。月复一月，出生的小兔子均在一月后长成，并在日后不断生产。问在一年后养殖场有多少对兔子？
+用  EMBED Equation.3    [公式或对象]  表示在第  EMBED Equation.3    [公式或对象]  个月养殖场里兔子的对数，用  EMBED Equation.3    [公式或对象]  表示开始时养殖场里兔子的对数。那么，
+  EMBED Equation.3    [公式或对象]   （最初的兔子对数）
+  EMBED Equation.3    [公式或对象]    （一月的兔子对数）
+      EMBED Equation.3    [公式或对象]   （最初的一对加上它们的后代）
+      EMBED Equation.3    [公式或对象]   （二月的2对加上最初一对的后代）
+  EMBED Equation.3    [公式或对象]   （三月的3对加上二月2对的后代）
+  EMBED Equation.3    [公式或对象]   （四月的5对加上三月3对的后代）
+  EMBED Equation.3    [公式或对象]   （五月的8对加上四月5对的后代）
+  EMBED Equation.3    [公式或对象]   （六月的13对加上五月8对的后代）
+  EMBED Equation.3    [公式或对象]   （七月的21对加上六月13对的后代）
+  EMBED Equation.3    [公式或对象]   （八月的34对加上七月21对的后代）
+  EMBED Equation.3    [公式或对象]   （九月的55对加上八月34对的后代）
+  EMBED Equation.3    [公式或对象]   （十月的89对加上九月55对的后代）
+  EMBED Equation.3    [公式或对象]   （十一月的144对加上十月89对的后代）
+  EMBED Equation.3    [公式或对象]   （十二月的233对加上十一月144对的后代）
+一年后（第13个月）养殖场共有兔子377对。于是人们把数列  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，…，  EMBED Equation.3    [公式或对象]  ，…，称为费波那契数列，其中的每一个数也称费波那契数。不难发现费波那契数列满足下列递归关系式
+                 EMBED Equation.3    [公式或对象]  
+人们也把上述递归关系式叫做费波那契递归关系。
+可以用以下方法求出费波那契数列的通项公式。
+令  EMBED Equation.3    [公式或对象]  ，   EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，这里  EMBED Equation.3    [公式或对象]  是不等于零的数。那
+
+
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    或    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+因此，当且仅当  EMBED Equation.3    [公式或对象]  是二次方程  EMBED Equation.3    [公式或对象]  的解时，  EMBED Equation.3    [公式或对象]  是递归关系
+                     EMBED Equation.3    [公式或对象]  
+的解。由二次方程求根公式知  EMBED Equation.3    [公式或对象]  的两个根是：
+                       EMBED Equation.3    [公式或对象]    ，    EMBED Equation.3    [公式或对象]  
+因此                   EMBED Equation.3    [公式或对象]    和    EMBED Equation.3    [公式或对象]  
+都是  EMBED Equation.3    [公式或对象]  的解。由于这一递归关系是线性齐次的，故而对任意常数  EMBED Equation.3    [公式或对象]  ，
+                    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+也都是  EMBED Equation.3    [公式或对象]  的解，称为  EMBED Equation.3    [公式或对象]  的通解。此外，由于  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，代入递归式得
+                               EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+解这个方程组，又得
+                          EMBED Equation.3    [公式或对象]    ，  EMBED Equation.3    [公式或对象]  
+最终我们有  EMBED Equation.3    [公式或对象]  的解，亦即费波那契数列的通项公式：
+                     EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+若  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，那么由
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+可求  EMBED Equation.3    [公式或对象]  的解，因为上述方程组的系数行列式非零：
+  EMBED Equation.3    [公式或对象]  
+从而可以讨论一般意义下的费波那契数列。费波那契递归关系有许多的性质与应用（见练习3.4），是一个非常重要的递归关系。
+例3.13 集合  EMBED Equation.3    [公式或对象]  的子集称为是交替的，如果它的元素在按照上升次序排列时，是奇、偶交替地出现的，且第一个数是奇数。规定空集和奇数单元素子集是交替的。例如{1，4，7，8}和  EMBED Equation.3    [公式或对象]  是交替的，{2，4，5}和{1，3，4，6}都不是交替的。令  EMBED Equation.3    [公式或对象]  表示  EMBED Equation.3    [公式或对象]  的交替子集的数目。求解  EMBED Equation.3    [公式或对象]  。
+解. 先找出  EMBED Equation.3    [公式或对象]  的递归关系式。显然  EMBED Equation.3    [公式或对象]  ，它的交替子集是  EMBED Equation.3    [公式或对象]  和(。  EMBED Equation.3    [公式或对象]  ，它的交替子集是  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  和(。
+把  EMBED Equation.3    [公式或对象]  的所有子集分为两部分。第一部分是  EMBED Equation.3    [公式或对象]  的所有子集（不含  EMBED Equation.3    [公式或对象]  ），第二部分是由  EMBED Equation.3    [公式或对象]  的每一个子集加进元素n以后所得到的子集（包含  EMBED Equation.3    [公式或对象]  ）。第一部分子集中的交替子集为  EMBED Equation.3    [公式或对象]  ；第二部分子集中的交替子集，可以也只可以由  EMBED Equation.3    [公式或对象]  的交替子集并入  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  （交替子集末尾与  EMBED Equation.3    [公式或对象]  同奇偶时）、或  EMBED Equation.3    [公式或对象]  的交替子集并入  EMBED Equation.3    [公式或对象]  （交替子集末尾与  EMBED Equation.3    [公式或对象]  不同奇偶时）来构成，因此，其数目与  EMBED Equation.3    [公式或对象]  的交替子集数相同，也为  EMBED Equation.3    [公式或对象]  。故
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+用上述递归关系式和  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  可以得到
+  EMBED Equation.3    [公式或对象]  。 
+3.4.2 递归关系的求解
+（一）递归关系的迭代求解
+递归关系式的迭代求解方法由两个步骤组成：
+利用递归关系式对关系式右边的表达式进行迭代，并推测解的公式。
+用数学归纳法证明得到的公式。
+用一个极其简单的例子给以说明。
+例3.14 平面上有n条两两相交的直线，又没有任何三条直线交于一点。问共有多少不同交点。（要求用递归关系式求解）
+解. 设已知的  EMBED Equation.3    [公式或对象]  条直线的交点数目为  EMBED Equation.3    [公式或对象]  。如果增添第  EMBED Equation.3    [公式或对象]  条直线，它与前  EMBED Equation.3    [公式或对象]   条直线相交产生新的  EMBED Equation.3    [公式或对象]  个交点，因此
+                      EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+此外，  EMBED Equation.3    [公式或对象]  。现进行迭代计算
+    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  =…
+        EMBED Equation.3    [公式或对象]  
+用数学归纳法证明  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  。
+归纳基础：  EMBED Equation.3    [公式或对象]  时, 已知  EMBED Equation.3    [公式或对象]  ,而  EMBED Equation.3    [公式或对象]  。
+归纳推理：设  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  ，那么
+      EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]       
+归纳完成，证毕。
+    我们再讨论一个稍稍复杂的例子。
+例3.15 有三个木桩， 在一个木桩上有  EMBED Equation.3    [公式或对象]  个大小不等的圆盘，按照由小到大的次序迭放着，最大的圆盘放在最底下。需将这些圆盘从那个木桩转移到另一个木桩，并依然按原来的次序迭放，转移中可以利用第三个木桩，但要求在任何时候都保持让较大的圆盘在较小的圆盘之下。问：完成这样的一次转移，必须移动圆盘多少次。
+解. 令  EMBED Equation.3    [公式或对象]  为完成这样的一次转移必须移动圆盘的次数。容易明白，
+                   EMBED Equation.3    [公式或对象]     EMBED Equation.3    [公式或对象]     EMBED Equation.3    [公式或对象]  
+现求取  EMBED Equation.3    [公式或对象]  所满足的递归关系式。为了把  EMBED Equation.3    [公式或对象]  个圆盘从那个木桩转移到另一个木桩，可以递归地将转移分为三个过程。
+将  EMBED Equation.3    [公式或对象]  个圆盘从所在木桩转移到第三个木桩，留下最大的圆盘。必须移动圆盘的次数是  EMBED Equation.3    [公式或对象]  。
+将最大的圆盘移至目标木桩。必须移动圆盘的次数是 1 。
+将  EMBED Equation.3    [公式或对象]  个圆盘从第三个木桩转移到目标木桩。必须移动圆盘的次数是  EMBED Equation.3    [公式或对象]  。
+因而，
+                    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+作迭代计算
+                EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+                    EMBED Equation.3    [公式或对象]  
+                    EMBED Equation.3    [公式或对象]  
+                  …
+                    EMBED Equation.3    [公式或对象]  
+                    EMBED Equation.3    [公式或对象]  
+也就是说，  EMBED Equation.3    [公式或对象]  
+用归纳法证明这一结论。
+归纳基础：  EMBED Equation.3    [公式或对象]  时, 已知  EMBED Equation.3    [公式或对象]  ,而  EMBED Equation.3    [公式或对象]  
+归纳推理：设  EMBED Equation.3    [公式或对象]  ，那么  EMBED Equation.3    [公式或对象]  时
+    EMBED Equation.3    [公式或对象]  
+归纳完成，证毕。
+    通过上述两个例子的讲解，读者可以十分清楚地了解递归关系式的迭代求解方法了。
+（二）常系数线性齐次递归关系的求解
+    回忆3.4.1，我们把形如
+                   EMBED Equation.3    [公式或对象]   
+的递归关系式称为常系数线性齐次递归关系，并应用了一种十分特别的方法来求解常系数线性齐次递归关系的一个例子——费波那契递归关系式,这一方法称为常系数线性齐次递归关系求解的特征根(characteristic roots)方法。那里的方程  EMBED Equation.3    [公式或对象]  称为递归关系式
+                     EMBED Equation.3    [公式或对象]  
+的特征方程(characteristic equations)。在使用特征根方法时，我们运用了以下两个事实。
+定理3.18 设  EMBED Equation.3    [公式或对象]  是一个非零的实数或复数，那么，  EMBED Equation.3    [公式或对象]  是递归关系式
+  EMBED Equation.3    [公式或对象]     EMBED Equation.3    [公式或对象]  
+的解当且仅当  EMBED Equation.3    [公式或对象]  是它的一个特征根。
+证. 若  EMBED Equation.3    [公式或对象]  是递归关系式的解，那么
+             EMBED Equation.3    [公式或对象]  
+            EMBED Equation.3    [公式或对象]  
+由于  EMBED Equation.3    [公式或对象]  ，因此，  EMBED Equation.3    [公式或对象]  ，也就是说  EMBED Equation.3    [公式或对象]  是它的特征方程  EMBED Equation.3    [公式或对象]  的一个特征根。
+另一方面，上述推理过程是可逆的，故定理得证。
+定理3.19 设  EMBED Equation.3    [公式或对象]  是非零实数或复数，那么，  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  是递归关系式
+  EMBED Equation.3    [公式或对象]     EMBED Equation.3    [公式或对象]  
+的解当且仅当  EMBED Equation.3    [公式或对象]  是它的  EMBED Equation.3    [公式或对象]  个不同的特征根。
+证. 若  EMBED Equation.3    [公式或对象]  是递归关系式的解，其初始值
+               EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，…，  EMBED Equation.3    [公式或对象]  
+那么，有关于  EMBED Equation.3    [公式或对象]  的线性方程组
+           EMBED Equation.3    [公式或对象]  
+           EMBED Equation.3    [公式或对象]  
+          …
+           EMBED Equation.3    [公式或对象]  
+由于它的系数矩阵的行列式（范德蒙,Vandermonde,行列式）
+                  EMBED Equation.3    [公式或对象]  
+线性方程组有确定解。换言之，  EMBED Equation.3    [公式或对象]  是它的  EMBED Equation.3    [公式或对象]  个不同的特征根，当且仅当
+  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+是递归关系式  EMBED Equation.3    [公式或对象]  的解。
+事实上，在3.4.1中这一定理已经得到了运用。我们再来看一个例子。
+例3.16 解下列递归关系式：
+  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  
+解. 递归关系式的特征方程是
+                 EMBED Equation.3    [公式或对象]  
+解之，得三个根：  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  于是有递归关系式的通解
+          EMBED Equation.3    [公式或对象]  
+将初始值  EMBED Equation.3    [公式或对象]  代入，得到一方程组
+         EMBED Equation.3    [公式或对象]     
+         EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  
+解这个方程组得：  EMBED Equation.3    [公式或对象]  
+因此，递归关系式的解是
+  EMBED Equation.3    [公式或对象]  
+       EMBED Equation.3    [公式或对象]  
+例3.17 某人有  EMBED Equation.3    [公式或对象]  元钱，他每一天购买一次物品，或者买一元钱的甲物品，或者买二元钱的乙物品，或者买二元钱的丙物品。问：此人有多少种方式化完这  EMBED Equation.3    [公式或对象]  元钱。
+解.设化完这  EMBED Equation.3    [公式或对象]  元钱的方式有  EMBED Equation.3    [公式或对象]  种，那么，（1）他第一次购物买一元钱的甲物品的话，则化完余下的  EMBED Equation.3    [公式或对象]  元有  EMBED Equation.3    [公式或对象]  种方式；（2）他第一次购物买二元钱的乙物品的话，则化完余下的  EMBED Equation.3    [公式或对象]  元有  EMBED Equation.3    [公式或对象]  种方式；（3）他第一次购物买二元钱的丙物品的话，则化完余下的  EMBED Equation.3    [公式或对象]  元有  EMBED Equation.3    [公式或对象]  种方式。因此
+               EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+而且  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  。利用特征根方法解之，可得
+                     EMBED Equation.3    [公式或对象]  
+但是，上述解法对于特征方程有重根的情况是无效的。
+例3.18 解下列递归关系式：
+  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  
+解. 递归关系式的特征方程是
+                 EMBED Equation.3    [公式或对象]  
+解之，得二个重根：  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  ，于是有递归关系式的通解
+          EMBED Equation.3    [公式或对象]  
+将初始值  EMBED Equation.3    [公式或对象]  代入，得到一个矛盾方程组
+               EMBED Equation.3    [公式或对象]    ，  EMBED Equation.3    [公式或对象]  
+求解失败。
+    显然，必须改进上述方法，改进的依据是以下的定理。
+    定理3.20 设  EMBED Equation.3    [公式或对象]  是非零实数或复数，它们是递归关系式
+  EMBED Equation.3    [公式或对象]     EMBED Equation.3    [公式或对象]  
+的特征方程的  EMBED Equation.3    [公式或对象]  个不同的特征根，各有  EMBED Equation.3    [公式或对象]  重。那么该递归关系式的一般解是
+            EMBED Equation.3    [公式或对象]  
+其中
+      EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+    定理的证明我们不做介绍，通过一些例子直观地诠释这一定理的应用。
+    例3.19 （续例3.18）根据定理3.20，例3.18递归关系式的通解是
+               EMBED Equation.3    [公式或对象]  
+将初始值  EMBED Equation.3    [公式或对象]  代入，得到方程组
+               EMBED Equation.3    [公式或对象]    ，  EMBED Equation.3    [公式或对象]  
+从而  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  。故例7.6递归关系式的解是  EMBED Equation.3    [公式或对象]  
+例3.20解下列递归关系式：
+  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  
+解. 递归关系式的特征方程是
+                 EMBED Equation.3    [公式或对象]  
+解之，得三个根：  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]   。于是有递归关系式的通解
+          EMBED Equation.3    [公式或对象]  
+          EMBED Equation.3    [公式或对象]  
+因此，
+               EMBED Equation.3    [公式或对象]  
+将初始值  EMBED Equation.3    [公式或对象]  代入，得到一方程组
+  EMBED Equation.3    [公式或对象]   
+  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  
+解这个方程组得
+              EMBED Equation.3    [公式或对象]  
+因此，本题的解是
+                   EMBED Equation.3    [公式或对象]  
+（三）一些特殊递归关系的求解
+下文要讨论的一些特殊的递归关系包括：常系数线性非齐次递归关系的几种特殊情况，非常系数、非线性、非齐次递归关系以及联列递归关系的一些特殊例子，它们都没有一般的解法。
+常系数线性非齐次递归关系（下简称非齐次递归关系）
+  EMBED Equation.3    [公式或对象]  
+在  EMBED Equation.3    [公式或对象]  的一些特殊情况下是可解的，有时可以运用迭代求解方法，有时可以运用归约的方法，将它们化为常系数线性齐次递归关系。还有其它一些求解非齐次递归关系的方法，如运用特征根的方法，生成函数的方法等，但它们超出了本教材的既定范围。
+（1）当  EMBED Equation.3    [公式或对象]  为一  EMBED Equation.3    [公式或对象]  的多项式或  EMBED Equation.3    [公式或对象]  时，可运用将非齐次递归关系归约为齐次递归关系的方法来求解。下文通过两个例子加以介绍。
+例3.21 解下列递归关系式
+       EMBED Equation.3    [公式或对象]  
+       EMBED Equation.3    [公式或对象]  
+解. 由  EMBED Equation.3    [公式或对象]  导出  EMBED Equation.3    [公式或对象]  ，并将它们的等式两边对应相减，以消除等式右边的  EMBED Equation.3    [公式或对象]  （或降低等式右边  EMBED Equation.3    [公式或对象]  的指数），可得
+                EMBED Equation.3    [公式或对象]        
+由此再导出  EMBED Equation.3    [公式或对象]  ，再将它们的等式两边对应相减，以消除等式右边的常数（或再降低等式右边  EMBED Equation.3    [公式或对象]  的指数），可得
+                   EMBED Equation.3    [公式或对象]   
+（1）这是一个常系数线性齐次递归关系，我们已经有成熟的方法来求解。
+（2）先由  EMBED Equation.3    [公式或对象]  和  EMBED Equation.3    [公式或对象]  求出  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  。 
+（3）再求齐次递归式的特征方程和特征根：  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  。
+（4）  EMBED Equation.3    [公式或对象]  的通解是：  EMBED Equation.3    [公式或对象]  
+（5）利用上式及  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，解得
+              EMBED Equation.3    [公式或对象]  
+最终求得  EMBED Equation.3    [公式或对象]   。
+例3.22 解下列递归关系式
+       EMBED Equation.3    [公式或对象]  
+       EMBED Equation.3    [公式或对象]  
+解. 由  EMBED Equation.3    [公式或对象]  可以得到
+       EMBED Equation.3    [公式或对象]   
+       EMBED Equation.3    [公式或对象]  
+     ……
+       EMBED Equation.3    [公式或对象]  
+       EMBED Equation.3    [公式或对象]  
+将这些等式的两边对应相加得
+           EMBED Equation.3    [公式或对象]  
+即
+           EMBED Equation.3    [公式或对象]  
+（2）转换为常系数线性齐次递归关系式、常系数线性非齐次递归关系式的方法
+非常系数、非线性递归关系式更无常规方法，但有些非常系数、非线性递归关系式也可以通过一定的转换，变成常系数线性齐次递归关系式，或变成常系数线性非齐次递归关系式的上述几种形式来求解。
+例3.23 解下列递归关系式
+（1）  EMBED Equation.3    [公式或对象]  
+       EMBED Equation.3    [公式或对象]  
+（2）  EMBED Equation.3    [公式或对象]  
+       EMBED Equation.3    [公式或对象]  
+（3）  EMBED Equation.3    [公式或对象]  
+       EMBED Equation.3    [公式或对象]  
+    解.（1）令  EMBED Equation.3    [公式或对象]  ，则递归关系式变为
+      EMBED Equation.3    [公式或对象]  
+           EMBED Equation.3    [公式或对象]                 
+用迭代求解的方法解得  EMBED Equation.3    [公式或对象]  ，因此  EMBED Equation.3    [公式或对象]   。
+    （2）令  EMBED Equation.3    [公式或对象]  ，则递归关系式变为
+      EMBED Equation.3    [公式或对象]  
+           EMBED Equation.3    [公式或对象]            
+用非齐次递归关系式的特征根方法可解之，也可用迭代求解的方法解之。结果是
+          EMBED Equation.3    [公式或对象]  
+          EMBED Equation.3    [公式或对象]   ，  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+    （3）令  EMBED Equation.3    [公式或对象]  ，则递归关系式变为
+      EMBED Equation.3    [公式或对象]  
+           EMBED Equation.3    [公式或对象]            
+用迭代求解的方法解之。结果是
+           EMBED Equation.3    [公式或对象]  
+           EMBED Equation.3    [公式或对象]   ，  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+最后，我们给出一个联列递归关系求解的例子，使用的仍然是归约成常系数线性齐次递归关系式的方法。
+例3.24 在图7.1的长方形  EMBED Equation.3    [公式或对象]  中，  EMBED Equation.3    [公式或对象]  ，在  EMBED Equation.3    [公式或对象]  中作一个正方形  EMBED Equation.3    [公式或对象]  ，证明长方形  EMBED Equation.3    [公式或对象]  相似于  EMBED Equation.3    [公式或对象]  。如果同前继续在长方形  EMBED Equation.3    [公式或对象]  中作正方形，并不断这样做，证明，每次所得长方形均相似于长方形  EMBED Equation.3    [公式或对象]  。
+证. 设  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  ，因此，  EMBED Equation.3    [公式或对象]  ，从而
+           EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+长方形  EMBED Equation.3    [公式或对象]  相似于  EMBED Equation.3    [公式或对象]  得证。
+若用  EMBED Equation.3    [公式或对象]  表示第  EMBED Equation.3    [公式或对象]  个长方形的长边，用  EMBED Equation.3    [公式或对象]  表示第  EMBED Equation.3    [公式或对象]  个长方形的短边  EMBED Equation.3    [公式或对象]  ，那么
+根据题意我们有
+  EMBED Equation.3    [公式或对象]  
+以及初值  EMBED Equation.3    [公式或对象]  
+由联列递归关系式可以得到
+             EMBED Equation.3    [公式或对象]  
+即
+                       EMBED Equation.3    [公式或对象]  
+这是一个常系数线性齐次递归关系式，并有初值  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  。解这个递归关系式，得
+  EMBED Equation.3    [公式或对象]   ，  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+从而
+                  EMBED Equation.3    [公式或对象]   ，  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  
+ 故  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  ，也就是说，每次所作长方形均相似于前次所作长方形，因而均相似于长方形  EMBED Equation.3    [公式或对象]  。
+
+
+
+
+
+
+
+
+
+
+                                  图7.1
+练习3.4
+1．用以下方式解下列递归关系式：先考虑前几个数值，并推测解的公式，然后用数学归纳法证明你得到的公式。
+（1）  EMBED Equation.3    [公式或对象]  
+（2）  EMBED Equation.3    [公式或对象]  
+（3）  EMBED Equation.3    [公式或对象]  
+（4）  EMBED Equation.3    [公式或对象]  
+2．考虑一个  EMBED Equation.3    [公式或对象]  的棋盘。假定我们对棋盘的每一个格子用红或蓝两种颜色之一去着色。令  EMBED Equation.3    [公式或对象]  表示“没有红色格子相邻的着色数目”。建立  EMBED Equation.3    [公式或对象]  应满足的递归关系式，并求出  EMBED Equation.3    [公式或对象]  的通项公式。
+3．一楼梯有n级台阶，某人由下向上走。若每一步只能跨一级或两级楼梯，问他从地面走到第n级楼梯有多少种走法。
+4．证明下列费波那契数列的性质：
+（1）  EMBED Equation.3    [公式或对象]  
+（2）  EMBED Equation.3    [公式或对象]   
+（3）  EMBED Equation.3    [公式或对象]  
+（4）  EMBED Equation.3    [公式或对象]  
+5. 平面上有n条两两相交的直线，又没有任何三条直线交于一点。问它们在平面上共分割出多少不同的区域。（要求用递归关系式求解）
+    6．用迭代的方法解以下递归关系式，并用数学归纳法证明你的结论。
+（1）  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  
+（2）  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  
+（3）  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  
+（4）  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  
+7.（1）设  EMBED Equation.3    [公式或对象]  是集合  EMBED Equation.3    [公式或对象]  的没有两个连续整数的  EMBED Equation.3    [公式或对象]  元素子集的个数。试建立  EMBED Equation.3    [公式或对象]  所满足的递归关系。（提示：分别考虑数  EMBED Equation.3    [公式或对象]  被选入的  EMBED Equation.3    [公式或对象]  元素子集和数  EMBED Equation.3    [公式或对象]  不被选入的  EMBED Equation.3    [公式或对象]  元素子集）
+（2）利用（1）和对  EMBED Equation.3    [公式或对象]  的数学归纳法证明
+                     EMBED Equation.3    [公式或对象]  
+8．在信道上传输字母表   EMBED Equation.3    [公式或对象]  上的长度为  EMBED Equation.3    [公式或对象]  的字，且规定有两个  EMBED Equation.3    [公式或对象]  连续出现的字拒绝传输。试确定这个信道允许传输的字母表   EMBED Equation.3    [公式或对象]  上长度为  EMBED Equation.3    [公式或对象]  的字共有多少个？ 
+9．考察一个受控环境里细菌的繁殖问题。设  EMBED Equation.3    [公式或对象]  表示第  EMBED Equation.3    [公式或对象]  天里细菌的数目。我们定义在第  EMBED Equation.3    [公式或对象]  天里细菌的增长率为  EMBED Equation.3    [公式或对象]  。现设  EMBED Equation.3    [公式或对象]  约定  EMBED Equation.3    [公式或对象]  如果已知增长率每天翻一番，求  EMBED Equation.3    [公式或对象]  的解。
+10．解下列递归关系式：
+  EMBED Equation.3    [公式或对象]  
+  EMBED Equation.3    [公式或对象]  
+11．解下列递归关系式：
+       EMBED Equation.3    [公式或对象]  
+       EMBED Equation.3    [公式或对象]  
+12．解下列递归关系式：
+       EMBED Equation.3    [公式或对象]  
+       EMBED Equation.3    [公式或对象]  
