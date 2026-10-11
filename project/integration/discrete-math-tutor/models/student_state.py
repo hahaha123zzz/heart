@@ -57,6 +57,7 @@ class StudentState(BaseModel):
     misconceptions: List[Misconception] = []
     mistake_patterns: List[MistakePattern] = []
     evidence: List[str] = []  # 步骤级学习证据
+    skill_states: List[Dict[str, Any]] = []  # 独立规则题的派生技能估计，不等于全章掌握度。
     remaining_gap: str = ""  # 当前最欠缺的能力
 
     @property

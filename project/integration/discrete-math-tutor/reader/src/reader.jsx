@@ -26,8 +26,9 @@ function asHighlight(ref){
  boundingRect:{...first[0],x1:Math.min(...first.map(r=>r.x1)),y1:Math.min(...first.map(r=>r.y1)),x2:Math.max(...first.map(r=>r.x2)),y2:Math.max(...first.map(r=>r.y2))},rects}};
 }
 function Reader({metadata,reference,onAsk}){
- const [mode,setMode]=useState('text'),[scale,setScale]=useState('page-width'),[page,setPage]=useState(metadata.section.page),[tip,setTip]=useState(null),[error,setError]=useState('');
+ const [mode,setMode]=useState('text'),[scale,setScale]=useState(metadata.resume?.scale||'page-width'),[page,setPage]=useState(metadata.section.page),[tip,setTip]=useState(null),[error,setError]=useState('');
  const modeRef=useRef(mode);modeRef.current=mode;
+ const metadataRef=useRef(metadata);metadataRef.current=metadata;
  const highlighter=useRef(null),scrollTo=useRef(null),drag=useRef(null),surface=useRef(null);
  const [touchBox,setTouchBox]=useState(null);
  const [ready,setReady]=useState(false);
@@ -44,7 +45,9 @@ function Reader({metadata,reference,onAsk}){
   if(!ready)return;
   const frame=requestAnimationFrame(()=>{
    if(!scrollTo.current||!surface.current?.offsetParent)return;
-   if(highlights.length)scrollTo.current(highlights[0]);else jump(metadata.section.page,metadata.section.y);
+   if(highlights.length)scrollTo.current(highlights[0]);
+   else if(metadata.resume){const target=displayPage(metadata.resume.page);if(target>0){changeScale(metadata.resume.scale||'page-width');jump(target,metadata.resume.y||0);}else jump(metadata.section.page,metadata.section.y);}
+   else jump(metadata.section.page,metadata.section.y);
   });
   return()=>cancelAnimationFrame(frame);
  },[ready,metadata.section.id,metadata.section.page,metadata.section.y,reference]);
@@ -52,10 +55,15 @@ function Reader({metadata,reference,onAsk}){
   if(!ready)return;
   const viewer=highlighter.current?.viewer;
   if(!viewer)return;
-  const changed=e=>setPage(e.pageNumber);
+  let timer;
+  const publish=()=>{const m=metadataRef.current;const n=viewer.currentPageNumber;const pageView=viewer.getPageView(n-1);const element=pageView?.div;const y=element?Math.max(0,Math.min(.98,(viewer.container.scrollTop-element.offsetTop)/element.clientHeight)):0;
+   window.dispatchEvent(new CustomEvent('pdf-position',{detail:{chapter:m.chapter_id,section:m.section.id,document_id:m.document_id,version:m.version,page:m.page_map?.[n-1]||n,y,scale:viewer.currentScaleValue}}));};
+  const queue=()=>{clearTimeout(timer);timer=setTimeout(publish,250);};
+  const changed=e=>{setPage(e.pageNumber);queue();};
+  viewer.container.addEventListener('scroll',queue,{passive:true});viewer.eventBus.on('scalechanging',queue);queue();
   viewer.eventBus.on('pagechanging',changed);
   setPage(viewer.currentPageNumber);
-  return()=>viewer.eventBus.off('pagechanging',changed);
+  return()=>{clearTimeout(timer);viewer.eventBus.off('pagechanging',changed);viewer.eventBus.off('scalechanging',queue);viewer.container.removeEventListener('scroll',queue);};
  },[ready]);
  useEffect(()=>{const close=e=>{if(e.key==='Escape'){setTip(null);setTouchBox(null);highlighter.current?.hideTipAndSelection();}}; document.addEventListener('keydown',close);return()=>document.removeEventListener('keydown',close);},[]);
  function makeSelection(position,content,hide){

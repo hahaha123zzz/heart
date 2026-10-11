@@ -1,0 +1,76 @@
+{
+  "frozen_before_run": true,
+  "purpose": "表格与跨页证明的新增诊断样本，修改后转为开发回归，不代表独立准确率",
+  "cases": [
+    {
+      "id": "iff-table",
+      "question": "请根据教材表4.6解释 p↔q 的四行真值，为什么 p 和 q 都假时结果为真？",
+      "chapter": 4,
+      "pages": [
+        4
+      ],
+      "source": "表4.6",
+      "required": "00→1，01→0，10→0，11→1；同真值为真"
+    },
+    {
+      "id": "xor-table",
+      "question": "教材表4.4中不可兼或最后一行是什么？为什么不能把它当成普通的或？",
+      "chapter": 4,
+      "pages": [
+        3,
+        4
+      ],
+      "source": "表4.4",
+      "required": "11→0，与普通或的11→1不同"
+    },
+    {
+      "id": "substitution-table",
+      "question": "请根据教材表4.9说明 RS 和 RR 在代换对象与代换方式上有什么不同。",
+      "chapter": 4,
+      "pages": [
+        11
+      ],
+      "source": "表4.9",
+      "required": "RS命题变元全部出现；RR等价子公式某些出现"
+    },
+    {
+      "id": "relation-table",
+      "question": "教材表9.1中反对称关系的矩阵条件是什么？为什么允许对角线元素等于1？",
+      "chapter": 9,
+      "pages": [
+        9
+      ],
+      "source": "表9.1",
+      "required": "i≠j时cij=1则cji=0；对角线不受该约束"
+    },
+    {
+      "id": "leaf-proof",
+      "question": "请解释教材定理8.15的反证：为什么树若至多有一片叶，就会与 m=n−1 矛盾？",
+      "chapter": 8,
+      "pages": [
+        14,
+        15
+      ],
+      "source": "定理8.15",
+      "required": "n≥2；度数和≥2n−1→m≥n−1/2，与n−1矛盾"
+    },
+    {
+      "id": "tree-proof",
+      "question": "请解释教材定理8.16的（1）到（2）：为什么无回路且 m=n−1 能推出连通？",
+      "chapter": 8,
+      "pages": [
+        15
+      ],
+      "source": "定理8.16",
+      "required": "反设k≥2分支，每个树mi=ni−1，总边数n−k<n−1"
+    },
+    {
+      "id": "sql-table-negative",
+      "question": "依据教材表4.6，请给出 PostgreSQL 事务隔离级别的配置步骤和性能调优参数。",
+      "chapter": null,
+      "pages": [],
+      "source": null,
+      "required": "证据不足，不给出来自数学教材的数据库配置结论"
+    }
+  ]
+}

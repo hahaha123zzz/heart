@@ -19,6 +19,7 @@ from models.student_state import StudentState
 
 
 class MisconceptionHypothesis(BaseModel):
+    source_quote: str = ""
     type: str = ""
     description: str = ""
     confidence: float = 0.5
@@ -33,7 +34,7 @@ class AnalysisResult(BaseModel):
 SYSTEM_PROMPT = """[AGENT:evidence_extractor]
 你是 AI Tutor 的"证据提取器"。从学生这句话中提取**可验证的学习证据**，
 并给出学生状态的观测值。不要直接下最终结论，只给证据与估计。
-只输出 JSON：
+所有 evidence 和 hypotheses 必须附 source_quote（学生本轮输入的连续原文）；不得把 Tutor 回复或自述“懂了”作为能力证据。只输出 JSON：
 {
   "evidence": [
     {"evidence_type": "conceptual_understanding|misconception|partial|affect|behavior",
@@ -95,6 +96,7 @@ class EvidenceExtractor:
                 Evidence(
                     evidence_type=str(item.get("evidence_type") or "conceptual_understanding"),
                     content=str(item["content"]),
+                source_quote=str(item.get("source_quote") or ""),
                     confidence=max(0.0, min(1.0, confidence)),
                 )
             )
@@ -108,6 +110,7 @@ class EvidenceExtractor:
                 confidence = 0.5
             hypotheses.append(
                 MisconceptionHypothesis(
+                    source_quote=str(item.get("source_quote") or ""),
                     type=str(item.get("type") or ""),
                     description=str(item["description"]),
                     confidence=max(0.0, min(1.0, confidence)),

@@ -84,6 +84,14 @@ def select_policy(
         difficulty = "easy"
         notes.append("学生存在迷思概念：用对比/反例制造认知冲突，不要直接纠正")
 
+    # 独立规则题提示的技能缺口只作为复习与诊断方向，不能冒充已确认误区。
+    weak_skills=[item for item in state.skill_states if item.get("needs_review")]
+    if weak_skills:
+        strategies += ["scaffolding", "retrieval_practice"]
+        difficulty = "easy"
+        notes.append("最近独立规则题提示待复习技能：" + "、".join(item["name"] for item in weak_skills[:3]) +
+            "；先围绕这些技能复习/检查。技能估计未校准，错误原因和具体误区仍待诊断，不能据此认定全章已掌握。")
+
     # 2) 掌握度低：样例学习 + 支架
     if state.mastery < 0.35:
         strategies += ["worked_example", "scaffolding"]
@@ -136,20 +144,9 @@ def select_policy(
             action = "explain"
         notes.append("围绕当前步骤目标：" + current_step.objective)
 
-    # 10) 长期画像加权（GenMentor / LearningMAP）：什么对这位学生真正有效
+    # 10) 来源明确的同条件策略观察只作为建议，不覆盖当前教学约束。
     if profile is not None and profile.teaching_effectiveness:
-        best = profile.best_strategies(3)
-        notes.append("这位学生历史有效策略：" + str(best))
-        for name, score in best:
-            if name in KNOWN_STRATEGIES and score >= 0.6:
-                strategies.insert(0, name)
-        low = [
-            name
-            for name, score in profile.teaching_effectiveness.items()
-            if score <= 0.3 and name in KNOWN_STRATEGIES
-        ]
-        if low:
-            avoid.append("对这位学生效果差的策略：" + "、".join(low))
+        notes.append("同知识点、难度和提示条件的弱策略权重（非因果效果）：" + str(profile.best_strategies(3)))
 
     if not strategies:
         strategies = ["socratic_questioning", "scaffolding"]

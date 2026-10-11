@@ -34,6 +34,7 @@ class RoutingResult(BaseModel):
     topic: str = ""
     confidence: float = 0.5
     reason: str = ""
+    needs_context: bool = False  # 检索问句是否依赖前文，不等同于话题相关性
 
 
 SYSTEM_PROMPT = """[AGENT:conversation_router]
@@ -45,8 +46,11 @@ SYSTEM_PROMPT = """[AGENT:conversation_router]
   "intent": "continue|switch_topic|new_goal|off_task|clarify_task",
   "topic": "若切换话题或新目标，写出目标知识点（简短名词短语）；否则空字符串",
   "confidence": 0.0到1.0,
+  "needs_context": true或false,
   "reason": "一句话依据"
 }
+检索上下文规则：needs_context 与 intent 独立。问题已明确给出概念、数学表达式或完整条件时为 false，即使它与当前知识点相关。
+只有“它为什么成立”“下一步呢”等缺少明确对象、必须依赖前文才能理解的问句，或对当前题目的作答，才为 true。不得因当前知识点用到某个基础概念而把完整的基础概念问题判为依赖前文。
 判定规则：
 1. 学生明确表示要换话题，或问的是与当前知识点明显无关的新领域 -> intent=switch_topic，并给出 topic；
 2. 学生提出一个全新的学习目标 -> intent=new_goal，并给出 topic；
@@ -100,6 +104,7 @@ class ConversationRouter:
         except (TypeError, ValueError):
             confidence = 0.5
         return RoutingResult(
+            needs_context=data["needs_context"] if isinstance(data.get("needs_context"), bool) else move != "question",
             student_move=move,
             move_status=status,
             intent=intent,

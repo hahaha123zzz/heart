@@ -32,6 +32,12 @@ class TextbookChunk:
     kind: str = "text"
     asset_ids: tuple[str, ...] = ()
     section_id: int | None = None
+    chunk_id: str | None = None
+    parent_id: str | None = None
+    chapter_id: int | None = None
+    page: int | None = None
+    block_start: int | None = None
+    block_end: int | None = None
 
 
 def terms_for(text: str) -> frozenset[str]:
@@ -187,6 +193,7 @@ def format_excerpts(chunks: list[TextbookChunk]) -> str:
         return "没有检索到相关教材文字。"
     return "\n\n".join(
         f"[{index}] {chunk.source}｜{chunk.section}"
+        + (f"｜PDF第{chunk.page}页起" if chunk.page else "")
         + (f"｜{dict(table='表格', formula='公式', image_context='插图').get(chunk.kind, chunk.kind)}" if chunk.kind != "text" else "")
         + f"\n{chunk.text}"
         for index, chunk in enumerate(chunks, 1)

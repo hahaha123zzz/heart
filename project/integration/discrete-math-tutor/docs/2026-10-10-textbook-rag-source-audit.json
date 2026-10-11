@@ -1,0 +1,222 @@
+{
+  "date": "2026-10-10",
+  "scope": "源码定位快照；不包含第三方完整源码或凭据",
+  "repositories": [
+    {
+      "repo": "docling-project/docling",
+      "url": "https://github.com/docling-project/docling",
+      "branch": "main",
+      "archived": false,
+      "pushed_at": "2026-10-10T08:23:44Z",
+      "license": "MIT"
+    },
+    {
+      "repo": "docling-project/docling-core",
+      "url": "https://github.com/docling-project/docling-core",
+      "branch": "main",
+      "archived": false,
+      "pushed_at": "2026-10-10T04:58:56Z",
+      "license": "MIT"
+    },
+    {
+      "repo": "FlagOpen/FlagEmbedding",
+      "url": "https://github.com/FlagOpen/FlagEmbedding",
+      "branch": "master",
+      "archived": false,
+      "pushed_at": "2026-08-24T02:57:42Z",
+      "license": "MIT"
+    },
+    {
+      "repo": "opendatalab/MinerU",
+      "url": "https://github.com/opendatalab/MinerU",
+      "branch": "master",
+      "archived": false,
+      "pushed_at": "2026-10-09T00:49:24Z",
+      "license": "NOASSERTION"
+    },
+    {
+      "repo": "lukas-blecher/LaTeX-OCR",
+      "url": "https://github.com/lukas-blecher/LaTeX-OCR",
+      "branch": "main",
+      "archived": false,
+      "pushed_at": "2025-01-18T15:23:58Z",
+      "license": "MIT"
+    },
+    {
+      "repo": "hljoren/sufficientcontext",
+      "url": "https://github.com/hljoren/sufficientcontext",
+      "branch": "main",
+      "archived": false,
+      "pushed_at": "2025-07-22T04:04:01Z",
+      "license": null
+    },
+    {
+      "repo": "illuin-tech/colpali",
+      "url": "https://github.com/illuin-tech/colpali",
+      "branch": "main",
+      "archived": false,
+      "pushed_at": "2026-09-21T23:54:12Z",
+      "license": "MIT"
+    },
+    {
+      "repo": "approach0/search-engine",
+      "url": "https://github.com/approach0/search-engine",
+      "branch": "master",
+      "archived": false,
+      "pushed_at": "2023-11-16T17:12:08Z",
+      "license": "MIT"
+    },
+    {
+      "repo": "BehroozMansouri/TangentCFT",
+      "url": "https://github.com/BehroozMansouri/TangentCFT",
+      "branch": "master",
+      "archived": false,
+      "pushed_at": "2025-03-21T20:22:17Z",
+      "license": null
+    },
+    {
+      "repo": "QwenLM/Qwen3-Embedding",
+      "url": "https://github.com/QwenLM/Qwen3-Embedding",
+      "branch": "main",
+      "archived": false,
+      "pushed_at": "2025-09-30T06:10:27Z",
+      "license": null
+    },
+    {
+      "repo": "huggingface/sentence-transformers",
+      "url": "https://github.com/huggingface/sentence-transformers",
+      "branch": "main",
+      "archived": false,
+      "pushed_at": "2026-10-08T17:02:18Z",
+      "license": "Apache-2.0"
+    }
+  ],
+  "source_snapshots": [
+    {
+      "repository": "docling-project/docling-core",
+      "commit": "0d5a7bdc6eec6138055714756277730f1520ca61",
+      "commit_date": "2026-10-10T04:58:54Z",
+      "files": [
+        {
+          "path": "docling_core/transforms/chunker/chunk_expander.py",
+          "url": "https://raw.githubusercontent.com/docling-project/docling-core/0d5a7bdc6eec6138055714756277730f1520ca61/docling_core/transforms/chunker/chunk_expander.py",
+          "github_url": "https://github.com/docling-project/docling-core/blob/0d5a7bdc6eec6138055714756277730f1520ca61/docling_core/transforms/chunker/chunk_expander.py"
+        }
+      ]
+    },
+    {
+      "repository": "BehroozMansouri/TangentCFT",
+      "commit": "7ff464a55582005c2b97f2ac6d120d9c1f66579f",
+      "commit_date": "2025-03-21T20:22:07Z",
+      "files": [
+        {
+          "path": "TangentS/math_tan/symbol_tree.py",
+          "url": "https://raw.githubusercontent.com/BehroozMansouri/TangentCFT/7ff464a55582005c2b97f2ac6d120d9c1f66579f/TangentS/math_tan/symbol_tree.py",
+          "github_url": "https://github.com/BehroozMansouri/TangentCFT/blob/7ff464a55582005c2b97f2ac6d120d9c1f66579f/TangentS/math_tan/symbol_tree.py"
+        },
+        {
+          "path": "Embedding_Preprocessing/encoder_tuple_level.py",
+          "url": "https://raw.githubusercontent.com/BehroozMansouri/TangentCFT/7ff464a55582005c2b97f2ac6d120d9c1f66579f/Embedding_Preprocessing/encoder_tuple_level.py",
+          "github_url": "https://github.com/BehroozMansouri/TangentCFT/blob/7ff464a55582005c2b97f2ac6d120d9c1f66579f/Embedding_Preprocessing/encoder_tuple_level.py"
+        }
+      ]
+    },
+    {
+      "repository": "approach0/search-engine",
+      "commit": "b99c50ce0eeee153247cc0628c8dd7963ccd28ad",
+      "commit_date": "2020-12-12T14:35:54Z",
+      "files": [
+        {
+          "path": "math-index/subpath-set.c",
+          "url": "https://raw.githubusercontent.com/approach0/search-engine/b99c50ce0eeee153247cc0628c8dd7963ccd28ad/math-index/subpath-set.c",
+          "github_url": "https://github.com/approach0/search-engine/blob/b99c50ce0eeee153247cc0628c8dd7963ccd28ad/math-index/subpath-set.c"
+        }
+      ]
+    },
+    {
+      "repository": "illuin-tech/colpali",
+      "commit": "97487f8871ff4d5d2284411fe61bdcd2cfe99894",
+      "commit_date": "2026-08-24T14:35:10Z",
+      "files": [
+        {
+          "path": "colpali_engine/utils/processing_utils.py",
+          "url": "https://raw.githubusercontent.com/illuin-tech/colpali/97487f8871ff4d5d2284411fe61bdcd2cfe99894/colpali_engine/utils/processing_utils.py",
+          "github_url": "https://github.com/illuin-tech/colpali/blob/97487f8871ff4d5d2284411fe61bdcd2cfe99894/colpali_engine/utils/processing_utils.py"
+        },
+        {
+          "path": "README.md",
+          "url": "https://raw.githubusercontent.com/illuin-tech/colpali/97487f8871ff4d5d2284411fe61bdcd2cfe99894/README.md",
+          "github_url": "https://github.com/illuin-tech/colpali/blob/97487f8871ff4d5d2284411fe61bdcd2cfe99894/README.md"
+        }
+      ]
+    },
+    {
+      "repository": "lukas-blecher/LaTeX-OCR",
+      "commit": "5c1ac929bd19a7ecf86d5fb8d94771c8969fcb80",
+      "commit_date": "2025-01-18T15:23:43Z",
+      "files": [
+        {
+          "path": "pix2tex/cli.py",
+          "url": "https://raw.githubusercontent.com/lukas-blecher/LaTeX-OCR/5c1ac929bd19a7ecf86d5fb8d94771c8969fcb80/pix2tex/cli.py",
+          "github_url": "https://github.com/lukas-blecher/LaTeX-OCR/blob/5c1ac929bd19a7ecf86d5fb8d94771c8969fcb80/pix2tex/cli.py"
+        },
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/lukas-blecher/LaTeX-OCR/5c1ac929bd19a7ecf86d5fb8d94771c8969fcb80/LICENSE",
+          "github_url": "https://github.com/lukas-blecher/LaTeX-OCR/blob/5c1ac929bd19a7ecf86d5fb8d94771c8969fcb80/LICENSE"
+        }
+      ]
+    },
+    {
+      "repository": "QwenLM/Qwen3-Embedding",
+      "commit": "44548aa5f0a0aed1c76d64e19afe47727a325b8f",
+      "commit_date": "2025-09-30T06:10:27Z",
+      "files": [
+        {
+          "path": "examples/qwen3_reranker_transformers.py",
+          "url": "https://raw.githubusercontent.com/QwenLM/Qwen3-Embedding/44548aa5f0a0aed1c76d64e19afe47727a325b8f/examples/qwen3_reranker_transformers.py",
+          "github_url": "https://github.com/QwenLM/Qwen3-Embedding/blob/44548aa5f0a0aed1c76d64e19afe47727a325b8f/examples/qwen3_reranker_transformers.py"
+        },
+        {
+          "path": "README.md",
+          "url": "https://raw.githubusercontent.com/QwenLM/Qwen3-Embedding/44548aa5f0a0aed1c76d64e19afe47727a325b8f/README.md",
+          "github_url": "https://github.com/QwenLM/Qwen3-Embedding/blob/44548aa5f0a0aed1c76d64e19afe47727a325b8f/README.md"
+        }
+      ]
+    },
+    {
+      "repository": "opendatalab/MinerU",
+      "commit": "31e4e3d0a54e5a82d169bdd81b2f3eddb652bb27",
+      "commit_date": "2026-10-08T18:21:05Z",
+      "files": [
+        {
+          "path": "docs/en/usage/tiers.md",
+          "url": "https://raw.githubusercontent.com/opendatalab/MinerU/31e4e3d0a54e5a82d169bdd81b2f3eddb652bb27/docs/en/usage/tiers.md",
+          "github_url": "https://github.com/opendatalab/MinerU/blob/31e4e3d0a54e5a82d169bdd81b2f3eddb652bb27/docs/en/usage/tiers.md"
+        },
+        {
+          "path": "mineru/model/mfr/pp_formulanet_plus_m_onnx.py",
+          "url": "https://raw.githubusercontent.com/opendatalab/MinerU/31e4e3d0a54e5a82d169bdd81b2f3eddb652bb27/mineru/model/mfr/pp_formulanet_plus_m_onnx.py",
+          "github_url": "https://github.com/opendatalab/MinerU/blob/31e4e3d0a54e5a82d169bdd81b2f3eddb652bb27/mineru/model/mfr/pp_formulanet_plus_m_onnx.py"
+        }
+      ]
+    }
+  ],
+  "hardware_check": {
+    "system_inventory": "NVIDIA GeForce RTX 5060 Laptop GPU",
+    "runtime_usable": "未验证",
+    "nvml_query": "Failed to initialize NVML: Unknown Error",
+    "project_onnxruntime": "1.31.0",
+    "available_providers": [
+      "AzureExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "torch_installed": false,
+    "actual_vram": "未知；未使用 Win32_VideoController.AdapterRAM 推断"
+  },
+  "limitations": [
+    "原对话仅取得截断预览",
+    "2026 年两篇切片预印本只核验摘要",
+    "未进行新模型、解析器或 GPU 实测"
+  ]
+}

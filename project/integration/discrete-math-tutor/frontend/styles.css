@@ -71,3 +71,10 @@
 @media(max-width:700px){.practice-workspace{display:block}.practice-sidebar{position:static;border-right:0;max-height:250px;border-bottom:1px solid #e6edf8;margin-bottom:20px;padding:0 0 14px}#practice-question-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.practice-actions{position:static}.practice-blanks{grid-template-columns:1fr}.exercise-title h2{font-size:19px}.part-heading{flex-wrap:wrap}.practice-summary{font-size:13px}}
 
 .secondary-button{border:1px solid #d7e3f5;background:#fff;color:#5275aa;border-radius:8px;padding:9px 14px;font:inherit;font-size:13px;font-weight:500;line-height:1.4;cursor:pointer;transition:background .15s,border-color .15s}.secondary-button:hover{background:#eff5ff;border-color:#9ebcf4}.secondary-button:focus-visible{outline:3px solid #9cbaff;outline-offset:2px}.secondary-button:disabled{opacity:.55;cursor:wait}.rubric-feedback{white-space:normal;padding-left:20px}.rubric-feedback li{margin:10px 0}#practice-question{scroll-margin-top:120px}.exercise-title .source-label{font-size:12px;color:#8797af;display:block;margin-bottom:8px}
+
+/* 设置页内的轻量记忆管理入口 */
+#memory-management { margin-top: 20px; }
+#memory-management summary { cursor: pointer; padding: 8px 0; }
+#memory-management .review-item { display: block; }
+#memory-management .review-item small { display: block; margin: 8px 0; }
+#memory-management textarea { display: block; width: 100%; min-height: 72px; margin: 8px 0; padding: 10px; border: 1px solid #dce4f4; border-radius: 8px; font: inherit; resize: vertical; box-sizing: border-box; }

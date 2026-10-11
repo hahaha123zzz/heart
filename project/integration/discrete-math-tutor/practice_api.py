@@ -21,7 +21,9 @@ _GATE=threading.BoundedSemaphore(3)
 @lru_cache(maxsize=1)
 def catalog():
     data=json.loads((ROOT/'knowledge/exercises/catalog.json').read_text(encoding='utf8'))
-    data['version']=hashlib.sha256((data['version']+(ROOT/'knowledge/exercises/answer_keys.json').read_text(encoding='utf8')+(ROOT/'knowledge/exercise_rubrics.py').read_text(encoding='utf8')).encode()).hexdigest()
+    from knowledge.exercise_mapping import question_version
+    data['_catalog_source_version']=data['version']
+    data['version']=question_version(data['version'])
     data['by_id']={q['id']:q for q in data['questions']}
     return data
 @lru_cache(maxsize=1)
@@ -62,7 +64,7 @@ def validate_answers(q,answers):
         elif kind=='fill':
             key=keys().get(q['id'],{}).get(pid)
             valid=isinstance(a,list) and 1<=len(a)<=20 and all(text(v) for v in a)
-            if key and key['kind'] in ('set_fill','numeric_fill'):valid=valid and len(a)==len(key['expected'])
+            if key and key['kind'] in ('set_fill','numeric_fill','symbolic_fill'):valid=valid and len(a)==len(key['expected'])
         elif kind=='matrix':valid=isinstance(a,dict) and set(a)<= {'cells','note'} and text(a.get('note','')) and isinstance(a.get('cells'),list) and 1<=len(a['cells'])<=15 and all(isinstance(row,list) and 1<=len(row)<=15 and len(row)==len(a['cells'][0]) and all(text(v) and len(v)<=200 for v in row) for row in a['cells'])
         elif kind=='graph':
             valid=isinstance(a,dict) and set(a)<= {'nodes','edges','directed','note'} and isinstance(a.get('directed'),bool) and text(a.get('note','')) and isinstance(a.get('nodes'),list) and isinstance(a.get('edges'),list) and len(a['nodes'])<=60 and len(a['edges'])<=200
@@ -85,11 +87,13 @@ def public_question(q):
         key=keys().get(q['id'],{}).get(p['id'])
         p['grader']='rule' if key else 'ai_assisted'
         p['grading_spec']=grading_spec(p,bool(key))
+        if key and p['type']=='fill':p['blank_count']=len(key['expected'])
+        if key and key['kind']=='symbolic_fill':p['answer_format']={'instruction':'仅用变量 '+', '.join(key['variables'])+' 和 +、−、*、/、^、括号；乘法请写 *，除法仅支持常数分母。'+('可写 3^n 或 3^{n}。' if key.get('exponential') else '')+'不支持任意函数和变量分母。'}
         if key and key['kind']=='truth_table':p['answer_format']={'variables':key['variables'],'rows':2**len(key['variables']),'cols':len(key['variables'])+1,'instruction':'列依次为 '+', '.join(key['variables'])+'、公式真值；填写全部指派，行序不限。可填 0/1、T/F 或真/假。'}
     return result
 
 def row_public(row):
-    return {'id':row.id,'question_id':row.question_id,'version':row.version,'answers':row.answers,'status':row.status,'result':row.result,'created_at':row.created_at.isoformat()}
+    return {'id':row.id,'question_id':row.question_id,'version':row.version,'answers':row.answers,'status':row.status,'result':({} if row.status in ('queued','grading') else row.result),'created_at':row.created_at.isoformat()}
 @router.get('/chapters/{chapter_id}')
 def chapter_questions(chapter_id:int,student_id:str):
     sid=student(student_id)
@@ -142,10 +146,7 @@ def rule_grade(part,answer,key):
 
 def memory_for(q,sid):
     import main
-    memories=selection_memory(main.orchestrator.memory,sid,q['knowledge_point'],q['text'],'练习讲解')
-    with session_scope() as db:
-        previous=list(db.scalars(select(ExerciseSubmissionRow).where(ExerciseSubmissionRow.student_id==sid,ExerciseSubmissionRow.question_id==q['id'],ExerciseSubmissionRow.status=='completed').order_by(ExerciseSubmissionRow.created_at.desc()).limit(3)))
-        memories['exercise_history']=[{'answers':r.answers,'feedback':r.result} for r in previous]
+    memories=selection_memory(main.orchestrator.memory,sid,q['knowledge_point'],q['text'],'练习讲解',question_id=q['id'],version=catalog()['version'])
     return memories
 
 def ai_parts(q,parts,answers,sid,action='grade',level=1):
@@ -189,6 +190,7 @@ def run_submission(submission_id):
         with session_scope() as db:
             row=db.get(ExerciseSubmissionRow,submission_id)
             if not row or row.status!='queued':return
+            expected_epoch=(row.result or {}).get('_memory_epoch',0)
             row.status='grading';sid=row.student_id;qid=row.question_id;answers=copy.deepcopy(row.answers)
         try:
             q=question(qid);rules=keys().get(qid,{})
@@ -202,11 +204,17 @@ def run_submission(submission_id):
             confirmed=[r['score'] for r in results if r['confirmed']]
             provisional=[r['score'] for r in results if r['score'] is not None]
             output={'parts':results,'answered_parts':len(target),'total_parts':len(q['parts']),'confirmed_score':round(sum(confirmed)/len(confirmed)) if confirmed else None,'provisional_score':round(sum(provisional)/len(provisional)) if provisional else None,'needs_review':any(not r['confirmed'] for r in results),'source':q['source']}
-            with session_scope() as db:
-                row=db.get(ExerciseSubmissionRow,submission_id)
-                if row:row.status='completed';row.result=output
             import main
-            main.orchestrator.memory.add_evidence(sid,q['knowledge_point'],'exercise_submission',json.dumps({'question_id':qid,'answers':answers,'feedback':output},ensure_ascii=False)[:12000],confidence=.9 if not output['needs_review'] else .45)
+            with session_scope(immediate=True) as db:
+                row=db.get(ExerciseSubmissionRow,submission_id)
+                if row:
+                    assisted = db.scalar(select(ExerciseHelpRow.id).where(
+                        ExerciseHelpRow.student_id == sid, ExerciseHelpRow.question_id == qid,
+                        ExerciseHelpRow.version == row.version).limit(1)) is not None
+                    row.status='completed';row.result=output
+                    main.orchestrator.memory.record_exercise_submission(
+                        sid,q['knowledge_point'],submission_id,qid,row.version,answers,output,assisted,expected_epoch=expected_epoch)
+
         except Exception as exc:
             import logging
             logging.getLogger(__name__).exception('Exercise grading failed %s',submission_id)
@@ -229,8 +237,10 @@ def submit(qid:str,body:SubmitRequest,tasks:BackgroundTasks):
     save_draft(qid,AnswersRequest(**body.model_dump(exclude={'request_id'})))
     rid=str(uuid.uuid4())
     try:
-        with session_scope() as db:
-            row=ExerciseSubmissionRow(id=rid,student_id=sid,request_id=body.request_id,question_id=qid,version=body.version,answers=answers,status='queued',result={});db.add(row);db.flush();result=row_public(row)
+        with session_scope(immediate=True) as db:
+            import main
+            epoch=main.orchestrator.memory.repo.memory_epoch(sid,q['knowledge_point'])
+            row=ExerciseSubmissionRow(id=rid,student_id=sid,request_id=body.request_id,question_id=qid,version=body.version,answers=answers,status='queued',result={'_memory_epoch':epoch});db.add(row);db.flush();result=row_public(row)
     except IntegrityError:return existing()
     tasks.add_task(run_submission,rid)
     return result

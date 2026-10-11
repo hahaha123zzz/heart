@@ -1,0 +1,80 @@
+{
+  "frozen_before_run": true,
+  "purpose": "长证明与前置引用的开发诊断，后续调试后不作为独立测试集",
+  "cases": [
+    {
+      "id": "five-color",
+      "question": "请解释定理8.11完整证明的思路，为什么要先找一个度数不大于5的顶点，再讨论换色？",
+      "gold": {
+        "pages": [
+          12,
+          13
+        ],
+        "prerequisite": "定理8.9",
+        "prerequisite_pages": [
+          10
+        ],
+        "required": [
+          "归纳",
+          "度数不大于5",
+          "双色连通分支换色"
+        ],
+        "excluded": "练习8.2"
+      }
+    },
+    {
+      "id": "five-color-step",
+      "question": "定理8.11的证明里，为什么红黄通路存在时，黑白两色的顶点v2与v4必在不同连通分支？请解释这一步。",
+      "gold": {
+        "pages": [
+          13
+        ],
+        "required": [
+          "平面",
+          "回路",
+          "内外",
+          "换色"
+        ]
+      }
+    },
+    {
+      "id": "tree-omitted",
+      "question": "请解释定理8.16的（3）⇒（4），教材有没有写出这一步证明？如果没有，请标明是你的补充推导。",
+      "gold": {
+        "pages": [
+          15
+        ],
+        "required": [
+          "留给读者",
+          "删边",
+          "连通"
+        ],
+        "prerequisite": "定理8.14"
+      }
+    },
+    {
+      "id": "proof-negative",
+      "question": "依据定理8.11的证明，给我PostgreSQL数据库索引优化和事务隔离配置。",
+      "gold": {
+        "deny": true
+      }
+    },
+    {
+      "id": "cross-section",
+      "question": "解释定理7.7的证明，为什么某个连通分支不能恰好只有一个奇数度顶点？请指出用到的前置定理。",
+      "gold": {
+        "pages": [
+          10
+        ],
+        "prerequisite": "定理7.2",
+        "prerequisite_pages": [
+          4
+        ],
+        "required": [
+          "奇数度顶点个数为偶数",
+          "连通分支"
+        ]
+      }
+    }
+  ]
+}

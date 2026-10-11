@@ -123,6 +123,11 @@ def evaluate_rule(part,answer,key):
    results=[compare(v)==compare(e) if str(v).strip() else False for v,e in zip(answer,key['expected'])]
    if len(answer)!=len(key['expected']):raise ValueError('作答空数与题面不一致')
    score=round(100*sum(results)/len(results));message='；'.join(f'第{i+1}空'+('正确' if v else '需要改正') for i,v in enumerate(results))+'。'+message
+  elif kind=='symbolic_fill':
+   from knowledge.symbolic_answers import equivalent
+   if len(answer)!=len(key['expected']):raise ValueError('作答空数与题面不一致')
+   results=[equivalent(v,e,key) if str(v).strip() else False for v,e in zip(answer,key['expected'])]
+   score=round(100*sum(results)/len(results));message='；'.join(f'第{i+1}空'+('正确' if v else '需要改正') for i,v in enumerate(results))+'。'+message
   elif kind=='matrix':
    expected=key['expected'];cells=answer['cells']
    if len(cells)!=len(expected) or any(len(r)!=len(expected[0]) for r in cells):score=0;message='矩阵维度不正确。'+message

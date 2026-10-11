@@ -1,0 +1,120 @@
+import json
+import unittest
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
+from agents.context_sufficiency import ContextSufficiency, EvidenceDecision
+from llm.client import LLMError, LLMClient
+from orchestrator import TutorOrchestrator
+
+class SufficiencyTests(unittest.TestCase):
+    def decide(self, result):
+        llm=SimpleNamespace(mock=False, chat_json=Mock(return_value=result))
+        return ContextSufficiency(llm).check('A∧B 为真吗？',[{'id':'1','text':'合取真值表'}])
+    def test_standalone_question_does_not_include_old_topic(self):
+        route=SimpleNamespace(intent='continue',student_move='question',needs_context=False)
+        self.assertEqual(TutorOrchestrator._retrieval_query('为什么 A⊆B 且 B⊆C 能推出 A⊆C？','图的基本概念',route),'为什么 A⊆B 且 B⊆C 能推出 A⊆C？')
+    def test_referential_question_uses_current_topic(self):
+        route=SimpleNamespace(intent='continue',student_move='question',needs_context=True)
+        self.assertEqual(TutorOrchestrator._retrieval_query('它为什么成立？','子集',route),'子集 它为什么成立？')
+    def test_student_attempt_keeps_question_context(self):
+        route=SimpleNamespace(intent='continue',student_move='attempt',needs_context=True)
+        self.assertEqual(TutorOrchestrator._retrieval_query('我选 B','逻辑合取',route),'逻辑合取 我选 B')
+    def test_invalid_router_context_field_is_not_truthy_string(self):
+        from agents.conversation_router import ConversationRouter
+        route=ConversationRouter._validate({'student_move':'question','needs_context':'false'})
+        self.assertFalse(route.needs_context)
+
+    def test_explicit_explanation_request_does_not_become_diagnostic(self):
+        plan=SimpleNamespace(strategy='retrieval_practice',action='ask_question')
+        move=SimpleNamespace(instructional_move='socratic_questioning',action='ask_question')
+        self.assertTrue(TutorOrchestrator._align_explanation(plan,move,'question',explanation_requested=True))
+        self.assertEqual(plan.action,'explain')
+        self.assertEqual(move.action,'explain')
+        self.assertEqual(move.instructional_move,'direct_explanation')
+
+    def test_conceptual_comparison_explanation_aligns_plan(self):
+        plan=SimpleNamespace(strategy='retrieval_practice',action='ask_question')
+        move=SimpleNamespace(instructional_move='conceptual_comparison',action='explain')
+        self.assertTrue(TutorOrchestrator._align_explanation(plan,move,'question'))
+        self.assertEqual(plan.action,'explain')
+
+    def test_direct_explanation_aligns_plan(self):
+        plan=SimpleNamespace(strategy='socratic_questioning',action='ask_question',rationale='诊断')
+        move=SimpleNamespace(instructional_move='direct_explanation',action='explain')
+        self.assertTrue(TutorOrchestrator._align_explanation(plan,move,'question'))
+        self.assertEqual(plan.action,'explain')
+        self.assertEqual(plan.strategy,'worked_example')
+
+    def test_student_answer_keeps_diagnostic_plan(self):
+        plan=SimpleNamespace(strategy='socratic_questioning',action='ask_question')
+        move=SimpleNamespace(instructional_move='direct_explanation',action='explain')
+        self.assertFalse(TutorOrchestrator._align_explanation(plan,move,'answer'))
+        self.assertEqual(plan.action,'ask_question')
+
+    def test_valid_decision(self):
+        self.assertTrue(self.decide(dict(status='sufficient',source_ids=['1'],missing=[],reason='真值表完整')).allowed)
+    def test_partial_does_not_allow_full_answer(self):
+        self.assertFalse(self.decide(dict(status='partial',source_ids=['1'],missing=['程序运行机制'],reason='仅能解释逻辑符号')).allowed)
+    def test_unknown_reference_is_unavailable(self):
+        self.assertEqual(self.decide(dict(status='sufficient',source_ids=['99'],missing=[],reason='引用')).status,'unavailable')
+    def test_missing_fact_cannot_be_sufficient(self):
+        self.assertEqual(self.decide(dict(status='sufficient',source_ids=['1'],missing=['公式'],reason='缺失')).status,'unavailable')
+    def test_empty_reference_cannot_be_sufficient(self):
+        self.assertEqual(self.decide(dict(status='sufficient',source_ids=[],missing=[],reason='缺失')).status,'unavailable')
+    def test_timeout_is_not_claimed_as_absent_evidence(self):
+        llm=SimpleNamespace(mock=False,chat_json=Mock(side_effect=LLMError('timeout')))
+        decision=ContextSufficiency(llm).check('问题',[{'id':'1','text':'正文'}])
+        self.assertEqual(decision.status,'unavailable')
+        self.assertIn('暂时无法核验',decision.reply())
+    def test_raw_question_history_and_timeout_reach_judge(self):
+        llm=SimpleNamespace(mock=False,chat_json=Mock(return_value=dict(status='sufficient',source_ids=['1'],missing=[],reason='条件充分')))
+        ContextSufficiency(llm).check('Q1∧Q2',[{'id':'1','text':'正文'}],history=[{'role':'user','content':'追问'}])
+        args,kwargs=llm.chat_json.call_args
+        self.assertEqual(json.loads(args[0][-1]['content'])['question'],'Q1∧Q2')
+        self.assertEqual(kwargs['timeout'],25)
+        self.assertEqual(kwargs['retries'],0)
+    def test_rejection_prevents_teaching_side_effects(self):
+        tutor=TutorOrchestrator.__new__(TutorOrchestrator)
+        tutor.memory=Mock()
+        tutor.memory.get_history.return_value=[]
+        tutor.memory.get_active_goal.return_value='命题逻辑'
+        tutor.conversation_router=Mock()
+        tutor.conversation_router.route.return_value=SimpleNamespace(intent='continue',model_dump=lambda:{})
+        tutor.context_sufficiency=Mock()
+        tutor.context_sufficiency.check.return_value=EvidenceDecision(status='partial',reason='缺少实现依据')
+        tutor.textbook_chunks=[]
+        chunk=SimpleNamespace(source='第4章',section='联结词',text='合取定义',kind='text')
+        with patch('orchestrator.retrieve_hybrid',return_value=[chunk]),patch('orchestrator.retrieve_figures',return_value=[]):
+            result=tutor.handle_turn('test-student','用 p→q 实现任务调度')
+        self.assertEqual(result['textbook_sources'],[])
+        tutor.memory.set_active_goal.assert_not_called()
+        tutor.memory.snapshot.assert_not_called()
+        tutor.memory.save_state.assert_not_called()
+    def test_pdf_rejection_does_not_generate_or_save_mastery(self):
+        from agents.pdf_selection_tutor import explain_selection
+        tutor=Mock()
+        tutor.context_sufficiency.check.return_value=EvidenceDecision(status='partial',reason='公式缺失')
+        resolved={'section':{'title':'联结词'},'text':'缺失公式','context':'上下文','images':[]}
+        with patch('agents.pdf_selection_tutor.resolve_selection',return_value=resolved),patch('agents.pdf_selection_tutor.selection_memory',return_value={'preferences':{}}):
+            result=explain_selection(tutor,'student','解释选区',Mock(),'test')
+        self.assertEqual(result['evidence_check']['status'],'partial')
+        tutor.llm.chat.assert_not_called()
+        tutor.quality_checker.check.assert_not_called()
+        tutor.memory.save_state.assert_not_called()
+
+    def test_bounded_call_does_not_retry_empty_response(self):
+        client=LLMClient(api_key='fake',mock=False)
+        with patch.object(client,'_one_call',return_value=('', 'length')) as call:
+            with self.assertRaises(LLMError):
+                client.chat([{'role':'user','content':'问题'}],timeout=25)
+        self.assertEqual(call.call_count,1)
+
+    def test_timeout_disables_sdk_retries(self):
+        client=LLMClient(api_key='fake',mock=False)
+        client._client=Mock()
+        bounded=client._client.with_options.return_value
+        bounded.chat.completions.create.return_value=SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content='ok'),finish_reason='stop')])
+        self.assertEqual(client.chat([{'role':'user','content':'问题'}],timeout=25),'ok')
+        client._client.with_options.assert_called_once_with(timeout=25,max_retries=0)
+
+if __name__=='__main__': unittest.main()

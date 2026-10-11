@@ -202,7 +202,7 @@ def review_items(student_id: str):
     with session_scope() as session:
         misconceptions = session.scalars(select(MisconceptionRow).where(
             MisconceptionRow.student_id == student_id,
-            MisconceptionRow.status != "resolved")).all()
+            MisconceptionRow.status.not_in(("resolved", "dismissed")))).all()
         states = session.scalars(select(KnowledgeStateRow).where(
             KnowledgeStateRow.student_id == student_id,
             KnowledgeStateRow.mastery < 0.65,
@@ -235,6 +235,8 @@ def conversation_history(student_id: str):
     return [
         {"role": row["role"], "content": row["content"],
          "selection_ref": row.get("selection_ref"),
+         "pdf_references": (row.get("selection_ref") or {}).get("pdf_references", []),
+         "textbook_sources": (row.get("selection_ref") or {}).get("textbook_sources", []),
          "image_refs": [figure.public() for figure_id in row["image_ref_ids"]
                         if (figure := get_figure(figure_id)) is not None]}
         for row in rows
@@ -258,7 +260,4 @@ class PreferenceUpdate(BaseModel):
 def set_preferences(student_id: str, request: PreferenceUpdate):
     _demo_account(student_id)
     from main import orchestrator
-    profile = orchestrator.memory.get_profile(student_id)
-    profile.preferences.update(request.model_dump())
-    orchestrator.memory.save_profile(profile)
-    return profile.preferences
+    return orchestrator.memory.set_preferences(student_id, request.model_dump())

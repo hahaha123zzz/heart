@@ -32,6 +32,7 @@ class Figure:
     path: Path
     sha256: str
     kind: str = "figure"
+    selection_ref: dict | None = None
 
     def is_valid(self) -> bool:
         """读取或发送前再次验证，防止缓存后文件被替换。"""
@@ -121,7 +122,8 @@ def load_figures() -> tuple[Figure, ...]:
                 context=item.get("context") or "教材公式对象",
                 path=path, sha256=digest, kind=item["kind"],
             ))
-    return tuple(figures)
+    from knowledge.figure_locations import apply_figure_location
+    return tuple(apply_figure_location(figure) for figure in figures)
 
 
 def get_figure(figure_id: str) -> Figure | None:
@@ -142,7 +144,7 @@ def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -
     if labels:
         exact = [figure for figure in load_figures()
                 if figure.kind == "figure" and figure.is_valid()
-                and (figure.chapter_id, int(figure.id.rsplit("-", 1)[1])) in labels][:limit]
+                and any((int(a), int(b)) in labels for a, b in FIGURE_NUMBER.findall(figure.label))][:limit]
         if exact:
             return exact
         # 未核定图号时只跟随检索到的锚点资源，仍以对象编号显示。

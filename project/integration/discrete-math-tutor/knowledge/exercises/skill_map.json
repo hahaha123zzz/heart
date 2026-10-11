@@ -1,0 +1,456 @@
+{
+  "schema_version": "exercise-skill-map-v1",
+  "items": {
+    "ex-01-01-001:p1": {
+      "question_id": "ex-01-01-001",
+      "part_id": "p1",
+      "skill_id": "set.determinacy",
+      "skill_name": "判断集合成员的确定性",
+      "concept": "集合及其元素",
+      "diagnostic_targets": [
+        "集合确定性条件（待诊断）"
+      ],
+      "fingerprint": "1035edc42a0da65946c88da644b1f15a707a63b58fa0c3f98a562eb6562a22a9"
+    },
+    "ex-01-01-001:p2": {
+      "question_id": "ex-01-01-001",
+      "part_id": "p2",
+      "skill_id": "set.determinacy",
+      "skill_name": "判断集合成员的确定性",
+      "concept": "集合及其元素",
+      "diagnostic_targets": [
+        "集合确定性条件（待诊断）"
+      ],
+      "fingerprint": "71c9ed465352efa104ccd191635927e3ec521c670815cf99b33979a74ffa311f"
+    },
+    "ex-01-01-001:p3": {
+      "question_id": "ex-01-01-001",
+      "part_id": "p3",
+      "skill_id": "set.nonempty",
+      "skill_name": "判断集合是否为空",
+      "concept": "集合及其元素",
+      "diagnostic_targets": [
+        "空集与非空集（待诊断）"
+      ],
+      "fingerprint": "05227495ac9fdcb8fd9652516a3ce62b5da213f9ca18f2ccaa004b8407b56a30"
+    },
+    "ex-01-01-001:p4": {
+      "question_id": "ex-01-01-001",
+      "part_id": "p4",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "7a240f964088a454b4f4f9b0208ca1ec4a7872fca167973a07778bd75ef4ee6d"
+    },
+    "ex-01-01-001:p5": {
+      "question_id": "ex-01-01-001",
+      "part_id": "p5",
+      "skill_id": "set.difference_subset",
+      "skill_name": "判断差集与子集关系",
+      "concept": "集合运算",
+      "diagnostic_targets": [
+        "差集与包含关系（待诊断）"
+      ],
+      "fingerprint": "0f0b0de7a782b55f097350628e3b62544034411789bf3ca1d34f48975050c48d"
+    },
+    "ex-01-01-001:p7": {
+      "question_id": "ex-01-01-001",
+      "part_id": "p7",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "9a771e68ad8491b5b5eaa0bc298bbe40e4bf7f5ad91fa2b897d4ba5f48175b27"
+    },
+    "ex-01-01-001:p8": {
+      "question_id": "ex-01-01-001",
+      "part_id": "p8",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "56d5ee524bc065f96d56a792bac35a9116d5c00636f04cea4307c67016987631"
+    },
+    "ex-01-01-002:p1": {
+      "question_id": "ex-01-01-002",
+      "part_id": "p1",
+      "skill_id": "set.enumeration",
+      "skill_name": "列举法表示有限集合",
+      "concept": "集合的表示",
+      "diagnostic_targets": [
+        "集合列举遗漏或重复（待诊断）"
+      ],
+      "fingerprint": "fb60c71ec89f7a22abfcdf75c76b31c0e4bfd19b2c4d2e962b6c248bd13fbeaa"
+    },
+    "ex-04-01-004:p1": {
+      "question_id": "ex-04-01-004",
+      "part_id": "p1",
+      "skill_id": "logic.negation_table",
+      "skill_name": "构造否定式真值表",
+      "concept": "逻辑联结词",
+      "diagnostic_targets": [
+        "否定真值规则（待诊断）"
+      ],
+      "fingerprint": "17e77425e7a15bf7ab7f94668ba51c20dcc63befeb6b06f2e428d183df121fad"
+    },
+    "ex-04-01-004:p3": {
+      "question_id": "ex-04-01-004",
+      "part_id": "p3",
+      "skill_id": "logic.compound_truth_table",
+      "skill_name": "构造复合命题真值表",
+      "concept": "逻辑联结词与复合公式",
+      "diagnostic_targets": [
+        "联结词运算或真值指派（待诊断）"
+      ],
+      "fingerprint": "48bddf1509a9edcfe7a9780e22d90d8efc7415f9b2a8fe276e098d73a0498517"
+    },
+    "ex-04-01-004:p4": {
+      "question_id": "ex-04-01-004",
+      "part_id": "p4",
+      "skill_id": "logic.compound_truth_table",
+      "skill_name": "构造复合命题真值表",
+      "concept": "逻辑联结词与复合公式",
+      "diagnostic_targets": [
+        "联结词运算或真值指派（待诊断）"
+      ],
+      "fingerprint": "ea6749ad09b1d8217daee3f2d2baaea12eee44d3b2213e95ac5138244196275f"
+    },
+    "ex-04-01-004:p5": {
+      "question_id": "ex-04-01-004",
+      "part_id": "p5",
+      "skill_id": "logic.compound_truth_table",
+      "skill_name": "构造复合命题真值表",
+      "concept": "逻辑联结词与复合公式",
+      "diagnostic_targets": [
+        "联结词运算或真值指派（待诊断）"
+      ],
+      "fingerprint": "06c9cc284d45bb5590980c23c6d08c99657b74273110b81d60dfdd31f822a6e1"
+    },
+    "ex-04-01-004:p6": {
+      "question_id": "ex-04-01-004",
+      "part_id": "p6",
+      "skill_id": "logic.compound_truth_table",
+      "skill_name": "构造复合命题真值表",
+      "concept": "逻辑联结词与复合公式",
+      "diagnostic_targets": [
+        "联结词运算或真值指派（待诊断）"
+      ],
+      "fingerprint": "abe3352b243a6b734f6403378d40095c45efb87b0c2c6cb492c35b92a507c158"
+    },
+    "ex-04-01-004:p7": {
+      "question_id": "ex-04-01-004",
+      "part_id": "p7",
+      "skill_id": "logic.compound_truth_table",
+      "skill_name": "构造复合命题真值表",
+      "concept": "逻辑联结词与复合公式",
+      "diagnostic_targets": [
+        "联结词运算或真值指派（待诊断）"
+      ],
+      "fingerprint": "ec623a93e50513331ba3ef7a7a015d400f3d21d5ddeb4b92724c20926e372dd9"
+    },
+    "ex-04-01-004:p8": {
+      "question_id": "ex-04-01-004",
+      "part_id": "p8",
+      "skill_id": "logic.compound_truth_table",
+      "skill_name": "构造复合命题真值表",
+      "concept": "逻辑联结词与复合公式",
+      "diagnostic_targets": [
+        "联结词运算或真值指派（待诊断）"
+      ],
+      "fingerprint": "da53e90f60f5240472aaa169d1c55c60139eaa6dbbe9bfa2b05dc4ac75c1b199"
+    },
+    "ex-04-01-004:p9": {
+      "question_id": "ex-04-01-004",
+      "part_id": "p9",
+      "skill_id": "logic.compound_truth_table",
+      "skill_name": "构造复合命题真值表",
+      "concept": "逻辑联结词与复合公式",
+      "diagnostic_targets": [
+        "联结词运算或真值指派（待诊断）"
+      ],
+      "fingerprint": "084b5e18dcf11399ee7337bb1dd718c0f69c0739e626195ad463428d02fdef4a"
+    },
+    "ex-04-01-004:p10": {
+      "question_id": "ex-04-01-004",
+      "part_id": "p10",
+      "skill_id": "logic.compound_truth_table",
+      "skill_name": "构造复合命题真值表",
+      "concept": "逻辑联结词与复合公式",
+      "diagnostic_targets": [
+        "联结词运算或真值指派（待诊断）"
+      ],
+      "fingerprint": "bbcf9d36171f97a03551d8621021a9dbd6d120c3e76af03c356e791d2a011d46"
+    },
+    "ex-01-01-007:p1": {
+      "question_id": "ex-01-01-007",
+      "part_id": "p1",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "5c1e65d5aa254f63c00d03d1ba92721fb850a1028f6522d1ce881bdeb771b4f6"
+    },
+    "ex-01-01-007:p2": {
+      "question_id": "ex-01-01-007",
+      "part_id": "p2",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "e9c1e40a0b9ad945deeceab8802122a64e86d05b750cfceabd3a744ea7b804ed"
+    },
+    "ex-01-01-007:p3": {
+      "question_id": "ex-01-01-007",
+      "part_id": "p3",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "194167d24a1e328ed15f3566702804b382d0d9f3a582b4b9f9c1c85b4626d57f"
+    },
+    "ex-01-01-007:p4": {
+      "question_id": "ex-01-01-007",
+      "part_id": "p4",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "5f1bc476b38bc97b00fd4de23b23ed15efed6cb834c33ac619a3ae987a15d261"
+    },
+    "ex-01-01-007:p5": {
+      "question_id": "ex-01-01-007",
+      "part_id": "p5",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "3067037ab71ebd839b502560ef9c7471a8c41c340f98f5ba07a15d9b96b11b59"
+    },
+    "ex-01-01-007:p6": {
+      "question_id": "ex-01-01-007",
+      "part_id": "p6",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "e9159b21d1001999058bbef0fe95ec511153370ff1da76b0f5a3b101f73c449d"
+    },
+    "ex-01-01-007:p7": {
+      "question_id": "ex-01-01-007",
+      "part_id": "p7",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "42040d5c49bd2ec8bad1b3345ef29ee08a0daa624c4569ed5c7fa0781ad4ae16"
+    },
+    "ex-01-01-007:p8": {
+      "question_id": "ex-01-01-007",
+      "part_id": "p8",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "3679d73de815074dbf9befffe3bea33b7e0b53edd9444060a0a164e5d4b26a9c"
+    },
+    "ex-01-01-007:p9": {
+      "question_id": "ex-01-01-007",
+      "part_id": "p9",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "bcef449c7444b27e75acfb98b2904e85e6be072e121ae7048b31bf434e5a0955"
+    },
+    "ex-01-01-007:p10": {
+      "question_id": "ex-01-01-007",
+      "part_id": "p10",
+      "skill_id": "set.membership_subset",
+      "skill_name": "区分属于与包含关系",
+      "concept": "外延性公理与子集合",
+      "diagnostic_targets": [
+        "元素、集合与子集关系（待诊断）"
+      ],
+      "fingerprint": "9f860237ec3c2998fc4692831560e45313bc02c238411034590149ed4346562d"
+    },
+    "ex-09-03-012:p1": {
+      "question_id": "ex-09-03-012",
+      "part_id": "p1",
+      "skill_id": "relation.order_restriction",
+      "skill_name": "判断限制关系保留的序性质",
+      "concept": "序关系和有序集",
+      "diagnostic_targets": [
+        "关系限制与序性质的继承（待诊断）"
+      ],
+      "fingerprint": "981c520af5e8a87c05b3cc3996762dc43433d39e3d26861c4b90659d3c9f1736"
+    },
+    "ex-09-03-012:p2": {
+      "question_id": "ex-09-03-012",
+      "part_id": "p2",
+      "skill_id": "relation.order_restriction",
+      "skill_name": "判断限制关系保留的序性质",
+      "concept": "序关系和有序集",
+      "diagnostic_targets": [
+        "关系限制与序性质的继承（待诊断）"
+      ],
+      "fingerprint": "cc7cae3d6649fa1f22a33a48ef61ed91e635356d93f5827e369f9964c1ec6526"
+    },
+    "ex-09-03-012:p3": {
+      "question_id": "ex-09-03-012",
+      "part_id": "p3",
+      "skill_id": "relation.order_restriction",
+      "skill_name": "判断限制关系保留的序性质",
+      "concept": "序关系和有序集",
+      "diagnostic_targets": [
+        "关系限制与序性质的继承（待诊断）"
+      ],
+      "fingerprint": "4c2b987a3b13ee59190f44186ecd24b1a2f725044c2ad06491228294d3f4c81d"
+    },
+    "ex-09-03-012:p4": {
+      "question_id": "ex-09-03-012",
+      "part_id": "p4",
+      "skill_id": "relation.order_restriction",
+      "skill_name": "判断限制关系保留的序性质",
+      "concept": "序关系和有序集",
+      "diagnostic_targets": [
+        "关系限制与序性质的继承（待诊断）"
+      ],
+      "fingerprint": "feffb78b1aceedb2e004d2f14ada434da21467f11baf22ece512781d13ed7a72"
+    },
+    "ex-03-01-002:p1": {
+      "question_id": "ex-03-01-002",
+      "part_id": "p1",
+      "skill_id": "count.inclusion_exclusion",
+      "skill_name": "用包含排斥计算人数",
+      "concept": "包含排斥原理",
+      "diagnostic_targets": [
+        "并集、交集与重复计数（待诊断）"
+      ],
+      "fingerprint": "f97cea9433a68dc9627d1ba73169f0c8e0af960b2e4decae4d8b0efcab1b6046"
+    },
+    "ex-03-01-002:p2": {
+      "question_id": "ex-03-01-002",
+      "part_id": "p2",
+      "skill_id": "count.inclusion_exclusion",
+      "skill_name": "用包含排斥计算人数",
+      "concept": "包含排斥原理",
+      "diagnostic_targets": [
+        "并集、交集与重复计数（待诊断）"
+      ],
+      "fingerprint": "8ca07aa810d2540d546f03859e046c275aa6265458565e9ea7daeb4b3f234482"
+    },
+    "ex-03-01-002:p4": {
+      "question_id": "ex-03-01-002",
+      "part_id": "p4",
+      "skill_id": "count.inclusion_exclusion",
+      "skill_name": "用包含排斥计算人数",
+      "concept": "包含排斥原理",
+      "diagnostic_targets": [
+        "并集、交集与重复计数（待诊断）"
+      ],
+      "fingerprint": "adbd1572fa72b01f8ca07d4e6e205061b0a6428105fdf98b0ce79150ebd140ec"
+    },
+    "ex-03-02-002:p1": {
+      "question_id": "ex-03-02-002",
+      "part_id": "p1",
+      "skill_id": "count.ordered_unordered_pairs",
+      "skill_name": "区分有序对和无序对计数",
+      "concept": "组合的计数",
+      "diagnostic_targets": [
+        "排列组合与有序无序计数（待诊断）"
+      ],
+      "fingerprint": "ffa489334011ec734f0416da08b01d0f80ec904a8021178ac2f20b377e8c174e"
+    },
+    "ex-03-02-002:p2": {
+      "question_id": "ex-03-02-002",
+      "part_id": "p2",
+      "skill_id": "count.parity_cases",
+      "skill_name": "按奇偶分类计数",
+      "concept": "组合的计数",
+      "diagnostic_targets": [
+        "奇偶分类及乘法加法原理（待诊断）"
+      ],
+      "fingerprint": "7e048b4bd8b3bf465ea09e09a3a92f048c15423c7fe740aa794db046da9f295d"
+    },
+    "ex-03-02-002:p3": {
+      "question_id": "ex-03-02-002",
+      "part_id": "p3",
+      "skill_id": "count.parity_cases",
+      "skill_name": "按奇偶分类计数",
+      "concept": "组合的计数",
+      "diagnostic_targets": [
+        "奇偶分类及乘法加法原理（待诊断）"
+      ],
+      "fingerprint": "587c42c3310f7219f3adce733b23e861b5a8d36eb692259cf537e6fae4048305"
+    },
+    "ex-07-01-002:p1": {
+      "question_id": "ex-07-01-002",
+      "part_id": "p1",
+      "skill_id": "graph.degree_lower_bound",
+      "skill_name": "用度数和求结点数量下界",
+      "concept": "结点的度",
+      "diagnostic_targets": [
+        "握手定理与度数上界（待诊断）"
+      ],
+      "fingerprint": "7dad955c342feafadd1b0a2ec35ef26ccc1ccac3ac6ba2228a2033a46d7e347d"
+    },
+    "ex-09-03-002:p3": {
+      "question_id": "ex-09-03-002",
+      "part_id": "p3",
+      "skill_id": "relation.bounds",
+      "skill_name": "求有限有序子集的上下确界",
+      "concept": "序关系和有序集",
+      "diagnostic_targets": [
+        "上下界与上确界下确界（待诊断）"
+      ],
+      "fingerprint": "1b3311c0d0d3d831761526a49206942d3a16625d80b2c331353a06cf5b707cd4"
+    },
+    "ex-03-01-002:p3": {
+      "question_id": "ex-03-01-002",
+      "part_id": "p3",
+      "skill_id": "count.room_assignment",
+      "skill_name": "用乘法原理计算独立分配",
+      "concept": "加法与乘法原理",
+      "diagnostic_targets": [
+        "独立选择与乘法原理（待诊断）"
+      ],
+      "fingerprint": "b8e23a49ac737e734ea7acb4f67c36c694587071951cef6e3c26e824c95f4206"
+    },
+    "ex-07-01-002:p2": {
+      "question_id": "ex-07-01-002",
+      "part_id": "p2",
+      "skill_id": "graph.deletion_counts",
+      "skill_name": "计算删除顶点或边后的图规模",
+      "concept": "子图",
+      "diagnostic_targets": [
+        "顶点删除与关联边删除（待诊断）"
+      ],
+      "fingerprint": "69e0feaf224273f9631714ca33f530ba9e93580014ce561471c7793c89d2be77"
+    }
+  }
+}

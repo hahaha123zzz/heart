@@ -20,6 +20,28 @@ Windows 双击 `2-chat.bat`，或在本目录运行 `.venv\Scripts\python.exe ch
 
 ## 图片、表格与公式批量导入
 
+## 教材检索升级（2026-10-10）
+
+问答入口现在优先使用 `knowledge/rag_index_v2.sqlite3`：从已提取的 Word 块建立章、节、定理与证明、图表公式的结构索引；正文与习题分离；以中文字符组合的 SQLite FTS5/BM25 召回，并在索引带有向量时加入本地语义召回。候选按倒数排名融合，再补齐同一父单元的上下文。模型和索引不可用时退回原关键词检索。PDF 出处标注的是**小节起始页**，不是精确的原文所在页；选区提问仍按用户所选 PDF 坐标取证。
+
+首次运行会自动生成不含语义向量的结构索引。完整重建与评测：
+
+在 Windows 上重建索引前先停止正在运行的 API 服务，以免 SQLite 文件被占用。
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 -m scripts.build_rag_index --embed
+.\.venv\Scripts\python.exe -X utf8 -m scripts.eval_rag_retrieval
+.\.venv\Scripts\python.exe -X utf8 -m unittest tests.test_rag_upgrade -v
+```
+
+`--embed` 使用本地 FastEmbed 中文模型 `BAAI/bge-small-zh-v1.5`，首次需要下载模型。运行时设置 `RAG_RERANK_MODEL=BAAI/bge-reranker-base` 可启用 FastEmbed 的中文交叉编码器重排：保留关键词和向量两路候选，逐段检查重排相关性，再通过 RRF 融合结构排序与模型排序。模型约 1 GB，CPU 推理需要数秒，配置示例默认关闭。`RAG_RERANK_MIN_PROBABILITY=0.15` 控制 sigmoid 后的相关性分数门槛，该分数未经概率校准。`BAAI/bge-reranker-v2-m3` 需要额外安装 FlagEmbedding，同样通过 `RAG_RERANK_MODEL` 配置。索引是可重建的本地文件，不进入版本管理。详细说明见 `docs/2026-10-10-rag-upgrade.md`。
+
+使用 `python -m scripts.eval_rag_holdout --cases <题集路径> --output <报告路径> --reranker BAAI/bge-reranker-base --trace` 保存逐题检索轨迹，包含候选、重排分数、融合排序和拒绝原因。单独诊断候选覆盖可使用 `scripts.diagnose_rag_stages` 的同名参数。模型加载或评分失败时保留原证据门槛，轨迹中记录 `reranker_error` 和 `evidence_gate=fallback`。
+
+独立验收题集运行 `.\.venv\Scripts\python.exe -X utf8 -m scripts.eval_rag_holdout`；逐题结果写入 `artifacts/rag_holdout_results.json`，结论和真实回答抽查见 `docs/2026-10-10-rag-holdout-results.md`。该题集与前述 13 道调参回归题分开。
+
+首次独立验收后已针对失败案例修复检索与无证据问答；这批题目现用于回归，后续不可再把复测分数称为独立测试。用户提出教材外问题而没有可靠证据时，问答返回空出处并提示选择教材内容。完整语义索引需要预先执行上面的 `--embed` 构建命令；无向量降级模式的教材外问题拦截仍需改进。
+
 已处理十章原始 DOC：20 个 Word 表格、1,209 张公式预览、4 个嵌入图片和 133 张 Word 绘图锚点预览。一个公式块可能包含多个公式对象，一个绘图预览也可能包含多幅图或标注；这些数量不等于教材独立图号数量。
 
 双击 `9-import-multimodal.bat` 可以重建。导入需要本机 Microsoft Word 和 Windows System.Drawing；运行网页问答只读取导入产物。流程为 DOC → WordOpenXML → 表格/公式/媒体解析 → 绘图锚点导出 → PNG 预览与检索索引。原始 WMF、EMF 和 OLE 文件保留，发送模型的预览最长边限制为 2,048 像素。导入后重启 API 服务以刷新缓存。
@@ -97,3 +119,17 @@ node D:/nodejs/node_modules/npm/bin/npm-cli.js run build
 接口均在 `/api/practice`：章节题目索引、逐题详情、PUT 草稿、POST submit、提交状态轮询、POST help。草稿和提交绑定题库及判分版本；request_id 幂等；服务重启会把未完成批改标记为可重试，保留答案。新数据表使用学生外键级联删除，沿用24小时测试账户政策。
 
 验证：`.venv/Scripts/python.exe -X utf8 -m unittest tests.test_interactive_practice -v`；浏览器脚本 `tests/browser/interactive-practice.cjs`，通过本机 Playwright skill 的 run.js 执行。详见 docs/2026-10-09-interactive-exercises-delivery.md。
+
+## GPU 教材检索
+
+本机已增加 GPU reranker 启动方式，双击 `3-start-api.bat` 自动选择经过验证的 `.venv-gpu`，并在服务启动前预热。GPU 环境复用 `.venv` 应用依赖；embedding 暂保持 CPU。
+
+新环境可运行 `.venv\Scripts\python.exe -m scripts.setup_gpu_environment` 建立 GPU 运行库，再执行设备对照和 GPU 算子检查。
+
+详情见 [GPU 实测与复现说明](docs/2026-10-10-rag-gpu-results.md)。
+
+## 三栏学习工作台（2026-10-11）
+
+网页现已采用左侧导航与章节目录、中间原版教材、右侧学习对话。默认教材:对话为 60:40，可拖动分隔条或在“布局”中选择比例；手机端通过“学习内容 / 对话”切换。圈选教材后点击“向 AI 提问”，来源引用可回到对应 PDF 页码。练习默认聚焦当前小题，草稿和阅读位置可恢复。学习统计与错题整合在“学习记录”，偏好和记忆管理位于底部设置。
+
+启动方式仍为 `3-start-api.bat`，访问 http://127.0.0.1:8000/。本轮交付与测试边界见 [前端改造结果](docs/2026-10-11-frontend-redesign-results.md)，视觉对照见 [design-qa.md](design-qa.md)。

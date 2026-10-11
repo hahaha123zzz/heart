@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import threading
 import os
 import re
 import base64
@@ -54,27 +55,37 @@ class LLMClient:
         self.vision_model = os.getenv("OPENAI_VISION_MODEL", "deepseek-flash")
         self.mock = (os.getenv("LLM_MOCK", "0") == "1") if mock is None else mock
         self._client = None
+        self._client_lock = threading.Lock()
 
     def _client_lazy(self):
-        if self._client is None:
-            if not self.api_key:
-                raise LLMError("缺少 DeepSeek API Key；设置 DEEPSEEK_API_KEY，或使用 LLM_MOCK=1。")
-            from openai import OpenAI
-
-            self._client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+        with self._client_lock:
+            if self._client is None:
+                if not self.api_key:
+                    raise LLMError("缺少 DeepSeek API Key；设置 DEEPSEEK_API_KEY，或使用 LLM_MOCK=1。")
+                from openai import OpenAI
+    
+                self._client = OpenAI(api_key=self.api_key, base_url=self.base_url)
         return self._client
 
     def _one_call(
         self, messages: List[Dict[str, Any]], temperature: float, max_tokens: int,
-        model: str | None = None,
+        model: str | None = None, timeout: float | None = None,
+        reasoning_effort: str | None = None,
     ) -> tuple[str, str | None]:
         args: dict[str, Any] = {
             "model": model or self.model, "messages": messages,
             "temperature": temperature, "max_tokens": max_tokens,
         }
+        if reasoning_effort is not None:
+            if reasoning_effort not in {"low", "high", "max"}:
+                raise LLMError("不支持的 reasoning_effort")
+            args["reasoning_effort"] = reasoning_effort
         if "api.deepseek.com" in self.base_url:
-            args["extra_body"] = {"thinking": {"type": "disabled"}}
-        response = self._client_lazy().chat.completions.create(**args)
+            args["extra_body"] = {"thinking": {"type": "enabled" if reasoning_effort else "disabled"}}
+        client = self._client_lazy()
+        if timeout is not None:
+            client = client.with_options(timeout=timeout, max_retries=0)
+        response = client.chat.completions.create(**args)
         choice = response.choices[0]
         return choice.message.content or "", choice.finish_reason
 
@@ -114,24 +125,27 @@ class LLMClient:
         temperature: float = 0.4,
         max_tokens: int = 1200,
         image_paths: Optional[List[Path]] = None,
+        timeout: float | None = None,
+        reasoning_effort: str | None = None,
     ) -> str:
         if self.mock:
             return str(mock_reply(messages, json_mode=False))
         try:
+            reasoning = {"reasoning_effort": reasoning_effort} if reasoning_effort else {}
             visual = bool(image_paths)
             request_messages = self._with_images(messages, image_paths) if visual else messages
             content, reason = (
-                self._one_call(request_messages, temperature, max_tokens, self.vision_model)
-                if visual else self._one_call(request_messages, temperature, max_tokens)
+                self._one_call(request_messages, temperature, max_tokens, self.vision_model, timeout=timeout, **reasoning)
+                if visual else self._one_call(request_messages, temperature, max_tokens, timeout=timeout, **reasoning)
             )
-            if not content and reason == "length":
+            if not content and reason == "length" and timeout is None:
                 retry_tokens = max(max_tokens * 2, 1200)
                 content, _ = (
-                    self._one_call(request_messages, temperature, retry_tokens, self.vision_model)
-                    if visual else self._one_call(request_messages, temperature, retry_tokens)
+                    self._one_call(request_messages, temperature, retry_tokens, self.vision_model, timeout=timeout, **reasoning)
+                    if visual else self._one_call(request_messages, temperature, retry_tokens, timeout=timeout, **reasoning)
                 )
             if not content.strip():
-                raise LLMError("模型未返回文本内容")
+                raise LLMError("模型输出达到长度上限，未完成回答" if reason == "length" else "模型未返回文本内容")
             return content.strip()
         except LLMError:
             raise
@@ -145,6 +159,8 @@ class LLMClient:
         max_tokens: int = 2500,
         retries: int = 1,
         image_paths: Optional[List[Path]] = None,
+        timeout: float | None = None,
+        reasoning_effort: str | None = None,
     ) -> Dict[str, Any]:
         if self.mock:
             result = mock_reply(messages, json_mode=True)
@@ -153,7 +169,8 @@ class LLMClient:
         for _ in range(retries + 1):
             try:
                 return extract_json(self.chat(messages, temperature, max_tokens,
-                                              image_paths=image_paths))
+                                              image_paths=image_paths, timeout=timeout,
+                                              **({"reasoning_effort": reasoning_effort} if reasoning_effort else {})))
             except (ValueError, LLMError) as exc:
                 last_error = exc
         raise LLMError("无法获取有效 JSON：" + str(last_error))

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "f01",
+    "question": "A={2,3},B={3,5}，A∩B 是什么？",
+    "evidence": [
+      {
+        "id": "1",
+        "text": "A∩B={x|x∈A 且 x∈B}。"
+      }
+    ],
+    "expected": "sufficient"
+  },
+  {
+    "id": "f02",
+    "question": "已知 R 自反，那么 (7,7) 是否在 R 中？7 属于底集。",
+    "evidence": [
+      {
+        "id": "1",
+        "text": "关系 R 在集合 A 上自反，指对每一个 x∈A 均有 (x,x)∈R。"
+      }
+    ],
+    "expected": "sufficient"
+  },
+  {
+    "id": "f03",
+    "question": "袋中两种颜色与三种尺寸各取一种，共有多少种组合？",
+    "evidence": [
+      {
+        "id": "1",
+        "text": "乘法原理：第一步有 m 种选择，每个选择下第二步有 n 种选择，则两步共 mn 种选择。"
+      }
+    ],
+    "expected": "sufficient"
+  },
+  {
+    "id": "f04",
+    "question": "F 为真，请再解释一下 ¬F 的值。",
+    "evidence": [
+      {
+        "id": "1",
+        "text": "否定命题 ¬p 在 p 为真时为假，在 p 为假时为真。"
+      }
+    ],
+    "expected": "sufficient"
+  },
+  {
+    "id": "f05",
+    "question": "使用关系矩阵的定义写一段 PostgreSQL 迁移脚本。",
+    "evidence": [
+      {
+        "id": "1",
+        "text": "关系矩阵 M 中 mᵢⱼ=1 表示 (aᵢ,aⱼ)∈R，否则 mᵢⱼ=0。"
+      }
+    ],
+    "expected": "deny"
+  },
+  {
+    "id": "f06",
+    "question": "根据集合交的定义证明这个药物组合没有副作用。",
+    "evidence": [
+      {
+        "id": "1",
+        "text": "集合 A 与 B 的交集包含同时属于两个集合的元素。"
+      }
+    ],
+    "expected": "deny"
+  },
+  {
+    "id": "f07",
+    "question": "函数 f(3) 等于多少？",
+    "evidence": [
+      {
+        "id": "1",
+        "text": "函数 f 把定义域的每个元素对应到唯一值，未给出具体对应规则。"
+      }
+    ],
+    "expected": "deny"
+  },
+  {
+    "id": "f08",
+    "question": "先解释对称关系，再估算社交平台服务器的每月运维成本。",
+    "evidence": [
+      {
+        "id": "1",
+        "text": "对称关系满足 (x,y)∈R 时 (y,x)∈R。"
+      }
+    ],
+    "expected": "deny"
+  }
+]

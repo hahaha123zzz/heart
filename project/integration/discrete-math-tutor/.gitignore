@@ -23,3 +23,10 @@ Thumbs.db
 
 reader/node_modules/
 knowledge/pdf/crops/
+
+# GPU 运行库与本机验证标记
+.venv-gpu/
+
+# CUDA 编译缓存
+.cache/
+artifacts/cuda-cache-*/

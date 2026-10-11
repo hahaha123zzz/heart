@@ -1,0 +1,53 @@
+{
+  "schema_version": "rule-review-v1",
+  "scope": "符号填空工程推导核验，不是教材官方答案",
+  "items": [
+    {
+      "question_id": "ex-03-01-002",
+      "part_id": "p3",
+      "skill_id": "count.room_assignment",
+      "skill_name": "用乘法原理计算独立分配",
+      "concept": "加法与乘法原理",
+      "diagnostic_targets": [
+        "独立选择与乘法原理（待诊断）"
+      ],
+      "fingerprint": "b8e23a49ac737e734ea7acb4f67c36c694587071951cef6e3c26e824c95f4206",
+      "source": {
+        "document_id": "chapter-03",
+        "page": 4,
+        "y": 0.6068904728767552,
+        "end_page": 4,
+        "end_y": 665.9310302734375
+      },
+      "derivation": "每个人独立选择 A、B、C 三室之一，按乘法原理共有 3^n 种分配。",
+      "expected": [
+        "3^n"
+      ]
+    },
+    {
+      "question_id": "ex-07-01-002",
+      "part_id": "p2",
+      "skill_id": "graph.deletion_counts",
+      "skill_name": "计算删除顶点或边后的图规模",
+      "concept": "子图",
+      "diagnostic_targets": [
+        "顶点删除与关联边删除（待诊断）"
+      ],
+      "fingerprint": "69e0feaf224273f9631714ca33f530ba9e93580014ce561471c7793c89d2be77",
+      "source": {
+        "document_id": "chapter-07",
+        "page": 6,
+        "y": 0.1993669791765517,
+        "end_page": 6,
+        "end_y": 261.4809875488281
+      },
+      "derivation": "删除顶点 v 会删除它及其 k 条关联边；删除一条边不会删除顶点。因此依次为 n−1、m−k、n、m−1。",
+      "expected": [
+        "n-1",
+        "m-k",
+        "n",
+        "m-1"
+      ]
+    }
+  ]
+}

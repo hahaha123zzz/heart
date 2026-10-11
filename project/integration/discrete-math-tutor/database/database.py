@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 from contextlib import contextmanager
+from contextvars import ContextVar
 from typing import Iterator
 
 from sqlalchemy import create_engine, event
@@ -44,6 +45,9 @@ if DATABASE_URL.startswith("sqlite"):
         cursor.close()
 
 
+_current_session: ContextVar[Session | None] = ContextVar("memory_session", default=None)
+
+
 def init_db() -> None:
     """建表（幂等）。"""
     from database import models  # noqa: F401  确保模型已注册
@@ -52,14 +56,22 @@ def init_db() -> None:
 
 
 @contextmanager
-def session_scope() -> Iterator[Session]:
-    """一次请求一个事务；异常自动回滚。"""
+def session_scope(*, immediate: bool = False) -> Iterator[Session]:
+    """复用外层工作单元，短事务提交；SQLite 写入可先取得写锁。"""
+    current = _current_session.get()
+    if current is not None:
+        yield current
+        return
     session = SessionLocal()
+    token = _current_session.set(session)
     try:
+        if immediate and session.bind.dialect.name == "sqlite":
+            session.connection().exec_driver_sql("BEGIN IMMEDIATE")
         yield session
         session.commit()
     except Exception:
         session.rollback()
         raise
     finally:
+        _current_session.reset(token)
         session.close()

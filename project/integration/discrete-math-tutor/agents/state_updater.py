@@ -19,6 +19,7 @@ from pydantic import BaseModel
 from agents.evidence_extractor import MisconceptionHypothesis
 from llm.client import LLMClient
 from models.evidence import Evidence
+from models.misconception_update import MisconceptionUpdate
 from models.lesson_plan import LessonStep
 from models.misconception import CANONICAL_TYPES
 from models.student_state import EMOTIONS, INTERACTION_PREFERENCES, StudentState
@@ -32,13 +33,14 @@ class UpdateResult(BaseModel):
     step_reason: str = ""
     new_evidence: List[Evidence] = []
     new_hypotheses: List[MisconceptionHypothesis] = []
-    resolve_misconceptions: bool = False
+    resolve_misconceptions: bool = False  # 兼容旧输出；不能触发批量解除
+    misconception_updates: List[MisconceptionUpdate] = []
     raw: Dict[str, Any] = {}
 
 
 SYSTEM_PROMPT = """[AGENT:state_updater]
 你是 AI Tutor 的学生状态更新器。根据"本轮学生状态 + 当前步骤 + 学生输入 +
-Tutor 回复 + 质检结果"，做证据式评估。只输出 JSON：
+Tutor 回复 + 质检结果"，做证据式评估。所有 evidence 和 hypotheses 必须附 source_quote（学生本轮输入的连续原文）；不得把 Tutor 回复或自述“懂了”作为能力证据。只输出 JSON：
 {
   "mastery": 0.0到1.0, "confidence": 0.0到1.0, "metacognition": 0.0到1.0,
   "emotion": "confused|frustrated|engaged|bored|neutral",
@@ -48,9 +50,10 @@ Tutor 回复 + 质检结果"，做证据式评估。只输出 JSON：
   "turn_summary": "这一轮发生了什么（一句话）",
   "steps_mastery": {"S1": 0.0到1.0},
   "evidence": [{"evidence_type": "conceptual_understanding|misconception|partial|affect|behavior",
-                "content": "...", "confidence": 0.0到1.0}],
-  "hypotheses": [{"type": "短标签", "description": "候选误解", "confidence": 0.0到1.0}],
-  "resolve_misconceptions": true 或 false,
+                "content": "...", "source_quote": "本轮学生原文", "confidence": 0.0到1.0}],
+  "hypotheses": [{"type": "短标签", "description": "候选误解", "source_quote": "本轮学生原文", "confidence": 0.0到1.0}],
+  "misconception_updates": [{"misconception_id": 现有误区的整数ID, "action": "resolve|dismiss",
+      "source_quote": "本轮学生原文", "reason": "该原文为何独立反驳这个具体误区"}],
   "step_completed": true 或 false,
   "step_reason": "步骤达成或未达成的依据",
   "tutor_error": {"detected": false, "error_type": "wrong_explanation|misjudged_state|off_plan|bad_question", "reason": "", "rollback": false}
@@ -59,7 +62,9 @@ Tutor 回复 + 质检结果"，做证据式评估。只输出 JSON：
 1. 只有学生真正独立展示出能力时才给高掌握度（Tutor 讲过不等于学生会）；
 2. step_completed 仅在满足当前步骤 completion_criteria 且掌握度达到 target_mastery 时为 true；
 3. 如果本轮 Tutor 的讲解/题目明显有误或误判了学生，把 tutor_error.detected 置 true 并建议 rollback；
-4. 学生已能用正确方式解释时，resolve_misconceptions 置 true。"""
+4. 只对提供的现有误区ID提交逐项纠正：resolve 表示学生纠正了具体误区，dismiss 表示原候选诊断不成立。
+5. 必须有学生本轮独立作答原文与针对该误区的理由；提示后作答、提问、自述懂了、Tutor 的解释不作为反证。没有有效反证时 misconception_updates=[]。
+6. 不得编造误区ID，不得给更新附 verification 或批量取消全部误区；只提交候选反证，最终是否解除由服务器决定。"""
 
 
 class StateUpdater:
@@ -118,6 +123,7 @@ class StateUpdater:
             new_evidence=new_evidence,
             new_hypotheses=new_hypotheses,
             resolve_misconceptions=bool(data.get("resolve_misconceptions", False)),
+            misconception_updates=_parse_misconception_updates(data.get("misconception_updates")),
             raw=data if isinstance(data, dict) else {},
         )
 
@@ -135,6 +141,7 @@ def _parse_evidence(raw: Any) -> List[Evidence]:
             Evidence(
                 evidence_type=str(item.get("evidence_type") or "conceptual_understanding"),
                 content=str(item["content"]),
+                source_quote=str(item.get("source_quote") or ""),
                 confidence=max(0.0, min(1.0, confidence)),
             )
         )
@@ -152,9 +159,24 @@ def _parse_hypotheses(raw: Any) -> List[MisconceptionHypothesis]:
             confidence = 0.5
         result.append(
             MisconceptionHypothesis(
+                source_quote=str(item.get("source_quote") or ""),
                 type=str(item.get("type") or ""),
                 description=str(item["description"]),
                 confidence=max(0.0, min(1.0, confidence)),
             )
         )
+    return result
+
+
+def _parse_misconception_updates(raw):
+    if not isinstance(raw,list):
+        return []
+    result=[]
+    for item in raw[:20]:
+        if not isinstance(item,dict):
+            continue
+        try:
+            result.append(MisconceptionUpdate.model_validate(item))
+        except (ValueError,TypeError):
+            continue
     return result

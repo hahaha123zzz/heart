@@ -1,0 +1,23 @@
+[
+  {
+    "asset_id": "image-07-9007",
+    "asset_sha256": "0037134d6a5e5b5d03fe49cc6e198f5a00b1844793df57c992db1ec46e93d15b",
+    "review_status": "approved",
+    "label": "图7.19",
+    "caption": "图7.19：一笔画的三种情形",
+    "document_id": "chapter-07",
+    "version": "f19cfaef9be00fc45e0285660618530f6305ec7b45a7e00d31f28e31452af2f1",
+    "section_id": 7,
+    "section_title": "7.3.1欧拉图及欧拉路径",
+    "rects": [
+      {
+        "page": 15,
+        "x1": 0.15,
+        "y1": 0.66,
+        "x2": 0.9,
+        "y2": 0.874
+      }
+    ],
+    "review_note": "人工将Word资产与原始PDF第15页三个子图逐一核对"
+  }
+]

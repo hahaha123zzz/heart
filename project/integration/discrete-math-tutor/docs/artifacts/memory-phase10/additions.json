@@ -1,0 +1,306 @@
+[
+  {
+    "qid": "ex-01-01-007",
+    "pid": "p1",
+    "key": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "空集没有元素，所有元素属于空集的要求自然成立，故空集是自身的子集。"
+    },
+    "skill_id": "set.membership_subset",
+    "skill_name": "区分属于与包含关系",
+    "concept": "外延性公理与子集合",
+    "diagnostic": "元素、集合与子集关系（待诊断）"
+  },
+  {
+    "qid": "ex-01-01-007",
+    "pid": "p2",
+    "key": {
+      "kind": "judgement",
+      "expected": "false",
+      "explanation": "空集没有任何元素，所以空集本身也不属于空集。"
+    },
+    "skill_id": "set.membership_subset",
+    "skill_name": "区分属于与包含关系",
+    "concept": "外延性公理与子集合",
+    "diagnostic": "元素、集合与子集关系（待诊断）"
+  },
+  {
+    "qid": "ex-01-01-007",
+    "pid": "p3",
+    "key": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "空集是每个集合的子集，包括只含空集一个元素的集合。"
+    },
+    "skill_id": "set.membership_subset",
+    "skill_name": "区分属于与包含关系",
+    "concept": "外延性公理与子集合",
+    "diagnostic": "元素、集合与子集关系（待诊断）"
+  },
+  {
+    "qid": "ex-01-01-007",
+    "pid": "p4",
+    "key": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "集合 {∅} 的唯一元素就是 ∅。"
+    },
+    "skill_id": "set.membership_subset",
+    "skill_name": "区分属于与包含关系",
+    "concept": "外延性公理与子集合",
+    "diagnostic": "元素、集合与子集关系（待诊断）"
+  },
+  {
+    "qid": "ex-01-01-007",
+    "pid": "p5",
+    "key": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "右侧集合直接包含元素 a 和 b，因此 {a,b} 是其子集。"
+    },
+    "skill_id": "set.membership_subset",
+    "skill_name": "区分属于与包含关系",
+    "concept": "外延性公理与子集合",
+    "diagnostic": "元素、集合与子集关系（待诊断）"
+  },
+  {
+    "qid": "ex-01-01-007",
+    "pid": "p6",
+    "key": {
+      "kind": "judgement",
+      "expected": "false",
+      "explanation": "右侧元素为 a、b、c 和 {a,b,c}，不含元素 {a,b}。"
+    },
+    "skill_id": "set.membership_subset",
+    "skill_name": "区分属于与包含关系",
+    "concept": "外延性公理与子集合",
+    "diagnostic": "元素、集合与子集关系（待诊断）"
+  },
+  {
+    "qid": "ex-01-01-007",
+    "pid": "p7",
+    "key": {
+      "kind": "judgement",
+      "expected": "false",
+      "explanation": "右侧元素是集合 {a,b} 和 {{a,b}}，不含元素 a 和 b；属于与包含不同。"
+    },
+    "skill_id": "set.membership_subset",
+    "skill_name": "区分属于与包含关系",
+    "concept": "外延性公理与子集合",
+    "diagnostic": "元素、集合与子集关系（待诊断）"
+  },
+  {
+    "qid": "ex-01-01-007",
+    "pid": "p8",
+    "key": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "右侧集合直接含有元素 {a,b}。"
+    },
+    "skill_id": "set.membership_subset",
+    "skill_name": "区分属于与包含关系",
+    "concept": "外延性公理与子集合",
+    "diagnostic": "元素、集合与子集关系（待诊断）"
+  },
+  {
+    "qid": "ex-01-01-007",
+    "pid": "p9",
+    "key": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "B⊆C 保证 B 的每个元素都属于 C；A∈B 因此 A∈C。"
+    },
+    "skill_id": "set.membership_subset",
+    "skill_name": "区分属于与包含关系",
+    "concept": "外延性公理与子集合",
+    "diagnostic": "元素、集合与子集关系（待诊断）"
+  },
+  {
+    "qid": "ex-01-01-007",
+    "pid": "p10",
+    "key": {
+      "kind": "judgement",
+      "expected": "false",
+      "explanation": "反例：A={1}、B={{1}}、C={{1}}；A∈B 且 B⊆C，但 1∉C，故 A⊈C。"
+    },
+    "skill_id": "set.membership_subset",
+    "skill_name": "区分属于与包含关系",
+    "concept": "外延性公理与子集合",
+    "diagnostic": "元素、集合与子集关系（待诊断）"
+  },
+  {
+    "qid": "ex-09-03-012",
+    "pid": "p1",
+    "key": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "若 xR′y 且 yR′z，则三者均在 S′ 中。R 的传递性给出 xRz，因此 xR′z。"
+    },
+    "skill_id": "relation.order_restriction",
+    "skill_name": "判断限制关系保留的序性质",
+    "concept": "序关系和有序集",
+    "diagnostic": "关系限制与序性质的继承（待诊断）"
+  },
+  {
+    "qid": "ex-09-03-012",
+    "pid": "p2",
+    "key": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "限制到子集后自反、反对称和传递性仍成立，因此仍为序关系。"
+    },
+    "skill_id": "relation.order_restriction",
+    "skill_name": "判断限制关系保留的序性质",
+    "concept": "序关系和有序集",
+    "diagnostic": "关系限制与序性质的继承（待诊断）"
+  },
+  {
+    "qid": "ex-09-03-012",
+    "pid": "p3",
+    "key": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "限制后仍为序关系，S′ 内任意两元素继承原来的可比性，因此仍为全序。"
+    },
+    "skill_id": "relation.order_restriction",
+    "skill_name": "判断限制关系保留的序性质",
+    "concept": "序关系和有序集",
+    "diagnostic": "关系限制与序性质的继承（待诊断）"
+  },
+  {
+    "qid": "ex-09-03-012",
+    "pid": "p4",
+    "key": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "S′ 的任意非空子集也是 S 的非空子集，其原来的最小元属于该子集且顺序未改变，因此仍为良序。"
+    },
+    "skill_id": "relation.order_restriction",
+    "skill_name": "判断限制关系保留的序性质",
+    "concept": "序关系和有序集",
+    "diagnostic": "关系限制与序性质的继承（待诊断）"
+  },
+  {
+    "qid": "ex-03-01-002",
+    "pid": "p1",
+    "key": {
+      "kind": "numeric_fill",
+      "expected": [
+        "14"
+      ],
+      "explanation": "至少一次得优的人数为 50−17=33；两次都得优为 26+21−33=14。"
+    },
+    "skill_id": "count.inclusion_exclusion",
+    "skill_name": "用包含排斥计算人数",
+    "concept": "包含排斥原理",
+    "diagnostic": "并集、交集与重复计数（待诊断）"
+  },
+  {
+    "qid": "ex-03-01-002",
+    "pid": "p2",
+    "key": {
+      "kind": "numeric_fill",
+      "expected": [
+        "9"
+      ],
+      "explanation": "按参赛人次计数，73−58=15 为重复计数；三队共有的 3 人每人多计 2 次，恰好两队人数为 15−2×3=9。"
+    },
+    "skill_id": "count.inclusion_exclusion",
+    "skill_name": "用包含排斥计算人数",
+    "concept": "包含排斥原理",
+    "diagnostic": "并集、交集与重复计数（待诊断）"
+  },
+  {
+    "qid": "ex-03-01-002",
+    "pid": "p4",
+    "key": {
+      "kind": "numeric_fill",
+      "expected": [
+        "125"
+      ],
+      "explanation": "包含排斥：150=85+慢跑人数−60，所以慢跑人数为125。"
+    },
+    "skill_id": "count.inclusion_exclusion",
+    "skill_name": "用包含排斥计算人数",
+    "concept": "包含排斥原理",
+    "diagnostic": "并集、交集与重复计数（待诊断）"
+  },
+  {
+    "qid": "ex-03-02-002",
+    "pid": "p1",
+    "key": {
+      "kind": "numeric_fill",
+      "expected": [
+        "1225",
+        "2450"
+      ],
+      "explanation": "握手按无序对计数 C(50,2)=1225；互赠照片按有序对计数 50×49=2450。"
+    },
+    "skill_id": "count.ordered_unordered_pairs",
+    "skill_name": "区分有序对和无序对计数",
+    "concept": "组合的计数",
+    "diagnostic": "排列组合与有序无序计数（待诊断）"
+  },
+  {
+    "qid": "ex-03-02-002",
+    "pid": "p2",
+    "key": {
+      "kind": "numeric_fill",
+      "expected": [
+        "25"
+      ],
+      "explanation": "1 到 10 有 5 个奇数、5 个偶数；和为奇数须一奇一偶，共 5×5=25 对。"
+    },
+    "skill_id": "count.parity_cases",
+    "skill_name": "按奇偶分类计数",
+    "concept": "组合的计数",
+    "diagnostic": "奇偶分类及乘法加法原理（待诊断）"
+  },
+  {
+    "qid": "ex-03-02-002",
+    "pid": "p3",
+    "key": {
+      "kind": "numeric_fill",
+      "expected": [
+        "18"
+      ],
+      "explanation": "大小骰子可区分；和为偶数须同奇偶，共 3×3+3×3=18 种。"
+    },
+    "skill_id": "count.parity_cases",
+    "skill_name": "按奇偶分类计数",
+    "concept": "组合的计数",
+    "diagnostic": "奇偶分类及乘法加法原理（待诊断）"
+  },
+  {
+    "qid": "ex-07-01-002",
+    "pid": "p1",
+    "key": {
+      "kind": "numeric_fill",
+      "expected": [
+        "9"
+      ],
+      "explanation": "度数总和为 24；6 个三度结点贡献 18，其余结点须贡献 6，每个最多 2，至少需 3 个，因此至少 9 个。九结点环再加入三条端点不同的弦可达到这个下界。"
+    },
+    "skill_id": "graph.degree_lower_bound",
+    "skill_name": "用度数和求结点数量下界",
+    "concept": "结点的度",
+    "diagnostic": "握手定理与度数上界（待诊断）"
+  },
+  {
+    "qid": "ex-09-03-002",
+    "pid": "p3",
+    "key": {
+      "kind": "numeric_fill",
+      "expected": [
+        "5",
+        "9"
+      ],
+      "explanation": "在自然数通常大小顺序下，{5,7,9} 的最大下界为 5，最小上界为 9。"
+    },
+    "skill_id": "relation.bounds",
+    "skill_name": "求有限有序子集的上下确界",
+    "concept": "序关系和有序集",
+    "diagnostic": "上下界与上确界下确界（待诊断）"
+  }
+]

@@ -1,0 +1,88 @@
+[
+  {
+    "id": "t01",
+    "question": "命题 Q1∧Q2 在什么情况下为假？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "kind": "table",
+    "category": "formula"
+  },
+  {
+    "id": "t02",
+    "question": "M∨N 中两个命题都为假时，结果是什么？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "kind": "table",
+    "category": "formula"
+  },
+  {
+    "id": "t03",
+    "question": "P1→Q1 的前件为真、后件为假时，真值如何？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "kind": "table",
+    "category": "formula"
+  },
+  {
+    "id": "t04",
+    "question": "原命题 R 为假，¬R 的真值是什么？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "kind": "table",
+    "category": "formula"
+  },
+  {
+    "id": "t05",
+    "question": "u \\wedge v 的真值表里，两个输入都为真时结果怎样？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "kind": "table",
+    "category": "formula"
+  },
+  {
+    "id": "t06",
+    "question": "x \\vee y 为假的条件是什么？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "kind": "table",
+    "category": "formula"
+  },
+  {
+    "id": "t07",
+    "question": "教材的 ordered pairs 为什么不能直接当成二元素集合？",
+    "chapter": 1,
+    "section": "集合的笛卡儿积",
+    "category": "term"
+  },
+  {
+    "id": "t08",
+    "question": "定义笛卡尔积时为何要区分第一和第二分量？",
+    "chapter": 1,
+    "section": "集合的笛卡儿积",
+    "category": "term"
+  },
+  {
+    "id": "t09",
+    "question": "¬X 如何用于神经网络的梯度下降优化？",
+    "chapter": null,
+    "category": "out_of_scope"
+  },
+  {
+    "id": "t10",
+    "question": "p→q 在 JavaScript 程序的异步任务调度中如何实现？",
+    "chapter": null,
+    "category": "out_of_scope"
+  },
+  {
+    "id": "t11",
+    "question": "胰岛素的注射剂量怎样计算？",
+    "chapter": null,
+    "category": "out_of_scope"
+  },
+  {
+    "id": "t12",
+    "question": "怎样在订单数据库建立 ordered pairs 索引？",
+    "chapter": null,
+    "category": "out_of_scope"
+  }
+]

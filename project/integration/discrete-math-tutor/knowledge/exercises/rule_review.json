@@ -1,0 +1,416 @@
+{
+  "schema_version": "rule-review-v1",
+  "scope": "本轮工程推导审核；非教材官方答案，不使用模型生成评分规则",
+  "items": [
+    {
+      "question_id": "ex-01-01-007",
+      "part_id": "p1",
+      "source": {
+        "document_id": "chapter-01",
+        "page": 5,
+        "y": 0.784268135960685,
+        "end_page": 6,
+        "end_y": 136.65103149414062
+      },
+      "knowledge_point": "1.1.3  外延性公理与子集合",
+      "expected": "true",
+      "derivation": "空集没有元素，所有元素属于空集的要求自然成立，故空集是自身的子集。",
+      "skill_id": "set.membership_subset",
+      "fingerprint": "5c1e65d5aa254f63c00d03d1ba92721fb850a1028f6522d1ce881bdeb771b4f6",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-01-01-007",
+      "part_id": "p2",
+      "source": {
+        "document_id": "chapter-01",
+        "page": 5,
+        "y": 0.784268135960685,
+        "end_page": 6,
+        "end_y": 136.65103149414062
+      },
+      "knowledge_point": "1.1.3  外延性公理与子集合",
+      "expected": "false",
+      "derivation": "空集没有任何元素，所以空集本身也不属于空集。",
+      "skill_id": "set.membership_subset",
+      "fingerprint": "e9c1e40a0b9ad945deeceab8802122a64e86d05b750cfceabd3a744ea7b804ed",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-01-01-007",
+      "part_id": "p3",
+      "source": {
+        "document_id": "chapter-01",
+        "page": 5,
+        "y": 0.784268135960685,
+        "end_page": 6,
+        "end_y": 136.65103149414062
+      },
+      "knowledge_point": "1.1.3  外延性公理与子集合",
+      "expected": "true",
+      "derivation": "空集是每个集合的子集，包括只含空集一个元素的集合。",
+      "skill_id": "set.membership_subset",
+      "fingerprint": "194167d24a1e328ed15f3566702804b382d0d9f3a582b4b9f9c1c85b4626d57f",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-01-01-007",
+      "part_id": "p4",
+      "source": {
+        "document_id": "chapter-01",
+        "page": 5,
+        "y": 0.784268135960685,
+        "end_page": 6,
+        "end_y": 136.65103149414062
+      },
+      "knowledge_point": "1.1.3  外延性公理与子集合",
+      "expected": "true",
+      "derivation": "集合 {∅} 的唯一元素就是 ∅。",
+      "skill_id": "set.membership_subset",
+      "fingerprint": "5f1bc476b38bc97b00fd4de23b23ed15efed6cb834c33ac619a3ae987a15d261",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-01-01-007",
+      "part_id": "p5",
+      "source": {
+        "document_id": "chapter-01",
+        "page": 5,
+        "y": 0.784268135960685,
+        "end_page": 6,
+        "end_y": 136.65103149414062
+      },
+      "knowledge_point": "1.1.3  外延性公理与子集合",
+      "expected": "true",
+      "derivation": "右侧集合直接包含元素 a 和 b，因此 {a,b} 是其子集。",
+      "skill_id": "set.membership_subset",
+      "fingerprint": "3067037ab71ebd839b502560ef9c7471a8c41c340f98f5ba07a15d9b96b11b59",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-01-01-007",
+      "part_id": "p6",
+      "source": {
+        "document_id": "chapter-01",
+        "page": 5,
+        "y": 0.784268135960685,
+        "end_page": 6,
+        "end_y": 136.65103149414062
+      },
+      "knowledge_point": "1.1.3  外延性公理与子集合",
+      "expected": "false",
+      "derivation": "右侧元素为 a、b、c 和 {a,b,c}，不含元素 {a,b}。",
+      "skill_id": "set.membership_subset",
+      "fingerprint": "e9159b21d1001999058bbef0fe95ec511153370ff1da76b0f5a3b101f73c449d",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-01-01-007",
+      "part_id": "p7",
+      "source": {
+        "document_id": "chapter-01",
+        "page": 5,
+        "y": 0.784268135960685,
+        "end_page": 6,
+        "end_y": 136.65103149414062
+      },
+      "knowledge_point": "1.1.3  外延性公理与子集合",
+      "expected": "false",
+      "derivation": "右侧元素是集合 {a,b} 和 {{a,b}}，不含元素 a 和 b；属于与包含不同。",
+      "skill_id": "set.membership_subset",
+      "fingerprint": "42040d5c49bd2ec8bad1b3345ef29ee08a0daa624c4569ed5c7fa0781ad4ae16",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-01-01-007",
+      "part_id": "p8",
+      "source": {
+        "document_id": "chapter-01",
+        "page": 5,
+        "y": 0.784268135960685,
+        "end_page": 6,
+        "end_y": 136.65103149414062
+      },
+      "knowledge_point": "1.1.3  外延性公理与子集合",
+      "expected": "true",
+      "derivation": "右侧集合直接含有元素 {a,b}。",
+      "skill_id": "set.membership_subset",
+      "fingerprint": "3679d73de815074dbf9befffe3bea33b7e0b53edd9444060a0a164e5d4b26a9c",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-01-01-007",
+      "part_id": "p9",
+      "source": {
+        "document_id": "chapter-01",
+        "page": 5,
+        "y": 0.784268135960685,
+        "end_page": 6,
+        "end_y": 136.65103149414062
+      },
+      "knowledge_point": "1.1.3  外延性公理与子集合",
+      "expected": "true",
+      "derivation": "B⊆C 保证 B 的每个元素都属于 C；A∈B 因此 A∈C。",
+      "skill_id": "set.membership_subset",
+      "fingerprint": "bcef449c7444b27e75acfb98b2904e85e6be072e121ae7048b31bf434e5a0955",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-01-01-007",
+      "part_id": "p10",
+      "source": {
+        "document_id": "chapter-01",
+        "page": 5,
+        "y": 0.784268135960685,
+        "end_page": 6,
+        "end_y": 136.65103149414062
+      },
+      "knowledge_point": "1.1.3  外延性公理与子集合",
+      "expected": "false",
+      "derivation": "反例：A={1}、B={{1}}、C={{1}}；A∈B 且 B⊆C，但 1∉C，故 A⊈C。",
+      "skill_id": "set.membership_subset",
+      "fingerprint": "9f860237ec3c2998fc4692831560e45313bc02c238411034590149ed4346562d",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-09-03-012",
+      "part_id": "p1",
+      "source": {
+        "document_id": "chapter-09",
+        "page": 32,
+        "y": 0.2549541949962799,
+        "end_page": 32,
+        "end_y": 322.31719970703125
+      },
+      "knowledge_point": "9.3.1  序关系和有序集",
+      "expected": "true",
+      "derivation": "若 xR′y 且 yR′z，则三者均在 S′ 中。R 的传递性给出 xRz，因此 xR′z。",
+      "skill_id": "relation.order_restriction",
+      "fingerprint": "981c520af5e8a87c05b3cc3996762dc43433d39e3d26861c4b90659d3c9f1736",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-09-03-012",
+      "part_id": "p2",
+      "source": {
+        "document_id": "chapter-09",
+        "page": 32,
+        "y": 0.2549541949962799,
+        "end_page": 32,
+        "end_y": 322.31719970703125
+      },
+      "knowledge_point": "9.3.1  序关系和有序集",
+      "expected": "true",
+      "derivation": "限制到子集后自反、反对称和传递性仍成立，因此仍为序关系。",
+      "skill_id": "relation.order_restriction",
+      "fingerprint": "cc7cae3d6649fa1f22a33a48ef61ed91e635356d93f5827e369f9964c1ec6526",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-09-03-012",
+      "part_id": "p3",
+      "source": {
+        "document_id": "chapter-09",
+        "page": 32,
+        "y": 0.2549541949962799,
+        "end_page": 32,
+        "end_y": 322.31719970703125
+      },
+      "knowledge_point": "9.3.1  序关系和有序集",
+      "expected": "true",
+      "derivation": "限制后仍为序关系，S′ 内任意两元素继承原来的可比性，因此仍为全序。",
+      "skill_id": "relation.order_restriction",
+      "fingerprint": "4c2b987a3b13ee59190f44186ecd24b1a2f725044c2ad06491228294d3f4c81d",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-09-03-012",
+      "part_id": "p4",
+      "source": {
+        "document_id": "chapter-09",
+        "page": 32,
+        "y": 0.2549541949962799,
+        "end_page": 32,
+        "end_y": 322.31719970703125
+      },
+      "knowledge_point": "9.3.1  序关系和有序集",
+      "expected": "true",
+      "derivation": "S′ 的任意非空子集也是 S 的非空子集，其原来的最小元属于该子集且顺序未改变，因此仍为良序。",
+      "skill_id": "relation.order_restriction",
+      "fingerprint": "feffb78b1aceedb2e004d2f14ada434da21467f11baf22ece512781d13ed7a72",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    },
+    {
+      "question_id": "ex-03-01-002",
+      "part_id": "p1",
+      "source": {
+        "document_id": "chapter-03",
+        "page": 4,
+        "y": 0.6068904728767552,
+        "end_page": 4,
+        "end_y": 665.9310302734375
+      },
+      "knowledge_point": "3.1.2包含排斥原理",
+      "expected": [
+        "14"
+      ],
+      "derivation": "至少一次得优的人数为 50−17=33；两次都得优为 26+21−33=14。",
+      "skill_id": "count.inclusion_exclusion",
+      "fingerprint": "f97cea9433a68dc9627d1ba73169f0c8e0af960b2e4decae4d8b0efcab1b6046",
+      "assumptions": "题面给定条件。"
+    },
+    {
+      "question_id": "ex-03-01-002",
+      "part_id": "p2",
+      "source": {
+        "document_id": "chapter-03",
+        "page": 4,
+        "y": 0.6068904728767552,
+        "end_page": 4,
+        "end_y": 665.9310302734375
+      },
+      "knowledge_point": "3.1.2包含排斥原理",
+      "expected": [
+        "9"
+      ],
+      "derivation": "按参赛人次计数，73−58=15 为重复计数；三队共有的 3 人每人多计 2 次，恰好两队人数为 15−2×3=9。",
+      "skill_id": "count.inclusion_exclusion",
+      "fingerprint": "8ca07aa810d2540d546f03859e046c275aa6265458565e9ea7daeb4b3f234482",
+      "assumptions": "题面给定条件。"
+    },
+    {
+      "question_id": "ex-03-01-002",
+      "part_id": "p4",
+      "source": {
+        "document_id": "chapter-03",
+        "page": 4,
+        "y": 0.6068904728767552,
+        "end_page": 4,
+        "end_y": 665.9310302734375
+      },
+      "knowledge_point": "3.1.2包含排斥原理",
+      "expected": [
+        "125"
+      ],
+      "derivation": "包含排斥：150=85+慢跑人数−60，所以慢跑人数为125。",
+      "skill_id": "count.inclusion_exclusion",
+      "fingerprint": "adbd1572fa72b01f8ca07d4e6e205061b0a6428105fdf98b0ce79150ebd140ec",
+      "assumptions": "题面给定条件。"
+    },
+    {
+      "question_id": "ex-03-02-002",
+      "part_id": "p1",
+      "source": {
+        "document_id": "chapter-03",
+        "page": 9,
+        "y": 0.21789602695139496,
+        "end_page": 9,
+        "end_y": 277.0810241699219
+      },
+      "knowledge_point": "3.2.2 组合的计数",
+      "expected": [
+        "1225",
+        "2450"
+      ],
+      "derivation": "握手按无序对计数 C(50,2)=1225；互赠照片按有序对计数 50×49=2450。",
+      "skill_id": "count.ordered_unordered_pairs",
+      "fingerprint": "ffa489334011ec734f0416da08b01d0f80ec904a8021178ac2f20b377e8c174e",
+      "assumptions": "题面给定条件。"
+    },
+    {
+      "question_id": "ex-03-02-002",
+      "part_id": "p2",
+      "source": {
+        "document_id": "chapter-03",
+        "page": 9,
+        "y": 0.21789602695139496,
+        "end_page": 9,
+        "end_y": 277.0810241699219
+      },
+      "knowledge_point": "3.2.2 组合的计数",
+      "expected": [
+        "25"
+      ],
+      "derivation": "1 到 10 有 5 个奇数、5 个偶数；和为奇数须一奇一偶，共 5×5=25 对。",
+      "skill_id": "count.parity_cases",
+      "fingerprint": "7e048b4bd8b3bf465ea09e09a3a92f048c15423c7fe740aa794db046da9f295d",
+      "assumptions": "题面给定条件。"
+    },
+    {
+      "question_id": "ex-03-02-002",
+      "part_id": "p3",
+      "source": {
+        "document_id": "chapter-03",
+        "page": 9,
+        "y": 0.21789602695139496,
+        "end_page": 9,
+        "end_y": 277.0810241699219
+      },
+      "knowledge_point": "3.2.2 组合的计数",
+      "expected": [
+        "18"
+      ],
+      "derivation": "大小骰子可区分；和为偶数须同奇偶，共 3×3+3×3=18 种。",
+      "skill_id": "count.parity_cases",
+      "fingerprint": "587c42c3310f7219f3adce733b23e861b5a8d36eb692259cf537e6fae4048305",
+      "assumptions": "题面给定条件。"
+    },
+    {
+      "question_id": "ex-07-01-002",
+      "part_id": "p1",
+      "source": {
+        "document_id": "chapter-07",
+        "page": 6,
+        "y": 0.1993669791765517,
+        "end_page": 6,
+        "end_y": 261.4809875488281
+      },
+      "knowledge_point": "7.1.3  子图、补图及图同构",
+      "expected": [
+        "9"
+      ],
+      "derivation": "度数总和为 24；6 个三度结点贡献 18，其余结点须贡献 6，每个最多 2，至少需 3 个，因此至少 9 个。九结点环再加入三条端点不同的弦可达到这个下界。",
+      "skill_id": "graph.degree_lower_bound",
+      "fingerprint": "7dad955c342feafadd1b0a2ec35ef26ccc1ccac3ac6ba2228a2033a46d7e347d",
+      "assumptions": "题面给定条件。"
+    },
+    {
+      "question_id": "ex-09-03-002",
+      "part_id": "p3",
+      "source": {
+        "document_id": "chapter-09",
+        "page": 30,
+        "y": 0.5700078882025447,
+        "end_page": 30,
+        "end_y": 572.3499755859375
+      },
+      "knowledge_point": "9.3.1  序关系和有序集",
+      "expected": [
+        "5",
+        "9"
+      ],
+      "derivation": "在自然数通常大小顺序下，{5,7,9} 的最大下界为 5，最小上界为 9。",
+      "skill_id": "relation.bounds",
+      "fingerprint": "1b3311c0d0d3d831761526a49206942d3a16625d80b2c331353a06cf5b707cd4",
+      "assumptions": "集合中的 a、b、c 按不同元素理解；序关系使用教材通常大小/限制关系定义。"
+    }
+  ],
+  "deferred": [
+    {
+      "id": "ex-01-01-001:p6",
+      "reason": "P 真包含于 Q，因此 C、D 均成立，现有单选题不适宜直接设置唯一答案。"
+    },
+    {
+      "id": "ex-03-02-002:p4",
+      "reason": "题面同时要求无三条直线共点，又给定点处多条连线共点；需明确解释后接入。"
+    },
+    {
+      "id": "ex-03-01-002:p3",
+      "reason": "答案含符号 n，现有有理数判分器无法核验符号表达式。"
+    },
+    {
+      "id": "ex-08-03-009",
+      "reason": "需核对本教材无向图是否包含自环；自环影响第一问的真假。"
+    }
+  ]
+}

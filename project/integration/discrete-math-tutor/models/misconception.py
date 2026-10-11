@@ -70,7 +70,7 @@ class Misconception(BaseModel):
     def _apply_thresholds(self) -> None:
         if self.status in ("dismissed", "resolved"):
             return
-        if self.confidence >= 0.8 or self.evidence_count >= 3:
+        if self.confidence >= 0.6 and self.evidence_count >= 3:
             self.status = "confirmed"
         elif self.confidence >= 0.6 or self.evidence_count >= 2:
             self.status = "supported"

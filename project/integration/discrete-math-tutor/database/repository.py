@@ -7,12 +7,23 @@ Agents 永远不会直接看到本层：它们只用 MemoryManager。
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
+import json
+from uuid import uuid4
 from typing import Dict, List, Optional
 
 from sqlalchemy import select
 
 from database.database import session_scope
+from database.memory_index import MemoryIndexRepository
+from database.strategy_memory import StrategyMemoryRepository
+from database.memory_jobs import MemoryJobRepository
+from database.memory_management import MemoryManagementRepository
+from database.exercise_skills import ExerciseSkillRepository
 from database.models import (
+    LearningEventRow,
+    EventEvidenceRow,
+    MemoryRevisionRow,
     ActiveStateRow,
     ConversationRow,
     EvidenceRow,
@@ -21,6 +32,10 @@ from database.models import (
     KnowledgeStateRow,
     LearnerProfileRow,
     MisconceptionRow,
+    MisconceptionObservationRow,
+    StrategyObservationRow,
+    MemoryControlRow,
+    ExerciseSkillObservationRow,
     Student,
     TestBuildStateRow,
     TeachingPlanRow,
@@ -35,7 +50,7 @@ def _step_id(index: int) -> str:
     return "S" + str(index)
 
 
-class Repository:
+class Repository(MemoryIndexRepository, StrategyMemoryRepository, MemoryJobRepository, MemoryManagementRepository, ExerciseSkillRepository):
     # ---- students ---------------------------------------------------------
     def clear_test_accounts_on_code_change(self, fingerprint: str) -> int:
         """Atomically purge test accounts only when the application code changes."""
@@ -273,6 +288,8 @@ class Repository:
                     student_id=student_id, knowledge_point=item.knowledge_point
                 )
                 session.add(row)
+            if row.student_id != student_id or row.knowledge_point != item.knowledge_point:
+                raise ValueError("不能修改其他学生或知识点的误区")
             row.type = item.type
             row.description = item.description
             row.confidence = item.confidence
@@ -346,8 +363,15 @@ class Repository:
             if knowledge_point:
                 query = query.where(EvidenceRow.knowledge_point == knowledge_point)
             rows = session.execute(query.order_by(EvidenceRow.id)).scalars().all()
+            links = {r.evidence_id: r for r in session.scalars(
+                select(EventEvidenceRow).where(EventEvidenceRow.evidence_id.in_([r.id for r in rows]))
+            ).all()} if rows else {}
             return [
                 {
+                    "event_id": links[r.id].event_id if r.id in links else None,
+                    "verification": links[r.id].verification if r.id in links else "legacy_unverified",
+                    "independent": links[r.id].independent if r.id in links else False,
+                    "source_quote": links[r.id].source_quote if r.id in links else "",
                     "id": r.id,
                     "knowledge_point": r.knowledge_point,
                     "evidence_type": r.evidence_type,
@@ -401,7 +425,7 @@ class Repository:
         self, student_id: str, role: str, content: str,
         figure_ids: list[str] | None = None,
         selection_ref: dict | None = None,
-    ) -> None:
+    ) -> int:
         with session_scope() as session:
             row = ConversationRow(student_id=student_id, role=role, content=content)
             session.add(row)
@@ -412,6 +436,7 @@ class Repository:
                 session.add(FigureCitationRow(
                     conversation_id=row.id, figure_ids=list(figure_ids)
                 ))
+            return row.id
 
     # ---- teaching plan ----------------------------------------------------
     def get_lesson_plan(
@@ -487,3 +512,133 @@ class Repository:
                         status=status,
                     )
                 )
+
+    # ---- 事件溯源与短事务工作单元 -----------------------------------------
+    def unit_of_work(self):
+        return session_scope(immediate=True)
+
+    def memory_snapshot(self, student_id: str, point: str) -> dict:
+        """用于版本比较的完整投影；不包含对话/原始事件，避免丢失审计记录。"""
+        with session_scope() as session:
+            session.flush()
+            result = {}
+            for model in (KnowledgeStateRow, MisconceptionRow, TeachingPlanRow, LearnerProfileRow, ActiveStateRow, MisconceptionObservationRow, StrategyObservationRow, MemoryControlRow, ExerciseSkillObservationRow):
+                query = select(model).where(model.student_id == student_id)
+                if hasattr(model, "knowledge_point") and model is not ActiveStateRow:
+                    query = query.where(model.knowledge_point == point)
+                rows = session.scalars(query).all()
+                values = [{c.name: getattr(r, c.name) for c in model.__table__.columns
+                           if c.name not in ("created_at", "updated_at")} for r in rows]
+                result[model.__tablename__] = sorted(values, key=lambda v: json.dumps(v, sort_keys=True))
+            return result
+
+    def memory_token(self, student_id: str, point: str) -> str:
+        value = json.dumps(self.memory_snapshot(student_id, point), sort_keys=True, ensure_ascii=False)
+        return hashlib.sha256(value.encode()).hexdigest()
+
+    def get_event(self, student_id: str, source_key: str) -> dict | None:
+        with session_scope() as session:
+            row = session.scalar(select(LearningEventRow).where(
+                LearningEventRow.student_id == student_id, LearningEventRow.source_key == source_key))
+            return self._event_dict(row) if row else None
+
+    @staticmethod
+    def _event_dict(row) -> dict:
+        return {"id": row.id, "source_key": row.source_key, "event_type": row.event_type,
+                "status": row.status, "knowledge_point": row.knowledge_point, "payload": row.payload}
+
+    def record_event(self, student_id, source_key, point, event_type, payload, status="recorded", event_id=None):
+        with session_scope() as session:
+            old = self.get_event(student_id, source_key)
+            if old:
+                return old
+            row = LearningEventRow(id=event_id or str(uuid4()), student_id=student_id,
+                source_key=source_key, knowledge_point=point, event_type=event_type, payload=payload, status=status)
+            session.add(row)
+            session.flush()
+            return self._event_dict(row)
+
+    def add_event_evidence(self, event_id, point, evidence_type, content, confidence, observation_key,
+                           verification="ai_provisional", independent=False, source_quote="", misconception_id=None):
+        with session_scope() as session:
+            event = session.get(LearningEventRow, event_id)
+            if event is None or event.knowledge_point != point:
+                raise ValueError("证据来源事件与知识点不一致")
+            if misconception_id is not None:
+                target = session.get(MisconceptionRow, misconception_id)
+                if target is None or target.student_id != event.student_id or target.knowledge_point != point:
+                    raise ValueError("误区证据的归属不一致")
+            old = session.scalar(select(EventEvidenceRow).where(
+                EventEvidenceRow.event_id == event_id, EventEvidenceRow.observation_key == observation_key))
+            if old:
+                return old.evidence_id
+            evidence_id = self.add_evidence(event.student_id, point, evidence_type, content, confidence, misconception_id)
+            session.add(EventEvidenceRow(event_id=event_id, evidence_id=evidence_id,
+                observation_key=observation_key, verification=verification, independent=independent, source_quote=source_quote))
+            session.flush()
+            return evidence_id
+
+    def add_revision(self, student_id, event_id, point, before, after):
+        with session_scope() as session:
+            session.add(MemoryRevisionRow(student_id=student_id, event_id=event_id,
+                knowledge_point=point, before=before, after=after))
+
+    def latest_learning_event(self, student_id, point):
+        """只认实际最近事件；不能越过圈选讲解等行为误认独立作答。"""
+        with session_scope() as session:
+            row = session.scalar(select(LearningEventRow).where(
+                LearningEventRow.student_id == student_id
+            ).order_by(LearningEventRow.created_at.desc(), LearningEventRow.id.desc()).limit(1))
+            if row and row.event_type == "chat_turn" and row.status == "committed" and row.knowledge_point == point:
+                return self._event_dict(row)
+            return None
+
+    def link_event_conversations(self, event_id, conversation_ids):
+        with session_scope() as session:
+            row = session.get(LearningEventRow, event_id)
+            row.payload = dict(row.payload, conversation_ids=conversation_ids)
+
+    def record_misconception_observation(self, student_id, misconception_id, event_id, evidence_id,
+                                        action, outcome, before_status, after_status, quote_hash, reason):
+        with session_scope() as session:
+            target=session.get(MisconceptionRow,misconception_id)
+            event=session.get(LearningEventRow,event_id)
+            evidence=session.get(EvidenceRow,evidence_id)
+            if not target or not event or not evidence or any(
+                row.student_id != student_id for row in (target,event,evidence)) or (
+                target.knowledge_point != event.knowledge_point or target.knowledge_point != evidence.knowledge_point
+                or evidence.misconception_id != misconception_id):
+                raise ValueError("误区审计的来源或归属不一致")
+            link=session.scalar(select(EventEvidenceRow).where(EventEvidenceRow.event_id==event_id, EventEvidenceRow.evidence_id==evidence_id))
+            if link is None:
+                raise ValueError("误区审计证据必须来自本次事件")
+            old=session.scalar(select(MisconceptionObservationRow).where(
+                MisconceptionObservationRow.event_id==event_id, MisconceptionObservationRow.misconception_id==misconception_id))
+            if old:
+                return
+            session.add(MisconceptionObservationRow(student_id=student_id,misconception_id=misconception_id,
+                event_id=event_id,evidence_id=evidence_id,action=action,outcome=outcome,
+                before_status=before_status,after_status=after_status,quote_hash=quote_hash,reason=reason))
+            session.flush()
+
+    def misconception_counter_votes(self, student_id, misconception_id, action):
+        with session_scope() as session:
+            rows=session.scalars(select(MisconceptionObservationRow).where(
+                MisconceptionObservationRow.student_id==student_id,
+                MisconceptionObservationRow.misconception_id==misconception_id
+            ).order_by(MisconceptionObservationRow.id)).all()
+            # 支持、冲突或不同的纠正意图都会中断连续反证，审计记录不删除。
+            votes=set()
+            for row in rows:
+                if row.action!=action or row.outcome not in ("pending","resolved","dismissed"):
+                    votes.clear()
+                else:
+                    votes.add(row.quote_hash)
+            return votes
+
+    def set_event_assessments(self, student_id, event_id, assessments):
+        with session_scope() as session:
+            row=session.get(LearningEventRow,event_id)
+            if row is None or row.student_id!=student_id:
+                raise ValueError("不能修改其他学生的事件")
+            row.payload=dict(row.payload,misconception_updates=assessments)

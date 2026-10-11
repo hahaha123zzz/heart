@@ -1,0 +1,18 @@
+[
+  {"id":"c01","question":"有序对 (a,b) 与 (b,a) 一定相等吗？","chapter":1,"section":"集合的笛卡儿积","category":"definition"},
+  {"id":"c02","question":"用数学归纳法证明命题时，归纳假设如何用于下一步？","chapter":2,"section":"数学归纳原理","category":"proof"},
+  {"id":"c03","question":"三种饮料与四种主食搭配，为什么使用乘法原理？","chapter":3,"section":"加法原理和乘法原理","category":"application"},
+  {"id":"c04","question":"命题的否定与原命题在真值上有什么关系？","chapter":4,"section":"逻辑联结词","category":"formula"},
+  {"id":"c05","question":"个体域改变时，同一个全称命题的真假会变化吗？","chapter":5,"section":"谓词公式的真值规定","category":"paraphrase"},
+  {"id":"c06","question":"证明与演绎在是否允许额外前提上有何区别？","chapter":6,"section":"系统内的推理：证明与演绎","category":"proof"},
+  {"id":"c07","question":"怎样从邻接矩阵判断两个顶点之间有边？","chapter":7,"section":"邻接矩阵","category":"paraphrase"},
+  {"id":"c08","question":"连通无圈图为何是一棵树？","chapter":8,"section":"树的基本概念","category":"definition"},
+  {"id":"c09","question":"一个关系什么时候具有反对称性？","chapter":9,"section":"关系的基本特性","category":"definition"},
+  {"id":"c10","question":"函数复合 f○g 中两个函数的应用次序是什么？","chapter":10,"section":"函数的合成","category":"formula"},
+  {"id":"c11","question":"A∧B 在什么条件下取真？","chapter":4,"section":"逻辑联结词","category":"formula"},
+  {"id":"c12","question":"若给每个整数对应其绝对值，这个映射是否单射？","chapter":10,"section":"单射的、满射的和双射的函数","category":"application"},
+  {"id":"c13","question":"怎样用 Transformer 做机器翻译？","chapter":null,"category":"out_of_scope"},
+  {"id":"c14","question":"糖尿病如何使用胰岛素治疗？","chapter":null,"category":"out_of_scope"},
+  {"id":"c15","question":"股票的市盈率如何用于估值？","chapter":null,"category":"out_of_scope"},
+  {"id":"c16","question":"动量守恒定律适用于什么条件？","chapter":null,"category":"out_of_scope"}
+]

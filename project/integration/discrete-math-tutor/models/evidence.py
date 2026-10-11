@@ -24,6 +24,7 @@ class Evidence(BaseModel):
     knowledge_point: str = ""
     evidence_type: str = "conceptual_understanding"
     content: str = ""
+    source_quote: str = ""  # 学生原文，必须是本次输入的连续子串
     confidence: float = Field(0.5, ge=0.0, le=1.0)
     # 若该证据指向某个误解，由 MemoryManager 关联
     misconception_type: Optional[str] = None

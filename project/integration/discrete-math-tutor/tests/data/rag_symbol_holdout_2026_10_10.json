@@ -1,0 +1,132 @@
+[
+  {
+    "id": "s01",
+    "question": "序偶的两个分量调换之后还是同一个对象吗？",
+    "chapter": 1,
+    "section": "集合的笛卡儿积",
+    "category": "term"
+  },
+  {
+    "id": "s02",
+    "question": "二元有序组与含有两个元素的集合有什么区别？",
+    "chapter": 1,
+    "section": "集合的笛卡儿积",
+    "category": "term"
+  },
+  {
+    "id": "s03",
+    "question": "笛卡尔积中的有序对是怎样定义的？",
+    "chapter": 1,
+    "section": "集合的笛卡儿积",
+    "category": "term"
+  },
+  {
+    "id": "s04",
+    "question": "X∧Y 什么时候为真？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "category": "formula",
+    "kind": "table"
+  },
+  {
+    "id": "s05",
+    "question": "r∨s 的真值表中什么情况下为假？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "category": "formula",
+    "kind": "table"
+  },
+  {
+    "id": "s06",
+    "question": "U→V 在哪种赋值下为假？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "category": "formula",
+    "kind": "table"
+  },
+  {
+    "id": "s07",
+    "question": "¬Z 与 Z 的真值如何对应？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "category": "formula",
+    "kind": "table"
+  },
+  {
+    "id": "s08",
+    "question": "命题 X \\land Y 的真值表如何读取？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "category": "formula",
+    "kind": "table"
+  },
+  {
+    "id": "s09",
+    "question": "用 X \\lor Y 表示析取时，什么时候取假？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "category": "formula",
+    "kind": "table"
+  },
+  {
+    "id": "s10",
+    "question": "在命题 X \\to Y 中，前件为假时结果如何？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "category": "formula",
+    "kind": "table"
+  },
+  {
+    "id": "s11",
+    "question": "否定式 \\neg X 的真值怎么求？",
+    "chapter": 4,
+    "section": "逻辑联结词",
+    "category": "formula",
+    "kind": "table"
+  },
+  {
+    "id": "s12",
+    "question": "集合的包含与集合相等有什么联系？",
+    "chapter": 1,
+    "section": "外延性公理与子集合",
+    "category": "control"
+  },
+  {
+    "id": "s13",
+    "question": "序关系为什么要求反对称？",
+    "chapter": 9,
+    "section": "序关系",
+    "category": "control"
+  },
+  {
+    "id": "s14",
+    "question": "关系的自反性与对称性有什么区别？",
+    "chapter": 9,
+    "section": "关系的基本特性",
+    "category": "control"
+  },
+  {
+    "id": "s15",
+    "question": "怎样计算电子的薛定谔方程？",
+    "chapter": null,
+    "category": "out_of_scope"
+  },
+  {
+    "id": "s16",
+    "question": "A→B 两种药物的相互作用如何影响治疗？",
+    "chapter": null,
+    "category": "out_of_scope"
+  },
+  {
+    "id": "s17",
+    "question": "A∧B 在 Python 中怎样按位运算？",
+    "chapter": null,
+    "category": "out_of_scope"
+  },
+  {
+    "id": "s18",
+    "question": "如何使用 SQL 的 ordered pairs 表结构设计订单数据库？",
+    "chapter": null,
+    "category": "out_of_scope"
+  }
+]

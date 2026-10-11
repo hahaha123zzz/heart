@@ -8,6 +8,8 @@
 from __future__ import annotations
 
 from typing import Dict, List, Optional, Tuple
+import hashlib
+from memory.evidence_policy import source_quote
 
 from database.account_manager import AccountManager
 from database.repository import Repository
@@ -26,9 +28,9 @@ class MemoryManager:
         self._snapshots: Dict[Tuple[str, str], StudentState] = {}
         self._recent_moves: Dict[str, List[str]] = {}
 
-    # ---- 最近教学动作（防重复推进，进程内记忆）----------------------
+    # ---- 最近教学动作（从已提交事件恢复；旧缓存写接口保留兼容）------
     def get_recent_moves(self, student_id: str) -> List[str]:
-        return list(self._recent_moves.get(student_id, []))
+        return self.repo.recent_teaching_moves(student_id)
 
     def push_recent_move(self, student_id: str, move: str) -> None:
         moves = self._recent_moves.setdefault(student_id, [])
@@ -41,7 +43,13 @@ class MemoryManager:
         self.repo.ensure_student(student_id, account_type=account_type)
 
     def reset(self, student_id: str) -> bool:
-        return self.repo.delete_student(student_id)
+        deleted = self.repo.delete_student(student_id)
+        if deleted:
+            self._recent_moves.pop(student_id, None)
+            for key in list(self._snapshots):
+                if key[0] == student_id:
+                    self._snapshots.pop(key, None)
+        return deleted
 
     def cleanup_expired(self) -> int:
         return self.accounts.cleanup_expired()
@@ -70,12 +78,29 @@ class MemoryManager:
         figure_ids: list[str] | None = None,
         selection_ref: dict | None = None,
     ) -> None:
-        self.repo.append_conversation(student_id, role, content, figure_ids, selection_ref)
+        with self.repo.unit_of_work():
+            conversation_id = self.repo.append_conversation(student_id, role, content, figure_ids, selection_ref)
+            if role == "user":
+                self.repo.record_event(student_id, f"conversation:{conversation_id}",
+                    (selection_ref or {}).get("section_title") or self.get_active_goal(student_id) or "",
+                    "pdf_selection" if selection_ref else "interaction",
+                    {"conversation_id": conversation_id, "content": content, "selection_ref": selection_ref})
+
+    def append_exchange(self, student_id, message, reply, selection_ref=None, *, expected_epoch=None, expected_point=None):
+        """圈选等不更新状态的问答，也将两条对话和行为事件一起提交。"""
+        with self.repo.unit_of_work():
+            point = expected_point or (selection_ref or {}).get("section_title") or self.get_active_goal(student_id) or ""
+            if expected_epoch is not None and self.repo.memory_epoch(student_id, point) != expected_epoch:
+                return False
+            self.append(student_id, "user", message, selection_ref=selection_ref)
+            self.append(student_id, "assistant", reply, selection_ref=selection_ref)
+            return True
 
     # ---- Learning 记忆 ---------------------------------------------
     def get_state(self, student_id: str, knowledge_point: str) -> StudentState:
         state = self.repo.get_knowledge_state(student_id, knowledge_point)
         state.misconceptions = self.repo.list_misconceptions(student_id, knowledge_point)
+        state.skill_states = self.repo.skill_summary(student_id, knowledge_point, limit=3)
         return state
 
     def save_state(
@@ -193,8 +218,19 @@ class MemoryManager:
         self.repo.save_lesson_plan(student_id, knowledge_point, plan, steps_mastery or {})
 
     # ---- Profile 记忆 ----------------------------------------------
-    def get_profile(self, student_id: str) -> LearnerProfile:
-        return self.repo.get_profile(student_id)
+    def strategy_summary(self, student_id, point):
+        from memory.strategy_reflection import summarize
+        return summarize(self.repo.strategy_observations(student_id, point))
+
+    def get_profile(self, student_id: str, *, point=None, difficulty="medium", hint_level=1) -> LearnerProfile:
+        profile=self.repo.get_profile(student_id)
+        if point is not None:
+            # 只供规划使用，不覆盖持久画像；旧无来源 EMA 不继续作为决策权重。
+            profile=profile.model_copy(deep=True)
+            profile.teaching_effectiveness={item["instructional_move"]:item["weight"]
+                for item in self.strategy_summary(student_id,point)
+                if item["weight"] is not None and item["difficulty"]==difficulty and item["hint_level"]==hint_level}
+        return profile
 
     def save_profile(self, profile: LearnerProfile) -> None:
         self.repo.save_profile(profile)
@@ -210,7 +246,7 @@ class MemoryManager:
     def snapshot(self, student_id: str, knowledge_point: str) -> None:
         self._snapshots[(student_id, knowledge_point)] = self.get_state(
             student_id, knowledge_point
-        )
+        ).model_copy(deep=True)
 
     def rollback(self, student_id: str, knowledge_point: str) -> bool:
         snap = self._snapshots.get((student_id, knowledge_point))
@@ -218,3 +254,121 @@ class MemoryManager:
             return False
         self.save_state(student_id, knowledge_point, snap)
         return True
+
+    def retrieve_context(self, student_id, *, title="", text="", question="",
+                         selection_ref=None, question_id=None, version=None, budget=6000):
+        from memory.retrieval import MemoryRetriever
+        return MemoryRetriever(self).retrieve(student_id, title=title, text=text, question=question,
+            selection_ref=selection_ref, question_id=question_id, version=version, budget=budget)
+
+    def skill_summary(self, student_id, point):
+        return self.repo.skill_summary(student_id,point)
+
+    def memory_overview(self, student_id, point=None):
+        return self.repo.memory_overview(student_id, point)
+
+    def set_preferences(self, student_id, values):
+        return self.repo.set_explicit_preferences(student_id, values)
+
+    def forget_preference(self, student_id, key):
+        return self.repo.forget_preference(student_id, key)
+
+    def dispute_misconception(self, student_id, item_id, note):
+        return self.repo.dispute_misconception(student_id, item_id, note)
+
+    def forget_point(self, student_id, point):
+        result=self.repo.forget_learning_point(student_id, point)
+        self._snapshots.pop((student_id,point),None)
+        self._recent_moves.pop(student_id,None)
+        return result
+
+    def read_version(self, student_id, point):
+        with self.repo.unit_of_work():
+            return self.get_version(student_id,point), self.repo.memory_epoch(student_id,point)
+
+    def get_version(self, student_id: str, knowledge_point: str) -> str:
+        return self.repo.memory_token(student_id, knowledge_point)
+
+    def get_previous_event(self, student_id: str, knowledge_point: str):
+        return self.repo.latest_learning_event(student_id, knowledge_point)
+
+    def commit_learning_turn(self, *, student_id, point, event_id, expected_token,
+                             message, reply, state, lesson_plan, decision, evidence, hypotheses,
+                             strategy, success, instructional_move, figure_ids=None, selection_ref=None,
+                             tutor_error=None, misconception_updates=None, teaching_context=None, expected_epoch=0):
+        """借鉴 episode 来源链和版本化记忆；LLM 工作在此事务之前完成。"""
+        with self.repo.unit_of_work():
+            key = "turn:" + event_id
+            old = self.repo.get_event(student_id, key)
+            if old:
+                return {"status": "duplicate", "event_id": old["id"]}
+            if self.repo.memory_epoch(student_id, point) != expected_epoch:
+                return {"status": "forgotten", "event_id": event_id}
+            previous = self.repo.latest_learning_event(student_id, point)
+            before = self.repo.memory_snapshot(student_id, point)
+            conflict = self.repo.memory_token(student_id, point) != expected_token
+            status = "conflict" if conflict else "rolled_back" if tutor_error else "committed"
+            event = self.repo.record_event(student_id, key, point, "chat_turn",
+                {"content": message, "independent": decision.independent, "eligible": decision.eligible,
+                 "verification": decision.verification, "reason": decision.reason,
+                 "instructional_move": instructional_move, "selection_ref": selection_ref,
+                 "tutor_error": tutor_error, "teaching_context": teaching_context or {}}, status, event_id)
+            user_id = self.repo.append_conversation(student_id, "user", message)
+            assistant_id = self.repo.append_conversation(student_id, "assistant", reply, figure_ids, selection_ref)
+            # 事件直接包含持久化的对话 ID，作为原始材料入口。
+            self.repo.link_event_conversations(event["id"], [user_id, assistant_id])
+            if conflict or tutor_error:
+                if tutor_error:
+                    self.repo.add_event_evidence(event_id, point, "tutor_error", str(tutor_error), .6,
+                        "tutor_error", verification="ai_provisional", source_quote=message)
+                return {"status": status, "event_id": event_id}
+            seen = set()
+            for item in evidence:
+                quote = source_quote(item, message)
+                observation = item.evidence_type + ":" + hashlib.sha256((quote or item.content).encode()).hexdigest()
+                if observation in seen:
+                    continue
+                seen.add(observation)
+                self.repo.add_event_evidence(event_id, point, item.evidence_type, item.content, item.confidence,
+                    observation, independent=decision.independent and bool(quote), source_quote=quote)
+            from memory.misconception_lifecycle import apply_updates
+            assessments=apply_updates(self,student_id,point,event_id,message,decision,hypotheses,misconception_updates or [])
+            self.repo.set_event_assessments(student_id,event_id,assessments)
+            state.misconceptions = self.get_misconceptions(student_id, point)
+            active=[m for m in state.misconceptions if m.status in ("hypothesis","supported","confirmed")]
+            state.misconception="；".join(m.description for m in active[:3]) or None
+            self.repo.save_knowledge_state(student_id, point, state)
+            self.repo.save_lesson_plan(student_id, point, lesson_plan, state.steps_mastery)
+            self.repo.set_active_knowledge_point(student_id, point)
+            self.repo.record_strategy_observation(student_id, point, event_id, previous, decision,
+                before["knowledge_states"][0]["mastery"] if before["knowledge_states"] else .5, state.mastery)
+            after = self.repo.memory_snapshot(student_id, point)
+            self.repo.add_revision(student_id, event_id, point, before, after)
+            job_id = self.repo.enqueue_memory_job(student_id, event_id)
+            return {"status": status, "event_id": event_id, "misconception_updates": assessments, "memory_job_id": job_id}
+
+    def record_exercise_submission(self, student_id, point, submission_id, question_id, version, answers, output, assisted, *, expected_epoch=None):
+        """由批改完成事务调用，复用外层事务，事件以提交 ID 幂等。"""
+        import json
+        with self.repo.unit_of_work():
+            if self.repo.memory_source_excluded(student_id, "exercise", submission_id):
+                return
+            if expected_epoch is not None and self.repo.memory_epoch(student_id, point) != expected_epoch:
+                self.repo.exclude_exercise_memory(student_id, point, submission_id)
+                return
+            key = "submission:" + submission_id
+            if self.repo.get_event(student_id, key):
+                return
+            event = self.repo.record_event(student_id, key, point, "exercise_submission",
+                {"submission_id": submission_id, "question_id": question_id, "version": version,
+                 "answers": answers, "feedback": output, "assisted": assisted})
+            for part in output.get("parts", []):
+                pid = part["part_id"]
+                verification = "rule_verified" if part.get("confirmed") is True and part.get("method") == "rule" else "ai_provisional"
+                self.repo.add_event_evidence(event["id"], point, "exercise_submission",
+                    json.dumps({"part": part, "answer": answers.get(pid)}, ensure_ascii=False),
+                    .9 if verification == "rule_verified" else .45, "part:" + pid,
+                    verification=verification, independent=not assisted,
+                    source_quote=json.dumps(answers.get(pid), ensure_ascii=False))
+
+            self.repo.record_exercise_skills(student_id,point,event["id"],question_id,version,answers,output,assisted)

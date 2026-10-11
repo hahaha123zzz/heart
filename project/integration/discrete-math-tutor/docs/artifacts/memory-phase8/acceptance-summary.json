@@ -1,0 +1,22 @@
+{
+  "phase": 8,
+  "new_tests": [
+    "test_saved_preferences_change_actual_generation_after_new_session",
+    "test_cleared_preference_restores_default_next_session",
+    "test_disputed_misconception_does_not_drive_next_teaching_policy",
+    "test_long_history_and_other_student_scope_reach_actual_prompt",
+    "test_independent_rule_exercise_preserves_source_in_next_prompt",
+    "test_ai_or_unknown_grading_never_becomes_rule_verified",
+    "test_old_incorrect_verification_is_downgraded_on_index_rebuild",
+    "test_assisted_exercise_is_not_independent"
+  ],
+  "related_suite_tests": 60,
+  "result": "passed",
+  "database": "isolated temporary file SQLite",
+  "session": "new MemoryManager instance",
+  "generation": "real ResponseGenerator with RecordingLLM",
+  "planning": "real TeachingPlanner and TeachingPolicy with deterministic fallback",
+  "real_llm_api": false,
+  "gpu_model_loaded": false,
+  "production_database_modified": false
+}

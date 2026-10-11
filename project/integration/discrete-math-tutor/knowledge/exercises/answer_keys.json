@@ -134,5 +134,174 @@
         "r"
       ]
     }
+  },
+  "ex-01-01-007": {
+    "p1": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "空集没有元素，所有元素属于空集的要求自然成立，故空集是自身的子集。"
+    },
+    "p2": {
+      "kind": "judgement",
+      "expected": "false",
+      "explanation": "空集没有任何元素，所以空集本身也不属于空集。"
+    },
+    "p3": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "空集是每个集合的子集，包括只含空集一个元素的集合。"
+    },
+    "p4": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "集合 {∅} 的唯一元素就是 ∅。"
+    },
+    "p5": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "右侧集合直接包含元素 a 和 b，因此 {a,b} 是其子集。"
+    },
+    "p6": {
+      "kind": "judgement",
+      "expected": "false",
+      "explanation": "右侧元素为 a、b、c 和 {a,b,c}，不含元素 {a,b}。"
+    },
+    "p7": {
+      "kind": "judgement",
+      "expected": "false",
+      "explanation": "右侧元素是集合 {a,b} 和 {{a,b}}，不含元素 a 和 b；属于与包含不同。"
+    },
+    "p8": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "右侧集合直接含有元素 {a,b}。"
+    },
+    "p9": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "B⊆C 保证 B 的每个元素都属于 C；A∈B 因此 A∈C。"
+    },
+    "p10": {
+      "kind": "judgement",
+      "expected": "false",
+      "explanation": "反例：A={1}、B={{1}}、C={{1}}；A∈B 且 B⊆C，但 1∉C，故 A⊈C。"
+    }
+  },
+  "ex-09-03-012": {
+    "p1": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "若 xR′y 且 yR′z，则三者均在 S′ 中。R 的传递性给出 xRz，因此 xR′z。"
+    },
+    "p2": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "限制到子集后自反、反对称和传递性仍成立，因此仍为序关系。"
+    },
+    "p3": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "限制后仍为序关系，S′ 内任意两元素继承原来的可比性，因此仍为全序。"
+    },
+    "p4": {
+      "kind": "judgement",
+      "expected": "true",
+      "explanation": "S′ 的任意非空子集也是 S 的非空子集，其原来的最小元属于该子集且顺序未改变，因此仍为良序。"
+    }
+  },
+  "ex-03-01-002": {
+    "p1": {
+      "kind": "numeric_fill",
+      "expected": [
+        "14"
+      ],
+      "explanation": "至少一次得优的人数为 50−17=33；两次都得优为 26+21−33=14。"
+    },
+    "p2": {
+      "kind": "numeric_fill",
+      "expected": [
+        "9"
+      ],
+      "explanation": "按参赛人次计数，73−58=15 为重复计数；三队共有的 3 人每人多计 2 次，恰好两队人数为 15−2×3=9。"
+    },
+    "p4": {
+      "kind": "numeric_fill",
+      "expected": [
+        "125"
+      ],
+      "explanation": "包含排斥：150=85+慢跑人数−60，所以慢跑人数为125。"
+    },
+    "p3": {
+      "kind": "symbolic_fill",
+      "expected": [
+        "3^n"
+      ],
+      "variables": [
+        "n"
+      ],
+      "exponential": {
+        "base": 3,
+        "variable": "n"
+      },
+      "explanation": "每个人独立选择 A、B、C 三室之一，按乘法原理共有 3^n 种分配。"
+    }
+  },
+  "ex-03-02-002": {
+    "p1": {
+      "kind": "numeric_fill",
+      "expected": [
+        "1225",
+        "2450"
+      ],
+      "explanation": "握手按无序对计数 C(50,2)=1225；互赠照片按有序对计数 50×49=2450。"
+    },
+    "p2": {
+      "kind": "numeric_fill",
+      "expected": [
+        "25"
+      ],
+      "explanation": "1 到 10 有 5 个奇数、5 个偶数；和为奇数须一奇一偶，共 5×5=25 对。"
+    },
+    "p3": {
+      "kind": "numeric_fill",
+      "expected": [
+        "18"
+      ],
+      "explanation": "大小骰子可区分；和为偶数须同奇偶，共 3×3+3×3=18 种。"
+    }
+  },
+  "ex-07-01-002": {
+    "p1": {
+      "kind": "numeric_fill",
+      "expected": [
+        "9"
+      ],
+      "explanation": "度数总和为 24；6 个三度结点贡献 18，其余结点须贡献 6，每个最多 2，至少需 3 个，因此至少 9 个。九结点环再加入三条端点不同的弦可达到这个下界。"
+    },
+    "p2": {
+      "kind": "symbolic_fill",
+      "expected": [
+        "n-1",
+        "m-k",
+        "n",
+        "m-1"
+      ],
+      "variables": [
+        "n",
+        "m",
+        "k"
+      ],
+      "explanation": "删除顶点 v 会删除它及其 k 条关联边；删除一条边不会删除顶点。因此依次为 n−1、m−k、n、m−1。"
+    }
+  },
+  "ex-09-03-002": {
+    "p3": {
+      "kind": "numeric_fill",
+      "expected": [
+        "5",
+        "9"
+      ],
+      "explanation": "在自然数通常大小顺序下，{5,7,9} 的最大下界为 5，最小上界为 9。"
+    }
   }
 }

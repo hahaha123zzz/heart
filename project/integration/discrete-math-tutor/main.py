@@ -25,13 +25,19 @@ from knowledge.figures import get_figure
 from orchestrator import TutorOrchestrator
 from web_api import router as web_router
 
-app = FastAPI(title="离散数学 AI 助教", version="0.8.0")
+from memory.background_worker import memory_lifespan
+
+app = FastAPI(title="离散数学 AI 助教", version="0.8.0", lifespan=memory_lifespan)
 app.include_router(web_router)
 from practice_api import router as practice_router, recover_interrupted_submissions
 app.include_router(practice_router)
+from memory_api import router as memory_router
+app.include_router(memory_router)
 FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 orchestrator = TutorOrchestrator()
+app.state.memory = orchestrator.memory
+app.state.memory_llm = orchestrator.llm
 
 # 启动时建表 + 清理过期测试账户
 init_db()
@@ -54,11 +60,14 @@ class TestAccountRequest(BaseModel):
 
 @app.get("/health")
 def health():
+    from knowledge.inference_runtime import runtime_status
     return {
         "status": "ok",
         "version": "0.8.0",
         "mock_mode": orchestrator.llm.mock,
         "purged_expired_accounts": _PURGED,
+        "rag_runtime": runtime_status(),
+        "memory_worker": app.state.memory_worker.status() if getattr(app.state, "memory_worker", None) else {"enabled": False, "running": False},
     }
 
 
