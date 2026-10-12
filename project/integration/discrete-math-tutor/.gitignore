@@ -9,6 +9,7 @@ deepseek.env
 *.db
 *.sqlite
 *.sqlite3
+backups/
 
 # Python bytecode and test caches
 __pycache__/

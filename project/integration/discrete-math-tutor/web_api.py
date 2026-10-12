@@ -1,11 +1,12 @@
-"""Student-facing course, quiz, progress and preference API for the local demo."""
+"""Student-facing course, quiz, progress and preference API."""
 
 from __future__ import annotations
 
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from auth import current_student_id, require_owner
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
@@ -19,21 +20,6 @@ from knowledge.course import (CHAPTER_TITLES, chapter_summary, get_chapter,
                               get_section, grade_quiz, public_quiz, QUIZZES)
 
 router = APIRouter(prefix="/api")
-
-
-def _student_id(value: str) -> str:
-    if not 1 <= len(value) <= 64 or any(c in value for c in "\r\n\t"):
-        raise HTTPException(422, "学生 ID 无效")
-    return value
-
-
-def _demo_account(student_id: str):
-    from main import orchestrator
-    _student_id(student_id)
-    try:
-        orchestrator.memory.accounts.create_test_account(student_id, ttl_hours=24)
-    except ValueError as exc:
-        raise HTTPException(403, str(exc)) from exc
 
 
 @router.get("/course/chapters")
@@ -80,18 +66,16 @@ def course_section(chapter_id: int, section_id: int):
 
 
 class ViewRequest(BaseModel):
-    student_id: str
     chapter_id: int
     section_id: int
 
 
 @router.post("/course/views")
-def record_view(request: ViewRequest):
+def record_view(request: ViewRequest, student_id: str = Depends(current_student_id)):
     if get_section(request.chapter_id, request.section_id) is None:
         raise HTTPException(404, "章节或小节不存在")
-    _demo_account(request.student_id)
     with session_scope() as session:
-        session.add(ResourceViewRow(student_id=request.student_id,
+        session.add(ResourceViewRow(student_id=student_id,
                                     chapter_id=request.chapter_id,
                                     section_id=request.section_id))
     return {"ok": True}
@@ -106,27 +90,26 @@ def chapter_quiz(chapter_id: int):
 
 
 class QuizSubmission(BaseModel):
-    student_id: str
     answers: dict[str, int] = Field(default_factory=dict)
 
 
 @router.post("/course/chapters/{chapter_id}/quiz")
-def submit_quiz(chapter_id: int, request: QuizSubmission):
+def submit_quiz(chapter_id: int, request: QuizSubmission,
+                student_id: str = Depends(current_student_id)):
     try:
         result = grade_quiz(chapter_id, request.answers)
     except ValueError as exc:
         raise HTTPException(404, str(exc)) from exc
-    _demo_account(request.student_id)
     with session_scope() as session:
-        session.add(QuizAttemptRow(student_id=request.student_id,
+        session.add(QuizAttemptRow(student_id=student_id,
                                    chapter_id=chapter_id, score=result["score"],
                                    result=result))
     return result
 
 
 @router.get("/students/{student_id}/dashboard")
-def dashboard(student_id: str):
-    _student_id(student_id)
+def dashboard(student_id: str, auth_sid: str = Depends(current_student_id)):
+    require_owner(student_id, auth_sid)
     with session_scope() as session:
         views = session.scalars(select(ResourceViewRow).where(
             ResourceViewRow.student_id == student_id)).all()
@@ -197,8 +180,8 @@ def dashboard(student_id: str):
 
 
 @router.get("/students/{student_id}/review")
-def review_items(student_id: str):
-    _student_id(student_id)
+def review_items(student_id: str, auth_sid: str = Depends(current_student_id)):
+    require_owner(student_id, auth_sid)
     with session_scope() as session:
         misconceptions = session.scalars(select(MisconceptionRow).where(
             MisconceptionRow.student_id == student_id,
@@ -228,12 +211,12 @@ def review_items(student_id: str):
 
 
 @router.get("/students/{student_id}/conversation")
-def conversation_history(student_id: str):
-    _student_id(student_id)
+def conversation_history(student_id: str, auth_sid: str = Depends(current_student_id)):
+    require_owner(student_id, auth_sid)
     from main import orchestrator
     rows = orchestrator.memory.repo.get_conversation_with_figures(student_id, limit=40)
     return [
-        {"role": row["role"], "content": row["content"],
+        {"id": row["id"], "role": row["role"], "content": row["content"],
          "selection_ref": row.get("selection_ref"),
          "image_refs": [figure.public() for figure_id in row["image_ref_ids"]
                         if (figure := get_figure(figure_id)) is not None]}
@@ -242,8 +225,8 @@ def conversation_history(student_id: str):
 
 
 @router.get("/students/{student_id}/preferences")
-def get_preferences(student_id: str):
-    _student_id(student_id)
+def get_preferences(student_id: str, auth_sid: str = Depends(current_student_id)):
+    require_owner(student_id, auth_sid)
     from main import orchestrator
     return orchestrator.memory.get_profile(student_id).preferences
 
@@ -255,8 +238,9 @@ class PreferenceUpdate(BaseModel):
 
 
 @router.put("/students/{student_id}/preferences")
-def set_preferences(student_id: str, request: PreferenceUpdate):
-    _demo_account(student_id)
+def set_preferences(student_id: str, request: PreferenceUpdate,
+                    auth_sid: str = Depends(current_student_id)):
+    require_owner(student_id, auth_sid)
     from main import orchestrator
     profile = orchestrator.memory.get_profile(student_id)
     profile.preferences.update(request.model_dump())

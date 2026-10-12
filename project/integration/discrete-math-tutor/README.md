@@ -2,21 +2,35 @@
 
 这是从原心理学助教项目改造的离散数学教学 Demo。保留原有的对话路由、学生状态/画像、短期教学计划、教学策略、记忆和 API；教学内容改为用户提供的十章离散数学教材文本。它不是心理咨询或心理学教学平台。
 
-Windows 双击 `2-chat.bat`，或在本目录运行 `.venv\Scripts\python.exe chat_cli.py`。输入 `exit` 退出。默认只显示助教回复和教材出处；如需查看内部状态可用 `--debug`。默认是测试账户，退出时清除本次测试记忆。建议先问：`我对图这一章不太懂，该怎么学？`，接着试 `不知道`、`还是不会`、`我想换到集合`。
+Windows 双击 `3-start-api.bat` 打开网页，先注册正式账号；同一账号在其他浏览器登录即可恢复画像、记忆、练习与聊天历史。双击 `2-chat.bat` 可用同一个账号通过命令行测试助教，输入 `exit` 退出；退出不会清除学习数据。建议先问：`我对图这一章不太懂，该怎么学？`，接着试 `不知道`、`还是不会`、`我想换到集合`。
 
 真实模型：在本地 `.env` 配置 `DEEPSEEK_API_KEY`、`OPENAI_BASE_URL=https://api.deepseek.com`、`OPENAI_MODEL=deepseek-flash`、`OPENAI_VISION_MODEL=deepseek-flash`、`LLM_MOCK=0`。不要分享密钥。没有密钥时设置 `LLM_MOCK=1`，模拟回复仅用于流程测试，不代表真实教学质量。
 
-默认 `DATABASE_URL=sqlite:///./ai_tutor.db`，也支持现有 MySQL 配置。不要覆盖现有 `.env`、数据库或虚拟环境。测试账户有效期 24 小时；每次代码版本变化时只清理测试账户记忆，正式账户保留。
+2026-10-12 整理版：保留正式账号与聊天历史问题图；已撤回七个尚未完成的教学修复补丁，教学模块恢复到账号与历史图交付包的基线。配置示例现在默认 `LLM_MOCK=0`，复制为 `.env` 后填入真实密钥。离线模拟的固定回复不能用于验收教学质量或问题之间的语义关系。启动后访问 `/health` 可查看 `mock_mode`；真实模式应为 `false`。运行与测试记录见 `docs/test-results/2026-10-12-clean-release.md`。
 
-网页 Demo：双击 `3-start-api.bat`，等待浏览器打开 `http://127.0.0.1:8000/`；同一服务同时提供 API，接口文档位于 `http://127.0.0.1:8000/docs`。启动与检查脚本调用本目录 `.venv\Scripts\python.exe`。若该虚拟环境尚不存在，先在本目录运行 `python -m venv .venv` 和 `.venv\Scripts\python.exe -m pip install -r requirements.txt`。`1-smoke-test.bat`、`4-test-dedup.bat`、`5-test-routing.bat`、`6-eval-tutor.bat` 是离散数学场景的离线检查。
+默认 `DATABASE_URL=sqlite:///./ai_tutor.db`，也支持现有 MySQL 配置。不要覆盖现有 `.env`、数据库或虚拟环境。本版本不再创建临时学生，也不按 24 小时或代码更新清理学生数据。会话 7 天后过期，但学习数据仍长期保存；开发测试也应注册专用账号并使用隔离的测试数据库。
+
+网页 Demo：双击 `3-start-api.bat`，等待浏览器打开 `http://127.0.0.1:8000/`；同一服务同时提供 API，接口文档位于 `http://127.0.0.1:8000/docs`。启动脚本优先使用本目录 `.venv`，否则使用本机 Python 3.11/3.14，不会回退到 Python 3.6。首次运行前安装 `requirements.txt`，其中包含密码哈希依赖 `argon2-cffi`。如果 8000 端口已被旧服务占用，先停止旧服务。
 
 `orchestrator.py` 负责统一教学回合；`agents/` 负责路由、学生证据、教学规划、出题、回复与质检；`models/`、`memory/`、`database/` 负责学生状态、画像和持久化；`knowledge/textbook_text/` 是十章教材纯文本；`llm/client.py` 是单一模型接口。
 
-教材源自 Word 提取的纯文本，公式和图片可能显示为 `[公式或对象]`，不能据此臆造公式。当前没有独立课件文件或教师认证，已批量恢复公式预览和 Word 绘图，部分插图的教材图号尚未核定；网页会标记缺失的资源，也不提供全班统计页。统计只限当前演示学生账户。回复尽量控制在约 200 个汉字、一个小步骤和一个小问题；教材依据用 `[1]` 等编号引用，出处在返回值 `textbook_sources`。演示级检索不保证所有复杂证明无误，正式使用仍需核对教材。
+教材源自 Word 提取的纯文本，公式和图片可能显示为 `[公式或对象]`，不能据此臆造公式。当前没有独立课件文件或教师认证，已批量恢复公式预览和 Word 绘图，部分插图的教材图号尚未核定；网页会标记缺失的资源，也不提供全班统计页。统计仅显示当前登录学生的数据。回复尽量控制在约 200 个汉字、一个小步骤和一个小问题；教材依据用 `[1]` 等编号引用，出处在返回值 `textbook_sources`。演示级检索不保证所有复杂证明无误，正式使用仍需核对教材。
 
 图片试点：现已从第七章原始 `.doc` 中提取并核对图 7.8、图 7.20、图 7.23。相关小节和问答会显示原图、图号与来源；问答返回 `image_refs`，历史记录也保留图片引用。`knowledge/figure_assets/README.md` 记录了图号核对依据，`python scripts/extract_doc_png_candidates.py` 可重复扫描原稿中的 PNG 候选。设置 `LLM_MOCK=0` 并配置密钥后，相关问答会把已核对的原图传给视觉模型，用于生成和质检回答；模拟模式仅测试引用流程，不会识别图片内容。图片文件在每次读取前校验 SHA-256，目录中的资产按来源、文件路径和哈希验证后发送；新增绘图以锚点对象编号展示。明确询问图号时，助教优先引用该图所在的教材原文。
 
-`chat_cli.py --account production` 会持久保存学习数据，仅在明确需要时使用。`chat_cli.py --keep` 会保留测试数据到过期或下一次代码更新。
+账号接口为 `/api/auth/register`、`/login`、`/me`、`/logout`。密码只存 Argon2 哈希；后端保留内部 `student_id` 与账号的一对一关联。所有学生私有 API 用 HttpOnly、SameSite 会话 Cookie 和写入请求的 CSRF 令牌验证身份；不信任浏览器提供的学生 ID。前后端默认同源部署、不开放带凭据跨域访问。正式 HTTPS 部署设置 `AUTH_COOKIE_SECURE=1` 并正确配置反向代理的 HTTPS scheme。
+
+“我的学习”中的聊天历史是横向问题图：每轮问答后后台增量分析新问题，保存压缩标题、父节点和原始消息 ID；点击节点可读取原始问答。画布支持拖动、滚轮/按钮缩放、分支折叠。打开历史页只读取数据库，不重新调用模型。`LLM_MOCK=1` 仅用于流程检查，问题关系判断要在配置真实 DeepSeek 后人工验收。
+
+### 旧数据库迁移
+
+此源码 ZIP 不含实际运行数据库或 `.env`，不能据此确定旧测试 ID 属于谁。旧学生记录不会自动认领、迁移或删除；尤其不能仅凭浏览器里保存的旧 `student_id` 认领数据。确认归属前，它们作为未关联的旧记录留在库中。新账号注册时只新建自己的内部学生记录。
+
+旧 SQLite 库首次增量迁移前会自动生成 `backups/before-accounts-*.sqlite3` 完整备份；可通过 `DATABASE_BACKUP_DIR` 指定备份目录。旧 MySQL 库必须先自行完成可恢复的完整备份，再设置 `ALLOW_EXISTING_DB_MIGRATION=1` 启动。迁移只新增 `users`、`auth_sessions`、问题节点/关联/任务表及 `conversations.turn_id` 列，不 DROP 旧表，也不运行旧的测试账号清理。需要把某条旧学生记录关联到新账号时，先离线核验本人和目标 ID，再做单独的数据迁移；不要在网页开放按 ID 自助认领。
+
+若某个正式账号已通过可信的线下迁移关联到旧记录，可先运行 `python scripts/backfill_history_map.py --username 用户名` 预览未索引问答数量；确认备份且配置真实模型后，加 `--apply` 增量生成旧问题图。此脚本不提供按旧 ID 自助认领，也不改动问答原文。
+
+验证：`python -X utf8 tests/test_account_history.py`（临时 SQLite）；`python -m pytest -q tests/test_interactive_practice.py`（正式账号练习隔离）；`python test_discrete_math.py`（Agent 行为回归）。
 
 ## 图片、表格与公式批量导入
 
@@ -94,6 +108,6 @@ node D:/nodejs/node_modules/npm/bin/npm-cli.js run build
 
 重新导入：`.venv/Scripts/python.exe -X utf8 import_exercises.py`。31组任一题号范围不匹配时拒绝发布。
 
-接口均在 `/api/practice`：章节题目索引、逐题详情、PUT 草稿、POST submit、提交状态轮询、POST help。草稿和提交绑定题库及判分版本；request_id 幂等；服务重启会把未完成批改标记为可重试，保留答案。新数据表使用学生外键级联删除，沿用24小时测试账户政策。
+接口均在 `/api/practice`：章节题目索引、逐题详情、PUT 草稿、POST submit、提交状态轮询、POST help。草稿和提交绑定题库及判分版本；request_id 幂等；服务重启会把未完成批改标记为可重试，保留答案。所有练习数据归属于当前登录账号，不再有 24 小时测试账户政策。
 
-验证：`.venv/Scripts/python.exe -X utf8 -m unittest tests.test_interactive_practice -v`；浏览器脚本 `tests/browser/interactive-practice.cjs`，通过本机 Playwright skill 的 run.js 执行。详见 docs/2026-10-09-interactive-exercises-delivery.md。
+练习验证见上方“旧数据库迁移”后的测试命令；历史交付记录见 docs/2026-10-09-interactive-exercises-delivery.md（该文件描述的是改造前的版本）。

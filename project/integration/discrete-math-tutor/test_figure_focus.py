@@ -25,7 +25,6 @@ class FigureFocusTests(unittest.TestCase):
                         result = tutor.handle_turn(
                             "figure-focus-" + number,
                             "请解释教材图" + number + "的内容。",
-                            account_type="test",
                         )
                         self.assertEqual(
                             [item["label"] for item in result["image_refs"]],

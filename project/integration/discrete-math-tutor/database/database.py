@@ -10,10 +10,13 @@
 from __future__ import annotations
 
 import os
-from contextlib import contextmanager
+import datetime as dt
+import sqlite3
+from contextlib import contextmanager, closing
+from pathlib import Path
 from typing import Iterator
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import Session, sessionmaker
 
 try:
@@ -45,10 +48,28 @@ if DATABASE_URL.startswith("sqlite"):
 
 
 def init_db() -> None:
-    """建表（幂等）。"""
+    """只做增量建表/加列；绝不清理已有学生数据。"""
     from database import models  # noqa: F401  确保模型已注册
 
+    inspector = inspect(engine)
+    tables = set(inspector.get_table_names())
+    columns = {item["name"] for item in inspector.get_columns("conversations")} if "conversations" in tables else set()
+    migration_needed = "students" in tables and (bool(set(models.Base.metadata.tables) - tables) or "turn_id" not in columns)
+    if migration_needed and engine.dialect.name == "sqlite":
+        source = Path(engine.url.database).resolve()
+        backup_dir = Path(os.getenv("DATABASE_BACKUP_DIR") or Path(__file__).resolve().parents[1] / "backups").resolve()
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        target = backup_dir / f"before-accounts-{dt.datetime.utcnow():%Y%m%d-%H%M%S-%f}.sqlite3"
+        with closing(sqlite3.connect(source)) as original, closing(sqlite3.connect(target)) as backup:
+            original.backup(backup)
+    elif migration_needed and os.getenv("ALLOW_EXISTING_DB_MIGRATION") != "1":
+        raise RuntimeError("现有非 SQLite 数据库需要先完整备份；完成后设置 ALLOW_EXISTING_DB_MIGRATION=1 再启动。")
     models.Base.metadata.create_all(engine)
+    if "turn_id" not in {item["name"] for item in inspect(engine).get_columns("conversations")}:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE conversations ADD COLUMN turn_id VARCHAR(36)"))
+    if "ix_conversations_turn_id" not in {item["name"] for item in inspect(engine).get_indexes("conversations")}:
+        next(index for index in models.ConversationRow.__table__.indexes if index.name == "ix_conversations_turn_id").create(bind=engine)
 
 
 @contextmanager

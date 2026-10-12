@@ -2,14 +2,13 @@
 
 【参考实现】LearningMAP 的 student_memory（retrieve / ingest / notes 的职责划分）。
 【自主衔接】Agents 只调用本类，永远不碰 database/；
-本类统一负责：三类记忆读写、误解状态机触发、快照/回滚、测试账户生命周期。
+本类统一负责：三类记忆读写、误解状态机触发、快照/回滚。
 """
 
 from __future__ import annotations
 
 from typing import Dict, List, Optional, Tuple
 
-from database.account_manager import AccountManager
 from database.repository import Repository
 from models.learner_profile import LearnerProfile
 from models.lesson_plan import LessonPlan
@@ -22,7 +21,6 @@ MAX_HISTORY = 20  # 控制 prompt 长度
 class MemoryManager:
     def __init__(self, repository: Optional[Repository] = None) -> None:
         self.repo = repository or Repository()
-        self.accounts = AccountManager(self.repo)
         self._snapshots: Dict[Tuple[str, str], StudentState] = {}
         self._recent_moves: Dict[str, List[str]] = {}
 
@@ -37,14 +35,11 @@ class MemoryManager:
             del moves[:-5]
 
     # ---- 学生生命周期 ----------------------------------------------
-    def ensure_student(self, student_id: str, account_type: str = "production") -> None:
-        self.repo.ensure_student(student_id, account_type=account_type)
+    def ensure_student(self, student_id: str) -> None:
+        self.repo.ensure_student(student_id)
 
     def reset(self, student_id: str) -> bool:
         return self.repo.delete_student(student_id)
-
-    def cleanup_expired(self) -> int:
-        return self.accounts.cleanup_expired()
 
     def get_active_goal(self, student_id: str) -> Optional[str]:
         """当前活跃知识点：优先取 active_state，其次取最近一次教学计划。"""

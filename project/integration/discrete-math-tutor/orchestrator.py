@@ -46,7 +46,6 @@ class TutorOrchestrator:
         self.llm = llm or LLMClient()
         self.memory = memory or MemoryManager()
         init_db()  # 幂等建表，保证任何入口都能直接用
-        self.cleared_test_accounts = self.memory.accounts.cleanup_after_code_update()
         self.conversation_router = ConversationRouter(self.llm)
         self.lesson_planner = LessonPlanner(self.llm)
         self.evidence_extractor = EvidenceExtractor(self.llm)
@@ -66,7 +65,6 @@ class TutorOrchestrator:
         student_id: str,
         message: str,
         learning_goal: Optional[str] = None,
-        account_type: str = "production",
         progress=None,
     ) -> Dict[str, Any]:
         def report(stage, label, detail=""):
@@ -74,12 +72,7 @@ class TutorOrchestrator:
                 progress(stage, label, detail)
 
         report("routing", "理解问题", "识别本轮问题与学习目标")
-        if account_type == "test":
-            self.memory.accounts.create_test_account(student_id, ttl_hours=24)
-        elif account_type == "production":
-            self.memory.ensure_student(student_id, account_type="production")
-        else:
-            raise ValueError("account_type 只能是 test 或 production")
+        self.memory.ensure_student(student_id)
 
         # 0) Conversation Router：判断学生这一轮在做什么 / 在聊什么
         history = self.memory.get_history(student_id)

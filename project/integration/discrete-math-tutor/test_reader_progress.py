@@ -1,7 +1,14 @@
 """阅读器结构与流式事件回归测试。"""
 import json
+import os
+import tempfile
 import unittest
+import uuid
+from pathlib import Path
 from unittest.mock import patch
+_TMP=tempfile.TemporaryDirectory(prefix='reader-progress-test-')
+os.environ['DATABASE_URL']='sqlite:///'+(Path(_TMP.name)/'test.db').as_posix()
+os.environ['LLM_MOCK']='1'
 from fastapi.testclient import TestClient
 from knowledge.content import chapter_blocks
 from knowledge.course import chapters
@@ -46,13 +53,21 @@ class ReaderTests(unittest.TestCase):
         self.assertIn('| x |', text)
 
 class StreamTests(unittest.TestCase):
+    def client(self):
+        client=TestClient(app)
+        response=client.post('/api/auth/register',json={'username':'stream_'+uuid.uuid4().hex[:12],
+                                                        'password':'test-password-123'})
+        self.assertEqual(response.status_code,200,response.text)
+        client.headers['X-CSRF-Token']=response.json()['csrf_token']
+        return client
+
     def test_progress_and_answer_are_ordered(self):
         def turn(*args, progress=None, **kwargs):
             progress("retrieving", "检索教材", "找到正文")
             progress("checking", "核对回答", "核对引用")
             return {"reply": "测试回答", "image_refs": []}
         with patch("main.orchestrator.handle_turn", side_effect=turn):
-            response = TestClient(app).post("/api/chat/stream", json={"student_id":"stream-unit", "message":"测试"})
+            response = self.client().post("/api/chat/stream", json={"message":"测试"})
         frames = response.text.strip().split("\n\n")
         events = [(f.split("\n")[0].removeprefix("event: "), json.loads(f.split("\ndata: ")[1])) for f in frames]
         self.assertEqual(response.headers["content-type"], "text/event-stream; charset=utf-8")
@@ -64,10 +79,14 @@ class StreamTests(unittest.TestCase):
 
     def test_stream_failure_has_terminal_safe_error(self):
         with patch("main.orchestrator.handle_turn", side_effect=RuntimeError("private-config")):
-            response = TestClient(app).post("/api/chat/stream", json={"student_id":"stream-unit", "message":"测试"})
+            response = self.client().post("/api/chat/stream", json={"message":"测试"})
         self.assertIn("event: error", response.text)
         self.assertNotIn("private-config", response.text)
         self.assertNotIn("event: done", response.text)
+
+def tearDownModule():
+    from database.database import engine
+    engine.dispose();_TMP.cleanup()
 
 if __name__ == "__main__":
     unittest.main()

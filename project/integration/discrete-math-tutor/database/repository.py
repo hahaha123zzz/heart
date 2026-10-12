@@ -7,6 +7,7 @@ Agents 永远不会直接看到本层：它们只用 MemoryManager。
 from __future__ import annotations
 
 import datetime as dt
+from contextvars import ContextVar
 from typing import Dict, List, Optional
 
 from sqlalchemy import select
@@ -22,7 +23,6 @@ from database.models import (
     LearnerProfileRow,
     MisconceptionRow,
     Student,
-    TestBuildStateRow,
     TeachingPlanRow,
 )
 from models.learner_profile import LearnerProfile
@@ -35,38 +35,21 @@ def _step_id(index: int) -> str:
     return "S" + str(index)
 
 
+current_turn_id: ContextVar[str | None] = ContextVar("current_turn_id", default=None)
+
+
 class Repository:
     # ---- students ---------------------------------------------------------
-    def clear_test_accounts_on_code_change(self, fingerprint: str) -> int:
-        """Atomically purge test accounts only when the application code changes."""
-        with session_scope() as session:
-            marker = session.get(TestBuildStateRow, "agent_code")
-            if marker is not None and marker.fingerprint == fingerprint:
-                return 0
-            test_rows = session.scalars(
-                select(Student).where(Student.account_type == "test")
-            ).all()
-            for row in test_rows:
-                session.delete(row)
-            if marker is None:
-                session.add(TestBuildStateRow(key="agent_code", fingerprint=fingerprint))
-            else:
-                marker.fingerprint = fingerprint
-            return len(test_rows)
-
     def ensure_student(
         self,
         student_id: str,
-        account_type: str = "production",
-        expires_at: Optional[dt.datetime] = None,
     ) -> None:
         with session_scope() as session:
             if session.get(Student, student_id) is None:
                 session.add(
                     Student(
                         student_id=student_id,
-                        account_type=account_type,
-                        expires_at=expires_at,
+                        account_type="production",
                     )
                 )
 
@@ -77,26 +60,6 @@ class Repository:
                 return False
             session.delete(row)  # 级联删除所有关联数据
             return True
-
-    def list_expired(self, now: Optional[dt.datetime] = None) -> List[str]:
-        now = now or dt.datetime.utcnow()
-        with session_scope() as session:
-            rows = (
-                session.execute(
-                    select(Student.student_id).where(
-                        Student.account_type == "test",
-                        Student.expires_at.is_not(None), Student.expires_at < now
-                    )
-                )
-                .scalars()
-                .all()
-            )
-            return list(rows)
-
-    def get_account_type(self, student_id: str) -> Optional[str]:
-        with session_scope() as session:
-            row = session.get(Student, student_id)
-            return row.account_type if row else None
 
     def get_latest_knowledge_point(self, student_id: str) -> Optional[str]:
         """最近一次教学计划对应的知识点（用于跨会话恢复学习目标）。"""
@@ -391,7 +354,7 @@ class Repository:
             pdf_citations = {r.conversation_id:r.reference for r in session.scalars(
                 select(PDFCitationRow).where(PDFCitationRow.conversation_id.in_(ids))).all()} if ids else {}
             return [
-                {"role": row.role, "content": row.content,
+                {"id": row.id, "role": row.role, "content": row.content,
                  "selection_ref": pdf_citations.get(row.id),
                  "image_ref_ids": citations.get(row.id, [])}
                 for row in reversed(rows)
@@ -403,7 +366,8 @@ class Repository:
         selection_ref: dict | None = None,
     ) -> None:
         with session_scope() as session:
-            row = ConversationRow(student_id=student_id, role=role, content=content)
+            row = ConversationRow(student_id=student_id, role=role, content=content,
+                                  turn_id=current_turn_id.get())
             session.add(row)
             session.flush()
             if selection_ref:

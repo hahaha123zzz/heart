@@ -12,8 +12,13 @@ from database.database import session_scope
 from database.models import ExerciseSubmissionRow,ExerciseDraftRow
 C=TestClient(main.app)
 class PracticeTest(unittest.TestCase):
- def setUp(self):self.sid='practice-test-'+uuid.uuid4().hex[:12];self.version=p.catalog()['version'];self.q='ex-01-01-001'
- def body(self,answers):return {'student_id':self.sid,'version':self.version,'answers':answers}
+ def setUp(self):
+  self.username='practice_'+uuid.uuid4().hex[:12]
+  response=C.post('/api/auth/register',json={'username':self.username,'password':'test-password-123'})
+  assert response.status_code==200,response.text
+  self.sid=response.json()['student_id'];C.headers['X-CSRF-Token']=response.json()['csrf_token']
+  self.version=p.catalog()['version'];self.q='ex-01-01-001'
+ def body(self,answers):return {'version':self.version,'answers':answers}
  def test_coverage_and_numbering(self):
   audit=json.loads((p.ROOT/'knowledge/exercises/import_audit.json').read_text(encoding='utf8'))
   self.assertEqual(len(audit),31);self.assertTrue(all(a['match'] for a in audit));self.assertEqual(len(p.catalog()['questions']),341)
@@ -22,9 +27,9 @@ class PracticeTest(unittest.TestCase):
    self.assertEqual(len({part['id'] for part in q['parts']}),len(q['parts']));self.assertTrue(q['source']['end_page']>=q['source']['page'])
  def test_draft_restore_and_isolation(self):
   a={'p1':['A']};self.assertEqual(C.put(f'/api/practice/questions/{self.q}/draft',json=self.body(a)).status_code,200)
-  self.assertEqual(C.get(f'/api/practice/questions/{self.q}',params={'student_id':self.sid}).json()['answers'],a)
-  other=C.get(f'/api/practice/questions/{self.q}',params={'student_id':'different-student'}).json();self.assertEqual(other['answers'],{});self.assertEqual(other['history'],[])
-  self.assertNotIn('expected',json.dumps(other['question']))
+  own=C.get(f'/api/practice/questions/{self.q}').json();self.assertEqual(own['answers'],a)
+  self.assertNotIn('expected',json.dumps(own['question']))
+  self.assertEqual(C.get(f'/api/practice/questions/{self.q}',params={'student_id':'different-student'}).status_code,404)
  def test_rules_idempotency_and_history(self):
   body=self.body({'p1':['A'],'p2':['A']})|{'request_id':'request-12345'}
   r=C.post(f'/api/practice/questions/{self.q}/submit',json=body);self.assertEqual(r.status_code,200,r.text)
@@ -72,11 +77,14 @@ class PracticeTest(unittest.TestCase):
   rows[1][2]='1';self.assertEqual(evaluate_rule(part,{'cells':rows,'note':''},key)['score'],75)
   with self.assertRaises(ValueError):logic_tree('(p∨qr)→s')
   self.assertFalse(logic_value(logic_tree('p→q'),{'p':True,'q':False}))
- def test_delete_student_cascades(self):
+ def test_logout_keeps_practice_data(self):
   C.put(f'/api/practice/questions/{self.q}/draft',json=self.body({'p1':['A']}));C.post(f'/api/practice/questions/{self.q}/submit',json=self.body({'p1':['A']})|{'request_id':'cascade-1234'})
-  C.delete('/api/accounts/test/'+self.sid)
+  self.assertEqual(C.post('/api/auth/logout').status_code,200)
+  self.assertEqual(C.get(f'/api/practice/questions/{self.q}').status_code,401)
+  response=C.post('/api/auth/login',json={'username':self.username,'password':'test-password-123'});C.headers['X-CSRF-Token']=response.json()['csrf_token']
+  self.assertEqual(C.get(f'/api/practice/questions/{self.q}').json()['answers'],{'p1':['A']})
   with session_scope() as db:
-   self.assertIsNone(db.scalar(select(ExerciseDraftRow).where(ExerciseDraftRow.student_id==self.sid)));self.assertIsNone(db.scalar(select(ExerciseSubmissionRow).where(ExerciseSubmissionRow.student_id==self.sid)))
+   self.assertIsNotNone(db.scalar(select(ExerciseDraftRow).where(ExerciseDraftRow.student_id==self.sid)));self.assertIsNotNone(db.scalar(select(ExerciseSubmissionRow).where(ExerciseSubmissionRow.student_id==self.sid)))
 def tearDownModule():
  from database.database import engine
  engine.dispose();_TMP.cleanup()

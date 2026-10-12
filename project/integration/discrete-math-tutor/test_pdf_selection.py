@@ -1,6 +1,9 @@
 """验证 PDF 定位、选区信任边界、学生记忆隔离与引用保存。"""
-import unittest,json,uuid
+import unittest,json,uuid,os,tempfile
 from pathlib import Path
+_TMP=tempfile.TemporaryDirectory(prefix='pdf-selection-test-')
+os.environ['DATABASE_URL']='sqlite:///'+(Path(_TMP.name)/'test.db').as_posix()
+os.environ['LLM_MOCK']='1'
 from types import SimpleNamespace
 from unittest.mock import patch
 import fitz
@@ -75,7 +78,7 @@ class PDFSelectionTests(unittest.TestCase):
             checker=SimpleNamespace(check=lambda *args,**kwargs:QualityResult(passed=True))
             tutor=SimpleNamespace(memory=memory,llm=SimpleNamespace(chat=generate),quality_checker=checker)
             before=memory.get_state(a,'3.2.2 组合的计数').model_dump()
-            result=explain_selection(tutor,a,'解释这个公式',self.area(),'production')
+            result=explain_selection(tutor,a,'解释这个公式',self.area())
             self.assertEqual(before,memory.get_state(a,'3.2.2 组合的计数').model_dump())
             self.assertTrue(calls[0][1]['image_paths'])
             self.assertIn('组合数与排列数混淆',calls[0][0][-1]['content'])
@@ -88,8 +91,14 @@ class PDFSelectionTests(unittest.TestCase):
         import main
         selection=self.area();selection.version='0'*64
         with patch.object(main.orchestrator.llm,'chat') as generate,TestClient(main.app) as client:
+            login=client.post('/api/auth/register',json={'username':'pdf_'+uuid.uuid4().hex[:12],'password':'test-password-123'})
+            self.assertEqual(login.status_code,200,login.text)
             for endpoint in ['/api/chat','/api/chat/stream']:
-                response=client.post(endpoint,json={'student_id':'pdf-invalid','message':'解释','selection':selection.model_dump()})
+                response=client.post(endpoint,json={'message':'解释','selection':selection.model_dump()},
+                                     headers={'X-CSRF-Token':login.json()['csrf_token']})
                 self.assertEqual(response.status_code,422)
             generate.assert_not_called()
+def tearDownModule():
+    from database.database import engine
+    engine.dispose();_TMP.cleanup()
 if __name__=='__main__':unittest.main()

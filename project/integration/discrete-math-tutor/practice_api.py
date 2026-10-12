@@ -4,7 +4,8 @@ import copy,datetime as dt,hashlib,json,math,re,threading,uuid
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
-from fastapi import APIRouter,BackgroundTasks,HTTPException
+from fastapi import APIRouter,BackgroundTasks,HTTPException,Depends
+from auth import current_student_id, require_owner
 from pydantic import BaseModel,ConfigDict,Field
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -30,14 +31,14 @@ def question(qid):
     q=catalog()['by_id'].get(qid)
     if not q:raise HTTPException(404,'题目不存在')
     return q
-def student(sid):
-    from web_api import _student_id,_demo_account
-    sid=_student_id(sid);_demo_account(sid);return sid
+def student(actual,requested=None):
+    if requested is not None: require_owner(requested,actual)
+    return actual
 def check_version(version):
     if version!=catalog()['version']:raise HTTPException(409,'题库已更新，请重新加载本章后再提交')
 class AnswersRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')
-    student_id:str=Field(min_length=1,max_length=64)
+    student_id:str|None=Field(default=None,min_length=1,max_length=64)
     version:str=Field(min_length=64,max_length=64)
     answers:dict=Field(default_factory=dict)
 class SubmitRequest(AnswersRequest):
@@ -91,8 +92,8 @@ def public_question(q):
 def row_public(row):
     return {'id':row.id,'question_id':row.question_id,'version':row.version,'answers':row.answers,'status':row.status,'result':row.result,'created_at':row.created_at.isoformat()}
 @router.get('/chapters/{chapter_id}')
-def chapter_questions(chapter_id:int,student_id:str):
-    sid=student(student_id)
+def chapter_questions(chapter_id:int,student_id:str|None=None,auth_sid:str=Depends(current_student_id)):
+    sid=student(auth_sid,student_id)
     qs=[q for q in catalog()['questions'] if q['chapter_id']==chapter_id]
     if not qs:raise HTTPException(404,'章节不存在')
     with session_scope() as db:
@@ -106,16 +107,16 @@ def chapter_questions(chapter_id:int,student_id:str):
             items.append({'id':q['id'],'number':q['number'],'group_id':q['group_id'],'section_id':q['section_id'],'knowledge_point':q['knowledge_point'],'types':list(dict.fromkeys(p['type'] for p in q['parts'])),'part_count':len(q['parts']),'status':a['status'] if a else 'draft' if d and d.version==catalog()['version'] and filled(d.answers) else 'new','submission':a})
     return {'version':catalog()['version'],'chapter_id':chapter_id,'questions':items,'total_parts':sum(i['part_count'] for i in items),'rule_parts':sum(len(keys().get(q['id'],{})) for q in qs)}
 @router.get('/questions/{qid}')
-def get_question(qid:str,student_id:str):
-    sid=student(student_id);q=question(qid)
+def get_question(qid:str,student_id:str|None=None,auth_sid:str=Depends(current_student_id)):
+    sid=student(auth_sid,student_id);q=question(qid)
     with session_scope() as db:
         d=db.scalar(select(ExerciseDraftRow).where(ExerciseDraftRow.student_id==sid,ExerciseDraftRow.question_id==qid))
         history=[row_public(r) for r in db.scalars(select(ExerciseSubmissionRow).where(ExerciseSubmissionRow.student_id==sid,ExerciseSubmissionRow.question_id==qid,ExerciseSubmissionRow.version==catalog()['version']).order_by(ExerciseSubmissionRow.created_at.desc()).limit(10))]
         help_history=[{'part_id':r.part_id,'action':r.action,'level':r.level,'response':r.response} for r in db.scalars(select(ExerciseHelpRow).where(ExerciseHelpRow.student_id==sid,ExerciseHelpRow.question_id==qid,ExerciseHelpRow.version==catalog()['version']).order_by(ExerciseHelpRow.created_at.desc()).limit(30))]
         return {'help_history':help_history,'version':catalog()['version'],'question':public_question(q),'answers':d.answers if d and d.version==catalog()['version'] else {},'history':history}
 @router.put('/questions/{qid}/draft')
-def save_draft(qid:str,body:AnswersRequest):
-    sid=student(body.student_id);check_version(body.version);q=question(qid);answers=validate_answers(q,body.answers)
+def save_draft(qid:str,body:AnswersRequest,auth_sid:str=Depends(current_student_id)):
+    sid=student(auth_sid,body.student_id);check_version(body.version);q=question(qid);answers=validate_answers(q,body.answers)
     with session_scope() as db:
         d=db.scalar(select(ExerciseDraftRow).where(ExerciseDraftRow.student_id==sid,ExerciseDraftRow.question_id==qid))
         if not d:d=ExerciseDraftRow(student_id=sid,question_id=qid,version=body.version,answers=answers);db.add(d)
@@ -215,8 +216,8 @@ def run_submission(submission_id):
                 if row:row.status='failed';row.result={'error':'批改未完成，请重试。草稿与本次提交均已保存。'}
 
 @router.post('/questions/{qid}/submit')
-def submit(qid:str,body:SubmitRequest,tasks:BackgroundTasks):
-    sid=student(body.student_id);check_version(body.version);q=question(qid);answers=validate_answers(q,body.answers)
+def submit(qid:str,body:SubmitRequest,tasks:BackgroundTasks,auth_sid:str=Depends(current_student_id)):
+    sid=student(auth_sid,body.student_id);check_version(body.version);q=question(qid);answers=validate_answers(q,body.answers)
     if not any(filled(v) for v in answers.values()):raise HTTPException(422,'请先完成至少一个小题')
     def existing():
         with session_scope() as db:
@@ -226,7 +227,7 @@ def submit(qid:str,body:SubmitRequest,tasks:BackgroundTasks):
                 return row_public(row)
     old=existing()
     if old:return old
-    save_draft(qid,AnswersRequest(**body.model_dump(exclude={'request_id'})))
+    save_draft(qid,AnswersRequest(**body.model_dump(exclude={'request_id'})),auth_sid)
     rid=str(uuid.uuid4())
     try:
         with session_scope() as db:
@@ -235,15 +236,15 @@ def submit(qid:str,body:SubmitRequest,tasks:BackgroundTasks):
     tasks.add_task(run_submission,rid)
     return result
 @router.get('/submissions/{submission_id}')
-def submission(submission_id:str,student_id:str):
-    sid=student(student_id)
+def submission(submission_id:str,student_id:str|None=None,auth_sid:str=Depends(current_student_id)):
+    sid=student(auth_sid,student_id)
     with session_scope() as db:
         row=db.get(ExerciseSubmissionRow,submission_id)
         if not row or row.student_id!=sid:raise HTTPException(404,'提交记录不存在')
         return row_public(row)
 @router.post('/questions/{qid}/help')
-def help_question(qid:str,body:HelpRequest):
-    sid=student(body.student_id);check_version(body.version);q=question(qid);answers=validate_answers(q,body.answers)
+def help_question(qid:str,body:HelpRequest,auth_sid:str=Depends(current_student_id)):
+    sid=student(auth_sid,body.student_id);check_version(body.version);q=question(qid);answers=validate_answers(q,body.answers)
     p=next((p for p in q['parts'] if p['id']==body.part_id),None)
     if not p:raise HTTPException(422,'小题不存在')
     try:

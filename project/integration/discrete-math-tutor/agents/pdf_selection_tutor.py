@@ -14,14 +14,12 @@ SYSTEM = '''你是离散数学助教。直接解释用户选中的教材内容�
 用中文普通文本，180到240字以内，最多三小段；可用数学字符。先说明含义，再解释关键一步。
 使用[1]指向本次选区，页码由系统提供，不猜原书图号。不出诊断题，不声称已经掌握。'''
 
-def explain_selection(tutor, student_id, message, selection, account_type, progress=None):
+def explain_selection(tutor, student_id, message, selection, progress=None):
     def report(stage,label,detail=''):
         if progress: progress(stage,label,detail)
     report('locating','定位选中内容','核对教材版本、页码和坐标')
     resolved = resolve_selection(selection)
-    if account_type=='test': tutor.memory.accounts.create_test_account(student_id,ttl_hours=24)
-    elif account_type=='production': tutor.memory.ensure_student(student_id,account_type='production')
-    else: raise ValueError('账户类型无效')
+    tutor.memory.ensure_student(student_id)
     title=resolved['section']['title']
     report('memory','读取学习记录','筛选当前用户与选区相关的学习记录和偏好')
     memories = selection_memory(tutor.memory,student_id,title,resolved['text'],message)

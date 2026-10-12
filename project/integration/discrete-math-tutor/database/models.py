@@ -1,7 +1,7 @@
-"""ORM 模型 —— 7 张表（学生 / 画像 / 知识状态 / 误解 / 证据 / 对话 / 教学计划）。
+"""离散数学平台的学生、账号、学习记录与问题历史 ORM 模型。
 
 设计要点：
-- 全部外键 ON DELETE CASCADE -> 删除学生即级联清空，测试账户可彻底销毁；
+- 学习记录继续以内部 student_id 关联；旧列保留用于无损迁移。
 - 误解生命周期（hypothesis→…→resolved）用 status 字段承载；
 - evidence 是核心表：一切状态判断可溯源。
 """
@@ -41,12 +41,22 @@ class Student(Base):
     expires_at: Mapped[Optional[dt.datetime]] = mapped_column(DateTime, nullable=True)
 
 
-class TestBuildStateRow(Base):
-    """Fingerprint for clearing only test accounts after a code update."""
+class UserRow(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey("students.student_id"), unique=True, nullable=False)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
 
-    __tablename__ = "test_build_state"
-    key: Mapped[str] = mapped_column(String(64), primary_key=True)
-    fingerprint: Mapped[str] = mapped_column(String(64))
+
+class AuthSessionRow(Base):
+    __tablename__ = "auth_sessions"
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    csrf_token: Mapped[str] = mapped_column(String(64), nullable=False)
+    expires_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
 
 
 class ResourceViewRow(Base):
@@ -162,7 +172,33 @@ class ConversationRow(Base):
     )
     role: Mapped[str] = mapped_column(String(16), default="user")
     content: Mapped[str] = mapped_column(Text, default="")
+    turn_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True, index=True)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now, index=True)
+
+
+class QuestionNodeRow(Base):
+    __tablename__ = "question_nodes"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey("students.student_id", ondelete="CASCADE"), index=True)
+    parent_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("question_nodes.id", ondelete="SET NULL"), nullable=True)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class QuestionNodeMessageRow(Base):
+    __tablename__ = "question_node_messages"
+    conversation_id: Mapped[int] = mapped_column(Integer, ForeignKey("conversations.id", ondelete="CASCADE"), primary_key=True)
+    node_id: Mapped[int] = mapped_column(Integer, ForeignKey("question_nodes.id", ondelete="CASCADE"), index=True)
+
+
+class QuestionAnalysisJobRow(Base):
+    __tablename__ = "question_analysis_jobs"
+    turn_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey("students.student_id", ondelete="CASCADE"), index=True)
+    status: Mapped[str] = mapped_column(String(16), default="pending")
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    error: Mapped[str] = mapped_column(String(300), default="")
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
 
 
 class FigureCitationRow(Base):

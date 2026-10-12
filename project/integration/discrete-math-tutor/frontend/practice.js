@@ -5,7 +5,7 @@ window.ExercisePractice=(()=>{
  const P={chapter:null,index:null,data:null,seq:0,answers:{},saved:{},saveChain:Promise.resolve(),dirty:false,saveTimer:null,filters:{group:'',status:''},pollToken:0,help:{},busy:false};
  const types={choice:'选择',fill:'填空',expression:'公式计算',proof:'证明',graph:'构图',matrix:'矩阵 / 真值表',judgement:'判断',written:'问答'};
  const statuses={new:'未作答',draft:'草稿',queued:'等待批改',grading:'批改中',completed:'已反馈',failed:'需重试'};
- const param=()=>'?student_id='+encodeURIComponent(studentId);
+ const param=()=>'';
  const host=()=>$('#quiz-area');
  function announce(text){const e=$('#practice-save-status');if(e)e.textContent=text;}
  function blocks(bs){return (bs||[]).map(renderBlock).join('');}
@@ -18,7 +18,7 @@ window.ExercisePractice=(()=>{
   // 本地副本先保存，网络恢复后可继续；按顺序写服务端，避免旧草稿覆盖新答案。
   localStorage.setItem('exercise-draft:'+studentId+':'+qid,JSON.stringify({version,answers}));
   P.saveChain=P.saveChain.catch(()=>{}).then(async()=>{
-   try{await api('/api/practice/questions/'+qid+'/draft',{method:'PUT',body:JSON.stringify({student_id:studentId,version,answers})});
+   try{await api('/api/practice/questions/'+qid+'/draft',{method:'PUT',body:JSON.stringify({version,answers})});
     const local=JSON.parse(localStorage.getItem('exercise-draft:'+studentId+':'+qid)||'null');
     if(local&&JSON.stringify(local.answers)===serial)localStorage.removeItem('exercise-draft:'+studentId+':'+qid);
     if(P.data?.question.id===qid&&JSON.stringify(P.answers)===serial){announce('草稿已保存');P.saved=answers;}}
@@ -110,14 +110,14 @@ window.ExercisePractice=(()=>{
   P.busy=true;const qid=P.data.question.id,version=P.data.version,answers=snapshot();$('[data-practice-submit]').disabled=true;
   try{
    await save();const storageKey='exercise-submit:'+studentId+':'+qid;const cached=JSON.parse(localStorage.getItem(storageKey)||'null');const serial=JSON.stringify(answers);const request_id=cached?.serial===serial?cached.id:crypto.randomUUID();localStorage.setItem(storageKey,JSON.stringify({id:request_id,serial}));
-   const s=await post('/api/practice/questions/'+qid+'/submit',{student_id:studentId,version,answers,request_id});localStorage.removeItem(storageKey);
+   const s=await post('/api/practice/questions/'+qid+'/submit',{version,answers,request_id});localStorage.removeItem(storageKey);
    if(P.data?.question.id!==qid)return;updateIndex(s.status,s);poll(s,++P.pollToken);
   }catch(e){if(P.data?.question.id===qid){P.busy=false;$('[data-practice-submit]').disabled=false;$('#practice-submit-status').textContent=e.message;}}
  }
  async function help(pid,action){
   const qid=P.data.question.id,seq=P.seq,version=P.data.version,answers=snapshot(),target=$('#help-'+pid);if(P.help[pid]?.busy)return;
   const level=action==='hint'?Math.min(3,(P.help[pid]?.level||0)+1):1;P.help[pid]={busy:true,level};target.innerHTML='<p role="status">正在读取教材和你的相关学习记录…</p>';
-  try{await save();const r=await post('/api/practice/questions/'+qid+'/help',{student_id:studentId,version,answers,part_id:pid,action,level});
+  try{await save();const r=await post('/api/practice/questions/'+qid+'/help',{version,answers,part_id:pid,action,level});
    if(seq!==P.seq)return;target.innerHTML='<strong>'+ (action==='hint'?'提示 '+level+'/3':'AI 讲解')+'</strong><p>'+esc(r.reply)+'</p><small>'+esc(r.memory_summary)+'</small>';window.TextbookPDF?.renderMath(target);
   }catch(e){if(seq===P.seq)target.textContent=e.message;}finally{if(seq===P.seq)P.help[pid]={busy:false,level};}
  }
@@ -162,5 +162,6 @@ window.ExercisePractice=(()=>{
   const svg=e.target.closest('svg[data-graph]');if(svg)graphClick(e,svg);
  });
  window.addEventListener('beforeunload',()=>{if(P.data&&P.dirty)localStorage.setItem('exercise-draft:'+studentId+':'+P.data.question.id,JSON.stringify({version:P.data.version,answers:P.answers}));});
- return {load,save};
+ function reset(){clearTimeout(P.saveTimer);P.seq++;P.pollToken++;P.chapter=null;P.index=null;P.data=null;P.answers={};P.saved={};P.dirty=false;P.saveChain=Promise.resolve();host().innerHTML='';}
+ return {load,save,reset};
 })();

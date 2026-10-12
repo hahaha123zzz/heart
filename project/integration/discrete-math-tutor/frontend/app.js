@@ -3,18 +3,19 @@
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
-const studentKey = "discrete-math-demo-student";
-let studentId = localStorage.getItem(studentKey);
-if (!studentId) {
-  studentId = "demo-" + (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2));
-  localStorage.setItem(studentKey, studentId);
-}
+let studentId = null;
+let csrfToken = "";
+let authMode = "login";
 
 const state = { chapters: [], chapter: 1, section: 1, sectionData: null, contentTab: "text", openChapter: 1, quiz: null, chat: [], sending: false };
 
 async function api(path, options = {}) {
-  const response = await fetch(path, { headers: {"Content-Type":"application/json"}, cache:"no-store", ...options });
+  const method = (options.method || "GET").toUpperCase();
+  const headers = {"Content-Type":"application/json", ...(options.headers || {})};
+  if (method !== "GET" && csrfToken) headers["X-CSRF-Token"] = csrfToken;
+  const response = await fetch(path, {cache:"no-store", credentials:"same-origin", ...options, headers});
   const body = await response.json().catch(() => ({}));
+  if (response.status === 401 && !path.startsWith("/api/auth/")) showAuth();
   if (!response.ok) throw new Error(typeof body.detail === "string" ? body.detail : `服务暂不可用（${response.status}）`);
   return body;
 }
@@ -74,7 +75,7 @@ async function selectSection(chapter, section, {record=true} = {}) {
     $("#full-content-title").textContent = state.sectionData.title;
     $("#chat-topic").textContent = `当前知识点：${state.sectionData.title}`;
     renderContent();
-    if (record) post("/api/course/views", {student_id:studentId, chapter_id:chapter, section_id:section}).then(refreshStats).catch(() => {});
+    if (record) post("/api/course/views", {chapter_id:chapter, section_id:section}).then(refreshStats).catch(() => {});
   } catch (error) {
     if (selection !== state.selection) return;
     toast(error.message);
@@ -183,7 +184,7 @@ function syncPDFReader() {
 window.addEventListener("pdf-reader-ready",()=>{syncPDFReader();renderChat();});
 
 async function streamChat(data, onProgress) {
-  const response = await fetch("/api/chat/stream", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data)});
+  const response = await fetch("/api/chat/stream", {method:"POST", headers:{"Content-Type":"application/json", "X-CSRF-Token":csrfToken}, credentials:"same-origin", body:JSON.stringify(data)});
   if (!response.ok || !response.body) { const body=await response.json().catch(()=>({})); throw new Error(typeof body.detail === "string" ? body.detail : `服务暂不可用（${response.status}）`); }
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
@@ -278,7 +279,7 @@ async function sendMessage(message) {
     });
   }, 1000);
   try {
-    const result = await streamChat({student_id:studentId, account_type:"test", message:text,
+    const result = await streamChat({message:text,
       learning_goal:state.sectionData?.title || "图的基本概念", selection:selectionPayload(selection)}, progress => {
         const index = pending.progress.findIndex(item => item.order === progress.order);
         if (index >= 0) pending.progress[index] = progress;
@@ -290,6 +291,7 @@ async function sendMessage(message) {
       source:result.textbook_sources?.[0] || "", imageRefs:result.image_refs || [],
       selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary});
     renderChat(); refreshStats();
+    if ($("#learning-view").classList.contains("active")) refreshHistoryMap();
   } catch (error) {
     Object.assign(pending, {pending:false, failed:true, finishedAt:Date.now(), content:error.message});
     renderChat();
@@ -316,7 +318,7 @@ async function submitQuiz(form) {
   }
   const button = form.querySelector("button[type=submit]"); button.disabled = true;
   try {
-    const result = await post(`/api/course/chapters/${quiz.chapter_id}/quiz`, {student_id:studentId, answers});
+    const result = await post(`/api/course/chapters/${quiz.chapter_id}/quiz`, {answers});
     const detail = result.items.map((item, index) => `<div class="answer-feedback ${item.is_correct ? "" : "wrong"}">${index + 1}. ${item.is_correct ? "回答正确" : `正确答案：${esc(quiz.questions[index].options[item.correct])}`} · ${esc(item.explanation)}</div>`).join("");
     form.insertAdjacentHTML("beforeend", `<div class="quiz-result">本章测验得分：<strong>${result.score} 分</strong><p>错题可在下方查看解释。</p>${detail}</div>`);
     form.querySelectorAll("input").forEach((input) => input.disabled = true);
@@ -347,13 +349,28 @@ async function refreshStats() {
 
 async function refreshLearning() {
   try {
-    const [review, history] = await Promise.all([
+    const [review] = await Promise.all([
       api(`/api/students/${encodeURIComponent(studentId)}/review`),
-      api(`/api/students/${encodeURIComponent(studentId)}/conversation`),
     ]);
     $("#review-list").innerHTML = review.length ? review.map((item) => `<div class="review-item"><div><strong>${esc(item.point)}</strong><p>${esc(item.reason)}</p></div>${item.question_id ? `<button data-exercise-review="${esc(item.question_id)}" data-review-chapter="${item.chapter_id}">回到这道题</button>` : `<button data-review="${esc(item.point)}">请助教带我复习</button>`}</div>`).join("") : '<div class="resource-note">暂时没有识别到需要复习的难点。继续学习或完成测验后再来看看。</div>';
-    $("#history-list").innerHTML = history.length ? history.slice(-16).reverse().map((m) => `<div class="history-item"><small>${m.role === "user" ? "我" : "助教"}</small><p>${esc(m.content)}</p>${(m.image_refs || []).map(renderFigure).join("")}</div>`).join("") : '<div class="resource-note">还没有对话记录。向助教提一个问题吧。</div>';
+    await refreshHistoryMap();
   } catch (error) { toast(`学习记录暂不可用：${error.message}`); }
+}
+
+async function refreshHistoryMap() {
+  if (!studentId) return;
+  const data = await api(`/api/students/${encodeURIComponent(studentId)}/history-map`);
+  $("#history-map-status").textContent = data.pending ? `正在整理 ${data.pending} 个问题…` : data.failed ? `${data.nodes.length} 个节点 · ${data.failed} 个待重试` : `${data.nodes.length} 个问题节点`;
+  window.HistoryMap.render($("#history-list"), data.nodes, loadHistoryNode);
+}
+
+async function loadHistoryNode(nodeId) {
+  try {
+    const data = await api(`/api/students/${encodeURIComponent(studentId)}/history-map/${nodeId}/messages`);
+    $("#history-detail").innerHTML = `<h3>${esc(data.title)}</h3>` + data.messages.map(m => `<div class="history-item"><small>${m.role === "user" ? "我" : "助教"} · ${esc(new Date(m.created_at + "Z").toLocaleString())} · #${m.id}</small><p>${esc(m.content)}</p>${(m.selection_ref?.image_refs || []).map(ref => `<img class="pdf-chat-crop" src="${esc(ref.image_url)}" alt="教材原图">`).join("")}${(m.image_refs || []).map(renderFigure).join("")}</div>`).join("");
+    $("#history-detail").querySelectorAll(".history-item p").forEach(p => window.TextbookPDF?.renderMath(p));
+    $("#history-detail").scrollIntoView({behavior:"smooth", block:"nearest"});
+  } catch (error) { toast(error.message); }
 }
 
 async function refreshPreferences() {
@@ -442,8 +459,8 @@ function bindEvents() {
   });
 }
 
-async function init() {
-  bindEvents(); applyCourseCollapse(); renderChat();
+async function loadAccountData() {
+  renderChat();
   try {
     const [chapters,catalog]=await Promise.all([api("/api/course/chapters"),api("/static/textbook/manifest.json")]);
     state.chapters=chapters;state.practiceCatalog=catalog;
@@ -453,8 +470,65 @@ async function init() {
   try {
     const history = await api(`/api/students/${encodeURIComponent(studentId)}/conversation`);
     state.chat = history.map((m) => ({role:m.role,content:m.content,imageRefs:m.image_refs || [],selectionRef:m.selection_ref,pdfImageRefs:m.role==="assistant"?m.selection_ref?.image_refs || []:[]})); renderChat();
-  } catch { /* New local demo student has no history. */ }
+  } catch (error) { toast(`对话记录读取失败：${error.message}`); }
   refreshStats();
+}
+
+function showAuth() {
+  studentId = null; csrfToken = "";
+  state.chat = [];
+  window.ExercisePractice?.reset();
+  window.HistoryMap?.clear($("#history-list"));
+  for (const selector of ["#history-detail", "#history-map-status", "#review-list", "#stats-summary", "#activity-chart", "#chapter-scores", "#knowledge-mastery", "#common-errors"]) $(selector).innerHTML = "";
+  renderChat();
+  $("#auth-gate").hidden = false;
+  $("#logout-button").hidden = true;
+  $(".user-label").textContent = "未登录";
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  $("#auth-login-tab").classList.toggle("active", mode === "login");
+  $("#auth-register-tab").classList.toggle("active", mode === "register");
+  $("#auth-submit").textContent = mode === "login" ? "登录" : "注册并登录";
+  $("#auth-form [name=password]").autocomplete = mode === "login" ? "current-password" : "new-password";
+  $("#auth-error").textContent = "";
+}
+
+async function acceptAuth(data) {
+  window.ExercisePractice?.reset();
+  studentId = data.student_id; csrfToken = data.csrf_token;
+  $(".user-label").textContent = data.username;
+  $("#logout-button").hidden = false;
+  $("#auth-gate").hidden = true;
+  state.chat = [];
+  $("#history-detail").innerHTML = "";
+  showView("home");
+  await loadAccountData();
+}
+
+async function init() {
+  bindEvents(); applyCourseCollapse(); renderChat();
+  $("#auth-login-tab").addEventListener("click", () => setAuthMode("login"));
+  $("#auth-register-tab").addEventListener("click", () => setAuthMode("register"));
+  $("#auth-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const button = $("#auth-submit"); button.disabled = true;
+    try {
+      const data = await post(`/api/auth/${authMode}`, {username:form.elements.namedItem("username").value.trim(), password:form.elements.namedItem("password").value});
+      form.reset(); await acceptAuth(data);
+    } catch (error) { $("#auth-error").textContent = error.message; }
+    finally { button.disabled = false; }
+  });
+  $("#logout-button").addEventListener("click", async () => {
+    try { await post("/api/auth/logout", {}); showAuth(); }
+    catch (error) { toast(error.message); }
+  });
+  $("#history-map-reset").addEventListener("click", () => window.HistoryMap.reset($("#history-list")));
+  setInterval(() => { if (studentId && $("#learning-view").classList.contains("active")) refreshHistoryMap().catch(() => {}); }, 3000);
+  try { await acceptAuth(await api("/api/auth/me")); }
+  catch { showAuth(); }
 }
 
 init();

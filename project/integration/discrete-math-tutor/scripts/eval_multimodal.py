@@ -24,7 +24,7 @@ with tempfile.TemporaryDirectory(prefix='tutor-multimodal-') as temp:
                 continue
             results=[r for r in results if r['question'] != question]
             print('START '+str(index+1),flush=True)
-            result=tutor.handle_turn('multimodal-real-'+str(index),question,account_type='test')
+            result=tutor.handle_turn('multimodal-real-'+str(index),question)
             results.append(dict(question=question,reply=result['reply'],image_refs=result.get('image_refs',[]),textbook_sources=result.get('textbook_sources',[]),quality=result.get('quality'),step_advanced=result.get('step_advanced')))
             (ROOT/'knowledge'/'extracted_multimodal'/'real_validation.json').write_text(json.dumps(results,ensure_ascii=False,indent=2),encoding='utf-8')
             print('OK '+str(index+1),flush=True)
