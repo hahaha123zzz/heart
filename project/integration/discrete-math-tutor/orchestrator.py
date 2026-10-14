@@ -18,6 +18,7 @@ from uuid import uuid4
 from memory.evidence_policy import assess_attempt, project_state
 from typing import Any, Dict, Optional
 
+from agents.task_execution import build_execution
 from agents.context_sufficiency import ContextSufficiency
 from agents.conversation_router import ConversationRouter
 from agents.evidence_extractor import EvidenceExtractor
@@ -77,13 +78,19 @@ class TutorOrchestrator:
         learning_goal: Optional[str] = None,
         account_type: str = "production",
         progress=None,
+        task_context=None,
+        precomputed_routing=None,
+        routing_interceptor=None,
+        task_guard=None,
     ) -> Dict[str, Any]:
         def report(stage, label, detail=""):
             if progress is not None:
                 progress(stage, label, detail)
 
         report("routing", "理解问题", "识别本轮问题与学习目标")
-        if account_type == "test":
+        if task_guard is not None:
+            task_guard()
+        elif account_type == "test":
             self.memory.accounts.create_test_account(student_id, ttl_hours=24)
         elif account_type == "production":
             self.memory.ensure_student(student_id, account_type="production")
@@ -91,20 +98,55 @@ class TutorOrchestrator:
             raise ValueError("account_type 只能是 test 或 production")
 
         # 0) Conversation Router：判断学生这一轮在做什么 / 在聊什么
-        history = self.memory.get_history(student_id)
+        history = task_context.history if task_context is not None else self.memory.get_history(student_id)
         active_point = (
             self.memory.get_active_goal(student_id) or learning_goal or DEFAULT_GOAL
         )
-        routing = self.conversation_router.route(
-            message, active_point, history, self.memory.list_knowledge_points(student_id)
-        )
+        if precomputed_routing is not None:
+            routing = precomputed_routing
+        elif task_context is not None:
+            if task_context.student_id != student_id or task_context.message != message:
+                raise ValueError("任务上下文不属于当前请求")
+            routing = self.conversation_router.route(message, task_context.knowledge_point,
+                task_context.history, task_context.known_points, context=task_context)
+        else:
+            routing = self.conversation_router.route(
+                message, active_point, history, self.memory.list_knowledge_points(student_id))
+
+        if routing_interceptor is not None:
+            intercepted = routing_interceptor(routing, task_context)
+            if intercepted is not None: return intercepted
+
+        def save_exchange(reply):
+            from database.database import session_scope
+            with session_scope(immediate=True):
+                if task_guard is not None: task_guard()
+                self.memory.append(student_id, "user", message)
+                self.memory.append(student_id, "assistant", reply)
+
+        # 识别失败不进入检索/教学，不把用户问题写成能力观测。
+        if routing.status != "ok":
+            report("routing-stopped", "需要补充问题" if routing.status == "unknown" else "问题识别未完成",
+                   "本轮未推进学习进度")
+            reply = (
+                "你想切换到哪个知识点？请说出具体目标。" if routing.status == "unknown"
+                else "暂时无法可靠识别这次问题，请重试或补充具体教材对象。本次没有推进学习进度。"
+            )
+            return {
+                "reply": reply,
+                "answer_status": "routing_unavailable" if routing.status == "unavailable" else
+                                 ("awaiting_clarification" if routing.status == "unknown" else "routing_failed"),
+                "routing": routing.model_dump(), "knowledge_point": active_point,
+                "student_state": self.memory.get_state(student_id, active_point).model_dump(),
+                "step_advanced": False, "step_reason": "问题识别未完成",
+                "textbook_sources": [], "image_refs": [], "pdf_image_refs": [], "pdf_references": [],
+            }
 
         # 0.1) 非学习消息：不进教学流程（简短共情 + 轻推回学习，不强行拉回）
         if routing.intent == "off_task":
             report("generating", "生成回答", "准备回复")
             reply = self.response_generator.social_reply(message, active_point, history)
-            self.memory.append(student_id, "user", message)
-            self.memory.append(student_id, "assistant", reply)
+            save_exchange(reply)
             return {
                 "reply": reply,
                 "routing": routing.model_dump(),
@@ -121,12 +163,16 @@ class TutorOrchestrator:
                 or not topic
                 or routing.confidence < 0.5
             ):
-                reply = (
-                    "你是想换一个新的话题，还是先继续当前的知识点？"
-                    "想换的话，直接说你想学什么就行。"
-                )
-                self.memory.append(student_id, "user", message)
-                self.memory.append(student_id, "assistant", reply)
+                missing = getattr(routing, "missing_slots", [])
+                if "target" in missing:
+                    reply = "你指的是哪段文字、哪个图或哪条公式？可以选中教材内容后再问。"
+                elif "task" in missing:
+                    reply = "你想继续哪个任务？可以告诉我章节、题目或接下来想学的内容。"
+                elif "answer_format" in missing:
+                    reply = "你希望我解释含义、给出提示，还是展开证明？"
+                else:
+                    reply = "你想换到哪个知识点？请直接说具体目标。"
+                save_exchange(reply)
                 return {
                     "reply": reply,
                     "routing": routing.model_dump(),
@@ -136,12 +182,18 @@ class TutorOrchestrator:
                     ).model_dump(),
                 }
             point = topic
+        if task_context is not None and routing.intent == "continue":
+            point = task_context.knowledge_point or point
+        if task_context is not None and (task_context.graph_snapshot or task_context.truth_table_snapshot or task_context.relation_snapshot):
+            point = task_context.knowledge_point
         goal = point
+        execution = build_execution(message, routing, task_context)
         stuck_count = consecutive_stuck(history, message)
-        query = self._retrieval_query(message, point, routing)
+        query = execution.retrieval_query if execution.target_refs else self._retrieval_query(message, point, routing)
         resource_query = bool(re.search(r"(?:图|表)\s*\d+\s*[.．]\s*\d+|表格|真值表|函数表|公式|表达式|配图|插图|图片", message))
         report("retrieving", "检索教材", "查找相关正文、公式、表格和插图")
-        sources = retrieve_hybrid(message if resource_query else query, self.textbook_chunks, limit=2)
+        sources = retrieve_hybrid(message if resource_query and not execution.target_refs else query, self.textbook_chunks,
+                                  limit=2, preferred_types=execution.retrieval_types())
         if is_stuck(message) and sources:
             chapter = sources[0].source
             basics = [
@@ -150,7 +202,9 @@ class TutorOrchestrator:
             ]
             if basics:
                 sources = basics[:2]
-        figures = retrieve_figures(message, sources)
+        # 当前辅助图有自己的权威边集；无显式教材图号时，不附另一张教材图冒充该实例。
+        figures = ([] if task_context is not None and (task_context.graph_snapshot or task_context.truth_table_snapshot or task_context.relation_snapshot) and not FIGURE_NUMBER.search(message)
+                   else retrieve_figures(message, sources))
         direct_figure_question = bool(figures and FIGURE_NUMBER.search(message))
         direct_resource_question = direct_figure_question or (resource_query and any(item.kind != "text" for item in sources))
         if direct_figure_question:
@@ -180,10 +234,10 @@ class TutorOrchestrator:
         model_images = pdf_supplement.images if pdf_supplement else [figure.path for figure in figures[:2]]
         if not sources and not figures:
             reply = "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。"
-            self.memory.append(student_id, "user", message)
-            self.memory.append(student_id, "assistant", reply)
+            save_exchange(reply)
             return {
                 "reply": reply,
+                "answer_status": "evidence_rejected", "step_advanced": False,
                 "routing": routing.model_dump(),
                 "knowledge_point": active_point,
                 "student_state": self.memory.get_state(student_id, active_point).model_dump(),
@@ -195,11 +249,13 @@ class TutorOrchestrator:
                     for i, item in enumerate(sources, 1)]
         if figures:
             evidence.append({"id": "images", "text": format_figure_context(figures)})
+        evidence_question = execution.retrieval_query if execution.target_refs else message
         evidence_check = self.context_sufficiency.check(
-            message, evidence, topic=point, history=history,
+            evidence_question, evidence, topic=point, history=history,
             image_paths=model_images or None,
+            hint_only=execution.hint_only,
         )
-        recovered = recover_evidence(message, sources, self.textbook_chunks, evidence_check, retrieve_hybrid)
+        recovered = recover_evidence(evidence_question, sources, self.textbook_chunks, evidence_check, retrieve_hybrid)
         if len(recovered) > len(sources):
             report("evidence", "补充核验依据", "补检索缺失的定义与条件，再核验完整问题")
             sources = recovered
@@ -208,14 +264,14 @@ class TutorOrchestrator:
             if figures:
                 evidence.append({"id": "images", "text": format_figure_context(figures)})
             evidence_check = self.context_sufficiency.check(
-                message, evidence, topic=point, history=history, image_paths=model_images or None,
+                evidence_question, evidence, topic=point, history=history, image_paths=model_images or None,
+                hint_only=execution.hint_only,
             )
         if not evidence_check.allowed:
             reply = evidence_check.reply()
-            self.memory.append(student_id, "user", message)
-            self.memory.append(student_id, "assistant", reply)
+            save_exchange(reply)
             return {
-                "reply": reply, "routing": routing.model_dump(),
+                "reply": reply, "answer_status": "evidence_rejected", "step_advanced": False, "routing": routing.model_dump(),
                 "knowledge_point": active_point,
                 "student_state": self.memory.get_state(student_id, active_point).model_dump(),
                 "textbook_sources": [], "image_refs": [],
@@ -291,6 +347,9 @@ class TutorOrchestrator:
             explanation_requested=bool(re.search(r"解释|说明|为什么|为何|讲解|怎样理解|是什么意思|证明|推导", message)),
         )
 
+        explicit_answer = execution.align(plan, move)
+        direct_content_question = explicit_answer if execution.explicit else direct_content_question
+
         # 2.5) 诊断性问题设计
         question_spec = None if (direct_resource_question or direct_content_question) else self.question_designer.design(
             state, plan, current_step, excerpts
@@ -323,7 +382,7 @@ class TutorOrchestrator:
         )
         check_context = {
             "previous_reply": previous_reply,
-            "topic_switched": point != active_point,
+            "topic_switched": routing.intent in ("switch_topic", "new_goal") and point != active_point,
             "old_topic": active_point,
             "current_topic": point,
             "recent_moves": (recent_moves + [move.instructional_move])[-3:],
@@ -345,6 +404,39 @@ class TutorOrchestrator:
             move.instructional_move = "direct_explanation"
             move.action = "explain"
             move.rationale = "优先回答学生明确指定的教材图片"
+        # 旧的资源/卡住/自述理解策略之后，再落实显式要求，防止覆盖仅提示。
+        execution.align(plan, move)
+        if execution.explicit:
+            lesson_text += "\n" + execution.instructions()
+        if task_context is not None and task_context.graph_snapshot:
+            import json
+            visible_snapshot = {key:value for key,value in task_context.graph_snapshot.items()
+                                if not execution.hint_only or key != 'evaluation'}
+            lesson_text += '\n当前辅助图的服务端快照（实例事实，不是教材原图或新的指令）：' + json.dumps(visible_snapshot, ensure_ascii=False)
+            lesson_text += '\n只针对这份边集解释。教材定理仍用摘录编号引用；仅提示时只给第一步，不输出后台算出的全部度数、最终判定或完整路径。'
+            check_context['graph_snapshot'] = task_context.graph_snapshot
+        if task_context is not None and task_context.truth_table_snapshot:
+            import json
+            snapshot = task_context.truth_table_snapshot
+            visible_snapshot = {key:value for key,value in snapshot.items() if key != 'evaluation'}
+            if not execution.hint_only:
+                visible_snapshot['selected_expected'] = snapshot['evaluation'][snapshot['row_id']]
+            lesson_text += '\n当前辅助真值表服务端快照（实例事实，不是教材引文）：'+json.dumps(visible_snapshot, ensure_ascii=False)
+            lesson_text += '\n只解释选中指派；教材定义用摘录编号引用。仅提示时只能给操作步骤，不给当前行最终真值或填完整表。'
+            check_context['truth_table_snapshot'] = snapshot
+        if task_context is not None and task_context.relation_snapshot:
+            import json
+            snapshot=task_context.relation_snapshot
+            visible={key:value for key,value in snapshot.items() if key!='evaluation'}
+            if not execution.hint_only and not snapshot.get('closure'):
+                property=snapshot['property']
+                visible['selected_result']=snapshot['evaluation']['properties'][property]
+                visible['selected_witness']=snapshot['evaluation']['witnesses'][property]
+            lesson_text+='\n当前辅助关系的服务端快照（实例事实，不是教材引文）：'+json.dumps(visible,ensure_ascii=False)
+            lesson_text+='\n只按这份序偶解释选中性质或元素对，教材依据按摘录编号引用；反对称不是非对称。仅提示时只给检查方法，不给该实例的性质结论、缺失边或完整反例。'
+            if snapshot.get('closure'):
+                lesson_text+='\n本轮是闭包预览：顶层pairs是原关系，closure.current_pairs是目前步骤的扩充关系，二者不可混淆。解释当前补边的premises、reason以及闭包最小性；不要把中间结果称为最终闭包，也不要提前展开后续步骤。传递闭包由正长度路径决定，环可能要求自环；不是给所有点自动添加自环。'
+            check_context['relation_snapshot']=snapshot
         feedback: Optional[str] = None
         response = ""
         quality = None
@@ -367,12 +459,14 @@ class TutorOrchestrator:
                 stuck_count=stuck_count,
                 learner_preferences=profile.preferences,
                 memory_context=memory_context,
+                task_execution=execution,
             )
             report(f"checking-{attempts}", "核对回答与引用", "检查回答是否与教材证据一致")
             quality = self.quality_checker.check(
                 response, state, plan, message, question_spec, check_context,
                 excerpts + ("\n" + figure_context if figure_context else ""),
                 figure_images=model_images,
+                task_execution=execution,
             )
             if self._quality_accepted(quality):
                 break
@@ -381,8 +475,7 @@ class TutorOrchestrator:
         if not self._quality_accepted(quality):
             report("quality-rejected", "本次讲解未通过核对", "停止发布草稿，不推进课程步骤")
             reply = "本次讲解未通过教材核对，暂时不能可靠给出解释。你可以选中具体教材步骤再问。本次没有推进学习进度。"
-            self.memory.append(student_id, "user", message)
-            self.memory.append(student_id, "assistant", reply)
+            save_exchange(reply)
             return {
                 "reply": reply, "answer_status": "quality_rejected",
                 "quality": quality.model_dump() if quality else None,
@@ -440,17 +533,38 @@ class TutorOrchestrator:
             [{"source_index": pdf_supplement.source_index, "selection_ref": pdf_supplement.reference}]
             if pdf_supplement else []
         )
-        pdf_references = complete_pdf_references(sources, response, pdf_references, figures=figures)
+        pdf_references = complete_pdf_references(sources, response, pdf_references, figures=figures, include_primary=True)
         base_reference = pdf_supplement.reference if pdf_supplement else (pdf_references[0]["selection_ref"] if pdf_references else None)
         stored_reference = (base_reference | {"pdf_references": pdf_references,
             "textbook_sources": textbook_sources}) if base_reference else None
+        if task_context and task_context.relation_snapshot:
+            snapshot = task_context.relation_snapshot
+            relation_location = {name:snapshot.get(name) for name in
+                ('artifact_id','revision','epoch','property','selected_pair','answer_scope')}
+            if snapshot.get('closure'):
+                relation_location['closure']={key:snapshot['closure'][key] for key in ('kind','step','epoch')}
+            stored_reference = (stored_reference or {'pdf_references':pdf_references,
+                'textbook_sources':textbook_sources}) | {'relation_context':relation_location}
+        guided_visualization = None
+        from visualization.service import rollout_settings,VisualizationService
+        if rollout_settings()[0]!='off' and VisualizationService().enabled(student_id):
+            try:
+                from visualization.on_demand import build_guide
+                guided_visualization=build_guide(self.llm,message,response,sources,execution,
+                    student_id=student_id,turn_id=event_id,references=pdf_references,progress=progress)
+            except (ValueError,OSError,KeyError,RuntimeError):
+                # 教材映射失效时保留已核对的文字，不凭空绘制图。
+                guided_visualization=None
+        if guided_visualization:
+            stored_reference=(stored_reference or {'pdf_references':pdf_references,
+                'textbook_sources':textbook_sources}) | {'guided_visualization':guided_visualization}
         memory_commit = self.memory.commit_learning_turn(
             student_id=student_id, point=point, event_id=event_id, expected_token=expected_token, expected_epoch=expected_epoch,
             message=message, reply=response, state=state, lesson_plan=lesson_plan, decision=decision,
             evidence=all_evidence, hypotheses=hypotheses, strategy=plan.strategy, success=success,
             teaching_context={"strategy": plan.strategy, "difficulty": move.difficulty, "hint_level": move.hint_level},
             instructional_move=move.instructional_move, figure_ids=[figure.id for figure in figures],
-            selection_ref=stored_reference, misconception_updates=getattr(update, "misconception_updates", []), tutor_error=(error.reason or "检测到教学错误") if rolled_back else None,
+            selection_ref=stored_reference, task_guard=task_guard, misconception_updates=getattr(update, "misconception_updates", []), tutor_error=(error.reason or "检测到教学错误") if rolled_back else None,
         )
         if memory_commit["status"] == "forgotten":
             return {"reply":"这个知识点的学习记忆已被删除，本次回答未保存，请重新提问。",
@@ -474,12 +588,14 @@ class TutorOrchestrator:
             "memory_retrieval": memory_context.get("retrieval", {}),
             "student_state": state.model_dump(),
             "teaching_plan": plan.model_dump(),
+            "task_execution": execution.model_dump(),
             "question_spec": question_spec.model_dump() if question_spec else None,
             "quality": quality.model_dump() if quality else None,
             "evidence_check": evidence_check.model_dump(),
             "proof_evidence": proof_evidence.public() if proof_evidence else None,
             "pdf_evidence": pdf_supplement.public() if pdf_supplement else None,
             "pdf_references": pdf_references,
+            "guided_visualization": guided_visualization,
             "pdf_image_refs": pdf_supplement.reference["image_refs"] if pdf_supplement else [],
             "selection_ref": base_reference,
             "regenerated": attempts - 1,

@@ -11,6 +11,58 @@ if (!studentId) {
 }
 
 const state = { chapters: [], chapter: 1, section: 1, sectionData: null, contentTab: "text", openChapter: 1, quiz: null, chat: [], sending: false, view:"course" };
+state.taskRecoveryNeeded=true;
+const newRequestId = () => crypto.randomUUID();
+const tabSessionKey = 'discrete-math-task-session';
+let tabSessionId = sessionStorage.getItem(tabSessionKey) || newRequestId();
+sessionStorage.setItem(tabSessionKey, tabSessionId);
+// 新标签可能复制 sessionStorage；发现同编号的存活标签后，为新标签换编号。
+const sessionChannel = typeof BroadcastChannel === 'function' ? new BroadcastChannel('discrete-math-task-tabs') : null;
+const tabInstance = newRequestId();
+sessionChannel?.addEventListener('message', ({data}) => {
+  if(data.instance === tabInstance || data.session !== tabSessionId) return;
+  if(data.type === 'hello') sessionChannel.postMessage({type:'occupied',session:tabSessionId,to:data.instance,instance:tabInstance});
+  if(data.type === 'occupied' && data.to === tabInstance) {
+    tabSessionId = newRequestId();sessionStorage.setItem(tabSessionKey,tabSessionId);
+  }
+});
+sessionChannel?.postMessage({type:'hello',session:tabSessionId,instance:tabInstance});
+const taskSessionReady = new Promise(resolve => setTimeout(resolve,150));
+window.addEventListener('storage', event => { if(event.key === studentKey) location.reload(); });
+
+function renderClarification(message) {
+  const task=state.clarification;
+  if(!task || message.taskId !== task.task_id || state.chat.findLast(m=>m.taskId===task.task_id)!==message) return '';
+  return '<div class="task-clarification"><p>正在补充上一个问题；也可以取消后重新提问。</p>' +
+    (task.clarification?.options || []).map((option,index)=>'<button type="button" class="secondary-button" data-task-option="'+index+'" '+(state.sending?'disabled':'')+'>'+esc(option.label)+'</button>').join(' ') +
+    ' <button type="button" class="secondary-button" data-task-cancel '+(state.sending?'disabled':'')+'>取消本次问题</button></div>';
+}
+
+async function restoreClarification() {
+  await taskSessionReady;
+  const owner=studentId;
+  try {
+    const result=await api('/api/chat/tasks/pending?student_id='+encodeURIComponent(owner)+'&session_id='+encodeURIComponent(tabSessionId));
+    if(owner!==studentId) return;
+    state.taskRecoveryNeeded=false;
+    state.clarification=result.pending?.answer_status==='awaiting_clarification'?result.pending:null;
+    if(state.clarification && !state.chat.some(m=>m.taskId===state.clarification.task_id))
+      state.chat.push({role:'assistant',content:state.clarification.reply,taskId:state.clarification.task_id});
+    $('#chat-error').textContent=result.notice || '';renderChat();
+  } catch(error) {
+    state.taskRecoveryNeeded=true;
+    $('#chat-error').innerHTML=esc('问题恢复失败：'+error.message)+' <button type="button" class="secondary-button" data-task-restore>重新恢复</button>';
+  }
+}
+
+async function cancelClarification() {
+  const task=state.clarification;
+  if(!task) return true;
+  const result=await api('/api/chat/tasks/'+encodeURIComponent(task.task_id),{method:'DELETE',body:JSON.stringify({
+    student_id:studentId,session_id:tabSessionId,task_revision:task.task_revision})});
+  if(result.answer_status!=='task_cancelled') { toast(result.reply || '问题状态已变化，请重新恢复');await restoreClarification();return false; }
+  state.clarification=null;renderChat();toast('本次问题已取消');return true;
+}
 
 async function api(path, options = {}) {
   const response = await fetch(path, { headers: {"Content-Type":"application/json"}, cache:"no-store", ...options });
@@ -103,7 +155,8 @@ function renderFigure(figure, options = {}) {
   const url = String(figure.image_url || "");
   if (!/^\/api\/figures\/(?:figure-\d+-\d+|formula-\d+-\d+|image-\d+-\d+)\/image$/.test(url)) return "";
   const label = String(figure.label || "").replace(/插图对象\s*\d+/g, "教材插图").replace(/公式对象\s*\d+/g, "教材公式");
-  const caption = String(figure.caption || "").replace(/Word 锚点 \d+，/g, "");
+  const rawCaption = String(figure.caption || "").replace(/Word 锚点 \d+，/g, "");
+  const caption = rawCaption.startsWith(label) ? rawCaption.slice(label.length).replace(/^[：:\s]+/, '') : rawCaption;
   return `<figure class="textbook-figure"><a href="${esc(url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(url)}" alt="${esc(options.showCaption === false ? label : label + "：" + caption)}" loading="lazy"></a>${options.showCaption === false ? "" : `<figcaption><strong>${esc(label)}</strong> ${esc(caption)}<small>来源：${esc(figure.source)}</small></figcaption>`}</figure>`;
 }
 
@@ -136,14 +189,14 @@ function renderProgress(message) {
   const elapsed = Math.round(((message.finishedAt || Date.now()) - message.startedAt) / 1000);
   const current = stages.at(-1);
   const title = message.pending ? (current?.label || "正在连接助教") : message.failed ? "处理未完成" : "已完成";
-  return `<div class="turn-progress ${message.failed ? "failed" : ""}"><div class="progress-heading" role="status"><span class="${message.pending ? "progress-spinner" : "progress-check"}">${message.pending ? "" : message.failed ? "!" : "✓"}</span><strong>${esc(title)}</strong><span class="progress-elapsed" data-start="${message.startedAt}" data-finished="${message.finishedAt || ""}">${elapsed} 秒</span></div>${message.pending ? `<div class="progress-detail">${esc(current?.detail || "请求已发出，等待服务响应")}</div>` : ""}<details ${message.pending ? "open" : ""}><summary>处理记录</summary><ol>${stages.map(p => `<li class="${p.status}"><span>${p.status === "completed" ? "✓" : message.failed ? "!" : "·"}</span><div><strong>${esc(p.label)}</strong><small>${esc(p.detail)}</small></div></li>`).join("")}</ol></details></div>`;
+  return `<div class="turn-progress ${message.failed ? "failed" : ""}"><div class="progress-heading" role="status"><span class="${message.pending ? "progress-spinner" : "progress-check"}">${message.pending ? "" : message.failed ? "!" : "✓"}</span><strong>${esc(title)}</strong><span class="progress-elapsed" data-start="${message.startedAt}" data-finished="${message.finishedAt || ""}">${elapsed} 秒</span></div>${message.pending ? `<div class="progress-detail">${esc(current?.detail || "请求已发出，等待服务响应")}</div>` : ""}<details><summary>处理记录（点击展开）</summary><ol>${stages.map(p => `<li class="${p.status}"><span>${p.status === "completed" ? "✓" : message.failed ? "!" : "·"}</span><div><strong>${esc(p.label)}</strong><small>${esc(p.detail)}</small></div></li>`).join("")}</ol></details></div>`;
 }
 
 function selectionPayload(ref) {
   return ref ? {document_id:ref.document_id, version:ref.version, kind:ref.kind, rects:ref.rects, text:ref.text || ""} : undefined;
 }
 function renderPDFReference(ref, index, referenceIndex = -1, label = "") {
-  if (!ref) return "";
+  if (!ref?.rects?.length) return "";
   const pages = [...new Set((ref.rects || []).map(rect => rect.page))];
   return `<button type="button" class="pdf-citation" data-pdf-citation="${index}" data-pdf-reference="${referenceIndex}">${label ? esc(label) + " · " : ""}教材第 ${esc(pages.join("、"))} 页 · ${esc(ref.section_title || "选中内容")} ↗</button>`;
 }
@@ -154,28 +207,41 @@ function renderChatReferences(message, index) {
   const visible = sources.map((source, sourceIndex) => ({source, sourceIndex}))
     .filter(item => refs.some(ref => ref.source_index === item.sourceIndex) || (used.size ? used.has(item.sourceIndex) : item.sourceIndex === 0));
   const cropURLs=new Set();
+  const sourceLink = (source,sourceIndex) => `<button type="button" class="message-source pdf-citation" data-source-citation="${index}" data-source-index="${sourceIndex}" title="跳转到教材并高亮；无精确段落坐标时定位小节标题">[${sourceIndex + 1}] 教材：${esc(source)} ↗</button>`;
   const crops = ref => (ref?.image_refs || []).filter(image=>{if(cropURLs.has(image.image_url))return false;cropURLs.add(image.image_url);return true;}).map(image => `<img class="pdf-chat-crop" src="${esc(image.image_url)}" alt="${esc(image.label || "教材选区")}" loading="lazy">`).join("");
   if (refs.length) {
     return visible.map(({source, sourceIndex}) => {
       const refIndex = refs.findIndex(ref => ref.source_index === sourceIndex);
       const item = refs[refIndex];
-      return `<div class="message-source">[${sourceIndex + 1}] 教材：${esc(source)}</div>${item ? renderPDFReference(item.selection_ref,index,refIndex,item.label) + (item.selection_ref?.image_refs?.length?`<details class="source-crop"><summary>查看教材原文</summary>${crops(item.selection_ref)}</details>`:"") : ""}`;
+      return sourceLink(source,sourceIndex) + (item ? renderPDFReference(item.selection_ref,index,refIndex,item.label) + (item.selection_ref?.image_refs?.length?`<details class="source-crop"><summary>查看教材原文</summary>${crops(item.selection_ref)}</details>`:"") : "");
     }).join("");
   }
-  return visible.map(({source,sourceIndex}) => `<div class="message-source">[${sourceIndex + 1}] 教材：${esc(source)}</div>`).join("")
+  return visible.map(({source,sourceIndex}) => sourceLink(source,sourceIndex)).join("")
     + renderPDFReference(message.selectionRef,index)
     + (message.pdfImageRefs || []).map(image => `<img class="pdf-chat-crop" src="${esc(image.image_url)}" alt="${esc(image.label || "教材选区")}" loading="lazy">`).join("");
 }
 function renderSelectionDraft() {
   const ref=state.pdfDraft;
-  const html=ref ? `<div class="selection-draft"><div><strong>已引用教材第 ${esc(ref.rects[0].page)} 页</strong><button type="button" data-clear-selection aria-label="移除教材引用">×</button></div><p>${esc(ref.text?.slice(0,160) || "所选图、公式或表格区域")}</p>${ref.kind==="area" && ref.image_refs?.[0] ? `<img src="${esc(ref.image_refs[0].image_url)}" alt="教材选区预览">` : ""}<small>本轮附带教材上下文与相关学习记录</small></div>` : "";
+  const exercise=state.exerciseDraft;
+  const html=exercise ? `<div class="selection-draft"><div><strong>${esc(exercise.title)}</strong><button type="button" data-clear-exercise aria-label="移除小题引用">×</button></div><p>提问将针对这道小题和已保存的作答。切换题目不会自动更换引用。</p></div>` : ref ? `<div class="selection-draft"><div><strong>已引用教材第 ${esc(ref.rects[0].page)} 页</strong><button type="button" data-clear-selection aria-label="移除教材引用">×</button></div><p>${esc(ref.text?.slice(0,160) || "所选图、公式或表格区域")}</p>${ref.kind==="area" && ref.image_refs?.[0] ? `<img src="${esc(ref.image_refs[0].image_url)}" alt="教材选区预览">` : ""}<small>本轮附带教材上下文与相关学习记录</small></div>` : "";
   $$(".chat-selection-host").forEach(el=>el.innerHTML=html);
+}
+async function prepareExerciseQuestion(draft) {
+  if(state.sending || state.taskRecoveryNeeded) {toast('请等待当前问题结束或恢复后再选择小题');return false;}
+  state.sending=true;
+  try {
+    if(state.clarification && !await cancelClarification()) return false;
+    state.exerciseDraft=structuredClone(draft);state.pdfDraft=null;renderSelectionDraft();
+    Workspace.showHelp(null);Workspace.setPane('chat');
+    $('#chat-input').value='请针对这道小题给我一个提示，不要直接给完整答案。';
+    $('#chat-input').dispatchEvent(new Event('input'));$('#chat-input').focus();return true;
+  } finally {state.sending=false;renderChat();}
 }
 async function askPDFSelection(selection) {
   try {
     toast("正在定位教材选区…");
     const ref=await post("/api/pdf/selection/preview",selection);
-    state.pdfDraft=ref; renderSelectionDraft();
+    state.exerciseDraft=null;state.pdfDraft=ref; renderSelectionDraft();
     Workspace.showHelp(null);Workspace.setPane("chat");
     const input=$("#chat-input");
     input.value=selection.kind==="text"?"请解释我选中的这段内容。":"请解释我圈选的图、公式或表格。";
@@ -208,11 +274,11 @@ function syncPDFReader() {
   }
 }
 
-window.addEventListener("pdf-reader-ready",()=>{syncPDFReader();renderChat();});
+window.addEventListener("pdf-reader-ready",()=>{syncPDFReader();chatRenderer?.refreshMath();renderChat();});
 
 async function streamChat(data, onProgress) {
   const response = await fetch("/api/chat/stream", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data)});
-  if (!response.ok || !response.body) { const body=await response.json().catch(()=>({})); throw new Error(typeof body.detail === "string" ? body.detail : `服务暂不可用（${response.status}）`); }
+  if (!response.ok || !response.body) { const body=await response.json().catch(()=>({})); const error=new Error(typeof body.detail === "string" ? body.detail : `服务暂不可用（${response.status}）`);error.status=response.status;throw error; }
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "", result = null;
@@ -283,28 +349,158 @@ function renderContent() {
 }
 
 function messagesFromHistory(history) {
-  return history.map((m) => ({role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || [],selectionRef:m.selection_ref,pdfImageRefs:m.role==="assistant"?m.selection_ref?.image_refs || []:[]}));
+  return history.map((m) => ({conversationId:m.id,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || [],selectionRef:m.selection_ref,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?m.selection_ref?.image_refs || []:[]}));
 }
 
+const graphArtifacts = new Map();
+const tableArtifacts = new Map();
+const relationArtifacts = new Map();
+let relationCreateRequest;
+async function restoreRelations(){
+  try{const artifacts=await api('/api/relations?'+new URLSearchParams({student_id:studentId,session_id:tabSessionId}));
+    if(!Array.isArray(artifacts))return;relationArtifacts.clear();artifacts.forEach(artifact=>relationArtifacts.set(artifact.conversation_id,artifact));renderChat();
+  }catch{ /* 历史文字保持兼容。 */ }
+}
+async function openRelation(mode='explore',correctionOf=null){
+  const button=$('#open-relation');if(state.sending||button.disabled)return;button.disabled=true;
+  try{await taskSessionReady;const capability=await api('/api/relations/capabilities?'+new URLSearchParams({student_id:studentId}));if(!capability.enabled)return;
+    relationCreateRequest ??= {student_id:studentId,session_id:tabSessionId,request_id:newRequestId(),expected_epoch:capability.epoch,
+      template_id:$('#relation-template').value,mode,...(correctionOf?{correction_of:correctionOf}:{})};
+    const artifact=await post('/api/relations',relationCreateRequest);relationCreateRequest=null;relationArtifacts.set(artifact.conversation_id,artifact);
+    if(!state.chat.some(message=>message.conversationId===artifact.conversation_id))state.chat.push(...messagesFromHistory([{id:artifact.conversation_id,role:'assistant',content:
+      artifact.correction_of?'订正关系性质：修改原判断后提交，本次按辅助作答记录。':'关系图与矩阵辅助示例：A={a,b,c}。行是起点，列是终点；选中关系或性质可以提问。'}]));
+    renderChat();showView('chat');chatRenderer.rows.get('conversation:'+studentId+':'+artifact.conversation_id)?.element.scrollIntoView({block:'nearest'});
+  }catch(error){if(error.status&&error.status<500)relationCreateRequest=null;toast(error.message);}finally{button.disabled=false;}
+}
+let tableCreateRequest;
+async function restoreTables() {
+  try {
+    const artifacts=await api('/api/truth-tables?'+new URLSearchParams({student_id:studentId,session_id:tabSessionId}));
+    if(!Array.isArray(artifacts))return;
+    tableArtifacts.clear();artifacts.forEach(artifact=>tableArtifacts.set(artifact.conversation_id,artifact));renderChat();
+  }catch{ /* 保持旧版文字历史兼容。 */ }
+}
+async function openTruthTable(template='implies',correctionOf=null) {
+  const button=$('#open-truth-table');
+  if(state.sending||button.disabled)return;
+  button.disabled=true;
+  try {
+    await taskSessionReady;
+    const capability=await api('/api/truth-tables/capabilities?'+new URLSearchParams({student_id:studentId}));
+    if(!capability.enabled)return;
+    tableCreateRequest ??= {student_id:studentId,session_id:tabSessionId,request_id:newRequestId(),expected_epoch:capability.epoch,
+      template_id:template,mode:'assessment',...(correctionOf?{correction_of:correctionOf}:{})};
+    const artifact=await post('/api/truth-tables',tableCreateRequest);tableCreateRequest=null;
+    tableArtifacts.set(artifact.conversation_id,artifact);
+    if(!state.chat.some(message=>message.conversationId===artifact.conversation_id))state.chat.push(...messagesFromHistory([{id:artifact.conversation_id,role:'assistant',content:
+      artifact.correction_of?'订正真值表：修改原答案后再次提交，按辅助作答记录。':'真值表辅助练习：'+artifact.formula+'。填写每行结果；选中一行可以向 AI 提问。'}]));
+    renderChat();showView('chat');
+    chatRenderer.rows.get('conversation:'+studentId+':'+artifact.conversation_id)?.element.scrollIntoView({block:'nearest'});
+  }catch(error){if(error.status&&error.status<500)tableCreateRequest=null;toast(error.message);}
+  finally{button.disabled=false;}
+}
+let graphCreateRequest;
+async function restoreGraphs() {
+  await restoreRelations();
+  await restoreTables();
+  try {
+    const artifacts=await api('/api/visualizations?'+new URLSearchParams({student_id:studentId,session_id:tabSessionId}));
+    if(!Array.isArray(artifacts)) return;
+    graphArtifacts.clear();
+    artifacts.forEach(artifact=>graphArtifacts.set(artifact.conversation_id,artifact));
+    renderChat();
+  } catch { /* 旧后端不提供互动接口时，文字历史仍可阅读。 */ }
+}
+
+async function refreshGraphCapability() {
+  const button=$('#open-euler-graph');
+  if(!button) return;
+  try {
+    const capability=await api('/api/visualizations/capabilities?'+new URLSearchParams({student_id:studentId}));
+    button.hidden=!capability.enabled;
+    $('#open-truth-table').hidden=!capability.enabled;
+    $('#truth-table-template').hidden=!capability.enabled;
+    $('#open-relation').hidden=!capability.enabled;
+    $('#relation-template').hidden=!capability.enabled;
+  } catch {button.hidden=true;}
+}
+
+async function openEulerGraph(graph=null, forQuestion=false, mode='explore', correctionOf=null) {
+  const button=$('#open-euler-graph');
+  if((state.sending && !forQuestion) || button.disabled) return;
+  button.disabled=true;
+  try {
+    await taskSessionReady;
+    const capability=await api('/api/visualizations/capabilities?'+new URLSearchParams({student_id:studentId}));
+    if(!capability.enabled) return null;
+    graphCreateRequest ??= {student_id:studentId,session_id:tabSessionId,request_id:newRequestId(),expected_epoch:capability.epoch,template_id:'euler-cycle-v1',mode,...(graph?{graph}:{}),...(correctionOf?{correction_of:correctionOf}:{})};
+    const artifact=await post('/api/visualizations',graphCreateRequest);
+    graphCreateRequest=null;
+    graphArtifacts.set(artifact.conversation_id,artifact);
+    if(!state.chat.some(message=>message.conversationId===artifact.conversation_id)) {
+      const rows=messagesFromHistory([{id:artifact.conversation_id,role:'assistant',content:artifact.attempt?.correction?'订正这道图题：已保留原作答，请修改后重新提交。订正按辅助作答记录。':'辅助示例：欧拉通路与回路。增删边，观察度数与连通性。此图不是教材原图。'}]);
+      if(state.sending) state.chat.splice(Math.max(0,state.chat.length-2),0,...rows);
+      else state.chat.push(...rows);
+    }
+    renderChat();showView('chat');
+    const row=chatRenderer.rows.get('conversation:'+studentId+':'+artifact.conversation_id);
+    row?.element.scrollIntoView({block:'nearest'});
+    return artifact;
+  } catch(error) {
+    if(error.status && error.status<500) graphCreateRequest=null;
+    toast(error.message);
+  } finally {button.disabled=false;}
+}
+
+const emptyChatMessage = {renderKey:'empty',role:'assistant',content:'选一节教材开始阅读。你可以划选文字或圈选图、公式，再向我提问。'};
+let chatRenderer;
 function renderChat() {
-  const messages=state.chat.length?state.chat:[{role:'assistant',content:'选一节教材开始阅读。你可以划选文字或圈选图、公式，再向我提问。'}];
+  const messages=state.chat.length?state.chat:[emptyChatMessage];
   const el=$('#chat-messages');const nearBottom=el.scrollHeight-el.scrollTop-el.clientHeight<100;
-  const html=messages.map((m,index)=>'<div class="message '+(m.role==='user'?'user':'assistant')+'"><div class="message-body">'+(m.startedAt?renderProgress(m):'')+(m.content?'<p>'+esc(m.content)+'</p>':'')+renderChatReferences(m,index)+(m.memorySummary?'<div class="memory-summary">'+esc(m.memorySummary)+'</div>':'')+(m.imageRefs||[]).map(renderFigure).join('')+(m.failed&&m.request?'<button type="button" class="secondary-button retry-message" data-retry-message="'+index+'">重新提问</button>':'')+'</div></div>').join('');
-  el.innerHTML=html;
-  el.querySelectorAll('.message-body > p').forEach(p=>window.TextbookPDF?.renderMath(p));
-  if(nearBottom||state.chat.length!==renderChat.lastCount)el.scrollTop=el.scrollHeight;
-  renderChat.lastCount=state.chat.length;
+  chatRenderer ??= new window.ChatMessageRenderer(el, p => window.TextbookPDF?.renderMath(p));
+  chatRenderer.render(messages.map((m,index)=>({key:m.renderKey ??= newRequestId(),role:m.role,parts:{
+    progress:m.startedAt?renderProgress(m):'',
+    object:m.objectLabel?'<small>针对：'+esc(m.objectLabel)+'</small>':'',
+    content:m.content?(m.role==='assistant'?window.renderTutorAnswer(m.content):'<p>'+esc(m.content)+'</p>'):'',
+    references:renderChatReferences(m,index),clarification:renderClarification(m),
+    memory:m.memorySummary?'<div class="memory-summary">'+esc(m.memorySummary)+'</div>':'',
+    figures:(m.imageRefs||[]).map(renderFigure).join(''),
+    retry:m.failed&&m.request?'<button type="button" class="secondary-button retry-message" data-retry-message="'+index+'">'+(m.networkFailed?'重试原请求':'重新提问')+'</button>':'',
+  }})));
+  for(const message of messages) {
+    if(message.role!=='assistant'||!window.GuidedVisualization)continue;
+    const artifact=relationArtifacts.get(message.conversationId)||tableArtifacts.get(message.conversationId)||graphArtifacts.get(message.conversationId);
+    const guide=message.guide||(artifact?window.GuidedVisualization.fromLegacy(artifact):null);
+    if(!guide?.frames?.length)continue;
+    try{chatRenderer.attachComponent(message.renderKey,'guided',window.GuidedVisualization,{guide,
+      onSource:reference=>openGuideSource(guide,reference)
+    });}catch(error){$('#chat-error').textContent='分步讲解加载失败：'+error.message;}
+  }
+  // 用户查看上方内容时，新消息也不强制拉回底部。
+  if(nearBottom)el.scrollTop=el.scrollHeight;
 }
 
-async function sendMessage(message) {
+async function openGuideSource(guide,reference){
+  try{
+    if(guide.exercise_target){showView('quiz');await window.ExercisePractice.openTarget(guide.exercise_target);return;}
+    const ok=await selectSection(reference.chapter_id,reference.section_id,{record:false});
+    if(ok){state.pdfFocus=reference;showView('course');syncPDFReader();}
+  }catch(error){toast(error.message);}
+}
+
+async function sendMessage(message, options={}) {
   const text = message.trim();
   if (!text || state.sending) return;
-  const selection=state.pdfDraft;
+  if(state.taskRecoveryNeeded) { toast('请先恢复问题状态，再继续提问');return; }
+  await taskSessionReady;
+  if(state.sending) return;
+  const selection=options.visualization || options.truthTable || options.relation ? null : options.payload ? options.selection : state.pdfDraft;
+  const exercise=options.visualization || options.truthTable || options.relation ? null : options.payload ? options.exercise : state.exerciseDraft;
   state.sending = true;
   $$(".chat-input button").forEach(button => button.disabled = true);
   $("#chat-error").textContent = "";
-  const pending = {role:"assistant", content:"", pending:true, startedAt:Date.now(), progress:[], request:{text,selection}};
-  state.chat.push({role:"user", content:text, selectionRef:selection}, pending);
+  const pending = {role:"assistant", content:"", pending:true, startedAt:Date.now(), progress:[], request:{text,selection,exercise}};
+  state.chat.push({role:"user", content:text, selectionRef:selection,objectLabel:exercise?.title || selection?.section_title}, pending);
   renderChat();
   const timer = setInterval(() => {
     $$(".progress-elapsed").forEach(el => {
@@ -312,20 +508,45 @@ async function sendMessage(message) {
     });
   }, 1000);
   try {
-    const result = await streamChat({student_id:studentId, account_type:"test", message:text,
-      learning_goal:selection?.section_title || state.sectionData?.title || "离散数学", selection:selectionPayload(selection)}, progress => {
+    let visualization=options.visualization;
+    const truthTable=options.truthTable;
+    const relation=options.relation;
+    const objectKey=JSON.stringify({selection:selectionPayload(selection),exercise:exercise?.target,visualization,truthTable,relation});
+    if((selection || exercise || visualization || truthTable || relation) && state.clarification && !options.payload && !options.selectedOption &&
+        objectKey!==state.clarificationObject && !await cancelClarification()) throw new Error('请确认当前问题后重试');
+    const task=state.clarification;
+    if(exercise && !options.payload) await window.ExercisePractice?.flushTarget(exercise.target);
+    const payload=options.payload || {student_id:studentId, account_type:"test", message:text,
+      session_id:tabSessionId,request_id:newRequestId(),
+      ...(task?{task_id:task.task_id,task_revision:task.task_revision}:{}),
+      ...(options.selectedOption?{selected_option:options.selectedOption}:{}),
+      learning_goal:exercise?.knowledgePoint || selection?.section_title || state.sectionData?.title || "离散数学",
+      // 补充旧任务时使用服务端原对象；当前阅读位置不能覆盖已选澄清选项。
+      reader_location:task || selection || exercise || visualization || truthTable || relation ? undefined : (state.sectionData ? {chapter_id:state.chapter, section_id:state.section} : undefined),
+      selection:task ? undefined : selectionPayload(selection),exercise_target:task ? undefined : exercise?.target,
+      visualization_target:task ? undefined : visualization,truth_table_target:task ? undefined : truthTable,relation_target:task ? undefined : relation};
+    if(payload.relation_target)pending.objectLabel='当前关系 · '+payload.relation_target.property+' · 版本 '+payload.relation_target.expected_revision;
+    if(payload.truth_table_target)pending.objectLabel='当前真值表 · 指派 '+payload.truth_table_target.row_id+' · 版本 '+payload.truth_table_target.expected_revision;
+    if(payload.visualization_target) pending.objectLabel='当前辅助图 · 版本 '+payload.visualization_target.expected_revision;
+    pending.request.payload=payload;
+    const result = await streamChat(payload, progress => {
         const index = pending.progress.findIndex(item => item.order === progress.order);
         if (index >= 0) pending.progress[index] = progress;
         else pending.progress.push(progress);
         renderChat();
       });
-    Object.assign(pending, {pending:false, failed:result.answer_status === "quality_rejected", finishedAt:Date.now(),
+    state.clarification=result.answer_status==='awaiting_clarification'?result:null;
+    state.clarificationObject=state.clarification?objectKey:null;
+    Object.assign(pending, {taskId:result.task_id,pending:false, networkFailed:false,
+      failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable'].includes(result.answer_status), finishedAt:Date.now(),
       content:result.reply || "助教暂时没有返回内容。",
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
-      selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary});
+      selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
+      relationContext:result.answer_status==='answered'?result.relation_context:undefined,guide:result.answer_status==='answered'||(!result.answer_status&&result.guided_visualization)?result.guided_visualization:undefined});
     renderChat(); refreshStats();
+    if(['task_conflict','task_expired','task_not_found','task_busy','request_conflict','memory_deleted','invalid_option','task_disabled'].includes(result.answer_status)) await restoreClarification();
   } catch (error) {
-    Object.assign(pending, {pending:false, failed:true, finishedAt:Date.now(), content:error.message});
+    Object.assign(pending, {pending:false, failed:true, networkFailed:!!pending.request.payload && (!error.status || error.status>=500), finishedAt:Date.now(), content:error.message});
     renderChat();
     $("#chat-error").textContent = error.message;
 
@@ -334,6 +555,7 @@ async function sendMessage(message) {
     clearInterval(timer);
     state.sending = false;
     $$(".chat-input button").forEach(button => button.disabled = false);
+    renderChat();
   }
 }
 
@@ -426,6 +648,40 @@ function bindEvents() {
     applyCourseCollapse();
   });
   document.addEventListener("click", (event) => {
+    const relationFocus=event.target.closest('[data-relation-focus]');
+    if(relationFocus){
+      const context=state.chat[Number(relationFocus.dataset.relationFocus)]?.relationContext;
+      if(!context)return;
+      const root=[...document.querySelectorAll('.interactive-relation')].find(element=>element.dataset.artifactId===context.artifact_id);
+      if(!root){toast('未找到这张关系图，它可能已删除或不在当前会话，请重新打开后提问。');return;}
+      const detail={...context};
+      const focused=!root.dispatchEvent(new CustomEvent('relation-focus',{detail,cancelable:true}));
+      if(!focused)toast(detail.error || '暂时无法查看这张图的依据。');
+      return;
+    }
+    const sourceCitation=event.target.closest('[data-source-citation]');
+    if(sourceCitation){
+      const message=state.chat[Number(sourceCitation.dataset.sourceCitation)];
+      const sourceIndex=Number(sourceCitation.dataset.sourceIndex);
+      if(!message||sourceCitation.disabled)return;
+      sourceCitation.disabled=true;
+      (async()=>{
+        let reference=message.pdfReferences?.find(item=>item.source_index===sourceIndex)?.selection_ref;
+        if(!reference?.rects?.length){
+          const source=(message.sources || (message.source?[message.source]:[]))[sourceIndex];
+          const located=await api('/api/course/citation-location',{method:'POST',body:JSON.stringify({source,response:String(message.content||'').slice(0,30000)})});
+          reference=located.selection_ref;
+          message.pdfReferences ||= [];
+          message.pdfReferences.push({source_index:sourceIndex,...located});
+        }
+        if(!reference?.rects?.length)throw new Error('该来源缺少可用教材坐标');
+        const ok=await selectSection(reference.chapter_id,reference.section_id,{record:false});
+        if(!ok)return;
+        state.pdfFocus=reference;showView('course');syncPDFReader();
+        if(reference.location_kind==='section_heading')toast('已定位并高亮小节标题；该引用没有精确段落坐标');
+      })().catch(error=>toast(error.message)).finally(()=>{sourceCitation.disabled=false;});
+      return;
+    }
     const practice=event.target.closest("[data-start-practice]");
     if(practice){startPractice(practice.dataset.startPractice);return;}
     const clear=event.target.closest("[data-clear-selection]");
@@ -439,7 +695,12 @@ function bindEvents() {
       return;
     }
     const retry=event.target.closest('[data-retry-message]');
-    if(retry){const request=state.chat[Number(retry.dataset.retryMessage)]?.request;if(request&&!state.sending){state.pdfDraft=request.selection;renderSelectionDraft();$('#chat-input').value=request.text;$('#chat-input').dispatchEvent(new Event('input'));showView('chat');}return;}
+    if(retry){const old=state.chat[Number(retry.dataset.retryMessage)],request=old?.request;if(request&&!state.sending){if(old.networkFailed){sendMessage(request.text,{payload:request.payload,selection:request.selection,exercise:request.exercise});return;}state.exerciseDraft=request.exercise;state.pdfDraft=request.selection;renderSelectionDraft();$('#chat-input').value=request.text;$('#chat-input').dispatchEvent(new Event('input'));showView('chat');}return;}
+    if(event.target.closest('[data-clear-exercise]')) {if(!state.sending){state.sending=true;cancelClarification().then(ok=>{if(ok){state.exerciseDraft=null;renderSelectionDraft();}}).catch(error=>toast(error.message)).finally(()=>{state.sending=false;renderChat();});}return;}
+    if(event.target.closest('[data-task-restore]')) {restoreClarification();return;}
+    if(event.target.closest('[data-task-cancel]')) {if(!state.sending){state.sending=true;renderChat();cancelClarification().catch(error=>toast(error.message)).finally(()=>{state.sending=false;renderChat();});}return;}
+    const taskOption=event.target.closest('[data-task-option]');
+    if(taskOption) {const option=state.clarification?.clarification?.options?.[Number(taskOption.dataset.taskOption)];if(option&&!state.sending)sendMessage(option.label,{selectedOption:option.id});return;}
     const nav = event.target.closest("[data-view]");
     if (nav) { showView(nav.dataset.view); return; }
     const toggle = event.target.closest("[data-open-chapter]");
@@ -462,7 +723,7 @@ function bindEvents() {
     if (contentTab) { state.contentTab = contentTab.dataset.contentTab; $$("[data-content-tab]").forEach((el) => el.classList.toggle("active", el === contentTab)); renderContent(); }
   });
   for (const [formSelector,inputSelector] of [["#chat-form","#chat-input"]]) {
-    $(formSelector).addEventListener("submit", (event) => { event.preventDefault(); if (state.sending) return; const input = $(inputSelector); const value = input.value; input.value = "";Workspace.clearDraft();Workspace.showHelp(null); sendMessage(value); });
+    $(formSelector).addEventListener("submit", (event) => { event.preventDefault(); if (state.sending) return; if(state.taskRecoveryNeeded){toast('请先恢复问题状态，再继续提问');return;} const input = $(inputSelector); const value = input.value; input.value = "";Workspace.clearDraft();Workspace.showHelp(null); sendMessage(value); });
   }
   $("#quiz-chapter").addEventListener("change", (event) => { loadQuiz(Number(event.target.value)); });
   $("#quiz-area").addEventListener("submit", (event) => { if (event.target.id === "quiz-form") { event.preventDefault(); submitQuiz(event.target); } });
@@ -493,10 +754,16 @@ async function init() {
     const history = await api(`/api/students/${encodeURIComponent(studentId)}/conversation`);
     state.chat = messagesFromHistory(history); renderChat();
   } catch { /* New local demo student has no history. */ }
+  await restoreClarification();
+  await restoreGraphs();
+  await refreshGraphCapability();
   refreshStats();
 }
 
 init();
+$('#open-euler-graph')?.addEventListener('click',()=>openEulerGraph());
+$('#open-truth-table')?.addEventListener('click',()=>openTruthTable($('#truth-table-template').value));
+$('#open-relation')?.addEventListener('click',()=>openRelation());
 
 
 let memoryRequest = 0;
@@ -566,16 +833,17 @@ $('#memory-forget-point').addEventListener('click', async (event) => {
   try {
     await api(memoryBase() + '/points?point=' + encodeURIComponent(point), {method:'DELETE'});
     // 先移除本地旧对话，再从后台恢复未被删除的记录。
-    state.chat = []; renderChat();
+    state.chat = []; state.clarification=null;state.taskRecoveryNeeded=true;graphArtifacts.clear();graphCreateRequest=null;tableArtifacts.clear();tableCreateRequest=null;relationArtifacts.clear();relationCreateRequest=null;renderChat();
     await refreshMemory();refreshStats();refreshLearning();
     try {
       const history = await api('/api/students/' + encodeURIComponent(studentId) + '/conversation');
       // 等待期间若已开始新提问，保留当前流式回答。
-      if (!state.sending) { state.chat = messagesFromHistory(history); renderChat(); }
+      if (!state.sending) { state.chat = messagesFromHistory(history); renderChat();await restoreGraphs(); }
       toast('已删除该知识点的学习记忆');
     } catch {
       toast('记忆已删除；剩余对话读取失败，请刷新页面查看');
     }
+    await restoreClarification();
   }
   catch (error) { $('#memory-status').textContent = error.message; button.disabled = false; }
 });

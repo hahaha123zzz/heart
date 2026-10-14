@@ -42,10 +42,13 @@ _STRATEGY_GUIDE = {
     "progressive_hinting": "每次只给一点提示，提示级别逐级加深",
 }
 
+ANSWER_PRESENTATION = '回答排版：用 **短语** 加粗关键条件、概念或结论；最容易混淆的一处可用 ==短语== 高亮。每轮最多三处加粗、一处高亮，保持简短段落，不整段强调、不输出HTML。格式符号只用于显示，不影响数学含义；引用编号放在强调标记外。无需询问用户是否需要图解，不要求用户输入可视化关键词；系统会自动决定图解。'
+
 SYSTEM_PROMPT = """[AGENT:response_generator]
 你是基于学生状态和本地教材的离散数学助教。
-语言风格：中文纯文本、最多3个短段落、一次只推进一小步；不要 Markdown 或 LaTeX 环境。
+语言风格：中文、最多3个短段落、一次只推进一小步；仅使用短语强调，不使用标题或 LaTeX 环境。
 数学表达式用普通字符写，例如 G=(V,E)。只依据提供的教材摘录称述教材内容；引用用[1]等编号。
+方括号数字是本轮摘录的序号，不是章节或定理序号。引用“定理X.Y[n]”前，必须确认摘录[n]确实含有定理X.Y；不同摘录即使来自同一小节也不能互换编号。
 如果教材摘录提示没有检索到相关内容，要明确说明当前教材没有可靠依据，不能凭模型常识编造教材解释或引用。
 摘录里的[公式或对象]表示该纯文本未包含对象；本轮附有原图时以原图为准，否则不能猜其内容，不编造页码。
 邻近正文的定理编号不一定属于所附公式，不得据此给公式冠上未经核对的定理编号。
@@ -74,13 +77,13 @@ SYSTEM_PROMPT = """[AGENT:response_generator]
   可以直接给信息、给示范、给反例，不要绕弯提问；
   提问类动作（socratic_questioning / self_explanation / retrieval_practice）才用提问。
 效率原则：
+- 学生明确要求判定一个具体实例、逐个计算或解释其结论时，必须在本轮完成该实例所需的条件核对与推论。课程步骤可能只要求复述定义，不能据此缩减本轮任务或将计算交回学生。只有本轮为 hint 时才停在第一步。
 - 学生直接询问事实性知识或指定证明步骤时，先回应并解释理由。explain 动作不要求结尾出题；不要把尚未解释的关键点改成反问交给学生。
   如确有必要检查理解，可以在回答完整问题后提出与推理相关的开放问题，不要重复一眼可辨的二选一。
 学生说“不知道”时停止当前难题，先给更简单的解释或例子；不要接着讲新定理。"""
 
 
 def concise_terminal_text(answer: str, limit: int = 240) -> str:
-    answer = answer.replace("**", "").replace("`", "")
     answer = re.sub(r"\\[\[(]", "", answer)
     answer = re.sub(r"\\[\])]", "", answer).strip()
     if len(answer) <= limit:
@@ -117,6 +120,7 @@ class ResponseGenerator:
         stuck_count: int = 0,
         learner_preferences: Optional[Dict[str, float]] = None,
         memory_context: Optional[dict] = None,
+        task_execution=None,
     ) -> str:
         move_id = instructional_move or plan.strategy
         preferences = learner_preferences or {}
@@ -126,6 +130,8 @@ class ResponseGenerator:
         reply_limit = 140 if length < 0.34 else 240 if length > 0.66 else 200
         proof_overview = requests_proof_overview(student_input)
         supplementary_proof = requests_supplementary_proof(student_input)
+        if task_execution is not None and task_execution.hint_only:
+            proof_overview = supplementary_proof = False
         if proof_overview:
             # 证明路线须保留后续分情况，避免默认截断丢掉关键步骤。
             reply_limit = max(reply_limit, 480)
@@ -134,9 +140,10 @@ class ResponseGenerator:
         if question_spec is not None and question_spec.options:
             # 完整选项比固定字数更重要，避免在 A/B/C/D 中途截断。
             reply_limit = max(reply_limit, 420)
+        if task_execution is not None: reply_limit = task_execution.reply_limit(reply_limit)
         guides = _library_guides()
         guide = guides.get(move_id, "")
-        system = SYSTEM_PROMPT + "\n本轮教学动作（严格遵守）：" + move_id + " —— " + guide
+        system = SYSTEM_PROMPT + '\n' + ANSWER_PRESENTATION + "\n本轮教学动作（严格遵守）：" + move_id + " —— " + guide
         system += f"\n学生设置：回复不超过{reply_limit}字；"
         system += "多给一个具体小例子；" if examples > 0.66 else "例子只在必要时使用；" if examples < 0.34 else ""
         system += "放慢节奏，只讲最基础一步。" if pace < 0.34 else "掌握后可更快进入小检查。" if pace > 0.66 else ""
@@ -144,7 +151,9 @@ class ResponseGenerator:
             system += "\n本轮明确请求完整证明思路：优先概述全部关键分情况及各自如何得到结论，再说明为何这样安排；不要先展开开头细节挤掉后续推理。完整路线概述允许一次给出，后续再逐步展开。"
         if supplementary_proof:
             system += "\n本轮明确要求补充指定证明方向：在本轮完成该方向的全部必要推理，再给结论；这优先于默认只讲一步的节奏。不能把删边后任意路径的替换等关键步骤改为提问或留到下一轮。无需另加小问题。"
-        if stuck_count:
+        if task_execution is not None:
+            system += "\n" + task_execution.instructions()
+        if stuck_count and not (task_execution is not None and task_execution.explicit):
             system += (
                 "\n学生连续卡住{}次。本轮先承认困难，退回基础概念；只给一个小例子，"
                 "不再讲原定理，不要求学生立即回答难题。"
@@ -172,10 +181,10 @@ class ResponseGenerator:
         messages += history[-6:]
         messages.append({"role": "user", "content": content})
         answer=self.llm.chat(messages, temperature=0.4,
-                             max_tokens=900 if proof_overview else 600 if supplementary_proof else 400,
+                             max_tokens=900 if proof_overview or (task_execution is not None and task_execution.proof_requested) else 600 if supplementary_proof else 400,
                              image_paths=figure_images).strip()
         # 证明超长交给质检压缩，不能静默丢掉关键前提、分支或结论。
-        if needs_proof_audit(student_input,answer,plan.action):
+        if needs_proof_audit(student_input,answer,plan.action) or (task_execution is not None and task_execution.proof_requested):
             return answer
         return concise_terminal_text(answer,limit=reply_limit)
 

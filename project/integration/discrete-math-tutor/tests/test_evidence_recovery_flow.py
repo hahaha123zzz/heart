@@ -6,6 +6,56 @@ from knowledge.textbook import TextbookChunk
 import tests.test_quality_guard as fixtures
 
 class RecoveryFlowTests(unittest.TestCase):
+    def test_closure_step_uses_closure_evidence_and_saved_navigation(self):
+        from models.task_context import TaskContext,TaskObject
+        from models.task_understanding import TaskUnderstanding
+        from visualization.relation_closure import build_closure
+        from visualization.relation_validator import template_spec,evaluate_relation
+        from knowledge.proof_units import units_for
+        closure=build_closure(template_spec('r3'),'transitive');step=closure['steps'][0]
+        snapshot={'artifact_id':'closure-test','revision':1,'epoch':0,'property':'transitive','selected_pair':None,
+            'pairs':closure['original_pairs'],'elements':['a','b','c'],'evaluation':evaluate_relation(template_spec('r3')),'answer_scope':'full',
+            'closure':{'kind':'transitive','step':1,'epoch':0,'step_count':1,'current_pairs':step['after_pairs'],'reason':step['reason'],'premises':step['premises'],'added_pair':step['added_pair']}}
+        context=TaskContext(student_id='guard-test',message='解释闭包这一步',knowledge_point='9.1.4  关系特性闭包',relation_snapshot=snapshot,
+            objects=[TaskObject(id='relation:closure-test:closure:transitive:1',kind='relation',title='闭包步骤',text=step['reason'],chapter_id=9,section_id=5)])
+        tutor=fixtures.QualityGuardTests().tutor([QualityResult(passed=True)])
+        tutor.conversation_router.route.return_value=TaskUnderstanding(intent='continue',learning_intents=['explain'])
+        tutor.response_generator.generate.side_effect=['本步骤补入(a,c)，依据定义9.6[1]。']
+        tutor.memory.get_lesson_plan.return_value.goal=context.knowledge_point
+        unit=units_for(9)['定义9.6'];source=TextbookChunk('第9章关系（新）.txt',unit.section['title'],'定义9.6 最小闭包',frozenset(),chapter_id=9,section_id=5)
+        with patch('orchestrator.retrieve_hybrid',return_value=[source]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)):
+            result=tutor.handle_turn('guard-test',context.message,task_context=context)
+        self.assertEqual(result['answer_status'],'answered')
+        self.assertEqual(result['pdf_references'][0]['selection_ref']['rects'][0]['page'],11)
+        stored=tutor.memory.commit_learning_turn.call_args.kwargs['selection_ref']
+        self.assertEqual(stored['relation_context']['closure'],{'kind':'transitive','step':1,'epoch':0})
+        generated=str(tutor.response_generator.generate.call_args)
+        self.assertIn('current_pairs',generated)
+        self.assertNotIn('selected_result',generated)
+        self.assertNotIn('selected_witness',generated)
+    def test_relation_navigation_survives_history_without_storing_answers(self):
+        from models.task_context import TaskContext,TaskObject
+        from models.task_understanding import TaskUnderstanding
+        from visualization.relation_validator import evaluate_relation,template_spec
+        tutor=fixtures.QualityGuardTests().tutor([QualityResult(passed=True)])
+        tutor.conversation_router.route.return_value=TaskUnderstanding(intent='continue',learning_intents=['explain'])
+        tutor.response_generator.generate.side_effect=['先检查相接的两条关系。']
+        context=TaskContext(student_id='guard-test',message='解释当前关系',knowledge_point='9.1.3 关系的基本特性',
+            objects=[TaskObject(id='relation:relation-test:transitive:ac',kind='relation',title='当前关系',text='R={(a,b),(b,c)}',chapter_id=9,section_id=4)],relation_snapshot={
+            'artifact_id':'relation-test','revision':3,'epoch':0,'property':'transitive','selected_pair':{'source':'a','target':'c'},
+            'pairs':template_spec('r3').model_dump()['pairs'],'elements':['a','b','c'],'evaluation':evaluate_relation(template_spec('r3')),'answer_scope':'hint'})
+        tutor.memory.get_lesson_plan.return_value.goal=context.knowledge_point
+        source=TextbookChunk('教材','关系','已核验的定义背景',frozenset())
+        with patch('orchestrator.retrieve_hybrid',return_value=[source]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)):
+            result=tutor.handle_turn('guard-test',context.message,task_context=context)
+        self.assertEqual(result['answer_status'],'answered')
+        stored=tutor.memory.commit_learning_turn.call_args.kwargs['selection_ref']
+        self.assertEqual(stored['relation_context']['artifact_id'],'relation-test')
+        self.assertEqual(stored['relation_context']['revision'],3)
+        self.assertEqual(stored['relation_context']['selected_pair'],{'source':'a','target':'c'})
+        self.assertNotIn('evaluation',stored['relation_context'])
+        self.assertNotIn('pairs',stored['relation_context'])
+        self.assertEqual(stored['pdf_references'],[])
     def test_recheck_uses_full_question_and_stable_ids_before_publication(self):
         tutor=fixtures.QualityGuardTests().tutor([QualityResult(passed=True)])
         tutor.response_generator.generate.side_effect=['这个结论不成立']
@@ -30,6 +80,8 @@ class RecoveryFlowTests(unittest.TestCase):
         self.assertEqual(retrieve.call_count,2)
         self.assertEqual(tutor.context_sufficiency.check.call_count,2)
         self.assertEqual(result['evidence_check']['status'],'partial')
+        self.assertEqual(result['answer_status'],'evidence_rejected')
+        self.assertFalse(result['step_advanced'])
         tutor.memory.snapshot.assert_not_called()
         tutor.response_generator.generate.assert_not_called()
         tutor.state_updater.update.assert_not_called()
@@ -45,7 +97,8 @@ class RecoveryFlowTests(unittest.TestCase):
             result=tutor.handle_turn('guard-test','这个关系是否等价？')
         reference=result['pdf_references'][0]
         self.assertEqual(reference['selection_ref']['rects'][0]['page'],17)
-        assistant=tutor.memory.append.call_args_list[-1]
-        stored=assistant.kwargs['selection_ref']
+        # 引用随学习事件一次性提交，旧 append 路径已由事务接口替代。
+        tutor.memory.commit_learning_turn.assert_called_once()
+        stored=tutor.memory.commit_learning_turn.call_args.kwargs['selection_ref']
         self.assertEqual(stored['pdf_references'],result['pdf_references'])
         self.assertEqual(stored['textbook_sources'],result['textbook_sources'])

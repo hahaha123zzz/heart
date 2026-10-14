@@ -438,3 +438,154 @@ class ExerciseSkillObservationRow(Base):
     reason: Mapped[str] = mapped_column(String(256))
     diagnostic_targets: Mapped[list] = mapped_column(JSON, default=list)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class LearningTaskRow(Base):
+    """待澄清及执行中的任务；scope_key唯一约束保证每会话一个活跃任务。"""
+    __tablename__ = "learning_tasks"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey("students.student_id", ondelete="CASCADE"), index=True)
+    session_id: Mapped[str] = mapped_column(String(64), index=True)
+    scope_key: Mapped[Optional[str]] = mapped_column(String(64), unique=True, nullable=True)
+    knowledge_point: Mapped[str] = mapped_column(String(200), default="")
+    status: Mapped[str] = mapped_column(String(32), default="ready")
+    revision: Mapped[int] = mapped_column(Integer, default=1)
+    epoch: Mapped[int] = mapped_column(Integer, default=0)
+    clarification_count: Mapped[int] = mapped_column(Integer, default=0)
+    payload: Mapped[dict] = mapped_column(JSON, default=dict)
+    context: Mapped[dict] = mapped_column(JSON, default=dict)
+    routing: Mapped[dict] = mapped_column(JSON, default=dict)
+    result: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now, index=True)
+    expires_at: Mapped[dt.datetime] = mapped_column(DateTime)
+
+
+class TaskRequestRow(Base):
+    """每次初始/补充请求的幂等收据，不能用新输入复用同一个request_id。"""
+    __tablename__ = "task_requests"
+    __table_args__ = (UniqueConstraint("student_id", "session_id", "request_id", name="uq_task_request"),)
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey("students.student_id", ondelete="CASCADE"), index=True)
+    session_id: Mapped[str] = mapped_column(String(64))
+    request_id: Mapped[str] = mapped_column(String(64))
+    task_id: Mapped[str] = mapped_column(String(64), ForeignKey("learning_tasks.id", ondelete="CASCADE"), index=True)
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    result: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class VisualizationRow(Base):
+    """审核模板生成的辅助图；关联消息/学生删除时级联清理。"""
+    __tablename__ = 'visualizations'
+    __table_args__ = (UniqueConstraint('student_id', 'session_id', 'request_id', name='uq_visualization_create'),)
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey('students.student_id', ondelete='CASCADE'), index=True)
+    session_id: Mapped[str] = mapped_column(String(64))
+    request_id: Mapped[str] = mapped_column(String(64))
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    conversation_id: Mapped[int] = mapped_column(Integer, ForeignKey('conversations.id', ondelete='CASCADE'), index=True)
+    knowledge_point: Mapped[str] = mapped_column(String(200), index=True)
+    epoch: Mapped[int] = mapped_column(Integer)
+    graph: Mapped[dict] = mapped_column(JSON)
+    layout: Mapped[dict] = mapped_column(JSON)
+    revision: Mapped[int] = mapped_column(Integer, default=1)
+    layout_revision: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class VisualizationDisplayRow(Base):
+    """独立展示策略表，兼容已有图数据，不要求 ALTER 旧表。"""
+    __tablename__ = 'visualization_display'
+    artifact_id: Mapped[str] = mapped_column(String(64), ForeignKey('visualizations.id', ondelete='CASCADE'), primary_key=True)
+    mode: Mapped[str] = mapped_column(String(16), default='explore')
+
+
+class VisualizationOperationRow(Base):
+    """图操作收据；相同请求不会重复执行。"""
+    __tablename__ = 'visualization_operations'
+    __table_args__ = (UniqueConstraint('artifact_id', 'request_id', name='uq_visualization_operation'),)
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    artifact_id: Mapped[str] = mapped_column(String(64), ForeignKey('visualizations.id', ondelete='CASCADE'), index=True)
+    request_id: Mapped[str] = mapped_column(String(64))
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    result: Mapped[dict] = mapped_column(JSON)
+
+
+class GraphAttemptRow(Base):
+    """每张测评图一次提交；提示状态和作答收据由服务端持久化。"""
+    __tablename__ = 'graph_attempts'
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    artifact_id: Mapped[str] = mapped_column(String(64), ForeignKey('visualizations.id', ondelete='CASCADE'), unique=True)
+    assisted: Mapped[bool] = mapped_column(Boolean, default=False)
+    request_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    payload_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    submission: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class TruthTableRow(Base):
+    """每张表一次提交，订正创建新表；草稿和收据在同一工作单元保存。"""
+    __tablename__ = 'truth_tables'
+    __table_args__ = (UniqueConstraint('student_id', 'session_id', 'request_id', name='uq_truth_table_create'),)
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey('students.student_id', ondelete='CASCADE'), index=True)
+    session_id: Mapped[str] = mapped_column(String(64))
+    conversation_id: Mapped[int] = mapped_column(Integer, ForeignKey('conversations.id', ondelete='CASCADE'), index=True)
+    knowledge_point: Mapped[str] = mapped_column(String(200), index=True)
+    epoch: Mapped[int] = mapped_column(Integer)
+    request_id: Mapped[str] = mapped_column(String(64))
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    template_id: Mapped[str] = mapped_column(String(16))
+    mode: Mapped[str] = mapped_column(String(16))
+    correction_of: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    revision: Mapped[int] = mapped_column(Integer, default=1)
+    assisted: Mapped[bool] = mapped_column(Boolean, default=False)
+    draft: Mapped[dict] = mapped_column(JSON, default=dict)
+    submission: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    submit_request_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    submit_payload_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class TruthTableOperationRow(Base):
+    __tablename__ = 'truth_table_operations'
+    __table_args__ = (UniqueConstraint('artifact_id', 'request_id', name='uq_truth_table_operation'),)
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    artifact_id: Mapped[str] = mapped_column(String(64), ForeignKey('truth_tables.id', ondelete='CASCADE'))
+    request_id: Mapped[str] = mapped_column(String(64))
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    result: Mapped[dict] = mapped_column(JSON)
+
+
+class RelationRow(Base):
+    __tablename__ = 'relation_artifacts'
+    __table_args__ = (UniqueConstraint('student_id','session_id','request_id',name='uq_relation_create'),)
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), ForeignKey('students.student_id', ondelete='CASCADE'), index=True)
+    session_id: Mapped[str] = mapped_column(String(64))
+    conversation_id: Mapped[int] = mapped_column(Integer, ForeignKey('conversations.id', ondelete='CASCADE'), index=True)
+    knowledge_point: Mapped[str] = mapped_column(String(200), index=True)
+    epoch: Mapped[int] = mapped_column(Integer)
+    request_id: Mapped[str] = mapped_column(String(64))
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    spec: Mapped[dict] = mapped_column(JSON)
+    layout: Mapped[dict] = mapped_column(JSON)
+    mode: Mapped[str] = mapped_column(String(16))
+    correction_of: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    revision: Mapped[int] = mapped_column(Integer, default=1)
+    layout_revision: Mapped[int] = mapped_column(Integer, default=1)
+    assisted: Mapped[bool] = mapped_column(Boolean, default=False)
+    draft: Mapped[dict] = mapped_column(JSON, default=dict)
+    submission: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    submit_request_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    submit_payload_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class RelationOperationRow(Base):
+    __tablename__ = 'relation_operations'
+    __table_args__ = (UniqueConstraint('artifact_id','request_id',name='uq_relation_operation'),)
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    artifact_id: Mapped[str] = mapped_column(String(64), ForeignKey('relation_artifacts.id', ondelete='CASCADE'))
+    request_id: Mapped[str] = mapped_column(String(64))
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    result: Mapped[dict] = mapped_column(JSON)

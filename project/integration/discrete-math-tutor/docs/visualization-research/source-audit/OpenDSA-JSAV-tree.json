@@ -1,0 +1,10 @@
+{
+  "sha": "24e8a614568df1ec9a64e2b17dc29c9ad3f6763f",
+  "paths": [
+    "MIT-license.txt",
+    "README.md",
+    "src/anim.js",
+    "test/unit/anim.js"
+  ],
+  "truncated": false
+}

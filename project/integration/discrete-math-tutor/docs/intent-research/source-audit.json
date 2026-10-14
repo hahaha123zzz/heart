@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-11",
+  "scope": "意图识别分步调研",
+  "method": "公开只读 GitHub API/raw 与论文/官方文档；不运行远程项目代码",
+  "repositories": [
+    {
+      "repo": "ghdkim/tutor-agent",
+      "snapshot_ref": "d0bb677b607e51efa72c53afa0c30a167697c48c",
+      "commit_sha": "d0bb677b607e51efa72c53afa0c30a167697c48c",
+      "license": "未声明",
+      "read_files": [
+        "agents/classification_agent.py",
+        "main.py",
+        "tools/shared_tools.py"
+      ]
+    },
+    {
+      "repo": "sirutisb/clarify-ai",
+      "snapshot_ref": "fb4f7e3f9f61348ae22dcd9fbbeb6646c4108046",
+      "commit_sha": null,
+      "license": "未声明",
+      "read_files": [
+        "lib/clarification/reasoning.ts",
+        "lib/clarification/intent-sim.ts"
+      ]
+    },
+    {
+      "repo": "Varsha-art126/EduAgent",
+      "snapshot_ref": "99ae1a3ea390acd202f8873a3608fab79ca0f6e3",
+      "commit_sha": "99ae1a3ea390acd202f8873a3608fab79ca0f6e3",
+      "license": "MIT",
+      "read_files": [
+        "agents/planner.py",
+        "models/enums.py",
+        "graphs/workflow.py",
+        "LICENSE"
+      ]
+    },
+    {
+      "repo": "apple-aiml-research/ml-qrecc",
+      "snapshot_ref": "1d174464290790c0198b474ad022952ecd83b76b",
+      "read_files": [
+        "utils/evaluate_retrieval.py",
+        "LICENSE"
+      ],
+      "license": "Apache-2.0代码；数据另按CC BY-SA",
+      "note": "LICENSE读自main，复制前重新固定版本；compute_recall_at_k实际为top-k任一命中"
+    },
+    {
+      "repo": "eth-nlped/mathdial",
+      "commit_sha": "b06c020a0a1f57a87577fec33e657b63e7eb476e",
+      "read_files": [
+        "README.md",
+        "interactivetutoring/evaluate.py",
+        "interactivetutoring/history.py",
+        "interactivetutoring/teachers.py"
+      ],
+      "license": "README声明CC BY-SA 4.0；未见独立宽松代码许可"
+    },
+    {
+      "repo": "stanfordnlp/dspy",
+      "commit_sha": "f1260ff14610286cb295c7d3a5ee2cbfd0ba5cb9",
+      "read_files": [
+        "dspy/teleprompt/mipro_optimizer_v2.py",
+        "LICENSE"
+      ],
+      "license": "MIT"
+    },
+    {
+      "repo": "RasaHQ/rasa",
+      "read_files": [
+        "rasa/core/actions/forms.py"
+      ],
+      "source_ref": "main",
+      "license": "API识别Apache-2.0，3.6.x/LICENSE抓取404，正文未核验",
+      "note": "首版仅借鉴槽位状态机"
+    },
+    {
+      "repo": "ECNU-ICALK/EduChat",
+      "read_files": [
+        "README.md"
+      ],
+      "source_ref": "main",
+      "license": "README声明代码Apache-2.0、数据CC BY-NC 4.0及研究用途要求，分项待核验",
+      "note": "非中文教材意图识别标注数据"
+    },
+    {
+      "repo": "microsoft/ContextualSP",
+      "status": "候选：核心源码抓取未成功",
+      "read_files": []
+    },
+    {
+      "repo": "noahshinn/reflexion",
+      "status": "论文已核验；核心源码抓取超时",
+      "read_files": []
+    }
+  ],
+  "local_files": [
+    "agents/conversation_router.py",
+    "main.py",
+    "orchestrator.py",
+    "agents/pdf_selection_tutor.py",
+    "llm/client.py",
+    "agents/evidence_extractor.py",
+    "agents/state_analyzer.py",
+    "agents/teaching_planner.py"
+  ],
+  "artifacts": [
+    "source.md",
+    "结论.md",
+    "router-validation-probe.json"
+  ],
+  "limitations": [
+    "本轮未调用付费模型或运行升级后意图评测",
+    "未确认的源码/许可不作为复制授权",
+    "snapshot_ref为抓取接口返回的SHA，不据此假定其为Git tree对象SHA"
+  ]
+}

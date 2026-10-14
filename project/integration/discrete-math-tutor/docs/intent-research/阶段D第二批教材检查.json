@@ -1,0 +1,71 @@
+[
+  {
+    "query": "交集是什么？",
+    "before": [
+      "ch1-b169-0",
+      "ch1-b75-0"
+    ],
+    "after": [
+      {
+        "id": "ch1-b169-0",
+        "chapter": 1,
+        "page": 6,
+        "start": "定义1.5 设A，B为任意集合。\n（l）AB称为A与B的并集（union sets），定义为\nAB＝｛x∣x∈A或x∈B｝\n其中“”称为并运算。\n（2）AB你为A与B的交集（int"
+      },
+      {
+        "id": "ch1-b75-0",
+        "chapter": 1,
+        "page": 3,
+        "start": "定理1.5  空集是唯一的。\n证. 设有空集1,  2．据定理1.4，应有1  2和2  1，从而由定理1.1知1= 2。"
+      }
+    ],
+    "gate": "fallback",
+    "ordering_changed": false
+  },
+  {
+    "query": "举一个鸽笼原理的例子",
+    "before": [
+      "ch2-b161-0",
+      "ch2-b163-0"
+    ],
+    "after": [
+      {
+        "id": "ch2-b198-0",
+        "chapter": 2,
+        "page": 7,
+        "start": "例2.14 试证：nm+1个数组成的序列中或者有一个长度为n+1的递增子序列，或者有一个长度为m+1的递减子序列。\nformula-02-0115"
+      },
+      {
+        "id": "ch2-b168-0",
+        "chapter": 2,
+        "page": 7,
+        "start": "例2.11从集合{1，2，…，200}中任选101个数。证明：无论怎样选取，在选取的这些数中，必定存在两个数，使得其中之一可以被另一个整除。"
+      }
+    ],
+    "gate": "fallback",
+    "ordering_changed": true
+  },
+  {
+    "query": "定理7.4如何证明？",
+    "before": [
+      "ch7-b231-0",
+      "vector_chunks.jsonl-32"
+    ],
+    "after": [
+      {
+        "id": "ch7-b231-0",
+        "chapter": 7,
+        "page": 7,
+        "start": "定理7.4  在有n个顶点的图G中，如果有从顶点u到v（u  v）的拟路径，那么从u到v必有路径，并且必有长度不大于n – 1 的通路。\n证  不失一般性，设G为一简单图。若G有从"
+      },
+      {
+        "id": "vector_chunks.jsonl-32",
+        "chapter": 7,
+        "page": null,
+        "start": "第7章教材绘图（Word 锚点 7657，图号未核定）\n邻近正文：\nl)各不相同时(除v1与vl)，则称此路径为通路（path）。v1＝vl的路径称为闭路径（closed walk"
+      }
+    ],
+    "gate": "fallback",
+    "ordering_changed": false
+  }
+]

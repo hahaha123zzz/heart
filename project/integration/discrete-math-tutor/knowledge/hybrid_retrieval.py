@@ -168,10 +168,23 @@ def _primary_unit(row, refs: set[str]) -> bool:
     return key in refs
 
 def _select_ranked(db: sqlite3.Connection, ranked: list, terms: frozenset[str],
-                   limit: int, *, cross_chapter: bool, refs: set[str] | None = None) -> list[TextbookChunk]:
+                   limit: int, *, cross_chapter: bool, refs: set[str] | None = None,
+                   preferred_types=(), focus_aliases=(), trace=None) -> list[TextbookChunk]:
     refs=refs or set()
     # 稳定分层，不调整模型分数，也不把被门槛拒绝的候选重新放回。
     ranked=sorted(ranked,key=lambda item:not _primary_unit(item[1],refs))
+    from knowledge.task_ranking import prefer_task_units, unit_types
+    def concept_primary(row):
+        # 已通过门槛的结构化定义/定理，与明确概念小节关联；不把绘图邻文当正文。
+        return bool(row['section_id'] is not None and unit_types(row) & {'definition','theorem'}
+                    and any(len(alias)>=3 and alias in row['section'] for alias in focus_aliases))
+    ranked=sorted(ranked,key=lambda item:(not _primary_unit(item[1],refs),not concept_primary(item[1])))
+    before = [row["id"] for _, row in ranked]
+    ranked = prefer_task_units(ranked, preferred_types, is_primary=lambda row: _primary_unit(row, refs))
+    if trace is not None and preferred_types:
+        trace["task_ranking"] = {"preferred_types": list(preferred_types), "before": before,
+            "after": [row["id"] for _, row in ranked],
+            "types": {row["id"]: sorted(unit_types(row)) for _, row in ranked}}
     selected = []
     seen_parent = set()
     seen_section = set()
@@ -183,7 +196,7 @@ def _select_ranked(db: sqlite3.Connection, ranked: list, terms: frozenset[str],
                 and row["text"].lstrip().startswith("第") and len(row["text"]) < 100):
             continue
         section_key = (row["chapter_id"], row["section"])
-        if section_key in seen_section and not _primary_unit(row,refs):
+        if section_key in seen_section and not _primary_unit(row,refs) and not concept_primary(row):
             same_section.append(row)
             continue
         if (not cross_chapter and selected and row["chapter_id"] != selected[0].chapter_id
@@ -225,7 +238,7 @@ def _lexical_supported(db: sqlite3.Connection, query: str, rows: list[sqlite3.Ro
 
 
 def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: int = 3,
-                    trace: dict | None = None) -> list[TextbookChunk]:
+                    trace: dict | None = None, preferred_types=()) -> list[TextbookChunk]:
     """索引缺失时沿用旧检索；模型缺失时仍可用 BM25。"""
     if trace is not None:
         trace.clear()
@@ -483,7 +496,9 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
                         trace["rejection"] = "fallback_threshold"
                     return []
 
-            selected = _select_ranked(db, ranked, terms, limit, cross_chapter=reranked, refs=refs)
+            selected = _select_ranked(db, ranked, terms, limit, cross_chapter=reranked, refs=refs,
+                                      preferred_types=preferred_types,
+                                      focus_aliases=tuple(alias for _, aliases in concepts for alias in aliases),trace=trace)
             if trace is not None:
                 trace["selected"] = [hit.chunk_id for hit in selected]
                 trace["primary_unit_ids"] = [row["id"] for _,row in ranked if _primary_unit(row,refs)]

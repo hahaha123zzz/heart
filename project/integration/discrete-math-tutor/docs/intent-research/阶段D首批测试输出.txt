@@ -1,0 +1,39 @@
+.............E:\项目\heart\project\integration\discrete-math-tutor\database\models.py:33: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return dt.datetime.utcnow()
+.......PDF selection quality check: {'passed': True, 'issues': ['泄露完整答案'], 'suggestions': '', 'proof_audit': None, 'timings': {}}
+PDF selection quality check: {'passed': True, 'issues': ['泄露完整答案'], 'suggestions': '', 'proof_audit': None, 'timings': {}}
+................................E:\项目\heart\project\integration\discrete-math-tutor\database\repository.py:97: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  now = now or dt.datetime.utcnow()
+.E:\项目\heart\project\integration\discrete-math-tutor\database\account_manager.py:26: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  expires_at = dt.datetime.utcnow() + dt.timedelta(hours=ttl_hours)
+E:\项目\heart\project\integration\discrete-math-tutor\database\models.py:33: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return dt.datetime.utcnow()
+..............................................................E:\项目\heart\project\integration\discrete-math-tutor\database\models.py:33: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return dt.datetime.utcnow()
+...............
+----------------------------------------------------------------------
+Ran 130 tests in 53.711s
+
+OK
+
+长度预算对齐后的受影响模块回归：
+................E:\项目\heart\project\integration\discrete-math-tutor\database\models.py:33: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return dt.datetime.utcnow()
+.......PDF selection quality check: {'passed': True, 'issues': ['泄露完整答案'], 'suggestions': '', 'proof_audit': None, 'timings': {}}
+PDF selection quality check: {'passed': True, 'issues': ['泄露完整答案'], 'suggestions': '', 'proof_audit': None, 'timings': {}}
+............
+----------------------------------------------------------------------
+Ran 35 tests in 8.235s
+
+OK
+
+证明题类型预算接线后的受影响模块回归：
+................E:\项目\heart\project\integration\discrete-math-tutor\database\models.py:33: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return dt.datetime.utcnow()
+.......PDF selection quality check: {'passed': True, 'issues': ['泄露完整答案'], 'suggestions': '', 'proof_audit': None, 'timings': {}}
+PDF selection quality check: {'passed': True, 'issues': ['泄露完整答案'], 'suggestions': '', 'proof_audit': None, 'timings': {}}
+.............
+----------------------------------------------------------------------
+Ran 36 tests in 8.762s
+
+OK

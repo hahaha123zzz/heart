@@ -1,0 +1,33 @@
+{
+  "model": "deterministic_fixture",
+  "real_http": true,
+  "real_pdf": true,
+  "real_database": "temporary",
+  "semantic_model_evaluation": false,
+  "results": [
+    {
+      "case": "真实框选、裁图、提示和引用",
+      "passed": true,
+      "document": "chapter-01",
+      "page": 1
+    },
+    {
+      "case": "真实文字划选、提问及文字引用",
+      "passed": true
+    },
+    {
+      "case": "真实待澄清恢复、选择及原选区继续",
+      "passed": true
+    },
+    {
+      "case": "真实题库、草稿、小题聊天及当前作答",
+      "passed": true,
+      "images": 2
+    },
+    {
+      "case": "失效题目版本在SSE前拒绝",
+      "passed": true
+    }
+  ],
+  "pageerrors": []
+}

@@ -6,6 +6,16 @@ from knowledge.figures import get_figure, retrieve_figures
 from knowledge.citation_locations import complete_pdf_references
 
 class CitationLocationTests(unittest.TestCase):
+    def test_answer_number_precedes_chunk_opening_number(self):
+        from knowledge.citation_locations import locate_source
+        source=replace(self.source('定义9.5'),text='定义9.5 基本特性\n定理9.8 相关定理')
+        self.assertEqual(locate_source(source,'根据定理9.8说明')['label'],'定理9.8')
+    def test_word_field_noise_in_chapter_heading_is_not_highlighted(self):
+        from knowledge.citation_locations import section_reference
+        ref=section_reference(9,1)
+        self.assertEqual(ref['rects'][0]['page'],1)
+        self.assertIn('关系',''.join(ref['text'].split()))
+        self.assertNotIn('EMBED',ref['text'])
     def source(self,label='定义9.7'):
         unit=units_for(9)[label]
         return TextbookChunk('第9章关系（新）.txt',unit.section['title'],label+' 原始召回',frozenset(),chapter_id=9,section_id=unit.section['id'])
@@ -14,6 +24,21 @@ class CitationLocationTests(unittest.TestCase):
         self.assertEqual(refs[0]['source_index'],0)
         self.assertEqual(refs[0]['label'],'定义9.7')
         self.assertEqual(refs[0]['selection_ref']['rects'][0]['page'],17)
+    def test_definition_in_middle_and_uncited_primary_are_located(self):
+        source=replace(self.source('定义9.5'),text='关系的基本特性：\n定义9.5 原始召回')
+        refs=complete_pdf_references([source],'按定义9.5判断[1]',[])
+        self.assertEqual(refs[0]['label'],'定义9.5')
+        refs=complete_pdf_references([source],'先检查序偶',[],include_primary=True)
+        self.assertEqual(refs[0]['selection_ref']['location_kind'],'section_heading')
+    def test_historical_source_does_not_trust_printed_page(self):
+        from knowledge.citation_locations import resolve_source_label
+        source=self.source('定义9.5')
+        label=f'{source.source}／{source.section}（PDF第999页起）'
+        located=resolve_source_label(label,'根据定义9.5解释')
+        self.assertEqual(located['label'],'定义9.5')
+        self.assertLess(located['selection_ref']['rects'][0]['page'],999)
+        with self.assertRaises(ValueError):
+            resolve_source_label('其他教材.txt／'+source.section,'定义9.5')
     def test_wrong_file_or_section_cannot_create_reference(self):
         for source in [replace(self.source(),source='其他教材.txt'),replace(self.source(),section_id=99)]:
             self.assertEqual(complete_pdf_references([source],'解释[1]',[]),[])

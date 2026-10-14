@@ -415,7 +415,7 @@ class Repository(MemoryIndexRepository, StrategyMemoryRepository, MemoryJobRepos
             pdf_citations = {r.conversation_id:r.reference for r in session.scalars(
                 select(PDFCitationRow).where(PDFCitationRow.conversation_id.in_(ids))).all()} if ids else {}
             return [
-                {"role": row.role, "content": row.content,
+                {"id": row.id, "role": row.role, "content": row.content,
                  "selection_ref": pdf_citations.get(row.id),
                  "image_ref_ids": citations.get(row.id, [])}
                 for row in reversed(rows)

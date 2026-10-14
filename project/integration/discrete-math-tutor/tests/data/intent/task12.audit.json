@@ -1,0 +1,24 @@
+{
+  "cases": 12,
+  "review_status": "pending_independent_review",
+  "split": "development",
+  "pdf_source": {
+    "document_id": "chapter-07",
+    "version": "f19cfaef9be00fc45e0285660618530f6305ec7b45a7e00d31f28e31452af2f1",
+    "rects": [
+      {
+        "page": 4,
+        "x1": 0.12,
+        "y1": 0.16,
+        "x2": 0.88,
+        "y2": 0.43
+      }
+    ]
+  },
+  "exercise_source": {
+    "question_id": "ex-01-01-001",
+    "part_id": "p1",
+    "version": "51db9461ca4d8eb794a7b072a4cec04ecb8a665f6667bd305ef58439024a6818"
+  },
+  "note": "服务端构建的上下文快照，不含裁图内容、学生数据或答案。不是盲测集；标签待独立审核。"
+}

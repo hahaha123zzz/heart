@@ -33,8 +33,19 @@ from practice_api import router as practice_router, recover_interrupted_submissi
 app.include_router(practice_router)
 from memory_api import router as memory_router
 app.include_router(memory_router)
+from visualization_api import router as visualization_router
+app.include_router(visualization_router)
+from truth_table_api import router as truth_table_router
+app.include_router(truth_table_router)
+from relation_api import router as relation_router
+app.include_router(relation_router)
 FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+from agents.intent_policy import IntentPolicy
+# 配置错误在初始化业务服务前暴露，不静默开放灰度。
+IntentPolicy.from_env()
+from visualization.service import rollout_settings
+rollout_settings()
 orchestrator = TutorOrchestrator()
 app.state.memory = orchestrator.memory
 app.state.memory_llm = orchestrator.llm
@@ -45,12 +56,8 @@ recover_interrupted_submissions()
 _PURGED = orchestrator.memory.cleanup_expired()
 
 
-class ChatRequest(BaseModel):
-    student_id: str = Field(default="default", min_length=1, max_length=64)
-    message: str = Field(min_length=1, max_length=4000)
-    learning_goal: Optional[str] = None
-    account_type: str = "test"
-    selection: Optional[PDFSelection] = None
+from models.chat_request import ChatRequest
+from agents.task_context_builder import TaskContextBuilder
 
 
 class TestAccountRequest(BaseModel):
@@ -154,14 +161,29 @@ def _run_turn(request: ChatRequest, progress=None):
     if progress:
         progress("queued", "等待处理", "请求已接收")
     with _turn_locks[index]:
-        if request.selection:
-            from agents.pdf_selection_tutor import explain_selection
-            return explain_selection(orchestrator, request.student_id, request.message,
-                                     request.selection, request.account_type, progress)
-        return orchestrator.handle_turn(
-            request.student_id, request.message, request.learning_goal,
-            request.account_type, progress=progress,
-        )
+        from agents.task_service import TaskService
+        return TaskService(orchestrator).run(request, _execute_task_turn, progress)
+
+
+def _execute_task_turn(request, context, resolved, intercept, guard, progress):
+    explicit_target=request.visualization_target or request.truth_table_target or request.relation_target
+    if explicit_target and explicit_target.action:
+        routing = TaskContextBuilder.button_task(context, explicit_target.action)
+        return orchestrator.handle_turn(request.student_id, request.message, request.learning_goal,
+            request.account_type, progress=progress, task_context=context,
+            precomputed_routing=routing, routing_interceptor=intercept, task_guard=guard)
+    if request.exercise_target:
+        from agents.exercise_task_tutor import explain_exercise
+        return explain_exercise(orchestrator, request, context, intercept, guard, progress)
+    if request.selection:
+        from agents.pdf_selection_tutor import explain_selection
+        return explain_selection(orchestrator, request.student_id, request.message,
+            request.selection, request.account_type, progress, session_id=request.session_id,
+            request_id=request.request_id, reader_location=request.reader_location,
+            task_context=context, resolved_selection=resolved, routing_interceptor=intercept, task_guard=guard)
+    return orchestrator.handle_turn(request.student_id, request.message, request.learning_goal,
+        request.account_type, progress=progress, task_context=context,
+        routing_interceptor=intercept, task_guard=guard)
 
 @app.post("/api/chat/stream")
 async def chat_stream(request: ChatRequest):
@@ -220,9 +242,35 @@ async def chat_stream(request: ChatRequest):
 
 
 def _validate_pdf_request(request):
-    if request.selection:
-        try: validate_selection(request.selection)
-        except ValueError as exc: raise HTTPException(422,str(exc)) from exc
+    try:
+        if request.relation_target:
+            from visualization.relation import RelationService
+            from visualization.service import VisualizationError
+            try:RelationService().snapshot(request.relation_target,request.student_id,request.session_id)
+            except VisualizationError as exc:raise HTTPException(exc.status,str(exc)) from exc
+        if request.truth_table_target:
+            from visualization.truth_table import TruthTableService
+            from visualization.service import VisualizationError
+            try:
+                TruthTableService().snapshot(request.truth_table_target, request.student_id, request.session_id)
+            except VisualizationError as exc:
+                raise HTTPException(exc.status, str(exc)) from exc
+        if request.visualization_target:
+            from visualization.service import VisualizationService, VisualizationError
+            try:
+                VisualizationService().snapshot(request.visualization_target, request.student_id, request.session_id)
+            except VisualizationError as exc:
+                raise HTTPException(exc.status, str(exc)) from exc
+        if request.selection:
+            record = validate_selection(request.selection)
+            if request.reader_location and request.reader_location.chapter_id != record['chapter_id']:
+                raise ValueError('选区与教材章节不一致，请重新选择')
+        if request.reader_location or request.exercise_target:
+            # 在SSE建立连接前检查对象有效性，避免失效题号变成流中的通用错误。
+            TaskContextBuilder().build(student_id=request.student_id, message=request.message,
+                reader_location=request.reader_location, exercise_target=request.exercise_target)
+    except ValueError as exc:
+        raise HTTPException(422,str(exc)) from exc
 
 @app.get('/api/pdf/documents/{document_id}/file', include_in_schema=False)
 def textbook_pdf_file(document_id: str):
@@ -243,3 +291,34 @@ def preview_pdf_selection(selection: PDFSelection):
     from knowledge.pdf_reader import resolve_selection
     try: return resolve_selection(selection)['reference']
     except ValueError as exc: raise HTTPException(422,str(exc)) from exc
+
+
+class TaskCancelRequest(BaseModel):
+    student_id: str = Field(min_length=1, max_length=64)
+    session_id: str = Field(default="legacy", min_length=1, max_length=64)
+    task_revision: int = Field(ge=1)
+
+
+@app.get("/api/chat/tasks/pending")
+def pending_task(student_id: str, session_id: str = "legacy"):
+    from database.learning_tasks import LearningTaskRepository
+    tasks = LearningTaskRepository()
+    tasks.expire(student_id, session_id)
+    from agents.intent_policy import IntentPolicy
+    if not IntentPolicy.from_env().can_clarify(student_id, tasks.account_type(student_id)):
+        changed = tasks.invalidate_pending(student_id, session_id)
+        return {"pending": None, "notice": "上一个待补充问题已失效，请完整重新提问。" if changed else ""}
+    row = tasks.pending(student_id, session_id)
+    if row is None: return {"pending": None}
+    if orchestrator.memory.repo.memory_epoch(student_id, row["knowledge_point"]) != row["epoch"]:
+        return {"pending": None}
+    return {"pending": row["result"]}
+
+
+@app.delete("/api/chat/tasks/{task_id}")
+def cancel_task(task_id: str, request: TaskCancelRequest):
+    from database.learning_tasks import LearningTaskRepository, TaskConflict
+    try:
+        return LearningTaskRepository().cancel(request.student_id, request.session_id, task_id, request.task_revision)
+    except TaskConflict as exc:
+        return {"reply": str(exc), "answer_status": exc.code, "step_advanced": False}

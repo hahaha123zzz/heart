@@ -2,9 +2,10 @@
 from uuid import uuid4
 from sqlalchemy import select, delete
 from database.database import session_scope
+from database.models import TruthTableRow, RelationRow
 from database.models import (Student, KnowledgeStateRow, MisconceptionRow, EvidenceRow, LearningEventRow,
     ConversationRow, PDFCitationRow, TeachingPlanRow, ActiveStateRow, MemoryDocumentRow, MemoryRevisionRow,
-    StrategyObservationRow, MemoryArtifactRow, MemoryControlRow, MemoryExclusionRow, MemoryChangeRow, ExerciseSkillObservationRow)
+    StrategyObservationRow, MemoryArtifactRow, MemoryControlRow, MemoryExclusionRow, MemoryChangeRow, ExerciseSkillObservationRow, LearningTaskRow, VisualizationRow)
 
 PREFERENCE_KEYS={"answer_length","example_density","learning_pace"}
 
@@ -36,7 +37,11 @@ class MemoryManagementRepository:
         with session_scope() as session:
             event_points=session.scalars(select(LearningEventRow.knowledge_point).where(LearningEventRow.student_id==student_id)).all()
             indexed_points=session.scalars(select(MemoryDocumentRow.knowledge_point).where(MemoryDocumentRow.student_id==student_id)).all()
-            points=sorted(set(points)|{p for p in event_points+indexed_points if p})
+            task_points=session.scalars(select(LearningTaskRow.knowledge_point).where(LearningTaskRow.student_id==student_id)).all()
+            visualization_points=session.scalars(select(VisualizationRow.knowledge_point).where(VisualizationRow.student_id==student_id)).all()
+            visualization_points += session.scalars(select(TruthTableRow.knowledge_point).where(TruthTableRow.student_id==student_id)).all()
+            visualization_points += session.scalars(select(RelationRow.knowledge_point).where(RelationRow.student_id==student_id)).all()
+            points=sorted(set(points)|{p for p in event_points+indexed_points+task_points+visualization_points if p})
             if point and point not in points:
                 raise LookupError("知识点记忆不存在")
             profile=self.get_profile(student_id)
@@ -139,6 +144,17 @@ class MemoryManagementRepository:
                     session.add(MemoryExclusionRow(student_id=student_id,knowledge_point=point,source_kind="exercise",source_id=sid))
             misconception_ids=set(session.scalars(select(MisconceptionRow.id).where(MisconceptionRow.student_id==student_id,
                 MisconceptionRow.knowledge_point==point)).all())
+            conversation_ids.update(session.scalars(select(VisualizationRow.conversation_id).where(
+                VisualizationRow.student_id==student_id,VisualizationRow.knowledge_point==point)).all())
+            session.execute(delete(VisualizationRow).where(VisualizationRow.student_id==student_id,
+                VisualizationRow.knowledge_point==point))
+            conversation_ids.update(session.scalars(select(TruthTableRow.conversation_id).where(
+                TruthTableRow.student_id==student_id, TruthTableRow.knowledge_point==point)).all())
+            session.execute(delete(TruthTableRow).where(TruthTableRow.student_id==student_id,
+                TruthTableRow.knowledge_point==point))
+            conversation_ids.update(session.scalars(select(RelationRow.conversation_id).where(
+                RelationRow.student_id==student_id,RelationRow.knowledge_point==point)).all())
+            session.execute(delete(RelationRow).where(RelationRow.student_id==student_id,RelationRow.knowledge_point==point))
             session.execute(delete(ConversationRow).where(ConversationRow.student_id==student_id,ConversationRow.id.in_(conversation_ids)))
             # 删除原始事件自动级联任务、证据链接和观察；证据本体按知识点删除。
             for model in (LearningEventRow,EvidenceRow,MisconceptionRow,KnowledgeStateRow,TeachingPlanRow,
@@ -161,6 +177,8 @@ class MemoryManagementRepository:
                 MemoryControlRow.knowledge_point==point))
             if control is None:
                 control=MemoryControlRow(student_id=student_id,knowledge_point=point,epoch=0);session.add(control)
+            session.execute(delete(LearningTaskRow).where(LearningTaskRow.student_id==student_id,
+                LearningTaskRow.knowledge_point==point))
             control.epoch+=1
             session.add(MemoryChangeRow(student_id=student_id,knowledge_point=point,action="forget_point"))
             session.flush();self.sync_memory_index(student_id)

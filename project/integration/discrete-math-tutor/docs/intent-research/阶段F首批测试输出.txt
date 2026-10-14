@@ -1,0 +1,6 @@
+E:\项目\heart\project\integration\discrete-math-tutor\database\models.py:33: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return dt.datetime.utcnow()
+----------------------------------------------------------------------
+Ran 36 tests in 0.893s
+
+OK

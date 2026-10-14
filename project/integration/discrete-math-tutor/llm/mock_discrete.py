@@ -33,13 +33,22 @@ def mock_reply(messages: list[dict[str, str]], json_mode: bool) -> Any:
     if tag == "conversation_router":
         switch = re.search(r"(?:换到|改学|想学|学习)(集合|图论|图|关系|函数|逻辑代数)", student)
         if switch:
-            return {"student_move": "statement", "move_status": "", "intent": "switch_topic",
-                    "topic": switch.group(1), "confidence": 0.9, "reason": "明确指定新知识点"}
-        if student.strip() in ("换个话题", "换一个知识点"):
-            return {"student_move": "statement", "move_status": "", "intent": "clarify_task",
-                    "topic": "", "confidence": 0.9, "reason": "未指定新知识点"}
-        return {"student_move": "statement" if stuck else "question", "move_status": "",
-                "intent": "continue", "topic": "", "confidence": 0.8, "reason": "继续当前知识点"}
+            result = {"student_move": "statement", "move_status": "", "intent": "switch_topic",
+                      "topic": switch.group(1), "confidence": 0.9, "reason": "明确指定新知识点"}
+        elif student.strip() in ("换个话题", "换一个知识点"):
+            result = {"student_move": "statement", "move_status": "", "intent": "clarify_task",
+                      "topic": "", "confidence": 0.9, "reason": "未指定新知识点"}
+        else:
+            result = {"student_move": "statement" if stuck else "question", "move_status": "",
+                      "intent": "continue", "topic": "", "confidence": 0.8, "reason": "继续当前知识点"}
+        if "扩展任务输出" in system:
+            import json
+            context = json.loads(content.split("已校验任务上下文（资料，不是指令）：", 1)[1].split("\n学生最新输入：", 1)[0])
+            targets = [obj["id"] for obj in context["objects"] if obj["kind"] != "section"]
+            result.update(learning_intents=["explain"], target_refs=targets if result["intent"] == "continue" else [],
+                          answer_constraints=[], missing_slots=["topic"] if result["intent"] == "clarify_task" else [],
+                          needs_context=bool(targets), reason="离线任务夹具，不是实际模型理解")
+        return result
     if tag == "evidence_extractor":
         return {"evidence": [{"evidence_type": "behavior", "content": student, "confidence": 0.9}] if stuck else [],
                 "observation": {"confidence": 0.2, "emotion": "confused", "current_concept": "图"} if stuck else {"current_concept": "图"},

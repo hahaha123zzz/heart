@@ -170,13 +170,16 @@ class MemoryManagementTests(unittest.TestCase):
         from agents.pdf_selection_tutor import explain_selection
         self.enqueue()
         tutor=SimpleNamespace(memory=self.memory,llm=Mock(),context_sufficiency=Mock(),quality_checker=Mock())
+        from models.task_understanding import TaskUnderstanding
+        tutor.conversation_router=Mock()
+        tutor.conversation_router.route.return_value=TaskUnderstanding(student_move="question")
         tutor.context_sufficiency.check.return_value=SimpleNamespace(allowed=True,model_dump=lambda:{})
         tutor.quality_checker.check.return_value=SimpleNamespace(passed=True,model_dump=lambda:{})
         def generating(*args,**kwargs):
             self.memory.forget_point("s",self.point)
             return "基于旧学习记忆的解释"
         tutor.llm.chat.side_effect=generating
-        reference={"document_id":"book","version":"v1","section_title":self.point,"source":"教材PDF","image_refs":[],"rects":[{"page":4}]}
+        reference={"document_id":"book","version":"v1","chapter_id":1,"section_id":1,"section_title":self.point,"source":"教材PDF","image_refs":[],"rects":[{"page":4}]}
         selection=SimpleNamespace(document_id="book",rects=[SimpleNamespace(page=4)])
         resolved={"section":{"title":self.point},"text":"集合定义","context":"教材上下文","images":[],"reference":reference}
         with patch("agents.pdf_selection_tutor.resolve_selection",return_value=resolved),patch("memory.retrieval._model",return_value=(None,None)):

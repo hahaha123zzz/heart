@@ -1,0 +1,38 @@
+{
+  "empty": {
+    "student_move": "statement",
+    "move_status": "",
+    "intent": "continue",
+    "topic": "",
+    "confidence": 0.5,
+    "reason": "",
+    "needs_context": true
+  },
+  "invalid_intent": {
+    "student_move": "question",
+    "move_status": "",
+    "intent": "continue",
+    "topic": "",
+    "confidence": 0.5,
+    "reason": "",
+    "needs_context": false
+  },
+  "nan": {
+    "student_move": "statement",
+    "move_status": "",
+    "intent": "switch_topic",
+    "topic": "任意目标",
+    "confidence": 1.0,
+    "reason": "",
+    "needs_context": true
+  },
+  "missing_topic": {
+    "student_move": "statement",
+    "move_status": "",
+    "intent": "new_goal",
+    "topic": "",
+    "confidence": 0.99,
+    "reason": "",
+    "needs_context": true
+  }
+}

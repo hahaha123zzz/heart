@@ -41,6 +41,20 @@ def course_chapters():
     return chapter_summary()
 
 
+class CitationLocationRequest(BaseModel):
+    source: str = Field(min_length=1,max_length=500)
+    response: str = Field(default='',max_length=30000)
+
+
+@router.post('/course/citation-location')
+def citation_location(request: CitationLocationRequest):
+    from knowledge.citation_locations import resolve_source_label
+    try:
+        return resolve_source_label(request.source,request.response)
+    except (ValueError,OSError,KeyError,RuntimeError) as exc:
+        raise HTTPException(422,'无法可靠定位该来源，请从教材目录打开对应小节') from exc
+
+
 @router.get("/course/search")
 def search_course(q: str):
     query = "".join(q.casefold().split())
@@ -233,7 +247,7 @@ def conversation_history(student_id: str):
     from main import orchestrator
     rows = orchestrator.memory.repo.get_conversation_with_figures(student_id, limit=40)
     return [
-        {"role": row["role"], "content": row["content"],
+        {"id": row["id"], "role": row["role"], "content": row["content"],
          "selection_ref": row.get("selection_ref"),
          "pdf_references": (row.get("selection_ref") or {}).get("pdf_references", []),
          "textbook_sources": (row.get("selection_ref") or {}).get("textbook_sources", []),

@@ -148,6 +148,9 @@ def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -
         if exact:
             return exact
         # 未核定图号时只跟随检索到的锚点资源，仍以对象编号显示。
+    # 顶点/边集是用户自定义实例，不能用同主题教材图片代替。
+    if not labels and re.search(r'\bv\d+\s*[-−—]\s*v\d+|四节点环', query, re.I):
+        return []
     query_terms = terms_for(query)
     ranked: list[tuple[int, Figure]] = []
     source_asset_ids = {}
@@ -162,6 +165,7 @@ def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -
         if figure.kind != "figure":
             continue
         if not any(Path(source.source).stem == Path(figure.source).stem
+                   and source.section_id == figure.section_id
                    for source in sources):
             continue
         score = len(query_terms & terms_for(figure.caption + " " + figure.context))

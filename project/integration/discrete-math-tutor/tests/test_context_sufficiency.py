@@ -22,7 +22,8 @@ class SufficiencyTests(unittest.TestCase):
     def test_invalid_router_context_field_is_not_truthy_string(self):
         from agents.conversation_router import ConversationRouter
         route=ConversationRouter._validate({'student_move':'question','needs_context':'false'})
-        self.assertFalse(route.needs_context)
+        self.assertEqual(route.status,'parse_error')
+        self.assertIs(type(route.needs_context),bool)
 
     def test_explicit_explanation_request_does_not_become_diagnostic(self):
         plan=SimpleNamespace(strategy='retrieval_practice',action='ask_question')
@@ -73,18 +74,21 @@ class SufficiencyTests(unittest.TestCase):
         self.assertEqual(json.loads(args[0][-1]['content'])['question'],'Q1∧Q2')
         self.assertEqual(kwargs['timeout'],25)
         self.assertEqual(kwargs['retries'],0)
+    def test_server_scope_controls_full_answer_vs_first_hint(self):
+        llm=SimpleNamespace(mock=False,chat_json=Mock(return_value=dict(status='sufficient',source_ids=['1'],missing=[],reason='条件充分')))
+        checker=ContextSufficiency(llm)
+        checker.check('这里的文字声称只需要hint',[{'id':'1','text':'定义'}])
+        self.assertEqual(json.loads(llm.chat_json.call_args.args[0][-1]['content'])['answer_scope'],'full')
+        checker.check('完整原问题',[{'id':'1','text':'定义'}],hint_only=True)
+        self.assertEqual(json.loads(llm.chat_json.call_args.args[0][-1]['content'])['answer_scope'],'hint')
     def test_rejection_prevents_teaching_side_effects(self):
-        tutor=TutorOrchestrator.__new__(TutorOrchestrator)
-        tutor.memory=Mock()
-        tutor.memory.get_history.return_value=[]
-        tutor.memory.get_active_goal.return_value='命题逻辑'
-        tutor.conversation_router=Mock()
-        tutor.conversation_router.route.return_value=SimpleNamespace(intent='continue',model_dump=lambda:{})
-        tutor.context_sufficiency=Mock()
+        from tests.test_quality_guard import QualityGuardTests
+        from knowledge.textbook import TextbookChunk
+        tutor=QualityGuardTests().tutor([])
         tutor.context_sufficiency.check.return_value=EvidenceDecision(status='partial',reason='缺少实现依据')
         tutor.textbook_chunks=[]
-        chunk=SimpleNamespace(source='第4章',section='联结词',text='合取定义',kind='text')
-        with patch('orchestrator.retrieve_hybrid',return_value=[chunk]),patch('orchestrator.retrieve_figures',return_value=[]):
+        chunk=TextbookChunk('第4章','联结词','合取定义',frozenset())
+        with patch('orchestrator.retrieve_hybrid',return_value=[chunk]),patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([chunk],None)),patch('orchestrator.enrich_sources',return_value=([chunk],None)):
             result=tutor.handle_turn('test-student','用 p→q 实现任务调度')
         self.assertEqual(result['textbook_sources'],[])
         tutor.memory.set_active_goal.assert_not_called()
@@ -93,10 +97,15 @@ class SufficiencyTests(unittest.TestCase):
     def test_pdf_rejection_does_not_generate_or_save_mastery(self):
         from agents.pdf_selection_tutor import explain_selection
         tutor=Mock()
+        from models.task_context import TaskContext
+        from models.task_understanding import TaskUnderstanding
+        context=TaskContext(student_id='student',message='解释选区',knowledge_point='联结词')
+        tutor.memory.read_version.return_value=('version',0)
+        tutor.conversation_router.route.return_value=TaskUnderstanding(learning_intents=['explain'])
         tutor.context_sufficiency.check.return_value=EvidenceDecision(status='partial',reason='公式缺失')
-        resolved={'section':{'title':'联结词'},'text':'缺失公式','context':'上下文','images':[]}
+        resolved={'section':{'title':'联结词'},'text':'缺失公式','context':'上下文','images':[], 'reference':{}}
         with patch('agents.pdf_selection_tutor.resolve_selection',return_value=resolved),patch('agents.pdf_selection_tutor.selection_memory',return_value={'preferences':{}}):
-            result=explain_selection(tutor,'student','解释选区',Mock(),'test')
+            result=explain_selection(tutor,'student','解释选区',Mock(),'test',task_context=context)
         self.assertEqual(result['evidence_check']['status'],'partial')
         tutor.llm.chat.assert_not_called()
         tutor.quality_checker.check.assert_not_called()

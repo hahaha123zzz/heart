@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 import logging
+import re
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -52,6 +53,7 @@ SYSTEM_PROMPT = """[AGENT:quality_checker]
 8. 重复与推进：回复不得与上一轮几乎相同；教学动作连续多轮不变说明教学没有推进。
 9. 离散数学事实须由教材摘录或本轮随附且可辨识的教材原图支持。若公式文字缺失但附有原式图片，可核对后转述图片中清晰可见的公式；这不是自行补写。只有图片未附、内容看不清或标记模糊时，才要求说明并避免猜测。
 10. 证明必须检查推理依赖：引用待证结论本身、其尚未证明的等价表述，或依赖待证结论的命题作为证明依据，属于循环论证，应判定不合格并要求改用已知定义或已建立的定理。
+证明范围须遵循学生原问题。应用教材已提供的定理核对具体图、集合或公式，说明条件成立并推出结论即可；这不是要求证明引用定理本身。“引用相关定理”不等于要求一般定理证明。即使任务标签含proof，也不得擅自扩展待证明对象；用已建立定理验证实例不是循环论证。
 11. 核对“教材没有写出”“留给读者”的说法是否对应当前指定步骤的原文：原书已经断言的结论不得称作未断言；其他步骤的省略不能套用到本步。原书未写证明但条件充分时，允许明确标记的补充推导；既要核验推导成立，也要检查是否同时证明了问题要求的全部结论。补充推导不得冒充原书证明。
 学生明确请求定理证明解释且计划要求 explain 时，允许先概述路线再解释一小步；不要仅因学生尚未展示基础知识掌握就拒绝回应明确问题，也不能因此认为学生已掌握。
 注意：如果 action 是 ask_question，反问与引导是符合计划的正常教学行为，
@@ -86,16 +88,21 @@ class QualityChecker:
         context: Optional[Dict[str, Any]] = None,
         textbook_excerpts: str = "",
         figure_images: Optional[List[Path]] = None,
+        task_execution=None,
     ) -> QualityResult:
         rule_context = dict(context or {})
+        rule_context["task_proof"] = bool(task_execution is not None and task_execution.proof_requested)
+        rule_context['explicit_task'] = bool(task_execution is not None and task_execution.explicit)
         rule_context["proof_overview"] = plan.action == "explain" and requests_proof_overview(student_input)
         rule_context["supplementary_proof"] = plan.action == "explain" and requests_supplementary_proof(student_input)
         rule_issues = self._rule_check(response, plan, rule_context)
+        from knowledge.citation_guard import citation_issues
+        rule_issues.extend(citation_issues(response, textbook_excerpts))
         if rule_issues:
             return QualityResult(
                 passed=False,
                 issues=rule_issues,
-                suggestions="删除答案泄露内容，改为引导性提问；或压缩回复长度。",
+                suggestions="按问题列表逐项修正；引用编号必须对应支持该结论的教材摘录，不能使用章节编号代替摘录编号。",
             )
 
         content = (
@@ -105,6 +112,21 @@ class QualityChecker:
             "待检查的 Tutor 回复：" + response + "\n"
             "教材摘录及图号背景：" + textbook_excerpts
         )
+        if rule_context.get('graph_snapshot'):
+            import json
+            content += '\n当前辅助图服务端冻结快照（实例事实，不能当作教材引文）：' + json.dumps(rule_context['graph_snapshot'], ensure_ascii=False)
+            content += '\n必须按快照边集核验度数和判定；仅提示时不得发布最终判定或全部计算结果。'
+        if rule_context.get('truth_table_snapshot'):
+            import json
+            content += '\n当前辅助真值表的权威快照：'+json.dumps(rule_context['truth_table_snapshot'], ensure_ascii=False)
+            content += '\n核验选中行的指派、公式和真值。仅提示时不得给当前行结果或完整表。'
+        if rule_context.get('relation_snapshot'):
+            import json
+            content+='\n当前辅助关系权威快照：'+json.dumps(rule_context['relation_snapshot'],ensure_ascii=False)
+            content+='\n只按当前序偶核验所选性质及反例。反对称不是非对称；仅提示不得给该实例最终结论、缺失边或具体完整反例。'
+        if task_execution is not None and task_execution.explicit:
+            content += "\n必须核验的本轮任务：" + task_execution.instructions()
+            content += "\n仅提示任务即使没有出现答案标记，只要给出了最终结论或完整解法也必须拒绝；按要求检查回答顺序和双方比较对象。"
         if figure_images:
             content += ("\n本轮已附经审核的教材 PNG 原图，可直接依据清晰可辨的原图核实图或公式；"
                         "文字摘录没有抄出公式时，不能因此把准确的图片转述判作臆造。"
@@ -117,7 +139,7 @@ class QualityChecker:
             {"role": "user", "content": content},
         ]
         started=time.perf_counter()
-        proof_required=needs_proof_audit(student_input,response,plan.action)
+        proof_required=needs_proof_audit(student_input,response,plan.action) or rule_context["task_proof"]
 
         def teaching_check():
             check_started=time.perf_counter()
@@ -168,6 +190,7 @@ class QualityChecker:
     ) -> List[str]:
         issues: List[str] = []
         limit = 500 if plan.action == "explain" and (context or {}).get("proof_overview") else MAX_REPLY_LENGTH
+        if (context or {}).get("task_proof"): limit = max(limit,500)
         if plan.action == "explain" and (context or {}).get("supplementary_proof"):
             limit = max(limit, 340)
         if len(response) > limit:
@@ -181,7 +204,30 @@ class QualityChecker:
                 if marker in response:
                     issues.append("计划要求提问/引导，但回复包含疑似答案泄露：" + marker)
         ctx = context or {}
+        snapshot=ctx.get('graph_snapshot')
+        if snapshot and (plan.action == 'give_hint' or snapshot.get('answer_scope') == 'hint'):
+            if re.search(r'(?:因此|所以|故|本图|这张图|该图|当前图|它)[^。！？\n]{0,32}(?:没有|不存在|存在|有)(?:非闭合)?欧拉(?:回路|通路|路径)', response):
+                issues.append('仅提示图的回复给出了当前图的最终判定')
+            ids=[node['id'] for node in snapshot['graph']['nodes']]
+            if ids and all(re.search(re.escape(node)+r'[^。；\n]{0,12}(?:度数?\s*(?:为|是)?|[=：])\s*\d+',response) for node in ids):
+                issues.append('仅提示图的回复给出了全部顶点度数')
         previous_reply = (ctx.get("previous_reply") or "").strip()
+        table = ctx.get('truth_table_snapshot')
+        if table and (plan.action == 'give_hint' or table.get('answer_scope') == 'hint'):
+            # 核对已知 p/q 真值或询问“是否同时为真”是提示，不是当前公式结论。
+            value = r'(?:真|假|[01]|True|False)'
+            result_statement = r'(?<![pq]的)(?:本行|这一行|该行|当前行|结果|真值|公式(?:结果|的真值)?)\s*(?:的(?:公式)?(?:结果|真值))?\s*(?:应)?(?:为|是|等于|=|：)\s*'+value
+            formula_statement = re.escape(table['formula'])+r'\s*(?:的(?:结果|真值))?\s*(?:应)?(?:为|是|等于|=|：)\s*'+value
+            compact = re.sub(r'\s+', '', response)
+            if re.search(result_statement,compact,re.I) or re.search(formula_statement,compact,re.I):
+                issues.append('仅提示真值表回复给出了当前行的最终真值')
+        relation=ctx.get('relation_snapshot')
+        if relation and (plan.action=='give_hint' or relation.get('answer_scope')=='hint'):
+            compact=re.sub(r'\s+','',response)
+            if re.search(r'(?:本关系|当前关系|这个关系|该关系|关系R|R)(?:是|不是|满足|不满足|具有|不具有|为)(?:自反|反自反|对称|反对称|传递)',compact):
+                issues.append('仅提示关系回复给出了当前实例的性质结论')
+            if re.search(r'(?:缺少|缺失|应补|添加|补上)[^。！？\n]{0,12}(?:[abc]→[abc]|[（(][abc][,，][abc][)）])',compact):
+                issues.append('仅提示关系回复给出了具体缺失关系')
         if previous_reply and response.strip() == previous_reply:
             issues.append("与上一轮回复完全相同（重复，教学没有推进）")
         if ctx.get("topic_switched"):
@@ -190,7 +236,7 @@ class QualityChecker:
             if old_topic and old_topic in response and current_topic not in response:
                 issues.append("已切换到新知识点，但回复仍在讲旧知识点：" + old_topic)
         recent_moves = ctx.get("recent_moves") or []
-        if len(recent_moves) >= 3 and len(set(recent_moves[-3:])) == 1:
+        if len(recent_moves) >= 3 and len(set(recent_moves[-3:])) == 1 and not ctx.get('explicit_task'):
             issues.append(
                 "教学动作连续 3 轮未变化（" + str(recent_moves[-1]) + "），教学可能没有推进"
             )

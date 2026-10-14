@@ -1,0 +1,13 @@
+{
+  "sha": "aad58ddcc2103058b4c2deffc48a3c13e2c64dd6",
+  "paths": [
+    "README.md",
+    "assets/readme.gif",
+    "backend/migrations/remove_parent_add_user_prompt.py",
+    "backend/scripts/README.md",
+    "backend/src/services/prompts/ai_prompts.py",
+    "backend/src/services/templates/heavy_mode_prompts.py",
+    "docs/README_SETUP.md"
+  ],
+  "truncated": false
+}

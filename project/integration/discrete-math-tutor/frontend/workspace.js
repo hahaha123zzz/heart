@@ -1,6 +1,6 @@
 /* 工作台布局与阅读位置；不更改学生学习数据。 */
 window.Workspace=(()=>{
- let ready=false,ratio=.6,collapsed=false,pane='content',lastPage=null;
+ let ready=false,ratio=.6,collapsed=false,pane='content',lastPage=null,helpGuide=null;
  const storageKey=()=> 'discrete-workspace:'+studentId;
  const read=()=>{try{return JSON.parse(localStorage.getItem(storageKey())||'{}');}catch{return {};}};
  function persist(values){try{localStorage.setItem(storageKey(),JSON.stringify({...read(),...values}));}catch{}}
@@ -33,6 +33,6 @@ window.Workspace=(()=>{
  function resumeFor(metadata){const value=(read().positions||{})[metadata.document_id+':'+metadata.version];return value?.section===state.section?value:null;}
  function lastReading(){return read().lastReading;}
  function clearDraft(){persist({chatDraft:''});}
- function showHelp(html,title='当前题目讲解'){const panel=document.querySelector('#practice-help-panel');panel.hidden=html===null;document.querySelector('#chat-panel').classList.toggle('practice-help-active',html!==null);if(html!==null){document.querySelector('#practice-help-title').textContent=title;document.querySelector('#practice-help-content').innerHTML=html;window.TextbookPDF?.renderMath(document.querySelector('#practice-help-content'));setPane('chat');}}
+ function showHelp(html,title='当前题目讲解',guide=null){helpGuide?.dispose();helpGuide=null;const panel=document.querySelector('#practice-help-panel');panel.hidden=html===null;document.querySelector('#chat-panel').classList.toggle('practice-help-active',html!==null);if(html!==null){document.querySelector('#practice-help-title').textContent=title;document.querySelector('#practice-help-content').innerHTML=html;window.TextbookPDF?.renderMath(document.querySelector('#practice-help-content'));if(guide&&window.GuidedVisualization){const holder=document.createElement('div');document.querySelector('#practice-help-content').append(holder);helpGuide=window.GuidedVisualization.mount(holder,{guide,onSource:ref=>openGuideSource(guide,ref)});}if(state.view!=='quiz')setPane('chat');}}
  return {bind,onView,setPane,setRatio,chapterChanged,resumeFor,lastReading,clearDraft,showHelp};
 })();

@@ -66,6 +66,25 @@ class RagUpgradeTests(unittest.TestCase):
         row["text"]="定理8.15 任何不少于两个顶点的树都至少有两片叶。"
         self.assertTrue(hybrid_retrieval._primary_unit(row,{"定理8.15"}))
 
+    def test_task_preference_does_not_bypass_reranker_gate(self):
+        fake = SimpleNamespace(rerank=lambda query, passages, batch_size: [-100.0] * len(passages))
+        with patch.dict(os.environ, {"RAG_RERANK_MODEL": "test"}), patch.object(hybrid_retrieval, "_reranker", return_value=("fastembed", fake)):
+            self.assertEqual(hybrid_retrieval.retrieve_hybrid("集合包含哪些元素？", self.old_chunks,
+                            preferred_types=("definition", "example")), [])
+
+    def test_task_preference_preserves_exact_theorem_and_location(self):
+        trace = {}
+        hits = hybrid_retrieval.retrieve_hybrid("定理7.4如何证明？", self.old_chunks, limit=2,
+                    preferred_types=("example",), trace=trace)
+        self.assertTrue(hits[0].text.startswith("定理7.4"))
+        self.assertEqual(hits[0].page, 7)
+        self.assertEqual(trace["task_ranking"]["preferred_types"], ["example"])
+
+    def test_empty_task_preference_is_backward_compatible(self):
+        original = hybrid_retrieval.retrieve_hybrid("鸽笼原理怎样理解？", self.old_chunks)
+        explicit = hybrid_retrieval.retrieve_hybrid("鸽笼原理怎样理解？", self.old_chunks, preferred_types=())
+        self.assertEqual(original, explicit)
+
     def test_subset_symbol_expands_verified_textbook_terms(self):
         from knowledge.concept_aliases import expand_query
         expanded=expand_query('A⊆B 且 B⊆C')
@@ -237,7 +256,7 @@ class RagUpgradeTests(unittest.TestCase):
         tutor.memory.get_state.return_value.model_dump.return_value = {"mastery": 0.4}
         tutor.conversation_router = MagicMock()
         tutor.conversation_router.route.return_value = SimpleNamespace(
-            intent="switch_topic", topic="RSA", confidence=0.9,
+            intent="switch_topic", topic="RSA", confidence=0.9, status="ok",
             model_dump=lambda: {"intent": "switch_topic"},
         )
         tutor.response_generator = MagicMock()

@@ -86,9 +86,10 @@ class MemoryManager:
                     "pdf_selection" if selection_ref else "interaction",
                     {"conversation_id": conversation_id, "content": content, "selection_ref": selection_ref})
 
-    def append_exchange(self, student_id, message, reply, selection_ref=None, *, expected_epoch=None, expected_point=None):
+    def append_exchange(self, student_id, message, reply, selection_ref=None, *, expected_epoch=None, expected_point=None, task_guard=None):
         """圈选等不更新状态的问答，也将两条对话和行为事件一起提交。"""
         with self.repo.unit_of_work():
+            if task_guard is not None: task_guard()
             point = expected_point or (selection_ref or {}).get("section_title") or self.get_active_goal(student_id) or ""
             if expected_epoch is not None and self.repo.memory_epoch(student_id, point) != expected_epoch:
                 return False
@@ -295,9 +296,10 @@ class MemoryManager:
     def commit_learning_turn(self, *, student_id, point, event_id, expected_token,
                              message, reply, state, lesson_plan, decision, evidence, hypotheses,
                              strategy, success, instructional_move, figure_ids=None, selection_ref=None,
-                             tutor_error=None, misconception_updates=None, teaching_context=None, expected_epoch=0):
+                             tutor_error=None, misconception_updates=None, teaching_context=None, expected_epoch=0, task_guard=None):
         """借鉴 episode 来源链和版本化记忆；LLM 工作在此事务之前完成。"""
         with self.repo.unit_of_work():
+            if task_guard is not None: task_guard()
             key = "turn:" + event_id
             old = self.repo.get_event(student_id, key)
             if old:
@@ -346,6 +348,76 @@ class MemoryManager:
             self.repo.add_revision(student_id, event_id, point, before, after)
             job_id = self.repo.enqueue_memory_job(student_id, event_id)
             return {"status": status, "event_id": event_id, "misconception_updates": assessments, "memory_job_id": job_id}
+
+    def record_graph_submission(self, student_id, point, attempt_id, payload, *, expected_epoch):
+        """图提交复用学习事件/证据；不据单题自动更新掌握度或课程进度。"""
+        import json
+        from memory.evidence_policy import assess_graph_attempt
+        with self.repo.unit_of_work():
+            if self.repo.memory_epoch(student_id, point) != expected_epoch:
+                raise ValueError('知识点记忆已变化')
+            source_key = 'graph-submission:' + attempt_id
+            old = self.repo.get_event(student_id, source_key)
+            if old:
+                return old['id']
+            decision = assess_graph_attempt(payload['assisted'])
+            event = self.repo.record_event(student_id, source_key, point, 'graph_submission', payload)
+            for field, correct in payload['checks'].items():
+                quote = json.dumps(payload['answers'][field], ensure_ascii=False)
+                self.repo.add_event_evidence(event['id'], point,
+                    'conceptual_understanding' if correct else 'misconception',
+                    json.dumps({'field': field, 'correct': correct, 'student_answer': payload['answers'][field],
+                                'expected': payload['expected'][field], 'graph': payload['graph'],
+                                'scope': '四顶点无向简单图的结构化判定，不验证自由解释'}, ensure_ascii=False),
+                    .9, 'graph:' + field, verification=decision.verification,
+                    independent=decision.independent, source_quote=quote)
+            self.repo.sync_memory_index(student_id)
+            return event['id']
+
+    def record_truth_table_submission(self, student_id, point, attempt_id, payload, *, expected_epoch):
+        """只记录已核验各行真值，不据单题更新掌握度。"""
+        import json
+        from memory.evidence_policy import assess_graph_attempt
+        with self.repo.unit_of_work():
+            if self.repo.memory_epoch(student_id, point) != expected_epoch:
+                raise ValueError('知识点记忆已变化')
+            key = 'truth-table-submission:' + attempt_id
+            old = self.repo.get_event(student_id, key)
+            if old:
+                return old['id']
+            decision = assess_graph_attempt(payload['assisted'])
+            event = self.repo.record_event(student_id, key, point, 'truth_table_submission', payload)
+            for row_id, correct in payload['checks'].items():
+                answer = payload['answers']['values'][row_id]
+                self.repo.add_event_evidence(event['id'], point,
+                    'conceptual_understanding' if correct else 'misconception',
+                    json.dumps({'formula': payload['formula'], 'row_id': row_id,
+                        'student_answer': answer, 'expected': payload['expected'][row_id], 'correct': correct,
+                        'scope': '双变量公式单行真值，不验证文字解释或推断整体掌握'}, ensure_ascii=False),
+                    .9, 'truth-table:'+row_id, verification=decision.verification,
+                    independent=decision.independent, source_quote=json.dumps(answer))
+            self.repo.sync_memory_index(student_id)
+            return event['id']
+
+    def record_relation_submission(self, student_id, point, attempt_id, payload, *, expected_epoch):
+        """只记录固定论域上的结构化性质判断，不验证自由解释。"""
+        import json
+        from memory.evidence_policy import assess_graph_attempt
+        with self.repo.unit_of_work():
+            if self.repo.memory_epoch(student_id,point)!=expected_epoch:raise ValueError('知识点记忆已变化')
+            key='relation-submission:'+attempt_id
+            old=self.repo.get_event(student_id,key)
+            if old:return old['id']
+            decision=assess_graph_attempt(payload['assisted'])
+            event=self.repo.record_event(student_id,key,point,'relation_submission',payload)
+            for property,correct in payload['checks'].items():
+                answer=payload['answers']['values'][property]
+                self.repo.add_event_evidence(event['id'],point,'conceptual_understanding' if correct else 'misconception',
+                    json.dumps({'property':property,'student_answer':answer,'expected':payload['expected'][property],
+                        'spec':payload['spec'],'correct':correct,'scope':'三元素非空论域关系的单项性质，不验证文字解释'},ensure_ascii=False),
+                    .9,'relation:'+property,verification=decision.verification,independent=decision.independent,source_quote=json.dumps(answer))
+            self.repo.sync_memory_index(student_id)
+            return event['id']
 
     def record_exercise_submission(self, student_id, point, submission_id, question_id, version, answers, output, assisted, *, expected_epoch=None):
         """由批改完成事务调用，复用外层事务，事件以提交 ID 幂等。"""

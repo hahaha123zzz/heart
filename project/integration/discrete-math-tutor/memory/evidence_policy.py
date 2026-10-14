@@ -12,6 +12,13 @@ class EvidenceDecision:
     verification: str = "ai_provisional"
 
 
+def assess_graph_attempt(assisted: bool) -> EvidenceDecision:
+    """规则只能验证结构化作答；不能由点击次数或自由解释推断掌握度。"""
+    return EvidenceDecision(not assisted, not assisted,
+        '使用过提示或解释，按辅助作答记录' if assisted else '新测评图上的独立结构化作答',
+        verification='rule_verified')
+
+
 def source_quote(item, student_input: str) -> str:
     quote = str(getattr(item, "source_quote", "") or "").strip()
     if not quote:

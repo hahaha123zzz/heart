@@ -2,6 +2,8 @@
 import re
 
 CONCEPTS = (
+    # 检索关联术语：欧拉图是具有欧拉回路的图，并非将图与回路定义成同一对象。
+    ("euler_circuit", ("欧拉回路", "欧拉图")),
     ("subset", ("子集", "子集合", "包含关系", "包含于", "⊆")),
     ("ordered_pair", ("有序对", "二元有序组", "序偶", "ordered pairs")),
     ("cartesian_product", ("笛卡尔积", "笛卡儿积")),

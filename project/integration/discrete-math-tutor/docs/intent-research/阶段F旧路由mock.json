@@ -1,0 +1,469 @@
+{
+  "schema_version": 2,
+  "mode": "mock",
+  "source_mode": "mock",
+  "router_mode": "legacy",
+  "semantic_model_evaluation": false,
+  "data_sha256": "9ea189979d2d290d3c2e3c50af83dfbde7dae566a675759608aeec7165b3fc72",
+  "router_sha256": "fdaa948f93bdb4d7aee8487fff2098da6dd15b5518cfb618ce4587d6b5205faa",
+  "model": "deterministic_mock",
+  "api_call_attempts": 0,
+  "api_call_limit": null,
+  "note": "样例未独立人工审核；mock不是模型语义准确率。task仅评冻结上下文中的识别结果，不评澄清恢复或实际回答泄露。",
+  "metrics": {
+    "count": 20,
+    "review_status_counts": {
+      "agent_reviewed_pending_human": 20
+    },
+    "field_scores": {
+      "intent": {
+        "correct": 15,
+        "total": 20,
+        "accuracy": 0.75
+      },
+      "student_move": {
+        "correct": 15,
+        "total": 20,
+        "accuracy": 0.75
+      },
+      "needs_context": {
+        "correct": 10,
+        "total": 20,
+        "accuracy": 0.5
+      },
+      "topic": {
+        "correct": 1,
+        "total": 1,
+        "accuracy": 1.0
+      }
+    },
+    "flow_macro_f1_supported_classes": 0.5596774193548387,
+    "flow_class_scores": {
+      "continue": {
+        "f1": 0.8387096774193549,
+        "support": 13
+      },
+      "switch_topic": {
+        "f1": 1.0,
+        "support": 1
+      },
+      "new_goal": {
+        "f1": null,
+        "support": 0
+      },
+      "off_task": {
+        "f1": 0.0,
+        "support": 2
+      },
+      "clarify_task": {
+        "f1": 0.4,
+        "support": 4
+      }
+    },
+    "necessary_clarification_recall": {
+      "numerator": 1,
+      "denominator": 4,
+      "value": 0.25
+    },
+    "unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 16,
+      "value": 0.0
+    },
+    "status_counts": {
+      "ok": 20
+    },
+    "latency_ms": {
+      "p50": 0.013599987141788006,
+      "p95": 0.04369998350739479
+    },
+    "unsupported_task_fields": {
+      "learning_intents": 12,
+      "answer_constraints": 2,
+      "target_refs": 4,
+      "missing_slots": 4,
+      "capability_status": 1
+    },
+    "multi_intent_order": {
+      "correct": 0,
+      "total": 0,
+      "accuracy": null
+    },
+    "failures": [
+      {
+        "id": "proof-02",
+        "wrong_fields": [
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "figure-01",
+        "wrong_fields": [
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "table-01",
+        "wrong_fields": [
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "hint-01",
+        "wrong_fields": [
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "attempt-01",
+        "wrong_fields": [
+          "student_move",
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "refer-01",
+        "wrong_fields": [
+          "intent",
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "refer-02",
+        "wrong_fields": [
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "refer-03",
+        "wrong_fields": [
+          "intent",
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "continue-01",
+        "wrong_fields": [
+          "student_move",
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "continue-02",
+        "wrong_fields": [
+          "intent",
+          "student_move",
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "offtask-01",
+        "wrong_fields": [
+          "intent",
+          "student_move"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "unsupported-01",
+        "wrong_fields": [
+          "intent",
+          "student_move"
+        ],
+        "status": "ok"
+      }
+    ]
+  },
+  "predictions": [
+    {
+      "id": "concept-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.5531000206246972
+    },
+    {
+      "id": "formula-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.04369998350739479
+    },
+    {
+      "id": "proof-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.02129992935806513
+    },
+    {
+      "id": "proof-02",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.03320001997053623
+    },
+    {
+      "id": "figure-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.014499993994832039
+    },
+    {
+      "id": "table-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.012499978765845299
+    },
+    {
+      "id": "hint-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.01880002673715353
+    },
+    {
+      "id": "attempt-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.016900012269616127
+    },
+    {
+      "id": "refer-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.01209997572004795
+    },
+    {
+      "id": "refer-02",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.01279998105019331
+    },
+    {
+      "id": "refer-03",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.015500001609325409
+    },
+    {
+      "id": "continue-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.015400000847876072
+    },
+    {
+      "id": "continue-02",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.010999967344105244
+    },
+    {
+      "id": "switch-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "statement",
+        "move_status": "",
+        "intent": "switch_topic",
+        "topic": "集合",
+        "confidence": 0.9,
+        "reason": "明确指定新知识点",
+        "needs_context": true
+      },
+      "latency_ms": 0.014399993233382702
+    },
+    {
+      "id": "switch-02",
+      "prediction": {
+        "status": "ok",
+        "student_move": "statement",
+        "move_status": "",
+        "intent": "clarify_task",
+        "topic": "",
+        "confidence": 0.9,
+        "reason": "未指定新知识点",
+        "needs_context": true
+      },
+      "latency_ms": 0.012299977242946625
+    },
+    {
+      "id": "emotion-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.013599987141788006
+    },
+    {
+      "id": "offtask-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.01200009137392044
+    },
+    {
+      "id": "correction-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.013299984857439995
+    },
+    {
+      "id": "compare-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.011499971151351929
+    },
+    {
+      "id": "unsupported-01",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "继续当前知识点",
+        "needs_context": false
+      },
+      "latency_ms": 0.013299984857439995
+    }
+  ]
+}

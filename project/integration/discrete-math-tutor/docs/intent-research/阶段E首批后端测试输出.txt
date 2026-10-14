@@ -1,0 +1,10 @@
+E:\项目\heart\project\integration\discrete-math-tutor\database\repository.py:97: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  now = now or dt.datetime.utcnow()
+E:\项目\heart\project\integration\discrete-math-tutor\database\account_manager.py:26: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  expires_at = dt.datetime.utcnow() + dt.timedelta(hours=ttl_hours)
+E:\项目\heart\project\integration\discrete-math-tutor\database\models.py:33: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return dt.datetime.utcnow()
+----------------------------------------------------------------------
+Ran 35 tests in 25.239s
+
+OK

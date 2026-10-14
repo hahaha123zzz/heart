@@ -10,3 +10,4 @@ PyMuPDF==1.26.7
 fastembed>=0.8.1,<0.9
 
 sympy==1.14.0
+networkx==3.5

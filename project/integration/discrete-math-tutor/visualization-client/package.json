@@ -1,0 +1,7 @@
+{
+  "name": "discrete-math-graph-component",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {"build": "node build.cjs"},
+  "dependencies": {"cytoscape": "3.33.1"}
+}

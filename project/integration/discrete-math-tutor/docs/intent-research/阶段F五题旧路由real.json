@@ -1,0 +1,194 @@
+{
+  "schema_version": 2,
+  "mode": "real",
+  "source_mode": "real",
+  "router_mode": "legacy",
+  "semantic_model_evaluation": true,
+  "data_sha256": "a1e0cfd85a17787fc6cb8574881ed5ad2541a065aa7b14916db34c88a1afab03",
+  "router_sha256": "fdaa948f93bdb4d7aee8487fff2098da6dd15b5518cfb618ce4587d6b5205faa",
+  "evaluator_sha256": "32c50a7db0d73f3c8317995c633605c1198ed56c244243f7a926deb38cd42a22",
+  "task_schema_sha256": "25fe9ae6a3e2a2b37fe2f0c44a1fed5fcf01c88bd8a077ff2d006d23b2af158a",
+  "model": "deepseek-flash",
+  "api_call_attempts": 5,
+  "api_call_limit": 6,
+  "api_timeout": 30.0,
+  "note": "样例未独立人工审核；mock不是模型语义准确率。task仅评冻结上下文中的识别结果，不评澄清恢复或实际回答泄露。",
+  "metrics": {
+    "count": 5,
+    "review_status_counts": {
+      "agent_reviewed_pending_human": 5
+    },
+    "field_scores": {
+      "intent": {
+        "correct": 4,
+        "total": 5,
+        "accuracy": 0.8
+      },
+      "student_move": {
+        "correct": 3,
+        "total": 5,
+        "accuracy": 0.6
+      },
+      "needs_context": {
+        "correct": 2,
+        "total": 5,
+        "accuracy": 0.4
+      }
+    },
+    "flow_macro_f1_supported_classes": 0.4444444444444444,
+    "flow_class_scores": {
+      "continue": {
+        "f1": 0.8888888888888888,
+        "support": 4
+      },
+      "switch_topic": {
+        "f1": null,
+        "support": 0
+      },
+      "new_goal": {
+        "f1": null,
+        "support": 0
+      },
+      "off_task": {
+        "f1": null,
+        "support": 0
+      },
+      "clarify_task": {
+        "f1": 0.0,
+        "support": 1
+      }
+    },
+    "necessary_clarification_recall": {
+      "numerator": 0,
+      "denominator": 1,
+      "value": 0.0
+    },
+    "unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 4,
+      "value": 0.0
+    },
+    "status_counts": {
+      "ok": 5
+    },
+    "latency_ms": {
+      "p50": 1124.9191999668255,
+      "p95": 2327.4265999207273
+    },
+    "unsupported_task_fields": {
+      "learning_intents": 5,
+      "answer_constraints": 5,
+      "missing_slots": 5,
+      "target_refs": 5
+    },
+    "multi_intent_order": {
+      "correct": 0,
+      "total": 0,
+      "accuracy": null
+    },
+    "failures": [
+      {
+        "id": "task-sequence",
+        "wrong_fields": [
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-pdf-hint",
+        "wrong_fields": [
+          "student_move",
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-exercise-hint",
+        "wrong_fields": [
+          "student_move",
+          "needs_context"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-missing-target",
+        "wrong_fields": [
+          "intent"
+        ],
+        "status": "ok"
+      }
+    ]
+  },
+  "predictions": [
+    {
+      "id": "task-definition",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.95,
+        "reason": "学生询问交集的定义，属于当前知识点集合运算范围内的明确概念问题，无需依赖前文。",
+        "needs_context": false
+      },
+      "latency_ms": 2327.4265999207273
+    },
+    {
+      "id": "task-sequence",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.85,
+        "reason": "学生要求举例并解释定理7.7的证明，属于围绕当前知识点的继续学习，但未给出定理内容，需依赖前文。",
+        "needs_context": true
+      },
+      "latency_ms": 1231.344599975273
+    },
+    {
+      "id": "task-pdf-hint",
+      "prediction": {
+        "status": "ok",
+        "student_move": "statement",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.9,
+        "reason": "学生只是提出作答要求（只给提示不给完整答案），仍围绕当前知识点，属于继续。",
+        "needs_context": false
+      },
+      "latency_ms": 873.2603000244126
+    },
+    {
+      "id": "task-exercise-hint",
+      "prediction": {
+        "status": "ok",
+        "student_move": "statement",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.9,
+        "reason": "学生只是对当前题目的作答方式提出要求（只给提示），仍围绕当前知识点，属于继续。",
+        "needs_context": false
+      },
+      "latency_ms": 1124.9191999668255
+    },
+    {
+      "id": "task-missing-target",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.9,
+        "reason": "“这个为什么成立”缺少明确对象，必须依赖前文才能理解，属于围绕当前知识点的追问。",
+        "needs_context": true
+      },
+      "latency_ms": 843.2813999243081
+    }
+  ]
+}

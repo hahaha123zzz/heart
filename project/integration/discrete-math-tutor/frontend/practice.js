@@ -83,11 +83,11 @@ window.ExercisePractice=(()=>{
  }
  function renderQuestion(){
   const q=P.data.question;
-  $('#practice-question').innerHTML='<header class="exercise-title"><span>练习 '+esc(q.group_id)+' · 第 '+q.number+' 题</span><h2>'+esc(q.knowledge_point)+'</h2><span class="source-label">原教材第 '+q.source.page+(q.source.end_page!==q.source.page?'—'+q.source.end_page:'')+' 页 · 题号按教材保留</span><button type="button" class="secondary-button" data-practice-reading>回教材复习</button><span id="practice-save-status" role="status">草稿已加载</span></header>'+blocks(q.shared_blocks)+q.parts.map(p=>'<section class="interactive-part" data-part="'+p.id+'"><div class="part-heading"><h3>'+esc(p.label)+'</h3><span>'+types[p.type]+'</span><small>'+ (p.grader==='rule'?'规则判分':'AI 辅助批改')+'</small></div><div class="exercise-stem">'+blocks(p.stem_blocks)+'</div><div class="answer-widget">'+widget(p,P.answers[p.id])+'</div><div class="part-actions"><button type="button" class="secondary-button" data-practice-hint="'+p.id+'">提示</button><button type="button" class="secondary-button" data-practice-explain="'+p.id+'">AI 讲解</button></div><div id="help-'+p.id+'" class="exercise-help" aria-live="polite"></div><div id="feedback-'+p.id+'" class="exercise-feedback"></div></section>').join('')+'<footer class="practice-actions"><button type="button" class="primary-button" data-practice-submit>提交已作答的小题</button><button type="button" class="secondary-button" data-practice-save>保存草稿</button><button type="button" class="secondary-button" data-practice-redo>重做本题</button><button type="button" class="secondary-button" data-practice-next>下一题 →</button><div id="practice-submit-status" role="status"></div></footer><details class="practice-history"><summary>历次提交记录</summary><div id="practice-history"></div></details>';
+  $('#practice-question').innerHTML='<header class="exercise-title"><span>练习 '+esc(q.group_id)+' · 第 '+q.number+' 题</span><h2>'+esc(q.knowledge_point)+'</h2><span class="source-label">原教材第 '+q.source.page+(q.source.end_page!==q.source.page?'—'+q.source.end_page:'')+' 页 · 题号按教材保留</span><button type="button" class="secondary-button" data-practice-reading>回教材复习</button><span id="practice-save-status" role="status">草稿已加载</span></header>'+blocks(q.shared_blocks)+q.parts.map(p=>'<section class="interactive-part" data-part="'+p.id+'"><div class="part-heading"><h3>'+esc(p.label)+'</h3><span>'+types[p.type]+'</span><small>'+ (p.grader==='rule'?'规则判分':'AI 辅助批改')+'</small></div><div class="exercise-stem">'+blocks(p.stem_blocks)+'</div><div class="answer-widget">'+widget(p,P.answers[p.id])+'</div><div class="part-actions"><button type="button" class="secondary-button" data-practice-hint="'+p.id+'">提示</button><button type="button" class="secondary-button" data-practice-explain="'+p.id+'">AI 讲解</button><button type="button" class="secondary-button" data-practice-ask="'+p.id+'">针对本小题提问</button></div><div id="help-'+p.id+'" class="exercise-help" aria-live="polite"></div><div id="feedback-'+p.id+'" class="exercise-feedback"></div></section>').join('')+'<footer class="practice-actions"><button type="button" class="primary-button" data-practice-submit>提交已作答的小题</button><button type="button" class="secondary-button" data-practice-save>保存草稿</button><button type="button" class="secondary-button" data-practice-redo>重做本题</button><button type="button" class="secondary-button" data-practice-next>下一题 →</button><div id="practice-submit-status" role="status"></div></footer><details class="practice-history"><summary>历次提交记录</summary><div id="practice-history"></div></details>';
   if(window.MathfieldElement){MathfieldElement.fontsDirectory='/static/mathlive/fonts';MathfieldElement.soundsDirectory='/static/mathlive/sounds';}
   q.parts.filter(p=>p.type==='matrix'||p.type==='graph').forEach(p=>{if(!P.answers[p.id])P.answers[p.id]=p.type==='matrix'?{cells:Array.from({length:p.answer_format?.rows||2},()=>Array(p.answer_format?.cols||2).fill('')),note:''}:{nodes:[],edges:[],directed:false,note:''};if(p.type==='graph')drawGraph(p.id);});
-  for(const p of q.parts){const h=(P.data.help_history||[]).find(h=>h.part_id===p.id);const level=Math.max(0,...(P.data.help_history||[]).filter(h=>h.part_id===p.id&&h.action==='hint').map(h=>h.level));P.help[p.id]={busy:false,level};if(h){const target=$('#help-'+p.id);target.innerHTML='<strong>已保存的'+(h.action==='hint'?'提示 '+h.level+'/3':'AI 讲解')+'</strong><p>'+esc(h.response.reply)+'</p>';window.TextbookPDF?.renderMath(target);}}
-  if(P.data.history[0])feedback(P.data.history[0]);renderHistory();renderPartFocus();
+  for(const p of q.parts){const h=(P.data.help_history||[]).find(h=>h.part_id===p.id);const level=Math.max(0,...(P.data.help_history||[]).filter(h=>h.part_id===p.id&&h.action==='hint').map(h=>h.level));P.help[p.id]={busy:false,level,guide:h?.response.guided_visualization||null};if(h){const target=$('#help-'+p.id);target.innerHTML='<strong>已保存的'+(h.action==='hint'?'提示 '+h.level+'/3':'AI 讲解')+'</strong>'+window.renderTutorAnswer(h.response.reply);window.TextbookPDF?.renderMath(target);}}
+  if(P.data.history[0])feedback(P.data.history[0]);renderHistory();renderPartFocus();showPartHelp(P.activePart);
  }
  function renderPartFocus(){
   const q=P.data?.question;if(!q)return;
@@ -98,7 +98,20 @@ window.ExercisePractice=(()=>{
   localStorage.setItem('exercise-active:'+studentId+':'+q.id,P.activePart);
  }
  async function resume(chapter,section){if(P.chapter===chapter&&P.data&&!section){renderList();return;}return load(chapter,section);}
- function showPartHelp(pid){if(state.view!=='quiz')return;const target=$('#help-'+pid);if(target?.textContent.trim())Workspace.showHelp(target.innerHTML,'第 '+P.data.question.number+' 题 · '+(P.data.question.parts.find(p=>p.id===pid)?.label||'讲解'));}
+ async function askPart(pid){
+  const data=P.data,seq=P.seq,owner=studentId;
+  const part=data?.question.parts.find(p=>p.id===pid);if(!part)return;
+  const button=host().querySelector('[data-practice-ask="'+pid+'"]');if(button)button.disabled=true;
+  try{
+   await save();
+   if(P.seq!==seq || P.data!==data || studentId!==owner){toast('题目已切换，请在当前小题重新点击提问');return;}
+   await prepareExerciseQuestion({target:{question_id:data.question.id,part_id:pid,version:data.version},
+    title:'练习 '+data.question.group_id+' · 第 '+data.question.number+' 题 · '+part.label,
+    knowledgePoint:data.question.knowledge_point});
+  }catch(error){toast('无法准备小题提问：'+error.message);}
+  finally{if(button?.isConnected)button.disabled=false;}
+ }
+ function showPartHelp(pid){if(state.view!=='quiz')return;const target=$('#help-'+pid);if(target?.textContent.trim())Workspace.showHelp(target.innerHTML,'第 '+P.data.question.number+' 题 · '+(P.data.question.parts.find(p=>p.id===pid)?.label||'讲解'),P.help[pid]?.guide);}
  function renderHistory(){const el=$('#practice-history');if(!el)return;el.innerHTML=P.data.history.length?P.data.history.map(s=>'<div class="history-entry"><button type="button" data-practice-history="'+s.id+'">'+esc(new Date(s.created_at+'Z').toLocaleString())+' · '+statuses[s.status]+'</button></div>').join(''):'<p>还没有提交记录。</p>';}
  function feedback(sub){
   if(!P.data||sub.question_id!==P.data.question.id)return;
@@ -106,7 +119,7 @@ window.ExercisePractice=(()=>{
   if(sub.status==='failed'){$('#practice-submit-status').textContent=sub.result.error;return;}
   if(sub.status!=='completed'){$('#practice-submit-status').textContent=sub.status==='queued'?'已保存提交，等待批改…':'正在核对作答与教材…';return;}
   const v={correct:'正确',incorrect:'需要改正',partial:'部分正确',uncertain:'待核对'};
-  for(const r of sub.result.parts){const el=$('#feedback-'+r.part_id);if(!el)continue;el.classList.add(r.verdict);el.innerHTML='<strong>'+v[r.verdict]+' · '+(r.confirmed===true&&r.method==='rule'?'规则判分':r.method==='rule'?'规则无法确定，待核对':'AI 建议，尚未人工核对')+(r.score!==null?' · '+r.score+' 分':'')+'</strong><p>'+esc(r.feedback)+'</p>'+((r.steps||[]).length?'<ol>'+r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>':'')+((r.criteria||[]).length?'<ul class="rubric-feedback">'+r.criteria.map(c=>'<li><strong>'+esc(c.label)+' '+c.score+'/'+c.max_score+'</strong> '+esc(c.feedback)+'</li>').join('')+'</ul>':'')+'<details><summary>查看参考解答</summary><div>'+esc(Array.isArray(r.reference_answer)?r.reference_answer.join('、'):r.reference_answer)+'</div></details>';window.TextbookPDF?.renderMath(el);}
+  for(const r of sub.result.parts){const el=$('#feedback-'+r.part_id);if(!el)continue;el.classList.add(r.verdict);el.innerHTML='<strong>'+v[r.verdict]+' · '+(r.confirmed===true&&r.method==='rule'?'规则判分':r.method==='rule'?'规则无法确定，待核对':'AI 建议，尚未人工核对')+(r.score!==null?' · '+r.score+' 分':'')+'</strong>'+window.renderTutorAnswer(r.feedback)+((r.steps||[]).length?'<ol>'+r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>':'')+((r.criteria||[]).length?'<ul class="rubric-feedback">'+r.criteria.map(c=>'<li><strong>'+esc(c.label)+' '+c.score+'/'+c.max_score+'</strong> '+esc(c.feedback)+'</li>').join('')+'</ul>':'')+'<details><summary>查看参考解答</summary><div>'+esc(Array.isArray(r.reference_answer)?r.reference_answer.join('、'):r.reference_answer)+'</div></details>';window.TextbookPDF?.renderMath(el);}
   $('#practice-submit-status').textContent='已反馈 '+sub.result.answered_parts+' / '+sub.result.total_parts+' 个小题'+(sub.result.needs_review?'；部分反馈尚未确认，请结合具体步骤核对。':'；规则判分已完成。')+' 反馈针对本次提交的答案；修改草稿后需重新提交。';
  }
  async function poll(sub,token){
@@ -132,8 +145,8 @@ window.ExercisePractice=(()=>{
   const qid=P.data.question.id,seq=P.seq,version=P.data.version,answers=snapshot(),target=$('#help-'+pid);if(P.help[pid]?.busy)return;
   const level=action==='hint'?Math.min(3,(P.help[pid]?.level||0)+1):1;P.help[pid]={busy:true,level};target.innerHTML='<p role="status">正在读取教材和你的相关学习记录…</p>';showPartHelp(pid);
   try{await save();const r=await post('/api/practice/questions/'+qid+'/help',{student_id:studentId,version,answers,part_id:pid,action,level});
-   if(seq!==P.seq)return;target.innerHTML='<strong>'+ (action==='hint'?'提示 '+level+'/3':'AI 讲解')+'</strong><p>'+esc(r.reply)+'</p><small>'+esc(r.memory_summary)+'</small>';window.TextbookPDF?.renderMath(target);showPartHelp(pid);
-  }catch(e){if(seq===P.seq){target.textContent=e.message;showPartHelp(pid);}}finally{if(seq===P.seq)P.help[pid]={busy:false,level};}
+   if(seq!==P.seq)return;P.help[pid].guide=r.guided_visualization||null;target.innerHTML='<strong>'+ (action==='hint'?'提示 '+level+'/3':'AI 讲解')+'</strong>'+window.renderTutorAnswer(r.reply)+'<small>'+esc(r.memory_summary)+'</small>';window.TextbookPDF?.renderMath(target);showPartHelp(pid);
+  }catch(e){if(seq===P.seq){target.textContent=e.message;showPartHelp(pid);}}finally{if(seq===P.seq)P.help[pid]={...P.help[pid],busy:false,level};}
  }
  function input(e){
   const el=e.target.closest?.('[data-answer-part]');if(!el||!P.data)return;const pid=el.dataset.answerPart,k=el.dataset.answerKey,p=P.data.question.parts.find(p=>p.id===pid);if(!p)return;
@@ -161,12 +174,13 @@ window.ExercisePractice=(()=>{
   if(el.dataset.practiceQuestion){await open(el.dataset.practiceQuestion);return;}
   if(el.hasAttribute('data-practice-reload')){load(P.chapter);return;}
   if(!P.data)return;
-  if(el.dataset.practicePart){P.activePart=el.dataset.practicePart;P.whole=false;renderPartFocus();Workspace.showHelp(null);return;}
+  if(el.dataset.practicePart){P.activePart=el.dataset.practicePart;P.whole=false;renderPartFocus();Workspace.showHelp(null);showPartHelp(P.activePart);return;}
   if(el.hasAttribute('data-practice-whole')){P.whole=!P.whole;renderPartFocus();return;}
   if(el.hasAttribute('data-practice-submit')){submit();return;}
   if(el.hasAttribute('data-practice-save')){save().then(()=>announce('草稿已保存')).catch(e=>toast(e.message));return;}
   if(el.dataset.practiceHint){help(el.dataset.practiceHint,'hint');return;}
   if(el.dataset.practiceExplain){help(el.dataset.practiceExplain,'explain');return;}
+  if(el.dataset.practiceAsk){askPart(el.dataset.practiceAsk);return;}
   if(el.hasAttribute('data-practice-reading')){await save().catch(()=>{});if(state.chapter!==P.data.question.chapter_id||state.section!==P.data.question.section_id)await selectSection(P.data.question.chapter_id,P.data.question.section_id,{record:false,restore:true});showView('course');return;}
   if(el.hasAttribute('data-practice-next')){const i=P.index.questions.findIndex(q=>q.id===P.data.question.id);if(P.index.questions[i+1])open(P.index.questions[i+1].id);else toast('已到本章最后一题');return;}
   if(el.hasAttribute('data-practice-redo')){if(P.busy){toast('请等待本次批改结束再重做');return;}P.answers={};P.help={};renderQuestion();for(const f of $$('.exercise-feedback'))f.innerHTML='';$('#practice-submit-status').textContent='已开始新一轮作答；历次提交保留。';changed();return;}
@@ -178,5 +192,9 @@ window.ExercisePractice=(()=>{
   const svg=e.target.closest('svg[data-graph]');if(svg)graphClick(e,svg);
  });
  window.addEventListener('beforeunload',()=>{if(P.data&&P.dirty)localStorage.setItem('exercise-draft:'+studentId+':'+P.data.question.id,JSON.stringify({version:P.data.version,answers:P.answers}));});
- return {load,save,resume};
+ async function flushTarget(target){
+  if(P.data?.question.id===target.question_id && P.data.version===target.version)await save();
+ }
+ async function openTarget(target){if(P.chapter!==target.chapter_id||!P.index)await load(target.chapter_id);if(P.data?.question.id!==target.question_id)await open(target.question_id);if(P.data?.version!==target.version)throw new Error('题库已更新，请重新选择');P.activePart=target.part_id;P.whole=false;renderPartFocus();const part=$$('#practice-question .interactive-part').find(el=>el.dataset.part===target.part_id);part?.querySelector('.exercise-stem')?.scrollIntoView({block:'center'});}
+ return {load,save,resume,flushTarget,openTarget};
 })();

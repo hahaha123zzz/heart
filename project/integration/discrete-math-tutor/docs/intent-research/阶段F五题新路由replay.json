@@ -1,0 +1,260 @@
+{
+  "schema_version": 2,
+  "mode": "replay",
+  "source_mode": "real",
+  "router_mode": "task",
+  "semantic_model_evaluation": true,
+  "data_sha256": "a1e0cfd85a17787fc6cb8574881ed5ad2541a065aa7b14916db34c88a1afab03",
+  "router_sha256": "fdaa948f93bdb4d7aee8487fff2098da6dd15b5518cfb618ce4587d6b5205faa",
+  "evaluator_sha256": "32c50a7db0d73f3c8317995c633605c1198ed56c244243f7a926deb38cd42a22",
+  "task_schema_sha256": "25fe9ae6a3e2a2b37fe2f0c44a1fed5fcf01c88bd8a077ff2d006d23b2af158a",
+  "model": "deepseek-flash",
+  "api_call_attempts": 5,
+  "api_call_limit": 6,
+  "api_timeout": 30.0,
+  "note": "样例未独立人工审核；mock不是模型语义准确率。task仅评冻结上下文中的识别结果，不评澄清恢复或实际回答泄露。",
+  "metrics": {
+    "count": 5,
+    "review_status_counts": {
+      "agent_reviewed_pending_human": 5
+    },
+    "field_scores": {
+      "intent": {
+        "correct": 5,
+        "total": 5,
+        "accuracy": 1.0
+      },
+      "student_move": {
+        "correct": 3,
+        "total": 5,
+        "accuracy": 0.6
+      },
+      "needs_context": {
+        "correct": 5,
+        "total": 5,
+        "accuracy": 1.0
+      },
+      "learning_intents": {
+        "correct": 4,
+        "total": 5,
+        "accuracy": 0.8
+      },
+      "answer_constraints": {
+        "correct": 5,
+        "total": 5,
+        "accuracy": 1.0
+      },
+      "missing_slots": {
+        "correct": 5,
+        "total": 5,
+        "accuracy": 1.0
+      },
+      "target_refs": {
+        "correct": 5,
+        "total": 5,
+        "accuracy": 1.0
+      }
+    },
+    "flow_macro_f1_supported_classes": 1.0,
+    "flow_class_scores": {
+      "continue": {
+        "f1": 1.0,
+        "support": 4
+      },
+      "switch_topic": {
+        "f1": null,
+        "support": 0
+      },
+      "new_goal": {
+        "f1": null,
+        "support": 0
+      },
+      "off_task": {
+        "f1": null,
+        "support": 0
+      },
+      "clarify_task": {
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "necessary_clarification_recall": {
+      "numerator": 1,
+      "denominator": 1,
+      "value": 1.0
+    },
+    "unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 4,
+      "value": 0.0
+    },
+    "status_counts": {
+      "ok": 5
+    },
+    "latency_ms": {
+      "p50": 1188.3106000022963,
+      "p95": 2059.881000081077
+    },
+    "unsupported_task_fields": {},
+    "multi_intent_order": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    },
+    "failures": [
+      {
+        "id": "task-pdf-hint",
+        "wrong_fields": [
+          "student_move"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-exercise-hint",
+        "wrong_fields": [
+          "student_move"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-missing-target",
+        "wrong_fields": [
+          "learning_intents"
+        ],
+        "status": "ok"
+      }
+    ]
+  },
+  "predictions": [
+    {
+      "id": "task-definition",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.95,
+        "reason": "学生询问交集的定义，属于当前知识点集合运算范围内的完整概念问题，无需依赖前文。",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "什么是交集？",
+        "rewrite_sources": []
+      },
+      "latency_ms": 2059.881000081077
+    },
+    {
+      "id": "task-sequence",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.95,
+        "reason": "学生围绕当前知识点连通性提出明确任务：先举例再解释定理7.7的证明，属于继续学习。",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "example",
+          "proof"
+        ],
+        "target_refs": [],
+        "answer_constraints": [
+          "example_before_proof"
+        ],
+        "missing_slots": [],
+        "rewritten_query": "先给一个例子，再解释定理7.7的证明。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 945.1229000696912
+    },
+    {
+      "id": "task-pdf-hint",
+      "prediction": {
+        "status": "ok",
+        "student_move": "statement",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.95,
+        "reason": "学生针对当前选区（度序列定理）提出只给提示、不要完整答案的作答要求，属于围绕当前知识点的继续任务。",
+        "needs_context": true,
+        "schema_version": 1,
+        "learning_intents": [
+          "hint"
+        ],
+        "target_refs": [
+          "selection:f4727c8c26bba3e9c67321acaf1f5f03e0ab7ef507c51a7d7b5af5a768b5ad23"
+        ],
+        "answer_constraints": [
+          "hint_only",
+          "no_full_answer"
+        ],
+        "missing_slots": [],
+        "rewritten_query": "这段选区只给一个提示，不要完整答案。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 1365.185499889776
+    },
+    {
+      "id": "task-exercise-hint",
+      "prediction": {
+        "status": "ok",
+        "student_move": "statement",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.95,
+        "reason": "学生针对当前小题提出作答约束（只给提示），属于围绕当前知识点的继续请求。",
+        "needs_context": true,
+        "schema_version": 1,
+        "learning_intents": [
+          "hint"
+        ],
+        "target_refs": [
+          "exercise:ex-01-01-001:p1:51db9461ca4d8eb794a7b072a4cec04ecb8a665f6667bd305ef58439024a6818"
+        ],
+        "answer_constraints": [
+          "hint_only",
+          "no_full_answer"
+        ],
+        "missing_slots": [],
+        "rewritten_query": "当前小题只给提示，不要完整答案。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 1188.3106000022963
+    },
+    {
+      "id": "task-missing-target",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "clarify_task",
+        "topic": "",
+        "confidence": 0.9,
+        "reason": "学生问“这个为什么成立”，但上下文中没有明确对象或前文，无法确定“这个”指代什么。",
+        "needs_context": true,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [
+          "target"
+        ],
+        "rewritten_query": "这个为什么成立？",
+        "rewrite_sources": []
+      },
+      "latency_ms": 1153.4696000162512
+    }
+  ]
+}

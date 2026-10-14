@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+global.window={};require('../../frontend/chat-renderer.js');
+const render=window.renderTutorAnswer;
+assert.equal(render('**关键条件**，==结论=='),'<p class="answer-text"><strong>关键条件</strong>，<mark>结论</mark></p>');
+assert.equal(render('<script>alert(1)</script> **<img onerror=x>**'),'<p class="answer-text">&lt;script&gt;alert(1)&lt;/script&gt; <strong>&lt;img onerror=x&gt;</strong></p>');
+assert.ok(!render('$a==b$ `**literal**`').includes('<mark>'));
+assert.ok(!render('$a==b$ `**literal**`').includes('<strong>'));
+assert.ok(render('尚未闭合**重点').includes('**重点'));
+assert.ok(render('$$a==b\n+c$$').includes('$$a==b\n+c$$'));
+console.log('PASS: 加粗、高亮、安全转义、公式与代码保护、未闭合标记');

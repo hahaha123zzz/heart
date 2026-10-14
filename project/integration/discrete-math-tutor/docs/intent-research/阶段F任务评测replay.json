@@ -1,0 +1,462 @@
+{
+  "schema_version": 2,
+  "mode": "replay",
+  "source_mode": "mock",
+  "router_mode": "task",
+  "semantic_model_evaluation": false,
+  "data_sha256": "f6b22ae9b691aa63e6288b76981d89bd4e23f37b0a8ebacd59021c9d0901e793",
+  "router_sha256": "fdaa948f93bdb4d7aee8487fff2098da6dd15b5518cfb618ce4587d6b5205faa",
+  "evaluator_sha256": "fb00076ea60e058f48d9cc35c4da9e7f6083defee37690299192833d39daa6c4",
+  "task_schema_sha256": "25fe9ae6a3e2a2b37fe2f0c44a1fed5fcf01c88bd8a077ff2d006d23b2af158a",
+  "model": "deterministic_mock",
+  "api_call_attempts": 0,
+  "api_call_limit": null,
+  "note": "样例未独立人工审核；mock不是模型语义准确率。task仅评冻结上下文中的识别结果，不评澄清恢复或实际回答泄露。",
+  "metrics": {
+    "count": 12,
+    "review_status_counts": {
+      "agent_reviewed_pending_human": 12
+    },
+    "field_scores": {
+      "intent": {
+        "correct": 10,
+        "total": 12,
+        "accuracy": 0.8333333333333334
+      },
+      "student_move": {
+        "correct": 11,
+        "total": 12,
+        "accuracy": 0.9166666666666666
+      },
+      "needs_context": {
+        "correct": 11,
+        "total": 12,
+        "accuracy": 0.9166666666666666
+      },
+      "learning_intents": {
+        "correct": 3,
+        "total": 12,
+        "accuracy": 0.25
+      },
+      "answer_constraints": {
+        "correct": 8,
+        "total": 12,
+        "accuracy": 0.6666666666666666
+      },
+      "missing_slots": {
+        "correct": 11,
+        "total": 12,
+        "accuracy": 0.9166666666666666
+      },
+      "target_refs": {
+        "correct": 12,
+        "total": 12,
+        "accuracy": 1.0
+      }
+    },
+    "flow_macro_f1_supported_classes": 0.30303030303030304,
+    "flow_class_scores": {
+      "continue": {
+        "f1": 0.9090909090909091,
+        "support": 10
+      },
+      "switch_topic": {
+        "f1": null,
+        "support": 0
+      },
+      "new_goal": {
+        "f1": null,
+        "support": 0
+      },
+      "off_task": {
+        "f1": 0.0,
+        "support": 1
+      },
+      "clarify_task": {
+        "f1": 0.0,
+        "support": 1
+      }
+    },
+    "necessary_clarification_recall": {
+      "numerator": 0,
+      "denominator": 1,
+      "value": 0.0
+    },
+    "unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 11,
+      "value": 0.0
+    },
+    "status_counts": {
+      "ok": 12
+    },
+    "latency_ms": {
+      "p50": 0.0377000542357564,
+      "p95": 0.37809996865689754
+    },
+    "unsupported_task_fields": {},
+    "multi_intent_order": {
+      "correct": 0,
+      "total": 2,
+      "accuracy": 0.0
+    },
+    "failures": [
+      {
+        "id": "task-proof",
+        "wrong_fields": [
+          "learning_intents",
+          "answer_constraints"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-sequence",
+        "wrong_fields": [
+          "learning_intents",
+          "answer_constraints"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-pdf-hint",
+        "wrong_fields": [
+          "learning_intents",
+          "answer_constraints"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-exercise-hint",
+        "wrong_fields": [
+          "learning_intents",
+          "answer_constraints"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-check",
+        "wrong_fields": [
+          "learning_intents"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-missing-target",
+        "wrong_fields": [
+          "intent",
+          "needs_context",
+          "learning_intents",
+          "missing_slots"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-compare",
+        "wrong_fields": [
+          "learning_intents"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-emotion",
+        "wrong_fields": [
+          "learning_intents"
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "task-social",
+        "wrong_fields": [
+          "intent",
+          "student_move",
+          "learning_intents"
+        ],
+        "status": "ok"
+      }
+    ]
+  },
+  "predictions": [
+    {
+      "id": "task-definition",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "什么是交集？",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.37809996865689754
+    },
+    {
+      "id": "task-formula",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "A∧B什么时候为真？",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.05789997521787882
+    },
+    {
+      "id": "task-proof",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "解释定理7.7的证明，并指出前置定理。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.04509999416768551
+    },
+    {
+      "id": "task-sequence",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "先给一个例子，再解释定理7.7的证明。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.030099996365606785
+    },
+    {
+      "id": "task-pdf-hint",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": true,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [
+          "selection:f4727c8c26bba3e9c67321acaf1f5f03e0ab7ef507c51a7d7b5af5a768b5ad23"
+        ],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "这段选区只给一个提示，不要完整答案。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.05370005965232849
+    },
+    {
+      "id": "task-exercise-hint",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": true,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [
+          "exercise:ex-01-01-001:p1:51db9461ca4d8eb794a7b072a4cec04ecb8a665f6667bd305ef58439024a6818"
+        ],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "当前小题只给提示，不要完整答案。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.04099996294826269
+    },
+    {
+      "id": "task-check",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": true,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [
+          "exercise:ex-01-01-001:p1:51db9461ca4d8eb794a7b072a4cec04ecb8a665f6667bd305ef58439024a6818"
+        ],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "帮我检查当前小题的答案。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.0420999713242054
+    },
+    {
+      "id": "task-missing-target",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "这个为什么成立？",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.028799986466765404
+    },
+    {
+      "id": "task-correction",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "不是并集，我问的是交集的定义。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.0377000542357564
+    },
+    {
+      "id": "task-compare",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "比较欧拉路径和哈密顿路径，给两个例子。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.024399952962994576
+    },
+    {
+      "id": "task-emotion",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "我很烦，但请给一个集合交集的例子。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.022000051103532314
+    },
+    {
+      "id": "task-social",
+      "prediction": {
+        "status": "ok",
+        "student_move": "question",
+        "move_status": "",
+        "intent": "continue",
+        "topic": "",
+        "confidence": 0.8,
+        "reason": "离线任务夹具，不是实际模型理解",
+        "needs_context": false,
+        "schema_version": 1,
+        "learning_intents": [
+          "explain"
+        ],
+        "target_refs": [],
+        "answer_constraints": [],
+        "missing_slots": [],
+        "rewritten_query": "今天先到这里，下课吧。",
+        "rewrite_sources": []
+      },
+      "latency_ms": 0.02529995981603861
+    }
+  ]
+}

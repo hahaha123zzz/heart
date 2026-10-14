@@ -24,6 +24,10 @@ class LLMError(RuntimeError):
     """The configured model could not produce a usable answer."""
 
 
+class LLMJSONError(LLMError):
+    """模型已返回内容，但 JSON 结构不可解析。"""
+
+
 def extract_json(text: str) -> Dict[str, Any]:
     """Accept a JSON object, optionally wrapped in a code fence."""
     stripped = text.strip()
@@ -173,4 +177,5 @@ class LLMClient:
                                               **({"reasoning_effort": reasoning_effort} if reasoning_effort else {})))
             except (ValueError, LLMError) as exc:
                 last_error = exc
-        raise LLMError("无法获取有效 JSON：" + str(last_error))
+        error_type = LLMJSONError if isinstance(last_error, ValueError) else LLMError
+        raise error_type("无法获取有效 JSON：" + str(last_error))
