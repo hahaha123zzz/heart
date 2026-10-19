@@ -7,6 +7,7 @@ import threading
 import os
 import re
 import base64
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -26,6 +27,22 @@ class LLMError(RuntimeError):
 
 class LLMJSONError(LLMError):
     """模型已返回内容，但 JSON 结构不可解析。"""
+
+
+@dataclass
+class ChatToolCall:
+    id: str
+    name: str
+    arguments: Dict[str, Any]
+    raw_arguments: str = ""
+
+
+@dataclass
+class ChatToolResult:
+    text: str = ""
+    tool_calls: list[ChatToolCall] = field(default_factory=list)
+    finish_reason: str = ""
+    usage: Dict[str, int] = field(default_factory=dict)
 
 
 def extract_json(text: str) -> Dict[str, Any]:
@@ -170,6 +187,73 @@ class LLMClient:
             if not content.strip():
                 raise LLMError("模型输出达到长度上限，未完成回答" if reason == "length" else "模型未返回文本内容")
             return content.strip()
+        except LLMError:
+            raise
+        except Exception as exc:
+            raise LLMError("模型调用失败：" + str(exc)) from exc
+
+    def chat_with_tools(
+        self,
+        messages: List[Dict[str, Any]],
+        tools: List[Dict[str, Any]],
+        *,
+        temperature: float = 0.2,
+        max_tokens: int = 1200,
+        timeout: float | None = None,
+        tool_choice: str | None = None,
+        model: str | None = None,
+    ) -> ChatToolResult:
+        """One OpenAI-compatible tool-calling round.
+
+        The loop owns orchestration; this method only sends the current
+        messages/tools and returns a normalized assistant round. It does not
+        execute tools and does not start an upstream application.
+        """
+        if self.mock:
+            text = str(mock_reply(messages, json_mode=False))
+            return ChatToolResult(text=text, finish_reason="stop")
+        try:
+            args: Dict[str, Any] = {
+                "model": model or self.model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+            }
+            if tools:
+                args["tools"] = tools
+                args["tool_choice"] = tool_choice or "auto"
+            client = self._client_lazy()
+            if timeout is not None:
+                client = client.with_options(timeout=timeout, max_retries=0)
+            response = client.chat.completions.create(**args)
+            choice = response.choices[0]
+            message = choice.message
+            text = message.content or ""
+            calls: list[ChatToolCall] = []
+            for raw in getattr(message, "tool_calls", None) or []:
+                function = getattr(raw, "function", None)
+                if function is None:
+                    continue
+                raw_arguments = getattr(function, "arguments", "") or "{}"
+                try:
+                    parsed = extract_json(raw_arguments)
+                except (ValueError, TypeError):
+                    parsed = {}
+                calls.append(ChatToolCall(
+                    id=str(getattr(raw, "id", "") or f"call_{len(calls)}"),
+                    name=str(getattr(function, "name", "") or ""),
+                    arguments=parsed,
+                    raw_arguments=str(raw_arguments),
+                ))
+            usage = {}
+            raw_usage = getattr(response, "usage", None)
+            if raw_usage is not None:
+                for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+                    value = getattr(raw_usage, key, None)
+                    if isinstance(value, int):
+                        usage[key] = value
+            return ChatToolResult(text=text, tool_calls=calls,
+                                  finish_reason=str(choice.finish_reason or ""), usage=usage)
         except LLMError:
             raise
         except Exception as exc:
