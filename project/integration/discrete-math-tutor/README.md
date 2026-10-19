@@ -75,7 +75,7 @@ python scripts/start_deeptutor.py
 
 `DEEPTUTOR_KNOWLEDGE_ENABLED=1` 补充原检索结果；`DEEPTUTOR_LLM_ENABLED=1` 将原 LLMClient 接到上游隔离 Provider。两者沿用本机后端地址及共享凭据，默认均为 0。模型密钥只在服务端读取，生成失败不绕过网关，图片失败不降级为无图回答。生成输入会发送到本机 `.env` 指定的模型服务，当前配置使用 DeepSeek。
 
-真实模型验收：`.venv-deeptutor/Scripts/python.exe -B scripts/check_deeptutor_sessions.py --generation`。需先运行 `scripts/publish_deeptutor_course.py --home .runtime/deeptutor-generation-smoke`，并配置有效的 `CITATION_GROUNDING_INDEX`，或在该目录放置原 `knowledge.citation_index.build_index` 构建的 `citation-index.sqlite3`。脚本配置只影响临时进程，不写 `.env` 或学习数据库。已通过随机分配提示案例的检索、生成、几何引用和原质量校验；图像模型与完整心理学黄金集仍待验收，尚未切换默认模型入口。
+真实模型验收：`.venv-deeptutor/Scripts/python.exe -B scripts/check_deeptutor_sessions.py --generation`。需先运行 `scripts/publish_deeptutor_course.py --home .runtime/deeptutor-generation-smoke`，并配置有效的 `CITATION_GROUNDING_INDEX`，或在该目录放置原 `knowledge.citation_index.build_index` 构建的 `citation-index.sqlite3`。脚本配置只影响临时进程，不写 `.env` 或学习数据库。已通过随机分配提示案例的检索、生成、几何引用和原质量校验；后续 9 类代表性黄金集已通过，包含真实图像问答；未穷尽全教材，尚未切换默认模型入口。
 
 从仓库根目录执行 `python project/scripts/vendor_deeptutor.py --verify` 可检查固定源码和已记录兼容补丁；不要在副本上覆盖安装另一个源码版本。
 
@@ -86,3 +86,9 @@ python scripts/start_deeptutor.py
 前端静态资源已随代码提供，刷新现有页面即可使用；无需开启模型或知识库开关。重建时在 reader 目录执行 `npm ci --ignore-scripts`，然后分别执行 `npm run build:chat`、`npm run build`。两个构建输出目录独立，聊天 CSS 复用原 reader.css 的 KaTeX 字体；依赖许可随聊天构建生成。构建时忽略上游 Next.js 的 use client 指令属于预期警告，不需要安装 Next.js。
 
 真实浏览器检查见 `tests/browser/chat-lifecycle.cjs`（需 Playwright 与本机 Edge，可通过 NODE_PATH 指向已有 Playwright 安装）；脚本自建隔离 HTTP 服务和 API 替身。已覆盖富文本/公式、同消息引用、恶意内容、练习引用、真实阅读器公式兼容、390px 布局、焦点/组件/滚动及断线恢复。没有调用模型或写学生数据库。源码与进度见研究目录 MARKDOWN_STAGE.md；代码主题、Mermaid 和工作区附件仍待后续接入。
+
+### 心理学真实模型代表性黄金集
+
+执行 `.venv-gpu/Scripts/python.exe -B scripts/check_deeptutor_golden.py`，通过原 `/api/chat` 同时启用本机 DeepTutor 模型、知识库、会话及回合同步，检查9类固定合成案例。`--case hint --case refusal` 可筛选，`--citation-index` 可指定已构建的精细引用索引。每次新建 `.runtime/deeptutor-golden/<run>/`，独立数据库与裁图缓存不写正式课程目录，结束时停止临时 worker；真实模型调用限180次，检索使用CPU避免争用现有服务的GPU。
+
+本轮9类真实案例、20条精确引用、幂等/重放/学生隔离通过，另有96项专项回归通过。修复了把数据缺失误当任务不明的路由，并限制从局部定义追加无依据的排除结论。详细结果、初轮问题、产物哈希及未覆盖范围见研究目录 GOLDEN_VALIDATION.md。实际 .env 与默认入口保持原配置，现有服务未重启。

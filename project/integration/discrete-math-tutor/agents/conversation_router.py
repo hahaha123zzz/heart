@@ -70,7 +70,8 @@ answer_constraints只能是hint_only/no_full_answer/example_before_proof/include
 “不要编造数据/不要猜测/忠于教材”是准确性要求，不是no_full_answer；明确要求完整解释时仍应完整解释。
 “没听懂/换简单说法/一次讲一个要点”表示调整讲解方式，不自动等同hint_only。只有明确要求仅提示或不要给答案时才限制解答范围。
 example_before_proof只用于明确要求先例子后证明的顺序；单纯要求日常例子使用example意图。
-missing_slots只能是target/task/topic/answer_format；存在必要缺失时intent=clarify_task。不要输出status或模型自由改写。
+missing_slots只能是target/task/topic/answer_format，只表示无法确定学生要做什么或指向哪个对象；存在这类必要缺失时intent=clarify_task。不要输出status或模型自由改写。
+任务和对象已经明确，但教材没有所需事实、实验数据未提供或计算条件不足，是证据不足，不是任务不明：missing_slots留空，不用clarify_task，保留相应学习意图交给后续证据核验。不得因为无法回答而声称不知道学生要做什么，也不能补造数据。
 输出前核对：missing_slots非空时，intent必须为clarify_task，不能同时写continue。
 唯一明确选区或小题可以解释“这个”；没有明确对象或多个历史对象无法区分时才问具体对象。
 “继续”结合当前步骤与前文，有明确下一步直接继续，无当前任务时澄清。
