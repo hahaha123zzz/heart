@@ -6,7 +6,7 @@
 
 宿主是学生/账户、课程资源版本、task/revision 和删除 epoch 的权威。浏览器不能提交原生 user/workspace、文件路径、模型凭据或任意工具。worker 的私有接口沿用共享凭据，不能取代宿主对归属与资源的检查。
 
-沿用 SessionBridge 的 student→user 映射与学生角色。每个学生/课程使用独立的原生 workspace，在该 scope 内创建原生课程及会话；原生会话采用 heart_native_ 命名，与已有 heart_ 会话、heart_turn_ 投影分开。正文和模型协议将持久化在这个新的作用域，不能继续声称上游只存元数据。
+复用 SessionBridge 的注册表与登记锁。旧投影的合成学生身份没有原生模型授权，完整运行时使用保留前缀 heart_native_ 的普通用户账户，通过上游 identity/grants/catalog 服务登记和授权；没有已知登录密码，不提升为管理员。每个学生/课程使用独立的原生 workspace，在该 scope 内创建原生课程及会话；原生会话采用 heart_native_ 命名，与已有 heart_ 会话、heart_turn_ 投影分开。正文和模型协议持久化在原生 data/users 下，不能继续声称上游只存元数据。
 
 回合映射包含 student/course/host session/request、task ID/revision、原生 workspace/course/session/turn，以及请求摘要、教材版本和删除 epoch。查询、事件、答复和取消必须重查映射，不接受孤立的 turn_id。恢复不创建新身份或会话。
 
@@ -21,6 +21,8 @@ host request 映射为稳定 client_submission_id。同一请求、同一内容�
 ## 状态、事件与交互
 
 状态沿用 queued/running/waiting_input/completed/failed/cancelled，seq 沿用原生持久化游标。DONE 后仍可能有 session_meta，不能一收到 DONE 就丢弃后续 metadata。
+
+固定上游在游标已经越过 DONE、没有新事件时，仍可能返回 metadata.synthesized=true 的终态包。它不是新执行，也不是新增的持久化正文；消费端不能拿此包推进持久化事件游标。适配层保留原生事件，不伪造新的生成活动。
 
 ask_user 答复属于原 turn，携带稳定 command_id，由原生协调器去重和投递；不作为新的用户问题启动另一回合。取消必须发送到执行 worker，并报告接受和终态，不能只禁止宿主保存。没有租约的等待/执行回合由原生应用层回收，不宣称能恢复丢失的 Python 协程。
 
@@ -37,3 +39,9 @@ P3 发布前校验归属、task/revision、删除 epoch、教材版本、原文/
 ## 阶段边界
 
 P1 先以替身引擎和临时数据库验证真实应用层持久化、暂停、恢复、取消、去重与隔离。通过不代表真实 LLM、原生 RAG、工具授权、前端呈现或质量提升已完成。P2 接原生教材来源，P3 才接宿主执行分支、发布检查与页面。继续按 11/14/100 台账如实验收。
+
+## 当前私有接口
+
+worker 新增 POST `/internal/heart/native/start|status|events|reply|cancel`，全部要求共享凭据和 DEEPTUTOR_NATIVE_ENABLED=1（默认0）。start 接收宿主身份、任务版本、内容、chat/ask_questions、memory_epoch 和 material_versions；拒绝上游身份、路径、任意能力/工具及模型配置。其余接口必须携带完整宿主任务身份，events 另带 after_seq，reply/cancel 另带稳定 command_id。events 使用 NDJSON，reply 当前只收文字，多问题卡结构化答案在 P3 接入。
+
+模型 profile 和普通账户 grant 只由服务端写入，账户 grant 的 built-in/MCP/CLI 列表为空、exec 禁用；后续 P4 按所需能力挂载。凭据保存在 worker 的管理员 catalog，不在请求收据/事件响应中。此阶段只登记资源快照，尚未对接宿主权威版本、删除 epoch 和正式发布检查；所有回合都返回 pending_verification，保持学生入口关闭。

@@ -17,3 +17,23 @@
 质量优先落实为 QUALITY_BASELINE.md 与6组连续对话样本，复用原9类心理学问题；从P0建档，P3起做同模型同教材的新旧对照，不等P8才评估。此次没有运行在线模型、质量A/B、浏览器或原生RAG，不声称对话质量已经提高。
 
 P0完成后按用户约定自动提交/推送；下一检查点接入P1内部原生持久化回合，仍不切学生默认入口。
+
+P0已提交并推送：6c156cc。
+
+## P1 检查点一：真实应用层的私有运行时（2026-10-19）
+
+新增 native_contract.py / native_bridge.py，worker 注册原生 start/status/events/reply/cancel。通过真实 DeepTutorApp、应用容器、TurnApplicationService、TurnRequestPreparer/TurnExecutor、ContextBuilder、TurnEngine/ChatOrchestrator、协调器和 SQLite；没有调用旧教学执行链或受限 AgentLoop 来代替应用层。
+
+实现宿主全键→原生账户/课程工作区/会话/submission/turn 的持久化映射及请求摘要。登记和 admission 串行，模型任务、事件订阅与用户等待不持有登记锁。同一请求完成/失败/取消后重发不重新执行；turn 映射尚未落库时查询原生 submission 认领。每次状态、事件、命令按完整宿主身份找映射，修改 task revision 或请求快照拒绝。
+
+集成中确认原 SessionBridge 的合成身份没有原生模型 grant，单传 LLMConfig 无法通过学生模型门禁。改为直接复用原生 identity、grants 与 model catalog 创建保留前缀的普通账户和宿主模型授权，不提升管理员、不绕过模型门禁。旧投影身份和数据保持原样；新正文写入原生 data/users 私有账户与独立课程工作区。grant 默认禁止 built-in/MCP/CLI/exec，后续按阶段挂载。模型凭据只保存在服务端管理员 catalog。
+
+固定上游协调器 admission 冲突抛出 RuntimeError 而非 ActiveTurnConflict，仅对该明确错误映射409；其他错误不吞掉。上游在已越过 DONE 的游标重放中会合成 terminal envelope，测试保留这一语义，不把它当新生成或断言必须空响应。未修改 vendor。
+
+验证命令（宿主目录，PYTHONPATH 指向固定 vendor 和宿主）：`.venv-deeptutor/Scripts/python.exe -B -m unittest discover -s tests -p test_deeptutor_native_runtime.py -v`。11项全部通过，54.589秒，日志 `.runtime/native-runtime-tests.log`。模型回答用受控能力替换，标题模型替换为空操作，仍使用真实应用层和临时数据库，禁止意外联网模型调用。
+
+覆盖：共享凭据/开关/禁止客户端模型和工具字段、真实正文持久化、事件游标重放、重复请求、映射缺口认领、失败/取消不重跑、多轮真实上下文接续、两个学生与两个课程并发隔离、同会话活跃冲突、澄清答复继续原回合和命令去重、取消到达执行协程，以及无租约活动行被原生服务回收为 worker_lost 后允许新执行。运行时还断言普通账户非 admin、实际解析为宿主选择模型。
+
+宿主环境回归：`.venv-gpu/Scripts/python.exe -B -m unittest discover -s tests -p 'test_deeptutor_*.py' -v`，45项、6跳过，无失败；跳过项需要独立原生环境，新原生运行时另按上述命令验证。日志 `.runtime/native-host-regressions.log`。再次执行固定源码校验，3,764文件通过，仍只有已登记的原 factory.py 兼容补丁。P0记录的上游224通过/1失败仍保留，没有混算为本阶段全绿。
+
+边界：DEEPTUTOR_NATIVE_ENABLED默认0，实际.env未改、已有服务未重启。内部接口登记memory_epoch/material_versions，但尚未与宿主权威版本、删除及发布流程联动；所有状态/事件标记pending_verification。当前只有文字答复，未接多问题卡、正式发布、学生页面、真实模型/RAG或质量A/B。本检查点完成P1.1/P1.3/P1.6，P1整阶段未完成；继续P1宿主任务生命周期、P2原生教材服务和P3页面闭环。

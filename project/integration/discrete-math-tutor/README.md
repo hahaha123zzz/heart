@@ -100,3 +100,9 @@ python scripts/start_deeptutor.py
 执行 `.venv-gpu/Scripts/python.exe -B scripts/check_deeptutor_golden.py`，通过原 `/api/chat` 同时启用本机 DeepTutor 模型、知识库、会话及回合同步，检查9类固定合成案例。`--case hint --case refusal` 可筛选，`--citation-index` 可指定已构建的精细引用索引。每次新建 `.runtime/deeptutor-golden/<run>/`，独立数据库与裁图缓存不写正式课程目录，结束时停止临时 worker；真实模型调用限180次，检索使用CPU避免争用现有服务的GPU。
 
 本轮9类真实案例、20条精确引用、幂等/重放/学生隔离通过，另有96项专项回归通过。修复了把数据缺失误当任务不明的路由，并限制从局部定义追加无依据的排除结论。详细结果、初轮问题、产物哈希及未覆盖范围见研究目录 GOLDEN_VALIDATION.md。实际 .env 与默认入口保持原配置，现有服务未重启。
+
+### 完整原生对话运行时（内部接入中）
+
+worker 私有接口 `/internal/heart/native/start|status|events|reply|cancel` 直接接 DeepTutorApp 与原生持久化回合，不经过旧教学执行链。独立普通账户通过原生模型授权，每个学生/课程使用独立工作区；收据保存稳定 submission，完成、失败和取消后的普通重发不重新生成。接口要求共享凭据和 `DEEPTUTOR_NATIVE_ENABLED=1`，默认关闭。
+
+当前仅完成 P1 私有运行时检查点，替身能力验证真实应用层的持久化、多轮上下文、澄清接续、取消、去重、并发隔离和无租约回收。新增原生正文写入 worker 私有 data/users，均为待核验产物；宿主归属/版本/删除/正式发布及页面尚未接通。不要据此开启学生入口或标记真实模型/RAG及质量验收完成。完整计划、契约与检查命令见 `project/docs/research/2026-10-19-deeptutor-conversation-flow/`。

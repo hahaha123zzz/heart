@@ -115,13 +115,15 @@ P0 产物：[接入契约](NATIVE_CONTRACT.md)、[质量基线](QUALITY_BASELINE
 
 ## 6. P1：接原生应用层和持久化回合
 
-- [ ] P1.1 在现有 worker 中接 `DeepTutorApp / TurnApplicationService` 正式入口，复用已固定的容器、协调器、会话存储和课程服务。内部提供启动、订阅、回复、取消和状态查询的必要适配。
+- [x] P1.1 在现有 worker 中接 `DeepTutorApp / TurnApplicationService` 正式入口，复用已固定的容器、协调器、会话存储和课程服务。内部提供启动、订阅、回复、取消和状态查询的必要适配。
 - [ ] P1.2 扩展现有共享凭据边界与服务端身份映射。浏览器不直连 worker 的任意数据 API；所有操作重新校验宿主归属。
-- [ ] P1.3 使用原生 submission 幂等身份；区分原生真实执行和旧 heart_snapshot 投影，避免旧同步代码取消或覆盖真实回合。
+- [x] P1.3 使用原生 submission 幂等身份；区分原生真实执行和旧 heart_snapshot 投影，避免旧同步代码取消或覆盖真实回合。原生账户、工作区及会话与旧投影分开；待认领收据查原 submission，失败/取消重发不生成。
 - [ ] P1.4 在宿主新增原生执行分支，绕开旧模型意图路由/规划/回答链。保留必要的资源校验与收据逻辑，既有旧模式明确可选。
 - [ ] P1.5 将学生锁缩到必要写入/分配范围；原生模型执行和 ask_user 等待不长期占用宿主锁。相同会话的冲突由原生活跃回合控制，题目/路径另遵循其租约。
-- [ ] P1.6 接原生 queued/running/waiting_input/completed/failed/cancelled 状态、命令 ACK、seq 和订阅。取消信号必须到达 worker，不能只阻止宿主保存结果。
+- [x] P1.6 接原生 queued/running/waiting_input/completed/failed/cancelled 状态、命令 ACK、seq 和订阅。取消信号必须到达 worker，不能只阻止宿主保存结果。此项为 worker 私有协议验证，宿主页面接续属于 P1.4/P3。
 - [ ] P1.7 定义待核验、已发布、拒绝、取消和失效结果；恢复时可以重试发布/写入，不能重复调用生成。
+
+P1 首个内部检查点已落地；不是 P1 整阶段完成。P1.2 已有 worker 共享凭据、实际普通账户/课程工作区映射与全键查询，但仍缺宿主当前归属/版本复核。P1.5 内部登记锁不覆盖模型和用户等待，宿主学生锁尚未改动。P1.7 目前仅返回 pending_verification，不能发布。继续完成宿主生命周期分支，再联动 P2 教材服务与 P3 页面闭环。
 
 变更落点：`integrations/deeptutor/worker.py`、`boundary.py`、`session_bridge.py`、`client.py` 与必要的原生对话适配；`main.py`、`agents/task_service.py`、任务存储与恢复路由。现有 `agentic_bridge.py` 保留试点归属，不用它代替完整入口。
 
