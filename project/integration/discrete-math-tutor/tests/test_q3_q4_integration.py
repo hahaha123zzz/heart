@@ -95,6 +95,26 @@ class RegistryIntegrationTests(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertIn("finite-structures", result.content)
 
+    def test_progress_callback_receives_string_details(self):
+        llm = ScriptedLLM([ChatToolResult(text="回答[1]", finish_reason="stop")])
+        orchestrator = SimpleNamespace(llm=llm, memory=FakeMemory(), quality_checker=None)
+        context = TaskContext(student_id="s", message="请解释这个概念。",
+                              knowledge_point="自变量")
+        request = ChatRequest(student_id="s", session_id="legacy", request_id="progress-1",
+                              message=context.message)
+        events = []
+        result = run_agent_loop_turn(
+            orchestrator=orchestrator, request=request, context=context,
+            navigator=StubLearningNavigator(target=LearningTarget(
+                target_id="kp:自变量", name="自变量")),
+            publish_gate=lambda text, state: (True, ""), llm=llm,
+            progress=lambda stage, label, detail: events.append((stage, label, detail)),
+        )
+        self.assertEqual(result["answer_status"], "answered")
+        self.assertTrue(events)
+        self.assertTrue(any(stage.startswith("loop-") for stage, _, _ in events))
+        self.assertTrue(all(isinstance(detail, str) for _, _, detail in events))
+
     def test_loop_executes_q4_skill_tool_and_keeps_state(self):
         llm = ScriptedLLM([
             tool_round("read_skill", {"name": "finite-structures"}),
@@ -219,11 +239,28 @@ class HostNavigationTests(unittest.TestCase):
             )
 
         rows = [chunk(1, 1, "目标小节内容"), chunk(2, 1, "其他章节内容")]
-        with patch("knowledge.local_rag.course_retrieval.retrieve", return_value=rows):
+        with patch("knowledge.course_navigation.read_target", return_value=[]), \
+                patch("knowledge.local_rag.course_retrieval.retrieve", return_value=rows):
             sources = navigation.search(target=target, query="实验方法", limit=6)
         self.assertEqual(len(sources), 1)
         self.assertIn("目标小节内容", sources[0].text)
         self.assertEqual(sources[0].chapter_id, 1)
+
+    def test_host_search_prefers_the_exact_navigation_block(self):
+        target = LearningTarget(target_id="ch1:s1:b20", name="心理学实验方法的类型",
+                                chapter_id=1, section_id=1, version="v1")
+        navigation = _default_navigator(target, self._row())
+        exact = SimpleNamespace(
+            chapter_id=1, section_id=1, text="目标块原文", source="doc",
+            document_id="doc", version="v1", page=1, quote="目标块原文",
+            image_refs=[], id="ch1:s1:b20", chunk_id="",
+        )
+        with patch("knowledge.course_navigation.read_target", return_value=[exact]), \
+                patch("knowledge.local_rag.course_retrieval.retrieve",
+                      side_effect=AssertionError("generic retrieval must not run")):
+            sources = navigation.search(target=target, query="实验方法", limit=6)
+        self.assertEqual(len(sources), 1)
+        self.assertIn("目标块原文", sources[0].text)
 
 
 class CitationFormatGateTests(unittest.TestCase):

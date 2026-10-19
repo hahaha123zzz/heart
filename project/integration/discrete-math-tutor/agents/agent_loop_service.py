@@ -82,6 +82,14 @@ def _default_navigator(target: LearningTarget | None,
 
         def search_host(*, target: LearningTarget, query: str, limit: int,
                         preferred_types: tuple[str, ...] = ()):
+            # Q2's resolved cursor identifies one textbook block. Read that
+            # block first so a generic query cannot pull the answer into a
+            # different part of the same section.
+            from knowledge.course_navigation import read_target
+            exact = read_target({"id": target.target_id, "version": target.version})
+            if exact:
+                return [source_from_chunk(chunk, index)
+                        for index, chunk in enumerate(exact[:limit])]
             from knowledge.local_rag.course_retrieval import retrieve
             candidates = retrieve(f"{target.name} {query}".strip(),
                                   limit=max(12, limit * 3),
@@ -95,7 +103,6 @@ def _default_navigator(target: LearningTarget | None,
                 # The section may not have a matching semantic chunk (for
                 # example a heading-only target).  Read the resolved unit so
                 # the answer still stays inside the selected knowledge point.
-                from knowledge.course_navigation import read_target
                 scoped = read_target({"id": target.target_id, "version": target.version})
             return [source_from_chunk(chunk, index)
                     for index, chunk in enumerate(scoped[:limit])]
@@ -343,10 +350,17 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions())
     cancellation = register(request.task_id or request.request_id)
 
-    def emit(event_type: str, message: str, metadata: dict | None) -> None:
-        if progress is not None:
-            progress("loop-" + event_type, event_type,
-                     str((metadata or {}).get("detail") or message or "")[:300])
+    def emit(event_type: str, message: str,
+             detail: str | dict[str, Any] | None = None) -> None:
+        # EventCollector forwards a short string; some callers pass metadata.
+        # Accept both so the page progress callback cannot fail the turn.
+        if progress is None:
+            return
+        if isinstance(detail, dict):
+            text = detail.get("detail") or message or ""
+        else:
+            text = detail or message or ""
+        progress("loop-" + event_type, event_type, str(text)[:300])
 
     loop = LocalAgentLoop(llm or orchestrator.llm)
     result = loop.run(

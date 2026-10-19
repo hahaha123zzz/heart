@@ -244,7 +244,7 @@ class LocalAgentLoop:
                 ok, reason = request.publish_gate(final_text, result)
                 if not ok:
                     if not repair_used and any(token in (reason or "") for token in
-                                               ("过长", "压缩", "字数", "超过", "引用", "格式")):
+                                               ("过长", "压缩", "字数", "超过", "引用格式", "格式无效")):
                         repair_used = True
                         no_tools_next = True
                         messages.append({"role": "assistant", "content": final_text})
