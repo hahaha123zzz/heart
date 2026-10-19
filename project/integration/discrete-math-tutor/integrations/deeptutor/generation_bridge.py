@@ -61,11 +61,8 @@ class GenerationRequest(BaseModel):
         return self
 
 
-async def generate(request: GenerationRequest):
+def model_config(request: GenerationRequest):
     from deeptutor.services.llm.config import LLMConfig
-    from deeptutor.services.llm.provider_factory import build_isolated_provider
-    from deeptutor.services.llm.utils import clean_thinking_tags
-
     text_model = os.getenv("DEEPSEEK_MODEL") or os.getenv("OPENAI_MODEL", "deepseek-flash")
     vision_model = os.getenv("OPENAI_VISION_MODEL", "deepseek-flash")
     if request.model not in {text_model, vision_model}:
@@ -73,10 +70,17 @@ async def generate(request: GenerationRequest):
     key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("OPENAI_API_KEY", "")
     if not key:
         raise HTTPException(503, "宿主模型尚未配置")
-    config = LLMConfig(model=request.model, api_key=key,
+    return LLMConfig(model=request.model, api_key=key,
         base_url=os.getenv("OPENAI_BASE_URL", "https://api.deepseek.com"),
         binding="openai", provider_name="openai", wire_api="chat_completions",
         max_tokens=request.max_tokens, temperature=request.temperature, reasoning_effort=request.reasoning_effort)
+
+
+async def generate(request: GenerationRequest):
+    from deeptutor.services.llm.provider_factory import build_isolated_provider
+    from deeptutor.services.llm.utils import clean_thinking_tags
+
+    config = model_config(request)
     provider = None
     try:
         provider = build_isolated_provider(config)
@@ -85,7 +89,7 @@ async def generate(request: GenerationRequest):
             kwargs["extra_body"] = {"thinking": {"type": "enabled" if request.reasoning_effort else "disabled"}}
         response = await asyncio.wait_for(provider.chat_with_retry(messages=request.messages,
             model=config.model, reasoning_effort=config.reasoning_effort,
-            retry_delays=[], allow_image_fallback=False, **kwargs), timeout=request.timeout)
+            retry_delays=[.5], allow_image_fallback=False, **kwargs), timeout=request.timeout)
         if response.finish_reason not in {"stop", "length", "max_tokens", "max_output_tokens"} or response.tool_calls:
             raise HTTPException(502, "上游模型未正常完成文本回答")
         content = response.content or ""

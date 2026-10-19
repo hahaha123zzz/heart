@@ -53,10 +53,12 @@ def main() -> None:
     from integrations.deeptutor.session_bridge import install_session_bridge
     from integrations.deeptutor.turn_bridge import install_turn_bridge
     from integrations.deeptutor.generation_bridge import install_generation_bridge
+    from integrations.deeptutor.agentic_bridge import install_agentic_bridge
     from integrations.deeptutor.knowledge_bridge import install_knowledge_bridge
     sessions = install_session_bridge(app, args.home)
     install_turn_bridge(app, sessions)
     install_generation_bridge(app)
+    install_agentic_bridge(app)
     install_knowledge_bridge(app, args.home.resolve())
     app.add_middleware(HostBridgeBoundary)
     uvicorn.run(app, host="127.0.0.1", port=args.port,

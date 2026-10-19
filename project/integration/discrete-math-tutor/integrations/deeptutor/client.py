@@ -72,6 +72,7 @@ class DeepTutorBackend:
                      "X-Heart-Bridge-Token": token}))
 
     def publish_turn(self, projection: dict) -> dict:
+        self.timeout = max(self.timeout, 25)
         result = self._post("/internal/heart/turn", projection)
         if (result.get("task_id") != projection["task_id"]
                 or result.get("task_revision") != projection["task_revision"]
@@ -86,12 +87,23 @@ class DeepTutorBackend:
             raise BackendUnavailable("DeepTutor 回合事件响应无效")
         return result
 
-    def generate(self, messages, *, model, temperature, max_tokens, timeout=None, reasoning_effort=None):
+    def generate(self, messages, *, model, temperature, max_tokens, timeout=None, reasoning_effort=None, evidence=None, max_characters=None):
         deadline = min(timeout if timeout is not None else 120, 180)
         self.timeout = deadline + 5
-        result = self._post("/internal/heart/generate", {"messages": messages, "model": model,
+        payload = {"messages": messages, "model": model,
             "temperature": temperature, "max_tokens": max_tokens, "timeout": deadline,
-            "reasoning_effort": reasoning_effort})
+            "reasoning_effort": reasoning_effort}
+        if evidence is not None:
+            import hashlib
+            payload["evidence"] = evidence
+            payload["max_characters"] = max_characters
+        result = self._post("/internal/heart/agentic" if evidence is not None else "/internal/heart/generate", payload)
+        if evidence is not None and (result.get("engine") != "agent_loop"
+                or type(result.get("rounds")) is not int or not 2 <= result["rounds"] <= 6
+                or type(result.get("tool_steps")) is not int or not 1 <= result["tool_steps"] <= 6
+                or type(result.get("evidence_reads")) is not int or result["evidence_reads"] < 1
+                or result.get("evidence_sha256") != hashlib.sha256(evidence.encode()).hexdigest()):
+            raise BackendUnavailable("DeepTutor 执行链证据回执无效")
         if not isinstance(result.get("content"), str) or result.get("finish_reason") not in {"stop", "length"}:
             raise BackendUnavailable("DeepTutor 生成响应无效")
         return result["content"], result["finish_reason"]

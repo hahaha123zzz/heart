@@ -69,5 +69,19 @@ class GoldenChecksTests(unittest.TestCase):
         calls = deepcopy(self.calls); calls[0]['client_text_leaked'] = True
         self.assertFalse(self.check(calls=calls)['no_client_text_leak'])
 
+    def test_native_loop_requires_real_rounds_and_evidence_tool(self):
+        case = self.case | {'agentic': True}
+        self.assertFalse(self.check(case=case)['native_loop_used'])
+        call = {'path': '/internal/heart/agentic', 'ok': True, 'engine': 'agent_loop',
+            'rounds': 2, 'tool_steps': 1, 'evidence_reads': 1}
+        self.assertTrue(self.check(case=case, calls=self.calls + [call])['native_loop_used'])
+        self.assertFalse(self.check(case=case, calls=self.calls + [call | {'rounds': 1}])['native_loop_used'])
+
+
+    def test_formula_question_cannot_be_silently_shortened_to_hint(self):
+        result = deepcopy(self.result)
+        result['task_execution'] = {'learning_intents': ['explain', 'compare'], 'answer_constraints': ['no_full_answer']}
+        self.assertFalse(self.check(result=result, case={'kind': 'vision'})['full_answer_scope'])
+
 
 if __name__ == '__main__': unittest.main()

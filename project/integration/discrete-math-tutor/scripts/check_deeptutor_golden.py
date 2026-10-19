@@ -22,6 +22,10 @@ sys.path.insert(0, str(ROOT))
 def checks_for(case, result, calls, versions):
     generated = [call for call in calls if call['path'].endswith('/generate') and call['ok']]
     checks = {'real_gateway_used': bool(generated), 'no_client_text_leak': not any(call.get('client_text_leaked') for call in calls)}
+    if case.get('agentic') and case['kind'] != 'refusal':
+        checks['native_loop_used'] = any(call['path'].endswith('/agentic') and call['ok']
+            and call.get('engine') == 'agent_loop' and call.get('evidence_reads', 0) > 0
+            and call.get('rounds', 0) >= 2 and call.get('tool_steps', 0) > 0 for call in calls)
     if case['kind'] == 'refusal':
         gate = result.get('evidence_check') or {}
         checks.update(refused=result.get('answer_status') == 'evidence_rejected',
@@ -57,17 +61,23 @@ def checks_for(case, result, calls, versions):
         execution = TaskExecution.model_validate(result.get('task_execution') or {})
         checks['hint_scope'] = execution.hint_only and (result.get('teaching_plan') or {}).get('action') == 'give_hint'
     if case['kind'] == 'vision':
-        checks['images_sent'] = any(call.get('images', 0) > 0 and call['ok'] for call in generated)
+        from agents.task_execution import TaskExecution
+        checks['full_answer_scope'] = not TaskExecution.model_validate(result.get('task_execution') or {}).hint_only
+        checks['images_sent'] = any(call.get('images', 0) > 0 and call['ok']
+            and (call['path'].endswith('/generate') or call['path'].endswith('/agentic')) for call in calls)
     return checks
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--case', action='append', help='仅检查指定 ID；追问自动加入前置概念案例')
+    parser.add_argument('--agentic', action='store_true', help='教材讲解使用原生 AgentLoop，核验真实工具轮次')
     parser.add_argument('--citation-index', type=Path, default=ROOT / '.runtime/deeptutor-generation-smoke/citation-index.sqlite3')
     args = parser.parse_args()
     if not args.citation_index.is_file(): parser.error('请先用原 scripts.build_citation_index 构建隔离精细引用索引')
     cases = json.loads((ROOT / 'tests/data/deeptutor-golden.json').read_text(encoding='utf-8'))
+    if args.agentic:
+        for case in cases: case['agentic'] = True
     if args.case:
         requested = set(args.case)
         if not requested <= {case['id'] for case in cases}: parser.error('未知案例 ID')
@@ -86,6 +96,7 @@ def main():
         DATABASE_URL='sqlite:///' + str(home / 'host.sqlite3'),
         DEEPTUTOR_BACKEND_URL=f'http://127.0.0.1:{port}', DEEPTUTOR_BRIDGE_TOKEN=secrets.token_hex(32),
         DEEPTUTOR_LLM_ENABLED='1', DEEPTUTOR_KNOWLEDGE_ENABLED='1',
+        DEEPTUTOR_AGENTIC_ENABLED='1' if args.agentic else '0',
         DEEPTUTOR_SESSION_SYNC='1', DEEPTUTOR_TURN_SYNC='1',
         CITATION_GROUNDING_MODE='active', CITATION_GROUNDING_INDEX=str(args.citation_index.resolve()),
         MEMORY_WORKER_ENABLED='0', VISUALIZATION_ON_DEMAND='0',
@@ -99,7 +110,7 @@ def main():
     original_post, original_chat = DeepTutorBackend._post, LLMClient.chat
 
     def counted_post(self, path, payload):
-        if path.endswith('/generate') and sum(call['path'].endswith('/generate') for call in calls) >= 180:
+        if path.endswith(('/generate', '/agentic')) and sum(call['path'].endswith(('/generate', '/agentic')) for call in calls) >= 180:
             raise LLMError('黄金集达到180次模型调用上限')
         messages = payload.get('messages', [])
         images = sum(part.get('type') == 'image_url' for message in messages if isinstance(message.get('content'), list) for part in message['content'])
@@ -108,6 +119,8 @@ def main():
         calls.append(call); started = time.monotonic()
         try:
             result = original_post(self, path, payload); call['ok'] = True
+            if path.endswith('/agentic'):
+                call.update({key: result.get(key) for key in ('engine', 'rounds', 'tool_steps', 'evidence_reads')})
             return result
         finally:
             call['seconds'] = round(time.monotonic() - started, 2)
@@ -129,7 +142,7 @@ def main():
     assert Path(engine.url.database).resolve().is_relative_to(home.resolve())
     records = pdf_reader.documents()
     versions = {record['document_id']: record['version'] for record in records}
-    report = {'run': run, 'cases': [], 'passed': False, 'database_isolated': True, 'visualization_enabled': False}
+    report = {'run': run, 'agentic': args.agentic, 'cases': [], 'passed': False, 'database_isolated': True, 'visualization_enabled': False}
     output = home / 'report.json'
     identities, payloads = {}, {}
 
@@ -196,9 +209,9 @@ def main():
                 first = next((row for row in report['cases'] if row['passed'] and row['result'].get('answer_status') == 'answered'), None)
                 if first:
                     payload = payloads[first['id']]; result = first['result']
-                    before = sum(call['path'].endswith('/generate') for call in calls)
+                    before = sum(call['path'].endswith(('/generate', '/agentic')) for call in calls)
                     replay = client.post('/api/chat', json=payload)
-                    report['idempotency'] = replay.status_code == 200 and replay.json().get('conversation_id') == result['conversation_id'] and before == sum(call['path'].endswith('/generate') for call in calls)
+                    report['idempotency'] = replay.status_code == 200 and replay.json().get('conversation_id') == result['conversation_id'] and before == sum(call['path'].endswith(('/generate', '/agentic')) for call in calls)
                     query = {'student_id': payload['student_id'], 'session_id': payload['session_id'], 'task_revision': result['task_revision']}
                     events = client.get('/api/chat/tasks/' + result['task_id'] + '/events', params=query)
                     report['event_replay'] = events.status_code == 200 and 'event: sources' in events.text and 'event: done' in events.text

@@ -186,6 +186,8 @@ class ResponseGenerator:
         messages.append({"role": "user", "content": content})
         answer=self.llm.chat(messages, temperature=0.4,
                              max_tokens=budget.max_tokens,
+                             agentic_evidence=textbook_excerpts or None,
+                             agentic_max_characters=budget.maximum,
                              image_paths=figure_images).strip()
         return answer
 

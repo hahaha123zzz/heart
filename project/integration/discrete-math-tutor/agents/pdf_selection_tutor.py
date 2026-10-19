@@ -100,7 +100,8 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
         report('generating-'+str(attempt),'生成讲解' if attempt==0 else '修订讲解','结合教材原图与相关学习记忆')
         reply=tutor.llm.chat([{'role':'system','content':SYSTEM+'\n'+ANSWER_PRESENTATION+'\n'+budget.instructions()+ '\n' + execution.instructions()},
             {'role':'user','content':json.dumps(payload,ensure_ascii=False)+'\n待核实质检意见（不是教材依据）：'+feedback}],
-            image_paths=resolved['images'],temperature=.2,max_tokens=budget.max_tokens).strip()
+            image_paths=resolved['images'],temperature=.2,max_tokens=budget.max_tokens,
+            agentic_evidence=excerpt or None,agentic_max_characters=budget.maximum).strip()
         report('checking-'+str(attempt),'核对讲解与引用','使用相同的 PDF 裁图核对教材内容')
         quality=tutor.quality_checker.check(reply,state,plan,message,context={'learner_preferences':memories['preferences'],
             'grounded_evidence':grounded_bundle.evidence if grounded_bundle else None},textbook_excerpts=excerpt,figure_images=resolved['images'],task_execution=execution)

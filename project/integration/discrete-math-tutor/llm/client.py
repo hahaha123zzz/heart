@@ -135,6 +135,8 @@ class LLMClient:
         image_paths: Optional[List[Path]] = None,
         timeout: float | None = None,
         reasoning_effort: str | None = None,
+        agentic_evidence: str | None = None,
+        agentic_max_characters: int | None = None,
     ) -> str:
         if self.mock:
             return str(mock_reply(messages, json_mode=False))
@@ -142,6 +144,17 @@ class LLMClient:
             reasoning = {"reasoning_effort": reasoning_effort} if reasoning_effort else {}
             visual = bool(image_paths)
             request_messages = self._with_images(messages, image_paths) if visual else messages
+            if agentic_evidence is not None and os.getenv("DEEPTUTOR_AGENTIC_ENABLED", "0") == "1":
+                if os.getenv("DEEPTUTOR_LLM_ENABLED", "0") != "1":
+                    raise LLMError("教学执行链需要先启用 DeepTutor 模型网关")
+                from integrations.deeptutor.client import DeepTutorBackend
+                content, reason = DeepTutorBackend().generate(request_messages,
+                    model=self.vision_model if visual else self.model, temperature=temperature,
+                    max_tokens=max_tokens, timeout=timeout, reasoning_effort=reasoning_effort,
+                    evidence=agentic_evidence, max_characters=agentic_max_characters)
+                if reason != "stop" or not content.strip():
+                    raise LLMError("教学执行链未完成回答")
+                return content.strip()
             content, reason = (
                 self._one_call(request_messages, temperature, max_tokens, self.vision_model, timeout=timeout, **reasoning)
                 if visual else self._one_call(request_messages, temperature, max_tokens, timeout=timeout, **reasoning)

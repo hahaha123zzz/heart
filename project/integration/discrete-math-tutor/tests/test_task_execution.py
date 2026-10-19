@@ -15,6 +15,20 @@ from knowledge.textbook import TextbookChunk
 
 
 class TaskExecutionTests(unittest.TestCase):
+    def test_accuracy_request_does_not_become_hint_scope(self):
+        task=TaskUnderstanding(learning_intents=['explain','compare','hint'],answer_constraints=['no_full_answer'])
+        execution=build_execution('请解释我框选的两个差别感觉阈限DL公式：X、St、PSE、N分别是什么，两个公式的参照点有什么区别？引用这个选区，不要编造实验数据。',task)
+        self.assertFalse(execution.hint_only)
+        self.assertEqual(execution.learning_intents,['explain','compare'])
+
+    def test_accuracy_guard_preserves_explicit_hint_request(self):
+        task=TaskUnderstanding(learning_intents=['explain','hint'],answer_constraints=['no_full_answer'])
+        self.assertTrue(build_execution('请解释公式，只给提示，不要猜测。',task).hint_only)
+
+    def test_accuracy_guard_preserves_outline_only_request(self):
+        task=TaskUnderstanding(learning_intents=['explain'],answer_constraints=['no_full_answer'])
+        self.assertTrue(build_execution('请解释公式，只说思路，不要编造数据。',task).hint_only)
+
     def test_comparison_keeps_all_parts_and_matches_quality_length_budget(self):
         answer='比较说明。'*55+'两者均需控制额外变量。[1]'
         llm=Mock();llm.chat.return_value=answer

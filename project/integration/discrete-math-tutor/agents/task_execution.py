@@ -138,6 +138,11 @@ def build_execution(message, routing, context=None):
         query+=('\n本轮解释关系闭包的当前补边步骤与最小性，查找第九章9.1.4定义9.6与定理9.10。' if context.relation_snapshot.get('closure') else
             '\n本轮按当前序偶集合核对指定关系性质，查找第九章定义9.5与表9.1；辅助图不能当教材原图。')
     constraints = list(getattr(routing, 'answer_constraints', []))
+    intents = list(getattr(routing, 'learning_intents', []))
+    if (re.search(r"解释|说明|比较", message) and re.search(r"(?:不要|不得|不能|别)(?:编造|虚构|猜测)", message)
+            and not re.search(r"只|仅|提示|答案|解答|下一步|思路|最终|过程|不必|不需要|先|别(?:讲|给|说|展开)", message)):
+        constraints = [c for c in constraints if c not in ("hint_only", "no_full_answer")]
+        intents = [intent for intent in intents if intent != "hint"]
     verdict_requested = bool(re.search(r"(?:只|仅)(?:要|需)?(?:判断|判定|核对|确认|告诉我|说|答)[^。！？]{0,18}(?:对错|对不对|是否正确|是否成立|正误|对还是错)|(?:只|仅)(?:要)?(?:对错|正误)(?:判断|结论|结果)", message))
     if not verdict_requested:
         constraints = [c for c in constraints if c != "verdict_only"]
@@ -156,6 +161,6 @@ def build_execution(message, routing, context=None):
     if context is not None and any((snapshot or {}).get("answer_scope") == "hint" for snapshot in
         (context.graph_snapshot, context.truth_table_snapshot, context.relation_snapshot)):
         constraints = [c for c in constraints if c != "verdict_only"]
-    return TaskExecution(learning_intents=list(getattr(routing, "learning_intents", [])),
+    return TaskExecution(learning_intents=intents,
         answer_constraints=constraints, target_refs=refs,
         targets=targets, retrieval_query=query, preferences=dict(getattr(context, "preferences", {}) or {}))

@@ -53,6 +53,14 @@ python scripts/start_deeptutor.py
 
 独立环境可运行 `.venv-deeptutor/Scripts/python.exe -B scripts/check_deeptutor_sessions.py`，自动启动临时后端、检查真实映射/隔离/匿名访问并停止进程。它只使用烟测学生和 `.runtime/deeptutor-session-smoke`，不会写入宿主学习数据库。
 
+### 原生多轮教学执行链（受限试点）
+
+同时设置 `DEEPTUTOR_LLM_ENABLED=1`、`DEEPTUTOR_AGENTIC_ENABLED=1`，启动 worker 并重启宿主后，教材回答及 PDF 选区讲解复用上游原生 AgentLoop。每次先通过只读工具读取本轮已核验教材，再生成回答，原教学、提示和引用检查继续生效。模型不兼容图片/工具或执行中断时明确失败，不移除条件降级生成。
+
+每请求最多 6 次模型调用，总期限最多 180 秒；中间草稿不显示或写入上游会话。工具仅限本轮证据，尚未开放自主全库补查和通用工作区。默认开关为 `0`；关闭并重启即可回到已有 Provider 入口。新增轮次尚无性能收益对照。
+
+验证命令：`.venv-gpu/Scripts/python.exe -B scripts/check_deeptutor_golden.py --agentic`；使用合成学生和隔离数据库，实际调用本机配置的模型。方案、边界与验收见 [AGENTIC_STAGE.md](../../docs/research/2026-10-18-deeptutor-full-reuse/AGENTIC_STAGE.md)。
+
 ### 回合版本与断线恢复
 
 `DEEPTUTOR_TURN_SYNC=1` 开启上游回合投影，使用同一个宿主凭据。原任务保存后，直接复用上游 `begin_turn` / `append_events` / `transition_turn` / `get_events`；每个 task_id/revision 对应一个固定回合。同版本重复同步不增加事件，内容冲突返回失败。此开关自动包含会话绑定，无需同时开启 `DEEPTUTOR_SESSION_SYNC`。
