@@ -1,0 +1,21 @@
+{
+  "environment": "project/integration/discrete-math-tutor/.venv-deeptutor",
+  "method": "仅读取已安装发行包元数据，不代表模型或服务可用",
+  "packages": {
+    "openai": "2.54.0",
+    "llama-index-core": "0.14.25",
+    "llama-index-retrievers-bm25": "0.7.1",
+    "faiss-cpu": "1.15.1",
+    "sentence-transformers": null,
+    "fastembed": null,
+    "onnxruntime-gpu": null,
+    "PyMuPDF": "1.28.2",
+    "manim": null,
+    "lightrag-hku": null,
+    "graphrag": null,
+    "docling": null,
+    "mineru": null,
+    "markitdown": null,
+    "tika": null
+  }
+}
