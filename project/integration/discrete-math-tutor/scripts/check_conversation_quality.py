@@ -136,6 +136,15 @@ def order_cases(cases):
     return ordered
 
 
+def case_student_id(case, base, by_id):
+    """Give independent samples separate histories; keep ``follows`` connected."""
+
+    parent = case.get("follows")
+    if parent in by_id:
+        return case_student_id(by_id[parent], base, by_id)
+    return f"{base}-{case['id']}"
+
+
 def _live_checks(case, results, history_before_turns):
     kind = case.get("kind")
     if kind == "refusal":
@@ -192,13 +201,17 @@ def live_run(cases, *, output: Path):
     from orchestrator import TutorOrchestrator
 
     tutor = TutorOrchestrator()
-    student_id = "q1-" + run
+    base_student_id = "q1-" + run
+    by_id = {case["id"]: case for case in cases}
+    case_records = {}
     rows = []
-    conversation_history = []
     for case in order_cases(cases):
         if case["id"] in DEFERRED:
             rows.append({"id": case["id"], "status": "deferred", "reason": DEFERRED[case["id"]]})
             continue
+        student_id = case_student_id(case, base_student_id, by_id)
+        parent = case.get("follows")
+        conversation_history = list(case_records.get(parent, {}).get("history", []))
         turns = case["turns"]
         results = []
         history_before_turns = []
@@ -209,9 +222,12 @@ def live_run(cases, *, output: Path):
             results.append(result)
             conversation_history += [{"role": "user", "content": turn},
                                      {"role": "assistant", "content": result.get("reply", "")}]
+        case_records[case["id"]] = {"student_id": student_id,
+                                    "history": list(conversation_history)}
         checks = _live_checks(case, results, history_before_turns)
         rows.append({
             "id": case["id"],
+            "student_id": student_id,
             "checks": checks,
             "passed": all(checks.values()),
             "elapsed_seconds": round(time.monotonic() - started, 3),

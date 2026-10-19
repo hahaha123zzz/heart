@@ -169,9 +169,15 @@ def build_execution(message, routing, context=None):
         intents = [intent for intent in intents if intent != "hint"]
         constraints = [constraint for constraint in constraints
                        if constraint not in ("hint_only", "no_full_answer")]
-        intents.append("explain")
+        if "explain" not in intents:
+            intents.append("explain")
         if re.search(r"(?:不用|不要|别|不需要)(?:再)?(?:出题|问我|追问|考我)", message):
             constraints.append("no_questions")
+    if (re.search(r"区分|区别|辨析", message)
+            and "compare" not in intents and "explain" not in intents
+            and not re.search(r"(?:不要|别|无需|不用).{0,4}(?:区分|区别|辨析)", message)):
+        # “区分/有什么区别”是明确的讲解任务，不能改成连续追问。
+        intents.append("explain")
     if SIMPLIFY_PATTERN.search(message) and "explain" not in intents:
         # “没听懂/再简单点”是对上一轮解释的深度调整，不是新的提示请求。
         intents.append("explain")
@@ -196,6 +202,7 @@ def build_execution(message, routing, context=None):
         constraints.append("verdict_only")
     if re.search(r"(?:不要|别)(?:再)?(?:问我|追问|出题|考我)|先不做题|不做题|不需要(?:出题|检查题|练习题)", message):
         constraints.append("no_questions")
+    intents = list(dict.fromkeys(intents))
     constraints = list(dict.fromkeys(constraints))
     if context is not None and context.graph_snapshot and context.graph_snapshot.get('answer_scope') == 'hint':
         constraints = list(dict.fromkeys([*constraints, 'hint_only', 'no_full_answer']))
