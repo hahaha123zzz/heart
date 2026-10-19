@@ -104,6 +104,10 @@ class QualityChecker:
         budget = reply_budget(student_input, preferences={**rule_context.get("learner_preferences", {}), **(task_execution.preferences if task_execution else {})},
             execution=task_execution, action=plan.action, question_options=rule_context["question_options"],
             feedback_mode=rule_context.get("answer_feedback", {}).get("mode", ""))
+        override = rule_context.get("reply_maximum_override")
+        if isinstance(override, int) and override > 0 and override > budget.maximum:
+            from agents.reply_budget import ReplyBudget
+            budget = ReplyBudget(target=max(budget.target, override), maximum=override)
         rule_context["reply_maximum"] = budget.maximum
         rule_issues = self._rule_check(response, plan, rule_context)
         if PSYCHOLOGY and re.search(r'随机区组|被试间设计',student_input+response) and not re.search(r'被试内|重复测量',response):
