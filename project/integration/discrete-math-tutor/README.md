@@ -101,7 +101,9 @@ python scripts/start_deeptutor.py
 
 本轮9类真实案例、20条精确引用、幂等/重放/学生隔离通过，另有96项专项回归通过。修复了把数据缺失误当任务不明的路由，并限制从局部定义追加无依据的排除结论。详细结果、初轮问题、产物哈希及未覆盖范围见研究目录 GOLDEN_VALIDATION.md。实际 .env 与默认入口保持原配置，现有服务未重启。
 
-### 完整原生对话运行时（内部接入中）
+### 完整原生对话运行时（历史内部实验）
+
+2026-10-19路线已修订：整套能力通过代码集成到本项目，停止将完整对话委托 DeepTutor 应用的主链建设。范围继续覆盖11个能力、14个扩展、100个工具；下文仅记录此前实验，不能据此继续接学生入口。有效计划见 [整套代码集成计划](../../docs/research/2026-10-19-deeptutor-conversation-flow/IMPLEMENTATION_PLAN.md) 及同目录 LOCAL_REUSE_CONTRACT.md。
 
 worker 私有接口 `/internal/heart/native/start|status|events|reply|cancel` 直接接 DeepTutorApp 与原生持久化回合，不经过旧教学执行链。独立普通账户通过原生模型授权，每个学生/课程使用独立工作区；收据保存稳定 submission，完成、失败和取消后的普通重发不重新生成。接口要求共享凭据和 `DEEPTUTOR_NATIVE_ENABLED=1`，默认关闭。
 
