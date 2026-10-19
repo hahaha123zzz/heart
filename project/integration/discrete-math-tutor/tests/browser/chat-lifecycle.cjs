@@ -54,6 +54,8 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
   await page.waitForFunction(()=>!state.taskRecoveryNeeded && state.sectionData && state.chat[0]?.conversationId===101);
   await page.evaluate(()=>{
    window.testCounts={mount:0,update:0,dispose:0,math:0};
+   const renderer=window.TutorMarkdown.render;window.markdownRenderCalls=0;
+   window.TutorMarkdown.render=(...args)=>{markdownRenderCalls++;return renderer(...args);};
    window.TextbookPDF={renderMath:p=>{testCounts.math++;p.dataset.math='rendered';}};
    chatRenderer.refreshMath();
    const key=state.chat[0].renderKey;
@@ -82,6 +84,7 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
   assert.equal(check.sameRow,true);assert.equal(check.sameInput,true);assert.equal(check.focusKept,true);
   assert.equal(check.inputValue,'学生修改的状态');assert.equal(check.collapsed,true);
   assert.deepEqual(check.counts,{mount:1,update:1,dispose:0,math:2});
+  assert.equal(await page.evaluate(()=>markdownRenderCalls),1);
   console.log('PASS：20 次进度更新和最终回答保留组件、焦点与折叠状态，正文变化才重渲染公式');
 
   await page.locator('#chat-input').fill('追加问题');await page.locator('#chat-form').evaluate(form=>form.requestSubmit());
@@ -92,7 +95,7 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
    assistant:getComputedStyle(document.querySelector('.message.assistant [data-message-part="content"] p')).whiteSpace,
    user:getComputedStyle(document.querySelector('.message.user [data-message-part="content"] p')).marginBottom,
   }));
-  assert.deepEqual(styles,{assistant:'pre-wrap',user:'0px'});
+  assert.deepEqual(styles,{assistant:'normal',user:'0px'});
   console.log('PASS：实际流式发送、追加消息和教材引用保留旧组件');
   rejectEvidence=true;
   await page.locator('#chat-input').fill('验证证据不足');await page.locator('#chat-form').evaluate(form=>form.requestSubmit());
@@ -142,6 +145,95 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
   console.log('PASS：视图切换、重排、稳定历史 ID、转义、滚动和组件一次释放');
   await page.reload();await page.waitForFunction(()=>state.chat[0]?.conversationId===101);
   assert.equal(await page.evaluate(()=>state.chat[0].renderKey),await page.evaluate(()=>messagesFromHistory([{id:101}])[0].renderKey));
+  assert.equal(await page.evaluate(()=>typeof window.TutorMarkdown?.render),'function');
+  const rich = [
+   '##随机分配', '', '甲**关键变量**乙，==控制条件==，~~旧方案~~。', '',
+   '1. 明确自变量', '2. 控制无关变量', '', '- [x] 已核验', '- [ ] 待复核', '',
+   '| 变量 | 含义 |', '| --- | --- |', '| 处理 | 实验条件 |', '',
+   '> 先考虑如何分组。', '', '```python', 'print("**保持代码**", "[2]", "$x$")', '```', '',
+   '```', 'single_line()', '```', '',
+   '行内公式 $x=[1,2]$ 和 \\(a^2+b^2\\)，教材依据 [1]。', '',
+   '$$', '\\frac{a}{b} = c', '$$', '',
+   '[安全链接](https://example.com/a?q=1) [危险链接](javascript:alert%281%29)', '',
+   '[工作区链接](/api/files/remove) ![外部图片](https://example.com/tracker.png)', '',
+   '<img src="https://example.com/html-image.png" onerror="window.__markdownXSS=1">',
+   '<script>window.__markdownXSS=1</script>', '',
+  ].join('\n');
+  const mediaRequests=[];
+  page.on('request',request=>{if(request.url().includes('example.com'))mediaRequests.push(request.url());});
+  await page.evaluate(content=>{
+   state.chat=[{renderKey:'markdown-a',role:'assistant',content,sources:['第一条证据']},
+    {renderKey:'markdown-b',role:'assistant',content:'第二条回答 [1]，无对应来源 [99]。',sources:['第二条证据']}];
+   renderChat();window.markdownClicks=[];
+   document.querySelectorAll('.message-source').forEach(button=>button.addEventListener('click',event=>{
+    event.stopPropagation();markdownClicks.push(button.dataset.sourceCitation);
+   }));
+  },rich);
+  const markdown=page.locator('[data-message-key="markdown-a"] .tutor-markdown');
+  assert.equal(await markdown.locator('h2').textContent(),'随机分配');
+  assert.equal(await markdown.locator('strong').first().textContent(),'关键变量');
+  assert.equal(await markdown.locator('mark').textContent(),'控制条件');
+  assert.equal(await markdown.locator('del').textContent(),'旧方案');
+  assert.equal(await markdown.locator('ol > li').count(),2);
+  assert.equal(await markdown.locator('input[disabled]').count(),2);
+  assert.equal(await markdown.locator('table td').count(),2);
+  assert.equal((await markdown.locator('blockquote').textContent()).trim(),'先考虑如何分组。');
+  assert.equal(await markdown.locator('pre code').count(),2);
+  assert.match(await markdown.locator('pre').first().textContent(),/\*\*保持代码\*\*.*\[2\].*\$x\$/);
+  assert.equal(await markdown.locator('pre strong, pre .katex, pre .citation-group').count(),0);
+  assert.equal(await markdown.locator('.katex').count(),3);
+  assert.equal(await markdown.locator('.katex-display').count(),1);
+  assert.equal(await markdown.locator('.citation-group').count(),1);
+  assert.equal(await markdown.locator('img, script, iframe, svg').count(),0);
+  assert.equal(await page.evaluate(()=>window.__markdownXSS),undefined);
+  assert.equal(await markdown.getByText('危险链接',{exact:true}).getAttribute('href'),null);
+  assert.equal(await markdown.getByText('工作区链接',{exact:true}).getAttribute('href'),null);
+  assert.equal(await markdown.getByText('安全链接',{exact:true}).getAttribute('rel'),'noopener noreferrer');
+  assert.equal(await markdown.getByText('安全链接',{exact:true}).getAttribute('target'),'_blank');
+  assert.deepEqual(mediaRequests,[]);
+  assert.equal(await page.evaluate(()=>state.chat[0].content),rich);
+  await page.locator('[data-message-key="markdown-b"] .citation-group a').first().click();
+  await page.locator('[data-message-key="markdown-b"] .citation-group a').last().click();
+  assert.deepEqual(await page.evaluate(()=>markdownClicks),['1']);
+  await markdown.locator('.citation-group a').click();
+  assert.deepEqual(await page.evaluate(()=>markdownClicks),['1','0']);
+  console.log('PASS：真实上游 Markdown、GFM、中文强调、代码、公式、安全边界及同消息引用');
+
+  await page.evaluate(()=>{
+   const first=chatRenderer.rows.get('markdown-a');window.keptMath=first.element.querySelector('.katex');
+   state.chat[0].progress=[{order:1,label:'检索',status:'running'}];renderChat();
+  });
+  assert.equal(await page.evaluate(()=>keptMath.isConnected),true);
+  await page.setViewportSize({width:390,height:844});
+  await page.locator('[data-mobile-pane="chat"]').click();
+  await page.evaluate(()=>{state.chat[0].content+='\n\n| 长表头 | 内容 |\n| --- | --- |\n| '+ '长单词'.repeat(100) +' | 内容 |\n\n```\n'+ 'long_token_'.repeat(100) +'\n```';renderChat();});
+  const narrow=await markdown.evaluate(el=>({width:el.getBoundingClientRect().width,overflow:document.documentElement.scrollWidth>innerWidth+1}));
+  assert.ok(narrow.width>0 && narrow.width<=390,JSON.stringify(narrow));
+  assert.equal(narrow.overflow,false);
+  const screenshot=process.env.CHAT_TEST_SCREENSHOT;
+  if(screenshot)await page.screenshot({path:screenshot,fullPage:true});
+  console.log('PASS：进度更新保留已排版公式，390px 长表格/代码不撑破页面');
+  await page.evaluate(async()=>{await import('/static/pdf-reader/reader.js');});
+  const compatibility=await page.evaluate(()=>{
+   const host=document.createElement('section');host.className='exercise-help';document.body.append(host);
+   try {
+    const content=String.raw`提示：$x+1$，依据 [1]。`;
+    host.innerHTML=window.renderTutorAnswer(content)+window.renderPracticeReferences({reply:content,textbook_sources:['练习证据']},'fixture')+'<p class="legacy-formula">旧公式 $a+b$</p>';
+    const math=host.querySelector('.tutor-markdown');const before=math.innerHTML;const formula=math.querySelector('.katex');
+    window.TextbookPDF.renderMath(host);
+    window.TextbookPDF.renderMath(math.querySelector('p'));
+    let practiceClicks=0;
+    host.querySelector('.message-source').addEventListener('click',event=>{event.stopPropagation();practiceClicks++;});
+    host.querySelector('.citation-group a').click();
+    const unsafe=document.createElement('div');
+    unsafe.innerHTML=window.renderTutorAnswer(String.raw`$\href{javascript:alert(1)}{危险}$ $\includegraphics{https://example.com/tex.png}$`);
+    return {preserved:math.innerHTML===before && formula.isConnected,
+      legacyMath:host.querySelectorAll('.legacy-formula .katex').length,practiceClicks,
+      unsafeMedia:unsafe.querySelectorAll('img,iframe,script,a[href^="javascript:"]').length};
+   }finally{host.remove();}
+  });
+  assert.deepEqual(compatibility,{preserved:true,legacyMath:1,practiceClicks:1,unsafeMedia:0});
+  console.log('PASS：真实阅读器不重复排版富文本，原公式与练习反馈引用保持兼容');
   assert.deepEqual(errors,[]);console.log('浏览器检查全部通过');
  }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);process.exitCode=1;});

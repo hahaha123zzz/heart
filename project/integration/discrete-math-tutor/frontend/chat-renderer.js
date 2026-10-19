@@ -1,7 +1,8 @@
 "use strict";
 
-// shortcut: 仅支持短语强调与行内代码，需要完整 Markdown 时接入经过审核的解析器。
+// 富文本资源加载失败时保留原基础正文。
 window.renderTutorAnswer = text => {
+  if (window.TutorMarkdown) return window.TutorMarkdown.render(text);
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const tokens = /\$\$[\s\S]*?\$\$|\$[^$\n]+\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|`[^`\n]+`|\*\*[^*\n]+\*\*|==[^=\n]+==/g;
   let result='', end=0;

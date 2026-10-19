@@ -116,7 +116,7 @@ function Reader({metadata,reference,onAsk}){
  </div>;
 }
 window.TextbookPDF={
-renderMath(element){renderMathInElement(element,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false,trust:false,strict:'ignore'});},
+renderMath(element){if(element.closest('.tutor-markdown'))return;renderMathInElement(element,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredClasses:['tutor-markdown'],throwOnError:false,trust:false,strict:'ignore'});},
 mount(element,metadata,reference,onAsk){let instance=mounted.get(element);if(!instance){instance=createRoot(element);mounted.set(element,instance);}instance.render(<Reader key={metadata.document_id} metadata={metadata} reference={reference} onAsk={onAsk}/>);},
 unmount(element){const instance=mounted.get(element);if(instance){instance.unmount();mounted.delete(element);}}
 };

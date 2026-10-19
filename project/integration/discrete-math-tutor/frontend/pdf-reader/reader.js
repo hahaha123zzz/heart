@@ -32733,7 +32733,7 @@ function lC({ metadata: s, reference: e, onAsk: t }) {
 }
 window.TextbookPDF = {
   renderMath(s) {
-    iC(s, { delimiters: [{ left: "$$", right: "$$", display: !0 }, { left: "$", right: "$", display: !1 }, { left: "\\(", right: "\\)", display: !1 }, { left: "\\[", right: "\\]", display: !0 }], throwOnError: !1, trust: !1, strict: "ignore" });
+    s.closest(".tutor-markdown") || iC(s, { delimiters: [{ left: "$$", right: "$$", display: !0 }, { left: "$", right: "$", display: !1 }, { left: "\\(", right: "\\)", display: !1 }, { left: "\\[", right: "\\]", display: !0 }], ignoredClasses: ["tutor-markdown"], throwOnError: !1, trust: !1, strict: "ignore" });
   },
   mount(s, e, t, r) {
     let i = Xf.get(s);

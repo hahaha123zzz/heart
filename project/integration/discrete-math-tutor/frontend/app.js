@@ -464,6 +464,17 @@ async function openEulerGraph(graph=null, forQuestion=false, mode='explore', cor
 }
 
 const emptyChatMessage = {renderKey:'empty',role:'assistant',content:'选一节教材开始阅读。你可以划选文字或圈选图、公式，再向我提问。'};
+const answerMarkup = new WeakMap();
+function renderAnswerContent(message) {
+  if (!message.content) return '';
+  if (message.role !== 'assistant') return '<p>'+esc(message.content)+'</p>';
+  const previous=answerMarkup.get(message);
+  if (previous?.content===message.content && previous.renderer===window.TutorMarkdown) return previous.html;
+  const html=window.renderTutorAnswer(message.content);
+  // 进度变化不重新解析整条正文；消息删除后缓存随对象释放。
+  answerMarkup.set(message,{content:message.content,renderer:window.TutorMarkdown,html});
+  return html;
+}
 let chatRenderer;
 function renderChat() {
   const messages=state.chat.length?state.chat:[emptyChatMessage];
@@ -472,7 +483,7 @@ function renderChat() {
   chatRenderer.render(messages.map((m,index)=>({key:m.renderKey ??= newRequestId(),role:m.role,parts:{
     progress:m.startedAt?renderProgress(m):'',
     object:m.objectLabel?'<small>针对：'+esc(m.objectLabel)+'</small>':'',
-    content:m.content?(m.role==='assistant'?window.renderTutorAnswer(m.content):'<p>'+esc(m.content)+'</p>'):'',
+    content:renderAnswerContent(m),
     references:renderChatReferences(m,index),clarification:renderClarification(m),style:renderStyleSuggestion(m,index),
     memory:m.memorySummary?'<div class="memory-summary">'+esc(m.memorySummary)+'</div>':'',
     figures:(m.imageRefs||[]).map(renderFigure).join(''),
