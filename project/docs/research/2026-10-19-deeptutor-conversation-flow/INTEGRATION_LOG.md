@@ -14,9 +14,9 @@
 
 | 文件 | 改动 | 目的 |
 | --- | --- | --- |
-| `agents/q3_tools.py` | 使用 Q4 `ScopedToolRegistry` 建立每回合授权工具视图；加入 `retrieve_course`/`ask_user` 覆盖工具；检索来源编号跨调用全局连续；单回合来源预算 24 | Q4 真正进入 Q3 任务链；避免多次检索后 `[n]` 指向不同片段 |
+| `agents/q3_tools.py` | 使用 Q4 `ScopedToolRegistry` 建立每回合授权工具视图；加入 `retrieve_course`/`ask_user` 覆盖工具；检索来源编号跨调用全局连续；同批次检索串行编号、重复来源去重；单回合来源预算 24 | Q4 真正进入 Q3 任务链；避免多次检索后 `[n]` 指向不同片段或重复片段 |
 | `agents/agent_loop.py` | `LoopRequest.tool_state`；向 `ToolContext.state` 注入工作区/技能根；每轮同步 `source_offset`；引用/格式失败允许一次有界修订 | Q4 工具执行需要可信的任务资源；引用错误可修复一次 |
-| `agents/agent_loop_service.py` | 优先使用 Q2 `course_navigation` 作为权威目标；主机已解析的下一目标不再被 Q3 重新澄清；目标范围内检索并按章节/小节过滤；结果写入 `knowledge_point`/`memory_commit`/`course_navigation` | 修复“继续下一个知识点”被 Q3 重新拦截，以及导航位置不持久化 |
+| `agents/agent_loop_service.py` | 优先使用 Q2 `course_navigation` 作为权威目标；主机已解析的下一目标不再被 Q3 重新澄清；优先读取精确目标块；结果写入 `knowledge_point`/`memory_commit`/`course_navigation`；`pdf_references` 只发布正文实际引用的 sources | 修复“继续下一个知识点”被 Q3 重新拦截、答偏到同节其他内容，以及未引用来源被展示为引用卡 |
 | `agents/quality_checker.py` | 新增 `agent_loop` 模式：只把教材事实、引用支持、明确问题未回答、编造内容列为 issues；措辞/扩展/未要求出题只放 suggestions | 避免普通 AgentLoop 问答被结构化教学审计误拒；引用核验仍然保留 |
 | `scripts/check_q3_loop.py` | 新增 `--mode live_navigation`：通过 `TaskService` 跑“第一章→继续下一个知识点”两轮 | 真实页面同路径的可复现验收 |
 | `tests/test_q3_q4_integration.py` | 新增 11 项集成测试：Q4 注册表、技能/工作区授权、Q3 工具循环、全局来源编号、预算、主机导航、质量门禁 | 覆盖本轮新增接口与失败模式 |
@@ -47,7 +47,7 @@ $env:PYTHONPATH=(Get-Location).Path
   tests.test_q4_tool_foundation tests.test_q3_q4_integration -v
 ```
 
-结果：**87 项通过，0 失败**。日志：`.runtime/q3-q4-tests-final.log`。
+结果：**89 项通过，0 失败**。日志：`.runtime/q3-q4-tests-current.log`。
 
 ```powershell
 & 'E:\项目\heart\project\integration\discrete-math-tutor\.venv-gpu\Scripts\python.exe' -B -m unittest `
@@ -55,7 +55,7 @@ $env:PYTHONPATH=(Get-Location).Path
   tests.test_quality_guard tests.test_course_navigation tests.test_grounded_citations -v
 ```
 
-结果：**109 项通过，0 失败**。日志：`.runtime/q3-q4-regression-final.log`。
+结果：**109 项通过，0 失败**。日志：`.runtime/q3-q4-regression-current.log`。
 
 此前 207 项集成回归的结论来自本窗口之前的快照；本轮按窗口要求复跑了上述两组，未把旧结果当作本轮通过。worktree 缺少 `.venv-gpu`/`.env`，命令使用主项目虚拟环境；脚本只读加载主项目 `.env`，数据库为隔离 `.runtime/q3-live`。
 
@@ -63,6 +63,7 @@ $env:PYTHONPATH=(Get-Location).Path
 
 - `39abe13`：Q3/Q4 集成前序提交（Q4 工具授权、全局引用编号、导航接线、集成日志）。
 - `9a6f8da`：本窗口最终修复（同批次全局编号、Q2 目标块优先、畸形引用门禁、集成测试与脚本指标）。
+- `928f410`：引用收敛后续提交（只发布正文实际引用的 sources、重复检索去重、探索轮数 4）；Q3/Q4 89 项、相关回归 109 项通过。
 
 
 
