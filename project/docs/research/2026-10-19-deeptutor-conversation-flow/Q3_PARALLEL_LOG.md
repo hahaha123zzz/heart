@@ -95,3 +95,7 @@
 
 只提交本 worktree 的 Q3 模块、测试、脚本和 Q3 文档；不提交 `knowledge/courses` junction、`.runtime`、`__pycache__`、主工作区未提交改动。共享入口改动单独提交并列出依赖，不自动合并 `main`。
 
+- `f154bb0`：Q3 工具协议、本地循环、ask_user 契约、导航边界、Q3 服务、LLM tool-call、脚本与 15 个核心文件。
+- `1271e0b`：依赖 `f154bb0` 的 TaskService/main/QualityChecker 集成与任务/入口测试。
+- 当前分支 `codex/q3-agent-loop`，基线 `2d4b4d0`；未推送、未合并主分支、未覆盖主工作区。`knowledge/courses` 仅为本机测试 junction，保持未跟踪。
+
