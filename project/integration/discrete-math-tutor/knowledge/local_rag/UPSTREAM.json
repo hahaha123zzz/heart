@@ -19,11 +19,19 @@
       "source_sha256": "410fe6ab27ca57f203dfc1df1dfbc5cb615d6a3b09c2f9ebf93f76117dd41151",
       "target": "knowledge/local_rag/rerank.py",
       "target_sha256": "51ddbff189dd22f183dfc40e6d6c584f2bd15334cc4c8fbeb3e8a744b57d1f3d"
+    },
+    {
+      "source": "deeptutor/services/courses.py",
+      "symbol": "SyllabusUnit",
+      "source_sha256": "533d436b19031b58cbed0f14cac412c807fb36d3a9f088947fead2e780f0b81d",
+      "target": "knowledge/local_rag/syllabus.py",
+      "target_sha256": "beae8e2e3815a1f5d91beec8a90e9e2b7d058018bfdb66e6c9fd33162646ae97"
     }
   ],
   "adaptations": [
     "配置改为本项目RAG环境变量，移除原生应用设置",
     "BM25使用本项目中文分词并恢复原始节点进行RRF融合",
-    "重排复用本项目FastEmbed/FlagEmbedding与设备验证，显式记录失败/降级"
+    "重排复用本项目FastEmbed/FlagEmbedding与设备验证，显式记录失败/降级",
+    "提取 SyllabusUnit 原始数据结构到本项目；本项目另接真实教材标题顺序与任务收据，不复制 mastery 门禁为浏览进度"
   ]
 }

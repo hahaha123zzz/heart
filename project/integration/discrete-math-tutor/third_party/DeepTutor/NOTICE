@@ -8,3 +8,10 @@ device-specific model caching, strict score validation and explicit degradation
 status. Source and adapted file hashes are recorded in knowledge/local_rag/UPSTREAM.json.
 The upstream Apache-2.0 LICENSE is retained in this directory. The local adapters,
 tests and evaluator do not start or route requests to the DeepTutor application.
+
+Q2 course navigation extracts the SyllabusUnit dataclass (including its covered
+semantics) from deeptutor/services/courses.py at the same commit into
+knowledge/local_rag/syllabus.py. The host project binds these ordered units to
+published textbook headings and existing task receipts. Learning/mastery policy
+and the upstream application service are not copied by this checkpoint.
+The source symbol and source/target hashes are recorded in local_rag/UPSTREAM.json.

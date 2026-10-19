@@ -126,7 +126,19 @@ class TutorOrchestrator:
         active_point = (
             self.memory.get_active_goal(student_id) or learning_goal or DEFAULT_GOAL
         )
-        if precomputed_routing is not None:
+        from knowledge.course_navigation import resolve as resolve_navigation
+        navigation = task_context.course_navigation if task_context is not None else resolve_navigation(message)
+        if navigation and navigation['status'] != 'ready':
+            return {'reply': navigation['reply'], 'answer_status': 'navigation_complete' if navigation['status'] == 'complete'
+                    else 'awaiting_clarification', 'step_advanced': False, 'textbook_sources': [],
+                    'knowledge_point': active_point, 'image_refs': [], 'pdf_references': []}
+        if navigation:
+            from models.task_understanding import TaskUnderstanding
+            routing = TaskUnderstanding(intent='continue' if navigation['mode'] == 'repeat' else 'new_goal',
+                needs_context=navigation['mode'] == 'repeat', student_move='question', confidence=1.0,
+                topic=navigation['title'], learning_intents=['explain'], answer_constraints=['no_questions'],
+                reason='按教材真实目录解析到明确目标，覆盖与掌握分别记录')
+        elif precomputed_routing is not None:
             routing = precomputed_routing
         elif task_context is not None:
             if task_context.student_id != student_id or task_context.message != message:
@@ -214,7 +226,13 @@ class TutorOrchestrator:
         goal = point
         execution = build_execution(message, routing, task_context)
         stuck_count = consecutive_stuck(history, message)
-        query = execution.retrieval_query if execution.target_refs else self._retrieval_query(message, point, routing, history)
+        if navigation:
+            execution.target_refs = []
+            execution.targets = [{'kind': 'course_navigation', 'chapter': navigation['chapter_title'],
+                'section': navigation['section_title'], 'title': navigation['title'], 'mode': navigation['mode'],
+                'scope': '按教材标题顺序逐点学习；本轮先说明当前位置，再讲该目标，不一次讲完整章，不宣称学生已经掌握。'}]
+        query = (navigation['section_title'] + ' ' + navigation['title'] if navigation else
+                 execution.retrieval_query if execution.target_refs else self._retrieval_query(message, point, routing, history))
         citation_path=None
         if PSYCHOLOGY:
             from knowledge.grounded_citations import settings as citation_settings,choose_evidence
@@ -224,8 +242,12 @@ class TutorOrchestrator:
             query+='\n最近对话所指内容（仅作检索线索）：'+re.sub(r'\[\d+\]','', '\n'.join(row['content'] for row in history[-4:]))[-1800:]
         resource_query = bool(re.search(r"(?:图|表)\s*\d+\s*[.．]\s*\d+|表格|真值表|函数表|公式|表达式|配图|插图|图片", message))
         report("retrieving", "检索教材", "查找相关正文、公式、表格和插图")
-        sources = retrieve_course(message if resource_query and not execution.target_refs else query, self.textbook_chunks,
-                                  limit=6 if PSYCHOLOGY else 2, preferred_types=execution.retrieval_types())
+        if navigation:
+            from knowledge.course_navigation import read_target
+            sources = read_target(navigation)
+        else:
+            sources = retrieve_course(message if resource_query and not execution.target_refs else query, self.textbook_chunks,
+                                      limit=6 if PSYCHOLOGY else 2, preferred_types=execution.retrieval_types())
         if is_stuck(message) and sources:
             chapter = sources[0].source
             basics = [
@@ -286,7 +308,11 @@ class TutorOrchestrator:
                     for i, item in enumerate(sources, 1)]
         if figures:
             evidence.append({"id": "images", "text": format_figure_context(figures)})
-        evidence_question = execution.retrieval_query if execution.target_refs else message
+        evidence_question = ('讲解教材' + navigation['chapter_title'] + '，本轮只讲' + navigation['section_title'] + '中的' +
+                             navigation['title'] + '；这是按目录逐点学习，不要求一次讲完整章。' if navigation else
+                             execution.retrieval_query if execution.target_refs else message)
+        if navigation and navigation['mode'] == 'repeat':
+            evidence_question += '本轮要求围绕这个目标重述上一轮讲解：' + message
         if is_self_report_understood(message) and not execution.no_questions:
             evidence_question = f"围绕{point}及最近教材讲解设计一个简短理解检查，核验检查所需定义和条件是否有教材依据。学生本轮只是确认理解，不是新的事实问题。"
         evidence_check = self.context_sufficiency.check(
@@ -295,8 +321,8 @@ class TutorOrchestrator:
             hint_only=execution.hint_only,
             memory_context=memory_context,
         )
-        recovered = recover_evidence(evidence_question, sources, self.textbook_chunks, evidence_check, retrieve_course,
-                                     max_sources=9 if PSYCHOLOGY else 6)
+        recovered = sources if navigation else recover_evidence(evidence_question, sources, self.textbook_chunks, evidence_check,
+                                     retrieve_course, max_sources=9 if PSYCHOLOGY else 6)
         if len(recovered) > len(sources):
             report("evidence", "补充核验依据", "补检索缺失的定义与条件，再核验完整问题")
             original_count = len(sources)
@@ -369,7 +395,7 @@ class TutorOrchestrator:
         report("planning", "组织讲解", "结合教材与学习记录确定讲解方式")
 
         # 明确的内容提问只消费已有画像；学生作答和主动学习仍进入教学评估。
-        direct_answer = execution.can_answer_directly(routing, message)
+        direct_answer = bool(navigation) or execution.can_answer_directly(routing, message)
         prior_feedback = (previous_event or {}).get("payload", {}).get("teaching_context", {}).get("feedback_mode")
         assisted_retry = routing.student_move == "statement" and prior_feedback in (
             "targeted_hint", "hint_only", "worked_example", "supportive_hint")

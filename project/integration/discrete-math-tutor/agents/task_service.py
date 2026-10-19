@@ -57,6 +57,17 @@ class TaskService:
             relation_target=request.relation_target,
             preferences={**self.tutor.memory.get_profile(request.student_id).preferences,
                 **(request.style_overrides.model_dump(exclude_none=True) if request.style_overrides else {})})
+        from knowledge.course_navigation import resolve, previous_cursor
+        cursor = previous_cursor(recent, self.tutor.memory, request.student_id)
+        if not any((request.selection, request.exercise_target, request.visualization_target,
+                    request.truth_table_target, request.relation_target)):
+            context.course_navigation = resolve(request.message, cursor=cursor, reader_location=request.reader_location)
+            if (context.course_navigation is None and cursor and re.fullmatch(
+                    r'(?:我|还是|刚才|请|没听懂|再解释(?:一次|一下|一遍)?|换(?:个|一种)说法|'
+                    r'再简单(?:点|一点)?|继续这个例子|继续讲|接着讲|[，。！？、\s])+', request.message)):
+                context.course_navigation = dict(cursor, mode='repeat', explained=False)
+            if context.course_navigation and context.course_navigation['status'] == 'ready':
+                context.knowledge_point = context.course_navigation['title']
         def origin(source, obj):
             values = {"reader_location": None, "selection": None, "exercise_target": None, "visualization_target": None, "truth_table_target": None, "relation_target":None}
             key = {"section": "reader_location", "pdf_selection": "selection", "exercise_part": "exercise_target", "visualization":"visualization_target", "truth_table":"truth_table_target", "relation":"relation_target"}[obj.kind]
@@ -159,6 +170,12 @@ class TaskService:
             if duplicate is not None: return duplicate
             def guard():
                 self.repo.guard(task["student_id"], task["session_id"], task["id"], task["revision"], self.tutor.memory.repo)
+                if context.course_navigation and context.course_navigation['status'] == 'ready':
+                    from knowledge.course_navigation import validate
+                    try:
+                        validate(context.course_navigation)
+                    except (ValueError, OSError) as exc:
+                        raise TaskConflict('document_changed', str(exc)) from exc
                 if context.relation_snapshot:
                     from visualization.relation import RelationService
                     try:RelationService().guard_snapshot(context.relation_snapshot,request.student_id,request.session_id)
@@ -267,6 +284,14 @@ class TaskService:
             # 与最后一次保存使用相同工作单元检查，拒绝已删除/取消的迟到结果。
             with self.tutor.memory.repo.unit_of_work():
                 guard()
+                if (result.get('answer_status') == 'answered' and result.get('memory_commit', {}).get('status') == 'committed'):
+                    navigation = context.course_navigation
+                    if not navigation:
+                        from knowledge.course_navigation import previous_cursor
+                        navigation = previous_cursor(self.repo.recent(request.student_id, request.session_id, limit=12),
+                                                     self.tutor.memory, request.student_id)
+                    if navigation and navigation.get('status') == 'ready' and result.get('knowledge_point') == navigation['title']:
+                        result = dict(result, course_navigation=dict(navigation, explained=True))
                 if result.get("visualization_status") == "ready":
                     if not self.tutor.memory.repo.attach_guide(request.student_id, result["conversation_id"], result["guided_visualization"]):
                         raise TaskConflict("memory_deleted", "相关对话已删除，图解未保存")
@@ -274,7 +299,7 @@ class TaskService:
                     context=context.model_dump() | {"document_versions": document_versions})
             return result
         except TaskConflict as error:
-            if error.code == 'visualization_changed' and 'task' in locals():
+            if error.code in ('visualization_changed', 'document_changed') and 'task' in locals():
                 try:
                     self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo,
                         status='failed', result=self.conflict_reply(error))

@@ -49,6 +49,10 @@ def reply_budget(text="", *, preferences=None, execution=None, action="explain",
             r"并(?:要|需)?(?:说明|解释|比较|给出|回答|指出)|以及|同时|分别|；|;", text))
         if multi_part:
             target, maximum = max(target, 320), max(maximum, 360)
+        # 目录导学需同时交代位置和正文；简化追问仍沿用普通短回复预算。
+        if execution is not None and any(t.get('kind') == 'course_navigation' and t.get('mode') != 'repeat'
+                                         for t in execution.targets):
+            target, maximum = max(target, 320), max(maximum, 360)
     if question_options:
         target, maximum = max(target, 420), max(maximum, 440)
     return ReplyBudget(target, maximum)
