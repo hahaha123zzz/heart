@@ -40,6 +40,9 @@ SYSTEM_PROMPT = """[AGENT:lesson_planner]
 }"""
 
 
+from agents.course_prompts import adapt_generic
+SYSTEM_PROMPT=adapt_generic(SYSTEM_PROMPT)
+
 class LessonPlanner:
     def __init__(self, llm: LLMClient) -> None:
         self.llm = llm
@@ -52,7 +55,7 @@ class LessonPlanner:
                 "content": (
                     "学习目标：" + goal + "\n"
                     "学生当前状态：" + str(state.model_dump()) + "\n"
-                    "离散数学教材摘录：" + textbook_excerpts
+                    "当前教材摘录：" + textbook_excerpts
                 ),
             },
         ]

@@ -76,6 +76,10 @@ class LLMClient:
         model: str | None = None, timeout: float | None = None,
         reasoning_effort: str | None = None,
     ) -> tuple[str, str | None]:
+        if os.getenv("DEEPTUTOR_LLM_ENABLED", "0") == "1":
+            from integrations.deeptutor.client import DeepTutorBackend
+            return DeepTutorBackend().generate(messages, model=model or self.model,
+                temperature=temperature, max_tokens=max_tokens, timeout=timeout, reasoning_effort=reasoning_effort)
         args: dict[str, Any] = {
             "model": model or self.model, "messages": messages,
             "temperature": temperature, "max_tokens": max_tokens,
@@ -144,10 +148,12 @@ class LLMClient:
             )
             if not content and reason == "length" and timeout is None:
                 retry_tokens = max(max_tokens * 2, 1200)
-                content, _ = (
+                content, reason = (
                     self._one_call(request_messages, temperature, retry_tokens, self.vision_model, timeout=timeout, **reasoning)
                     if visual else self._one_call(request_messages, temperature, retry_tokens, timeout=timeout, **reasoning)
                 )
+            if reason == "length":
+                raise LLMError("模型输出达到长度上限，未完成回答")
             if not content.strip():
                 raise LLMError("模型输出达到长度上限，未完成回答" if reason == "length" else "模型未返回文本内容")
             return content.strip()

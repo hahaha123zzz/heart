@@ -199,5 +199,17 @@ class MemoryManagementTests(unittest.TestCase):
         self.assertEqual(self.count(ConversationRow),0)
         self.assertEqual(self.count(MemoryJobRow),0)
 
+    def test_forget_during_evidence_gate_does_not_publish_previously_loaded_memory(self):
+        self.enqueue();tutor=self.make_tutor('attempt')
+        decision=tutor.context_sufficiency.check.return_value
+        def checking(*args,**kwargs):
+            self.memory.forget_point('s',self.point)
+            return decision
+        tutor.context_sufficiency.check.side_effect=checking
+        result=self.turn(tutor)
+        self.assertEqual(result['answer_status'],'memory_deleted')
+        self.assertEqual(self.count(ConversationRow),0)
+        self.assertEqual(self.count(MemoryJobRow),0)
+
 
 if __name__=="__main__":unittest.main()

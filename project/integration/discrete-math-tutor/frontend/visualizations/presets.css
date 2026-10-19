@@ -1,0 +1,31 @@
+.guided-comparison{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:16px;min-width:0;color:var(--text,#282d31)}
+.guided-comparison>section{min-width:0;padding:12px;background:#f6f8fa;border:1px solid #dce4e9;border-radius:6px}
+.guided-comparison h4{font-size:15px;margin:0 0 12px;color:#203f56}
+.guided-comparison dl{margin:0;display:grid;gap:10px}
+.comparison-field{padding:8px;border:1px solid transparent;border-radius:4px;overflow-wrap:anywhere}
+.comparison-field dt{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;font-size:12px;color:#536571;line-height:1.6}
+.comparison-field dd{font-size:15px;margin:4px 0 0;line-height:1.65}
+.comparison-field.focus{border-color:#287868;background:#e9f5f0}
+.comparison-field.focus dd{font-weight:650;color:#174e40}
+.comparison-field.warning{border-color:#a34935;background:#fff1e9}
+.comparison-field.warning dd{font-weight:650;color:#7c3020}
+.comparison-mark{font-size:11px;font-weight:600;color:#174e40}
+.comparison-field.warning .comparison-mark{color:#7c3020}
+.comparison-note{grid-column:1/-1;margin:0;padding:10px 0;border-top:1px solid #dce4e9;font-size:13px;line-height:1.7;color:#3d5362}
+.psychology-figure{min-width:0;color:#243d4d}
+.psychology-figure>svg,.spatial-trial svg{display:block;width:100%;height:auto;max-width:560px;margin:auto}
+.psychology-figure .psychology-roc{max-width:340px;margin-top:12px}
+.psychology-figure p{font-size:13px;line-height:1.65;margin:8px 0}
+.psychology-model{font-weight:600}
+.psychology-axis{color:#3d5362;text-align:center}
+.psychology-legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.psychology-legend span::before{content:'';display:inline-block;width:18px;height:3px;margin:0 6px 4px 0;background:var(--curve-color)}
+.signal-outcomes{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0;font-variant-numeric:tabular-nums}
+.signal-outcomes caption{text-align:left;font-weight:600;margin-bottom:8px}
+.signal-outcomes th,.signal-outcomes td{padding:8px 5px;border:1px solid #bdcbd5;text-align:center}
+.signal-outcomes th{background:#f0f5f7;font-weight:600}
+.spatial-timeline{display:flex;gap:8px;margin:0 0 12px;padding:0;list-style-position:inside;font-size:13px}
+.spatial-timeline li{padding:6px 8px;border:1px solid #bdcbd5;border-radius:4px}
+.spatial-timeline .active{border-color:#287868;background:#e9f5f0;color:#174e40;font-weight:650}
+.spatial-trial{margin:0 0 12px;padding:12px 0;border-bottom:1px solid #dce4e9}
+.spatial-trial figcaption{font-size:14px;font-weight:600}

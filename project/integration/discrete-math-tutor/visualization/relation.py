@@ -10,9 +10,10 @@ from models.relation import RelationSpec
 from visualization.truth_table import TruthTableService
 from visualization.service import VisualizationError, digest
 from visualization.relation_validator import ELEMENTS, PROPERTIES, TEMPLATES, template_spec, evaluate_relation, matrix
+from knowledge.course_config import PSYCHOLOGY
 
-POINT = get_section(9,4)['title']
-CLOSURE_POINT = get_section(9,5)['title']
+POINT = 'legacy:relation' if PSYCHOLOGY else get_section(9,4)['title']
+CLOSURE_POINT = 'legacy:closure' if PSYCHOLOGY else get_section(9,5)['title']
 
 
 def target_key(snapshot):

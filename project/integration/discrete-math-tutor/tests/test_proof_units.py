@@ -127,7 +127,7 @@ class ProofUnitTests(unittest.TestCase):
                 n=page.number+1
                 text='定理1.1 开始证明' if n==1 else '证明中间步骤' if n==2 else '证明最终结论'
                 return [(.13,text,{})]
-            with patch('knowledge.proof_units.document',return_value=record),patch('knowledge.proof_units.pdf_path',return_value=target),patch('knowledge.proof_units._lines',side_effect=lines):
+            with patch('knowledge.proof_units.document_for_chapter',return_value=record),patch('knowledge.proof_units.pdf_path',return_value=target),patch('knowledge.proof_units._lines',side_effect=lines):
                 unit=units_for(1)['定理1.1']
                 self.assertEqual(unit.pages,[1,2,3]);self.assertIn('最终结论',unit.text)
                 self.assertEqual(len(focus_pages(unit,'完整证明')),2)

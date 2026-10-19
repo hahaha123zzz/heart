@@ -7,6 +7,28 @@ from llm.client import LLMError, LLMClient
 from orchestrator import TutorOrchestrator
 
 class SufficiencyTests(unittest.TestCase):
+    def test_learning_memory_informs_preferences_without_becoming_textbook_evidence(self):
+        model=SimpleNamespace(mock=False,chat_json=Mock(return_value={'status':'sufficient','source_ids':['1'],'missing':[],'reason':'定义有依据，偏好有历史来源'}))
+        memory={'preferences':{'example_density':.9},'related_history':[
+            {'role':'user','content':'我喜欢做饭例子','source':{'id':'42'}},
+            {'role':'assistant','content':'未经核实的历史结论'}]}
+        checker=ContextSufficiency(model)
+        result=checker.check('按我以前的偏好解释自变量',[{'id':'1','text':'教材定义'}],memory_context=memory)
+        self.assertTrue(result.allowed)
+        payload=json.loads(model.chat_json.call_args.args[0][1]['content'])
+        self.assertEqual(payload['evidence'],[{'id':'1','text':'教材定义'}])
+        self.assertEqual(len(payload['learning_memory']['related_history']),1)
+        self.assertIn('不是教材事实',payload['learning_memory']['usage_rules'])
+        model.chat_json.return_value={'status':'sufficient','source_ids':['42'],'missing':[],'reason':'错误引用记忆ID'}
+        self.assertFalse(checker.check('解释自变量',[{'id':'1','text':'教材定义'}],memory_context=memory).allowed)
+    def test_short_followup_uses_recent_concept_without_model_rewriting(self):
+        route=SimpleNamespace(intent='continue',student_move='question',needs_context=True)
+        history=[{'role':'user','content':'请解释自变量'}, {'role':'assistant','content':'自变量是研究者操纵的变量。'}]
+        query=TutorOrchestrator._retrieval_query('没听懂，换简单说法','实验心理学的研究方法',route,history)
+        self.assertIn('自变量',query)
+        self.assertIn('不作为教材证据',query)
+        route.needs_context=False
+        self.assertEqual(TutorOrchestrator._retrieval_query('什么是因变量','旧话题',route,history),'什么是因变量')
     def decide(self, result):
         llm=SimpleNamespace(mock=False, chat_json=Mock(return_value=result))
         return ContextSufficiency(llm).check('A∧B 为真吗？',[{'id':'1','text':'合取真值表'}])

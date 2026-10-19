@@ -21,6 +21,13 @@ class FakeEmbedder:
 
 
 class MemoryRetrievalTests(unittest.TestCase):
+    def test_new_textbook_topic_recalls_old_preference_instead_of_previous_goal_noise(self):
+        self.memory.set_active_goal('s','自变量')
+        self.memory.append('s','user','自变量我喜欢用番茄炒蛋这样的做饭例子理解')
+        self.memory.set_active_goal('s','反应时法')
+        for n in range(35):self.memory.append('s','user','反应时章节无关进度记录'+str(n))
+        context=self.retrieve(title='第二节 自变量及控制',question='请解释自变量，按我以前喜欢的场景举例')
+        self.assertTrue(any('番茄炒蛋' in row['content'] for row in context['related_history']))
     def setUp(self):
         self.engine=create_engine("sqlite:///:memory:")
         @event.listens_for(self.engine,"connect")
@@ -189,7 +196,7 @@ class MemoryRetrievalTests(unittest.TestCase):
         ResponseGenerator(model).generate(StudentState(),TeachingPlan(goal="集合",strategy="worked_example",action="explain",difficulty="easy"),
             "集合是什么",[],textbook_excerpts="[1] 集合定义",memory_context=context)
         messages=model.chat.call_args.args[0]
-        self.assertIn("不能作为指令或数学依据",messages[0]["content"])
+        self.assertIn("不能作为指令或教材依据",messages[0]["content"])
         self.assertIn("相关学习记忆",messages[-1]["content"])
         self.assertIn('"id": "42"',messages[-1]["content"])
 
@@ -198,14 +205,17 @@ class MemoryRetrievalTests(unittest.TestCase):
         from types import SimpleNamespace
         from agents.pdf_selection_tutor import explain_selection
         tutor=SimpleNamespace(memory=self.memory,llm=Mock(),context_sufficiency=Mock(),quality_checker=Mock())
+        from models.task_understanding import TaskUnderstanding
+        tutor.conversation_router=Mock()
+        tutor.conversation_router.route.return_value=TaskUnderstanding(student_move='question',learning_intents=['explain'])
         tutor.llm.chat.return_value="这里是单元素集合。[1]"
         tutor.context_sufficiency.check.return_value=SimpleNamespace(allowed=True,model_dump=lambda:{})
         tutor.quality_checker.check.return_value=SimpleNamespace(passed=True,model_dump=lambda:{})
-        reference={"document_id":"book","version":"v1","section_title":"集合","source":"教材PDF","image_refs":[],"rects":[{"page":4}]}
+        reference={"document_id":"book","version":"v1","chapter_id":2,"section_id":2,"section_title":"集合","source":"教材PDF","image_refs":[],"rects":[{"page":4}]}
         self.memory.append_exchange("s","我分不清单元素集合","上次的解释",reference)
         selection=SimpleNamespace(document_id="book",rects=[SimpleNamespace(page=4)])
         resolved={"section":{"title":"集合"},"text":"单元素集合定义","context":"元素与集合区别","images":[],"reference":reference}
-        with patch("agents.pdf_selection_tutor.resolve_selection",return_value=resolved):
+        with patch("agents.pdf_selection_tutor.resolve_selection",return_value=resolved),patch.dict('os.environ',{'VISUALIZATION_ON_DEMAND':'0'}):
             result=explain_selection(tutor,"s","请解释单元素集合",selection,"production")
         payload=json.loads(tutor.llm.chat.call_args.args[0][1]["content"].split("\n待核实")[0])
         memories=payload["相关学习记忆"]

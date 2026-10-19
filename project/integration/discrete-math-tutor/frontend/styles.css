@@ -78,3 +78,14 @@
 #memory-management .review-item { display: block; }
 #memory-management .review-item small { display: block; margin: 8px 0; }
 #memory-management textarea { display: block; width: 100%; min-height: 72px; margin: 8px 0; padding: 10px; border: 1px solid #dce4f4; border-radius: 8px; font: inherit; resize: vertical; box-sizing: border-box; }
+/* 建议与回答同级展示，保留用户继续提问的入口。 */
+.style-suggestion{margin-top:16px;padding:16px;border:1px solid #c9d6cd;border-radius:12px;background:#f5f8f4;color:#263a2c}
+.style-suggestion p{margin:8px 0;line-height:1.6}
+.style-suggestion label{display:grid;gap:6px}
+.style-suggestion .form-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.style-suggestion button:disabled{opacity:.55;cursor:wait}
+.chat-style-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;color:#354d3d}
+.chat-style-controls:has(#chat-style-status:empty) #chat-style-status{display:none}
+.grounded-evidence{margin-top:12px;padding:12px;border:1px solid #dce4df;border-radius:8px;overflow-wrap:anywhere}
+.grounded-evidence .evidence-status{display:block;color:#526454;margin:6px 0}
+.grounded-evidence blockquote{margin:8px 0;padding:4px 12px;border-left:3px solid #849d89;white-space:pre-wrap;max-height:12em;overflow:auto;line-height:1.7}

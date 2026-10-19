@@ -1,4 +1,4 @@
-"""离散数学助教 API；默认使用 24 小时自动过期的测试账户。 
+"""教材助教 API；默认使用 24 小时自动过期的测试账户。
 
 启动：py -3.11 -m uvicorn main:app --reload
 文档：http://127.0.0.1:8000/docs
@@ -11,7 +11,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi import HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import mimetypes
 # Windows 注册表可能将 .js 标成 text/plain；模块与 PDF worker 需要正确 MIME。
@@ -26,19 +26,25 @@ from orchestrator import TutorOrchestrator
 from web_api import router as web_router
 
 from memory.background_worker import memory_lifespan
+from knowledge.course_config import COURSE_TITLE,COURSE_ID,PSYCHOLOGY
 
-app = FastAPI(title="离散数学 AI 助教", version="0.8.0", lifespan=memory_lifespan)
+app = FastAPI(title=COURSE_TITLE+" AI 助教", version="0.8.0", lifespan=memory_lifespan)
 app.include_router(web_router)
+from integrations.deeptutor.router import router as deeptutor_router
+app.include_router(deeptutor_router)
+from integrations.deeptutor.recovery_router import router as turn_recovery_router
+app.include_router(turn_recovery_router)
 from practice_api import router as practice_router, recover_interrupted_submissions
 app.include_router(practice_router)
 from memory_api import router as memory_router
 app.include_router(memory_router)
-from visualization_api import router as visualization_router
-app.include_router(visualization_router)
-from truth_table_api import router as truth_table_router
-app.include_router(truth_table_router)
-from relation_api import router as relation_router
-app.include_router(relation_router)
+if not PSYCHOLOGY:
+    from visualization_api import router as visualization_router
+    app.include_router(visualization_router)
+    from truth_table_api import router as truth_table_router
+    app.include_router(truth_table_router)
+    from relation_api import router as relation_router
+    app.include_router(relation_router)
 FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 from agents.intent_policy import IntentPolicy
@@ -70,6 +76,7 @@ def health():
     from knowledge.inference_runtime import runtime_status
     return {
         "status": "ok",
+        "course_id":COURSE_ID,
         "version": "0.8.0",
         "mock_mode": orchestrator.llm.mock,
         "purged_expired_accounts": _PURGED,
@@ -80,7 +87,14 @@ def health():
 
 @app.get("/", include_in_schema=False)
 def home():
-    return FileResponse(FRONTEND_DIR / "index.html")
+    import json
+    from knowledge.course_config import public_course
+    html=(FRONTEND_DIR/'index.html').read_text(encoding='utf-8')
+    if PSYCHOLOGY:
+        import re
+        html=re.sub(r'<script src="/static/visualizations/(?:graph|truth-table|relation-closure|relation)\.js[^\"]*" defer></script>', '', html)
+    config=json.dumps(public_course(),ensure_ascii=False).replace('<','\\u003c')
+    return HTMLResponse(html.replace('<head>','<head><script>window.TutorCourse='+config+';</script>',1))
 
 
 @app.get("/api/figures/{figure_id}/image", include_in_schema=False)
@@ -156,22 +170,30 @@ from fastapi.responses import StreamingResponse
 _turn_locks = [threading.Lock() for _ in range(64)]
 _running_turns = set()
 
-def _run_turn(request: ChatRequest, progress=None):
+def _run_turn(request: ChatRequest, progress=None, answer_ready=None):
     index = int.from_bytes(hashlib.sha256(request.student_id.encode()).digest()[:2], "big") % len(_turn_locks)
     if progress:
         progress("queued", "等待处理", "请求已接收")
     with _turn_locks[index]:
         from agents.task_service import TaskService
-        return TaskService(orchestrator).run(request, _execute_task_turn, progress)
+        jobs = []
+        def execute(*args):
+            return _execute_task_turn(*args, visualization_jobs=jobs)
+        result = TaskService(orchestrator).run(request, execute, progress,
+            visualization_jobs=jobs, answer_ready=answer_ready)
+        from integrations.deeptutor.session_sync import sync_completed_session
+        from integrations.deeptutor.task_projection import sync_saved_turn
+        result = sync_completed_session(request, result)
+        return sync_saved_turn(request, result)
 
 
-def _execute_task_turn(request, context, resolved, intercept, guard, progress):
+def _execute_task_turn(request, context, resolved, intercept, guard, progress, *, visualization_jobs=None):
     explicit_target=request.visualization_target or request.truth_table_target or request.relation_target
     if explicit_target and explicit_target.action:
         routing = TaskContextBuilder.button_task(context, explicit_target.action)
         return orchestrator.handle_turn(request.student_id, request.message, request.learning_goal,
             request.account_type, progress=progress, task_context=context,
-            precomputed_routing=routing, routing_interceptor=intercept, task_guard=guard)
+            precomputed_routing=routing, routing_interceptor=intercept, task_guard=guard, visualization_jobs=visualization_jobs)
     if request.exercise_target:
         from agents.exercise_task_tutor import explain_exercise
         return explain_exercise(orchestrator, request, context, intercept, guard, progress)
@@ -180,10 +202,10 @@ def _execute_task_turn(request, context, resolved, intercept, guard, progress):
         return explain_selection(orchestrator, request.student_id, request.message,
             request.selection, request.account_type, progress, session_id=request.session_id,
             request_id=request.request_id, reader_location=request.reader_location,
-            task_context=context, resolved_selection=resolved, routing_interceptor=intercept, task_guard=guard)
+            task_context=context, resolved_selection=resolved, routing_interceptor=intercept, task_guard=guard, visualization_jobs=visualization_jobs)
     return orchestrator.handle_turn(request.student_id, request.message, request.learning_goal,
         request.account_type, progress=progress, task_context=context,
-        routing_interceptor=intercept, task_guard=guard)
+        routing_interceptor=intercept, task_guard=guard, visualization_jobs=visualization_jobs)
 
 @app.post("/api/chat/stream")
 async def chat_stream(request: ChatRequest):
@@ -210,7 +232,7 @@ async def chat_stream(request: ChatRequest):
 
         def work():
             try:
-                result = _run_turn(request, progress)
+                result = _run_turn(request, progress, answer_ready=lambda result: emit("answer", result))
                 if current:
                     emit("progress", {**current, "status": "completed"})
                 emit("done", result)
@@ -230,7 +252,10 @@ async def chat_stream(request: ChatRequest):
                 except asyncio.TimeoutError:
                     yield ": ping\n\n"
                     continue
-                yield f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+                identifier = ""
+                if event == "done" and data.get("task_id") and data.get("task_revision"):
+                    identifier = f"id: {data['task_id']}:{data['task_revision']}:2\n"
+                yield f"{identifier}event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
                 if event in ("done", "error"):
                     break
         finally:

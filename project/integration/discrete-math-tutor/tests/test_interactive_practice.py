@@ -1,11 +1,15 @@
 """逐题练习的导入、账户隔离、幂等提交与草稿恢复验证。"""
-import json,os,tempfile,unittest,uuid
+import json,os,tempfile,unittest,uuid,sys
 from pathlib import Path
 from unittest.mock import patch
 from agents.quality_checker import QualityResult
 _TMP=tempfile.TemporaryDirectory()
 os.environ['DATABASE_URL']='sqlite:///'+str(Path(_TMP.name)/'practice.db')
 os.environ['LLM_MOCK']='1'
+if 'database.database' in sys.modules:
+ from database.database import engine as initialized_engine
+ if Path(initialized_engine.url.database).resolve()!=Path(_TMP.name,'practice.db').resolve():
+  raise RuntimeError('练习测试必须在独立进程运行；数据库已初始化，禁止清理已有账户。')
 from fastapi.testclient import TestClient
 import main,practice_api as p
 from sqlalchemy import select

@@ -50,6 +50,8 @@ class AccountManager:
 
     def cleanup_after_code_update(self) -> int:
         """Forget test profiles on the next launch after relevant source changes."""
+        from knowledge.course_config import PSYCHOLOGY
+        if PSYCHOLOGY:return 0
         root = Path(__file__).resolve().parents[1]
         files = list(root.glob("*.py"))
         for folder in ("agents", "database", "knowledge", "llm", "memory", "models"):

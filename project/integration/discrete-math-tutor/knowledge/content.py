@@ -21,6 +21,8 @@ def normalized(value):
 
 @lru_cache(maxsize=10)
 def chapter_blocks(chapter_id: int) -> dict[int, list[dict]]:
+    from knowledge.course_config import PSYCHOLOGY
+    if PSYCHOLOGY:return {}  # 正式教材图表公式由PDF原页展示，不加载旧数学资产。
     path = EXTRACTED_DIR / f"chapter_{chapter_id:02d}.json"
     if not path.is_file():
         return {}

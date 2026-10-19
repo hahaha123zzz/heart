@@ -1,0 +1,32 @@
+[
+  {
+    "id": "double_blind",
+    "point": "双盲实验",
+    "turns": [
+      {
+        "id": "first_error",
+        "message": "我的判断是：只让被试不知道自己接受哪种处理，就可以称为双盲。请看看我的判断。",
+        "mode": "targeted_hint",
+        "required": "定位仅盲被试的缺口，关注实施人员，不误判学生在求助"
+      },
+      {
+        "id": "frustrated_explanation",
+        "message": "我还是不懂，越学越烦，请完整解释为什么我的判断不够。",
+        "mode": "explain_feedback",
+        "required": "直接完整讲解、简短回应困难；不设置长期风格偏好"
+      },
+      {
+        "id": "corrected",
+        "message": "我修正一下：双盲要求被试和执行实验的人员都不知道被试接受的是哪种处理，以减少要求特征和实验者偏差。",
+        "mode": "confirm_and_reflect",
+        "required": "确认修正，实验中不知道处理不等于学生求助；不虚增掌握"
+      },
+      {
+        "id": "self_report",
+        "message": "我明白了。",
+        "mode": "check_self_report",
+        "required": "自述理解后做小检查，不直接提高掌握度"
+      }
+    ]
+  }
+]

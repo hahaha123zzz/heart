@@ -1,0 +1,73 @@
+{
+  "id": "psychology:spatial-cue",
+  "version": "1",
+  "title": "空间线索：先提示，再呈现目标",
+  "sources": {
+    "procedure": {
+      "chapter_id": 9,
+      "section_id": 2,
+      "block_index": 77,
+      "pdf_version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+      "text_sha256": "01d3d55d82df5e9639d55afd2a0d7024ac4b301027c1c01a609be68810fdcdb2"
+    },
+    "validity": {
+      "chapter_id": 9,
+      "section_id": 2,
+      "block_index": 81,
+      "pdf_version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+      "text_sha256": "b155250dea1fb5157a6e0486a2bd7b99dfa0d2dc8585a95b65d2dee9c1b8a8f0"
+    }
+  },
+  "frames": [
+    {
+      "step_id": "fixation",
+      "title": "先呈现注视点",
+      "text": "先看屏幕中央的注视点。两侧方框表示可能出现线索或目标的位置；画面位置是辅助示意，没有测量真实眼动。",
+      "source": "procedure",
+      "spatial": {
+        "phase": "fixation",
+        "label": "注视点"
+      }
+    },
+    {
+      "step_id": "cue",
+      "title": "左侧位置被线索化",
+      "text": "外围线索出现在左侧位置。先前没有给定任何毫秒参数，演示不补造持续时间；学生翻步控制的是讲解进度，不是实验呈现时长。",
+      "source": "procedure",
+      "spatial": {
+        "phase": "cue",
+        "label": "线索"
+      }
+    },
+    {
+      "step_id": "valid",
+      "title": "目标在线索化位置：有效线索",
+      "text": "线索消失后，目标出现在左侧，也就是先前线索出现的位置。这称为有效线索条件。虚线框仅提示先前位置，不代表线索还在屏幕上。",
+      "source": "validity",
+      "spatial": {
+        "phase": "valid",
+        "label": "目标"
+      }
+    },
+    {
+      "step_id": "invalid",
+      "title": "另一试次：目标在非线索化位置",
+      "text": "在另一试次保持先前线索仍在左侧，目标却出现在右侧。这是无效线索条件，不是把前一个试次的目标移动过去。",
+      "source": "validity",
+      "spatial": {
+        "phase": "invalid",
+        "label": "目标"
+      }
+    },
+    {
+      "step_id": "compare",
+      "title": "对照两种条件与测量指标",
+      "text": "两种条件保持先前线索位置一致，比较目标是否出现在该位置；研究可记录对目标的反应时。这里没有收集反应时，也不宣称某个学生在有效条件下一定更快。",
+      "source": "validity",
+      "spatial": {
+        "phase": "compare",
+        "label": "比较条件"
+      }
+    }
+  ]
+}

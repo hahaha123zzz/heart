@@ -29,7 +29,7 @@ class RoutingResult(BaseModel):
 
 
 LearningIntent = Literal["explain", "proof", "example", "hint", "check_answer", "practice", "summary", "compare"]
-AnswerConstraint = Literal["hint_only", "no_full_answer", "example_before_proof", "include_prerequisites"]
+AnswerConstraint = Literal["hint_only", "no_full_answer", "example_before_proof", "include_prerequisites", "verdict_only", "no_questions"]
 MissingSlot = Literal["target", "task", "topic", "answer_format"]
 
 

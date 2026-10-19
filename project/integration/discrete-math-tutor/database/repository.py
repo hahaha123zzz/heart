@@ -438,6 +438,19 @@ class Repository(MemoryIndexRepository, StrategyMemoryRepository, MemoryJobRepos
                 ))
             return row.id
 
+    def attach_guide(self, student_id, conversation_id, guide):
+        """只给当前学生的现有回答补图，不重建被删除的对话。"""
+        with session_scope() as session:
+            row = session.get(ConversationRow, conversation_id)
+            if row is None or row.student_id != student_id or row.role != "assistant":
+                return False
+            citation = session.get(PDFCitationRow, conversation_id)
+            if citation is None:
+                session.add(PDFCitationRow(conversation_id=conversation_id, reference={"guided_visualization": guide}))
+            else:
+                citation.reference = dict(citation.reference or {}, guided_visualization=guide)
+            return True
+
     # ---- teaching plan ----------------------------------------------------
     def get_lesson_plan(
         self, student_id: str, knowledge_point: str

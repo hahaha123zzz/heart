@@ -1,0 +1,18 @@
+diff --git a/deeptutor/services/llm/factory.py b/deeptutor/services/llm/factory.py
+index 0019bc4b..4f6edc2b 100644
+--- a/deeptutor/services/llm/factory.py
++++ b/deeptutor/services/llm/factory.py
+@@ -467,6 +467,13 @@ async def complete_with_config(
+     **kwargs: Any,
+ ) -> str:
+     """Complete using only the supplied, fully resolved configuration."""
++    if not hasattr(config, "get_api_key"):
++        # A provider-runtime ResolvedLLMConfig lacks the LLM service shape
++        # (get_api_key/temperature/max_tokens) that the isolated provider
++        # builder expects; convert it once, preserving the caller's value.
++        from deeptutor.services.model_selection.runtime import llm_config_from_resolved
++
++        config = llm_config_from_resolved(config)
+     forbidden = {
+         "model",
+         "api_key",

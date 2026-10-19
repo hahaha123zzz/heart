@@ -3,8 +3,9 @@ import hashlib
 import json
 import math
 from knowledge.course import get_section
-from knowledge.pdf_reader import resolve_selection, document
+from knowledge.pdf_reader import resolve_selection, document, document_for_chapter
 from models.task_context import TaskContext, TaskObject
+from models.interaction_preferences import InteractionPreferences
 
 
 class TaskContextBuilder:
@@ -51,7 +52,7 @@ class TaskContextBuilder:
             section = get_section(reader_location.chapter_id, reader_location.section_id)
             if section is None:
                 raise ValueError("教材章节或小节不存在")
-            record = document(f"chapter-{reader_location.chapter_id:02d}")
+            record = document_for_chapter(reader_location.chapter_id)
             objects.append(TaskObject(id=f"section:{reader_location.chapter_id}:{reader_location.section_id}",
                 kind="section", title=section["title"][:200], text=section["content"][:1000],
                 chapter_id=reader_location.chapter_id, section_id=reader_location.section_id,
@@ -88,7 +89,7 @@ class TaskContextBuilder:
                 kind="exercise_part", title=(question["knowledge_point"] + " " + part["label"])[:200],
                 text=text[:1800], chapter_id=question["chapter_id"], section_id=question["section_id"], version=data["version"]))
         safe_preferences = {k: float(v) for k, v in (preferences or {}).items()
-            if k in ("answer_length", "example_density", "learning_pace") and type(v) in (int, float)
+            if k in InteractionPreferences.model_fields and type(v) in (int, float)
             and math.isfinite(v) and 0 <= v <= 1}
         bounded_history = [{"role": row["role"], "content": row["content"][:1200]}
             for row in list(history)[-4:] if row.get("role") in ("user", "assistant") and isinstance(row.get("content"), str)]

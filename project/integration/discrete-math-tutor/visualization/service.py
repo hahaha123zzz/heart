@@ -11,8 +11,9 @@ from database.account_manager import AccountManager
 from knowledge.course import get_section
 from models.visualization import GraphSpec, GraphEdge
 from visualization.graph_validator import evaluate_graph
+from knowledge.course_config import PSYCHOLOGY
 
-POINT = get_section(7, 7)['title']
+POINT = 'legacy:euler' if PSYCHOLOGY else get_section(7, 7)['title']
 TEMPLATE = 'euler-cycle-v1'
 
 
@@ -41,6 +42,7 @@ class VisualizationService:
         self.repo = Repository()
 
     def enabled(self, student_id):
+        if PSYCHOLOGY:return False
         scope, allowed = rollout_settings()
         account = self.repo.get_account_type(student_id)
         if scope == 'test':

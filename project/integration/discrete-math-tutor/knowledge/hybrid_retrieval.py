@@ -8,6 +8,7 @@ import os
 import re
 import sqlite3
 from array import array
+from contextlib import closing
 from functools import lru_cache
 from pathlib import Path
 
@@ -16,9 +17,10 @@ from knowledge.inference_runtime import configured_device, prepare_onnx, verify_
 
 from knowledge.logic_formula import extract as extract_formulas, normalize as normalize_formula, search_text as formula_search_text
 from knowledge.concept_aliases import expand_query, matched_aliases
+from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
 
-INDEX = Path(__file__).resolve().parent / "rag_index_v2.sqlite3"
-REFERENCE = re.compile(r"(?:图|表|定理|定义|例|公式)\s*\d+(?:[.．]\d+)?")
+INDEX = PSYCHOLOGY_DIR/'rag_index.sqlite3' if PSYCHOLOGY else Path(__file__).resolve().parent / "rag_index_v2.sqlite3"
+REFERENCE = re.compile(r"(?:图|表|定理|定义|例|公式)\s*\d+(?:[.．-]\d+)?")
 SYMBOL_EXPRESSION = re.compile(r"[A-Za-z][A-Za-z0-9]*(?:[∧∨→↔][A-Za-z][A-Za-z0-9]*)+")
 
 
@@ -36,10 +38,11 @@ def _fuse_rankings(prior: list, reranked: list) -> list:
     return sorted(fused, key=lambda item: item[0], reverse=True)
 
 
-def _chapter_hint(query: str) -> int | None:
-    explicit = re.search(r"第\s*(\d+)\s*章|(?:图|表|定理|定义|例|公式)\s*(\d+)[.．]\d+", query)
+def _chapter_hint(query: str, psychology=False) -> int | None:
+    explicit = re.search(r"第\s*(\d+)\s*章|(?:图|表|定理|定义|例|公式)\s*(\d+)[.．-]\d+", query)
     if explicit:
         return int(explicit.group(1) or explicit.group(2))
+    if psychology:return None
     if "特殊图" in query or "二部图" in query:
         return 8
     for word, chapter in (("函数", 10), ("关系", 9), ("哈密顿", 7),
@@ -89,7 +92,7 @@ def _as_chunk(row: sqlite3.Row, *, text: str | None = None) -> TextbookChunk:
 
 @lru_cache(maxsize=2)
 def _vectors(path: str, modified: int) -> tuple[str | None, list[tuple[str, array, float]]]:
-    with sqlite3.connect(path) as db:
+    with closing(sqlite3.connect(path)) as db:
         model_row = db.execute("SELECT value FROM metadata WHERE key='embedding_model'").fetchone()
         if not model_row:
             return None, []
@@ -238,29 +241,32 @@ def _lexical_supported(db: sqlite3.Connection, query: str, rows: list[sqlite3.Ro
 
 
 def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: int = 3,
-                    trace: dict | None = None, preferred_types=()) -> list[TextbookChunk]:
+                    trace: dict | None = None, preferred_types=(), index_path: Path | None = None) -> list[TextbookChunk]:
     """索引缺失时沿用旧检索；模型缺失时仍可用 BM25。"""
     if trace is not None:
         trace.clear()
         trace.update(query=query, reranker=os.environ.get("RAG_RERANK_MODEL", "").strip())
-    if not INDEX.is_file():
+    index = INDEX if index_path is None else index_path
+    if not index.is_file():
+        if index_path is not None:return retrieve(query, fallback_chunks, limit=limit)
         try:
             from scripts.build_rag_index import build_index
             build_index()
         except (OSError, ValueError, KeyError, StopIteration, sqlite3.DatabaseError):
             return retrieve(query, fallback_chunks, limit=limit)
-    search_query = expand_query(normalize_formula(query))
-    reranker_query = formula_search_text(search_query)
-    formula_keys = {key for _, key in extract_formulas(query)}
-    concepts = matched_aliases(query)
+    psychology=PSYCHOLOGY or 'experimental-psychology-3' in index.parts
+    search_query = query if psychology else expand_query(normalize_formula(query))
+    reranker_query = search_query if psychology else formula_search_text(search_query)
+    formula_keys = set() if psychology else {key for _, key in extract_formulas(query)}
+    concepts = [] if psychology else matched_aliases(query)
     terms = terms_for(search_query)
     refs = {re.sub(r"\s+", "", match.group()).replace("．", ".") for match in REFERENCE.finditer(query)}
-    expressions = {match.group().lower() for match in SYMBOL_EXPRESSION.finditer(normalize_formula(query))}
+    expressions = set() if psychology else {match.group().lower() for match in SYMBOL_EXPRESSION.finditer(normalize_formula(query))}
     if not terms and not refs and not expressions:
         return []
     scores: dict[str, float] = {}
     try:
-        db = sqlite3.connect(INDEX)
+        db = sqlite3.connect(index)
         db.row_factory = sqlite3.Row
         try:
             subject = _definition_subject(query)
@@ -273,7 +279,7 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
             ).fetchall() if match else [])
             for rank, row in enumerate(lexical, 1):
                 scores[row["id"]] = scores.get(row["id"], 0.0) + 1 / (60 + rank)
-            chapter_hint = _chapter_hint(query)
+            chapter_hint = _chapter_hint(query,psychology=psychology)
             if trace is not None:
                 trace.update(lexical_ids=[row["id"] for row in lexical], chapter_hint=chapter_hint)
             if chapter_hint and match:
@@ -311,7 +317,7 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
                 trace.update(concept_ids=concept_ids, formula_ids=formula_ids,
                              formula_templates=sorted(formula_keys), search_query=search_query)
 
-            model_name, vectors = _vectors(str(INDEX), INDEX.stat().st_mtime_ns)
+            model_name, vectors = _vectors(str(index), index.stat().st_mtime_ns)
             best_dense_score = None
             dense = []
             rerank_model = os.environ.get("RAG_RERANK_MODEL", "").strip()

@@ -7,8 +7,9 @@ from database.account_manager import AccountManager
 from knowledge.course import get_section
 from knowledge.exercise_graders import logic_tree, logic_value
 from visualization.service import VisualizationService, VisualizationError, digest
+from knowledge.course_config import PSYCHOLOGY
 
-POINT = get_section(4, 3)['title']
+POINT = 'legacy:truth-table' if PSYCHOLOGY else get_section(4, 3)['title']
 FORMULAS = {'and': 'p∧q', 'or': 'p∨q', 'implies': 'p→q', 'equivalent': 'p↔q', 'not-or': '¬p∨q'}
 ROWS = {a+b: {'p': a == '1', 'q': b == '1'} for a in '01' for b in '01'}
 

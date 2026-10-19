@@ -7,7 +7,7 @@ import hashlib
 import logging
 import re
 import fitz
-from knowledge.pdf_reader import document, pdf_path, PDFSelection, resolve_selection
+from knowledge.pdf_reader import document_for_chapter, pdf_path, PDFSelection, resolve_selection
 from knowledge.pdf_evidence import PdfSupplement, compact, _lines
 from knowledge.textbook import TextbookChunk, terms_for
 
@@ -42,7 +42,7 @@ class Unit:
 
 @lru_cache(maxsize=16)
 def _scan(chapter, version):
-    record = document(f'chapter-{chapter:02d}')
+    record = document_for_chapter(chapter)
     units = {}
     with fitz.open(pdf_path(record)) as pdf:
         for i, section in enumerate(record['sections']):
@@ -94,7 +94,7 @@ def _scan(chapter, version):
 
 
 def units_for(chapter):
-    record=document(f'chapter-{chapter:02d}')
+    record=document_for_chapter(chapter)
     if not record or hashlib.sha256(pdf_path(record).read_bytes()).hexdigest()!=record['version']:
         raise ValueError('教材版本不一致，不能扩展证明')
     return _scan(chapter,record['version'])

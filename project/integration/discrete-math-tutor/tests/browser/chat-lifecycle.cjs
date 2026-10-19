@@ -19,7 +19,7 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
  });
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  const BASE_URL=process.env.CHAT_TEST_URL || 'http://127.0.0.1:'+server.address().port;
- let browser; let rejectEvidence=false;
+ let browser; let rejectEvidence=false; let recoverStream=false; let deletedRecovery=false; let generationRequests=0;
  try{
   browser=await chromium.launch({headless:false,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
   const context=await browser.newContext();
@@ -30,7 +30,17 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
    else if(url.pathname.endsWith('/conversation'))value=[{id:101,role:'assistant',content:'测试消息 $p\\land q$'}];
    else if(url.pathname.endsWith('/dashboard'))value={activity:[],chapter_scores:[],chapters:[]};
    else if(url.pathname==='/api/chat/tasks/pending')value={pending:null};
+   else if(url.pathname.startsWith('/api/chat/requests/')){
+    if(deletedRecovery){await route.fulfill({status:410,json:{detail:{message:'相关记忆已删除'}}});return;}
+    value={task_id:'recover-task',task_revision:3,status:'completed',event_replay_enabled:true,result:{answer_status:'answered',reply:'恢复后的回答 [1]'}};
+   }
+   else if(url.pathname==='/api/chat/tasks/recover-task/events'){
+    const result={answer_status:'answered',reply:'恢复后的回答 [1]',textbook_sources:['图的定义'],task_id:'recover-task',task_revision:3};
+    await route.fulfill({body:'id: recover-task:3:1\nevent: sources\ndata: {"sources":[]}\n\nid: recover-task:3:2\nevent: done\ndata: '+JSON.stringify(result)+'\n\n',contentType:'text/event-stream'});return;
+   }
    else if(url.pathname==='/api/chat/stream'){
+    generationRequests++;
+    if(recoverStream){await route.fulfill({body:'event: progress\ndata: {"order":1,"label":"保存","status":"running"}\n\n',contentType:'text/event-stream'});return;}
     const result=rejectEvidence
      ? {answer_status:'evidence_rejected',reply:'教材证据不足，暂不发布回答',step_advanced:false}
      : {answer_status:'answered',reply:'完成回答 [1]',textbook_sources:['图的定义']};
@@ -77,7 +87,7 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
   await page.locator('#chat-input').fill('追加问题');await page.locator('#chat-form').evaluate(form=>form.requestSubmit());
   await page.waitForFunction(()=>!state.sending && state.chat.length===3);
   assert.equal(await page.evaluate(()=>testInput.isConnected && testCounts.mount===1),true);
-  assert.equal(await page.locator('.message-source').last().textContent(),'[1] 教材：图的定义');
+  assert.equal(await page.locator('.message-source').last().textContent(),'[1] 教材：图的定义 ↗');
   const styles=await page.evaluate(()=>({
    assistant:getComputedStyle(document.querySelector('.message.assistant [data-message-part="content"] p')).whiteSpace,
    user:getComputedStyle(document.querySelector('.message.user [data-message-part="content"] p')).marginBottom,
@@ -90,6 +100,20 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
   assert.equal(await page.evaluate(()=>state.chat.at(-1).failed),true);
   assert.match(await page.locator('.message.assistant').last().textContent(),/处理未完成/);
   console.log('PASS：证据拒绝的真实流式结果显示处理未完成');
+
+  recoverStream=true;rejectEvidence=false;
+  const beforeRecovery=generationRequests;
+  await page.locator('#chat-input').fill('断线后恢复');await page.locator('#chat-form').evaluate(form=>form.requestSubmit());
+  await page.waitForFunction(()=>!state.sending && state.chat.length===7);
+  assert.equal(await page.evaluate(()=>state.chat.at(-1).content),'恢复后的回答 [1]');
+  assert.equal(await page.evaluate(()=>state.chat.at(-1).failed),false);
+  assert.equal(generationRequests,beforeRecovery+1);
+  deletedRecovery=true;
+  await page.locator('#chat-input').fill('已删除的回合');await page.locator('#chat-form').evaluate(form=>form.requestSubmit());
+  await page.waitForFunction(()=>!state.sending && state.chat.length===9);
+  assert.equal(await page.evaluate(()=>state.chat.at(-1).content),'相关记忆已删除');
+  assert.equal(await page.evaluate(()=>state.chat.at(-1).failed),true);
+  console.log('PASS：断线后真实页面重放带游标事件，生成请求仅一次；删除后的回合拒绝恢复');
 
   const checks=await page.evaluate(()=>{
    // 重排后引用索引应同步，历史 ID 应保持；模拟页面视图切换。

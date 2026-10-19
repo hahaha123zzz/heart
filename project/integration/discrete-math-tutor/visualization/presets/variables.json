@@ -1,0 +1,335 @@
+{
+  "id": "psychology:variables-confounds",
+  "version": "1",
+  "title": "看清变量与混淆因素",
+  "sources": {
+    "iv": {
+      "chapter_id": 2,
+      "section_id": 2,
+      "block_index": 35,
+      "pdf_version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+      "text_sha256": "fd711f4c4fe51f28ffe8a2115e79963479a78cf98463d041d0efcda622b1f215"
+    },
+    "dv": {
+      "chapter_id": 2,
+      "section_id": 3,
+      "block_index": 74,
+      "pdf_version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+      "text_sha256": "bc78559f9e7a437fb17613206e6d39963f50ce783dfb81a18034a970d775d646"
+    },
+    "extra": {
+      "chapter_id": 2,
+      "section_id": 4,
+      "block_index": 111,
+      "pdf_version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+      "text_sha256": "9132eaabb24f5d41ad69b5018dff59af27208e41a770ff9212c937836b5165d4"
+    }
+  },
+  "frames": [
+    {
+      "step_id": "question",
+      "title": "先看要比较什么",
+      "text": "下面是依据教材定义构造的辅助示意：比较两种学习方法，随后完成相同的回忆测验。这里没有真实样本、成绩或实验结果。",
+      "source": "iv",
+      "comparison": {
+        "panels": [
+          {
+            "title": "条件 A",
+            "items": [
+              {
+                "label": "学习材料",
+                "value": "词表 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "学习方法",
+                "value": "方法 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "测量指标",
+                "value": "完成相同的回忆测验",
+                "tone": "neutral"
+              },
+              {
+                "label": "环境",
+                "value": "需要保持一致",
+                "tone": "neutral"
+              }
+            ]
+          },
+          {
+            "title": "条件 B",
+            "items": [
+              {
+                "label": "学习材料",
+                "value": "词表 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "学习方法",
+                "value": "方法 B",
+                "tone": "neutral"
+              },
+              {
+                "label": "测量指标",
+                "value": "完成相同的回忆测验",
+                "tone": "neutral"
+              },
+              {
+                "label": "环境",
+                "value": "需要保持一致",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ],
+        "note": "研究问题：学习方法不同，回忆表现是否也不同？"
+      }
+    },
+    {
+      "step_id": "manipulate",
+      "title": "研究者改变了什么",
+      "text": "两种条件中有意改变的是学习方法，它承担自变量的角色。暂不把拟检验的影响当成已经证明的结果。",
+      "source": "iv",
+      "comparison": {
+        "panels": [
+          {
+            "title": "条件 A",
+            "items": [
+              {
+                "label": "学习材料",
+                "value": "词表 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "学习方法",
+                "value": "方法 A",
+                "tone": "focus"
+              },
+              {
+                "label": "测量指标",
+                "value": "完成相同的回忆测验",
+                "tone": "neutral"
+              },
+              {
+                "label": "环境",
+                "value": "需要保持一致",
+                "tone": "neutral"
+              }
+            ]
+          },
+          {
+            "title": "条件 B",
+            "items": [
+              {
+                "label": "学习材料",
+                "value": "词表 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "学习方法",
+                "value": "方法 B",
+                "tone": "focus"
+              },
+              {
+                "label": "测量指标",
+                "value": "完成相同的回忆测验",
+                "tone": "neutral"
+              },
+              {
+                "label": "环境",
+                "value": "需要保持一致",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ],
+        "note": "自变量：有意操纵的条件；看两侧突出的学习方法。"
+      }
+    },
+    {
+      "step_id": "measure",
+      "title": "研究者测量什么",
+      "text": "测量指标是回忆正确数，表示被试的行为反应。相同词表是材料，不是因变量。这里只定义测量方式，不展示虚构成绩。",
+      "source": "dv",
+      "comparison": {
+        "panels": [
+          {
+            "title": "条件 A",
+            "items": [
+              {
+                "label": "学习材料",
+                "value": "词表 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "学习方法",
+                "value": "方法 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "测量指标",
+                "value": "回忆正确数",
+                "tone": "focus"
+              },
+              {
+                "label": "环境",
+                "value": "需要保持一致",
+                "tone": "neutral"
+              }
+            ]
+          },
+          {
+            "title": "条件 B",
+            "items": [
+              {
+                "label": "学习材料",
+                "value": "词表 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "学习方法",
+                "value": "方法 B",
+                "tone": "neutral"
+              },
+              {
+                "label": "测量指标",
+                "value": "回忆正确数",
+                "tone": "focus"
+              },
+              {
+                "label": "环境",
+                "value": "需要保持一致",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ],
+        "note": "因变量：要测量的反应；两种条件采用相同测验。"
+      }
+    },
+    {
+      "step_id": "confound",
+      "title": "如果环境也一起改变",
+      "text": "现在方法 A 在安静环境进行，方法 B 在有噪声环境进行。学习方法与环境一起变化，即使看到差异，也无法只归于学习方法。",
+      "source": "extra",
+      "comparison": {
+        "panels": [
+          {
+            "title": "条件 A",
+            "items": [
+              {
+                "label": "学习材料",
+                "value": "词表 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "学习方法",
+                "value": "方法 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "测量指标",
+                "value": "完成相同的回忆测验",
+                "tone": "neutral"
+              },
+              {
+                "label": "环境",
+                "value": "安静环境",
+                "tone": "warning"
+              }
+            ]
+          },
+          {
+            "title": "条件 B",
+            "items": [
+              {
+                "label": "学习材料",
+                "value": "词表 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "学习方法",
+                "value": "方法 B",
+                "tone": "neutral"
+              },
+              {
+                "label": "测量指标",
+                "value": "完成相同的回忆测验",
+                "tone": "neutral"
+              },
+              {
+                "label": "环境",
+                "value": "有噪声环境",
+                "tone": "warning"
+              }
+            ]
+          }
+        ],
+        "note": "混淆：方法改变的同时，环境也改变了。"
+      }
+    },
+    {
+      "step_id": "control",
+      "title": "保持环境一致再比较",
+      "text": "两种条件都改为安静环境，材料与测验方式也一致。控制已识别的环境差异，使比较更贴近研究问题，但不能保证出现效果或排除所有其他影响。",
+      "source": "extra",
+      "comparison": {
+        "panels": [
+          {
+            "title": "条件 A",
+            "items": [
+              {
+                "label": "学习材料",
+                "value": "词表 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "学习方法",
+                "value": "方法 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "测量指标",
+                "value": "回忆正确数",
+                "tone": "neutral"
+              },
+              {
+                "label": "环境",
+                "value": "安静",
+                "tone": "focus"
+              }
+            ]
+          },
+          {
+            "title": "条件 B",
+            "items": [
+              {
+                "label": "学习材料",
+                "value": "词表 A",
+                "tone": "neutral"
+              },
+              {
+                "label": "学习方法",
+                "value": "方法 B",
+                "tone": "neutral"
+              },
+              {
+                "label": "测量指标",
+                "value": "回忆正确数",
+                "tone": "neutral"
+              },
+              {
+                "label": "环境",
+                "value": "安静",
+                "tone": "focus"
+              }
+            ]
+          }
+        ],
+        "note": "控制额外变量不等于已经得到实验结论。"
+      }
+    }
+  ]
+}

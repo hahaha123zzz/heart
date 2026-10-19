@@ -40,6 +40,12 @@ def _demo_account(student_id: str):
 def course_chapters():
     return chapter_summary()
 
+@router.get('/course/reading-map')
+def course_reading_map():
+    import json
+    from knowledge.course_config import PSYCHOLOGY,ROOT
+    return {} if PSYCHOLOGY else json.loads((ROOT/'frontend/textbook/manifest.json').read_text(encoding='utf-8'))
+
 
 class CitationLocationRequest(BaseModel):
     source: str = Field(min_length=1,max_length=500)
@@ -81,6 +87,7 @@ def search_course(q: str):
 
 @router.get("/course/chapters/{chapter_id}/sections/{section_id}")
 def course_section(chapter_id: int, section_id: int):
+    from knowledge.course_config import PSYCHOLOGY
     chapter = get_chapter(chapter_id)
     section = get_section(chapter_id, section_id)
     if chapter is None or section is None:
@@ -90,7 +97,7 @@ def course_section(chapter_id: int, section_id: int):
             "figures": section_figures(chapter_id, section_id),
             "blocks": section_blocks(chapter_id, section_id),
             "pdf": section_pdf(chapter_id, section_id),
-            "figure_note": "图、公式和表格来自原 Word。公式保留原图，可点击放大；绘图锚点预览可能含多个子图，图号未逐一核定。"}
+            "figure_note": "图、公式和表格保留在教材PDF原页中；页码为生成阅读版页码。" if PSYCHOLOGY else "图、公式和表格来自原 Word。公式保留原图，可点击放大；绘图锚点预览可能含多个子图，图号未逐一核定。"}
 
 
 class ViewRequest(BaseModel):
@@ -264,14 +271,13 @@ def get_preferences(student_id: str):
     return orchestrator.memory.get_profile(student_id).preferences
 
 
-class PreferenceUpdate(BaseModel):
-    answer_length: float = Field(0.5, ge=0.0, le=1.0)
-    example_density: float = Field(0.5, ge=0.0, le=1.0)
-    learning_pace: float = Field(0.5, ge=0.0, le=1.0)
+from models.interaction_preferences import InteractionPreferences
+
+PreferenceUpdate = InteractionPreferences
 
 
 @router.put("/students/{student_id}/preferences")
 def set_preferences(student_id: str, request: PreferenceUpdate):
     _demo_account(student_id)
     from main import orchestrator
-    return orchestrator.memory.set_preferences(student_id, request.model_dump())
+    return orchestrator.memory.set_preferences(student_id, request.model_dump(exclude_none=True))

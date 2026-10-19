@@ -77,7 +77,7 @@ class MemoryManager:
         self, student_id: str, role: str, content: str,
         figure_ids: list[str] | None = None,
         selection_ref: dict | None = None,
-    ) -> None:
+    ) -> int:
         with self.repo.unit_of_work():
             conversation_id = self.repo.append_conversation(student_id, role, content, figure_ids, selection_ref)
             if role == "user":
@@ -85,6 +85,7 @@ class MemoryManager:
                     (selection_ref or {}).get("section_title") or self.get_active_goal(student_id) or "",
                     "pdf_selection" if selection_ref else "interaction",
                     {"conversation_id": conversation_id, "content": content, "selection_ref": selection_ref})
+            return conversation_id
 
     def append_exchange(self, student_id, message, reply, selection_ref=None, *, expected_epoch=None, expected_point=None, task_guard=None):
         """圈选等不更新状态的问答，也将两条对话和行为事件一起提交。"""
@@ -94,8 +95,7 @@ class MemoryManager:
             if expected_epoch is not None and self.repo.memory_epoch(student_id, point) != expected_epoch:
                 return False
             self.append(student_id, "user", message, selection_ref=selection_ref)
-            self.append(student_id, "assistant", reply, selection_ref=selection_ref)
-            return True
+            return self.append(student_id, "assistant", reply, selection_ref=selection_ref)
 
     # ---- Learning 记忆 ---------------------------------------------
     def get_state(self, student_id: str, knowledge_point: str) -> StudentState:
@@ -323,7 +323,7 @@ class MemoryManager:
                 if tutor_error:
                     self.repo.add_event_evidence(event_id, point, "tutor_error", str(tutor_error), .6,
                         "tutor_error", verification="ai_provisional", source_quote=message)
-                return {"status": status, "event_id": event_id}
+                return {"status": status, "event_id": event_id, "conversation_id": assistant_id}
             seen = set()
             for item in evidence:
                 quote = source_quote(item, message)
@@ -340,14 +340,15 @@ class MemoryManager:
             active=[m for m in state.misconceptions if m.status in ("hypothesis","supported","confirmed")]
             state.misconception="；".join(m.description for m in active[:3]) or None
             self.repo.save_knowledge_state(student_id, point, state)
-            self.repo.save_lesson_plan(student_id, point, lesson_plan, state.steps_mastery)
+            if lesson_plan is not None:
+                self.repo.save_lesson_plan(student_id, point, lesson_plan, state.steps_mastery)
             self.repo.set_active_knowledge_point(student_id, point)
             self.repo.record_strategy_observation(student_id, point, event_id, previous, decision,
                 before["knowledge_states"][0]["mastery"] if before["knowledge_states"] else .5, state.mastery)
             after = self.repo.memory_snapshot(student_id, point)
             self.repo.add_revision(student_id, event_id, point, before, after)
             job_id = self.repo.enqueue_memory_job(student_id, event_id)
-            return {"status": status, "event_id": event_id, "misconception_updates": assessments, "memory_job_id": job_id}
+            return {"status": status, "event_id": event_id, "conversation_id": assistant_id, "misconception_updates": assessments, "memory_job_id": job_id}
 
     def record_graph_submission(self, student_id, point, attempt_id, payload, *, expected_epoch):
         """图提交复用学习事件/证据；不据单题自动更新掌握度或课程进度。"""

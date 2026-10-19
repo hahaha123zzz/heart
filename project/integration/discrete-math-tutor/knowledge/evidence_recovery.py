@@ -2,10 +2,10 @@
 import re
 
 
-def recover_evidence(message, sources, fallback_chunks, decision, retrieve):
+def recover_evidence(message, sources, fallback_chunks, decision, retrieve, *, max_sources=6):
     if decision.status not in {'partial', 'insufficient'} or not decision.missing:
         return sources
-    if not re.search(r'是否|成立|正确|反例|判断|真假|教材|定理|定义|章节|第[0-9一二三四五六七八九十]+章|前置|依据', message):
+    if not re.search(r'是否|成立|正确|反例|判断|真假|教材|定理|定义|章节|第[0-9一二三四五六七八九十]+章|前置|依据|为什么|为何|原因|如何|比较|区别', message):
         return sources
     # 分别查询缺失依据，避免其中的定理编号把所有召回拉回旧单元。
     queries = [str(item)[:200].strip() for item in decision.missing[:3] if str(item).strip()]
@@ -17,15 +17,16 @@ def recover_evidence(message, sources, fallback_chunks, decision, retrieve):
     seen = {key(item) for item in result}
     added = 0
     for query in queries:
-        if added >= 3 or len(result) >= 6:
+        if added >= 3 or len(result) >= max_sources:
             break
-        for item in retrieve(query, fallback_chunks, limit=1):
+        for item in retrieve(query, fallback_chunks, limit=3):
             item_key = key(item)
             if item_key in seen:
                 continue
-            if added >= 3 or len(result) >= 6:
+            if added >= 3 or len(result) >= max_sources:
                 break
             result.append(item)
             seen.add(item_key)
             added += 1
+            break
     return result

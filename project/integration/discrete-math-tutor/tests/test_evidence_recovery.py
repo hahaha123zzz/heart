@@ -4,6 +4,16 @@ from knowledge.textbook import TextbookChunk
 from knowledge.evidence_recovery import recover_evidence
 
 class RecoveryTests(unittest.TestCase):
+    def test_full_initial_recall_can_fill_missing_evidence_with_explicit_budget(self):
+        original=[self.chunk(str(i),i) for i in range(6)]
+        calls=[]
+        def retrieve(query,fallback,**kwargs):
+            calls.append(query);return [self.chunk(query,6+len(calls))]
+        result=recover_evidence('请结合教材比较实验设计',original,[],
+            SimpleNamespace(status='partial',missing=['适用情境','顺序效应','随机分配']),retrieve,max_sources=9)
+        self.assertEqual(result[:6],original)
+        self.assertEqual(len(result),9)
+        self.assertEqual(calls,['适用情境','顺序效应','随机分配'])
     def chunk(self,text,id):
         return TextbookChunk('教材','欧拉图',text,frozenset(),chunk_id=id)
     def test_append_deduplicated_sources_and_preserve_original_order(self):
@@ -22,7 +32,7 @@ class RecoveryTests(unittest.TestCase):
     def test_bounded_append_even_if_retriever_returns_excess(self):
         old=self.chunk('原文',1)
         result=recover_evidence('是否正确？',[old],[],SimpleNamespace(status='partial',missing=['定义'*500]),lambda *a,**k:[self.chunk(str(i),i) for i in range(2,20)])
-        self.assertEqual(len(result),4)
+        self.assertEqual(len(result),2)
     def test_missing_items_are_not_joined_with_numbered_anchor(self):
         old=self.chunk('原文',1);calls=[]
         def retrieve(query,fallback,**kwargs):
@@ -33,3 +43,18 @@ class RecoveryTests(unittest.TestCase):
         old=self.chunk('函数核是等价关系',1);new=self.chunk('等价类构成划分',2)
         result=recover_evidence('定理10.6为什么能得到划分？指出第9章依据。',[old],[],SimpleNamespace(status='partial',missing=['第9章等价类与划分的定理']),lambda *a,**k:[new])
         self.assertEqual(result,[old,new])
+
+    def test_why_question_without_textbook_keyword_can_recover_real_gap(self):
+        old=self.chunk('双盲定义',1);extra=self.chunk('单盲不能控制实验者偏差',2)
+        calls=[]
+        def retrieve(query,fallback,**kwargs):
+            calls.append(query);return [old,extra]
+        result=recover_evidence('只瞒被试为什么不够？',[old],[],
+            SimpleNamespace(status='partial',missing=['单盲的控制局限']),retrieve)
+        self.assertEqual(result,[old,extra]);self.assertEqual(calls,['单盲的控制局限'])
+
+    def test_why_recovery_does_not_retry_unavailable_or_empty_missing(self):
+        old=self.chunk('双盲定义',1)
+        def retrieve(*args,**kwargs):self.fail('不应补检索')
+        for decision in [SimpleNamespace(status='unavailable',missing=['机制']),SimpleNamespace(status='partial',missing=[])]:
+            self.assertEqual(recover_evidence('只瞒被试为什么不够？',[old],[],decision,retrieve),[old])

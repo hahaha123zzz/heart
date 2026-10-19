@@ -17,10 +17,11 @@ from orchestrator import TutorOrchestrator
 class QualityGuardTests(unittest.TestCase):
     def tutor(self, qualities):
         tutor=TutorOrchestrator.__new__(TutorOrchestrator)
-        for name in ('memory','conversation_router','context_sufficiency','lesson_planner','evidence_extractor','state_analyzer','teaching_planner','strategy_router','question_designer','response_generator','quality_checker','state_updater','tutor_error_detector'):
+        for name in ('llm','memory','conversation_router','context_sufficiency','lesson_planner','evidence_extractor','state_analyzer','teaching_planner','strategy_router','question_designer','response_generator','quality_checker','state_updater','tutor_error_detector'):
             setattr(tutor,name,Mock())
         tutor.textbook_chunks=[]
         tutor.memory.read_version.return_value=('mock-version',0)
+        tutor.memory.repo.memory_epoch.return_value=0
         tutor.memory.get_history.return_value=[]
         tutor.memory.retrieve_context.return_value={'summary':'暂无相关学习记录','retrieval':{}}
         tutor.memory.get_active_goal.return_value='旧目标'
@@ -44,7 +45,7 @@ class QualityGuardTests(unittest.TestCase):
         return tutor
     def run_turn(self,tutor):
         source=TextbookChunk(source='教材.txt',section='小节',text='已知条件',terms=frozenset())
-        with patch('orchestrator.retrieve_hybrid',return_value=[source]),patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)):
+        with patch('orchestrator.retrieve_course',return_value=[source]),patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)):
             return tutor.handle_turn('guard-test','解释这个证明')
     def test_failed_final_check_never_publishes_draft_or_advances(self):
         tutor=self.tutor([QualityResult(passed=False,issues=['与原文矛盾'])]*2)

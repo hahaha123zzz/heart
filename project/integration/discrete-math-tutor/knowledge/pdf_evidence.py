@@ -5,7 +5,7 @@ from pathlib import Path
 import logging
 import re
 import fitz
-from knowledge.pdf_reader import document, pdf_path, PDFSelection, resolve_selection
+from knowledge.pdf_reader import document_for_chapter, pdf_path, PDFSelection, resolve_selection
 from knowledge.textbook import terms_for
 
 REFERENCE = re.compile(r'(定义|定理|例)\s*(\d+)\s*[.．]\s*(\d+)')
@@ -79,7 +79,7 @@ def _supplement(source, index, query=None):
     requested_set_formula = bool(re.search(r'[∈∉⊆⊂⊇⊃∩∪]',query or ''))
     numbered_set_text = requested_set_formula and getattr(source,'kind','')=='text' and REFERENCE.search(source.text)
     if not chapter or not section_id or not (needs_pdf(source) or numbered_set_text or requested_unit): return None
-    record=document(f'chapter-{chapter:02d}')
+    record=document_for_chapter(chapter)
     if not record or Path(source.source).stem != Path(record['source']).stem: return None
     sections=record['sections']
     section=next((s for s in sections if s['id']==section_id),None)

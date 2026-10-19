@@ -1,0 +1,18 @@
+[
+  {"id":"designs","point":"被试间设计","turns":[
+    {"id":"first_error","message":"我的判断是：被试间设计就是让每名被试都接受所有处理水平。请看看我的判断。","mode":"targeted_hint","required":"定位被试间与被试内混淆；针对一个疑点提示"},
+    {"id":"hint_again","message":"我还是不懂，只给我一个下一步提示，不要直接告诉我答案。","mode":"hint_only","hint_level":2,"required":"只提示，升级而非重复第1级，不更新掌握度"},
+    {"id":"still_stuck","message":"还是不会，只给提示，不要完整答案。","mode":"hint_only","hint_level":3,"required":"保持只提示，拆成最小操作，不给完整判断"},
+    {"id":"corrected","message":"我修正一下：被试间设计中每人只接受一种处理水平，不同水平由不同的人完成。","mode":"confirm_and_reflect","required":"确认本次修正并问一个理由；辅导后重答不当独立掌握证据"}
+  ]},
+  {"id":"double_blind","point":"双盲实验","turns":[
+    {"id":"first_error","message":"我的判断是：只让被试不知道自己接受哪种处理，就可以称为双盲。请看看我的判断。","mode":"targeted_hint","required":"定位仅盲被试的缺口，关注实施人员，不误判学生在求助"},
+    {"id":"frustrated_explanation","message":"我还是不懂，越学越烦，请完整解释为什么我的判断不够。","mode":"explain_feedback","required":"直接完整讲解、简短回应困难；不设置长期风格偏好"},
+    {"id":"corrected","message":"我修正一下：双盲要求被试和执行实验的人员都不知道被试接受的是哪种处理，以减少要求特征和实验者偏差。","mode":"confirm_and_reflect","required":"确认修正，实验中不知道处理不等于学生求助；不虚增掌握"},
+    {"id":"self_report","message":"我明白了。","mode":"check_self_report","required":"自述理解后做小检查，不直接提高掌握度"}
+  ]},
+  {"id":"repeat_error","point":"被试间设计","turns":[
+    {"id":"first_error","message":"我认为被试间设计应该让每名被试做完所有处理水平，这样才能比较效果。请检查我的判断。","mode":"targeted_hint","required":"先针对‘被试间/被试内’混淆给一个提示"},
+    {"id":"repeat_wrong","message":"我还是觉得每名被试都要做所有水平才好比较，请换种方式继续帮我。","mode":"worked_example","hint_level":2,"required":"同一错误持续时换一个辅助例子，不重复提示"}
+  ]}
+]

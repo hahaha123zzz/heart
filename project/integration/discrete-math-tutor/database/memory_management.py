@@ -7,7 +7,8 @@ from database.models import (Student, KnowledgeStateRow, MisconceptionRow, Evide
     ConversationRow, PDFCitationRow, TeachingPlanRow, ActiveStateRow, MemoryDocumentRow, MemoryRevisionRow,
     StrategyObservationRow, MemoryArtifactRow, MemoryControlRow, MemoryExclusionRow, MemoryChangeRow, ExerciseSkillObservationRow, LearningTaskRow, VisualizationRow)
 
-PREFERENCE_KEYS={"answer_length","example_density","learning_pace"}
+from models.interaction_preferences import InteractionPreferences
+PREFERENCE_KEYS=set(InteractionPreferences.model_fields)
 
 
 class MemoryManagementRepository:

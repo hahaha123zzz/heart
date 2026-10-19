@@ -42,6 +42,17 @@ class TemplateTests(unittest.TestCase):
             with self.subTest(name=name),self.assertRaises(ValueError):render_plan(plan(name,payload))
 
 
+class AnswerPresentationTests(unittest.TestCase):
+    def test_answer_emphasis_survives_generation(self):
+        from agents.response_generator import ResponseGenerator
+        from agents.teaching_planner import TeachingPlan
+        from models.student_state import StudentState
+        reply='**交集**是共同元素；==只有2同时属于两者==。'
+        llm=Mock();llm.chat.return_value=reply
+        answer=ResponseGenerator(llm).generate(StudentState(),TeachingPlan(goal='交集',strategy='worked_example',action='explain',difficulty='easy'),'解释交集',[])
+        self.assertEqual(answer,reply)
+
+
 class RuntimeTests(unittest.TestCase):
     def setUp(self):
         CACHE.clear()
@@ -69,10 +80,11 @@ class RuntimeTests(unittest.TestCase):
         llm=Mock();llm.chat_json.side_effect=[{'templates':['mapping']},{'plans':[self.raw]},{'passed':True,'issues':[]}]
         self.assertIsNotNone(self.run_guide(llm,message='解释单射和满射的区别'))
         self.assertIn('无需用户提出',llm.chat_json.call_args_list[0].args[0][0]['content'])
-    def test_answer_emphasis_survives_concise_output(self):
-        from agents.response_generator import concise_terminal_text
-        reply='**交集**是共同元素；==只有2同时属于两者==。'
-        self.assertEqual(concise_terminal_text(reply),reply)
+    def test_location_wrapper_is_unpacked_before_publishing(self):
+        llm=Mock();llm.chat_json.side_effect=[{'templates':['mapping']},{'plans':[self.raw]},{'passed':True,'issues':[]}]
+        with patch('knowledge.citation_locations.locate_source',return_value={'label':'定义','selection_ref':self.ref}):
+            guide=generate_guide(llm,'解释映射','根据教材解释映射。',[self.source],self.execution,student_id='isolated',turn_id='turn')
+        self.assertEqual(guide['frames'][0]['selection_ref'],self.ref)
     def test_one_repair_and_invalid_quote_never_published(self):
         invalid=copy.deepcopy(self.raw);invalid['evidence_quote']='这句话不在教材中'
         llm=Mock();llm.chat_json.side_effect=[{'templates':['mapping']},{'plans':[invalid]},{'plans':[self.raw]},{'passed':True,'issues':[]}]
@@ -104,6 +116,12 @@ class RuntimeTests(unittest.TestCase):
         g=self.run_guide(llm)
         self.assertEqual(g['generation']['templates'],['mapping','formula'])
         self.assertIn('formula',g['frames'][-1]);self.assertEqual(g['frames'][-1]['selection_ref'],self.ref)
+    def test_multiple_templates_accept_valid_reversed_model_order(self):
+        second=dict(self.raw,template='formula',payload={'steps':[{'before':'a+b','after':'b+a','rule':'交换律'}]})
+        llm=Mock();llm.chat_json.side_effect=[{'templates':['mapping','formula']},{'plans':[second,self.raw]},{'passed':True,'issues':[]}]
+        g=self.run_guide(llm)
+        self.assertEqual(g['generation']['templates'],['mapping','formula'])
+        self.assertIn('formula',g['frames'][-1])
     def test_practice_explanation_attaches_guide_but_hint_does_not(self):
         import sys
         import practice_api as practice

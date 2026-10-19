@@ -6,6 +6,7 @@ from models.chat_request import ChatRequest
 from agents.task_context_builder import TaskContextBuilder
 from knowledge.pdf_reader import resolve_selection
 from knowledge.course import get_section
+from knowledge.course_config import DEFAULT_GOAL
 from agents.intent_policy import IntentPolicy
 from visualization.service import VisualizationError
 
@@ -27,7 +28,7 @@ class TaskService:
         history = self.tutor.memory.get_history(request.student_id) if request.session_id == "legacy" else [
             item for row in recent for item in ({"role": "user", "content": row["payload"].get("message", "")},
                 {"role": "assistant", "content": row["result"].get("reply", "")})]
-        point = request.learning_goal or (recent[-1]["knowledge_point"] if recent else None) or self.tutor.memory.get_active_goal(request.student_id) or "图的基本概念"
+        point = request.learning_goal or (recent[-1]["knowledge_point"] if recent else None) or self.tutor.memory.get_active_goal(request.student_id) or DEFAULT_GOAL
         resolved = resolve_selection(request.selection) if request.selection else None
         if resolved: point = resolved["section"]["title"]
         elif request.reader_location:
@@ -54,7 +55,8 @@ class TaskService:
             visualization_target=request.visualization_target,
             truth_table_target=request.truth_table_target,
             relation_target=request.relation_target,
-            preferences=self.tutor.memory.get_profile(request.student_id).preferences)
+            preferences={**self.tutor.memory.get_profile(request.student_id).preferences,
+                **(request.style_overrides.model_dump(exclude_none=True) if request.style_overrides else {})})
         def origin(source, obj):
             values = {"reader_location": None, "selection": None, "exercise_target": None, "visualization_target": None, "truth_table_target": None, "relation_target":None}
             key = {"section": "reader_location", "pdf_selection": "selection", "exercise_part": "exercise_target", "visualization":"visualization_target", "truth_table":"truth_table_target", "relation":"relation_target"}[obj.kind]
@@ -107,10 +109,11 @@ class TaskService:
                 payload[field] = request.model_dump()[field]
         merged = payload["message"] + suffix
         if len(merged) > 4000: raise TaskConflict("task_too_long", "补充后的问题过长，请重新提问")
-        payload.update(message=merged, request_id=request.request_id, task_id=None, task_revision=None, selected_option=None)
+        payload.update(message=merged, request_id=request.request_id, task_id=None, task_revision=None, selected_option=None,
+            style_overrides=request.model_dump()["style_overrides"])
         return ChatRequest.model_validate(payload)
 
-    def run(self, request, executor, progress=None):
+    def run(self, request, executor, progress=None, *, visualization_jobs=None, answer_ready=None):
         try:
             # 模型未开始前确保账户；后续执行器在task_guard存在时不重建账户。
             if request.account_type == "test": self.tutor.memory.accounts.create_test_account(request.student_id, ttl_hours=24)
@@ -141,12 +144,13 @@ class TaskService:
             previous = self.repo.resume(request.student_id, request.session_id, task_id, revision, self.tutor.memory.repo) if task_id else None
             effective = self._resume(request, previous) if previous else request
             context, resolved, origins = self._context(effective)
+            from knowledge.pdf_reader import documents
+            document_versions = {record["document_id"]: record["version"] for record in documents()}
             context.task_understanding_enabled = enabled
             if not self.policy.context or not enabled:
                 if effective.visualization_target or effective.truth_table_target or effective.relation_target:
                     raise TaskConflict('task_disabled', '互动图提问需要开启任务上下文，本轮没有推进学习进度')
                 context.objects = []
-                context.preferences = {}
             point = context.knowledge_point
             epoch = self.tutor.memory.repo.memory_epoch(request.student_id, point)
             task, receipt, duplicate = self.repo.claim(student_id=request.student_id, session_id=request.session_id,
@@ -196,7 +200,7 @@ class TaskService:
                         "answer_status": "awaiting_clarification" if not limited else "clarification_limit",
                         "routing": routing.model_dump(), "step_advanced": False,
                         "clarification": {"question": question, "options": options, "missing_slots": slots}}
-                    saved_context = context.model_dump() | {"option_requests": origins}
+                    saved_context = context.model_dump() | {"option_requests": origins, "document_versions": document_versions}
                     task, result = self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo, status="failed" if limited else "awaiting_clarification",
                         result=result, context=saved_context, routing=routing.model_dump(), payload=effective.model_dump())
                     return result
@@ -225,7 +229,7 @@ class TaskService:
                         context.relation_snapshot=RelationService().snapshot(target,request.student_id,request.session_id)
                         guard()
                 task, _ = self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo, status="executing", result={},
-                    context=context.model_dump(), routing=routing.model_dump(), payload=effective.model_dump())
+                    context=context.model_dump() | {"document_versions": document_versions}, routing=routing.model_dump(), payload=effective.model_dump())
                 return None
             guard()
             result = executor(effective, context, resolved, intercept, guard, progress)
@@ -236,10 +240,38 @@ class TaskService:
             if context.relation_snapshot:
                 result['relation_context']={k:v for k,v in context.relation_snapshot.items() if k!='evaluation'}
             if task["status"] in ("awaiting_clarification", "failed"): return result
+            from agents.style_suggestions import suggest_style
+            suggestion = suggest_style(result, context, self.repo.recent(request.student_id, request.session_id))
+            if suggestion:
+                result = dict(result, style_suggestion=suggestion)
+            if visualization_jobs and result.get("answer_status") == "answered" and result.get("conversation_id"):
+                guard()
+                result = dict(result, visualization_status="pending")
+                if answer_ready is not None:
+                    answer_ready(dict(result))
+                guide = None
+                if progress:
+                    progress("visualization", "准备辅助图解", "文字已保存，可先阅读回答")
+                try:
+                    for build in visualization_jobs:
+                        guard()
+                        guide = build()
+                except TaskConflict:
+                    raise
+                except Exception:
+                    # 图解是可选附件，失败不能抹掉已经保存的合格文字。
+                    import logging
+                    logging.getLogger(__name__).exception("Optional visualization failed")
+                result = dict(result, guided_visualization=guide,
+                    visualization_status="ready" if guide else "unavailable")
             # 与最后一次保存使用相同工作单元检查，拒绝已删除/取消的迟到结果。
             with self.tutor.memory.repo.unit_of_work():
                 guard()
-                task, result = self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo, status="completed", result=result)
+                if result.get("visualization_status") == "ready":
+                    if not self.tutor.memory.repo.attach_guide(request.student_id, result["conversation_id"], result["guided_visualization"]):
+                        raise TaskConflict("memory_deleted", "相关对话已删除，图解未保存")
+                task, result = self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo, status="completed", result=result,
+                    context=context.model_dump() | {"document_versions": document_versions})
             return result
         except TaskConflict as error:
             if error.code == 'visualization_changed' and 'task' in locals():

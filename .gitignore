@@ -12,6 +12,8 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .cache/
+.venv-deeptutor/
+.runtime/
 
 # 数据库、日志和测试产物
 *.db

@@ -18,7 +18,7 @@ if not exist "%PYTHON_EXE%" (
     exit /b 1
 )
 echo ==========================================================
-echo  Start the Discrete Math Learning Platform
+echo  Start the Experimental Psychology Learning Platform
 echo  The platform will open in your browser automatically:
 echo  http://127.0.0.1:8000/
 echo  API docs: http://127.0.0.1:8000/docs

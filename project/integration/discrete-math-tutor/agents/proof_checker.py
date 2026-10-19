@@ -33,6 +33,8 @@ class AuditPayload(BaseModel):
     checks: list[ProofCheck]
 
 def needs_proof_audit(question: str, response: str, action: str) -> bool:
+    from knowledge.course_config import PSYCHOLOGY
+    if PSYCHOLOGY:return False  # 实验推理与统计条件由学科质检核验，不套用图论证明规则。
     return action in {'explain','give_example'} and bool(re.search(r'证明|推导|反证|归纳|证得|待证', question+' '+response))
 
 SYSTEM_PROMPT = '''[AGENT:proof_checker]

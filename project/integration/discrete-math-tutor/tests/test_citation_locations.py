@@ -35,8 +35,9 @@ class CitationLocationTests(unittest.TestCase):
         source=self.source('定义9.5')
         label=f'{source.source}／{source.section}（PDF第999页起）'
         located=resolve_source_label(label,'根据定义9.5解释')
-        self.assertEqual(located['label'],'定义9.5')
-        self.assertLess(located['selection_ref']['rects'][0]['page'],999)
+        self.assertEqual(located['selection_ref']['location_kind'],'section')
+        self.assertEqual(located['selection_ref']['rects'],[])
+        self.assertLess(located['selection_ref']['page'],999)
         with self.assertRaises(ValueError):
             resolve_source_label('其他教材.txt／'+source.section,'定义9.5')
     def test_wrong_file_or_section_cannot_create_reference(self):

@@ -5,6 +5,8 @@
     MySQL:      mysql+pymysql://ai_tutor:<pw>@127.0.0.1:3306/ai_tutor
     SQLite:     sqlite:///./ai_tutor.db
     PostgreSQL: postgresql+psycopg://user:pw@127.0.0.1:5432/ai_tutor
+
+心理学模式的SQLite采用独立课程文件；COURSE_DATABASE_URL可显式指定独立库。
 """
 
 from __future__ import annotations
@@ -16,6 +18,8 @@ from typing import Iterator
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.engine import make_url
+from pathlib import Path
 
 try:
     from dotenv import load_dotenv
@@ -26,6 +30,27 @@ except ImportError:
 
 DEFAULT_URL = "sqlite:///./ai_tutor.db"
 DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_URL)
+
+def course_database_url(url):
+    from knowledge.course_config import PSYCHOLOGY
+    if not PSYCHOLOGY:return url
+    original=make_url(url)
+    explicit=os.getenv('COURSE_DATABASE_URL')
+    if explicit:
+        candidate=make_url(explicit)
+        same=candidate==original
+        if candidate.get_backend_name()=='sqlite' and original.get_backend_name()=='sqlite':
+            same=Path(candidate.database or '').resolve()==Path(original.database or '').resolve()
+        if same:raise ValueError('心理学学习数据库必须与旧课程数据库分开')
+        return explicit
+    if original.get_backend_name()!='sqlite':
+        raise ValueError('请用COURSE_DATABASE_URL指定心理学课程独立数据库')
+    if original.database==':memory:':return url
+    path=Path(original.database or 'ai_tutor.db')
+    target=path.with_name(path.stem+'.experimental-psychology-3'+path.suffix)
+    return original.set(database=str(target)).render_as_string(hide_password=False)
+
+DATABASE_URL=course_database_url(DATABASE_URL)
 
 _engine_kwargs = {"pool_pre_ping": True}
 if DATABASE_URL.startswith("sqlite"):

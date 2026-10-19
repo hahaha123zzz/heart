@@ -5,6 +5,7 @@ from models.task_context import ReaderLocation, ExerciseTarget
 from models.visualization import VisualizationTarget
 from models.truth_table import TruthTableTarget
 from models.relation import RelationTarget
+from models.interaction_preferences import InteractionPreferences
 
 
 class ChatRequest(BaseModel):
@@ -20,6 +21,7 @@ class ChatRequest(BaseModel):
     relation_target: RelationTarget | None = None
     session_id: str = Field(default="legacy", min_length=1, max_length=64)
     request_id: str | None = Field(default=None, min_length=1, max_length=64)
+    style_overrides: InteractionPreferences | None = None
 
     task_id: str | None = Field(default=None, min_length=1, max_length=64)
     task_revision: int | None = Field(default=None, ge=1)

@@ -1,165 +1,80 @@
-# 离散数学 AI 助教（Demo）
+# 实验心理学教材 AI 助教
 
-这是从原心理学助教项目改造的离散数学教学 Demo。保留原有的对话路由、学生状态/画像、短期教学计划、教学策略、记忆和 API；教学内容改为用户提供的十章离散数学教材文本。它不是心理咨询或心理学教学平台。
+当前教材为甲方提供的《实验心理学（第3版）》，沿用原项目页面、PDF阅读器、RAG、Agent、学习记忆和对话图解框架。
 
-Windows 双击 `2-chat.bat`，或在本目录运行 `.venv\Scripts\python.exe chat_cli.py`。输入 `exit` 退出。默认只显示助教回复和教材出处；如需查看内部状态可用 `--debug`。默认是测试账户，退出时清除本次测试记忆。建议先问：`我对图这一章不太懂，该怎么学？`，接着试 `不知道`、`还是不会`、`我想换到集合`。
+## 启动与使用
 
-真实模型：在本地 `.env` 配置 `DEEPSEEK_API_KEY`、`OPENAI_BASE_URL=https://api.deepseek.com`、`OPENAI_MODEL=deepseek-flash`、`OPENAI_VISION_MODEL=deepseek-flash`、`LLM_MOCK=0`。不要分享密钥。没有密钥时设置 `LLM_MOCK=1`，模拟回复仅用于流程测试，不代表真实教学质量。
-
-默认 `DATABASE_URL=sqlite:///./ai_tutor.db`，也支持现有 MySQL 配置。不要覆盖现有 `.env`、数据库或虚拟环境。测试账户有效期 24 小时；每次代码版本变化时只清理测试账户记忆，正式账户保留。
-
-网页 Demo：双击 `3-start-api.bat`，等待浏览器打开 `http://127.0.0.1:8000/`；同一服务同时提供 API，接口文档位于 `http://127.0.0.1:8000/docs`。启动与检查脚本调用本目录 `.venv\Scripts\python.exe`。若该虚拟环境尚不存在，先在本目录运行 `python -m venv .venv` 和 `.venv\Scripts\python.exe -m pip install -r requirements.txt`。`1-smoke-test.bat`、`4-test-dedup.bat`、`5-test-routing.bat`、`6-eval-tutor.bat` 是离散数学场景的离线检查。
-
-`orchestrator.py` 负责统一教学回合；`agents/` 负责路由、学生证据、教学规划、出题、回复与质检；`models/`、`memory/`、`database/` 负责学生状态、画像和持久化；`knowledge/textbook_text/` 是十章教材纯文本；`llm/client.py` 是单一模型接口。
-
-教材源自 Word 提取的纯文本，公式和图片可能显示为 `[公式或对象]`，不能据此臆造公式。当前没有独立课件文件或教师认证，已批量恢复公式预览和 Word 绘图，部分插图的教材图号尚未核定；网页会标记缺失的资源，也不提供全班统计页。统计只限当前演示学生账户。回复尽量控制在约 200 个汉字、一个小步骤和一个小问题；教材依据用 `[1]` 等编号引用，出处在返回值 `textbook_sources`。演示级检索不保证所有复杂证明无误，正式使用仍需核对教材。
-
-图片试点：现已从第七章原始 `.doc` 中提取并核对图 7.8、图 7.20、图 7.23。相关小节和问答会显示原图、图号与来源；问答返回 `image_refs`，历史记录也保留图片引用。`knowledge/figure_assets/README.md` 记录了图号核对依据，`python scripts/extract_doc_png_candidates.py` 可重复扫描原稿中的 PNG 候选。设置 `LLM_MOCK=0` 并配置密钥后，相关问答会把已核对的原图传给视觉模型，用于生成和质检回答；模拟模式仅测试引用流程，不会识别图片内容。图片文件在每次读取前校验 SHA-256，目录中的资产按来源、文件路径和哈希验证后发送；新增绘图以锚点对象编号展示。明确询问图号时，助教优先引用该图所在的教材原文。
-
-`chat_cli.py --account production` 会持久保存学习数据，仅在明确需要时使用。`chat_cli.py --keep` 会保留测试数据到过期或下一次代码更新。
-
-## 图片、表格与公式批量导入
-
-## 意图识别灰度与回滚（2026-10-12）
-
-API聊天入口可通过 `INTENT_ROLLOUT=all/test/allowlist/off` 控制新版任务理解范围。默认 `all` 保持当前行为；`test` 按数据库账户类别判定；`allowlist` 同时设置 `INTENT_STUDENT_ALLOWLIST=student-a,student-b`。配置仅由服务端读取，不支持客户端覆盖。
-
-`INTENT_CONTEXT_ENABLED`、`INTENT_TASK_ENABLED`、`INTENT_CLARIFICATION_ENABLED` 默认均为 `1`。关闭上下文或任务识别会回退到严格校验的旧路由字段；仅关闭澄清时仍识别明确任务，但信息缺失返回 `clarification_required`，不进入教学或创建待补充任务。自由改写尚未启用，`INTENT_REWRITE_ENABLED` 必须为 `0`。
-
-回滚时先停止接收新请求、等当前回合完成，再设置 `INTENT_ROLLOUT=off` 并重启服务；打开网页后刷新。待补充任务在恢复/下次请求时按会话撤销，旧任务ID及编号选项不能继续执行，页面会提示完整重新提问；重新开启也不会复活这些已撤销任务。保留任务表、收据和学生数据，不删除数据库。旧字段路径不支持新版多意图、对象指代和回答约束，回滚不代表保留全部新版能力；PDF资源版本校验、题库按钮辅导、证据门控和删除保护继续保留。
-
-不修改用户实际 `.env` 或重启日常服务。细节及本地验收见 [阶段F灰度回滚报告](docs/intent-research/阶段F灰度回滚报告.md)。CLI及独立评测器保留显式选择路由模式，不使用API灰度开关。
-
-## 教材检索升级（2026-10-10）
-
-问答入口现在优先使用 `knowledge/rag_index_v2.sqlite3`：从已提取的 Word 块建立章、节、定理与证明、图表公式的结构索引；正文与习题分离；以中文字符组合的 SQLite FTS5/BM25 召回，并在索引带有向量时加入本地语义召回。候选按倒数排名融合，再补齐同一父单元的上下文。模型和索引不可用时退回原关键词检索。PDF 出处标注的是**小节起始页**，不是精确的原文所在页；选区提问仍按用户所选 PDF 坐标取证。
-
-首次运行会自动生成不含语义向量的结构索引。完整重建与评测：
-
-在 Windows 上重建索引前先停止正在运行的 API 服务，以免 SQLite 文件被占用。
+Windows 双击 `3-start-api.bat`，或在本目录运行：
 
 ```powershell
-.\.venv\Scripts\python.exe -X utf8 -m scripts.build_rag_index --embed
-.\.venv\Scripts\python.exe -X utf8 -m scripts.eval_rag_retrieval
-.\.venv\Scripts\python.exe -X utf8 -m unittest tests.test_rag_upgrade -v
+.venv-gpu/Scripts/python.exe -X utf8 -m scripts.start_server --port 8000
 ```
 
-`--embed` 使用本地 FastEmbed 中文模型 `BAAI/bge-small-zh-v1.5`，首次需要下载模型。运行时设置 `RAG_RERANK_MODEL=BAAI/bge-reranker-base` 可启用 FastEmbed 的中文交叉编码器重排：保留关键词和向量两路候选，逐段检查重排相关性，再通过 RRF 融合结构排序与模型排序。模型约 1 GB，CPU 推理需要数秒，配置示例默认关闭。`RAG_RERANK_MIN_PROBABILITY=0.15` 控制 sigmoid 后的相关性分数门槛，该分数未经概率校准。`BAAI/bge-reranker-v2-m3` 需要额外安装 FlagEmbedding，同样通过 `RAG_RERANK_MODEL` 配置。索引是可重建的本地文件，不进入版本管理。详细说明见 `docs/2026-10-10-rag-upgrade.md`。
+打开 http://127.0.0.1:8000/ 。配置保存在本机 `.env`，不要分享密钥。真实模型要求 `LLM_MOCK=0`；当前重排模型运行在GPU，embedding运行在CPU。
 
-使用 `python -m scripts.eval_rag_holdout --cases <题集路径> --output <报告路径> --reranker BAAI/bge-reranker-base --trace` 保存逐题检索轨迹，包含候选、重排分数、融合排序和拒绝原因。单独诊断候选覆盖可使用 `scripts.diagnose_rag_stages` 的同名参数。模型加载或评分失败时保留原证据门槛，轨迹中记录 `reranker_error` 和 `evidence_gate=fallback`。
+教材共11章、37节，阅读版PDF共376页。页码标注为生成阅读版页码，不能作为印刷版页码引用。支持教材圈选提问、回答引用定位与高亮；教学需要时自动调用实验流程、变量关系和设计矩阵图解，学生只需点击上一步或下一步。
 
-独立验收题集运行 `.\.venv\Scripts\python.exe -X utf8 -m scripts.eval_rag_holdout`；逐题结果写入 `artifacts/rag_holdout_results.json`，结论和真实回答抽查见 `docs/2026-10-10-rag-holdout-results.md`。该题集与前述 13 道调参回归题分开。
+当前提供的教材未发现独立习题栏。实验目的与实验程序保留在阅读器中；练习页不展示其他教材题目，也不虚构官方题目或答案。
 
-首次独立验收后已针对失败案例修复检索与无证据问答；这批题目现用于回归，后续不可再把复测分数称为独立测试。用户提出教材外问题而没有可靠证据时，问答返回空出处并提示选择教材内容。完整语义索引需要预先执行上面的 `--embed` 构建命令；无向量降级模式的教材外问题拦截仍需改进。
+## 数据与验收
 
-已处理十章原始 DOC：20 个 Word 表格、1,209 张公式预览、4 个嵌入图片和 133 张 Word 绘图锚点预览。一个公式块可能包含多个公式对象，一个绘图预览也可能包含多幅图或标注；这些数量不等于教材独立图号数量。
+正式教材和索引：`knowledge/courses/experimental-psychology-3/`。
 
-双击 `9-import-multimodal.bat` 可以重建。导入需要本机 Microsoft Word 和 Windows System.Drawing；运行网页问答只读取导入产物。流程为 DOC → WordOpenXML → 表格/公式/媒体解析 → 绘图锚点导出 → PNG 预览与检索索引。原始 WMF、EMF 和 OLE 文件保留，发送模型的预览最长边限制为 2,048 像素。导入后重启 API 服务以刷新缓存。
+心理学学习库自动采用独立SQLite文件 `ai_tutor.experimental-psychology-3.db`。原学习数据库不覆盖、不清空，启动时不会因代码变化删除心理学测试账户；测试账户原有有效期规则仍生效。
 
-- 提取统计：`knowledge/extracted_multimodal/import_report.json`。
-- 插图及公式核对页：`knowledge/extracted_multimodal/review.html`，可用浏览器打开。
-- 表格和公式块：`multimodal_chunks.jsonl`；绘图正文：`vector_chunks.jsonl`。
-- 真实模型验证：`.venv\Scripts\python.exe -X utf8 scripts\eval_multimodal.py`，结果保存到 `knowledge/extracted_multimodal/real_validation.json`，使用临时数据库。
-- 离线验证：`.venv\Scripts\python.exe -m unittest test_figures test_figure_focus test_multimodal`。
+教材替换计划及验收详情见 `docs/原项目教材替换实施计划.md` 和 `docs/正式教材迁移实施记录.md`。旧教材资源和旧说明归档于 `artifacts/archive/discrete-math-20261015/`，不会经静态教材目录提供或进入当前检索；原库切换前备份位于 `artifacts/service-backups/before-psychology-cutover-20261015.sqlite`。
 
-检索使用本地正文关键词和资产关联：表格保持行列；公式按邻近正文检索，再把原公式图片交给视觉模型；插图按图注、邻近正文或已核定图号定位。回复、质检和历史记录共用同一组图像引用，每轮最多附两张。公式尚未自动转成 LaTeX，也没有独立的图片向量索引。
+已验证代表性概念、随机区组设计、表格图解、文本选区及跨章引用；尚未逐页人工复核全部版面，也未覆盖全部统计公式和纯图片问答。图解核验失败时保留文字回答，不展示未通过的图解。
 
-可试问：“根据绝对值函数的表格，x=-3 时 f(x) 是多少？”、“解释牛顿二项式定理公式中的 C(n,k)”、“结合特殊图章节的完全匹配配图，解释粗边表示什么”。新增绘图显示对象编号；已核定的图 7.8、7.20、7.23 保留教材图号。
+## DeepTutor 整体接入
 
+实施计划与进度：[实施计划](../../docs/research/2026-10-18-deeptutor-full-reuse/IMPLEMENTATION_PLAN.md)、[执行记录](../../docs/research/2026-10-18-deeptutor-full-reuse/EXECUTION_LOG.md)。完整上游源码位于 `../../vendor/DeepTutor`，包含前后端源码、提示词、测试与部署文件。
 
-## PDF 教材阅读与选区问答（v0.8）
-
-教材内容区域使用局部 React + PDF.js + react-pdf-highlighter 阅读器，平台其他页面仍沿用原实现。十章原 Word 已导出为 223 页 PDF，小节映射经过 Word 原生查找与 PDF 标题行校验。
-
-- 文字：鼠标划选后点击“向 AI 提问”。
-- 图、公式和表格：点击“框选图 / 公式”，拖动框选同一页内的区域，再点击“向 AI 提问”。触屏使用同一开关进行框选。
-- 输入框显示教材引用预览；可以修改问题、发送，或点击 × 移除引用。保留引用可针对同一内容继续追问。
-- 回复带教材页码引用，点击可返回原选区并继续提问；对话引用刷新后可恢复。
-- 字体较小时收起目录或选择 125%/150%/200% 缩放。PDF 保留整页布局，放大后阅读区域可横向滚动。
-
-后台使用文档版本和页坐标重建正文、从原 PDF 裁图，并筛选当前学生的相关学习状态、误解、偏好与历史。选区提问不推断掌握度，不自动推进课程。生成与质量检查均使用相同裁图，页面显示实际处理进度。
-
-### 重建教材 PDF
-
-先停止 Demo 服务，避免 Windows 文件句柄阻止替换 PDF。以下命令在本目录的 PowerShell 运行：
+在本目录执行以下命令，创建独立环境并启动后端：
 
 ```powershell
-.\.venv\Scripts\python.exe -X utf8 -c "import json; from pathlib import Path; from knowledge.course import chapters; Path('knowledge/pdf_sections.json').write_text(json.dumps(chapters(),ensure_ascii=False),encoding='utf-8')"
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\export_textbook_pdf.ps1
-.\.venv\Scripts\python.exe -X utf8 -m scripts.index_textbook_pdf
+python scripts/setup_deeptutor.py
+python scripts/start_deeptutor.py
 ```
 
-导出脚本只读打开原始 Word；源文件哈希变化时重新导出。添加 -Reindex 仅重算标题位置，添加 -ForceExport 强制重新导出。原文件不会保存或覆盖。
+默认仅监听 `127.0.0.1:18001`，运行文件位于 `.runtime/deeptutor`。也可通过 `--python` 指定已装好上游依赖的解释器，或通过 `--port`、`--home` 指定本机端口和独立运行目录。代码从本仓库加载，不依赖原 `D:` 盘源码。
 
-### 重建阅读器
+安装脚本优先使用匹配操作系统及 Python 小版本的 `requirements-deeptutor-*.lock.txt` 验证清单；没有匹配清单时按上游依赖声明安装，需要重新验证该环境。
 
-```powershell
-cd reader
-node D:/nodejs/node_modules/npm/bin/npm-cli.js ci --proxy=http://127.0.0.1:7890 --https-proxy=http://127.0.0.1:7890
-node D:/nodejs/node_modules/npm/bin/npm-cli.js run build
-```
+现有应用提供 `/api/deeptutor/status` 和 `/api/deeptutor/capabilities`。状态探测不会调用模型，其中 `model_execution_verified: false` 只表示本次只读探测未执行模型；真实调用结果见独立验收产物。
 
-构建产物、PDF worker、字体和 CMap 由本机服务提供；安装版本由 reader/package-lock.json 锁定。
+身份接入已复用上游 `user_context`、`CourseService`、`SQLiteSessionStore`。`POST /api/deeptutor/session` 只接收现有 `student_id` 和 `session_id`，课程及上游身份由服务端确定；不存在的学生返回 404。同一映射重复调用或重启后保持一致，不同学生采用独立上游存储。这里沿用宿主现有学生 ID 入口，尚未增加登录认证或班级权限。
 
-真实模型与浏览器验收结果见 docs/superpowers/specs/2026-10-09-pdf-reader-results.md；回答中的数学表达式由 KaTeX 排版。
+在本机 `.env` 配置 `DEEPTUTOR_BRIDGE_TOKEN`（至少32字符随机值），重启宿主和 worker 后可调用会话绑定。worker 自动读取宿主 `.env`，环境变量优先；除健康检查和能力目录外，HTTP/WebSocket 均要求此凭据，不要把它写入前端。可以运行 `python -c "import secrets; print(secrets.token_hex(32))"` 生成随机值，再仅保存到本机 `.env`。
 
-### 教材与练习分离
+`DEEPTUTOR_SESSION_SYNC=1` 时，原聊天完成核验和保存后自动建立上游课程及空会话，响应附带 `deeptutor_session.status`：`ready` 或 `unavailable`。后端故障不会撤销已经保存的回答，重发原请求或调用绑定接口可重试。默认仍为 `0`，等待后续教材与回合验收再切换。
 
-教材阅读器显示去除练习后的正文，讲解例题保留。十章31组习题已导入“测验练习”的逐题交互系统，详见下节。阅读区点击“读完了，去练习”，答疑区点击“学完了，去练习”即可进入对应章节及小节。答疑入口优先采用当前选区。测验章节独立，不改变教材阅读位置。
+注册表位于 worker 运行目录 `heart-bridge/bindings.sqlite3`，学生数据位于 `heart-bridge/users/`；需一并备份。原 API/SSE 的回答、引用、取消与幂等继续由宿主处理。
 
-正文 PDF 保留页面尺寸与原坐标，通过 frontend/textbook/manifest.json 的 page_map 将圈选、引用关联到原教材。原教材文件不修改，重新导入教材后运行 `.venv/Scripts/python.exe -X utf8 split_textbook_exercises.py` 重建正文和练习版本，再构建 reader。
+独立环境可运行 `.venv-deeptutor/Scripts/python.exe -B scripts/check_deeptutor_sessions.py`，自动启动临时后端、检查真实映射/隔离/匿名访问并停止进程。它只使用烟测学生和 `.runtime/deeptutor-session-smoke`，不会写入宿主学习数据库。
 
+### 回合版本与断线恢复
 
-## 教材逐题交互练习（2026-10-09）
+`DEEPTUTOR_TURN_SYNC=1` 开启上游回合投影，使用同一个宿主凭据。原任务保存后，直接复用上游 `begin_turn` / `append_events` / `transition_turn` / `get_events`；每个 task_id/revision 对应一个固定回合。同版本重复同步不增加事件，内容冲突返回失败。此开关自动包含会话绑定，无需同时开启 `DEEPTUTOR_SESSION_SYNC`。
 
-“测验练习”已改为结构化题卡，覆盖十章31组、341道大题、788个小题。题面保留原 Word 的公式、图片、表格，按原 PDF 核对大题编号和跨页范围。阅读区仍使用不含章后练习的阅读 PDF。
+投影只保存教材 document_id/version、圈选坐标、证据 ID、任务版本及结果摘要哈希。它不保存学生问题、回答正文、教材引文或成绩，也不调用上游模型。事件固定为 `sources`（seq=1）和 `done`（seq=2）；实时 progress 仍属于原连接，尚未持久化。
 
-- 输入：选择、判断、可增减的多空、MathLive 数学公式、文字证明、矩阵/真值表网格、SVG 构图。
-- 进度：自动保存、断网本地副本、刷新恢复、提交历史、重做、分步提示与 AI 讲解。
-- 判分：当前17个小题有核验过的规则标准（7个选择、1个多空集合、9个真值表）；其他771个小题由模型按题型评分项提供辅助反馈，均保留待复核标记。未确认的反馈不计入规则成绩，不据此设置掌握状态。
-- 构图支持顶点、边、重边、自环和有向边；可附文字说明。手写图片上传尚未启用。
-- AI 输入来自服务端原题裁图、正文上下文、当前答案、作答历史和当前学生相关记忆；模型无法识别或题意有歧义时应返回待核对。
+现有页面加载 `chat-transport.js`：连接提前结束时，先查询原 request_id；任务已保存则恢复结果，启用上游事件时再读取事件流，不重新 POST 生成请求。任务仍在执行时提示稍后恢复；不会无限轮询。页面布局和来源点击保持原行为。
 
-### 数据与接口
+- `GET /api/chat/requests/{request_id}?student_id=...&session_id=...`：定位原任务，返回当前 task_id/revision/status 和已保存结果；未完成时 result 为 null。
+- `GET /api/chat/tasks/{task_id}/events?student_id=...&session_id=...&task_revision=...&after_seq=0`：补传缺失投影后按游标重放。支持 `Last-Event-ID: task_id:revision:seq`；旧版本游标不接受，after_seq=2 返回空流。
+- `/api/chat/stream` 的最终 done 事件带上述格式的 id；原有 progress/answer/done 事件数据保持兼容。
 
-题库：knowledge/exercises/catalog.json；原题号审计：import_audit.json；仅服务器访问的标准：answer_keys.json；评分项：knowledge/exercise_rubrics.py。
+恢复始终检查宿主任务归属、版本、账户/任务有效期、记忆 epoch、原对话存在性及教材版本，网络等待后再检查一次。取消、删除和换版后的旧结果不会从上游恢复。上游留存的协议指针不包含正文，正文删除由原存储生效。新任务在生成前保存发布教材版本快照；缺少历史版本快照的旧章节任务会拒绝恢复，不会假定它属于当前教材。
 
-重新导入：`.venv/Scripts/python.exe -X utf8 import_exercises.py`。31组任一题号范围不匹配时拒绝发布。
+真实后端及重启恢复烟测：`.venv-deeptutor/Scripts/python.exe -B scripts/check_deeptutor_sessions.py --turns`。前端传输测试：`node --test tests/chat-transport.cjs`。
 
-接口均在 `/api/practice`：章节题目索引、逐题详情、PUT 草稿、POST submit、提交状态轮询、POST help。草稿和提交绑定题库及判分版本；request_id 幂等；服务重启会把未完成批改标记为可重试，保留答案。新数据表使用学生外键级联删除，沿用24小时测试账户政策。
+### 教材知识库和真实模型
 
-验证：`.venv/Scripts/python.exe -X utf8 -m unittest tests.test_interactive_practice -v`；浏览器脚本 `tests/browser/interactive-practice.cjs`，通过本机 Playwright skill 的 run.js 执行。详见 docs/2026-10-09-interactive-exercises-delivery.md。
+执行 `.venv-deeptutor/Scripts/python.exe -B scripts/publish_deeptutor_course.py`，把正式教材的规范 chunk 发布为不可变 Obsidian vault。发布前校验原教材、11章 PDF 和索引版本；重复发布复用同版本，换版新建目录。会话绑定直接复用上游 KnowledgeBaseManager 和 CourseService 挂载 vault，文本检索复用上游 Obsidian 搜索。宿主只接受 chunk ID，回原 SQLite 索引读取正文；这是 Markdown 文本检索，尚未构建向量索引。
 
-## GPU 教材检索
+`DEEPTUTOR_KNOWLEDGE_ENABLED=1` 补充原检索结果；`DEEPTUTOR_LLM_ENABLED=1` 将原 LLMClient 接到上游隔离 Provider。两者沿用本机后端地址及共享凭据，默认均为 0。模型密钥只在服务端读取，生成失败不绕过网关，图片失败不降级为无图回答。生成输入会发送到本机 `.env` 指定的模型服务，当前配置使用 DeepSeek。
 
-本机已增加 GPU reranker 启动方式，双击 `3-start-api.bat` 自动选择经过验证的 `.venv-gpu`，并在服务启动前预热。GPU 环境复用 `.venv` 应用依赖；embedding 暂保持 CPU。
+真实模型验收：`.venv-deeptutor/Scripts/python.exe -B scripts/check_deeptutor_sessions.py --generation`。需先运行 `scripts/publish_deeptutor_course.py --home .runtime/deeptutor-generation-smoke`，并配置有效的 `CITATION_GROUNDING_INDEX`，或在该目录放置原 `knowledge.citation_index.build_index` 构建的 `citation-index.sqlite3`。脚本配置只影响临时进程，不写 `.env` 或学习数据库。已通过随机分配提示案例的检索、生成、几何引用和原质量校验；完整 Markdown 组件、图像模型与心理学黄金集仍待验收，尚未切换默认入口。
 
-新环境可运行 `.venv\Scripts\python.exe -m scripts.setup_gpu_environment` 建立 GPU 运行库，再执行设备对照和 GPU 算子检查。
-
-详情见 [GPU 实测与复现说明](docs/2026-10-10-rag-gpu-results.md)。
-
-## 三栏学习工作台（2026-10-11）
-
-网页现已采用左侧导航与章节目录、中间原版教材、右侧学习对话。默认教材:对话为 60:40，可拖动分隔条或在“布局”中选择比例；手机端通过“学习内容 / 对话”切换。圈选教材后点击“向 AI 提问”，来源引用可回到对应 PDF 页码。练习默认聚焦当前小题，草稿和阅读位置可恢复。学习统计与错题整合在“学习记录”，偏好和记忆管理位于底部设置。
-
-启动方式仍为 `3-start-api.bat`，访问 http://127.0.0.1:8000/。本轮交付与测试边界见 [前端改造结果](docs/2026-10-11-frontend-redesign-results.md)，视觉对照见 [design-qa.md](design-qa.md)。
-
-## 教材驱动分步讲解（2026-10-13）
-
-对话输入框上方的预制工具栏已移除。教材例题或相关重难点的讲解通过教材核对后，自动附带可视化步骤卡片。学生点击“下一步”查看讲解，也可返回上一步或重新查看；图形和表格只读，无需选择模板、编辑边或填写参数。
-
-首批覆盖教材例9.8的关系闭包、例4.6的蕴含真值表，以及关系性质、欧拉回路的相关讲解。教材原例、辅助示例和用户给定图分别标注。未审核的例题仍使用教材和文字讲解，不会自动替换成其他示例。卡片来源链接沿用教材页码与选区定位。
-
-默认关闭。启动进程中设置 `VISUALIZATION_ROLLOUT=test` 后，测试账户可在相关讲解中收到步骤卡片。生产账户不因客户端声明而进入试点；`allowlist` 需指定 `VISUALIZATION_STUDENT_ALLOWLIST`，且仅限已有测试账户。历史互动组件以只读步骤展示。
-
-新增依赖：`networkx==3.5`；前端固定 Cytoscape.js 3.33.1，运行时使用本地资源。前端重建在 `visualization-client` 执行 `npm ci --ignore-scripts --no-audit --no-fund`、`npm run build`。
-
-步骤由服务端已审核场景和既有数学验证器生成，保存到回答引用信息以支持历史恢复。普通问候、只要提示或测评请求不新增完整解答卡片。切换步骤仅改变展示，不写入作答证据或提高掌握度；练习仍通过独立“测验练习”页面进行。
-
-实施与验收见 [分步讲解交付报告](docs/visualization-research/2026-10-13-教材分步讲解交付报告.md)。早期互动试点记录见 [阶段 C/D 报告](docs/visualization-research/阶段C测评与阶段D验收报告.md)。
-
-## 按需Skill与模板可视化（2026-10-14）
-
-在现有账户灰度范围内设置`VISUALIZATION_ON_DEMAND=1`，AI会按问题选择模板，后台读取对应教学Skill并生成本题步骤，不预生成整个题库。新增集合、有限映射、树形结构、公式和流程图，兼容现有图论、关系与真值表；每轮最多组合两类模板。只保留上一/下一步，提示与测评不发布完整解答卡片。
-
-失败保留已核验文字及既有审核场景；设为0关闭新调用链。当前限制、模型验收边界与复现见[交付报告](docs/visualization-research/2026-10-14-按需可视化交付报告.md)。
+从仓库根目录执行 `python project/scripts/vendor_deeptutor.py --verify` 可检查固定源码和已记录兼容补丁；不要在副本上覆盖安装另一个源码版本。

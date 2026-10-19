@@ -160,5 +160,5 @@ def select_policy(
         "difficulty": difficulty,
         "action": action,
         "hint_level": hint_level,
-        "notes": "；".join(notes) if notes else "从当前离散数学概念的小问题开始",
+        "notes": "；".join(notes) if notes else "从当前教材概念的小问题开始",
     }

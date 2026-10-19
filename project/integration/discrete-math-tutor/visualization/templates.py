@@ -6,6 +6,7 @@ from models.relation import RelationSpec
 from visualization.euler_guide import euler_frames
 from visualization.textbook_guides import closure_frames, relation_frame
 from visualization.relation_validator import evaluate_relation
+from knowledge.course_config import PSYCHOLOGY
 
 CATALOG = {
     'euler': ('finite-structures', '无向简单图的欧拉判定', '{nodes:[{id:"v1",label:"v1"}],edges:[{source:"v1",target:"v2"}]}'),
@@ -17,6 +18,12 @@ CATALOG = {
     'formula': ('reasoning-diagrams', '公式逐步推导与规则说明', '{steps:[{before:"LaTeX原式",after:"LaTeX结果",rule:"本步规则"}]}'),
     'flow': ('reasoning-diagrams', '证明、知识联系、方法判定流程', '{nodes:[{id:"n1",label:"前提"}],edges:[{source:"n1",target:"n2",label:"依据"}],steps:[{node:"n1",text:"解释"}]}'),
 }
+if PSYCHOLOGY:
+    CATALOG={
+        'experiment_flow':('experimental-design','实验程序、被试分组和变量控制流程','{nodes:[{id:"n1",label:"确定变量"}],edges:[{source:"n1",target:"n2",label:"下一步"}],steps:[{node:"n1",text:"解释本步"}]}'),
+        'variable_map':('experimental-design','自变量、因变量、额外变量的角色与控制关系','{nodes:[{id:"iv",label:"自变量：操纵条件"}],edges:[{source:"iv",target:"dv",label:"拟检验的影响，不等于已证明因果"}],steps:[{node:"iv",text:"说明变量角色"}]}'),
+        'design_matrix':('experimental-design','实验条件、被试分组或区组分配的矩阵','{columns:["区组","条件A","条件B"],rows:[["区组1","被试1","被试2"]],steps:[{row:0,columns:[1,2],text:"不同被试分别接受不同水平"}]}'),
+    }
 
 
 class VisualPlan(BaseModel):
@@ -81,6 +88,23 @@ def structure(payload, tree=False):
 
 def render_plan(plan):
     p=plan.payload; name=plan.template
+    if name not in CATALOG:raise ValueError('模板不属于当前教材')
+    if name in {'experiment_flow','variable_map'}:return structure(p)
+    if name=='design_matrix':
+        keys(p,['columns','rows','steps']);columns=strings(p['columns'],8);rows=p['rows'];steps=p['steps']
+        if not isinstance(rows,list) or not 1<=len(rows)<=12:raise ValueError('矩阵须为1至12行')
+        for row in rows:
+            if not isinstance(row,list) or len(row)!=len(columns):raise ValueError('矩阵列数不一致')
+            for cell in row:text(cell,100)
+        if not isinstance(steps,list) or not 1<=len(steps)<=16:raise ValueError('矩阵步骤须为1至16步')
+        frames=[]
+        for step in steps:
+            keys(step,['row','columns','text']);index=step['row'];focus=step['columns']
+            if type(index) is not int or not 0<=index<len(rows):raise ValueError('矩阵行索引无效')
+            if not isinstance(focus,list) or not focus or any(type(i) is not int or not 0<=i<len(columns) for i in focus):raise ValueError('矩阵列索引无效')
+            frames.append({'title':'查看'+rows[index][0],'text':text(step['text'],500),
+                'table':{'columns':columns,'rows':rows,'active_row':index,'focus_columns':focus}})
+        return frames
     if name=='euler':return euler_frames(GraphSpec.model_validate(p))
     if name=='relation':
         keys(p,['pairs','kind','mode']); spec=RelationSpec(pairs=p['pairs'])

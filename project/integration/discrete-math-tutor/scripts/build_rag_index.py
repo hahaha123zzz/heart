@@ -6,18 +6,21 @@ import argparse
 import json
 import sqlite3
 from array import array
+from contextlib import closing
 from pathlib import Path
 
 from knowledge.structured_index import build_records
 from knowledge.textbook import terms_for
 from knowledge.logic_formula import build_formula_index
+from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
 
-INDEX = Path(__file__).resolve().parents[1] / "knowledge" / "rag_index_v2.sqlite3"
+INDEX = PSYCHOLOGY_DIR/'rag_index.sqlite3' if PSYCHOLOGY else Path(__file__).resolve().parents[1] / "knowledge" / "rag_index_v2.sqlite3"
 DEFAULT_MODEL = "BAAI/bge-small-zh-v1.5"
 
 
-def build_index(target: Path = INDEX, *, embed: bool = False, model_name: str = DEFAULT_MODEL) -> dict:
-    records = build_records()
+def build_index(target: Path = INDEX, *, embed: bool = False, model_name: str = DEFAULT_MODEL, records=None, index_logic_formulas=True) -> dict:
+    records = build_records() if records is None else records
+    index_logic_formulas=index_logic_formulas and not PSYCHOLOGY
     model = None
     if embed:
         from fastembed import TextEmbedding
@@ -28,7 +31,7 @@ def build_index(target: Path = INDEX, *, embed: bool = False, model_name: str = 
     reusable: dict[str, tuple[str, str, bytes]] = {}
     if model is not None and target.is_file():
         try:
-            with sqlite3.connect(target) as previous:
+            with closing(sqlite3.connect(target)) as previous:
                 old_model = previous.execute("SELECT value FROM metadata WHERE key='embedding_model'").fetchone()
                 if old_model and old_model[0] == model_name:
                     reusable = {
@@ -80,7 +83,7 @@ def build_index(target: Path = INDEX, *, embed: bool = False, model_name: str = 
             for item, vector in zip(missing, model.embed(contents, batch_size=32)):
                 connection.execute("INSERT INTO vectors VALUES (?,?)", (item["id"], array("f", vector).tobytes()))
             connection.execute("INSERT INTO metadata VALUES ('embedding_model',?)", (model_name,))
-        build_formula_index(connection)
+        if index_logic_formulas: build_formula_index(connection)
         connection.commit()
     except BaseException:
         connection.close()

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "no_quiz",
+    "point": "双盲实验",
+    "turns": [
+      {
+        "id": "explicit_no_quiz",
+        "message": "我明白了双盲的定义，先不做题，请继续解释它为什么能减少实验者偏差。",
+        "mode": null,
+        "required": "直接解释实验者偏差，不出题、不反问；当前明确请求优先于自述理解信号"
+      }
+    ]
+  },
+  {
+    "id": "participant_understood",
+    "point": "要求特征",
+    "turns": [
+      {
+        "id": "participant_not_student",
+        "message": "如果被试理解了实验目的，为什么可能产生要求特征？请解释，不要出题。",
+        "mode": null,
+        "required": "理解了描述被试，不是学生自述掌握；直接回答为什么，不出诊断题"
+      }
+    ]
+  },
+  {
+    "id": "no_reason_question",
+    "point": "双盲实验",
+    "turns": [
+      {
+        "id": "only_verdict",
+        "message": "只判断我这句话对不对，不要再问我理由：双盲实验要求被试和执行实验人员都不知道被试接受的是哪种处理。",
+        "mode": "verdict_only",
+        "required": "只简短判定，不追加任何问题或核对任务",
+        "independent_attempt": true
+      }
+    ]
+  },
+  {
+    "id": "no_quiz_attempt_full",
+    "point": "双盲实验",
+    "turns": [
+      {
+        "id": "full_without_quiz",
+        "message": "我的判断是：只让被试不知道自己接受哪种处理，就可以称为双盲。请完整解释为什么这个判断不够，不要出题，也不要再问我理由。",
+        "mode": "explain_feedback",
+        "no_followup": true,
+        "required": "完整解释不足及两方不知情，不新增问题；不将不追问误变成只给判定"
+      }
+    ]
+  }
+]

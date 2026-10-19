@@ -42,6 +42,8 @@ class ExerciseSkillRepository:
                     diagnostic_targets=mapping["diagnostic_targets"] if eligible and score<1 else []))
 
     def skill_summary(self, student_id, point, limit=7):
+        from knowledge.course_config import PSYCHOLOGY
+        if PSYCHOLOGY:return []
         from practice_api import catalog
         revision=mapping_version();data=catalog();version=data["version"]
         if version != question_version(data["_catalog_source_version"]):

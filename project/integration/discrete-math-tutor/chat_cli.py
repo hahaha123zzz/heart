@@ -7,7 +7,7 @@
     py -3.11 chat_cli.py                                  # 测试账户 test-chat，退出自动清理
     py -3.11 chat_cli.py --keep                           # 测试账户，但保留数据（想查库用）
     py -3.11 chat_cli.py --account production --student demo-student   # 正式账户，长期保存
-    py -3.11 chat_cli.py --once "我对图的基本概念不太懂"           # 单轮，自动清理
+    py -3.11 chat_cli.py --once "我对自变量和因变量不太懂"           # 单轮，自动清理
 """
 
 from __future__ import annotations
@@ -108,7 +108,7 @@ def print_result(result: dict, debug: bool = False) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="离散数学助教 CLI")
+    parser = argparse.ArgumentParser(description="教材助教 CLI")
     parser.add_argument("--once", type=str, default=None, help="只发送一条消息后退出")
     parser.add_argument("--goal", type=str, default="图的基本概念", help="学习目标")
     parser.add_argument("--student", type=str, default=None, help="学生 ID")

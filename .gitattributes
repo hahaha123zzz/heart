@@ -1,0 +1,2 @@
+# 固定上游快照中的 PDF 必须保持原字节，避免 Git 自动转换换行。
+project/vendor/DeepTutor/**/*.pdf -text

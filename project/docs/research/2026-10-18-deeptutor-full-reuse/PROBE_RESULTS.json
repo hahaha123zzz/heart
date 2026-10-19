@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-18",
+  "source_commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "executed_checks": 19,
+  "method": "读取源文件后在独立模块命名空间执行；python -X utf8 -B，不写缓存；未运行完整 pytest、模型、浏览器或索引",
+  "checks": [
+    {
+      "check": "mastery_empty",
+      "assertion_passed": true
+    },
+    {
+      "check": "mastery_one_correct_cap",
+      "assertion_passed": true
+    },
+    {
+      "check": "mastery_two_correct_cap",
+      "assertion_passed": true
+    },
+    {
+      "check": "mastery_three_correct_full",
+      "assertion_passed": true
+    },
+    {
+      "check": "practice_choice_label",
+      "assertion_passed": true
+    },
+    {
+      "check": "practice_choice_body",
+      "assertion_passed": true
+    },
+    {
+      "check": "practice_choice_wrong",
+      "assertion_passed": true
+    },
+    {
+      "check": "practice_short_is_ungraded",
+      "assertion_passed": true
+    },
+    {
+      "check": "practice_bad_key_is_ungraded",
+      "assertion_passed": true
+    },
+    {
+      "check": "review_good_interval",
+      "assertion_passed": true
+    },
+    {
+      "check": "review_again_interval",
+      "assertion_passed": true
+    },
+    {
+      "check": "review_invalid_rating_rejected",
+      "assertion_passed": true
+    },
+    {
+      "check": "open_grader_negation_counterexample",
+      "assertion_passed": true
+    },
+    {
+      "check": "upstream_minus_collision",
+      "assertion_passed": true
+    },
+    {
+      "check": "upstream_selection_first_only",
+      "assertion_passed": true
+    },
+    {
+      "check": "visual_payload_valid",
+      "assertion_passed": true
+    },
+    {
+      "check": "visual_payload_schema_reject",
+      "assertion_passed": true
+    },
+    {
+      "check": "visual_remote_schema_rejected",
+      "assertion_passed": true
+    },
+    {
+      "check": "visual_renderer_traversal_rejected",
+      "assertion_passed": true
+    }
+  ],
+  "characterization_findings": [
+    "compute_mastery([True,True,True]) == 1.0；规则分数不是校准能力概率",
+    "grade_answer('不采用随机分配','随机分配','open') == True；关键词判分可忽略否定",
+    "evidence_key('x-1') == evidence_key('x1')；连字符会被删除",
+    "selection_range('abc abc','abc') == (0,3)；只返回首次匹配"
+  ],
+  "interpretation": "断言通过包含确认局限的反例，不是 19 项平台功能通过验收"
+}

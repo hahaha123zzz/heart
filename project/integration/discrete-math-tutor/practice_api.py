@@ -20,6 +20,12 @@ ROOT=Path(__file__).resolve().parent
 _GATE=threading.BoundedSemaphore(3)
 @lru_cache(maxsize=1)
 def catalog():
+    from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
+    if PSYCHOLOGY:
+        manifest=json.loads((PSYCHOLOGY_DIR/'manifest.json').read_text(encoding='utf-8'))
+        return {'version':manifest['source_sha256']['textbook.docx'],
+                '_catalog_source_version':manifest['source_sha256']['textbook.docx'],'questions':[],'by_id':{},
+                'note':'本次提供的教材未发现独立习题栏，实验目的与实验程序请在教材中阅读。'}
     data=json.loads((ROOT/'knowledge/exercises/catalog.json').read_text(encoding='utf8'))
     from knowledge.exercise_mapping import question_version
     data['_catalog_source_version']=data['version']
@@ -27,7 +33,9 @@ def catalog():
     data['by_id']={q['id']:q for q in data['questions']}
     return data
 @lru_cache(maxsize=1)
-def keys():return json.loads((ROOT/'knowledge/exercises/answer_keys.json').read_text(encoding='utf8'))
+def keys():
+    from knowledge.course_config import PSYCHOLOGY
+    return {} if PSYCHOLOGY else json.loads((ROOT/'knowledge/exercises/answer_keys.json').read_text(encoding='utf8'))
 def question(qid):
     q=catalog()['by_id'].get(qid)
     if not q:raise HTTPException(404,'题目不存在')
@@ -98,7 +106,11 @@ def row_public(row):
 def chapter_questions(chapter_id:int,student_id:str):
     sid=student(student_id)
     qs=[q for q in catalog()['questions'] if q['chapter_id']==chapter_id]
-    if not qs:raise HTTPException(404,'章节不存在')
+    if not qs:
+        from knowledge.course import get_chapter
+        if get_chapter(chapter_id) is None:raise HTTPException(404,'章节不存在')
+        return {'version':catalog()['version'],'chapter_id':chapter_id,'questions':[],
+                'total_parts':0,'rule_parts':0,'note':catalog().get('note','本章暂时没有已导入的题目。')}
     with session_scope() as db:
         drafts={r.question_id:r for r in db.scalars(select(ExerciseDraftRow).where(ExerciseDraftRow.student_id==sid))}
         attempts={}
@@ -151,12 +163,14 @@ def memory_for(q,sid):
 
 def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,user_question=None):
     import main
+    from knowledge.course_config import PSYCHOLOGY
     resolved=exercise_context(q)
     memories=memory_for(q,sid)
     if action != 'grade':
         from agents.task_execution import TaskExecution
         task_execution = task_execution or TaskExecution(learning_intents=[action],
             answer_constraints=['hint_only','no_full_answer'] if action=='hint' else [])
+        task_execution.preferences={**memories.get('preferences',{}),**task_execution.preferences}
         # 题型来自已校验题库；证明题讲解也要使用证明预算和核验，不改变用户指定步骤。
         if action=='explain' and any(p['type']=='proof' for p in parts) and 'proof' not in task_execution.learning_intents:
             task_execution.learning_intents.append('proof')
@@ -168,10 +182,21 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
     payload={'action':action,'hint_level':level,'parent_question':q['text'],'shared_blocks':q['shared_blocks'],'target_parts':[{'id':p['id'],'label':p['label'],'text':'\n'.join(block_text(b) for b in p['blocks']),'type':p['type'],'rubric':grading_spec(p)} for p in parts],'student_answers':answers,'context':resolved['context'],'memory':memories}
     if task_execution is not None:
         system += '\n' + task_execution.instructions()
+        from agents.reply_budget import reply_budget
+        system += '\n' + reply_budget(user_question or '',preferences=task_execution.preferences,execution=task_execution).instructions()
         payload['task'] = task_execution.model_dump(exclude={'retrieval_query'})
     if user_question: payload['user_question'] = user_question
     # 只暴露当前请求指定小题的作答，避免提示/检查串到同题其他小题。
     payload['student_answers'] = {p['id']: answers[p['id']] for p in parts if p['id'] in answers}
+    grounded_bundle=None
+    if action!='grade' and PSYCHOLOGY:
+        from knowledge.grounded_citations import settings as citation_settings,selection_evidence
+        citation_path=citation_settings()
+        if citation_path:
+            from knowledge.textbook import format_excerpts
+            grounded_bundle=selection_evidence(main.orchestrator.llm,user_question or q['text'],resolved,citation_path)
+            payload['context']=format_excerpts(grounded_bundle.sources)
+            system+='\n教材结论使用context中的本轮[n]证据编号；题目条件和学生答案不是教材引文。'
     result=main.orchestrator.llm.chat_json([{'role':'system','content':system},{'role':'user','content':json.dumps(payload,ensure_ascii=False)}],temperature=.1,max_tokens=min(8000,1800+len(parts)*550),retries=0,image_paths=resolved['images'])
     if action!='grade':
         reply=result.get('reply')
@@ -185,10 +210,12 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
         # 同一任务约束参与质检，不能只靠生成Prompt保证不泄露。
         quality = main.orchestrator.quality_checker.check(reply, main.orchestrator.memory.get_state(sid,q['knowledge_point']),
             plan, user_question or ('只给提示' if action=='hint' else '讲解指定小题'),
-            textbook_excerpts=json.dumps(payload['target_parts'],ensure_ascii=False)+'\n'+resolved['context'],
+            context={'grounded_evidence':grounded_bundle.evidence} if grounded_bundle else None,
+            textbook_excerpts=json.dumps(payload['target_parts'],ensure_ascii=False)+'\n'+payload['context'],
             figure_images=resolved['images'], task_execution=execution)
         if not quality.passed or quality.issues:
             return {'reply':'本次辅导未通过任务核对，请重新提问。','answer_status':'quality_rejected','quality':quality.model_dump(),'image_refs':[]}
+        grounded_refs=grounded_bundle.references(reply) if grounded_bundle else []
         guide=None
         if action=='explain':
             from visualization.service import rollout_settings,VisualizationService
@@ -200,7 +227,9 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
                 guide=generate_guide(main.orchestrator.llm,(user_question or '讲解所选小题')+'\n本题条件：'+json.dumps(payload['target_parts'],ensure_ascii=False),
                     reply,[source],execution,student_id=sid,turn_id=q['id']+'|'+parts[0]['id'],references=[{'source_index':0,'selection_ref':ref}])
                 if guide:guide=guide | {'exercise_target':{'chapter_id':q['chapter_id'],'question_id':q['id'],'part_id':parts[0]['id'],'version':catalog()['version']}}
-        return {'reply':reply[:10000],'guided_visualization':guide,'memory_summary':memories['summary'],'source':q['source'],'image_refs':resolved['reference']['image_refs']}
+        return {'reply':reply,'guided_visualization':guide,'memory_summary':memories['summary'],'source':q['source'],
+            'image_refs':resolved['reference']['image_refs'],'pdf_references':grounded_refs,
+            'textbook_sources':[f'{s.source}／{s.section}' for s in grounded_bundle.sources] if grounded_bundle else []}
     got=result.get('parts')
     if not isinstance(got,list):raise ValueError('模型未返回逐小题反馈')
     mapping={r.get('part_id'):r for r in got if isinstance(r,dict)}

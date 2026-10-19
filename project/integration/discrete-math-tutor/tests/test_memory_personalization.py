@@ -44,7 +44,7 @@ class MemoryPersonalizationTests(unittest.TestCase):
             result=self.turn(tutor)
         return result,llm
 
-    def test_saved_preferences_change_actual_generation_after_new_session(self):
+    def test_saved_preferences_reach_generation_without_truncating_fixed_mock(self):
         self.memory.set_preferences("s",{"answer_length":0,"example_density":1,"learning_pace":0})
         short,llm=self.fresh_turn()
         system=llm.messages[-1][0]["content"]
@@ -57,7 +57,9 @@ class MemoryPersonalizationTests(unittest.TestCase):
         self.assertIn("回复不超过240字",system)
         self.assertIn("例子只在必要时使用",system)
         self.assertIn("更快进入小检查",system)
-        self.assertLess(len(short["reply"]),len(long["reply"]))
+        # 固定模拟输出只核验参数和原文保留，实际表达适配另用真实模型验收。
+        self.assertEqual(short["reply"],"集合的交集包含两个集合共同的元素。"*24)
+        self.assertEqual(short["reply"],long["reply"])
 
     def test_cleared_preference_restores_default_next_session(self):
         self.memory.set_preferences("s",{"answer_length":0})

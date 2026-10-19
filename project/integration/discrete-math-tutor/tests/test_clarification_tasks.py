@@ -283,7 +283,7 @@ class ClarificationTests(unittest.TestCase):
         import sys
         import json
         first = self.clarify(request_id="restart")
-        code = "import os,json;os.environ['DATABASE_URL']=" + repr(str(self.engine.url)) + ";from database.learning_tasks import LearningTaskRepository;print(json.dumps(LearningTaskRepository().pending('s','tab-a')['result'],ensure_ascii=False))"
+        code = "import os,json;os.environ['DATABASE_URL']='sqlite:///:memory:';os.environ['COURSE_DATABASE_URL']=" + repr(str(self.engine.url)) + ";os.environ['TUTOR_COURSE']='experimental-psychology-3';from database.learning_tasks import LearningTaskRepository;print(json.dumps(LearningTaskRepository().pending('s','tab-a')['result'],ensure_ascii=False))"
         restored = subprocess.run([sys.executable, "-X", "utf8", "-c", code], capture_output=True, text=True, encoding="utf-8", timeout=20)
         self.assertEqual(restored.returncode, 0, restored.stderr)
         self.assertEqual(json.loads(restored.stdout), first)

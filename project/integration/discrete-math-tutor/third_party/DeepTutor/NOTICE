@@ -1,0 +1,1 @@
+Adapted from HKUDS/DeepTutor commit 6cf793bd868ba5ecbe64722936d4be8fab5a01df, deeptutor/reading/_grounding.py. Modified for Chinese PDF whitespace, Unicode compatibility characters and all-match ambiguity handling. Upstream root has no NOTICE at this commit.

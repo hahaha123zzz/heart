@@ -7,8 +7,9 @@ import hashlib, json, re, math
 import fitz
 from pydantic import BaseModel, Field, ConfigDict
 from knowledge.course import get_section
+from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
 ROOT = Path(__file__).resolve().parent / 'pdf'
-CROPS = ROOT / 'crops'
+CROPS = (PSYCHOLOGY_DIR if PSYCHOLOGY else ROOT) / 'crops'
 class PDFRect(BaseModel):
     model_config = ConfigDict(extra='forbid', allow_inf_nan=False)
     page: int = Field(ge=1)
@@ -18,21 +19,28 @@ class PDFRect(BaseModel):
     y2: float = Field(gt=0,le=1)
 class PDFSelection(BaseModel):
     model_config = ConfigDict(extra='forbid')
-    document_id: str = Field(pattern=r'^chapter-(?:0[1-9]|10)$')
+    document_id: str = Field(pattern=r'^(?:chapter-(?:0[1-9]|10)|experimental-psychology-3:chapter-(?:0[1-9]|1[01]))$')
     version: str = Field(pattern=r'^[a-f0-9]{64}$')
     kind: Literal['text','area']
     rects: list[PDFRect] = Field(min_length=1,max_length=80)
     text: str = Field(default='',max_length=4000)
 @lru_cache(maxsize=1)
 def documents():
-    return json.loads((ROOT/'manifest.json').read_text(encoding='utf-8'))
+    path=PSYCHOLOGY_DIR/'pdf_manifest.json' if PSYCHOLOGY else ROOT/'manifest.json'
+    return json.loads(path.read_text(encoding='utf-8'))
 def document(document_id):
     return next((d for d in documents() if d['document_id']==document_id), None)
-def pdf_path(record): return ROOT / f"chapter_{record['chapter_id']:02d}.pdf"
+def document_for_chapter(chapter_id):
+    return next((d for d in documents() if d['chapter_id']==chapter_id),None)
+
+def pdf_path(record):
+    if record.get('course_id')=='experimental-psychology-3':
+        return PSYCHOLOGY_DIR/'chapters'/f"chapter_{record['chapter_id']:02d}"/f"chapter_{record['chapter_id']:02d}.generated.pdf"
+    return ROOT / f"chapter_{record['chapter_id']:02d}.pdf"
 def public_document(record):
     return {k:v for k,v in record.items() if k not in ('pages','source_sha256')} | {'url':f"/api/pdf/documents/{record['document_id']}/file"}
 def section_pdf(chapter_id, section_id):
-    record = document(f'chapter-{chapter_id:02d}')
+    record = document_for_chapter(chapter_id)
     section = next((s for s in record['sections'] if s['id']==section_id),None) if record else None
     return public_document(record) | {'section':section} if section else None
 def validate_selection(selection: PDFSelection):
@@ -55,6 +63,7 @@ def crop_path(crop_id):
     data = json.loads(metadata.read_text(encoding='utf-8'))
     record = document(data['document_id'])
     if not record or record['version'] != data['version']: return None
+    if hashlib.sha256(pdf_path(record).read_bytes()).hexdigest()!=data['version']:return None
     if hashlib.sha256(path.read_bytes()).hexdigest() != data['image_sha256']: return None
     return path
 
@@ -72,7 +81,7 @@ def resolve_selection(selection):
             ranges = [r for r in selection.rects if r.page==page_number]
             actual = [fitz.Rect(r.x1*page.rect.width,r.y1*page.rect.height,r.x2*page.rect.width,r.y2*page.rect.height) for r in ranges]
             for rect in actual:
-                selected.append(page.get_text('text',clip=rect,sort=True).strip())
+                selected.append(page.get_text('text',clip=rect*page.derotation_matrix,sort=True).strip())
             bound = fitz.Rect(actual[0])
             for rect in actual[1:]: bound |= rect
             if bound.width < 3 or bound.height < 3: raise ValueError('选区过小，请重新选择')
@@ -111,3 +120,26 @@ def resolve_selection(selection):
     context_text = '\n'.join(context)[:12000]
     if structured: context_text += '\n[对应小节结构化正文，仅补充背景，公式以原图为准]\n'+structured['content'][:2200]
     return {'reference':reference,'text':text,'context':context_text,'images':images,'record':record,'section':section}
+
+
+def evidence_text(document_id,version,rects):
+    """按可见字符中心读取证据范围；表格重复数值不能按字符串去重。"""
+    selection=PDFSelection(document_id=document_id,version=version,kind='text',rects=rects)
+    record=validate_selection(selection)
+    if hashlib.sha256(pdf_path(record).read_bytes()).hexdigest()!=version:
+        raise ValueError('教材文件已变化')
+    result=[]
+    with fitz.open(pdf_path(record)) as pdf:
+        for number in sorted({r.page for r in selection.rects}):
+            page=pdf[number-1]
+            ranges=[fitz.Rect(r.x1*page.rect.width,r.y1*page.rect.height,r.x2*page.rect.width,r.y2*page.rect.height)
+                    for r in selection.rects if r.page==number]
+            for block in page.get_text('rawdict',sort=True)['blocks']:
+                for line in block.get('lines',[]):
+                    for span in line['spans']:
+                        for char in span['chars']:
+                            box=fitz.Rect(char['bbox'])*page.rotation_matrix
+                            center=(box.tl+box.br)/2
+                            if any(center in rect for rect in ranges):result.append(char['c'])
+                    result.append('\n')
+    return ''.join(result)

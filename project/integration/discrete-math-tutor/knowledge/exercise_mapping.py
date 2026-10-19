@@ -23,6 +23,8 @@ def fingerprint(question, part, key):
 
 
 def resolve_mapping(question_id, part_id, version):
+    from knowledge.course_config import PSYCHOLOGY
+    if PSYCHOLOGY:return None
     from practice_api import catalog, keys
     data=catalog()
     if version != data['version'] or version != question_version(data['_catalog_source_version']):

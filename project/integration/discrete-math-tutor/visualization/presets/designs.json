@@ -1,0 +1,260 @@
+{
+  "id": "psychology:between-within-mixed",
+  "version": "1",
+  "title": "同一个人接受哪些条件？",
+  "sources": {
+    "between": {
+      "chapter_id": 4,
+      "section_id": 1,
+      "block_index": 9,
+      "pdf_version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+      "text_sha256": "93c6053793fbb761f62e4b4356e9a742429dc2c265550033194886e435c17b0f"
+    },
+    "within": {
+      "chapter_id": 5,
+      "section_id": 1,
+      "block_index": 8,
+      "pdf_version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+      "text_sha256": "f8debaf8d73ee823b6ef03851c48f92a91d4c1d8db6a081fa14f90952fd9893d"
+    },
+    "mixed": {
+      "chapter_id": 5,
+      "section_id": 5,
+      "block_index": 261,
+      "pdf_version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+      "text_sha256": "97f00ffb65c3dfdee058cbe3340b1db390ed8ac0b45f8fdd2abde576360bc5a2"
+    }
+  },
+  "frames": [
+    {
+      "step_id": "conditions",
+      "title": "先看条件与被试角色",
+      "text": "用Sα、Sβ作为角色标签，说明谁接受哪些条件；图标数量不是教材样本量，A、B也只是辅助条件标签。",
+      "source": "between",
+      "comparison": {
+        "panels": [
+          {
+            "title": "条件 A",
+            "items": [
+              {
+                "label": "处理水平",
+                "value": "A",
+                "tone": "neutral"
+              },
+              {
+                "label": "被试安排",
+                "value": "暂不分配",
+                "tone": "neutral"
+              }
+            ]
+          },
+          {
+            "title": "条件 B",
+            "items": [
+              {
+                "label": "处理水平",
+                "value": "B",
+                "tone": "neutral"
+              },
+              {
+                "label": "被试安排",
+                "value": "暂不分配",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ],
+        "note": "比较对象相同，接下来只改变安排方式。"
+      }
+    },
+    {
+      "step_id": "between",
+      "title": "被试间：每人只接受一个水平",
+      "text": "对于正在比较的因素，Sα接受A，Sβ接受B。两种条件来自不同被试，需要考虑个体差异。",
+      "source": "between",
+      "comparison": {
+        "panels": [
+          {
+            "title": "条件 A",
+            "items": [
+              {
+                "label": "被试角色",
+                "value": "Sα",
+                "tone": "focus"
+              },
+              {
+                "label": "接受条件",
+                "value": "只接受 A",
+                "tone": "focus"
+              }
+            ]
+          },
+          {
+            "title": "条件 B",
+            "items": [
+              {
+                "label": "被试角色",
+                "value": "Sβ",
+                "tone": "focus"
+              },
+              {
+                "label": "接受条件",
+                "value": "只接受 B",
+                "tone": "focus"
+              }
+            ]
+          }
+        ],
+        "note": "不同人之间比较；每个人只出现在一个条件中。"
+      }
+    },
+    {
+      "step_id": "within",
+      "title": "被试内：同一个人接受不同水平",
+      "text": "同一Sα先后接受A和B，在同一人内部比较反应。此处顺序只是安排示意，不能省略对顺序、练习和疲劳影响的控制。",
+      "source": "within",
+      "comparison": {
+        "panels": [
+          {
+            "title": "条件 A",
+            "items": [
+              {
+                "label": "被试角色",
+                "value": "Sα",
+                "tone": "focus"
+              },
+              {
+                "label": "测量安排",
+                "value": "同一人的一次测量",
+                "tone": "neutral"
+              }
+            ]
+          },
+          {
+            "title": "条件 B",
+            "items": [
+              {
+                "label": "被试角色",
+                "value": "Sα",
+                "tone": "focus"
+              },
+              {
+                "label": "测量安排",
+                "value": "同一人的另一次测量",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ],
+        "note": "Sα → A、B：同一人重复出现，不是复制了一个新被试。"
+      }
+    },
+    {
+      "step_id": "mixed",
+      "title": "混合：分别判断每个因素",
+      "text": "以组别甲/乙作为被试间因素，另一因素含C1/C2两个水平。同组内的同一角色接受C1和C2，组别之间则是不同人。",
+      "source": "mixed",
+      "comparison": {
+        "panels": [
+          {
+            "title": "组别甲",
+            "items": [
+              {
+                "label": "被试角色",
+                "value": "Sα",
+                "tone": "neutral"
+              },
+              {
+                "label": "组间因素",
+                "value": "只属于甲组",
+                "tone": "focus"
+              },
+              {
+                "label": "组内因素",
+                "value": "Sα接受 C1 和 C2",
+                "tone": "focus"
+              }
+            ]
+          },
+          {
+            "title": "组别乙",
+            "items": [
+              {
+                "label": "被试角色",
+                "value": "Sβ",
+                "tone": "neutral"
+              },
+              {
+                "label": "组间因素",
+                "value": "只属于乙组",
+                "tone": "focus"
+              },
+              {
+                "label": "组内因素",
+                "value": "Sβ接受 C1 和 C2",
+                "tone": "focus"
+              }
+            ]
+          }
+        ],
+        "note": "组别：被试间；C1/C2：被试内。应按因素判断。"
+      }
+    },
+    {
+      "step_id": "compare",
+      "title": "回看三种安排的关键差别",
+      "text": "设计类型由每个因素的条件分配决定。被试内比较有助于处理个体差异，但增加顺序和重复测量问题；混合设计也不会自动消除这些问题。",
+      "source": "mixed",
+      "comparison": {
+        "panels": [
+          {
+            "title": "被试间",
+            "items": [
+              {
+                "label": "谁与谁比较",
+                "value": "Sα：A；Sβ：B",
+                "tone": "focus"
+              },
+              {
+                "label": "关注",
+                "value": "个体差异",
+                "tone": "neutral"
+              }
+            ]
+          },
+          {
+            "title": "被试内",
+            "items": [
+              {
+                "label": "谁与谁比较",
+                "value": "Sα：A 与 B",
+                "tone": "focus"
+              },
+              {
+                "label": "关注",
+                "value": "顺序与重复测量",
+                "tone": "neutral"
+              }
+            ]
+          },
+          {
+            "title": "混合",
+            "items": [
+              {
+                "label": "按因素判断",
+                "value": "组间不同人；组内重复测量",
+                "tone": "focus"
+              },
+              {
+                "label": "关注",
+                "value": "两类因素分别控制",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ],
+        "note": "先找到因素，再问：同一人接受该因素的几个水平？"
+      }
+    }
+  ]
+}

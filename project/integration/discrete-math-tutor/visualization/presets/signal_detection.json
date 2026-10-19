@@ -1,0 +1,103 @@
+{
+  "id": "psychology:signal-detection",
+  "version": "1",
+  "title": "判准、辨别力与 ROC 如何对应？",
+  "sources": {
+    "probabilities": {
+      "chapter_id": 7,
+      "section_id": 3,
+      "block_index": 418,
+      "pdf_version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+      "text_sha256": "f0c9c63db7c1da2c77d2c52c3584cb6259baa2cf5513fdde539c2c118d66798e"
+    },
+    "model": {
+      "chapter_id": 7,
+      "section_id": 3,
+      "block_index": 430,
+      "pdf_version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+      "text_sha256": "77af3749e97d7aca3c24733c0291b875f1146133943e47e8ab0f73b45400cd6c"
+    },
+    "sensitivity": {
+      "chapter_id": 7,
+      "section_id": 3,
+      "block_index": 428,
+      "pdf_version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+      "text_sha256": "f6d1b2132d8cbfc6fd9e382e0e2c1bbe39a7a5130a5fe3963163171f30bd5aba"
+    },
+    "roc": {
+      "chapter_id": 7,
+      "section_id": 3,
+      "block_index": 476,
+      "pdf_version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+      "text_sha256": "85c734feefd47b576861b43c2e0457d681ecf2ebd97a6f0c3f4dcd9a3ba936fe"
+    }
+  },
+  "frames": [
+    {
+      "step_id": "distributions",
+      "title": "先区分两种刺激状态",
+      "text": "两条曲线分别表示仅有噪声、信号加噪声时的内部反应分布。采用教材讨论的等方差正态模型；这里的参数是教学示意，不是被试测量数据。",
+      "source": "model",
+      "signal": {
+        "phase": 0,
+        "d_prime": 1.5,
+        "criterion": 0.75
+      }
+    },
+    {
+      "step_id": "criterion",
+      "title": "加入判断标准",
+      "text": "竖线是示意判准：内部反应在线右侧时回答“有信号”，在线左侧时回答“无信号”。同一个规则同时作用于两种刺激状态。",
+      "source": "model",
+      "signal": {
+        "phase": 1,
+        "d_prime": 1.5,
+        "criterion": 0.75
+      }
+    },
+    {
+      "step_id": "outcomes",
+      "title": "两种实际状态，四种判断结果",
+      "text": "实际有信号时，回答有信号为击中，回答无信号为漏报；实际无信号时，回答有信号为虚报，回答无信号为正确否定。表内每行以同一种实际状态为条件，分别合计100%。",
+      "source": "probabilities",
+      "signal": {
+        "phase": 2,
+        "d_prime": 1.5,
+        "criterion": 0.75
+      }
+    },
+    {
+      "step_id": "stricter",
+      "title": "只把判准调得更严格",
+      "text": "两条分布完全不变，只把判准向右移：回答“有信号”更少，击中率与虚报率一起降低。辨别力没有因此改变；判准位置是内部反应尺度上的示意坐标，不等于标准化报告标准C。",
+      "source": "sensitivity",
+      "signal": {
+        "phase": 3,
+        "d_prime": 1.5,
+        "criterion": 1.5
+      }
+    },
+    {
+      "step_id": "roc",
+      "title": "把两个判准对应到 ROC",
+      "text": "横轴是虚报率，纵轴是击中率。两个标记分别来自之前两种判准，位于同一条理论ROC曲线上。这里明确采用概率坐标，不是将概率转换为Z分数后的zROC图，也未复刻原书图。",
+      "source": "roc",
+      "signal": {
+        "phase": 4,
+        "d_prime": 1.5,
+        "criterion": 1.5
+      }
+    },
+    {
+      "step_id": "sensitivity",
+      "title": "再比较辨别力的变化",
+      "text": "这次保持噪声分布与判准不变，增加信号分布与噪声分布的间距。虚报率不变，击中率升高，理论ROC发生变化。虚线是上一组条件；这是另一组示意参数，不是同一次实验数据自行变化。",
+      "source": "sensitivity",
+      "signal": {
+        "phase": 5,
+        "d_prime": 2.5,
+        "criterion": 1.5
+      }
+    }
+  ]
+}

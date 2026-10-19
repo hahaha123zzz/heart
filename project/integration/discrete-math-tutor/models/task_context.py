@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class ReaderLocation(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    chapter_id: int = Field(ge=1, le=10)
+    chapter_id: int = Field(ge=1, le=11)
     section_id: int = Field(ge=1)
 
 
@@ -22,7 +22,7 @@ class TaskObject(BaseModel):
     kind: Literal["section", "pdf_selection", "exercise_part", "visualization", "truth_table", "relation"]
     title: str = Field(min_length=1, max_length=200)
     text: str = Field(default="", max_length=1800)
-    chapter_id: int = Field(ge=1, le=10)
+    chapter_id: int = Field(ge=1, le=11)
     section_id: int = Field(ge=1)
     version: str = Field(default="", max_length=64)
 

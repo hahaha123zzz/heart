@@ -44,6 +44,9 @@ def explain_exercise(tutor, request, context, intercept, guard, progress=None):
     with tutor.memory.repo.unit_of_work():
         guard()
         reference={'guided_visualization':result['guided_visualization']} if result.get('guided_visualization') else None
+        if result.get('pdf_references'):
+            reference={**(reference or {}),'pdf_references':result['pdf_references'],
+                'textbook_sources':result['textbook_sources'],'grounding_schema':'citation-grounding-v1'}
         if tutor.memory.append_exchange(request.student_id,request.message,result['reply'],selection_ref=reference,expected_point=point,task_guard=guard) is False:
             return {'reply':'相关记忆已删除，请重新提问。','answer_status':'memory_deleted','step_advanced':False}
         # 聊天获得提示也属于辅导，复用原有助教使用记录，避免后续评分误算独立作答。

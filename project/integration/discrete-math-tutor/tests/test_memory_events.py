@@ -2,7 +2,7 @@
 import unittest
 from types import SimpleNamespace
 from uuid import uuid4
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from sqlalchemy import create_engine, event, select, func
 from sqlalchemy.orm import sessionmaker
@@ -62,6 +62,37 @@ class MemoryEventTests(unittest.TestCase):
         evidence = self.memory.list_evidence("s")[0]
         self.assertEqual(evidence["event_id"], args["event_id"])
         self.assertEqual(evidence["source_quote"], args["message"])
+
+    def test_explanation_without_plan_preserves_existing_plan_and_ability(self):
+        args = self.args()
+        args.update(state=self.before.model_copy(deep=True), lesson_plan=None,
+                    decision=EvidenceDecision(False, False, '内容解释不是作答'), evidence=[], hypotheses=[])
+        plan_before = self.memory.get_lesson_plan('s', self.point).model_dump()
+        result = self.memory.commit_learning_turn(**args)
+        self.assertEqual(result['status'], 'committed')
+        self.assertEqual(self.memory.get_lesson_plan('s', self.point).model_dump(), plan_before)
+        self.assertEqual(self.memory.get_state('s', self.point).mastery, .5)
+        self.assertEqual(self.count(EventEvidenceRow), 0)
+        self.assertEqual(self.count(ConversationRow), 2)
+        self.assertFalse(self.memory.repo.latest_learning_event('s', self.point)['payload']['eligible'])
+
+    def test_explanation_can_commit_for_a_point_without_a_course_plan(self):
+        point = '自变量'
+        args = self.args()
+        args.update(point=point, expected_token=self.memory.get_version('s', point), lesson_plan=None,
+                    state=StudentState(student_id='s', current_concept=point),
+                    decision=EvidenceDecision(False, False, '内容解释不是作答'), evidence=[], hypotheses=[])
+        self.assertEqual(self.memory.commit_learning_turn(**args)['status'], 'committed')
+        self.assertIsNone(self.memory.get_lesson_plan('s', point))
+        self.assertEqual(self.count(EventEvidenceRow), 0)
+
+    def test_explanation_still_checks_task_guard_before_writing(self):
+        args = self.args()
+        args.update(lesson_plan=None, task_guard=Mock(side_effect=RuntimeError('任务已取消')))
+        with self.assertRaisesRegex(RuntimeError, '任务已取消'):
+            self.memory.commit_learning_turn(**args)
+        self.assertEqual(self.count(LearningEventRow), 0)
+        self.assertEqual(self.count(ConversationRow), 0)
 
     def test_commit_failure_rolls_back_every_projection_and_record(self):
         args = self.args()
@@ -128,6 +159,10 @@ class MemoryEventTests(unittest.TestCase):
         grounded=Evidence(content="A包含1",source_quote="A包含1")
         assisted={"payload":{"instructional_move":"worked_example"}}
         self.assertFalse(assess_attempt(routing,"A包含1",[grounded],assisted,True).eligible)
+        hinted = assess_attempt(routing, 'A包含1', [grounded],
+                                {'payload': {'instructional_move': 'progressive_hinting'}}, True)
+        self.assertFalse(hinted.independent)
+        self.assertFalse(hinted.eligible)
         self.assertFalse(assess_attempt(routing,"A包含1",[grounded],None,True).eligible)
         self.assertTrue(assess_attempt(routing,"A包含1",[grounded]).eligible)
 
@@ -189,6 +224,7 @@ class MemoryEventTests(unittest.TestCase):
         from agents.teaching_planner import TeachingPlan
         from agents.tutor_error_detector import TutorErrorDetector
         tutor=TutorOrchestrator.__new__(TutorOrchestrator)
+        tutor.llm=Mock()
         tutor.memory=self.memory
         tutor.textbook_chunks=[]
         for name in ("conversation_router","context_sufficiency","lesson_planner","evidence_extractor",

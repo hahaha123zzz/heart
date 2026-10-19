@@ -54,6 +54,8 @@ class Figure:
 @lru_cache(maxsize=1)
 def load_figures() -> tuple[Figure, ...]:
     """损坏、缺失或未审核的资产不会进入可引用目录。"""
+    from knowledge.course_config import PSYCHOLOGY
+    if PSYCHOLOGY:return ()
     figures: list[Figure] = []
     seen: set[str] = set()
     asset_root = ASSET_DIR.resolve()

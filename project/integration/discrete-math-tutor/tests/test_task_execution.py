@@ -15,6 +15,18 @@ from knowledge.textbook import TextbookChunk
 
 
 class TaskExecutionTests(unittest.TestCase):
+    def test_comparison_keeps_all_parts_and_matches_quality_length_budget(self):
+        answer='比较说明。'*55+'两者均需控制额外变量。[1]'
+        llm=Mock();llm.chat.return_value=answer
+        execution=TaskExecution(learning_intents=['compare','explain'])
+        plan=self.plan();execution.align(plan)
+        with patch('agents.response_generator._library_guides',return_value={}):
+            response=ResponseGenerator(llm).generate(StudentState(),plan,'比较两种设计的条件、适用情境和控制问题',[],task_execution=execution)
+        self.assertEqual(response,answer)
+        self.assertEqual(llm.chat.call_args.kwargs['max_tokens'],900)
+        self.assertEqual(QualityChecker._rule_check(response,plan,{'task_comparison':True}),[])
+        execution.answer_constraints=['hint_only']
+        self.assertEqual(execution.reply_limit(200),200)
     def plan(self): return TeachingPlan(goal='解释',strategy='worked_example',action='explain',difficulty='medium')
 
     def test_explicit_requests_can_repeat_action_without_repeating_answer(self):
@@ -37,6 +49,14 @@ class TaskExecutionTests(unittest.TestCase):
         self.assertIn('奇数度顶点',execution.retrieval_query)
         self.assertNotIn('整节正文',execution.retrieval_query)
 
+    def test_server_hint_scope_still_wins_over_concise_verdict(self):
+        context=TaskContext(student_id="guard-test",message="只判断对错",knowledge_point="图",
+            objects=[TaskObject(id="visualization:g",kind="visualization",title="当前图",chapter_id=1,section_id=1)],
+            graph_snapshot={"artifact_id":"g","answer_scope":"hint"})
+        execution=build_execution("只判断对错",TaskUnderstanding(learning_intents=["check_answer"]),context)
+        self.assertTrue(execution.hint_only)
+        self.assertFalse(execution.verdict_only)
+
     def test_unknown_target_is_rejected(self):
         with self.assertRaises(ValueError): build_execution('问题',TaskUnderstanding(target_refs=['invented']),self.context('问题'))
 
@@ -51,6 +71,7 @@ class TaskExecutionTests(unittest.TestCase):
         plan=self.plan();execution.align(plan)
         self.assertEqual(plan.action,'give_example')
         self.assertIn('先给相关具体例子',execution.instructions());self.assertIn('前置定义',execution.instructions())
+        self.assertIn('辅助例子（非原书例题）', execution.instructions())
         compared=TaskExecution(learning_intents=['compare']);compared.align(plan)
         self.assertEqual(plan.strategy,'conceptual_comparison')
 
@@ -89,7 +110,7 @@ class TaskExecutionTests(unittest.TestCase):
         tutor.response_generator.generate.side_effect=['先看度数之间的关系。']
         context=self.context(message)
         source=TextbookChunk(source='教材.txt',section='小节',text='已知条件',terms=frozenset())
-        with patch('orchestrator.retrieve_hybrid',return_value=[source]) as retrieve,patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)),patch('orchestrator.complete_pdf_references',return_value=[]):
+        with patch('orchestrator.retrieve_course',return_value=[source]) as retrieve,patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)),patch('orchestrator.complete_pdf_references',return_value=[]):
             result=tutor.handle_turn('guard-test',message,task_context=context)
         return tutor,result,retrieve
 

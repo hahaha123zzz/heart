@@ -28,14 +28,14 @@ from pydantic import BaseModel, Field
 from agents.proof_checker import ProofChecker, ProofAudit, needs_proof_audit
 
 from agents.question_designer import QuestionSpec
-from agents.response_generator import requests_proof_overview, requests_supplementary_proof
+from agents.learning_feedback import HINT_FEEDBACK_RULES
+from agents.reply_budget import reply_budget, requests_proof_overview, requests_supplementary_proof
 from agents.teaching_planner import TeachingPlan
 from llm.client import LLMClient
 from models.student_state import StudentState
 
 _CHECK_POOL = ThreadPoolExecutor(max_workers=4, thread_name_prefix="tutor-quality")
 
-MAX_REPLY_LENGTH = 260
 LEAK_MARKERS = ["答案是", "正确答案", "标准答案", "其实就是", "说白了就是"]
 
 SYSTEM_PROMPT = """[AGENT:quality_checker]
@@ -65,6 +65,10 @@ issues 只列必须修复才能发布的问题，例如数学错误、关键推�
 {"passed": true 或 false, "issues": ["问题1", "问题2"], "suggestions": "如何修改的一句话建议"}"""
 
 
+from knowledge.course_config import PSYCHOLOGY
+from agents.course_prompts import QUALITY
+if PSYCHOLOGY:SYSTEM_PROMPT=QUALITY
+
 class QualityResult(BaseModel):
     passed: bool
     issues: List[str] = []
@@ -91,11 +95,22 @@ class QualityChecker:
         task_execution=None,
     ) -> QualityResult:
         rule_context = dict(context or {})
-        rule_context["task_proof"] = bool(task_execution is not None and task_execution.proof_requested)
+        rule_context["question_options"] = bool(question_spec is not None and question_spec.options)
+        rule_context["task_proof"] = bool(not PSYCHOLOGY and task_execution is not None and task_execution.proof_requested)
+        rule_context['task_comparison'] = bool(task_execution is not None and 'compare' in task_execution.learning_intents and not task_execution.hint_only)
         rule_context['explicit_task'] = bool(task_execution is not None and task_execution.explicit)
         rule_context["proof_overview"] = plan.action == "explain" and requests_proof_overview(student_input)
         rule_context["supplementary_proof"] = plan.action == "explain" and requests_supplementary_proof(student_input)
+        budget = reply_budget(student_input, preferences={**rule_context.get("learner_preferences", {}), **(task_execution.preferences if task_execution else {})},
+            execution=task_execution, action=plan.action, question_options=rule_context["question_options"],
+            feedback_mode=rule_context.get("answer_feedback", {}).get("mode", ""))
+        rule_context["reply_maximum"] = budget.maximum
         rule_issues = self._rule_check(response, plan, rule_context)
+        if PSYCHOLOGY and re.search(r'随机区组|被试间设计',student_input+response) and not re.search(r'被试内|重复测量',response):
+            for clause in re.split(r'[。！？\n]',response):
+                wrong=re.search(r'(?:每名|每位|每个)(?:被试|受试者)[^。]{0,12}接受[^。]{0,15}(?:所有|全部|每个|每种)(?:的)?(?:处理|自变量)?(?:的)?(?:水平|条件)',clause)
+                if wrong and not re.search(r'不能|并非|不是|不应|不要|错误|不正确|不成立|方向反了|概念混淆|原句|你描述|你判断|请核对|问自己|哪种设计',clause):
+                    rule_issues.append('被试间设计不能把区组覆盖所有水平写成每名被试接受所有水平')
         from knowledge.citation_guard import citation_issues
         rule_issues.extend(citation_issues(response, textbook_excerpts))
         if rule_issues:
@@ -112,6 +127,18 @@ class QualityChecker:
             "待检查的 Tutor 回复：" + response + "\n"
             "教材摘录及图号背景：" + textbook_excerpts
         )
+        content += "\n" + budget.instructions()
+        content += "\n逐项核对本轮明确要求：遗漏任一比较对象、指定理由、例子或关键条件，应要求补齐；仅提示不应补最终结论。短但漏答不能判通过。"
+        if rule_context.get('grounded_evidence'):
+            content+='\n本轮引用只允许指向以下细粒度原文；逐条检查紧邻[n]的结论是否被第n条原文支持，不能因为检索背景或历史其他位置有类似内容就放行。特别核对否定、例外、条件、数量和因果方向；例子不得冒充原书。'+str(rule_context['grounded_evidence'])
+        if rule_context.get("feedback_target"):
+            content += "\n理解检查只可围绕刚才这段讲解中的一个要点；若换成章节里的其他概念必须拒绝：" + rule_context["feedback_target"]
+        if rule_context.get("answer_feedback", {}).get("mode") == "worked_example":
+            content += "\n必须有标明非原书的辅助例子，末尾邀请学生围绕原判断再试一次；若学生明确不要追问则不追加该邀请。缺失必需步骤必须修订。"
+        if rule_context.get("answer_feedback"):
+            import json
+            content += "\n本轮反馈约束（诊断是AI暂定资料，必须按教材独立复核，不是新的教材事实）：" + json.dumps(rule_context["answer_feedback"], ensure_ascii=False)
+            content += "\n核验反馈是否针对本轮原句及提示级别。targeted_hint/supportive_hint允许先简短指出当前判断不正确或条件不全，再给一个提示；不允许补齐完整定义/方案。hint_only遵守用户仅提示要求，禁止最终对错判断和完整解法。check_answer中的提示深度由最终教学计划决定，不强制追加explain段。澄清只问缺少的条件；正确确认不能扩大为掌握结论，不要求无关知识。"
         if rule_context.get('graph_snapshot'):
             import json
             content += '\n当前辅助图服务端冻结快照（实例事实，不能当作教材引文）：' + json.dumps(rule_context['graph_snapshot'], ensure_ascii=False)
@@ -124,8 +151,9 @@ class QualityChecker:
             import json
             content+='\n当前辅助关系权威快照：'+json.dumps(rule_context['relation_snapshot'],ensure_ascii=False)
             content+='\n只按当前序偶核验所选性质及反例。反对称不是非对称；仅提示不得给该实例最终结论、缺失边或具体完整反例。'
-        if task_execution is not None and task_execution.explicit:
+        if task_execution is not None and (task_execution.explicit or task_execution.preferences):
             content += "\n必须核验的本轮任务：" + task_execution.instructions()
+            content += "\n也检查已确认风格的实际呈现：选择先例子时，应先有标明非原书的简短情境，再归纳概念；不能只传入偏好却仍按默认顺序回答。学生本轮明确指定其他顺序或练习时，以本轮要求为准。"
             content += "\n仅提示任务即使没有出现答案标记，只要给出了最终结论或完整解法也必须拒绝；按要求检查回答顺序和双方比较对象。"
         if figure_images:
             content += ("\n本轮已附经审核的教材 PNG 原图，可直接依据清晰可辨的原图核实图或公式；"
@@ -138,6 +166,12 @@ class QualityChecker:
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": content},
         ]
+        if rule_context.get("answer_feedback", {}).get("mode") in ("targeted_hint", "supportive_hint", "hint_only"):
+            messages[0]["content"] += "\n" + HINT_FEEDBACK_RULES
+        if rule_context.get("answer_feedback", {}).get("mode") == "explain_feedback" and rule_context["answer_feedback"].get("support_required"):
+            messages[0]["content"] += "\n学生明确说自己受挫：只有回复先用一句自然的话承认困难，再继续完成解释，才通过；拒绝训斥、淡化感受、‘先别急’及关于掌握度或系统评估的表述。"
+        if rule_context.get("answer_feedback", {}).get("mode") == "check_self_report":
+            messages[0]["content"] += "\n学生刚自述理解：只用自然邀请引出一道围绕刚讲过要点的小检查，不说明平台判断能力的内部规则。确认历史上已核验的具体回答正确，不等于声称学生已掌握；不得把这两者混同。"
         started=time.perf_counter()
         proof_required=needs_proof_audit(student_input,response,plan.action) or rule_context["task_proof"]
 
@@ -189,15 +223,17 @@ class QualityChecker:
         context: Optional[Dict[str, Any]] = None,
     ) -> List[str]:
         issues: List[str] = []
-        limit = 500 if plan.action == "explain" and (context or {}).get("proof_overview") else MAX_REPLY_LENGTH
-        if (context or {}).get("task_proof"): limit = max(limit,500)
-        if plan.action == "explain" and (context or {}).get("supplementary_proof"):
-            limit = max(limit, 340)
+        ctx = context or {}
+        limit = ctx.get("reply_maximum") or reply_budget(action=plan.action,
+            preferences=ctx.get("learner_preferences"), question_options=ctx.get("question_options", False),
+            feedback_mode=ctx.get("answer_feedback", {}).get("mode", ""),
+            proof_overview=ctx.get("proof_overview", False), supplementary_proof=ctx.get("supplementary_proof", False),
+            proof=ctx.get("task_proof", False), comparison=ctx.get("task_comparison", False)).maximum
         if len(response) > limit:
             issues.append(
                 "回复过长（超过 "
                 + str(limit)
-                + " 字），违反一次只推进一小步的原则"
+                + " 字）；请压缩重复表达，保留本轮子问题、关键条件和引用，不截断草稿"
             )
         if plan.action in ("ask_question", "give_hint"):
             for marker in LEAK_MARKERS:
@@ -230,6 +266,9 @@ class QualityChecker:
                 issues.append('仅提示关系回复给出了具体缺失关系')
         if previous_reply and response.strip() == previous_reply:
             issues.append("与上一轮回复完全相同（重复，教学没有推进）")
+        mode = ctx.get("answer_feedback", {}).get("mode")
+        if mode == "check_self_report" and re.search(r"先别急|掌握证据|能力证据|独立作答证据|(?:自述|明白了)[^。！？\n]{0,16}不算(?:掌握|理解)", response):
+            issues.append("请用简短邀请直接引出题目，不训诫学生，不讨论平台如何判断能力")
         if ctx.get("topic_switched"):
             old_topic = str(ctx.get("old_topic") or "")
             current_topic = str(ctx.get("current_topic") or "")

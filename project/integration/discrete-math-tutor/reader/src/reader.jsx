@@ -9,8 +9,10 @@ class ReaderHighlighter extends PdfHighlighter {
   super.componentWillUnmount();
   this.debouncedScaleValue?.clear?.();
   this.debouncedAfterSelection?.clear?.();
-  // 组件卸载后终止 PDF.js 页面任务，避免隐藏页仍触发定位。
-  this.viewer?.setDocument(null);
+  // 先卸载独立高亮根，再释放页面；否则待提交的高亮会读取已销毁的viewport。
+  const roots=Object.values(this.highlightRoots||{}),viewer=this.viewer;
+  this.highlightRoots={};
+  queueMicrotask(()=>{for(const layer of roots)layer.reactRoot.unmount();viewer?.setDocument(null);});
  }
 }
 const mounted=new Map();

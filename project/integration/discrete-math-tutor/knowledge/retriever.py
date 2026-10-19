@@ -16,6 +16,8 @@ _CATALOG_PATH = os.path.join(os.path.dirname(__file__), "misconception_catalog.j
 
 
 def load_misconception_catalog() -> Dict[str, List[Dict[str, Any]]]:
+    from knowledge.course_config import PSYCHOLOGY
+    if PSYCHOLOGY:return {}
     try:
         with open(_CATALOG_PATH, "r", encoding="utf-8") as handle:
             return json.load(handle)

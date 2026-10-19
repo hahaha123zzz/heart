@@ -1,7 +1,7 @@
 /* 工作台布局与阅读位置；不更改学生学习数据。 */
 window.Workspace=(()=>{
  let ready=false,ratio=.6,collapsed=false,pane='content',lastPage=null,helpGuide=null;
- const storageKey=()=> 'discrete-workspace:'+studentId;
+ const storageKey=()=> (window.TutorCourse?.id||'experimental-psychology-3')+':workspace:'+studentId;
  const read=()=>{try{return JSON.parse(localStorage.getItem(storageKey())||'{}');}catch{return {};}};
  function persist(values){try{localStorage.setItem(storageKey(),JSON.stringify({...read(),...values}));}catch{}}
  function setPane(value){pane=value;document.body.classList.toggle('chat-mode',value==='chat');document.querySelectorAll('[data-mobile-pane]').forEach(b=>b.classList.toggle('active',b.dataset.mobilePane===value));}
@@ -22,13 +22,13 @@ window.Workspace=(()=>{
  const end=()=>{drag=false;document.body.classList.remove('resizing');};divider.addEventListener('pointerup',end);divider.addEventListener('pointercancel',end);
  divider.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();setRatio(e.key==='Home'?.5:e.key==='End'?.7:ratio+(e.key==='ArrowLeft'?-.02:.02));}});
  window.addEventListener('resize',()=>{applyRatio();if(window.innerWidth>=1024)closeNav();});
- window.addEventListener('pdf-position',e=>{const p=e.detail;if(p.chapter!==state.chapter||p.version!==state.sectionData?.pdf?.version)return;lastPage=p;persist({lastReading:p,positions:{...(read().positions||{}),[p.document_id+':'+p.version]:p}});const location=document.querySelector('#reading-location');if(location)location.textContent='原教材第 '+p.page+' 页';const resume=document.querySelector('#resume-location');if(resume)resume.textContent='原教材第 '+p.page+' 页';});
+ window.addEventListener('pdf-position',e=>{const p=e.detail;if(p.chapter!==state.chapter||p.version!==state.sectionData?.pdf?.version)return;lastPage=p;persist({lastReading:p,positions:{...(read().positions||{}),[p.document_id+':'+p.version]:p}});const location=document.querySelector('#reading-location');if(location)location.textContent=(window.TutorCourse?.page_label||'教材第')+' '+p.page+' 页';const resume=document.querySelector('#resume-location');if(resume)resume.textContent=(window.TutorCourse?.page_label||'教材第')+' '+p.page+' 页';});
  document.querySelector('#materials-info').addEventListener('click',()=>toast('课件文件尚未提供；现有教材、重点笔记和例题线索可正常阅读。'));
  document.querySelector('#return-chat').addEventListener('click',()=>showHelp(null));
  document.querySelector('#chat-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();document.querySelector('#chat-form').requestSubmit();}});
  applyRatio();
  }
- function onView(view){closeNav();setPane('content');document.body.dataset.workspaceView=view;const slot=document.querySelector('#practice-nav-slot');slot.hidden=view!=='quiz';document.querySelector('#course-panel-body').hidden=view==='quiz'||localStorage.getItem('discrete-math-course-collapsed')==='true';document.querySelector('#directory-title').textContent=view==='quiz'?'教材习题':'章节目录';document.querySelector('#course-collapse').hidden=view==='quiz';if(view!=='quiz')showHelp(null);applyRatio();}
+ function onView(view){closeNav();setPane('content');document.body.dataset.workspaceView=view;const slot=document.querySelector('#practice-nav-slot');slot.hidden=view!=='quiz';document.querySelector('#course-panel-body').hidden=view==='quiz'||localStorage.getItem((window.TutorCourse?.id||'experimental-psychology-3')+'-course-collapsed')==='true';document.querySelector('#directory-title').textContent=view==='quiz'?'教材习题':'章节目录';document.querySelector('#course-collapse').hidden=view==='quiz';if(view!=='quiz')showHelp(null);applyRatio();}
  function chapterChanged(){const s=state.sectionData;if(!s)return;document.querySelector('#resume-title').textContent='第'+state.chapter+'章 · '+s.title;document.querySelector('#resume-location').textContent='可从当前阅读位置继续';document.querySelector('#conversation-title').textContent=s.title||'教材答疑';lastPage=null;}
  function resumeFor(metadata){const value=(read().positions||{})[metadata.document_id+':'+metadata.version];return value?.section===state.section?value:null;}
  function lastReading(){return read().lastReading;}

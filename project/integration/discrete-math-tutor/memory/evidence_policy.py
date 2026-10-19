@@ -34,7 +34,9 @@ def assess_attempt(routing, message, evidence, previous_event=None, has_history=
         return EvidenceDecision(False, False, "作答类别尚不确定")
     previous = (previous_event or {}).get("payload", {})
     assisted = previous.get("instructional_move") in (
-        "worked_example", "direct_explanation", "hint", "give_hint", "scaffold", "scaffolding", "guided_revision", "summarization")
+        "worked_example", "direct_explanation", "hint", "give_hint", "progressive_hinting", "scaffold", "scaffolding", "guided_revision", "summarization")
+    assisted = assisted or previous.get("teaching_context", {}).get("feedback_mode") in (
+        "targeted_hint", "hint_only", "worked_example", "supportive_hint", "explain_feedback", "confirm_and_reflect", "check_self_report", "verdict_only")
     assisted = assisted or (has_history and previous_event is None)
     if assisted:
         return EvidenceDecision(False, False, "此前提供讲解或提示，本次按辅助作答记录")

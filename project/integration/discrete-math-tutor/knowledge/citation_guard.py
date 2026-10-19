@@ -14,6 +14,8 @@ def citation_issues(response: str, excerpts: str) -> list[str]:
         units[int(header.group(1))] = {
             re.sub(r'\s+', '', match).replace('．', '.') for match in re.findall(UNIT, block)}
     issues = []
+    for index in sorted({int(n) for n in re.findall(r'\[(\d+)\]', response)}-units.keys()):
+        issues.append(f'引用[{index}]不属于本轮教材证据')
     for match in re.finditer(r'(' + UNIT + r')[（(]?\s*\[(\d+)\]', response):
         unit = re.sub(r'\s+', '', match.group(1)).replace('．', '.')
         index = int(match.group(2))

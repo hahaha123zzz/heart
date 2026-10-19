@@ -34,7 +34,7 @@ NS = {
 CHAPTER_RE = re.compile(r"第\s*(\d+)\s*章")
 PKG_NS = "http://schemas.microsoft.com/office/2006/xmlPackage"
 HEADING_RE = re.compile(r"^\d+(?:\.\d+){1,3}\s*[^\s].{0,100}$")
-FIGURE_RE = re.compile(r"图\s*\d+\s*[.．]\s*\d+")
+FIGURE_RE = re.compile(r"图\s*\d+\s*[.．-]\s*\d+")
 TABLE_RE = re.compile(r"表\s*\d+\s*[.．-]\s*\d+")
 
 
@@ -43,16 +43,43 @@ def local_name(tag: str) -> str:
 
 
 def paragraph_text(node: ET.Element) -> str:
-    parts: list[str] = []
-    for element in node.iter():
+    def render(element):
         name = local_name(element.tag)
+        def child(tag):
+            found=element.find('m:'+tag,NS)
+            return render(found) if found is not None else ''
+        if element.tag.startswith('{'+NS['m']+'}'):
+            if name=='f':
+                numerator,denominator=child('num'),child('den')
+                kind=element.find('m:fPr/m:type',NS)
+                if kind is not None and kind.get('{'+NS['m']+'}val')=='noBar':
+                    return r'\substack{'+numerator+r'\\'+denominator+'}'
+                return r'\frac{'+numerator+'}{'+denominator+'}'
+            if name in ('sSub','sSup','sSubSup'):
+                return '{'+child('e')+'}'+('_{'+child('sub')+'}' if name!='sSup' else '')+('^{'+child('sup')+'}' if name!='sSub' else '')
+            if name=='rad':
+                degree=child('deg')
+                return r'\sqrt'+('['+degree+']' if degree else '')+'{'+child('e')+'}'
+            if name=='bar':
+                position=element.find('m:barPr/m:pos',NS)
+                under=position is not None and position.get('{'+NS['m']+'}val')=='bot'
+                return ('\\underline' if under else '\\overline')+'{'+child('e')+'}'
+            if name=='m':
+                rows=[' & '.join(render(cell) for cell in row.findall('m:e',NS)) for row in element.findall('m:mr',NS)]
+                return r'\begin{matrix}'+r' \\ '.join(rows)+r'\end{matrix}'
+            if name=='d':
+                def delimiter(tag,default):
+                    prop=element.find('m:dPr/m:'+tag,NS)
+                    return prop.get('{'+NS['m']+'}val',default) if prop is not None else default
+                return delimiter('begChr','(')+delimiter('sepChr','|').join(render(e) for e in element.findall('m:e',NS))+delimiter('endChr',')')
         if name in ("t", "delText") and element.text:
-            parts.append(element.text)
+            return element.text
         elif name == "tab":
-            parts.append("\t")
+            return "\t"
         elif name in ("br", "cr"):
-            parts.append("\n")
-    return "".join(parts).strip()
+            return "\n"
+        return ''.join(render(child) for child in element)
+    return render(node).strip()
 
 
 def target_for(rel_id: str, relationships: dict[str, str]) -> str | None:
@@ -108,12 +135,12 @@ def block_paragraphs(block: ET.Element) -> list[ET.Element]:
     return block.findall(".//w:p", NS)
 
 
-def heading_section(text: str, current: str) -> str:
+def heading_section(text: str, current: str, pattern=HEADING_RE) -> str:
     value = " ".join(text.split())
-    return value if HEADING_RE.match(value) else current
+    return value if pattern.match(value) else current
 
 
-def parse_document(path: Path, source_txt: str, asset_root: Path) -> tuple[dict, list[dict], list[dict]]:
+def parse_document(path: Path, source_txt: str, asset_root: Path, *, sections=None, heading_pattern=HEADING_RE) -> tuple[dict, list[dict], list[dict]]:
     match = CHAPTER_RE.search(path.stem)
     if not match:
         raise ValueError(f"无法从文件名识别章节：{path.name}")
@@ -231,7 +258,7 @@ def parse_document(path: Path, source_txt: str, asset_root: Path) -> tuple[dict,
                 all_image_ids.extend(image_ids)
                 all_formula_ids.extend(formula_ids)
                 if text:
-                    current_section = heading_section(text, current_section)
+                    current_section = heading_section(text, current_section, heading_pattern)
                 paragraph_records.append({
                     "text": text,
                     "image_ids": image_ids,
@@ -296,7 +323,7 @@ def parse_document(path: Path, source_txt: str, asset_root: Path) -> tuple[dict,
     try:
         from knowledge.course import get_chapter
 
-        course_sections = get_chapter(chapter_id)["sections"]
+        course_sections = sections if sections is not None else get_chapter(chapter_id)["sections"]
     except (ImportError, TypeError, KeyError):
         course_sections = []
     section_lookup = {

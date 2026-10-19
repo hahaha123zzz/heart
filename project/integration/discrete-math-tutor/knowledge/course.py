@@ -7,6 +7,8 @@ from pathlib import Path
 import re
 
 from knowledge.textbook import TEXTBOOK_DIR, load_textbook
+from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
+import json
 
 CHAPTER_TITLES = {
     1: "集合代数", 2: "两个数学基本原理", 3: "计数", 4: "命题逻辑",
@@ -41,6 +43,15 @@ QUIZZES = {
 
 @lru_cache(maxsize=1)
 def chapters() -> list[dict]:
+    if PSYCHOLOGY:
+        result=[]
+        manifest=json.loads((PSYCHOLOGY_DIR/'manifest.json').read_text(encoding='utf-8'))
+        for chapter in manifest['chapters']:
+            document=json.loads((PSYCHOLOGY_DIR/'chapters'/f'chapter_{chapter["id"]:02d}'/'document.json').read_text(encoding='utf-8'))
+            sections=[{'id':s['id'],'title':s['title'],'content':'\n\n'.join(b['text'] for b in document['blocks'] if b.get('section_id')==s['id'])}
+                      for s in chapter['sections']]
+            result.append({'id':chapter['id'],'title':''.join(chapter['title'].split()),'source':document['source'],'sections':sections})
+        return result
     chunks = [chunk for chunk in load_textbook() if chunk.kind == "text"]
     files = {int(re.search(r"第(\d+)章", c.source).group(1)): c.source for c in chunks}
     result = []
@@ -94,3 +105,7 @@ def grade_quiz(chapter_id: int, answers: dict[str, int]) -> dict:
                       "is_correct": chosen == correct, "explanation": explanation})
     score = round(100 * sum(item["is_correct"] for item in items) / len(items))
     return {"chapter_id": chapter_id, "score": score, "items": items}
+
+if PSYCHOLOGY:
+    CHAPTER_TITLES={c['id']:c['title'] for c in chapters()}
+    QUIZZES={}  # 未核实正式教材习题前，不把旧数学题展示为心理学习题。

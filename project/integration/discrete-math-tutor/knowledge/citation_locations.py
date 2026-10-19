@@ -1,5 +1,6 @@
 """为回答实际引用的普通编号单元与已审核图片补齐 PDF 跳转。"""
 import re
+import json
 from pathlib import Path
 from knowledge.pdf_reader import PDFSelection, resolve_selection
 from knowledge.proof_units import REF, key, units_for
@@ -50,6 +51,26 @@ def locate_source(source, response='', *, allow_section=True):
         selected = resolve_selection(PDFSelection(document_id=record['document_id'],version=record['version'],kind='text',rects=list(unit.rects[:2])))
         if selected['section']['id'] == source.section_id:
             return {'label':label,'selection_ref':selected['reference'] | {'origin':'retrieval','location_kind':'numbered_unit'}}
+    if record.get('course_id')=='experimental-psychology-3' and source.block_start is not None:
+        from knowledge.course_config import PSYCHOLOGY_DIR
+        blocks=json.loads((PSYCHOLOGY_DIR/'chapters'/f'chapter_{source.chapter_id:02d}'/'document.json').read_text(encoding='utf-8'))['blocks']
+        block=next((b for b in blocks if b['block_index']==source.block_start),None)
+        text=source.text.split('\n')[0] if source.kind=='table' else (block or {}).get('text','')
+        prefix=compact(text)[:28];matches=[]
+        following=next((s for s in record['sections'] if s['id']==section['id']+1),None)
+        end=following['page'] if following else record['page_count']
+        if len(prefix)>=6:
+            with fitz.open(pdf_path(record)) as pdf:
+                for number in range(section['page'],end+1):
+                    page=pdf[number-1]
+                    for block in page.get_text('dict')['blocks']:
+                        for line in block.get('lines',[]):
+                            if compact(''.join(s['text'] for s in line['spans'])).startswith(prefix):
+                                box=line['bbox'];matches.append(dict(page=number,x1=box[0]/page.rect.width,y1=box[1]/page.rect.height,x2=box[2]/page.rect.width,y2=box[3]/page.rect.height))
+            if len(matches)==1:
+                selected=resolve_selection(PDFSelection(document_id=record['document_id'],version=record['version'],kind='text',rects=matches))
+                if selected['section']['id']==source.section_id:
+                    return {'label':'教材原文定位','selection_ref':selected['reference']|{'origin':'retrieval','location_kind':'paragraph_anchor'}}
     if allow_section:
         return {'label':'小节标题定位','selection_ref':section_reference(source.chapter_id,source.section_id)}
     return None
@@ -65,14 +86,12 @@ def resolve_source_label(source_label, response=''):
     section = next((s for s in record['sections'] if compact(s['title']) == compact(section_title)),None) if record else None
     if not section:
         raise ValueError('来源不属于已索引教材')
-    from knowledge.textbook import TextbookChunk
-    from knowledge.course import get_section
-    content = get_section(record['chapter_id'],section['id'])['content']
-    source = TextbookChunk(record['source'],section['title'],content,frozenset(),chapter_id=record['chapter_id'],section_id=section['id'])
-    result = locate_source(source,response)
-    if not result:
-        raise ValueError('未找到可靠的教材坐标')
-    return result
+    # 旧历史没有保存证据范围；只能打开当前教材小节，不能事后猜成旧回答的精确定位。
+    return {'label':'旧来源 · 当前教材小节','selection_ref':{
+        'document_id':record['document_id'],'version':record['version'],'chapter_id':record['chapter_id'],
+        'section_id':section['id'],'section_title':section['title'],'source':record['source'],
+        'kind':'text','rects':[],'text':'','image_refs':[],'location_kind':'section',
+        'page':section['page'] if section.get('verified') else None}}
 
 
 def complete_pdf_references(sources, response, existing, *, figures=(), include_primary=False):

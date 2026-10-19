@@ -9,6 +9,9 @@ from collections import Counter
 from functools import lru_cache
 from dataclasses import dataclass
 from pathlib import Path
+from contextlib import closing
+import sqlite3
+from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
 
 
 TEXTBOOK_DIR = Path(__file__).resolve().parent / "textbook_text"
@@ -38,6 +41,8 @@ class TextbookChunk:
     page: int | None = None
     block_start: int | None = None
     block_end: int | None = None
+    source_spans: tuple[dict, ...] = ()
+    evidence_id: str | None = None
 
 
 def terms_for(text: str) -> frozenset[str]:
@@ -54,6 +59,22 @@ def terms_for(text: str) -> frozenset[str]:
 
 @lru_cache(maxsize=4)
 def load_textbook(directory: Path = TEXTBOOK_DIR) -> list[TextbookChunk]:
+    if PSYCHOLOGY and directory==TEXTBOOK_DIR:
+        path=PSYCHOLOGY_DIR/'rag_index.sqlite3'
+        if not path.is_file():raise FileNotFoundError('正式教材索引尚未构建，不能回退旧数学教材')
+        with closing(sqlite3.connect(f'{path.as_uri()}?mode=ro',uri=True)) as db:
+            db.row_factory=sqlite3.Row
+            chunks = [TextbookChunk(source=r['source'],section=r['section'],text=r['text'],terms=terms_for(r['text']),
+                       kind=r['kind'],asset_ids=tuple(json.loads(r['asset_ids'])),section_id=r['section_id'],
+                       chunk_id=r['id'],parent_id=r['parent_id'],chapter_id=r['chapter_id'],page=r['page'],
+                       block_start=r['block_start'],block_end=r['block_end']) for r in db.execute('SELECT * FROM chunks')]
+        from dataclasses import replace
+        from knowledge.source_mapping import source_spans
+        documents={}
+        for chapter in {c.chapter_id for c in chunks}:
+            documents[chapter]=json.loads((PSYCHOLOGY_DIR/'chapters'/f'chapter_{chapter:02d}'/'document.json').read_text(encoding='utf-8'))['blocks']
+        return [replace(c,source_spans=source_spans([b for b in documents[c.chapter_id]
+            if c.block_start<=b['block_index']<=c.block_end],c.text)) for c in chunks]
     if not directory.is_dir():
         raise FileNotFoundError(f"教材文字目录不存在：{directory}")
     files = sorted(directory.glob("*.txt"))
@@ -194,6 +215,7 @@ def format_excerpts(chunks: list[TextbookChunk]) -> str:
     return "\n\n".join(
         f"[{index}] {chunk.source}｜{chunk.section}"
         + (f"｜PDF第{chunk.page}页起" if chunk.page else "")
+          + (f"｜证据ID:{chunk.evidence_id}" if chunk.evidence_id else "")
         + (f"｜{dict(table='表格', formula='公式', image_context='插图').get(chunk.kind, chunk.kind)}" if chunk.kind != "text" else "")
         + f"\n{chunk.text}"
         for index, chunk in enumerate(chunks, 1)

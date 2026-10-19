@@ -55,6 +55,11 @@ def _parts(text: str, max_chars: int = 760) -> list[str]:
 
 def build_records() -> list[dict]:
     """返回小检索单元，保留其父单元、原 Word 块与 PDF 小节页。"""
+    from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
+    if PSYCHOLOGY:
+        from scripts.build_psychology_sample_index import records
+        return [row for chapter in range(1,12)
+                for row in records(PSYCHOLOGY_DIR/'chapters'/f'chapter_{chapter:02d}',chapter)]
     exercise_ranges = _exercise_ranges()
     manifests = {int(item["chapter_id"]): item for item in json.loads(PDF_MANIFEST.read_text(encoding="utf-8"))}
     records: list[dict] = []
