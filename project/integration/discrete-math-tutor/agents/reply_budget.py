@@ -46,9 +46,13 @@ def reply_budget(text="", *, preferences=None, execution=None, action="explain",
         if detailed or expanded:
             target, maximum = max(target, 480), max(maximum, 500)
         multi_part = bool(re.search(
-            r"并(?:要|需)?(?:说明|解释|比较|给出|回答|指出)|以及|同时|分别|；|;", text))
+            r"并(?:要|需)?(?:说明|解释|比较|给出|回答|指出)|以及|同时|分别|；|;|、|"
+            r"两(?:个|类|种).{0,20}(?:区别|差异|关系|比较)", text))
         if multi_part:
             target, maximum = max(target, 320), max(maximum, 360)
+        if multi_part and re.search(r"公式|符号|[A-Za-z][A-Za-z0-9]*\s*、", text):
+            # 多个公式符号逐项解释需要保留符号、参照点和各自引用。
+            target, maximum = max(target, 480), max(maximum, 500)
     if question_options:
         target, maximum = max(target, 420), max(maximum, 440)
     return ReplyBudget(target, maximum)

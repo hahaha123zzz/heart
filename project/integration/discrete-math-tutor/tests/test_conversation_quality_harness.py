@@ -52,6 +52,17 @@ class ConversationQualityHarnessTests(unittest.TestCase):
                                 {"id": "concept"}])
         self.assertEqual([case["id"] for case in ordered], ["concept", "followup"])
 
+    def test_independent_cases_do_not_share_student_history(self):
+        from scripts.check_conversation_quality import case_student_id
+
+        cases = [{"id": "concept"}, {"id": "followup", "follows": "concept"},
+                 {"id": "comparison"}]
+        by_id = {case["id"]: case for case in cases}
+        self.assertEqual(case_student_id(cases[1], "run", by_id),
+                         case_student_id(cases[0], "run", by_id))
+        self.assertNotEqual(case_student_id(cases[2], "run", by_id),
+                            case_student_id(cases[0], "run", by_id))
+
     def test_self_test_passes_and_marks_deferred_cases(self):
         report = self_test()
         self.assertTrue(report["passed"])

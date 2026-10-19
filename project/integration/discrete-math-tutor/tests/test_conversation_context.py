@@ -115,6 +115,19 @@ class FollowupDirectiveTests(unittest.TestCase):
     def test_no_followup_directive_for_new_self_contained_question(self):
         self.assertEqual(followup_directive("什么是随机分配？", self.rows), "")
 
+    def test_simplify_aliases_cover_rephrase_plain_language_and_shortening(self):
+        for message in ("请换种解释。", "请再通俗一点。", "请简化表达。", "请说得浅显些。"):
+            with self.subTest(message=message):
+                text = followup_directive(message, self.rows)
+                self.assertIn("上一轮助教解释", text)
+                self.assertIn("不是末尾检查题", text)
+
+    def test_explicit_single_object_scope_narrows_without_exclusion_phrase(self):
+        for message in ("我只想再确认被试内设计。", "继续比较，只确认被试内设计。"):
+            with self.subTest(message=message):
+                text = followup_directive(message, self.rows)
+                self.assertIn("明确缩小范围", text)
+                self.assertIn("不重复", text)
 
     def test_router_receives_followup_target_and_scope_rules(self):
         from agents.conversation_router import ConversationRouter
@@ -157,6 +170,16 @@ class ExplicitDepthTests(unittest.TestCase):
         self.assertTrue(execution.no_questions)
         self.assertNotIn("仅给一个知识点", execution.instructions())
 
+
+    def test_explicit_full_explanation_does_not_duplicate_explain_intent(self):
+        from types import SimpleNamespace
+        from agents.task_execution import build_execution
+
+        routing = SimpleNamespace(target_refs=[], answer_constraints=[],
+                                  learning_intents=["explain"])
+        execution = build_execution("现在请完整解释刚才的问题，不用再出题。", routing)
+        self.assertEqual(execution.learning_intents, ["explain"])
+        self.assertNotIn("explain、explain", execution.instructions())
 
     def test_simplify_followup_keeps_explain_without_becoming_hint(self):
         from types import SimpleNamespace
@@ -219,6 +242,44 @@ class ExplicitDepthTests(unittest.TestCase):
         self.assertEqual(result.student_move, "question")
         self.assertIn("explain", result.learning_intents)
         self.assertTrue(result.needs_context)
+
+    def test_router_recognizes_rephrase_and_plain_language_followups(self):
+        from agents.conversation_router import ConversationRouter
+        task = dict(student_move="statement", move_status="", intent="continue", topic="",
+                    confidence=.9, reason="追问", needs_context=False, learning_intents=[],
+                    target_refs=[], answer_constraints=[], missing_slots=[])
+        history = [{"role": "user", "content": "请解释自变量。"},
+                   {"role": "assistant", "content": "自变量是研究者操纵的变量。"}]
+        for message in ("请换种解释。", "请再通俗一点。", "请简化表达。"):
+            with self.subTest(message=message):
+                llm = Mock()
+                llm.chat_json.return_value = dict(task)
+                built = TaskContext(student_id="s", message=message,
+                                    knowledge_point="实验设计", history=history)
+                result = ConversationRouter(llm).route(
+                    built.message, built.knowledge_point, built.history, [], context=built)
+                self.assertEqual(result.student_move, "question")
+                self.assertIn("explain", result.learning_intents)
+                self.assertTrue(result.needs_context)
+
+    def test_narrowed_scope_without_exclusion_phrase_drops_compare_intent(self):
+        from types import SimpleNamespace
+        from agents.task_execution import build_execution
+
+        routing = SimpleNamespace(target_refs=[], answer_constraints=[], learning_intents=[])
+        execution = build_execution("继续比较，只确认被试内设计。", routing)
+        self.assertNotIn("compare", execution.learning_intents)
+        self.assertIn("explain", execution.learning_intents)
+
+    def test_quantity_limited_comparison_keeps_compare_intent(self):
+        from types import SimpleNamespace
+        from agents.task_execution import build_execution
+
+        routing = SimpleNamespace(target_refs=[], answer_constraints=[],
+                                  learning_intents=["compare"])
+        execution = build_execution(
+            "请比较被试间设计和被试内设计，每类只讲一个要点。", routing)
+        self.assertIn("compare", execution.learning_intents)
 
     def test_router_overrides_explicit_full_explanation(self):
         from agents.conversation_router import ConversationRouter

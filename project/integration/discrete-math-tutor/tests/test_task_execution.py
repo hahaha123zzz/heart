@@ -29,6 +29,13 @@ class TaskExecutionTests(unittest.TestCase):
         task=TaskUnderstanding(learning_intents=['explain'],answer_constraints=['no_full_answer'])
         self.assertTrue(build_execution('请解释公式，只说思路，不要编造数据。',task).hint_only)
 
+    def test_distinguish_request_becomes_explanation_not_question(self):
+        task=TaskUnderstanding(learning_intents=[],answer_constraints=[])
+        execution=build_execution(
+            '请结合教材区分自变量、因变量和额外变量，每类只讲一个要点，引用对应的教材依据。',task)
+        self.assertIn('explain',execution.learning_intents)
+        self.assertTrue(execution.explicit)
+
     def test_comparison_keeps_all_parts_and_matches_quality_length_budget(self):
         answer='比较说明。'*55+'两者均需控制额外变量。[1]'
         llm=Mock();llm.chat.return_value=answer

@@ -1,6 +1,7 @@
 """选区、小题与按钮任务消费；隔离数据库和模型。"""
 import sys
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 from sqlalchemy import select
@@ -52,6 +53,17 @@ class TaskResourceExecutionTests(unittest.TestCase):
         tutor,context,resolved,selection=self.pdf_tutor(QualityResult(passed=True,issues=['泄露完整答案']))
         with self.assertRaises(LLMError): self.pdf_run(tutor,context,resolved,selection)
         self.assertEqual(self.count(fixtures.ConversationRow),0)
+
+    def test_pdf_selection_passes_resolved_crops_to_generation_and_quality(self):
+        tutor,context,resolved,selection=self.pdf_tutor(QualityResult(passed=True))
+        images=[Path('chapter_02/page-2-crop.png')]
+        resolved['images']=images
+        with patch('knowledge.grounded_citations.settings', return_value=None), \
+                patch.dict('os.environ', {'VISUALIZATION_ON_DEMAND': '0'}):
+            self.pdf_run(tutor,context,resolved,selection)
+        self.assertEqual(tutor.llm.chat.call_args.kwargs['image_paths'],images)
+        self.assertEqual(tutor.quality_checker.check.call_args.kwargs['figure_images'],images)
+        self.assertEqual(tutor.context_sufficiency.check.call_args.kwargs['image_paths'],images)
 
     def practice_tutor(self):
         tutor=SimpleNamespace(memory=self.memory,llm=Mock(),quality_checker=Mock(),conversation_router=Mock())
