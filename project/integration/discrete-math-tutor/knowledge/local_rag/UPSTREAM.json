@@ -1,0 +1,29 @@
+{
+  "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "license": "Apache-2.0",
+  "files": [
+    {
+      "source": "deeptutor/services/rag/pipelines/llamaindex/config.py",
+      "source_sha256": "b175f70c638679ddadbc72c8ad23df6eaed15236ef1191eb277b305729764bf2",
+      "target": "knowledge/local_rag/config.py",
+      "target_sha256": "22ae593051d93f1b7853f6a5baa4151ee0114628b715445d966280596271e229"
+    },
+    {
+      "source": "deeptutor/services/rag/pipelines/llamaindex/retrievers.py",
+      "source_sha256": "3df942c446cdcdf8256c04be837c7aebbd8728e29f924e6960150207da46f055",
+      "target": "knowledge/local_rag/retrievers.py",
+      "target_sha256": "26a24f6738baf18f8b74f79885b618bbd6f86338041623bb5afe100d2c0d2a0a"
+    },
+    {
+      "source": "deeptutor/services/rag/pipelines/llamaindex/rerank.py",
+      "source_sha256": "410fe6ab27ca57f203dfc1df1dfbc5cb615d6a3b09c2f9ebf93f76117dd41151",
+      "target": "knowledge/local_rag/rerank.py",
+      "target_sha256": "51ddbff189dd22f183dfc40e6d6c584f2bd15334cc4c8fbeb3e8a744b57d1f3d"
+    }
+  ],
+  "adaptations": [
+    "配置改为本项目RAG环境变量，移除原生应用设置",
+    "BM25使用本项目中文分词并恢复原始节点进行RRF融合",
+    "重排复用本项目FastEmbed/FlagEmbedding与设备验证，显式记录失败/降级"
+  ]
+}

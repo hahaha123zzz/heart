@@ -1,1 +1,10 @@
 Adapted from HKUDS/DeepTutor commit 6cf793bd868ba5ecbe64722936d4be8fab5a01df, deeptutor/reading/_grounding.py. Modified for Chinese PDF whitespace, Unicode compatibility characters and all-match ambiguity handling. Upstream root has no NOTICE at this commit.
+
+Q2 local retrieval also adapts deeptutor/services/rag/pipelines/llamaindex/config.py,
+retrievers.py and rerank.py from the same commit into knowledge/local_rag/.
+Changes: project-owned configuration, Chinese BM25 tokenization with canonical
+source-node restoration, project FastEmbed/FlagEmbedding rerank adapters,
+device-specific model caching, strict score validation and explicit degradation
+status. Source and adapted file hashes are recorded in knowledge/local_rag/UPSTREAM.json.
+The upstream Apache-2.0 LICENSE is retained in this directory. The local adapters,
+tests and evaluator do not start or route requests to the DeepTutor application.

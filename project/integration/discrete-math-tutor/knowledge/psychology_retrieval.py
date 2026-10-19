@@ -1,5 +1,5 @@
 """正式教材概念标题补召回及父块上下文，复用混合检索。"""
-import json,re
+import json,re,os
 from dataclasses import replace
 from functools import lru_cache
 from knowledge.course_config import PSYCHOLOGY_DIR
@@ -27,8 +27,15 @@ def documents():
 
 def retrieve(query,fallback_chunks,*,limit=6,preferred_types=()):
     query=query.replace('配对设计','配对组设计')
-    chunks=retrieve_hybrid(query,fallback_chunks,limit=max(limit,6),preferred_types=preferred_types,
-                           index_path=PSYCHOLOGY_DIR/'rag_index.sqlite3')
+    engine = os.getenv('RAG_RETRIEVAL_ENGINE', 'legacy')
+    if engine not in ('legacy', 'local_llamaindex'): raise ValueError('RAG_RETRIEVAL_ENGINE无效')
+    if engine == 'local_llamaindex':
+        from knowledge.local_rag.course_retrieval import retrieve as retrieve_local
+        chunks=retrieve_local(query,limit=max(limit,6),preferred_types=preferred_types,
+                            index_path=PSYCHOLOGY_DIR/'rag_index.sqlite3')
+    else:
+        chunks=retrieve_hybrid(query,fallback_chunks,limit=max(limit,6),preferred_types=preferred_types,
+                               index_path=PSYCHOLOGY_DIR/'rag_index.sqlite3')
     registry=json.loads((PSYCHOLOGY_DIR/'pdf_manifest.json').read_text(encoding='utf-8'))
     pages={(r['chapter_id'],s['id']):s['page'] for r in registry for s in r['sections']}
     anchors=[];by_chapter={}
@@ -62,15 +69,18 @@ def retrieve(query,fallback_chunks,*,limit=6,preferred_types=()):
         if anchor not in selected:selected.append(anchor)
     result=[chunk for _,_,chunk in selected]
     for chunk in chunks:
+        blocks=by_chapter.get(chunk.chapter_id,[])
+        group=[b for b in blocks if chunk.block_start<=b['block_index']<=chunk.block_end]
         if chunk.kind=='text':
-            blocks=by_chapter.get(chunk.chapter_id,[])
-            group=[b for b in blocks if chunk.block_start<=b['block_index']<=chunk.block_end]
             if len(group)==1 and HEADING.match(group[0]['text'].strip()):
                 group=_group(blocks,blocks.index(group[0]))
                 if len(group)==1:continue
             if group:
                 text='\n'.join(b['text'] for b in group)[:3000]
                 chunk=replace(chunk,text=text,terms=terms_for(text),block_end=group[-1]['block_index'],source_spans=source_spans(group,text))
+        elif group:
+            # 表格也有原文范围，保留原序列化文字及单元格顺序，不作为普通段落重写。
+            chunk=replace(chunk,source_spans=source_spans(group,chunk.text))
         if any(chunk.chapter_id==s.chapter_id and chunk.block_start>=s.block_start and chunk.block_end<=s.block_end for s in result):continue
         result.append(chunk)
         if len(result)>=limit:break

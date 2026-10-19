@@ -104,6 +104,14 @@ python scripts/start_deeptutor.py
 
 真实浏览器检查见 `tests/browser/chat-lifecycle.cjs`（需 Playwright 与本机 Edge，可通过 NODE_PATH 指向已有 Playwright 安装）；脚本自建隔离 HTTP 服务和 API 替身。已覆盖富文本/公式、同消息引用、恶意内容、练习引用、真实阅读器公式兼容、390px 布局、焦点/组件/滚动及断线恢复。没有调用模型或写学生数据库。源码与进度见研究目录 MARKDOWN_STAGE.md；代码主题、Mermaid 和工作区附件仍待后续接入。
 
+### Q2 本地混合检索代码集成试点
+
+`knowledge/local_rag` 直接迁入 DeepTutor 的检索配置、LlamaIndex BM25/向量RRF组合和重排模块，连接本项目只读教材SQLite、现有BGE模型及原文/PDF映射。在应用实际运行环境安装 `requirements-local-rag.txt`；Windows Python3.12增量锁见 `requirements-local-rag-win32-py312.lock.txt`，基础依赖另按本项目原方式安装。
+
+设置 `RAG_RETRIEVAL_ENGINE=local_llamaindex` 可让现有心理学检索入口使用本地模块；默认 `legacy`，本机.env未修改。模型与数据仍属于本项目，不需启动DeepTutor后端。BM25使用项目中文词项，融合后恢复原节点；重排复用现有设备检查。缺失重排时显式记录降级，并保留余弦相关性门槛，不把RRF排序分数当相关性。
+
+执行 `.venv-gpu/Scripts/python.exe -B scripts/check_local_rag.py --require-rerank` 可验证真实教材、本地CPU模型、概念覆盖、教材外拒绝及原文/PDF映射。脚本只用已缓存模型，不调用聊天模型，不改索引或学习数据库，报告留在 `.runtime/local-rag-checks/`。这是Q2检索模块检查点，原件解析、全量索引发布、视觉输入和页面生成验收仍待后续；详见研究目录Q2_RETRIEVAL_STAGE.md。
+
 ### 心理学真实模型代表性黄金集
 
 执行 `.venv-gpu/Scripts/python.exe -B scripts/check_deeptutor_golden.py`，通过原 `/api/chat` 同时启用本机 DeepTutor 模型、知识库、会话及回合同步，检查9类固定合成案例。`--case hint --case refusal` 可筛选，`--citation-index` 可指定已构建的精细引用索引。每次新建 `.runtime/deeptutor-golden/<run>/`，独立数据库与裁图缓存不写正式课程目录，结束时停止临时 worker；真实模型调用限180次，检索使用CPU避免争用现有服务的GPU。

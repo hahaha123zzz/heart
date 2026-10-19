@@ -1,0 +1,5 @@
+# 安装于本项目实际运行环境；不安装DeepTutor应用。
+llama-index-core==0.14.25
+llama-index-retrievers-bm25==0.7.1
+bm25s==0.3.14
+PyStemmer==2.2.0.3
