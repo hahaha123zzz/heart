@@ -272,6 +272,26 @@ class ExplicitDepthTests(unittest.TestCase):
         self.assertIn("不得给出完整因果链", system)
 
 
+    def test_quality_checker_simplify_followup_targets_previous_explanation(self):
+        from agents.quality_checker import QualityChecker
+        from agents.teaching_planner import TeachingPlan
+        from models.student_state import StudentState
+
+        llm = Mock()
+        llm.chat_json.return_value = {"passed": True, "issues": []}
+        plan = TeachingPlan(goal="简化上一轮解释", strategy="worked_example",
+                            action="explain", difficulty="easy")
+        QualityChecker(llm).check(
+            "自变量就是研究者主动改变的条件。", StudentState(), plan,
+            "没听懂，请换一种更简单的说法。",
+            context={"followup_simplify": True, "followup_target": "自变量是研究者操纵的变量。"},
+            textbook_excerpts="[1] 自变量是研究者操纵的变量。",
+        )
+        prompt = llm.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("不是当前阅读章节", prompt)
+        self.assertIn("自变量是研究者操纵的变量", prompt)
+
+
 class ResponseGeneratorContextTests(unittest.TestCase):
     def test_generator_receives_summary_and_all_budgeted_messages(self):
         from agents.response_generator import ResponseGenerator

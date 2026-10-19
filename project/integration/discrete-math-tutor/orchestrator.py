@@ -21,7 +21,7 @@ from typing import Any, Dict, Optional
 
 from agents.task_execution import build_execution
 from agents.conversation_context import build_history
-from agents.followup_context import followup_directive
+from agents.followup_context import SIMPLIFY_PATTERN, followup_directive
 from agents.context_sufficiency import ContextSufficiency
 from agents.conversation_router import ConversationRouter
 from agents.evidence_extractor import AnalysisResult, EvidenceExtractor
@@ -478,6 +478,19 @@ class TutorOrchestrator:
             "recent_moves": (recent_moves + [move.instructional_move])[-3:],
             "stuck_count": stuck_count,
         }
+        if SIMPLIFY_PATTERN.search(message) and previous_reply:
+            # 页面阅读位置仍是当前章节，但“没听懂/再简单点”指向上一轮解释；
+            # 不能把本轮目标退回章节标题，否则会换题并误判为偏题。
+            plan.goal = "用更简单的说法重述上一轮助教解释"
+            plan.strategy = "worked_example"
+            plan.action = "explain"
+            plan.rationale = "连续追问简化上一轮解释"
+            move.instructional_move = "direct_explanation"
+            move.action = "explain"
+            lesson_text = ("本轮是连续追问：只简化上一轮助教解释，不切换到当前阅读章节，"
+                           "不引入新概念，也不改答上一轮末尾的检查题。")
+            check_context["followup_simplify"] = True
+            check_context["followup_target"] = previous_reply[:1200]
         if stuck_count:
             question_spec = None
             move.instructional_move = "worked_example" if stuck_count == 1 else "direct_explanation"

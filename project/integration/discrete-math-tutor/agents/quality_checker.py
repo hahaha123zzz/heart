@@ -133,6 +133,11 @@ class QualityChecker:
             content+='\n本轮引用只允许指向以下细粒度原文；逐条检查紧邻[n]的结论是否被第n条原文支持，不能因为检索背景或历史其他位置有类似内容就放行。特别核对否定、例外、条件、数量和因果方向；例子不得冒充原书。'+str(rule_context['grounded_evidence'])
         if rule_context.get("feedback_target"):
             content += "\n理解检查只可围绕刚才这段讲解中的一个要点；若换成章节里的其他概念必须拒绝：" + rule_context["feedback_target"]
+        if rule_context.get("followup_simplify"):
+            content += ("\n本轮是简化上一轮解释，不是当前阅读章节的新问题。目标是这段上一轮解释："
+                        + str(rule_context.get("followup_target", ""))[:1200]
+                        + "\n只要更简单、保留同一教材依据、不引入新概念且不改答上一轮末尾检查题即可；"
+                        "不得因未覆盖当前阅读章节而拒绝。")
         if rule_context.get("answer_feedback", {}).get("mode") == "worked_example":
             content += "\n必须有标明非原书的辅助例子，末尾邀请学生围绕原判断再试一次；若学生明确不要追问则不追加该邀请。缺失必需步骤必须修订。"
         if rule_context.get("answer_feedback"):

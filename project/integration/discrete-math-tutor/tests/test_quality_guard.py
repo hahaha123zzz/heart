@@ -47,6 +47,22 @@ class QualityGuardTests(unittest.TestCase):
         source=TextbookChunk(source='教材.txt',section='小节',text='已知条件',terms=frozenset())
         with patch('orchestrator.retrieve_course',return_value=[source]),patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)):
             return tutor.handle_turn('guard-test','解释这个证明')
+    def test_simplify_followup_uses_previous_explanation_not_reader_section(self):
+        tutor=self.tutor([QualityResult(passed=True)])
+        tutor.memory.get_history.return_value=[
+            {'role':'user','content':'请解释教材里的自变量。'},
+            {'role':'assistant','content':'自变量是研究者操纵的变量。[1]'}]
+        tutor.conversation_router.route.return_value=RoutingResult(
+            intent='continue',confidence=1,student_move='question',needs_context=True)
+        tutor.response_generator.generate.return_value='自变量就是研究者主动改变的条件。[1]'
+        source=TextbookChunk(source='教材.txt',section='小节',text='自变量是研究者操纵的变量。',terms=frozenset())
+        with patch('orchestrator.retrieve_course',return_value=[source]),patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)):
+            result=tutor.handle_turn('guard-test','没听懂，请换一种更简单的说法。')
+        self.assertEqual(result['teaching_plan']['goal'],'用更简单的说法重述上一轮助教解释')
+        self.assertIn('只简化上一轮助教解释',tutor.response_generator.generate.call_args.args[5])
+        self.assertTrue(tutor.quality_checker.check.call_args.args[5]['followup_simplify'])
+        self.assertIn('自变量',tutor.quality_checker.check.call_args.args[5]['followup_target'])
+
     def test_failed_final_check_never_publishes_draft_or_advances(self):
         tutor=self.tutor([QualityResult(passed=False,issues=['与原文矛盾'])]*2)
         result=self.run_turn(tutor)
