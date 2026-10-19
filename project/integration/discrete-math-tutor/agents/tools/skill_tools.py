@@ -11,6 +11,7 @@ from agents.tools.protocol import BaseTool, ToolContext, ToolDefinition, ToolPar
 
 _SKILL_NAME = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 _MAX_SKILL_CHARS = 100_000
+_MAX_SKILL_BYTES = 2 * 1024 * 1024
 _MAX_FILE_LIST = 50
 
 
@@ -68,6 +69,8 @@ def _read(root: Path, name: str, relative_file: str) -> tuple[str, dict[str, Any
         raise SkillAccessError(
             f"File {relative_file!r} does not exist in skill {name!r}; files: {shown}"
         )
+    if target.stat().st_size > _MAX_SKILL_BYTES:
+        raise SkillAccessError("Skill file is too large to read.")
     text = target.read_text(encoding="utf-8")
     if len(text) > _MAX_SKILL_CHARS:
         text = text[:_MAX_SKILL_CHARS]

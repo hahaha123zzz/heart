@@ -15,6 +15,7 @@ import logging
 import threading
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from agents.tools.protocol import (
@@ -150,7 +151,11 @@ class ToolRegistry:
             if tool is None:
                 logger.warning("Tool entry point %r did not produce a BaseTool", entry)
                 continue
-            name = tool.definition.name
+            try:
+                name = tool.definition.name
+            except Exception:
+                logger.warning("Tool entry point %r has no valid definition", entry, exc_info=True)
+                continue
             if name in self._tools or name in self._specs:
                 logger.warning("Tool entry point %r shadows %r; ignored", entry, name)
                 continue
@@ -290,9 +295,16 @@ class ToolRegistry:
 class AuthorizationProxy(BaseTool):
     """Q3 BaseTool wrapper that enforces the Q4 per-turn grant at execution."""
 
-    def __init__(self, inner: BaseTool, grant: ToolGrant, refusal_message: str = "") -> None:
+    def __init__(
+        self,
+        inner: BaseTool,
+        grant: ToolGrant,
+        refusal_message: str = "",
+        default_arguments: Mapping[str, Any] | None = None,
+    ) -> None:
         self._inner = inner
         self._grant = grant
+        self._default_arguments = dict(default_arguments or {})
         self.definition = inner.definition
         self.scopes = tuple(getattr(inner, "scopes", ()) or ())
         self.read_only = bool(getattr(inner, "read_only", True))
@@ -311,7 +323,19 @@ class AuthorizationProxy(BaseTool):
             return self._refuse("unauthorized_tool")
         if not self._grant.allows_scopes(self.scopes):
             return self._refuse("missing_scope")
-        validation = validate_arguments(self.definition, dict(arguments or {}))
+        mismatch = self._root_mismatch(context)
+        if mismatch:
+            return ToolResult(
+                content=self._refusal_message,
+                success=False,
+                metadata={"error": "root_mismatch", "root": mismatch, "tool": self.definition.name},
+            )
+        merged = {**self._default_arguments, **dict(arguments or {})}
+        validation = validate_arguments(
+            self.definition,
+            merged,
+            allow_unknown=self.definition.raw_parameters is not None,
+        )
         if not validation.ok:
             return ToolResult(
                 content=validation.message,
@@ -330,6 +354,24 @@ class AuthorizationProxy(BaseTool):
                 },
             )
         return self._inner.run(validation.arguments, context)
+
+    def _root_mismatch(self, context: ToolContext) -> str:
+        scopes = set(self.scopes)
+        if any(scope.startswith("workspace:") for scope in scopes):
+            expected = self._grant.workspace_root
+            actual = context.state.get("workspace_root")
+            if expected is not None and (
+                not actual or Path(str(actual)).resolve() != expected.resolve()
+            ):
+                return "workspace_root"
+        if any(scope.startswith("skills:") for scope in scopes):
+            expected = self._grant.skills_root
+            actual = context.state.get("skills_root")
+            if expected is not None and (
+                not actual or Path(str(actual)).resolve() != expected.resolve()
+            ):
+                return "skills_root"
+        return ""
 
     def _refuse(self, code: str) -> ToolResult:
         logger.info("Scoped registry refused tool %r: %s", self.definition.name, code)
@@ -361,18 +403,21 @@ class ScopedToolRegistry:
         self._grant = grant or ToolGrant()
         self._selected = {str(name) for name in selected} if selected is not None else None
         self._tools: dict[str, BaseTool] = {}
+        self._overlay_candidates: dict[str, BaseTool] = {}
         self._lock = threading.RLock()
         for tool in overlay:
-            if base.get(tool.definition.name) is not None:
+            name = tool.definition.name
+            if base.get(name) is not None:
                 logger.error(
                     "Overlay tool %r collides with a shared tool; dropped",
-                    tool.definition.name,
+                    name,
                 )
                 continue
-            if self._selected is not None and tool.definition.name not in self._selected:
+            self._overlay_candidates[name] = tool
+            if self._selected is not None and name not in self._selected:
                 continue
             if self._authorized(tool):
-                self._tools[tool.definition.name] = AuthorizationProxy(
+                self._tools[name] = AuthorizationProxy(
                     tool, self._grant, refusal_message
                 )
         self._overlay_names = set(self._tools)
@@ -402,9 +447,20 @@ class ScopedToolRegistry:
 
     def get(self, name: str) -> BaseTool | None:
         self._ensure_base_loaded()
-        resolved, _ = self.resolve_request(name)
+        resolved, defaults = self.resolve_request(name)
         with self._lock:
-            return self._tools.get(resolved)
+            tool = self._tools.get(resolved)
+            if tool is None or not defaults:
+                return tool
+            inner = getattr(tool, "_inner", None)
+            if inner is None:
+                return tool
+            return AuthorizationProxy(
+                inner,
+                self._grant,
+                getattr(tool, "_refusal_message", ""),
+                default_arguments=defaults,
+            )
 
     def mount_tool(self, tool: BaseTool) -> bool:
         """Mount a deferred tool after ``load_tools`` loaded its schema.
@@ -415,8 +471,17 @@ class ScopedToolRegistry:
         """
         name = tool.definition.name
         with self._lock:
-            if name in self._tools:
-                return True
+            existing = self._tools.get(name)
+            if existing is not None:
+                return getattr(existing, "_inner", None) is tool
+            overlay = self._overlay_candidates.get(name)
+            if overlay is not None and overlay is not tool:
+                logger.error("Deferred mount %r does not match the turn overlay", name)
+                return False
+            base_tool = self._base.get(name)
+            if base_tool is not None and base_tool is not tool:
+                logger.error("Deferred mount %r would replace a shared tool", name)
+                return False
             if (
                 self._selected is not None
                 and name not in self._selected
@@ -435,7 +500,7 @@ class ScopedToolRegistry:
             out = [name for name in self._base.names() if name in self._tools]
             out.extend(
                 name
-                for name in self._overlay_names
+                for name in sorted(self._overlay_names)
                 if name in self._tools and name not in out
             )
             return out

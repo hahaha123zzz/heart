@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,10 @@ from typing import Any
 INTEGRATION_DIR = Path(__file__).resolve().parents[1]
 if str(INTEGRATION_DIR) not in sys.path:
     sys.path.insert(0, str(INTEGRATION_DIR))
+
+# This audit reads extension metadata only; it is allowed to run before Q3 is
+# merged and does not instantiate the tool protocol.
+os.environ.setdefault("Q4_ALLOW_PROTOCOL_FALLBACK", "1")
 
 from agents.tools.extensions import EXTENSIONS  # noqa: E402
 
@@ -578,6 +583,11 @@ def build_ledger() -> tuple[dict[str, Any], str]:
         spec = extension_by_name.get(name)
         if spec is None:
             raise RuntimeError(f"Extension {name} missing from runtime catalogue")
+        if tuple(spec.hooks) != tuple(extension.get("hooks") or ()):
+            raise RuntimeError(
+                f"Extension {name} hooks drift from SOURCE_AUDIT: "
+                f"{spec.hooks!r} != {extension.get('hooks')!r}"
+            )
         status = spec.migration_status
         reason, dependencies, next_action = _extension_details(name)
         source_path = _source_file(repo_root, audit["source_root"], extension["source"])
@@ -596,6 +606,7 @@ def build_ledger() -> tuple[dict[str, Any], str]:
                 "activation_source": extension.get("activation_source", ""),
                 "owned_tools": list(spec.owned_tools),
                 "hooks": extension.get("hooks", []),
+                "hooks_verified_against_source_audit": True,
                 "source": extension["source"],
                 "class_path": extension["class_path"],
                 "source_line": extension["line"],
@@ -672,13 +683,13 @@ def _render_markdown(ledger: dict[str, Any]) -> str:
             "- `agents/tools/extensions.py`：14 个扩展的激活条件、owned tools 与阶段。",
             "- `agents/tools/dispatch.py`：Q3 `tool_dispatch` 的薄桥接；Q4 不再实现第二套调度器。",
             "- `agents/tools/workspace_tools.py`、`skill_tools.py`：已迁入的只读工具。",
-            "- `tests/test_q4_tool_foundation.py`：38 项隔离测试；另用 Q3 实际协议与调度做过联调。",
+            "- `tests/test_q4_tool_foundation.py`：45 项隔离测试（未合并 Q3 时 1 项自动跳过）；另用 Q3 实际协议与调度做过联调。",
             "",
-            "复现：",
+            "复现（在集成目录、已激活本项目虚拟环境）：",
             "",
             "```powershell",
             "$env:PYTHONPATH=(Get-Location).Path",
-            "& ..\\..\\..\\.venv\\Scripts\\python.exe -B -m unittest tests.test_q4_tool_foundation -v",
+            "python -B -m unittest tests.test_q4_tool_foundation -v",
             "```",
             "",
             "## 100 个内置工具",

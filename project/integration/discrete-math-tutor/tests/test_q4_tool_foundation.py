@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import importlib.util
+import os
+import subprocess
 import sys
 import tempfile
 import types
@@ -9,6 +12,8 @@ import unittest
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
+
+os.environ.setdefault("Q4_ALLOW_PROTOCOL_FALLBACK", "1")
 
 from agents.tools.dispatch import Q3DispatchUnavailable, dispatch_tool_calls
 from agents.tools.extensions import (
@@ -339,7 +344,10 @@ class DeferredLoaderTests(unittest.TestCase):
 
 class ScopeTests(unittest.TestCase):
     def test_grant_narrow_and_allowlist_semantics(self):
-        wider = ToolGrant(scopes=frozenset({"workspace:read", "skills:read"}))
+        wider = ToolGrant(
+            tools=Allowlist.unrestricted(),
+            scopes=frozenset({"workspace:read", "skills:read"}),
+        )
         restricted = ToolGrant(
             tools=Allowlist.of({"a"}),
             scopes=frozenset({"workspace:read"}),
@@ -349,8 +357,16 @@ class ScopeTests(unittest.TestCase):
         self.assertEqual(narrowed.scopes, frozenset({"workspace:read"}))
         self.assertTrue(narrowed.allows_scope("workspace:read"))
         self.assertFalse(narrowed.allows_scope("skills:read"))
-        self.assertTrue(ToolGrant().allows_tool("anything"))
+        self.assertFalse(ToolGrant().allows_tool("anything"))
+        self.assertTrue(ToolGrant(tools=Allowlist.unrestricted()).allows_tool("anything"))
         self.assertFalse(ToolGrant().allows_scope("workspace:read"))
+
+    def test_default_grant_is_deny_by_default(self):
+        base = ToolRegistry()
+        base.register(FakeTool("anything"))
+        view = ScopedToolRegistry(base=base)
+        self.assertEqual(view.names(), [])
+        self.assertFalse(view.run("anything", {}, context_for()).success)
 
     def test_scoped_registry_refuses_unauthorized_and_missing_scope(self):
         base = ToolRegistry()
@@ -379,7 +395,11 @@ class ScopeTests(unittest.TestCase):
     def test_scoped_registry_overlay_collision_is_dropped(self):
         base = ToolRegistry()
         base.register(FakeTool("shared"))
-        view = ScopedToolRegistry(base=base, overlay=[FakeTool("shared"), FakeTool("own")])
+        view = ScopedToolRegistry(
+            base=base,
+            overlay=[FakeTool("shared"), FakeTool("own")],
+            grant=ToolGrant(tools=Allowlist.unrestricted()),
+        )
         self.assertEqual(view.names(), ["shared", "own"])
 
     def test_authorization_proxy_enforces_argument_validation(self):
@@ -399,9 +419,50 @@ class ScopeTests(unittest.TestCase):
         invalid = proxy.run({"count": "not-a-number"}, context_for())
         self.assertFalse(invalid.success)
         self.assertEqual(invalid.metadata["error"], "invalid_arguments")
+        unknown = proxy.run({"count": 3, "extra": 1}, context_for())
+        self.assertFalse(unknown.success)
+        self.assertEqual(unknown.metadata["error"], "invalid_arguments")
         valid = proxy.run({"count": "3"}, context_for())
         self.assertTrue(valid.success)
         self.assertEqual(valid.content, "3")
+
+    def test_alias_defaults_are_applied_in_scoped_view(self):
+        base = ToolRegistry(aliases={"demo": ("echo", {"value": "default"})})
+        base.register(FakeTool("echo"))
+        view = ScopedToolRegistry(
+            base=base,
+            grant=ToolGrant(tools=Allowlist.of({"echo"})),
+        )
+        result = view.run("demo", {}, context_for())
+        self.assertTrue(result.success)
+        self.assertEqual(result.content, "echo:default")
+
+    def test_authorization_proxy_rejects_state_root_mismatch(self):
+        with tempfile.TemporaryDirectory() as allowed, tempfile.TemporaryDirectory() as other:
+            tool = FakeTool("scoped", scopes=("workspace:read",))
+            proxy = AuthorizationProxy(
+                tool,
+                ToolGrant(
+                    tools=Allowlist.of({"scoped"}),
+                    scopes=frozenset({"workspace:read"}),
+                    workspace_root=Path(allowed),
+                ),
+            )
+            mismatch = proxy.run({}, context_for(workspace_root=Path(other)))
+            self.assertFalse(mismatch.success)
+            self.assertEqual(mismatch.metadata["error"], "root_mismatch")
+            matched = proxy.run({}, context_for(workspace_root=Path(allowed)))
+            self.assertTrue(matched.success)
+
+    def test_mount_tool_rejects_collision_substitution(self):
+        base = ToolRegistry()
+        protected = FakeTool("protected")
+        base.register(protected)
+        view = ScopedToolRegistry(
+            base=base,
+            grant=ToolGrant(tools=Allowlist.unrestricted()),
+        )
+        self.assertFalse(view.mount_tool(FakeTool("protected", deferred=True)))
 
     def test_mount_tool_allows_deferred_but_not_unselected_plain(self):
         base = ToolRegistry()
@@ -445,8 +506,26 @@ class ExtensionTests(unittest.TestCase):
             flags = ExtensionFlags(**{flag: True})
             self.assertEqual([item.name for item in active_extensions(flags)], [expected])
         self.assertEqual(
-            [item.name for item in active_extensions(ExtensionFlags(), "course_study")],
+            [
+                item.name
+                for item in active_extensions(
+                    ExtensionFlags(course_id="course-1"), "course_study"
+                )
+            ],
             ["course_study"],
+        )
+        self.assertEqual(
+            [item.name for item in active_extensions(ExtensionFlags(), "course_study")],
+            [],
+        )
+        self.assertEqual(
+            [
+                item.name
+                for item in active_extensions(
+                    ExtensionFlags(course_id="course-1"), "chat"
+                )
+            ],
+            [],
         )
         self.assertEqual(
             [item.name for item in active_extensions(ExtensionFlags(), "deep_solve")],
@@ -574,6 +653,35 @@ class WorkspaceToolTests(unittest.TestCase):
         result = self.call("workspace_read", {"path": "secret.bin"})
         self.assertFalse(result.success)
 
+    @unittest.skipUnless(os.name == "nt", "Windows junction regression")
+    def test_windows_junction_cannot_escape_or_loop(self):
+        with tempfile.TemporaryDirectory() as outside:
+            Path(outside, "secret.txt").write_text("OUTSIDE_SECRET_TOKEN", encoding="utf-8")
+            link = self.root / "junction"
+            result = subprocess.run(
+                ["cmd", "/c", "mklink", "/J", str(link), outside],
+                capture_output=True,
+            )
+            if result.returncode != 0:
+                self.skipTest("could not create a Windows junction")
+            cycle = self.root / "loop"
+            subprocess.run(
+                ["cmd", "/c", "mklink", "/J", str(cycle), str(self.root)],
+                capture_output=True,
+            )
+
+            listing = self.call("workspace_list", {"depth": 5})
+            self.assertTrue(listing.success)
+            self.assertNotIn("junction", listing.content)
+            self.assertNotIn("loop/loop", listing.content)
+
+            search = self.call("workspace_search", {"query": "OUTSIDE_SECRET_TOKEN"})
+            self.assertTrue(search.success)
+            self.assertEqual(search.metadata["count"], 0)
+
+            read = self.call("workspace_read", {"path": "junction/secret.txt"})
+            self.assertFalse(read.success)
+
 
 class SkillAndLoaderToolTests(unittest.TestCase):
     def setUp(self):
@@ -640,6 +748,37 @@ class SkillAndLoaderToolTests(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertIn("有限集合", result.content)
 
+    def test_persisted_loader_mounts_before_advertising_schema(self):
+        view = view_for(
+            self.registry,
+            "read_skill",
+            "load_tools",
+            scopes=("skills:read", "tools:load"),
+            granted=("mcp_demo",),
+        )
+        loader = DeferredToolLoader(
+            registry=self.registry,
+            loaded={"mcp_demo"},
+            on_loaded=view.mount_tool,
+        )
+        schemas = loader.initial_schemas()
+        self.assertEqual([row["function"]["name"] for row in schemas], ["mcp_demo"])
+        self.assertIsNotNone(view.get("mcp_demo"))
+
+        denied_view = view_for(
+            self.registry,
+            "read_skill",
+            "load_tools",
+            scopes=("skills:read", "tools:load"),
+        )
+        denied = DeferredToolLoader(
+            registry=self.registry,
+            loaded={"mcp_demo"},
+            on_loaded=denied_view.mount_tool,
+        )
+        self.assertEqual(denied.initial_schemas(), [])
+        self.assertIsNone(denied_view.get("mcp_demo"))
+
     def test_load_tools_mounts_schema_and_tool_same_turn(self):
         result = self.call("load_tools", {"names": ["mcp_demo"]})
         self.assertTrue(result.success)
@@ -654,6 +793,16 @@ class SkillAndLoaderToolTests(unittest.TestCase):
         self.assertEqual(called.content, "mcp_demo:now")
         again = self.call("load_tools", {"names": ["mcp_demo"]})
         self.assertIn("Already loaded", again.content)
+
+
+@unittest.skipUnless(
+    importlib.util.find_spec("agents.tool_protocol") is not None,
+    "Q3 tool protocol is not merged in this checkout",
+)
+class Q3ActualProtocolTests(unittest.TestCase):
+    def test_q3_protocol_is_the_active_one(self):
+        self.assertEqual(PROTOCOL_SOURCE, "q3")
+        self.assertEqual(BaseTool.__module__, "agents.tool_protocol")
 
 
 class Q3BridgeTests(unittest.TestCase):

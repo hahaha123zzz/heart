@@ -18,11 +18,12 @@
 
 本轮读取了该契约和实际实现，并按契约把 Q4 调整为**单一工具协议**：
 
-- `BaseTool.run(arguments, context) -> ToolResult`（同步）；
+- `BaseTool.run(arguments, context) -> ToolResult`（实际 Q3 `tool_protocol.py` 为同步；契约文档第 2 节仍写成 async，Q3 应统一文档，Q4 按实际实现对齐）；
 - `ToolContext` 带 `student_id/session_id/task_id/request_id/knowledge_point/cancellation/emit/state`；
 - `ToolDefinition`/`ToolParameter`/`ToolResult` 使用 Q3 形状；
 - `ToolRegistry.register/get/names/definitions/schemas/canonical_arguments` 与 Q3 兼容；
 - 去重、并发、超时、暂停排序、失败 result 由 Q3 `agents/tool_dispatch.py` 负责，Q4 不再实现第二套调度器；`agents/tools/dispatch.py` 只是薄桥接，Q3 缺失时明确抛 `Q3DispatchUnavailable`。
+- `agents/tools/protocol.py` 优先导入 Q3；Q3 缺失时默认抛 ImportError。只有隔离测试/审计显式设置 `Q4_ALLOW_PROTOCOL_FALLBACK=1` 才使用同形 fallback，避免生产环境静默替换 Q3 协议。
 
 没有把 Q3 未提交文件复制进本分支，也没有修改 Q3 worktree。
 
@@ -42,7 +43,7 @@
 | `agents/tools/skill_tools.py` | 上游 `ReadSkillTool`/`LoadToolsTool` | `read_skill` 从任务技能根读取；`load_tools` 使用 `DeferredToolLoader`，写入同轮 schema |
 | `agents/tools/local_specs.py` | 上游 `tools/builtin_specs.py` 的 Q4 子集 | 当前只登记 5 个实际可加载工具，不把 100 个名称伪装成可调用 |
 | `agents/tools/README.md` | 本地新增 | Q3 每轮挂载示例、`ToolContext.state` 注入点与边界说明 |
-| `tests/test_q4_tool_foundation.py` | 本地新增 | 38 项隔离测试；含真实项目技能库只读测试、Q3 桥接测试 |
+| `tests/test_q4_tool_foundation.py` | 本地新增 | 45 项隔离测试（未合并 Q3 时 1 项自动跳过）；含真实项目技能库只读测试、Q3 桥接测试 |
 | `scripts/audit_q4_tools.py` | 本地新增 | 从 SOURCE_AUDIT/LOCAL_MIGRATION_MAP 生成 100/14 台账并校验来源类名/行号 |
 
 ## 4. 100 工具 / 14 扩展台账
@@ -72,7 +73,7 @@ $env:PYTHONPATH=(Get-Location).Path
 & 'E:\项目\heart\project\integration\discrete-math-tutor\.venv\Scripts\python.exe' -B -m unittest tests.test_q4_tool_foundation -v
 ```
 
-结果：**38 项通过，0 失败**。覆盖 schema、惰性注册、别名、插件去重、必填/类型/枚举、deferred manifest/加载、scope/授权代理、14 扩展激活、场景挂载、工作区路径逃逸/二进制拒绝、真实 `visualization/skills` 读取、Q3 调度桥接。
+结果：**45 项通过，0 失败**（未合并 Q3 时 1 项 Q3-only 检查跳过）。覆盖 schema、惰性注册、别名默认值、插件去重、必填/类型/枚举、deferred manifest/加载/持久化挂载、默认拒绝、scope/授权代理/根不匹配、14 扩展激活、场景挂载、工作区路径逃逸/Windows junction/二进制拒绝、真实 `visualization/skills` 读取、Q3 调度桥接。
 
 ### 5.2 用 Q3 实际协议复跑
 
@@ -80,7 +81,7 @@ $env:PYTHONPATH=(Get-Location).Path
 
 - `PROTOCOL_SOURCE = q3`
 - `BaseTool.__module__ = agents.tool_protocol`
-- 结果：**38 项通过，0 失败**。
+- 结果：**45 项通过，0 失败**。
 
 这证明 Q4 不是只匹配 fallback 形状，而是与 Q3 实际协议兼容。
 
@@ -91,7 +92,7 @@ $env:PYTHONPATH=(Get-Location).Path
 - 已授权调用：返回 `role=tool` 内容 `hello q3`，`success=True`；
 - 未挂载的 `workspace_list`：返回“不在本轮工具列表中，未执行”，没有执行未授权工具；
 - 动态加载：先调 `load_tools` 装载替身 deferred tool，`view.mount_tool` 将其加入本轮 registry；下一批调用成功返回 `deferred:same-turn`，证明同轮 schema 与可调用性同时生效（仍无真实 MCP/CLI provider）；
-- 去重/超时：同一批重复 `workspace_read` 由 Q3 去重；慢工具在 0.05 秒超时返回失败，未继续生成。Q4 没有重复实现这两项。
+- 去重/超时：同一批重复 `workspace_read` 由 Q3 去重；慢工具在 0.05 秒超时返回失败，未继续生成。Q4 没有重复实现这两项。注意 Q3 当前 `ThreadPoolExecutor` 退出时会等待工作线程，墙钟时间并不严格等于 0.05 秒；该限制归 Q3，Q4 不冒充已严格限时。
 
 该联调使用临时目录，不读取正式教材/学生数据库。
 
@@ -120,6 +121,10 @@ $env:PYTHONPATH=(Get-Location).Path
 - **Ruling：`load_tools` 不标为已可运行。** 加载器/同轮 schema 已用替身验证，但没有真实 MCP/CLI provider；标为待接业务，避免把模拟返回当能力验收。
 - **Ruling：工作区/技能工具标为“已可运行（隔离验证）”。** 使用隔离目录和项目真实 `visualization/skills` 验证；生产任务根绑定仍待 Q3，未宣称页面级通过。
 - **Ruling：MarginNote/setup/partner 标为不适用。** 当前 Windows 部署无 MarginNote 本地库；项目已有自己的配置权威；项目无伙伴/IM 产品面。保留 100/14 台账，不缩减计数。
+- **Ruling：默认拒绝。** `ToolGrant` 默认空工具 allowlist，`ScopedToolRegistry` 默认不挂载；只有显式 `Allowlist.unrestricted()` 才表示全开。代价：调用方必须显式提供 grant，漏传会表现为工具不可用，而不是静默全开。
+- **Ruling：Windows junction/reparse point 不跟随。** workspace list/search 跳过 reparse point 并维护已访问目录集合；代价：工作区内有意创建的 junction 不会出现在列表/搜索中，需用真实文件替代。
+- **Ruling：协议 fallback 仅测试可用。** 生产缺少 Q3 `agents.tool_protocol` 时直接 ImportError；只有测试/审计显式设置 `Q4_ALLOW_PROTOCOL_FALLBACK=1`。代价：Q4 不能脱离 Q3 独立运行。
+- **Ruling：授权根与 `ToolContext.state` 双重校验。** grant 设置了 workspace/skills 根时，state 根必须一致，否则 `root_mismatch`；代价：Q3 必须同时传 grant 根和 state 根，漏传会失败关闭。
 - **Ruling：不修改主工作区。** 主工作区有 4,462 项已跟踪改动和未跟踪资料；仅创建独立 worktree，未复制/覆盖/提交这些改动。
 
 ## 8. 提交范围

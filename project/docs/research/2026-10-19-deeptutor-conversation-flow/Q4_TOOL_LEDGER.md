@@ -25,13 +25,13 @@
 - `agents/tools/extensions.py`：14 个扩展的激活条件、owned tools 与阶段。
 - `agents/tools/dispatch.py`：Q3 `tool_dispatch` 的薄桥接；Q4 不再实现第二套调度器。
 - `agents/tools/workspace_tools.py`、`skill_tools.py`：已迁入的只读工具。
-- `tests/test_q4_tool_foundation.py`：38 项隔离测试；另用 Q3 实际协议与调度做过联调。
+- `tests/test_q4_tool_foundation.py`：45 项隔离测试（未合并 Q3 时 1 项自动跳过）；另用 Q3 实际协议与调度做过联调。
 
-复现：
+复现（在集成目录、已激活本项目虚拟环境）：
 
 ```powershell
 $env:PYTHONPATH=(Get-Location).Path
-& ..\..\..\.venv\Scripts\python.exe -B -m unittest tests.test_q4_tool_foundation -v
+python -B -m unittest tests.test_q4_tool_foundation -v
 ```
 
 ## 100 个内置工具
@@ -160,8 +160,8 @@ $env:PYTHONPATH=(Get-Location).Path
 
 | 扩展 | 阶段 | 状态 | 激活条件 | owned tools | 依据/下一步 |
 | --- | --- | --- | --- | --- | --- |
-| `ask_questions` | Q3 | 待接业务 | ask_questions_mode 或 ask_questions 场景 | `ask_user` | `deeptutor/capabilities/ask_questions/loop.py:12`；源文件存在；类名匹配；审计行 12/53；依赖 Q3 ask_user 问题卡、答复续跑和任务身份。；Q3 建立接口后接问题策略与恢复。 |
-| `mastery` | Q5 | 待接业务 | mastery_mode 或 mastery_path 场景 | `mastery_status`, `mastery_quiz`, `mastery_note_explained`, `mastery_grade`, `mastery_skip_question`, `mastery_repair_question`, `mastery_defer_objective`, `mastery_assess`, `mastery_build`, `mastery_mode`, `mastery_profile`, `mastery_revise`, `mastery_paths`, `mastery_switch`, `mastery_leave` | `deeptutor/capabilities/mastery/loop.py:175`；源文件存在；类名匹配；审计行 175/607；依赖 Q5 掌握状态、题卡、评分和完成门槛。；Q5 接状态与题卡；重复作答不重复推进。 |
+| `ask_questions` | Q3 | 待接业务 | ask_questions_mode 或 ask_questions 场景 |  | `deeptutor/capabilities/ask_questions/loop.py:12`；源文件存在；类名匹配；审计行 12/53；依赖 Q3 ask_user 问题卡、答复续跑和任务身份。；Q3 建立接口后接问题策略与恢复。 |
+| `mastery` | Q5 | 待接业务 | mastery_mode 或 mastery_path 场景 | `mastery_status`, `mastery_quiz`, `mastery_note_explained`, `mastery_grade`, `mastery_skip_question`, `mastery_repair_question`, `mastery_defer_objective`, `mastery_assess`, `mastery_build`, `mastery_mode`, `mastery_profile`, `mastery_revise`, `mastery_paths`, `mastery_switch`, `mastery_leave`, `read_source` | `deeptutor/capabilities/mastery/loop.py:175`；源文件存在；类名匹配；审计行 175/607；依赖 Q5 掌握状态、题卡、评分和完成门槛。；Q5 接状态与题卡；重复作答不重复推进。 |
 | `solve` | Q6 | 待接业务 | solve_mode 或 deep_solve 场景 | `solve_plan`, `solve_finish_step`, `solve_replan` | `deeptutor/capabilities/solve/loop.py:22`；源文件存在；类名匹配；审计行 22/83；依赖 Q5/Q6 solve 引擎与 Q3 循环。；Q5/Q6 接计划/重规划预算。 |
 | `obsidian` | Q4 | 缺配置 | 本轮存在绑定的 Obsidian vault | `obsidian_search`, `obsidian_read`, `obsidian_list`, `obsidian_backlinks`, `obsidian_links`, `obsidian_tags`, `obsidian_create_note`, `obsidian_append`, `obsidian_set_property` | `deeptutor/capabilities/obsidian/capability.py:25`；源文件存在；类名匹配；审计行 25/82；需要已绑定的 Obsidian vault；本项目无 vault 配置。；Q4 接 vault 绑定；先只读，再单独授权写入。 |
 | `marginnote4` | Q4 | 不适用 | 本轮存在可访问的 MarginNote 4 绑定 | `marginnote_search`, `marginnote_read`, `marginnote_list`, `marginnote_documents`, `marginnote_links`, `marginnote_tags`, `marginnote_cards` | `deeptutor/capabilities/marginnote4/capability.py:28`；源文件存在；类名匹配；审计行 28/80；MarginNote 4 是 macOS/iOS 本地应用；当前 Windows 部署没有本地库或绑定。；保留台账；平台不适用，不以空实现冒充可用。 |
@@ -169,7 +169,7 @@ $env:PYTHONPATH=(Get-Location).Path
 | `ima` | Q4 | 缺配置 | 本轮存在 IMA 知识库绑定 | `ima_list`, `ima_read`, `ima_note_search`, `ima_add_url`, `ima_write_note` | `deeptutor/capabilities/ima/capability.py:35`；源文件存在；类名匹配；审计行 35/92；需要腾讯 IMA 知识库绑定与凭据；未配置。；Q4 接绑定；查询/写入分权。 |
 | `immersive_reading` | Q5 | 待接业务 | 已打开材料/阅读工作区，或显式阅读模式 | `reading_list_tabs`, `reading_switch_tab`, `material_outline`, `search_material`, `read_material`, `view_figure`, `reader_goto`, `reader_annotate` | `deeptutor/capabilities/reading/capability.py:112`；源文件存在；类名匹配；审计行 112/497；依赖 Q5 阅读器材料/视口/原图状态。；Q5 接现有阅读器与阅读交接。 |
 | `course_study` | Q5 | 待接业务 | course_study 场景且课程 ID 可解析 | `course_overview`, `course_material`, `course_edit`, `course_handoff` | `deeptutor/capabilities/course_study/capability.py:380`；源文件存在；类名匹配；审计行 380/532；依赖 Q5 课程绑定与学习入口。；Q5 接课程状态与交接。 |
-| `explore_context` | Q3 | 待接业务 | source_index 非空 | `read_source` | `deeptutor/capabilities/explore_context/capability.py:82`；源文件存在；类名匹配；审计行 82/144；依赖 Q3 source_index 与只读来源调查；Q3 未开始。；Q3 接入后按来源存在条件激活。 |
+| `explore_context` | Q3 | 待接业务 | source_index 非空 |  | `deeptutor/capabilities/explore_context/capability.py:82`；源文件存在；类名匹配；审计行 82/144；依赖 Q3 source_index 与只读来源调查；Q3 未开始。；Q3 接入后按来源存在条件激活。 |
 | `setup` | Q4 | 不适用 | 仅设置引导上下文 | `inspect_setup`, `apply_setting`, `request_credential`, `run_setup_job` | `deeptutor/capabilities/setup/capability.py:39`；源文件存在；类名匹配；审计行 39/108；本项目已有 .env/管理员配置权威；上游设置 UI 与凭据采集会形成第二套配置权威。；保留台账；如未来需要只读设置检查，另做项目设置适配，不迁入凭据写入。 |
 | `partner_authoring` | Q4 | 不适用 | 仅伙伴创建上下文 | `propose_partner` | `deeptutor/capabilities/partner_authoring/capability.py:18`；源文件存在；类名匹配；审计行 18/71；本项目没有伙伴/IM 账户与会话产品面；迁入会复制第二套账户/会话存储。；保留台账；不迁入伙伴账户/IM 连接器。 |
 | `partner_group` | Q4 | 不适用 | 存在 partner_group 字典上下文 | `invoke_other` | `deeptutor/capabilities/partner_group/capability.py:18`；源文件存在；类名匹配；审计行 18/229；本项目没有伙伴/IM 账户与会话产品面；迁入会复制第二套账户/会话存储。；保留台账；不迁入伙伴账户/IM 连接器。 |

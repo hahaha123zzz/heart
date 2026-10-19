@@ -63,7 +63,7 @@ class ToolGrant:
     resolved by the task layer and must never come from model-authored args.
     """
 
-    tools: Allowlist = field(default_factory=Allowlist.unrestricted)
+    tools: Allowlist = field(default_factory=lambda: Allowlist.of(()))
     scopes: frozenset[str] = frozenset()
     workspace_root: Path | None = None
     skills_root: Path | None = None
@@ -84,6 +84,12 @@ class ToolGrant:
             and self.workspace_root.resolve() != other.workspace_root.resolve()
         ):
             raise ValueError("Cannot narrow grants with different workspace roots")
+        if (
+            self.skills_root is not None
+            and other.skills_root is not None
+            and self.skills_root.resolve() != other.skills_root.resolve()
+        ):
+            raise ValueError("Cannot narrow grants with different skill roots")
         return ToolGrant(
             tools=self.tools.narrow(other.tools),
             scopes=self.scopes & other.scopes,

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,7 @@ MAX_FILE_BYTES = 2 * 1024 * 1024
 MAX_LIST_ENTRIES = 1_000
 MAX_SEARCH_MATCHES = 200
 MAX_SEARCH_FILES = 5_000
+MAX_SEARCH_BYTES = 64 * 1024 * 1024
 SKIP_DIRECTORIES = frozenset({".git", ".venv", "__pycache__", "node_modules"})
 
 
@@ -47,6 +49,26 @@ def _resolve(root: Path, relative: str) -> Path:
 
 def _relative(root: Path, path: Path) -> str:
     return "." if path == root else path.relative_to(root).as_posix()
+
+
+def _is_reparse_point(path: Path) -> bool:
+    """Reject symlinks and Windows junctions/reparse points."""
+
+    try:
+        info = os.lstat(path)
+    except OSError:
+        return True
+    attributes = getattr(info, "st_file_attributes", 0)
+    reparse = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+    return stat.S_ISLNK(info.st_mode) or bool(attributes & reparse)
+
+
+def _contained(root: Path, path: Path) -> bool:
+    try:
+        resolved = path.resolve()
+    except OSError:
+        return False
+    return resolved == root or root in resolved.parents
 
 
 def _failure(exc: Exception) -> ToolResult:
@@ -200,33 +222,53 @@ class WorkspaceSearchTool(BaseTool):
 def _list_entries(root: Path, target: Path, depth: int, limit: int) -> dict[str, Any]:
     entries: list[dict[str, Any]] = []
     truncated = False
+    visited: set[Path] = set()
 
     def _walk(directory: Path, remaining: int) -> None:
         nonlocal truncated
         if remaining <= 0:
             truncated = True
             return
-        rows = sorted(
-            (row for row in os.scandir(directory) if row.name not in SKIP_DIRECTORIES),
-            key=lambda row: (not row.is_dir(follow_symlinks=False), row.name.lower()),
-        )
-        for row in rows:
+        try:
+            resolved_dir = directory.resolve()
+        except OSError:
+            return
+        if resolved_dir in visited or not _contained(root, resolved_dir):
+            return
+        visited.add(resolved_dir)
+        rows: list[tuple[Path, str, bool, int | None]] = []
+        try:
+            with os.scandir(directory) as scan:
+                for row in scan:
+                    path = Path(row.path)
+                    if _is_reparse_point(path):
+                        continue
+                    is_dir = row.is_dir(follow_symlinks=False)
+                    size = None
+                    if not is_dir:
+                        try:
+                            size = row.stat(follow_symlinks=False).st_size
+                        except OSError:
+                            size = None
+                    rows.append((path, row.name, is_dir, size))
+        except OSError:
+            return
+        rows.sort(key=lambda row: (not row[2], row[1].lower()))
+        for path, name, is_dir, size in rows:
             if len(entries) >= limit:
                 truncated = True
                 return
-            path = Path(row.path)
+            if not _contained(root, path):
+                continue
             item = {
                 "path": _relative(root, path),
-                "name": row.name,
-                "type": "directory" if row.is_dir(follow_symlinks=False) else "file",
+                "name": name,
+                "type": "directory" if is_dir else "file",
             }
-            if item["type"] == "file":
-                try:
-                    item["size"] = row.stat(follow_symlinks=False).st_size
-                except OSError:
-                    item["size"] = None
+            if not is_dir:
+                item["size"] = size
             entries.append(item)
-            if item["type"] == "directory" and remaining > 1:
+            if is_dir and remaining > 1:
                 _walk(path, remaining - 1)
 
     _walk(target, depth)
@@ -243,31 +285,61 @@ def _search(root: Path, target: Path, query: str, limit: int) -> dict[str, Any]:
     folded = query.casefold()
     matches: list[dict[str, Any]] = []
     scanned = 0
+    bytes_scanned = 0
     truncated = False
-    for directory, dirnames, filenames in os.walk(target):
-        dirnames[:] = sorted(name for name in dirnames if name not in SKIP_DIRECTORIES)
-        for filename in sorted(filenames):
+    visited: set[Path] = set()
+    stack = [target]
+    while stack and not truncated:
+        directory = stack.pop()
+        try:
+            resolved_dir = directory.resolve()
+        except OSError:
+            continue
+        if resolved_dir in visited or not _contained(root, resolved_dir):
+            continue
+        visited.add(resolved_dir)
+        try:
+            with os.scandir(directory) as scan:
+                children = []
+                for row in scan:
+                    path = Path(row.path)
+                    if _is_reparse_point(path):
+                        continue
+                    if row.is_dir(follow_symlinks=False):
+                        children.append(path)
+                    elif row.is_file(follow_symlinks=False):
+                        children.append(path)
+        except OSError:
+            continue
+        for path in sorted(children, key=lambda item: item.name.lower(), reverse=True):
+            if path.is_dir() and not path.is_symlink():
+                stack.append(path)
+                continue
             if len(matches) >= limit or scanned >= MAX_SEARCH_FILES:
                 truncated = True
                 break
-            path = Path(directory) / filename
             try:
-                if path.is_symlink() or not path.is_file():
+                if path.is_symlink() or not path.is_file() or not _contained(root, path):
                     continue
                 relative = _relative(root, path)
             except (OSError, ValueError):
                 continue
             scanned += 1
-            if folded in filename.casefold():
+            if folded in path.name.casefold():
                 matches.append(
-                    {"path": relative, "kind": "filename", "line": None, "snippet": filename}
+                    {"path": relative, "kind": "filename", "line": None, "snippet": path.name}
                 )
                 if len(matches) >= limit:
                     truncated = True
                     break
             try:
-                if path.stat().st_size > MAX_FILE_BYTES:
+                size = path.stat().st_size
+                if size > MAX_FILE_BYTES:
                     continue
+                if bytes_scanned + size > MAX_SEARCH_BYTES:
+                    truncated = True
+                    break
+                bytes_scanned += size
                 text = path.read_text(encoding="utf-8")
             except (OSError, UnicodeDecodeError):
                 continue
@@ -296,6 +368,7 @@ def _search(root: Path, target: Path, query: str, limit: int) -> dict[str, Any]:
         "count": len(matches),
         "truncated": truncated,
         "files_scanned": scanned,
+        "bytes_scanned": bytes_scanned,
     }
 
 

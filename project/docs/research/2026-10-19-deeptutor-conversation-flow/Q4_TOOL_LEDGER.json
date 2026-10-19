@@ -219,7 +219,7 @@
       "local_files": [
         {
           "path": "agents/tools/skill_tools.py",
-          "sha256": "e0ae60d124387fb07bac1782df63324dc09d73cf88587d3cd63e698889893eac"
+          "sha256": "73072b2d99b5a7251b2e7dee5581a9e483cc4b6ca55c917639b2d024d3922f37"
         }
       ]
     },
@@ -480,7 +480,7 @@
       "local_files": [
         {
           "path": "agents/tools/workspace_tools.py",
-          "sha256": "b9a6b776e549478a5c60d6313f60f30a61e3459b39b6ec87a4111f4ef23af07b"
+          "sha256": "5faee55dcd0d8e925f480a9a4b3c87c06f5eac31cca4073f367f98f0d341a00c"
         }
       ]
     },
@@ -501,7 +501,7 @@
       "local_files": [
         {
           "path": "agents/tools/workspace_tools.py",
-          "sha256": "b9a6b776e549478a5c60d6313f60f30a61e3459b39b6ec87a4111f4ef23af07b"
+          "sha256": "5faee55dcd0d8e925f480a9a4b3c87c06f5eac31cca4073f367f98f0d341a00c"
         }
       ]
     },
@@ -522,7 +522,7 @@
       "local_files": [
         {
           "path": "agents/tools/workspace_tools.py",
-          "sha256": "b9a6b776e549478a5c60d6313f60f30a61e3459b39b6ec87a4111f4ef23af07b"
+          "sha256": "5faee55dcd0d8e925f480a9a4b3c87c06f5eac31cca4073f367f98f0d341a00c"
         }
       ]
     },
@@ -1657,15 +1657,14 @@
       "description": "问题卡策略、答复续跑与首轮交互。",
       "activation": "ask_questions_mode 或 ask_questions 场景",
       "activation_source": "def is_active(self, context: UnifiedContext) -> bool:\n        return bool(context.metadata.get(\"ask_questions_mode\"))",
-      "owned_tools": [
-        "ask_user"
-      ],
+      "owned_tools": [],
       "hooks": [
         "is_active",
         "system_block",
         "augment_kwargs",
         "pre_loop_seed"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/ask_questions/loop.py",
       "class_path": "deeptutor.capabilities.ask_questions.loop:AskQuestionsLoopCapability",
       "source_line": 12,
@@ -1698,7 +1697,8 @@
         "mastery_revise",
         "mastery_paths",
         "mastery_switch",
-        "mastery_leave"
+        "mastery_leave",
+        "read_source"
       ],
       "hooks": [
         "is_active",
@@ -1712,6 +1712,7 @@
         "_skip_seed",
         "_grade_seed"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/mastery/loop.py",
       "class_path": "deeptutor.capabilities.mastery.loop:MasteryLoopCapability",
       "source_line": 175,
@@ -1740,6 +1741,7 @@
         "augment_kwargs",
         "pre_loop_seed"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/solve/loop.py",
       "class_path": "deeptutor.capabilities.solve.loop:SolveLoopCapability",
       "source_line": 22,
@@ -1775,6 +1777,7 @@
         "augment_kwargs",
         "pre_loop_seed"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/obsidian/capability.py",
       "class_path": "deeptutor.capabilities.obsidian.capability:ObsidianCapability",
       "source_line": 25,
@@ -1808,6 +1811,7 @@
         "augment_kwargs",
         "pre_loop_seed"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/marginnote4/capability.py",
       "class_path": "deeptutor.capabilities.marginnote4.capability:MarginNoteCapability",
       "source_line": 28,
@@ -1836,6 +1840,7 @@
         "finish_instruction",
         "pre_loop_seed"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/subagent/capability.py",
       "class_path": "deeptutor.capabilities.subagent.capability:SubagentCapability",
       "source_line": 32,
@@ -1866,6 +1871,7 @@
         "augment_kwargs",
         "pre_loop_seed"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/ima/capability.py",
       "class_path": "deeptutor.capabilities.ima.capability:ImaCapability",
       "source_line": 35,
@@ -1906,6 +1912,7 @@
         "pre_loop",
         "_locate"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/reading/capability.py",
       "class_path": "deeptutor.capabilities.reading.capability:ReadingCapability",
       "source_line": 112,
@@ -1938,6 +1945,7 @@
         "pre_loop_seed",
         "pre_loop"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/course_study/capability.py",
       "class_path": "deeptutor.capabilities.course_study.capability:CourseStudyLoopCapability",
       "source_line": 380,
@@ -1955,9 +1963,7 @@
       "description": "回答前的只读来源调查与上下文补充。",
       "activation": "source_index 非空",
       "activation_source": "def is_active(self, context: UnifiedContext) -> bool:\n        return _has_readable_sources(context)",
-      "owned_tools": [
-        "read_source"
-      ],
+      "owned_tools": [],
       "hooks": [
         "is_active",
         "system_block",
@@ -1965,6 +1971,7 @@
         "pre_loop_seed",
         "pre_loop"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/explore_context/capability.py",
       "class_path": "deeptutor.capabilities.explore_context.capability:ExploreContextCapability",
       "source_line": 82,
@@ -1994,6 +2001,7 @@
         "augment_kwargs",
         "pre_loop_seed"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/setup/capability.py",
       "class_path": "deeptutor.capabilities.setup.capability:SetupCapability",
       "source_line": 39,
@@ -2021,6 +2029,7 @@
         "pre_loop_seed",
         "finish_instruction"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/partner_authoring/capability.py",
       "class_path": "deeptutor.capabilities.partner_authoring.capability:PartnerAuthoringCapability",
       "source_line": 18,
@@ -2051,6 +2060,7 @@
         "final_text_override",
         "_save_formal_answer"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/capabilities/partner_group/capability.py",
       "class_path": "deeptutor.capabilities.partner_group.capability:PartnerGroupCapability",
       "source_line": 18,
@@ -2080,6 +2090,7 @@
         "tool_round_output_policy",
         "final_text_override"
       ],
+      "hooks_verified_against_source_audit": true,
       "source": "deeptutor/visualizers/loop_capability.py",
       "class_path": "deeptutor.visualizers.loop_capability:VisualizationLoopCapability",
       "source_line": 18,

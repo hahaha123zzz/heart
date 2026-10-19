@@ -145,6 +145,15 @@ class DeferredToolLoader:
                 continue
             if not self._is_allowed(name):
                 continue
+            if self._on_loaded is not None:
+                try:
+                    mounted = self._on_loaded(tool)
+                except Exception:
+                    logger.warning("Failed to mount persisted tool %r", name, exc_info=True)
+                    mounted = False
+                if mounted is False:
+                    stale.add(name)
+                    continue
             schemas.append(tool.definition.to_openai_schema())
         if stale:
             self._loaded -= stale

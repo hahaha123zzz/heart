@@ -9,6 +9,7 @@ the contract one-for-one.
 
 from __future__ import annotations
 
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Callable
@@ -25,7 +26,12 @@ try:  # Q3 is the owner of the runtime protocol.
     )
 
     PROTOCOL_SOURCE = "q3"
-except ImportError:  # pragma: no cover - exercised only before Q3 is merged
+except ImportError as exc:  # pragma: no cover - exercised only before Q3 is merged
+    if os.environ.get("Q4_ALLOW_PROTOCOL_FALLBACK") != "1":
+        raise ImportError(
+            "Q3 agents.tool_protocol is required. Set Q4_ALLOW_PROTOCOL_FALLBACK=1 "
+            "only for the isolated Q4 test suite."
+        ) from exc
     PROTOCOL_SOURCE = "q4-contract-fallback"
 
     @dataclass(frozen=True)

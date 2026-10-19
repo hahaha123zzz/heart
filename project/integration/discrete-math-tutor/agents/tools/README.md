@@ -5,6 +5,10 @@ This package follows the Q3 contract in
 It does not run a loop. Q3 owns the loop, task identity, events, and
 `agents/tool_dispatch.py`.
 
+`agents/tools/protocol.py` imports Q3's `agents.tool_protocol`. If Q3 is not
+merged, import fails unless `Q4_ALLOW_PROTOCOL_FALLBACK=1` is set for the
+isolated Q4 tests/audit; the fallback is not a production protocol.
+
 ## Mount one turn
 
 ```python
@@ -17,12 +21,12 @@ base = ToolRegistry()
 base.load_builtins()                    # lazy specs, not all implementations
 
 grant = ToolGrant(
-    tools=Allowlist.of({"workspace_read", "read_skill"}),
-    scopes=frozenset({"workspace:read", "skills:read"}),
+    tools=Allowlist.of({"workspace_read", "read_skill", "load_tools"}),
+    scopes=frozenset({"workspace:read", "skills:read", "tools:load"}),
 )
 registry = ScopedToolRegistry(
     base=base,
-    selected=["workspace_read", "read_skill"],
+    selected=["workspace_read", "read_skill", "load_tools"],
     grant=grant,
 )
 
