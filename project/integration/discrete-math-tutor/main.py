@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Optional
 from pathlib import Path
 
@@ -177,8 +178,8 @@ def _run_turn(request: ChatRequest, progress=None, answer_ready=None):
     with _turn_locks[index]:
         from agents.task_service import TaskService
         jobs = []
-        def execute(*args):
-            return _execute_task_turn(*args, visualization_jobs=jobs)
+        def execute(*args, previous=None, **kwargs):
+            return _execute_task_turn(*args, previous=previous, **kwargs, visualization_jobs=jobs)
         result = TaskService(orchestrator).run(request, execute, progress,
             visualization_jobs=jobs, answer_ready=answer_ready)
         from integrations.deeptutor.session_sync import sync_completed_session
@@ -187,8 +188,14 @@ def _run_turn(request: ChatRequest, progress=None, answer_ready=None):
         return sync_saved_turn(request, result)
 
 
-def _execute_task_turn(request, context, resolved, intercept, guard, progress, *, visualization_jobs=None):
+def _execute_task_turn(request, context, resolved, intercept, guard, progress, *, visualization_jobs=None, previous=None):
     explicit_target=request.visualization_target or request.truth_table_target or request.relation_target
+    if os.getenv("LOCAL_AGENT_LOOP_ENABLED", "0") == "1" and not any(
+            (request.selection, request.exercise_target, explicit_target)):
+        from agents.agent_loop_service import run_agent_loop_turn
+        return run_agent_loop_turn(orchestrator=orchestrator, request=request,
+            context=context, resolved=resolved, intercept=intercept, guard=guard,
+            progress=progress, previous=previous)
     if explicit_target and explicit_target.action:
         routing = TaskContextBuilder.button_task(context, explicit_target.action)
         return orchestrator.handle_turn(request.student_id, request.message, request.learning_goal,
@@ -337,12 +344,18 @@ def pending_task(student_id: str, session_id: str = "legacy"):
     if row is None: return {"pending": None}
     if orchestrator.memory.repo.memory_epoch(student_id, row["knowledge_point"]) != row["epoch"]:
         return {"pending": None}
-    return {"pending": row["result"]}
+    pending = dict(row["result"])
+    # Internal model/tool protocol stays server-side; the page only needs the card.
+    pending.pop("loop_state", None)
+    pending.pop("loop_events", None)
+    return {"pending": pending}
 
 
 @app.delete("/api/chat/tasks/{task_id}")
 def cancel_task(task_id: str, request: TaskCancelRequest):
     from database.learning_tasks import LearningTaskRepository, TaskConflict
+    from agents import task_cancellation
+    task_cancellation.cancel(task_id)
     try:
         return LearningTaskRepository().cancel(request.student_id, request.session_id, task_id, request.task_revision)
     except TaskConflict as exc:

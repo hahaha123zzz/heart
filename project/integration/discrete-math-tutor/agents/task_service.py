@@ -1,4 +1,5 @@
 """可恢复的澄清控制层；模型与执行通过回调，写事务不覆盖模型调用。"""
+import inspect
 import re
 from uuid import uuid4
 from database.learning_tasks import LearningTaskRepository, TaskConflict
@@ -22,6 +23,31 @@ class TaskService:
 
     def conflict_reply(self, error):
         return {"reply": str(error), "answer_status": error.code, "step_advanced": False}
+
+    @staticmethod
+    def _accepts_previous(executor):
+        try:
+            return "previous" in inspect.signature(executor).parameters
+        except (TypeError, ValueError):
+            return False
+
+    @staticmethod
+    def _selected_label(request, previous):
+        """Return the clickable label for an ask_user answer, else raw text."""
+        clarification = (previous or {}).get("result", {}).get("clarification") or {}
+        options = clarification.get("options") or []
+        chosen = request.selected_option
+        if chosen is None:
+            match = re.fullmatch(r"第?([一二三四1234])个[。！!]?", request.message.strip())
+            if match:
+                position = {"一": 0, "二": 1, "三": 2, "四": 3,
+                            "1": 0, "2": 1, "3": 2, "4": 3}[match[1]]
+                if position < len(options):
+                    chosen = options[position].get("id")
+        for option in options:
+            if chosen is not None and option.get("id") == chosen:
+                return str(option.get("label") or request.message)
+        return request.message
 
     def _context(self, request):
         recent = self.repo.recent(request.student_id, request.session_id, limit=12)
@@ -107,11 +133,16 @@ class TaskService:
         suffix = "\n补充说明：" + request.message
         if chosen:
             option = next((value for value in options if value["id"] == chosen), None)
-            origin = row["context"].get("option_requests", {}).get(chosen)
-            if option is None or origin is None:
+            if option is None:
                 raise TaskConflict("invalid_option", "选项不存在或已失效，请恢复最新任务")
-            payload.update(origin)
-            suffix += "\n明确对象：" + option["label"]
+            if row["result"].get("clarification", {}).get("mode") == "ask_user":
+                suffix += "\n明确回答：" + option["label"]
+            else:
+                origin = row["context"].get("option_requests", {}).get(chosen)
+                if origin is None:
+                    raise TaskConflict("invalid_option", "选项不存在或已失效，请恢复最新任务")
+                payload.update(origin)
+                suffix += "\n明确对象：" + option["label"]
         elif "不是这个" in request.message:
             payload.update(selection=None, exercise_target=None, reader_location=None, visualization_target=None, truth_table_target=None,relation_target=None)
         # 若用户重新圈选或明确新题，则以补充请求的已校验资源覆盖旧对象。
@@ -153,6 +184,9 @@ class TaskService:
             if task_id is None and pending and not re.search(r"换到|换个|改学|想学|重新提问", request.message):
                 task_id, revision = pending["id"], pending["revision"]
             previous = self.repo.resume(request.student_id, request.session_id, task_id, revision, self.tutor.memory.repo) if task_id else None
+            if previous is not None:
+                # The loop needs the raw answer, not the merged "补充说明" body.
+                previous["_resume_answer"] = self._selected_label(request, previous)
             effective = self._resume(request, previous) if previous else request
             context, resolved, origins = self._context(effective)
             from knowledge.pdf_reader import documents
@@ -249,7 +283,24 @@ class TaskService:
                     context=context.model_dump() | {"document_versions": document_versions}, routing=routing.model_dump(), payload=effective.model_dump())
                 return None
             guard()
-            result = executor(effective, context, resolved, intercept, guard, progress)
+            if self._accepts_previous(executor):
+                result = executor(effective, context, resolved, intercept, guard, progress, previous=previous)
+            else:
+                result = executor(effective, context, resolved, intercept, guard, progress)
+            if result.get("loop_paused"):
+                # ask_user pauses the same task; persist the pending question and
+                # the complete loop protocol before returning to the page.
+                guard()
+                saved_context = context.model_dump() | {
+                    "loop_state": result.get("loop_state"),
+                    "document_versions": document_versions,
+                }
+                task, result = self.repo.save(
+                    task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo,
+                    status="awaiting_clarification", result=result, context=saved_context,
+                    routing=result.get("routing"), payload=effective.model_dump(),
+                )
+                return result
             if context.graph_snapshot:
                 result['visualization_context'] = {k:v for k,v in context.graph_snapshot.items() if k != 'evaluation'}
             if context.truth_table_snapshot:
