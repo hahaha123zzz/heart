@@ -20,6 +20,8 @@ from memory.evidence_policy import assess_attempt, project_state
 from typing import Any, Dict, Optional
 
 from agents.task_execution import build_execution
+from agents.conversation_context import build_history
+from agents.followup_context import followup_directive
 from agents.context_sufficiency import ContextSufficiency
 from agents.conversation_router import ConversationRouter
 from agents.evidence_extractor import AnalysisResult, EvidenceExtractor
@@ -111,7 +113,16 @@ class TutorOrchestrator:
             raise ValueError("account_type 只能是 test 或 production")
 
         # 0) Conversation Router：判断学生这一轮在做什么 / 在聊什么
-        history = task_context.history if task_context is not None else self.memory.get_history(student_id)
+        metadata = getattr(task_context, "history_summary", "") if task_context is not None else ""
+        raw_history = task_context.history if task_context is not None else self.memory.get_history(student_id)
+        if task_context is not None:
+            history = raw_history
+            history_summary = metadata
+        else:
+            # 非任务入口也使用同一预算策略；摘要只作背景，不替代当前教材证据。
+            model = getattr(getattr(self, "llm", None), "model", "")
+            packed = build_history(raw_history, model=model if isinstance(model, str) else "")
+            history, history_summary = packed.history, packed.summary
         active_point = (
             self.memory.get_active_goal(student_id) or learning_goal or DEFAULT_GOAL
         )
@@ -124,7 +135,8 @@ class TutorOrchestrator:
                 task_context.history, task_context.known_points, context=task_context)
         else:
             routing = self.conversation_router.route(
-                message, active_point, history, self.memory.list_knowledge_points(student_id))
+                message, active_point, raw_history, self.memory.list_knowledge_points(student_id),
+                history_summary=history_summary)
 
         if routing_interceptor is not None:
             intercepted = routing_interceptor(routing, task_context)
@@ -562,6 +574,8 @@ class TutorOrchestrator:
                 task_execution=execution,
                 answer_feedback=answer_feedback,
                 revision_draft=response if feedback else None,
+                history_summary=history_summary,
+                followup_context=followup_directive(message, history),
             )
             report(f"checking-{attempts}", "核对回答与引用", "检查回答是否与教材证据一致")
             quality = self.quality_checker.check(
@@ -597,6 +611,7 @@ class TutorOrchestrator:
                 "quality": quality.model_dump() if quality else None,
                 "evidence_check": evidence_check.model_dump(),
                 "regenerated": attempts - 1, "routing": routing.model_dump(),
+                "task_execution": execution.public(),
                 "knowledge_point": active_point, "student_state": saved_state.model_dump(),
                 "lesson_progress": saved_lesson_plan.progress() if saved_lesson_plan else None,
                 "step_advanced": False, "step_reason": "回答未通过质检，不推进学习步骤",
@@ -717,7 +732,7 @@ class TutorOrchestrator:
             "memory_retrieval": memory_context.get("retrieval", {}),
             "student_state": state.model_dump(),
             "teaching_plan": plan.model_dump(),
-            "task_execution": execution.model_dump(),
+            "task_execution": execution.public(),
             "answer_diagnosis": answer_diagnosis.model_dump() if answer_diagnosis and not execution.hint_only else None,
             "teaching_feedback": {key: answer_feedback[key] for key in ("mode", "hint_level", "verification") if key in answer_feedback},
             "question_spec": question_spec.model_dump() if question_spec else None,

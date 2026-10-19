@@ -51,3 +51,35 @@ P0已提交并推送：6c156cc。
 此前中断时尚未提交的开发涉及 .env.example、client.py、native_bridge.py、main.py，以及新建的 database/native_tasks.py 和 integrations/deeptutor/native_tasks.py。逐一核对 diff 后，全部备份到项目 .runtime/abandoned-native-host-20261019/，4个已跟踪文件恢复为本轮开始前的 HEAD，2个未跟踪文件移入本机隔离目录，未提交/推送这些开发内容。无关工作区修改、正式教材、配置、数据库、历史提交均未清理或覆盖。
 
 本次交付为修订后的计划及一致的配套文档。验证范围为完整矩阵项数/名称保留、阶段和文档链接一致、待核验/停用路线说明、旧路由代码已撤出及暂存范围核对；没有运行模型或浏览器，不宣称对话质量已经提高。下一步按 Q0.4/Q0.5 和 Q1执行，不继续 P1应用委托路线。
+
+## Q1-A/Q1-B：预算化上下文、提示词块与连续追问（2026-10-19）
+
+本轮只接入对话质量所需的第一批模块，不改变 Q2—Q6 的能力范围。来源固定为 `project/vendor/DeepTutor`，实际迁入与适配如下：
+
+| 来源（SHA-256 前 12 位） | 本项目落点 | 处理 |
+| --- | --- | --- |
+| `services/llm/context_window.py`（c1652a7760cd） | `agents/context_window.py` | 原样迁入，保留模型窗口表与预算解析 |
+| `services/prompt/language.py`（8ade4d5f031c） | `agents/prompt_language.py` | 原样迁入语言指令 |
+| `services/session/context_builder.py`（520b17920ea8） | `agents/conversation_context.py` | 改为同步显示行输入；保留整轮分组、预算裁剪、超过预算保留最新一轮和滚动摘要；摘要由本项目确定性生成，未启动上游应用 |
+| `agents/loop/prompt_blocks.py`（70c0cabeb6a2） | `agents/prompt_blocks.py` | 保留具名块、空块省略、语言收尾；未迁入本轮尚未挂载的工具清单 |
+| `core/context.py`、`services/session/model_history.py` | 仅作接口参考 | 其 `UnifiedContext`/完整模型回合概念用于本地设计；完整 `model_turn` 工具协议留到 Q3 |
+| `services/session/ask_user_trace.py`、`provider_response_state.py` | 未迁入 | 依赖 ask_user 与 provider 回放，按 Q3 接入，未冒充完成 |
+
+本地新增 `agents/followup_context.py`，把连续追问拆成可测试契约：简化上一轮解释、缩小比较范围、显式完整解释覆盖上一轮仅提示、准确性要求不等于仅提示。`ConversationRouter`、`TaskExecution`、`ResponseGenerator` 和 `TaskContextBuilder` 已接这些输入；`TaskContext` 历史从固定 4 条改为预算化最多 40 条，并新增 `history_summary`。常规会话从最近 2 个完成任务提高到最多 12 个，再按预算裁剪。
+
+验证：
+
+- 离线回归 `199` 项：除既有 4 项因心理学教材替换而失效的离散数学测试（`chapter-07` 文档不存在、练习目录为空）外全部通过；这 4 项在 Q1 前已同样失败，未算作本轮回归。
+- 连续对话样本自检：`scripts/check_conversation_quality.py` 的 6 个样本结构、追问契约和预算摘要全部通过；`clarify_and_continue` 明确留到 Q3，`correct_and_forget` 留到 Q5。
+- 真实模型本地链路（不是独立 DeepTutor 应用）：
+  - `20261019T084522Z-3e1dc3` `explicit_hint_then_explain` 通过：首轮 `hint_only=true`、无新题；次轮 `explain`、尊重完整解释。
+  - `20261019T085050Z-99b070` `simplify_without_switching` 通过：简化上一轮自变量解释，未改答检查题，引用保留。
+  - `20261019T085625Z-14a93f` `comparison_followup` 通过：只回答被试内设计，不再引入被试间设计。
+  - `20261019T085849Z-a0ad95` `accuracy_is_not_hint` 通过：`hint_only=false`，完整解释公式符号和参照点，未用自然流畅冒充数据。
+  - `20261019T090554Z-ac15d2` 黄金集 `hint` 通过：只给核对提示，质量核验通过。
+  - `20261019T090717Z-8877c1` 黄金集 `concept`、`variables`、`design`、`refusal` 通过；同轮 `classification` 因 260 字预算过短、`followup` 因历史未传入检查而失败，作为基线保留。
+  - `20261019T091139Z-2f1ac7` 修复多子问题预算后 `classification` 通过。
+  - `20261019T091329Z-46a33d` `concept` + `followup` 通过：追问沿用上一轮自变量解释并简化。
+- 失败记录：`20261019T084304Z-31cd97` 首次 hint 运行暴露出“只给提示”未进入 hint 作用域，已修复并复跑；`20261019T084609Z-092614` 首次简化运行因路由把追问标为 statement 而质量拒绝，已修复并复跑。两次失败均保留在原运行目录，没有改写成成功。
+
+仍未完成：`ask_user` 问题卡与答复恢复、完整 provider 模型回合、选区/视觉入口的摘要接入、Q2 教材检索重排、Q3 AgentLoop。Q1 的 M1 只证明普通对话和连续追问在本项目页面链路中使用了迁入模块；不把它写成整套能力完成。

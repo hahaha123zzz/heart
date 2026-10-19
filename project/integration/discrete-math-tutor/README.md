@@ -26,6 +26,15 @@ Windows 双击 `3-start-api.bat`，或在本目录运行：
 
 已验证代表性概念、随机区组设计、表格图解、文本选区及跨章引用；尚未逐页人工复核全部版面，也未覆盖全部统计公式和纯图片问答。图解核验失败时保留文字回答，不展示未通过的图解。
 
+连续对话质量样本（Q1）：
+
+```powershell
+.venv-gpu/Scripts/python.exe -B scripts/check_conversation_quality.py
+.venv-gpu/Scripts/python.exe -B scripts/check_conversation_quality.py --live --case simplify_without_switching
+```
+
+默认只做结构与追问契约自检，不调用模型；`--live` 使用本机模型和隔离数据库运行本地链路，报告写入 `.runtime/conversation-quality/`。`--include-golden` 可加入 9 类心理学黄金集中的文本案例。
+
 ## DeepTutor 整体接入
 
 实施计划与进度：[实施计划](../../docs/research/2026-10-18-deeptutor-full-reuse/IMPLEMENTATION_PLAN.md)、[执行记录](../../docs/research/2026-10-18-deeptutor-full-reuse/EXECUTION_LOG.md)。完整上游源码位于 `../../vendor/DeepTutor`，包含前后端源码、提示词、测试与部署文件。
@@ -105,6 +114,6 @@ python scripts/start_deeptutor.py
 
 2026-10-19路线已修订：整套能力通过代码集成到本项目，停止将完整对话委托 DeepTutor 应用的主链建设。范围继续覆盖11个能力、14个扩展、100个工具；下文仅记录此前实验，不能据此继续接学生入口。有效计划见 [整套代码集成计划](../../docs/research/2026-10-19-deeptutor-conversation-flow/IMPLEMENTATION_PLAN.md) 及同目录 LOCAL_REUSE_CONTRACT.md。
 
-worker 私有接口 `/internal/heart/native/start|status|events|reply|cancel` 直接接 DeepTutorApp 与原生持久化回合，不经过旧教学执行链。独立普通账户通过原生模型授权，每个学生/课程使用独立工作区；收据保存稳定 submission，完成、失败和取消后的普通重发不重新生成。接口要求共享凭据和 `DEEPTUTOR_NATIVE_ENABLED=1`，默认关闭。
+此前实验提供 `/internal/heart/native/start|status|events|reply|cancel`，直接委托 DeepTutorApp 与原生持久化回合。Q0已从 worker 撤下这组接口的注册，并移除示例启用项；设置旧环境变量也不会通过当前 worker 启动这些接口。实验实现及测试保留历史，不作为当前业务入口。
 
 当前仅完成 P1 私有运行时检查点，替身能力验证真实应用层的持久化、多轮上下文、澄清接续、取消、去重、并发隔离和无租约回收。新增原生正文写入 worker 私有 data/users，均为待核验产物；宿主归属/版本/删除/正式发布及页面尚未接通。不要据此开启学生入口或标记真实模型/RAG及质量验收完成。完整计划、契约与检查命令见 `project/docs/research/2026-10-19-deeptutor-conversation-flow/`。

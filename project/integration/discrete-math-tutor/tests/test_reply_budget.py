@@ -33,6 +33,10 @@ class ReplyBudgetTests(unittest.TestCase):
         self.assertEqual((budget.target,budget.maximum),(200,260))
         self.assertTrue(execution.hint_only)
 
+    def test_multi_part_request_has_room(self):
+        budget = reply_budget("请说明操作性自变量与选择性自变量的区别，并说明按年龄分组的变量是否一定不是自变量。")
+        self.assertGreaterEqual(budget.maximum, 360)
+
     def test_options_and_multiple_intents_have_room(self):
         self.assertGreaterEqual(reply_budget(question_options=True).maximum,420)
         self.assertEqual(reply_budget(execution=TaskExecution(learning_intents=['example','explain'])).maximum,500)

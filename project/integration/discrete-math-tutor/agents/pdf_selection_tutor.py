@@ -142,5 +142,5 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
             'context_refs':[{'page':p,'document_id':selection.document_id} for p in sorted({r.page for r in selection.rects})],
             'pdf_image_refs':reference['image_refs'],'image_refs':[],
             'textbook_sources':reference.get('textbook_sources') or [reference['source']+' · 第'+str(selection.rects[0].page)+'页'],
-            'routing':routing.model_dump(),'task_execution':execution.model_dump(),
+            'routing':routing.model_dump(),'task_execution':execution.public(),
             'evidence_check':evidence_check.model_dump(),'quality_check':quality.model_dump(),'knowledge_point':title}

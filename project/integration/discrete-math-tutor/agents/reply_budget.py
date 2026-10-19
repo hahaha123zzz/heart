@@ -45,6 +45,10 @@ def reply_budget(text="", *, preferences=None, execution=None, action="explain",
             expanded = expanded or (len(set(execution.learning_intents) & {"explain", "example", "summary", "proof", "compare"}) >= 2)
         if detailed or expanded:
             target, maximum = max(target, 480), max(maximum, 500)
+        multi_part = bool(re.search(
+            r"并(?:要|需)?(?:说明|解释|比较|给出|回答|指出)|以及|同时|分别|；|;", text))
+        if multi_part:
+            target, maximum = max(target, 320), max(maximum, 360)
     if question_options:
         target, maximum = max(target, 420), max(maximum, 440)
     return ReplyBudget(target, maximum)

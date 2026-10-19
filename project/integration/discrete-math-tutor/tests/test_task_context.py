@@ -67,8 +67,8 @@ class TaskContextTests(unittest.TestCase):
     def test_prompt_budget_and_preferences_are_bounded(self):
         built = TaskContextBuilder().build(student_id="s", message="解释", history=[{"role": "user", "content": "x" * 10000}] * 20,
             known_points=["p" * 200] * 50, preferences={"answer_length": .5, "learning_pace": float("nan"), "mastery": 1})
-        self.assertEqual(len(built.history), 4)
-        self.assertEqual(len(built.history[0]["content"]), 1200)
+        self.assertEqual(len(built.history), 20)
+        self.assertEqual(len(built.history[0]["content"]), 4000)
         self.assertEqual(len(built.known_points), 20)
         self.assertEqual(built.preferences, {"answer_length": .5})
         self.assertNotIn("student_id", built.prompt_payload())

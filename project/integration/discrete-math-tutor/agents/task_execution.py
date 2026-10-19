@@ -3,6 +3,13 @@ import json
 import re
 from pydantic import BaseModel, Field
 from models.interaction_preferences import style_instructions
+from agents.followup_context import (
+    COMPARE_FOLLOWUP_PATTERN,
+    FULL_EXPLANATION_PATTERN,
+    NARROW_SCOPE_PATTERN,
+    NEGATED_FULL_PATTERN,
+    SIMPLIFY_PATTERN,
+)
 
 
 class TaskExecution(BaseModel):
@@ -32,6 +39,16 @@ class TaskExecution(BaseModel):
     def reply_limit(self, baseline):
         expanded=self.proof_requested or ('compare' in self.learning_intents and not self.hint_only)
         return max(baseline,480) if expanded else baseline
+
+    def public(self):
+        """Serializable view including computed scope flags used by UI/checks."""
+
+        return self.model_dump() | {
+            "hint_only": self.hint_only,
+            "verdict_only": self.verdict_only,
+            "no_questions": self.no_questions,
+            "proof_requested": self.proof_requested,
+        }
 
     def retrieval_types(self):
         """固定类型白名单；比较和仅提示保留原排序，不能由模型设置分数。"""
@@ -139,6 +156,34 @@ def build_execution(message, routing, context=None):
             '\n本轮按当前序偶集合核对指定关系性质，查找第九章定义9.5与表9.1；辅助图不能当教材原图。')
     constraints = list(getattr(routing, 'answer_constraints', []))
     intents = list(getattr(routing, 'learning_intents', []))
+    hint_requested = bool(re.search(
+        r"(?:只|仅)(?:要|需|给|提供)?\s*(?:一个|一条|一点|个)?\s*(?:简短|简单|小)?\s*提示|"
+        r"只给提示|只要提示|给个提示|给一个提示|先给.{0,12}提示",
+        message))
+    full_requested = bool(FULL_EXPLANATION_PATTERN.search(message)) and not bool(
+        NEGATED_FULL_PATTERN.search(message))
+    if hint_requested and not full_requested:
+        intents.append("hint")
+        constraints.extend(["hint_only", "no_full_answer", "no_questions"])
+    if full_requested:
+        intents = [intent for intent in intents if intent != "hint"]
+        constraints = [constraint for constraint in constraints
+                       if constraint not in ("hint_only", "no_full_answer")]
+        intents.append("explain")
+        if re.search(r"(?:不用|不要|别|不需要)(?:再)?(?:出题|问我|追问|考我)", message):
+            constraints.append("no_questions")
+    if SIMPLIFY_PATTERN.search(message) and "explain" not in intents:
+        # “没听懂/再简单点”是对上一轮解释的深度调整，不是新的提示请求。
+        intents.append("explain")
+        constraints = [constraint for constraint in constraints
+                       if constraint not in ("hint_only", "no_full_answer")]
+    narrowed = bool(NARROW_SCOPE_PATTERN.search(message))
+    if narrowed:
+        intents = [intent for intent in intents if intent != "compare"]
+        if "explain" not in intents:
+            intents.append("explain")
+    elif COMPARE_FOLLOWUP_PATTERN.search(message) and "compare" not in intents:
+        intents.append("compare")
     if (re.search(r"解释|说明|比较", message) and re.search(r"(?:不要|不得|不能|别)(?:编造|虚构|猜测)", message)
             and not re.search(r"只|仅|提示|答案|解答|下一步|思路|最终|过程|不必|不需要|先|别(?:讲|给|说|展开)", message)):
         constraints = [c for c in constraints if c not in ("hint_only", "no_full_answer")]

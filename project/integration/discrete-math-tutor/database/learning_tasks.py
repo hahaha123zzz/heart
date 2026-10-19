@@ -123,10 +123,10 @@ class LearningTaskRepository:
                 LearningTaskRow.expires_at > now()).order_by(LearningTaskRow.created_at.desc()))
             return snapshot(row) if row else None
 
-    def recent(self, student_id, session_id):
+    def recent(self, student_id, session_id, limit=2):
         with session_scope() as session:
             rows = session.scalars(select(LearningTaskRow).where(LearningTaskRow.student_id == student_id,
-                LearningTaskRow.session_id == session_id, LearningTaskRow.status == "completed", LearningTaskRow.expires_at > now()).order_by(LearningTaskRow.created_at.desc()).limit(2)).all()
+                LearningTaskRow.session_id == session_id, LearningTaskRow.status == "completed", LearningTaskRow.expires_at > now()).order_by(LearningTaskRow.created_at.desc()).limit(limit)).all()
             return [snapshot(row) for row in reversed(rows)]
 
     def claim(self, *, student_id, session_id, request_id, payload, point, epoch, memory_repo,

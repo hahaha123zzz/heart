@@ -24,7 +24,7 @@ class TaskService:
         return {"reply": str(error), "answer_status": error.code, "step_advanced": False}
 
     def _context(self, request):
-        recent = self.repo.recent(request.student_id, request.session_id)
+        recent = self.repo.recent(request.student_id, request.session_id, limit=12)
         history = self.tutor.memory.get_history(request.student_id) if request.session_id == "legacy" else [
             item for row in recent for item in ({"role": "user", "content": row["payload"].get("message", "")},
                 {"role": "assistant", "content": row["result"].get("reply", "")})]
