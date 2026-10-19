@@ -34,6 +34,7 @@ class LoopRequest:
     seed_messages: list[dict[str, Any]] = field(default_factory=list)
     target: LearningTarget | None = None
     navigation: Any = None
+    tool_state: dict[str, Any] = field(default_factory=dict)
     cancellation: Cancellation | None = None
     guard: Callable[[], None] | None = None
     publish_gate: Callable[[str, "LoopResult"], tuple[bool, str]] | None = None
@@ -113,7 +114,9 @@ class LocalAgentLoop:
                 task_id=request.task_id, request_id=request.request_id,
                 knowledge_point=request.target.name if request.target else "",
                 cancellation=request.cancellation, navigation=request.navigation,
-                state={"learning_target": request.target},
+                state={**dict(request.tool_state), "learning_target": request.target,
+                       "source_offset": 0,
+                       "max_sources": int(request.tool_state.get("max_sources", 24))},
                 emit=collector,
             )
             outcome = self._loop(request, messages, result, tool_context, collector)
@@ -207,6 +210,7 @@ class LocalAgentLoop:
                 result.tool_steps += 1
                 messages.extend(dispatch.tool_messages)
                 result.sources.extend(dispatch.sources)
+                context.state["source_offset"] = len(result.sources)
                 if dispatch.sources:
                     collector("sources", "", {"sources": dispatch.sources})
                 if dispatch.pause:
@@ -240,7 +244,7 @@ class LocalAgentLoop:
                 ok, reason = request.publish_gate(final_text, result)
                 if not ok:
                     if not repair_used and any(token in (reason or "") for token in
-                                               ("过长", "压缩", "字数", "超过")):
+                                               ("过长", "压缩", "字数", "超过", "引用", "格式")):
                         repair_used = True
                         no_tools_next = True
                         messages.append({"role": "assistant", "content": final_text})

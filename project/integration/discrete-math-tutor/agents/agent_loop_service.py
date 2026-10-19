@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import re
+from pathlib import Path
 from typing import Any, Callable
 
 from agents.agent_loop import LocalAgentLoop, LoopRequest, LoopResult
@@ -11,7 +12,7 @@ from agents.q3_navigation import (
     CallbackNavigator, LearningTarget, NavigationDecision, StubLearningNavigator,
     source_from_chunk,
 )
-from agents.q3_tools import build_default_registry
+from agents.q3_tools import build_registry
 from agents.task_cancellation import register, release
 from knowledge.citation_guard import citation_issues
 from models.task_context import TaskContext
@@ -19,6 +20,20 @@ from agents.teaching_planner import TeachingPlan
 
 
 def _target_from_context(context: TaskContext) -> LearningTarget:
+    # Q2's TaskService resolves chapter/next-topic requests before the model
+    # runs.  Use that authoritative target instead of re-parsing the message
+    # or falling back to the reader's current chapter.
+    navigation = getattr(context, "course_navigation", None)
+    if isinstance(navigation, dict) and navigation.get("status") == "ready":
+        point = str(navigation.get("title") or context.knowledge_point or "当前学习目标").strip()
+        return LearningTarget(
+            target_id=str(navigation.get("id") or f"kp:{point}"),
+            name=point,
+            chapter_id=navigation.get("chapter_id"),
+            section_id=navigation.get("section_id"),
+            version=str(navigation.get("version") or ""),
+            reason="Q2 目录导航已解析",
+        )
     point = (context.knowledge_point or "当前学习目标").strip()
     object_row = next((obj for obj in context.objects if obj.kind == "section"), None)
     return LearningTarget(
@@ -51,12 +66,42 @@ def _resume_state(previous: dict[str, Any] | None) -> dict[str, Any] | None:
     return None
 
 
-def _default_navigator(target: LearningTarget | None) -> Any:
+def _default_navigator(target: LearningTarget | None,
+                       host_navigation: dict[str, Any] | None = None) -> Any:
     """Use Q2 local retrieval only when explicitly enabled.
 
-    ``stub`` is the safe default: it proves the loop without pretending Q2
-    retrieval or a real textbook index is active.
+    When the host already resolved a chapter/next-topic request, the target is
+    authoritative: do not turn "继续下一个知识点" back into a clarification or
+    ignore the Q2 cursor.  ``stub`` remains the safe default for callers that
+    do not enable local retrieval.
     """
+    if (isinstance(host_navigation, dict)
+            and host_navigation.get("status") == "ready" and target is not None):
+        def resolve_host(**_kwargs):
+            return NavigationDecision("teach", target, reason="Q2 已解析当前学习目标")
+
+        def search_host(*, target: LearningTarget, query: str, limit: int,
+                        preferred_types: tuple[str, ...] = ()):
+            from knowledge.local_rag.course_retrieval import retrieve
+            candidates = retrieve(f"{target.name} {query}".strip(),
+                                  limit=max(12, limit * 3),
+                                  preferred_types=preferred_types)
+            scoped = [chunk for chunk in candidates
+                      if target.chapter_id is not None
+                      and getattr(chunk, "chapter_id", None) == target.chapter_id
+                      and (target.section_id is None
+                           or getattr(chunk, "section_id", None) == target.section_id)]
+            if not scoped:
+                # The section may not have a matching semantic chunk (for
+                # example a heading-only target).  Read the resolved unit so
+                # the answer still stays inside the selected knowledge point.
+                from knowledge.course_navigation import read_target
+                scoped = read_target({"id": target.target_id, "version": target.version})
+            return [source_from_chunk(chunk, index)
+                    for index, chunk in enumerate(scoped[:limit])]
+
+        return CallbackNavigator(resolve_fn=resolve_host, search_fn=search_host)
+
     mode = os.getenv("Q3_RETRIEVAL_MODE", "stub").strip().lower()
     if mode in ("local", "q2", "local_llamaindex"):
         try:
@@ -76,9 +121,22 @@ def _default_navigator(target: LearningTarget | None) -> Any:
     return StubLearningNavigator(target=target, sources=[])
 
 
+def _citation_format_issues(text: str) -> str:
+    """Reject bracket text that starts like a citation but is not [n]."""
+    for match in re.finditer(r"\[([^\]\n]{1,80})\]", text):
+        inner = match.group(1).strip()
+        if not inner or not inner[0].isdigit():
+            continue
+        if re.fullmatch(r"\d+(?:\s*[-–,，]\s*\d+)*", inner):
+            continue
+        return f"引用格式无效：{match.group(0)[:60]}"
+    return ""
+
+
 def _excerpts(sources: list[dict[str, Any]]) -> str:
     lines = []
-    for index, source in enumerate(sources, 1):
+    for position, source in enumerate(sources, 1):
+        index = int(source.get("index") or position)
         header = str(source.get("document_id") or "")
         if source.get("page"):
             header += f"｜第{source['page']}页"
@@ -96,6 +154,9 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget):
         issues = citation_issues(text, excerpts)
         if issues:
             return False, "本次引用未通过核验：" + "；".join(issues)
+        format_issue = _citation_format_issues(text)
+        if format_issue:
+            return False, format_issue
         if not re.search(r"\[\d+\]", text):
             return False, "回答未标注本轮教材引用编号，暂不发布。"
         checker = getattr(orchestrator, "quality_checker", None)
@@ -104,11 +165,13 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget):
             return True, ""
         try:
             state = memory.get_state(request.student_id, target.name)
-            plan = TeachingPlan(goal=f"回答{target.name}", strategy="worked_example",
+            plan = TeachingPlan(goal=f"回答{target.name}", strategy="scaffolding",
                                 action="explain", difficulty="medium")
+            maximum = int(os.getenv("Q3_REPLY_MAXIMUM", "800"))
             quality = checker.check(text, state, plan, request.message,
                                     context={"loop_sources": result.sources,
-                                             "reply_maximum_override": 500},
+                                             "agent_loop": True,
+                                             "reply_maximum_override": max(600, maximum)},
                                     textbook_excerpts=excerpts)
             if not quality.passed or quality.issues:
                 return False, "本次回答未通过教材核对：" + "；".join(quality.issues or [])
@@ -130,10 +193,16 @@ def _map_result(result: LoopResult, target: LearningTarget,
             "target": target.target_id,
         },
         "loop_events": result.events,
+        "knowledge_point": target.name,
         "routing": {"status": "ok", "intent": "continue", "student_move": "question",
                     "confidence": 1.0, "needs_context": True,
                     "reason": "Q3 本地工具循环"},
     }
+    if conversation_id is not None:
+        # TaskService uses the same committed marker for navigation cursor
+        # persistence; an answered loop turn must not skip it.
+        base["memory_commit"] = {"status": "committed",
+                                 "conversation_id": conversation_id}
     if result.paused:
         questions = (result.pending_question or {}).get("questions") or []
         prompt = str(questions[0].get("prompt") if questions else "还需要补充信息。")
@@ -239,7 +308,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     """
     resume_state = _resume_state(previous)
     current_target = _target_from_state(resume_state) or _target_from_context(context)
-    navigation = navigator or _default_navigator(current_target)
+    navigation = navigator or _default_navigator(
+        current_target, getattr(context, "course_navigation", None))
     decision: NavigationDecision = navigation.resolve(
         message=request.message, student_id=request.student_id,
         session_id=request.session_id, current_target=current_target,
@@ -255,7 +325,21 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                            "reason": decision.reason},
         }
     target = decision.target or current_target
-    registry = build_default_registry()
+    root = Path(__file__).resolve().parents[1]
+    skills_root = root / "visualization" / "skills"
+    task_key = re.sub(r"[^A-Za-z0-9_.-]+", "_",
+                      request.task_id or request.request_id or "turn")[:80]
+    workspace_root = Path(os.getenv("Q3_WORKSPACE_ROOT") or
+                          (root / ".runtime" / "q3-workspaces" / task_key)).resolve()
+    allow_workspace = os.getenv("Q3_ENABLE_WORKSPACE_TOOLS", "0").strip() == "1"
+    if allow_workspace:
+        workspace_root.mkdir(parents=True, exist_ok=True)
+    registry = build_registry(
+        workspace_root=workspace_root,
+        skills_root=skills_root,
+        allow_workspace=allow_workspace,
+        allow_skills=skills_root.is_dir(),
+    )
     system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions())
     cancellation = register(request.task_id or request.request_id)
 
@@ -273,6 +357,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             message=request.message, system_prompt=system_prompt, tools=registry,
             seed_messages=list(context.history or []), target=target,
             navigation=navigation, cancellation=cancellation, guard=guard,
+            tool_state={"workspace_root": str(workspace_root),
+                        "skills_root": str(skills_root), "deferred_loader": None},
             publish_gate=publish_gate or _publish_gate(orchestrator, request, target),
             emit=emit, tool_timeout_seconds=120,
         ),
@@ -309,7 +395,13 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 }
     if not result.paused:
         release(request.task_id or request.request_id)
-    return _map_result(result, target, conversation_id)
+    mapped = _map_result(result, target, conversation_id)
+    navigation_row = getattr(context, "course_navigation", None)
+    if isinstance(navigation_row, dict) and navigation_row.get("status") == "ready":
+        explained = (mapped.get("answer_status") == "answered"
+                     and mapped.get("memory_commit", {}).get("status") == "committed")
+        mapped["course_navigation"] = dict(navigation_row, explained=explained)
+    return mapped
 
 
 __all__ = ["run_agent_loop_turn"]

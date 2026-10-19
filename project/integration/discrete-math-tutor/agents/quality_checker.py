@@ -132,7 +132,14 @@ class QualityChecker:
             "教材摘录及图号背景：" + textbook_excerpts
         )
         content += "\n" + budget.instructions()
-        content += "\n逐项核对本轮明确要求：遗漏任一比较对象、指定理由、例子或关键条件，应要求补齐；仅提示不应补最终结论。短但漏答不能判通过。"
+        if rule_context.get("agent_loop"):
+            content += ("\n本轮是本地 AgentLoop 的普通教材问答，不是结构化教学计划执行。"
+                        "只把下列问题列为 issues：与教材摘录矛盾、引用编号不支持紧邻结论、"
+                        "没有回答学生明确问题、编造教材未给出的数据/页码/结论。"
+                        "措辞、风格、可补充但未被问到的细节、未按 worked_example 出题，"
+                        "一律放入 suggestions，不得据此拒绝发布。")
+        else:
+            content += "\n逐项核对本轮明确要求：遗漏任一比较对象、指定理由、例子或关键条件，应要求补齐；仅提示不应补最终结论。短但漏答不能判通过。"
         if rule_context.get('grounded_evidence'):
             content+='\n本轮引用只允许指向以下细粒度原文；逐条检查紧邻[n]的结论是否被第n条原文支持，不能因为检索背景或历史其他位置有类似内容就放行。特别核对否定、例外、条件、数量和因果方向；例子不得冒充原书。'+str(rule_context['grounded_evidence'])
         if rule_context.get("feedback_target"):
@@ -175,6 +182,14 @@ class QualityChecker:
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": content},
         ]
+        if rule_context.get("agent_loop"):
+            messages[0]["content"] += (
+                "\n\n[本地 AgentLoop 普通教材问答]"
+                "\n本轮只检查可发布性，不做教学完整性审计。"
+                "只有教材事实错误、引用不支持结论、未回答明确问题或编造内容才判 passed=false。"
+                "语气、措辞、可补充的扩展、未要求出题、未覆盖未询问内容，都只写入 suggestions。"
+                "不要因为回答没有覆盖教材摘录中的其他内容而拒绝。"
+            )
         if rule_context.get("answer_feedback", {}).get("mode") in ("targeted_hint", "supportive_hint", "hint_only"):
             messages[0]["content"] += "\n" + HINT_FEEDBACK_RULES
         if rule_context.get("answer_feedback", {}).get("mode") == "explain_feedback" and rule_context["answer_feedback"].get("support_required"):
