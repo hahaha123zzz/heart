@@ -62,12 +62,30 @@ class RetrieveCourseTool(BaseTool):
         if not sources:
             return ToolResult(content="当前学习目标的检索范围没有返回教材片段。", sources=[],
                               metadata={"target_id": target.target_id, "query": query})
+        seen = context.state.setdefault("seen_source_ids", set())
+        fresh = []
+        for source in sources:
+            source_id = str(getattr(source, "source_id", "") or "")
+            if not source_id:
+                source_id = f"{source.document_id}:{hash(source.text)}"
+            if source_id in seen:
+                continue
+            seen.add(source_id)
+            fresh.append(source)
+        if not fresh:
+            return ToolResult(
+                content=("本轮已经返回过相同教材片段，引用编号保持不变。"
+                         "请停止重复检索，直接使用已有编号回答。"),
+                success=False,
+                metadata={"target_id": target.target_id, "query": query,
+                          "duplicate_retrieval": True},
+            )
         lines = []
         payload = []
         # Number citations across the whole turn, not per tool call: the model
         # may retrieve more than once, and [1] must keep the same meaning in
         # every tool result, the final answer and the quality gate.
-        for position, source in enumerate(sources, 1):
+        for position, source in enumerate(fresh, 1):
             index = offset + position
             location = f"第{source.page}页" if source.page else ""
             lines.append(f"[{index}] {source.document_id} {location}\n{source.text}")

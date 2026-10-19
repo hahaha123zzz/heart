@@ -8,8 +8,9 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from agents.agent_loop import LoopResult
 from agents.agent_loop_service import (
-    _default_navigator, _target_from_context, run_agent_loop_turn,
+    _default_navigator, _map_result, _target_from_context, run_agent_loop_turn,
 )
 from agents.q3_navigation import LearningTarget, SourceRef, StubLearningNavigator
 from agents.q3_tools import RetrieveCourseTool, build_registry
@@ -166,9 +167,19 @@ class GlobalSourceNumberingTests(unittest.TestCase):
         from agents.tool_protocol import ToolRegistry
 
         target = self._target()
-        navigation = StubLearningNavigator(
-            target=target, sources=[self._source("甲"), self._source("乙")])
-        context = ToolContext(student_id="s", session_id="x", navigation=navigation,
+
+        class QueryNavigator:
+            def resolve(self, **kwargs):
+                raise AssertionError("not used")
+
+            def search(self, *, target, query, limit, preferred_types=()):
+                return [self._source(f"{query}-1"), self._source(f"{query}-2")]
+
+            @staticmethod
+            def _source(text):
+                return SourceRef(source_id=text, document_id="doc", text=text, page=1)
+
+        context = ToolContext(student_id="s", session_id="x", navigation=QueryNavigator(),
                               state={"learning_target": target, "source_offset": 0,
                                      "max_sources": 24})
         registry = ToolRegistry(); registry.register(RetrieveCourseTool())
@@ -180,6 +191,35 @@ class GlobalSourceNumberingTests(unittest.TestCase):
         self.assertEqual(indexes, [1, 2, 3, 4])
         for message in outcome.tool_messages:
             self.assertIn("retrieve_course", message["name"])
+
+    def test_repeated_retrieval_of_same_source_returns_no_duplicate(self):
+        target = self._target()
+        navigation = StubLearningNavigator(target=target, sources=[self._source("甲")])
+        context = ToolContext(student_id="s", session_id="x", navigation=navigation,
+                              state={"learning_target": target, "source_offset": 0,
+                                     "max_sources": 24})
+        first = RetrieveCourseTool().run({"query": "自变量", "limit": 2}, context)
+        second = RetrieveCourseTool().run({"query": "自变量", "limit": 2}, context)
+        self.assertTrue(first.success)
+        self.assertEqual(len(first.sources), 1)
+        self.assertFalse(second.success)
+        self.assertTrue(second.metadata.get("duplicate_retrieval"))
+        self.assertFalse(second.sources)
+
+    def test_map_result_only_publishes_cited_sources(self):
+        target = self._target()
+        result = LoopResult(
+            final_text="回答[2]", completed=True,
+            sources=[
+                {"index": 1, "source_id": "a", "document_id": "doc", "text": "甲"},
+                {"index": 2, "source_id": "b", "document_id": "doc", "text": "乙"},
+                {"index": 3, "source_id": "c", "document_id": "doc", "text": "丙"},
+            ],
+        )
+        mapped = _map_result(result, target)
+        self.assertEqual(len(mapped["textbook_sources"]), 3)
+        self.assertEqual([ref["source_index"] for ref in mapped["pdf_references"]], [1])
+        self.assertEqual(mapped["pdf_references"][0]["evidence"]["evidence_id"], "b")
 
     def test_retrieval_budget_stops_extra_searches(self):
         target = self._target()

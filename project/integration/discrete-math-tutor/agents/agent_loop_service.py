@@ -257,14 +257,24 @@ def _map_result(result: LoopResult, target: LearningTarget,
             "loop_state": result.state(),
         }
     textbook_sources = []
-    pdf_references = []
-    for index, source in enumerate(result.sources, 1):
+    for position, source in enumerate(result.sources, 1):
         label = str(source.get("document_id") or "教材")
         if source.get("page"):
             label += f"（第{source['page']}页）"
         textbook_sources.append(label)
+    # Publish only evidence the answer actually cites.  The front-end maps
+    # [n] to source_index n-1, so keep the original global number instead of
+    # compacting it.  Uncited retrieval hits must not become citation cards.
+    cited = {int(value) for value in re.findall(r"\[(\d+)\]", result.final_text)}
+    by_index = {int(source.get("index") or position): source
+                for position, source in enumerate(result.sources, 1)}
+    pdf_references = []
+    for citation_index in sorted(cited):
+        source = by_index.get(citation_index)
+        if source is None:
+            continue
         pdf_references.append({
-            "source_index": index - 1,
+            "source_index": citation_index - 1,
             "label": "Q3 教材检索",
             "selection_ref": {
                 "document_id": source.get("document_id") or "",
@@ -374,7 +384,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             tool_state={"workspace_root": str(workspace_root),
                         "skills_root": str(skills_root), "deferred_loader": None},
             publish_gate=publish_gate or _publish_gate(orchestrator, request, target),
-            emit=emit, tool_timeout_seconds=120,
+            emit=emit, tool_timeout_seconds=120, max_exploration_rounds=4,
         ),
         resume_state=resume_state,
         answer=str((previous or {}).get("_resume_answer") or ""),
