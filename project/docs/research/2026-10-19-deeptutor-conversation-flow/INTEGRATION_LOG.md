@@ -27,10 +27,10 @@
 
 | 检查 | 命令 | 结果 |
 | --- | --- | --- |
-| 单轮教材问答 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live` | `20261019T152836Z-10943f`：`answer_status=answered`，8 个来源，2 轮，1 次工具调用；畸形引用格式门禁已生效；`exit=0` |
-| 第一章→下一知识点 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live_navigation` | `20261019T152811Z-a12b09`：两轮均 `answered`；第一轮 `ch1:s1:b6`、2 个来源、6.875 秒、引用[1]；第二轮 `ch1:s1:b20`、3 个来源、9.000 秒、引用[1]；`navigation_advanced=true`，引用编号与 sources 顺序一致；`exit=0` |
+| 单轮教材问答 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live` | `20261019T153441Z-a51e90`：`answer_status=answered`，8 个来源，2 轮，1 次工具调用；`exit=0` |
+| 第一章→下一知识点 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live_navigation` | `20261019T153412Z-748a13`：两轮均 `answered`；第一轮 `ch1:s1:b6`、1 个来源、9.704 秒、引用[1]；第二轮 `ch1:s1:b20`、1 个来源、9.875 秒、引用[1]；`navigation_advanced=true`，引用编号与 sources 顺序一致；`exit=0` |
 
-运行日志：`.runtime/q3-live-navigation-4.log`、`.runtime/q3-live-integration-2.log`。运行目录：`.runtime/q3-live/20261019T152811Z-a12b09`、`.runtime/q3-live/20261019T152836Z-10943f`。
+运行日志：`.runtime/q3-live-navigation-final.log`、`.runtime/q3-live-final.log`。
 
 失败与修复记录（保留，不改写成通过）：
 
@@ -64,6 +64,7 @@ $env:PYTHONPATH=(Get-Location).Path
 - `39abe13`：Q3/Q4 集成前序提交（Q4 工具授权、全局引用编号、导航接线、集成日志）。
 - `9a6f8da`：本窗口最终修复（同批次全局编号、Q2 目标块优先、畸形引用门禁、集成测试与脚本指标）。
 - `928f410`：引用收敛后续提交（只发布正文实际引用的 sources、重复检索去重、探索轮数 4）；Q3/Q4 89 项、相关回归 109 项通过。
+- `2e67e04`：集成日志更新。最终 HEAD 的运行结果以上表为准；未合并 `main`、未推送。
 
 
 
