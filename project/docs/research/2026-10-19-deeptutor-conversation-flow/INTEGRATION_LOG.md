@@ -27,36 +27,50 @@
 
 | 检查 | 命令 | 结果 |
 | --- | --- | --- |
-| 单轮教材问答 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live` | `answer_status=answered`，16 个来源，2 轮，1 次工具调用；`exit=0` |
-| 第一章→下一知识点 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live_navigation` | 两轮均 `answered`；第一轮 `ch1:s1:b6`，第二轮 `ch1:s1:b20`；第二轮使用已保存的 `course_navigation`；`exit=0` |
+| 单轮教材问答 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live` | `20261019T152836Z-10943f`：`answer_status=answered`，8 个来源，2 轮，1 次工具调用；畸形引用格式门禁已生效；`exit=0` |
+| 第一章→下一知识点 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live_navigation` | `20261019T152811Z-a12b09`：两轮均 `answered`；第一轮 `ch1:s1:b6`、2 个来源、6.875 秒、引用[1]；第二轮 `ch1:s1:b20`、3 个来源、9.000 秒、引用[1]；`navigation_advanced=true`，引用编号与 sources 顺序一致；`exit=0` |
 
-运行目录：`.runtime/q3-live/20261019T152240Z-a3fa37`（导航两轮）；`.runtime/q3-live/` 下另有单轮运行。日志：`.runtime/q3-nav-live3.log`、`.runtime/q3-live-final.log`。
+运行日志：`.runtime/q3-live-navigation-4.log`、`.runtime/q3-live-integration-2.log`。运行目录：`.runtime/q3-live/20261019T152811Z-a12b09`、`.runtime/q3-live/20261019T152836Z-10943f`。
+
+失败与修复记录（保留，不改写成通过）：
+
+- `20261019T152155Z-dbcb44`：导航两轮 answered，但第一轮同批次两次 `retrieve_course` 都从 offset 0 编号，12 个来源只有编号 1–6，引用 `[n]` 含义重复。修复：检索工具用 `_RETRIEVE_LOCK` 串行分配全局编号，并在成功后推进 `source_offset`；新增同批次并行检索测试。
+- `20261019T152617Z-e2e937`：导航两轮 answered，但第二轮虽读取 `ch1:s1:b20`，回答内容落到同节的“科学方法”，未围绕解析出的目标块。修复：主机已解析目标时优先 `read_target` 精确目标块，再回退到节内检索。
+- `20261019T152406Z-23fa95`：单轮 live 曾返回 `[1 第二组检索结果第1条…]` 畸形引用但门禁通过。修复：新增 `_citation_format_issues`，只接受 `[n]`/`[n,m]`/`[n-m]`，畸形数字引用触发一次有界修订或拒绝。
 
 ### 3.2 离线回归
 
-命令：
-
 ```powershell
 $env:PYTHONPATH=(Get-Location).Path
-.venv-gpu/Scripts/python.exe -B -m unittest `
+& 'E:\项目\heart\project\integration\discrete-math-tutor\.venv-gpu\Scripts\python.exe' -B -m unittest `
   tests.test_q3_agent_loop tests.test_q3_task_loop tests.test_q3_entrypoint `
-  tests.test_q4_tool_foundation tests.test_q3_q4_integration `
-  tests.test_reply_budget tests.test_conversation_context tests.test_task_execution `
-  tests.test_conversation_quality_harness tests.test_course_navigation `
-  tests.test_grounded_citations tests.test_quality_guard tests.test_psychology_presets -v
+  tests.test_q4_tool_foundation tests.test_q3_q4_integration -v
 ```
 
-结果：**207 项通过，0 失败**。日志：`.runtime/integration-regressions-final.log`。
+结果：**87 项通过，0 失败**。日志：`.runtime/q3-q4-tests-final.log`。
 
-首次运行 `test_psychology_presets` 的 2 项失败是因为 worktree 缺少被 `.gitignore` 排除的 `artifacts/` 目录；创建该运行目录后 8 项全部通过。该失败属于环境准备问题，不是代码回归。
+```powershell
+& 'E:\项目\heart\project\integration\discrete-math-tutor\.venv-gpu\Scripts\python.exe' -B -m unittest `
+  tests.test_reply_budget tests.test_conversation_context tests.test_task_execution `
+  tests.test_quality_guard tests.test_course_navigation tests.test_grounded_citations -v
+```
 
-未纳入上述集合的既有数据漂移：`tests.test_task_resource_execution` 在当前 worktree 缺少离散数学习题目录时会出现 8 项错误；与 Q1 记录一致，未改写测试。`tests.test_citation_publication.py` 仍是主工作区未跟踪的 Q2 文件，不在集成分支。
+结果：**109 项通过，0 失败**。日志：`.runtime/q3-q4-regression-final.log`。
+
+此前 207 项集成回归的结论来自本窗口之前的快照；本轮按窗口要求复跑了上述两组，未把旧结果当作本轮通过。worktree 缺少 `.venv-gpu`/`.env`，命令使用主项目虚拟环境；脚本只读加载主项目 `.env`，数据库为隔离 `.runtime/q3-live`。
+
+### 3.3 提交
+
+- `39abe13`：Q3/Q4 集成前序提交（Q4 工具授权、全局引用编号、导航接线、集成日志）。
+- `9a6f8da`：本窗口最终修复（同批次全局编号、Q2 目标块优先、畸形引用门禁、集成测试与脚本指标）。
+
+
 
 ## 4. 明确边界与遗留
 
 - `LOCAL_AGENT_LOOP_ENABLED` 默认仍为 `0`；现有页面默认仍走原入口，开启后才走 Q3。
-- 第二轮真实导航的目标标题显示为“主要讲心理学实验方法的教…”，回答内容进入“科学方法及其特点”。这是 Q2 教材叶子标题/正文范围的数据质量问题，不是 Q3 未接续；需要 Q2 窗口修正标题抽取或学习点映射。
+- 第二轮真实导航已改为优先读取 Q2 的精确目标块；最终复验回答围绕 `主要讲心理学实验方法的教材`，不再落到同节的“科学方法”。本轮未修改 Q2 `knowledge/*`、`orchestrator.py` 或 `frontend/*`。
 - Q3 只在 `answered` 且 `memory_commit=committed` 时写入 `course_navigation(explained=true)`；不把讲解当掌握。
-- Q4 只挂载 `retrieve_course`、`ask_user`，以及显式授权时的只读工作区/技能工具；其余 96 个工具仍按 Q4 台账推进。
-- 未做浏览器页面级验收；真实模型验收走的是 `TaskService → TutorOrchestrator → run_agent_loop_turn` 的宿主链路，不是独立 DeepTutor 应用。
+- Q4 只挂载 `retrieve_course`、`ask_user`，以及显式授权时的只读工作区/技能工具；其余工具仍按 Q4 台账推进。
+- 未做浏览器页面级验收；真实模型验收走的是 `TaskService → TutorOrchestrator → run_agent_loop_turn` 的宿主链路，不是独立 DeepTutor 应用。不能把本轮结果写成页面通过。
 - 未合并 `main`、未推送、未修改主工作区 `E:\项目\heart`。
