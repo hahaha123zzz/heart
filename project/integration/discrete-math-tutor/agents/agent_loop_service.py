@@ -342,7 +342,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                         previous: dict[str, Any] | None = None,
                         navigator: Any = None,
                         publish_gate: Callable[[str, LoopResult], tuple[bool, str]] | None = None,
-                        llm: Any = None) -> dict[str, Any]:
+                        llm: Any = None, q5: Any = None) -> dict[str, Any]:
     """Run one project task turn through the local loop.
 
     The caller (``TaskService``) already claimed the task and owns its
@@ -350,8 +350,19 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     """
     resume_state = _resume_state(previous)
     current_target = _target_from_state(resume_state) or _target_from_context(context)
-    navigation = navigator or _default_navigator(
-        current_target, getattr(context, "course_navigation", None))
+    q5_binding = None
+    if q5 is not None:
+        try:
+            q5_binding = q5.loop_binding()
+        except (ValueError, RuntimeError):
+            q5_binding = None
+    if q5_binding:
+        current_target = q5_binding["target"]
+        from agents.q5_learning import Q5Navigator
+        navigation = Q5Navigator(q5.service, q5.scope, search_fn=q5.search)
+    else:
+        navigation = navigator or _default_navigator(
+            current_target, getattr(context, "course_navigation", None))
     decision: NavigationDecision = navigation.resolve(
         message=request.message, student_id=request.student_id,
         session_id=request.session_id, current_target=current_target,
@@ -381,6 +392,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         skills_root=skills_root,
         allow_workspace=allow_workspace,
         allow_skills=skills_root.is_dir(),
+        extra_tools=tuple((q5_binding or {}).get("tool_instances") or ()),
+        extra_scopes=tuple((q5_binding or {}).get("scopes") or ()),
     )
     system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions())
     cancellation = register(request.task_id or request.request_id)
@@ -415,6 +428,13 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         answer=str((previous or {}).get("_resume_answer") or ""),
     )
     conversation_id = None
+    if q5_binding and result.completed:
+        try:
+            status_line = q5.status_line()
+            if status_line:
+                result.final_text = status_line + "\n\n" + result.final_text
+        except (ValueError, RuntimeError):
+            pass
     mapped = _map_result(result, target)
     if result.completed:
         memory = getattr(orchestrator, "memory", None)

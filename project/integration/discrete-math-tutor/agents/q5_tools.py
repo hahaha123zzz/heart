@@ -273,12 +273,9 @@ class MasteryReviseTool(_Q5Tool):
             return self._failure(exc)
 
 
-def build_q5_registry(service: Q5LearningService, scope: LearningScope):
-    """Build the per-turn Q4 authorized registry containing Q5's first tools."""
-    from agents.tools.registry import ScopedToolRegistry, ToolRegistry
-    from agents.tools.scope import Allowlist, ToolGrant
-
-    overlay = [
+def q5_tool_instances(service: Q5LearningService,
+                      scope: LearningScope) -> list[BaseTool]:
+    return [
         MasteryStatusTool(service, scope),
         MasteryBuildTool(service, scope),
         MasteryNoteExplainedTool(service, scope),
@@ -289,6 +286,14 @@ def build_q5_registry(service: Q5LearningService, scope: LearningScope):
         MasteryLeaveTool(service, scope),
         MasteryReviseTool(service, scope),
     ]
+
+
+def build_q5_registry(service: Q5LearningService, scope: LearningScope):
+    """Build the per-turn Q4 authorized registry containing Q5's first tools."""
+    from agents.tools.registry import ScopedToolRegistry, ToolRegistry
+    from agents.tools.scope import Allowlist, ToolGrant
+
+    overlay = q5_tool_instances(service, scope)
     names = {tool.definition.name for tool in overlay}
     grant = ToolGrant(
         tools=Allowlist.of(names),
@@ -322,4 +327,5 @@ __all__ = [
     "MasterySwitchTool",
     "MasteryUnderstoodTool",
     "build_q5_registry",
+    "q5_tool_instances",
 ]

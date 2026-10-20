@@ -155,7 +155,9 @@ class AskUserTool(BaseTool):
 def build_registry(*, workspace_root: str | Path | None = None,
                    skills_root: str | Path | None = None,
                    allow_workspace: bool = False,
-                   allow_skills: bool = True):
+                   allow_skills: bool = True,
+                   extra_tools: tuple[Any, ...] = (),
+                   extra_scopes: tuple[str, ...] = ()):
     """Build the per-turn authorized registry used by the Q3 loop.
 
     Q3 owns the tool protocol; Q4 owns the process catalogue, lazy built-ins,
@@ -169,9 +171,11 @@ def build_registry(*, workspace_root: str | Path | None = None,
 
     base = ToolRegistry(aliases=TOOL_ALIASES)
     base.load_builtins(LOCAL_TOOL_SPECS)
-    overlay = [RetrieveCourseTool(), AskUserTool()]
-    names = {"retrieve_course", "ask_user"}
-    scopes: set[str] = set()
+    overlay = [RetrieveCourseTool(), AskUserTool(), *extra_tools]
+    names = {"retrieve_course", "ask_user"} | {
+        tool.definition.name for tool in extra_tools
+    }
+    scopes: set[str] = set(extra_scopes)
     workspace = Path(workspace_root).resolve() if workspace_root else None
     skills = Path(skills_root).resolve() if skills_root else None
     if allow_workspace and workspace is not None:

@@ -175,8 +175,11 @@ class TaskService:
             option = next((value for value in options if value["id"] == chosen), None)
             if option is None:
                 raise TaskConflict("invalid_option", "选项不存在或已失效，请恢复最新任务")
-            if row["result"].get("clarification", {}).get("mode") == "ask_user":
+            clarification_mode = row["result"].get("clarification", {}).get("mode")
+            if clarification_mode == "ask_user":
                 suffix += "\n明确回答：" + option["label"]
+            elif clarification_mode in ("q5_plan", "q5_plan_adjust"):
+                suffix += "\n明确选择：" + option["label"]
             else:
                 origin = row["context"].get("option_requests", {}).get(chosen)
                 if origin is None:
@@ -203,6 +206,10 @@ class TaskService:
             else: raise ValueError("账户类型无效")
             # 灰度使用数据库中的账户类别，客户端不能把正式账户伪装成测试账户。
             account_type = self.repo.account_type(request.student_id)
+            q5 = None
+            from agents.q5_runtime import q5_enabled, Q5Runtime
+            if q5_enabled():
+                q5 = Q5Runtime(request.student_id, request.session_id)
             enabled = self.policy.enabled(request.student_id, account_type)
             can_clarify = self.policy.can_clarify(request.student_id, account_type)
             if not can_clarify:
@@ -230,6 +237,22 @@ class TaskService:
                 # The loop needs the raw answer, not the merged "补充说明" body.
                 previous["_resume_answer"] = self._selected_label(request, previous)
             effective = self._resume(request, previous) if previous else request
+            previous_result = (previous or {}).get("result") or {}
+            q5_plan = previous_result.get("q5_plan") if isinstance(previous_result, dict) else None
+            q5_previous_mode = (previous_result.get("clarification") or {}).get("mode")
+            q5_propose = bool(q5 and not q5.has_path() and q5.is_plan_request(effective.message))
+            q5_adjust_prompt = bool(
+                q5 and q5_plan and request.selected_option == "q5:adjust"
+            )
+            q5_adjust_text = bool(
+                q5 and q5_plan and q5_previous_mode == "q5_plan_adjust"
+                and request.selected_option is None and q5.is_adjust(request.message)
+            )
+            q5_confirm = bool(
+                q5 and q5_plan
+                and (request.selected_option == "q5:confirm" or q5.is_confirm(effective.message))
+                and q5_previous_mode in ("q5_plan", "q5_plan_adjust")
+            )
             context, resolved, origins = self._context(effective)
             from knowledge.pdf_reader import documents
             document_versions = {record["document_id"]: record["version"] for record in documents()}
@@ -246,6 +269,52 @@ class TaskService:
             if duplicate is not None:
                 from knowledge.grounded_citations import references_for_display
                 return dict(duplicate,pdf_references=references_for_display(duplicate['pdf_references'])) if duplicate.get('pdf_references') else duplicate
+
+            q5_binding = None
+            if q5 is not None:
+                def save_q5(result):
+                    saved_context = context.model_dump() | {
+                        "document_versions": document_versions,
+                        "q5_status": result.get("q5_status"),
+                    }
+                    saved_task, saved_result = self.repo.save(
+                        task=task, receipt_id=receipt,
+                        memory_repo=self.tutor.memory.repo,
+                        status="awaiting_clarification" if result.get("loop_paused") else "completed",
+                        result=result, context=saved_context, routing=None,
+                        payload=effective.model_dump(),
+                    )
+                    return saved_result
+
+                try:
+                    if q5_propose:
+                        proposal = q5.propose_chapter_plan(
+                            effective.message, command_id=request_key)
+                        return save_q5(q5.plan_result(proposal, task))
+                    if q5_adjust_prompt:
+                        return save_q5(q5.plan_result(
+                            q5_plan, task, adjust_prompt=True))
+                    if q5_adjust_text:
+                        proposal = q5.adjust_first(
+                            q5_plan, request.message, request_key)
+                        return save_q5(q5.plan_result(proposal, task))
+                    if q5_confirm:
+                        q5.confirm(q5_plan, request_key)
+                    if q5.is_understood(effective.message):
+                        q5.advance_understood(request_key)
+                    status = q5.status()
+                    if (status.get("path_id") and status.get("plan_confirmed")
+                            and status.get("mode") == "study"
+                            and status.get("current")):
+                        q5_binding = q5
+                except (ValueError, RuntimeError) as exc:
+                    result = {
+                        "reply": f"学习计划暂时无法推进：{exc}",
+                        "answer_status": "q5_error",
+                        "step_advanced": False,
+                        "task_id": task.get("id"), "task_revision": task.get("revision"),
+                    }
+                    return save_q5(result)
             def guard():
                 self.repo.guard(task["student_id"], task["session_id"], task["id"], task["revision"], self.tutor.memory.repo)
                 if context.course_navigation and context.course_navigation['status'] == 'ready':
@@ -327,7 +396,11 @@ class TaskService:
                     context=context.model_dump() | {"document_versions": document_versions}, routing=routing.model_dump(), payload=effective.model_dump())
                 return None
             guard()
-            if self._accepts_previous(executor):
+            if q5_binding is not None:
+                result = executor(effective, context, resolved, intercept, guard,
+                                  progress, previous=previous,
+                                  q5_binding=q5_binding)
+            elif self._accepts_previous(executor):
                 result = executor(effective, context, resolved, intercept, guard, progress, previous=previous)
             else:
                 result = executor(effective, context, resolved, intercept, guard, progress)
@@ -345,6 +418,13 @@ class TaskService:
                     routing=result.get("routing"), payload=effective.model_dump(),
                 )
                 return result
+            if (q5 is not None and q5_binding is not None
+                    and result.get("answer_status") == "answered"):
+                try:
+                    q5.record_explained(str(result.get("reply") or ""), request_key)
+                    result = dict(result, q5_status=q5.status())
+                except (ValueError, RuntimeError):
+                    pass
             if context.graph_snapshot:
                 result['visualization_context'] = {k:v for k,v in context.graph_snapshot.items() if k != 'evaluation'}
             if context.truth_table_snapshot:

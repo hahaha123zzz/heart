@@ -189,14 +189,14 @@ def _run_turn(request: ChatRequest, progress=None, answer_ready=None):
         return sync_saved_turn(request, result)
 
 
-def _execute_task_turn(request, context, resolved, intercept, guard, progress, *, visualization_jobs=None, previous=None):
+def _execute_task_turn(request, context, resolved, intercept, guard, progress, *, visualization_jobs=None, previous=None, q5_binding=None):
     explicit_target=request.visualization_target or request.truth_table_target or request.relation_target
     if os.getenv("LOCAL_AGENT_LOOP_ENABLED", "0") == "1" and not any(
             (request.selection, request.exercise_target, explicit_target)):
         from agents.agent_loop_service import run_agent_loop_turn
         return run_agent_loop_turn(orchestrator=orchestrator, request=request,
             context=context, resolved=resolved, intercept=intercept, guard=guard,
-            progress=progress, previous=previous)
+            progress=progress, previous=previous, q5=q5_binding)
     if explicit_target and explicit_target.action:
         routing = TaskContextBuilder.button_task(context, explicit_target.action)
         return orchestrator.handle_turn(request.student_id, request.message, request.learning_goal,
