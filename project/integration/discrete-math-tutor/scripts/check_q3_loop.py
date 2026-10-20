@@ -8,7 +8,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
+import time
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -157,11 +159,88 @@ def run_live():
             "quality": result.get("quality")}
 
 
+def run_live_navigation():
+    """Real model through TaskService: chapter start then next knowledge point."""
+    from datetime import datetime, timezone
+    import secrets
+
+    root = ROOT
+    run = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + secrets.token_hex(3)
+    home = root / ".runtime/q3-live" / run
+    home.mkdir(parents=True, exist_ok=True)
+    os.environ.update(
+        TUTOR_COURSE="experimental-psychology-3", LLM_MOCK="0",
+        DATABASE_URL="sqlite:///" + str(home / "host.sqlite3"),
+        COURSE_DATABASE_URL="sqlite:///" + str(home / "course.sqlite3"),
+        Q3_RETRIEVAL_MODE="local", LOCAL_AGENT_LOOP_ENABLED="1",
+        MEMORY_WORKER_ENABLED="0", VISUALIZATION_ON_DEMAND="0",
+        RAG_RERANK_DEVICE="cpu", RAG_EMBED_DEVICE="cpu",
+    )
+    from database.database import init_db
+    from dotenv import load_dotenv
+    from orchestrator import TutorOrchestrator
+    from agents.agent_loop_service import run_agent_loop_turn
+    from agents.task_service import TaskService
+    from models.chat_request import ChatRequest
+
+    load_dotenv(Path("E:/项目/heart/project/integration/discrete-math-tutor/.env"))
+    init_db()
+    orchestrator = TutorOrchestrator()
+    student_id = "q3-nav-" + run
+    orchestrator.memory.ensure_student(student_id, account_type="test")
+    service = TaskService(orchestrator)
+
+    def execute(request, context, resolved, intercept, guard, progress,
+                previous=None, **kwargs):
+        return run_agent_loop_turn(
+            orchestrator=orchestrator, request=request, context=context,
+            resolved=resolved, intercept=intercept, guard=guard,
+            progress=progress, previous=previous,
+        )
+
+    turns = []
+    for index, message in enumerate(("我想要学习教材第一章的内容", "继续下一个知识点")):
+        request = ChatRequest(
+            student_id=student_id, session_id="q3-nav-session",
+            request_id=f"{run}-{index}", message=message, account_type="test",
+        )
+        started = time.monotonic()
+        result = service.run(request, execute)
+        elapsed = round(time.monotonic() - started, 3)
+        sources = result.get("sources") or []
+        citation_indexes = sorted({int(value) for value in re.findall(r"\[(\d+)\]", result.get("reply") or "")})
+        source_indexes = sorted({int(source.get("index")) for source in sources
+                                 if source.get("index") is not None})
+        turns.append({
+            "message": message,
+            "answer_status": result.get("answer_status"),
+            "reply": result.get("reply"),
+            "knowledge_point": result.get("knowledge_point"),
+            "navigation_id": (result.get("course_navigation") or {}).get("id"),
+            "navigation": result.get("course_navigation"),
+            "sources": len(sources),
+            "source_indexes": source_indexes,
+            "citation_indexes": citation_indexes,
+            "citations_consistent": bool(citation_indexes) and set(citation_indexes) <= set(source_indexes),
+            "elapsed_seconds": elapsed,
+            "loop_error": result.get("loop_error"),
+        })
+    passed = (all(turn["answer_status"] == "answered" for turn in turns)
+              and all(turn["citations_consistent"] for turn in turns))
+    navigation_advanced = (turns[0]["navigation_id"] is not None
+                           and turns[1]["navigation_id"] is not None
+                           and turns[1]["navigation_id"] != turns[0]["navigation_id"])
+    return {"passed": passed, "stage": "live_navigation", "run": run,
+            "navigation_advanced": navigation_advanced, "turns": turns}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode", choices=("stub", "local", "live"), default="stub")
+    parser.add_argument("--mode", choices=("stub", "local", "live", "live_navigation"),
+                        default="stub")
     args = parser.parse_args()
-    report = {"stub": run_stub, "local": run_local, "live": run_live}[args.mode]()
+    report = {"stub": run_stub, "local": run_local, "live": run_live,
+              "live_navigation": run_live_navigation}[args.mode]()
     print(json.dumps(report, ensure_ascii=False, indent=2))
     raise SystemExit(0 if report["passed"] else 1)
 

@@ -34,6 +34,7 @@ class LoopRequest:
     seed_messages: list[dict[str, Any]] = field(default_factory=list)
     target: LearningTarget | None = None
     navigation: Any = None
+    tool_state: dict[str, Any] = field(default_factory=dict)
     cancellation: Cancellation | None = None
     guard: Callable[[], None] | None = None
     publish_gate: Callable[[str, "LoopResult"], tuple[bool, str]] | None = None
@@ -108,12 +109,19 @@ class LocalAgentLoop:
                 result.tool_steps = int(resume_state.get("tool_steps", 0))
                 result.sources = list(resume_state.get("sources") or [])
                 collector("progress", "继续原任务", {"detail": "已恢复待回答的同一任务"})
+            seen_sources = {str(source.get("source_id") or "")
+                            for source in result.sources if source.get("source_id")}
             tool_context = ToolContext(
                 student_id=request.student_id, session_id=request.session_id,
                 task_id=request.task_id, request_id=request.request_id,
                 knowledge_point=request.target.name if request.target else "",
                 cancellation=request.cancellation, navigation=request.navigation,
-                state={"learning_target": request.target},
+                state={**dict(request.tool_state), "learning_target": request.target,
+                       # A paused task may already contain retrieved sources.
+                       # Continue numbering after them instead of reusing [1].
+                       "source_offset": len(result.sources),
+                       "seen_source_ids": seen_sources,
+                       "max_sources": int(request.tool_state.get("max_sources", 24))},
                 emit=collector,
             )
             outcome = self._loop(request, messages, result, tool_context, collector)
@@ -207,6 +215,7 @@ class LocalAgentLoop:
                 result.tool_steps += 1
                 messages.extend(dispatch.tool_messages)
                 result.sources.extend(dispatch.sources)
+                context.state["source_offset"] = len(result.sources)
                 if dispatch.sources:
                     collector("sources", "", {"sources": dispatch.sources})
                 if dispatch.pause:
@@ -240,15 +249,23 @@ class LocalAgentLoop:
                 ok, reason = request.publish_gate(final_text, result)
                 if not ok:
                     if not repair_used and any(token in (reason or "") for token in
-                                               ("过长", "压缩", "字数", "超过")):
+                                               ("过长", "压缩", "字数", "超过", "引用格式", "格式无效")):
                         repair_used = True
                         no_tools_next = True
                         messages.append({"role": "assistant", "content": final_text})
+                        if any(token in (reason or "") for token in ("过长", "压缩", "字数", "超过")):
+                            instruction = ("\n请在不新增事实、不改变引用编号和范围的前提下压缩重写，"
+                                           "不要调用工具，直接给出修订后的完整回答。")
+                            label = "压缩修订"
+                        else:
+                            instruction = ("\n请只修正引用格式，使用单独的 [n] 编号；"
+                                           "不新增事实、不改变引用对应的来源，不要调用工具，"
+                                           "直接给出修订后的完整回答。")
+                            label = "引用修订"
                         messages.append({"role": "user", "content":
                             "上一版回答未通过课程核验：" + (reason or "格式不符合要求")
-                            + "\n请在不新增事实、不改变引用编号和范围的前提下压缩重写，"
-                              "不要调用工具，直接给出修订后的完整回答。"})
-                        collector("progress", "压缩修订", {"detail": reason or ""})
+                            + instruction})
+                        collector("progress", label, {"detail": reason or ""})
                         continue
                     result.final_text = reason or "本次回答未通过课程核验，暂不发布。"
                     result.error = "quality_rejected"
