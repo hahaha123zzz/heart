@@ -64,15 +64,26 @@ def outline():
 
 def intent(message):
     text = ''.join(message.split())
-    if re.search(r'(?:不要|不用|别|暂不|先不).{0,6}(?:下一|换章|换节)', text):
+    if re.search(r'(?:不要|不用|别|暂不|先不|不想).{0,6}(?:下一|换章|换节|继续|接下来|下一步)', text):
         return None
     if re.search(r'(?:知识点|下一章|下一节)(?:是什么|的意思|什么意思)', text):
+        return None
+    # “下一步推导/继续这个例子/继续讲刚才的”仍指向当前对象，不是教材推进。
+    if re.search(r'下一步(?:推导|证明|计算|怎么做|如何|的思路)|'
+                 r'继续(?:这个|刚才|上面|这一|该)(?:的)?(?:例子|证明|推导|题|内容)?|'
+                 r'(?:继续|接着)(?:讲|解释|说)(?:这个|刚才|上面|这一)', text):
         return None
     for mode, pattern in [('chapter', r'(?:下(?:一|1)章|下一章节)'),
                           ('section', r'(?:下(?:一|1)节|下一个小节)'),
                           ('topic', r'(?:下一个?知识点|下一(?:个)?(?:知识点|主题)|下一个内容)')]:
         if re.search(pattern, text):
             return mode
+    # “我懂了，下一部分/下一步/继续/接下来”是路径推进；无路径时由 resolve 澄清。
+    if re.search(r'下一部分|下一步|接下来', text):
+        return 'next'
+    if re.fullmatch(r'(?:我懂了|明白了|懂了|好的|可以|嗯|行)?[，,。！？\s]*'
+                    r'(?:继续|继续学习|继续学|接着学习|接着学|往下学|往下学习)[。！？\s]*', text):
+        return 'next'
     # 章节中的具体内容提问仍交给普通识别；章节导学要求才走目录入口。
     chapter_match = re.search(r'第[一二三四五六七八九十零\d]+章', text)
     named = next((chapter['title'] for chapter in chapters() if chapter['title'] in text), None) if PSYCHOLOGY else None
@@ -96,10 +107,74 @@ def previous_cursor(recent, memory, student_id):
     return None
 
 
+def _cursor(unit, *, mode, explained):
+    return {key: value for key, value in unit.items() if key not in ('blocks', 'source', 'page')} | {
+        'status': 'ready', 'mode': mode, 'path_kind': 'textbook_heading_order',
+        'explained': explained, 'covered': False}
+
+
+def _candidate(unit):
+    return {key: unit.get(key) for key in
+            ('id', 'title', 'chapter_id', 'section_id', 'chapter_title', 'section_title', 'position', 'version')}
+
+
+def _flat(text):
+    return ''.join(str(text or '').split())
+
+
+def bind_result(result):
+    """Bind an ordinary/selection answer to the real outline location it used.
+
+    Returns ``None`` when the answer has no verifiable textbook reference, a
+    ``ready`` cursor when one outline unit is identifiable, and a ``clarify``
+    cursor when the answer spans locations or the location is not unique.
+    """
+    references = []
+    selection = result.get('selection_ref')
+    if isinstance(selection, dict):
+        references.append(selection)
+    for item in result.get('pdf_references') or []:
+        if isinstance(item, dict) and isinstance(item.get('selection_ref'), dict):
+            references.append(item['selection_ref'])
+    references = [item for item in references
+                  if item.get('chapter_id') and item.get('section_id')]
+    if not references:
+        return None
+    pairs = {(int(item['chapter_id']), int(item['section_id'])) for item in references}
+    units = outline()
+    if len(pairs) > 1:
+        candidates = [_candidate(unit) for unit in units
+                      if (unit['chapter_id'], unit['section_id']) in pairs][:6]
+        return {'status': 'clarify', 'mode': 'bind', 'path_kind': 'textbook_heading_order',
+                'explained': True, 'reply': '这次回答涉及多个教材小节。请说明要从哪一节继续。',
+                'candidates': candidates}
+    pair = next(iter(pairs))
+    section_units = [unit for unit in units
+                     if (unit['chapter_id'], unit['section_id']) == pair]
+    if not section_units:
+        return None
+    texts = [_flat(item.get('quote') or item.get('text') or '') for item in references]
+    scored = []
+    for unit in section_units:
+        blocks = [_flat(block.get('text', '')) for block in unit.get('blocks', [])]
+        score = sum(min(len(text), len(block)) for text in texts if text
+                    for block in blocks if block and (text in block or block in text))
+        scored.append((score, unit['position'], unit))
+    scored.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    if len(scored) > 1 and scored[0][0] == scored[1][0] == 0:
+        candidates = [_candidate(unit) for _, _, unit in scored[:6]]
+        return {'status': 'clarify', 'mode': 'bind', 'path_kind': 'textbook_heading_order',
+                'explained': True, 'reply': '这次回答对应的教材位置不唯一。请说明要从哪一部分继续。',
+                'candidates': candidates}
+    return _cursor(scored[0][2], mode='bind', explained=True)
+
+
 def resolve(message, *, cursor=None, reader_location=None):
     mode = intent(message)
     if not PSYCHOLOGY or mode is None:
         return None
+    if cursor and cursor.get('status') == 'clarify' and mode in ('next', 'topic', 'section', 'chapter'):
+        return dict(cursor)
     units = outline()
     if mode == 'start':
         text = ''.join(message.split())
@@ -124,7 +199,7 @@ def resolve(message, *, cursor=None, reader_location=None):
         if current is None:
             return {'status': 'clarify', 'reply': '还没有可确认的学习路径和当前位置。请先说明章节或选择要学习的小节。'}
         candidates = [u for u in units if u['position'] > current['position']]
-        if mode == 'topic':
+        if mode in ('topic', 'next'):
             # 本阶段路径为当前章的真实标题顺序；不推断跨章概念关系。
             candidates = [u for u in candidates if u['chapter_id'] == current['chapter_id']]
         elif mode == 'section':

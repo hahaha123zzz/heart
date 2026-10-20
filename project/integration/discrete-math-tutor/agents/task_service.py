@@ -49,6 +49,36 @@ class TaskService:
                 return str(option.get("label") or request.message)
         return request.message
 
+    @staticmethod
+    def _last_navigation_cursor(recent):
+        """Find the newest valid Q2 cursor when a later turn did not persist one.
+
+        A non-navigation follow-up can be answered without a directory cursor;
+        the next "下一部分" must still continue from the last valid path.
+        """
+        for row in reversed(recent or ()):
+            result = row.get("result") or {}
+            if result.get("answer_status") != "answered":
+                continue
+            navigation = result.get("course_navigation")
+            if isinstance(navigation, dict) and navigation.get("status") == "ready":
+                return navigation
+        return None
+
+    @staticmethod
+    def _navigation_message(message):
+        """Normalize natural continuation wording for Q2's directory resolver.
+
+        Q2 owns the path and intentionally recognizes a narrow set of phrases.
+        The page/LLM frequently says "我懂了，下一部分"; treating that as the
+        same navigation action avoids a false "no path" clarification without
+        duplicating Q2's chapter logic in this module.
+        """
+        if re.search(r"(?:我懂了|明白了|懂了|学会了|清楚了).{0,8}(?:下一部分|下一段|继续往下|往下学)|"
+                     r"(?:下一部分|下一段)(?:内容)?[。！？!?]?$", message.strip()):
+            return "继续下一个知识点"
+        return message
+
     def _context(self, request):
         recent = self.repo.recent(request.student_id, request.session_id, limit=12)
         history = self.tutor.memory.get_history(request.student_id) if request.session_id == "legacy" else [
@@ -85,9 +115,12 @@ class TaskService:
                 **(request.style_overrides.model_dump(exclude_none=True) if request.style_overrides else {})})
         from knowledge.course_navigation import resolve, previous_cursor
         cursor = previous_cursor(recent, self.tutor.memory, request.student_id)
+        if cursor is None and self._navigation_message(request.message) != request.message:
+            cursor = self._last_navigation_cursor(recent)
         if not any((request.selection, request.exercise_target, request.visualization_target,
                     request.truth_table_target, request.relation_target)):
-            context.course_navigation = resolve(request.message, cursor=cursor, reader_location=request.reader_location)
+            context.course_navigation = resolve(self._navigation_message(request.message),
+                                                cursor=cursor, reader_location=request.reader_location)
             if (context.course_navigation is None and cursor and re.fullmatch(
                     r'(?:我|还是|刚才|请|没听懂|再解释(?:一次|一下|一遍)?|换(?:个|一种)说法|'
                     r'再简单(?:点|一点)?|继续这个例子|继续讲|接着讲|[，。！？、\s])+', request.message)):
@@ -178,7 +211,9 @@ class TaskService:
             request_key = request.request_id or str(uuid4())
             self.repo.expire(request.student_id, request.session_id)
             replay = self.repo.replay(request.student_id, request.session_id, request_key, payload, self.tutor.memory.repo)
-            if replay is not None: return replay
+            if replay is not None:
+                from knowledge.grounded_citations import references_for_display
+                return dict(replay,pdf_references=references_for_display(replay['pdf_references'])) if replay.get('pdf_references') else replay
             pending = self.repo.pending(request.student_id, request.session_id)
             task_id, revision = request.task_id, request.task_revision
             if task_id is None and pending and not re.search(r"换到|换个|改学|想学|重新提问", request.message):
@@ -201,7 +236,9 @@ class TaskService:
             task, receipt, duplicate = self.repo.claim(student_id=request.student_id, session_id=request.session_id,
                 request_id=request_key, payload=payload, point=point, epoch=epoch, memory_repo=self.tutor.memory.repo,
                 task_id=task_id, revision=revision, ttl_seconds=self.ttl_seconds)
-            if duplicate is not None: return duplicate
+            if duplicate is not None:
+                from knowledge.grounded_citations import references_for_display
+                return dict(duplicate,pdf_references=references_for_display(duplicate['pdf_references'])) if duplicate.get('pdf_references') else duplicate
             def guard():
                 self.repo.guard(task["student_id"], task["session_id"], task["id"], task["revision"], self.tutor.memory.repo)
                 if context.course_navigation and context.course_navigation['status'] == 'ready':
@@ -332,17 +369,29 @@ class TaskService:
                     logging.getLogger(__name__).exception("Optional visualization failed")
                 result = dict(result, guided_visualization=guide,
                     visualization_status="ready" if guide else "unavailable")
+            # 普通问答/选区回答若引用真实教材位置，绑定可接续的目录游标；
+            # 绑定只读文件，放在写事务之外，避免持锁做目录解析。
+            bound_navigation = None
+            if (result.get('answer_status') == 'answered'
+                    and result.get('memory_commit', {}).get('status') == 'committed'
+                    and context.course_navigation is None):
+                from knowledge.course_navigation import bind_result
+                bound_navigation = bind_result(result)
             # 与最后一次保存使用相同工作单元检查，拒绝已删除/取消的迟到结果。
             with self.tutor.memory.repo.unit_of_work():
                 guard()
                 if (result.get('answer_status') == 'answered' and result.get('memory_commit', {}).get('status') == 'committed'):
                     navigation = context.course_navigation
-                    if not navigation:
+                    if navigation and navigation.get('status') == 'ready' and result.get('knowledge_point') == navigation['title']:
+                        result = dict(result, course_navigation=dict(navigation, explained=True))
+                    elif navigation is None and bound_navigation:
+                        result = dict(result, course_navigation=bound_navigation)
+                    elif navigation is None:
                         from knowledge.course_navigation import previous_cursor
                         navigation = previous_cursor(self.repo.recent(request.student_id, request.session_id, limit=12),
                                                      self.tutor.memory, request.student_id)
-                    if navigation and navigation.get('status') == 'ready' and result.get('knowledge_point') == navigation['title']:
-                        result = dict(result, course_navigation=dict(navigation, explained=True))
+                        if navigation and navigation.get('status') == 'ready' and result.get('knowledge_point') == navigation['title']:
+                            result = dict(result, course_navigation=dict(navigation, explained=True))
                 if result.get("visualization_status") == "ready":
                     if not self.tutor.memory.repo.attach_guide(request.student_id, result["conversation_id"], result["guided_visualization"]):
                         raise TaskConflict("memory_deleted", "相关对话已删除，图解未保存")

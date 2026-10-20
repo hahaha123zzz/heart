@@ -15,6 +15,10 @@ from knowledge.textbook import TextbookChunk
 from orchestrator import TutorOrchestrator
 
 class QualityGuardTests(unittest.TestCase):
+    def setUp(self):
+        # 这些测试隔离质检事务；真实教材证据协议由专项测试覆盖。
+        self.citations=patch('knowledge.grounded_citations.settings',return_value=None)
+        self.citations.start();self.addCleanup(self.citations.stop)
     def tutor(self, qualities):
         tutor=TutorOrchestrator.__new__(TutorOrchestrator)
         for name in ('llm','memory','conversation_router','context_sufficiency','lesson_planner','evidence_extractor','state_analyzer','teaching_planner','strategy_router','question_designer','response_generator','quality_checker','state_updater','tutor_error_detector'):

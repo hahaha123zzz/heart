@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 import tempfile
+import threading
+import time
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -19,7 +21,10 @@ from agents.q3_navigation import (
 from agents.q3_tools import AskUserTool, RetrieveCourseTool, build_registry
 from agents.quality_checker import QualityChecker
 from agents.teaching_planner import TeachingPlan
-from agents.tool_protocol import ToolContext, ToolRegistry
+from agents.tool_protocol import (
+    BaseTool, Cancellation, ToolContext, ToolDefinition, ToolRegistry, ToolResult,
+)
+from agents.tool_dispatch import dispatch_tool_calls
 from llm.client import ChatToolCall, ChatToolResult
 from models.chat_request import ChatRequest
 from models.student_state import StudentState
@@ -44,10 +49,14 @@ class ScriptedLLM:
 
 
 class FakeMemory:
+    def __init__(self):
+        self.calls = []
+
     def read_version(self, student_id, point):
         return "token", 0
 
     def append_exchange(self, *args, **kwargs):
+        self.calls.append({"args": args, "kwargs": kwargs})
         return 1
 
 
@@ -365,6 +374,149 @@ class ResumeNumberingTests(unittest.TestCase):
         resumed = loop.run(request, resume_state=paused.state(), answer="继续")
         self.assertTrue(resumed.completed, resumed.error)
         self.assertEqual([source["index"] for source in resumed.sources], [1, 2])
+
+
+class NavigationWordingTests(unittest.TestCase):
+    def test_natural_continuation_is_normalized_for_q2(self):
+        from agents.task_service import TaskService
+
+        self.assertEqual(TaskService._navigation_message("我懂了，下一部分"),
+                         "继续下一个知识点")
+        self.assertEqual(TaskService._navigation_message("下一段"), "继续下一个知识点")
+        self.assertEqual(TaskService._navigation_message("请解释自变量"), "请解释自变量")
+
+    def test_last_valid_cursor_survives_a_non_navigation_answer(self):
+        from agents.task_service import TaskService
+
+        recent = [
+            {"result": {"answer_status": "answered",
+                        "course_navigation": {"id": "ch1:s1:b6", "status": "ready"}}},
+            {"result": {"answer_status": "answered"}},
+        ]
+        self.assertEqual(TaskService._last_navigation_cursor(recent),
+                         {"id": "ch1:s1:b6", "status": "ready"})
+
+
+class TimeoutBoundaryTests(unittest.TestCase):
+    def _registry(self, tool):
+        registry = ToolRegistry()
+        registry.register(tool)
+        return registry
+
+    def test_timeout_returns_promptly_and_slow_tool_may_still_run(self):
+        marker = threading.Event()
+
+        class SlowWriteTool(BaseTool):
+            definition = ToolDefinition("slow_write", "模拟超时后仍继续的写入工具")
+
+            def run(self, arguments, context):
+                time.sleep(0.25)
+                marker.set()
+                return ToolResult(content="written")
+
+        started = time.monotonic()
+        outcome = dispatch_tool_calls(
+            tool_calls=[{"id": "a", "name": "slow_write", "arguments": {}}],
+            registry=self._registry(SlowWriteTool()),
+            context=ToolContext("s", "x"), timeout_seconds=0.05)
+        self.assertLess(time.monotonic() - started, 0.2)
+        self.assertFalse(outcome.results[0].success)
+        self.assertIn("超时", outcome.tool_messages[0]["content"])
+        # Boundary: a plain blocking tool cannot be killed by the dispatcher.
+        self.assertTrue(marker.wait(0.6), "slow tool should keep running after timeout")
+
+    def test_cancellation_aware_tool_does_not_write_after_timeout(self):
+        marker = threading.Event()
+        cancellation = Cancellation()
+
+        class CancellableWriteTool(BaseTool):
+            definition = ToolDefinition("cancellable_write", "检查取消令牌后再写")
+
+            def run(self, arguments, context):
+                time.sleep(0.25)
+                context.check_cancelled()
+                marker.set()
+                return ToolResult(content="written")
+
+        outcome = dispatch_tool_calls(
+            tool_calls=[{"id": "a", "name": "cancellable_write", "arguments": {}}],
+            registry=self._registry(CancellableWriteTool()),
+            context=ToolContext("s", "x", cancellation=cancellation),
+            timeout_seconds=0.05)
+        self.assertFalse(outcome.results[0].success)
+        cancellation.cancel()
+        self.assertFalse(marker.wait(0.6),
+                         "cancellation-aware tool must check before writing")
+
+
+class ResumeAuthorizationTests(unittest.TestCase):
+    def test_resume_rebuilds_registry_with_current_grants(self):
+        from unittest.mock import patch
+        from types import SimpleNamespace
+        from models.task_context import TaskContext
+        from models.chat_request import ChatRequest
+        from llm.client import ChatToolResult
+
+        target = LearningTarget(target_id="t1", name="目标", chapter_id=1, section_id=1)
+        first_llm = ScriptedLLM([
+            ChatToolResult(text="", finish_reason="tool_calls", tool_calls=[
+                ChatToolCall(id="ask", name="ask_user", arguments={
+                    "questions": [{"id": "q1", "prompt": "请选择"}]},
+                    raw_arguments=json.dumps({"questions": [{"id": "q1", "prompt": "请选择"}]}))]),
+        ])
+        context = TaskContext(student_id="s", message="请解释", knowledge_point="目标")
+        request = ChatRequest(student_id="s", session_id="legacy", request_id="r1",
+                              message="请解释")
+        orchestrator = SimpleNamespace(llm=first_llm, memory=FakeMemory(), quality_checker=None)
+        with patch.dict("os.environ", {"Q3_ENABLE_WORKSPACE_TOOLS": "1"}):
+            first = run_agent_loop_turn(
+                orchestrator=orchestrator, request=request, context=context,
+                navigator=StubLearningNavigator(target=target),
+                publish_gate=lambda text, state: (True, ""), llm=first_llm)
+        self.assertTrue(first.get("loop_paused"))
+
+        second_llm = ScriptedLLM([ChatToolResult(text="继续[1]", finish_reason="stop")])
+        orchestrator.llm = second_llm
+        request2 = ChatRequest(student_id="s", session_id="legacy", request_id="r2",
+                               message="请选择")
+        with patch.dict("os.environ", {"Q3_ENABLE_WORKSPACE_TOOLS": "0"}):
+            second = run_agent_loop_turn(
+                orchestrator=orchestrator, request=request2, context=context,
+                previous={"context": {"loop_state": first["loop_state"]},
+                          "_resume_answer": "请选择"},
+                navigator=StubLearningNavigator(target=target),
+                publish_gate=lambda text, state: (True, ""), llm=second_llm)
+        self.assertEqual(second.get("answer_status"), "answered")
+        names = {item["function"]["name"] for item in second_llm.calls[0]["tools"]}
+        self.assertIn("retrieve_course", names)
+        self.assertNotIn("workspace_read", names)
+
+
+class CitationPersistenceTests(unittest.TestCase):
+    def test_completed_loop_persists_cited_pdf_references(self):
+        target = LearningTarget(target_id="t1", name="目标", chapter_id=1, section_id=1)
+        navigation = StubLearningNavigator(target=target, sources=[
+            SourceRef("s1", "doc", "教材原文", version="v1", chapter_id=1,
+                      section_id=1, page=1)])
+        llm = ScriptedLLM([
+            ChatToolResult(text="", finish_reason="tool_calls", tool_calls=[
+                ChatToolCall(id="r1", name="retrieve_course",
+                             arguments={"query": "目标", "limit": 1},
+                             raw_arguments=json.dumps({"query": "目标", "limit": 1}))]),
+            ChatToolResult(text="回答[1]", finish_reason="stop"),
+        ])
+        memory = FakeMemory()
+        orchestrator = SimpleNamespace(llm=llm, memory=memory, quality_checker=None)
+        context = TaskContext(student_id="s", message="请解释", knowledge_point="目标")
+        request = ChatRequest(student_id="s", session_id="legacy", request_id="r",
+                              message="请解释")
+        result = run_agent_loop_turn(
+            orchestrator=orchestrator, request=request, context=context,
+            navigator=navigation, publish_gate=lambda text, state: (True, ""), llm=llm)
+        self.assertEqual(result["answer_status"], "answered")
+        stored = memory.calls[0]["kwargs"]["selection_ref"]
+        self.assertEqual(stored["pdf_references"][0]["evidence"]["evidence_id"], "s1")
+        self.assertEqual(stored["textbook_sources"], ["doc（第1页）"])
 
 
 class AgentLoopQualityGateTests(unittest.TestCase):

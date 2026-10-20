@@ -88,7 +88,15 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
         citation_path=citation_settings()
         if citation_path:
             report('citation-selection','选择支持原文','保留选区目标，选择对应的细粒度证据')
-            grounded_bundle=selection_evidence(tutor.llm,message,resolved,citation_path)
+            try:
+                grounded_bundle=selection_evidence(tutor.llm,message,resolved,citation_path)
+            except (ValueError,OSError,LLMError):
+                reply='本次未能确认支持选区解释的教材原文，请缩小选区或补充具体问题后重试。'
+                if tutor.memory.append_exchange(student_id,message,reply,expected_epoch=expected_epoch,
+                        expected_point=title,task_guard=task_guard) is False:
+                    return deleted_reply()
+                return {'reply':reply,'answer_status':'quality_rejected','knowledge_point':title,'step_advanced':False,
+                        'textbook_sources':[],'pdf_references':[],'image_refs':[],'pdf_image_refs':[],'selection_ref':None}
             from knowledge.textbook import format_excerpts
             excerpt=format_excerpts(grounded_bundle.sources)
             payload['可引用的证据摘录']=excerpt
@@ -107,7 +115,8 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
             'grounded_evidence':grounded_bundle.evidence if grounded_bundle else None},textbook_excerpts=excerpt,figure_images=resolved['images'],task_execution=execution)
         if quality.passed and not getattr(quality,"issues",[]):
             try:
-                if grounded_bundle:grounded_refs=grounded_bundle.references(reply)
+                if grounded_bundle:
+                    reply,published_sources,grounded_refs=grounded_bundle.publish(reply)
                 break
             except (ValueError,OSError):
                 from agents.quality_checker import QualityResult
@@ -122,7 +131,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
     reference=resolved['reference']
     if grounded_bundle:
         reference=reference|{'pdf_references':grounded_refs,'grounding_schema':'citation-grounding-v1',
-            'textbook_sources':[f'{s.source}／{s.section}' for s in grounded_bundle.sources]}
+            'textbook_sources':[f'{s.source}／{s.section}' for s in published_sources]}
     guided_visualization=None
     from visualization.service import rollout_settings,VisualizationService
     if (PSYCHOLOGY and os.getenv('VISUALIZATION_ON_DEMAND','0')=='1') or (not PSYCHOLOGY and rollout_settings()[0]!='off' and VisualizationService().enabled(student_id)):
@@ -138,6 +147,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
     if conversation_id is False:
         return deleted_reply()
     return {'answer_status':'answered','conversation_id':conversation_id,'step_advanced':False,'reply':reply,'selection_ref':reference,'guided_visualization':guided_visualization,'memory_summary':memories['summary'],
+            'memory_commit':{'status':'committed','conversation_id':conversation_id},
             'pdf_references':grounded_refs or [],
             'context_refs':[{'page':p,'document_id':selection.document_id} for p in sorted({r.page for r in selection.rects})],
             'pdf_image_refs':reference['image_refs'],'image_refs':[],

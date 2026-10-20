@@ -32,9 +32,26 @@ def main():
     run.mkdir(parents=True)
     index = PSYCHOLOGY_DIR / 'rag_index.sqlite3'
     before = index_signature(index)
-    queries = args.query or ['什么是自变量', '被试内设计和被试间设计有什么区别', '内部效度与外部效度有什么区别', '火星表面玄武岩的晶体结构']
-    expected = {'什么是自变量': ['自变量'], '被试内设计和被试间设计有什么区别': ['被试内', '被试间'],
-        '内部效度与外部效度有什么区别': ['内部效度', '外部效度'], '火星表面玄武岩的晶体结构': []}
+    queries = args.query or [
+        '什么是自变量',
+        '被试内设计和被试间设计有什么区别',
+        '随机化如何帮助控制无关变量',
+        '操作定义是什么意思',
+        '第一章的实验程序和第二章的自变量控制',
+        '差别感觉阈限DL公式中PSE是什么',
+        '这个怎么理解',
+        '火星表面玄武岩的晶体结构',
+    ]
+    expected = {
+        '什么是自变量': {'terms': ['自变量']},
+        '被试内设计和被试间设计有什么区别': {'terms': ['被试内', '被试间']},
+        '随机化如何帮助控制无关变量': {'terms': ['随机化', '额外变量']},
+        '操作定义是什么意思': {'terms': ['操作性定义']},
+        '第一章的实验程序和第二章的自变量控制': {'terms': ['实验程序', '自变量'], 'chapters': [1, 2]},
+        '差别感觉阈限DL公式中PSE是什么': {'terms': ['差别感觉阈限', 'PSE']},
+        '这个怎么理解': {'terms': []},
+        '火星表面玄武岩的晶体结构': {'terms': []},
+    }
     records = []; failed = False
     for query in queries:
         trace = {}; started = time.monotonic()
@@ -54,10 +71,14 @@ def main():
             record.update(status='passed', trace=trace, raw_ids=[hit.chunk_id for hit in hits], sources=sources,
                 excerpts=[hit.text[:1000] for hit in projected])
             if query in expected:
-                terms = expected[query]
-                if not terms and (hits or projected): raise ValueError('教材外查询未拒绝')
+                spec = expected[query]
+                terms = spec['terms']
+                if not terms and (hits or projected): raise ValueError('未命名或教材外查询未拒绝')
                 if terms and (not hits or any(not any(term in hit.text for hit in projected) for term in terms)):
                     raise ValueError('必需的概念来源没有完整覆盖')
+                required_chapters = set(spec.get('chapters') or ())
+                if required_chapters and not required_chapters <= {hit.chapter_id for hit in projected}:
+                    raise ValueError('跨章查询没有覆盖必要章节')
                 record['expectation_checked'] = True
             if args.require_rerank and trace.get('candidates') and trace.get('rerank_status') != 'applied':
                 raise ValueError('要求真实重排，但本轮实际使用了降级检索')

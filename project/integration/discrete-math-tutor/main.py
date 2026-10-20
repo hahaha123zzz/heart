@@ -103,7 +103,8 @@ def figure_image(figure_id: str):
     figure = get_figure(figure_id)
     if figure is None:
         raise HTTPException(404, "教材图片不存在或尚未审核")
-    return FileResponse(figure.path, media_type="image/png")
+    media_type = mimetypes.guess_type(figure.path.name)[0] or "application/octet-stream"
+    return FileResponse(figure.path, media_type=media_type)
 
 
 @app.post("/api/chat")

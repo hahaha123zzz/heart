@@ -17,7 +17,7 @@ ASSET_DIR = BASE_DIR / "figure_assets"
 CATALOG_PATH = BASE_DIR / "figure_catalog.json"
 EXTRACTED_DIR = BASE_DIR / "extracted_multimodal"
 EXTRACTED_CATALOG_PATH = EXTRACTED_DIR / "asset_catalog.json"
-FIGURE_NUMBER = re.compile(r"图\s*(\d+)\s*[.．]\s*(\d+)")
+FIGURE_NUMBER = re.compile(r"图\s*(\d+)\s*[.．\-]\s*(\d+)")
 
 
 @dataclass(frozen=True)
@@ -33,6 +33,7 @@ class Figure:
     sha256: str
     kind: str = "figure"
     selection_ref: dict | None = None
+    review_status: str = "approved"
 
     def is_valid(self) -> bool:
         """读取或发送前再次验证，防止缓存后文件被替换。"""
@@ -47,15 +48,32 @@ class Figure:
             "chapter_id": self.chapter_id,
             "section_id": self.section_id,
             "kind": self.kind,
+            "review_status": self.review_status,
             "image_url": f"/api/figures/{self.id}/image",
         }
 
 
 @lru_cache(maxsize=1)
 def load_figures() -> tuple[Figure, ...]:
-    """损坏、缺失或未审核的资产不会进入可引用目录。"""
+    """Load verified assets; psychology originals keep their review status."""
     from knowledge.course_config import PSYCHOLOGY
-    if PSYCHOLOGY:return ()
+    if PSYCHOLOGY:
+        from knowledge.source_visuals import load_visuals
+        visuals, _ = load_visuals()
+        result = []
+        for visual in visuals:
+            if not visual.is_valid():
+                continue
+            label = visual.labels[0] if visual.labels else (
+                f"第{visual.chapter_id}章教材原图 {visual.id.rsplit('-', 1)[-1]}")
+            result.append(Figure(
+                id=visual.id, label=label, chapter_id=visual.chapter_id,
+                section_id=visual.section_id, source=visual.source,
+                caption=label, context=visual.context, path=visual.path,
+                sha256=visual.sha256, kind=visual.kind,
+                review_status=visual.review_status,
+            ))
+        return tuple(result)
     figures: list[Figure] = []
     seen: set[str] = set()
     asset_root = ASSET_DIR.resolve()
@@ -133,9 +151,15 @@ def get_figure(figure_id: str) -> Figure | None:
                  if figure.id == figure_id and figure.is_valid()), None)
 
 
+def _visual_kinds() -> tuple[str, ...]:
+    from knowledge.course_config import PSYCHOLOGY
+    return ("image", "formula") if PSYCHOLOGY else ("figure",)
+
+
 def section_figures(chapter_id: int, section_id: int) -> list[dict]:
+    kinds = _visual_kinds()
     return [figure.public() for figure in load_figures()
-            if figure.kind == "figure" and figure.chapter_id == chapter_id
+            if figure.kind in kinds and figure.chapter_id == chapter_id
             and figure.section_id == section_id
             and figure.is_valid()]
 
@@ -143,9 +167,13 @@ def section_figures(chapter_id: int, section_id: int) -> list[dict]:
 def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -> list[Figure]:
     """明确图号优先；其余仅按图注/说明匹配，避免泛泛的“图”触发错误图片。"""
     labels = {(int(a), int(b)) for a, b in FIGURE_NUMBER.findall(query)}
+    kinds = _visual_kinds()
+    if (not labels and not re.search(r"图|表|公式|插图|曲线|示意|图片|照片", query)
+            and not any(getattr(source, "kind", "") in ("formula", "table") for source in sources)):
+        return []
     if labels:
         exact = [figure for figure in load_figures()
-                if figure.kind == "figure" and figure.is_valid()
+                if figure.kind in kinds and figure.is_valid()
                 and any((int(a), int(b)) in labels for a, b in FIGURE_NUMBER.findall(figure.label))][:limit]
         if exact:
             return exact
@@ -164,7 +192,7 @@ def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -
             if figure.is_valid():
                 ranked.append((source_asset_ids[figure.id], figure))
             continue
-        if figure.kind != "figure":
+        if figure.kind not in kinds:
             continue
         if not any(Path(source.source).stem == Path(figure.source).stem
                    and source.section_id == figure.section_id
@@ -185,5 +213,6 @@ def format_figure_context(figures: list[Figure]) -> str:
         return ""
     return "\n".join(
         f"[{figure.label}] {figure.caption}。教材说明：{figure.context}"
+        + ("（原图状态：待教师审核）" if figure.review_status not in ("approved", "verified") else "")
         for figure in figures
     )
