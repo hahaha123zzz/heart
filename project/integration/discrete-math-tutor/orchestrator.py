@@ -230,7 +230,11 @@ class TutorOrchestrator:
             execution.target_refs = []
             execution.targets = [{'kind': 'course_navigation', 'chapter': navigation['chapter_title'],
                 'section': navigation['section_title'], 'title': navigation['title'], 'mode': navigation['mode'],
-                'scope': '按教材标题顺序逐点学习；本轮先说明当前位置，再讲该目标，不一次讲完整章，不宣称学生已经掌握。'}]
+                'continuation_action': navigation.get('continuation_action'),
+                'scope': ('承接上一轮的同一例子或推导，只推进尚未讲完的步骤，不重复导言和整段定义；'
+                          '若历史没有对应例子或推导，先说明需要确认的具体对象，不虚构上轮内容。'
+                          if navigation.get('continuation_action') == 'continue_current' else
+                          '按教材标题顺序逐点学习；本轮先说明当前位置，再讲该目标，不一次讲完整章，不宣称学生已经掌握。')}]
         query = (navigation['section_title'] + ' ' + navigation['title'] if navigation else
                  execution.retrieval_query if execution.target_refs else self._retrieval_query(message, point, routing, history))
         citation_path=None
@@ -321,7 +325,9 @@ class TutorOrchestrator:
                              navigation['title'] + '；这是按目录逐点学习，不要求一次讲完整章。' if navigation else
                              execution.retrieval_query if execution.target_refs else message)
         if navigation and navigation['mode'] == 'repeat':
-            evidence_question += '本轮要求围绕这个目标重述上一轮讲解：' + message
+            evidence_question += ('本轮承接同一目标的当前例子或推导，依据历史确认尚未讲完的步骤：'
+                if navigation.get('continuation_action') == 'continue_current' else
+                '本轮要求围绕这个目标重述上一轮讲解：') + message
         if is_self_report_understood(message) and not execution.no_questions:
             evidence_question = f"围绕{point}及最近教材讲解设计一个简短理解检查，核验检查所需定义和条件是否有教材依据。学生本轮只是确认理解，不是新的事实问题。"
         evidence_check = self.context_sufficiency.check(

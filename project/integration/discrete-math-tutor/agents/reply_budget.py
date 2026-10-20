@@ -51,7 +51,8 @@ def reply_budget(text="", *, preferences=None, execution=None, action="explain",
         if multi_part:
             target, maximum = max(target, 320), max(maximum, 360)
         # 目录导学需同时交代位置和正文；简化追问仍沿用普通短回复预算。
-        if execution is not None and any(t.get('kind') == 'course_navigation' and t.get('mode') != 'repeat'
+        if execution is not None and any(t.get('kind') == 'course_navigation' and
+                                         (t.get('mode') != 'repeat' or t.get('continuation_action') == 'continue_current')
                                          for t in execution.targets):
             target, maximum = max(target, 320), max(maximum, 360)
         if multi_part and re.search(r"公式|符号|[A-Za-z][A-Za-z0-9]*\s*、", text):

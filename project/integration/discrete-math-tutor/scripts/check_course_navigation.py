@@ -67,7 +67,7 @@ def main():
                 return passed
 
             def run_scenario(name, messages, *, chapter, selection=None, same_last=False,
-                             require_images=False):
+                             require_images=False, same_turns=()):
                 previous = None
                 for index, message in enumerate(messages):
                     started = time.monotonic()
@@ -80,7 +80,7 @@ def main():
                         result = service.run(ChatRequest(**payload), execute)
                         navigation = result.get('course_navigation') or {}
                         passed = check(result, chapter=chapter, previous=previous,
-                            same=same_last and index == len(messages) - 1,
+                            same=index in same_turns or (same_last and index == len(messages) - 1),
                             require_images=require_images)
                         rows.append({'scenario': name, 'message': message,
                             'elapsed_seconds': round(time.monotonic() - started, 3),
@@ -95,8 +95,11 @@ def main():
                     print(json.dumps({'scenario': name, 'turn': index, 'passed': passed,
                         'status': result.get('answer_status')}, ensure_ascii=True), flush=True)
 
-            run_scenario('explicit', ('我想要学习教材第一章的内容', '继续下一个知识点',
-                '没听懂，请换个说法'), chapter=1, same_last=True)
+            run_scenario('explicit', ('学习第一章', '解释', '没听懂', '换说法',
+                '我懂了，下一部分', '下一知识点'), chapter=1, same_turns=(1, 2, 3))
+
+            run_scenario('within-point', ('学习第一章', '下一步推导', '继续这个例子'),
+                chapter=1, same_turns=(1, 2))
 
             run_scenario('ordinary', ('请解释教材里的自变量，不要出题。',
                 '我懂了，下一部分', '继续'), chapter=2)
