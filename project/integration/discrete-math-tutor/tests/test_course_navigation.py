@@ -11,6 +11,12 @@ from database import database as db
 from database.learning_tasks import LearningTaskRepository
 from database.models import Base
 from knowledge.course_navigation import bind_result, intent, outline, read_target, resolve
+from knowledge.pdf_reader import document_for_chapter
+
+
+def reference(chapter_id, **values):
+    record = document_for_chapter(chapter_id)
+    return {"document_id": record["document_id"], "version": record["version"], **values}
 from memory.memory_manager import MemoryManager
 from models.chat_request import ChatRequest
 from models.task_context import ReaderLocation
@@ -79,9 +85,9 @@ class NavigationTests(unittest.TestCase):
             with self.subTest(key=key):
                 if key == 'pdf_references':
                     result = {key: [{'source_index': 0, 'selection_ref': {
-                        'chapter_id': unit['chapter_id'], 'section_id': unit['section_id'], 'text': text}}]}
+                        **reference(unit['chapter_id']), 'chapter_id': unit['chapter_id'], 'section_id': unit['section_id'], 'text': text}}]}
                 else:
-                    result = {key: {'chapter_id': unit['chapter_id'],
+                    result = {key: {**reference(unit['chapter_id']), 'chapter_id': unit['chapter_id'],
                                     'section_id': unit['section_id'], 'text': text}}
                 cursor = bind_result(result)
                 self.assertEqual(cursor['status'], 'ready')
@@ -94,13 +100,15 @@ class NavigationTests(unittest.TestCase):
         first = resolve('学习第一章')
         second = resolve('学习第二章')
         result = {'pdf_references': [
-            {'selection_ref': {'chapter_id': first['chapter_id'], 'section_id': first['section_id'],
+            {'selection_ref': {**reference(first['chapter_id']), 'chapter_id': first['chapter_id'], 'section_id': first['section_id'],
                                'text': '第一章内容'}},
-            {'selection_ref': {'chapter_id': second['chapter_id'], 'section_id': second['section_id'],
+            {'selection_ref': {**reference(second['chapter_id']), 'chapter_id': second['chapter_id'], 'section_id': second['section_id'],
                                'text': '第二章内容'}}]}
         cursor = bind_result(result)
         self.assertEqual(cursor['status'], 'clarify')
         self.assertTrue(cursor['candidates'])
+        self.assertEqual({item['chapter_id'] for item in cursor['candidates']}, {1, 2})
+        self.assertEqual(len(cursor['candidates']), 2)
         self.assertEqual(resolve('继续', cursor=cursor)['status'], 'clarify')
 
     def test_section_and_chapter_have_different_scope(self):
@@ -201,7 +209,7 @@ class NavigationTaskTests(unittest.TestCase):
                     if item['chapter_id'] == 1 and item['section_id'] == 1)
         first = self.run_turn('请解释这一节', 'a', result_extra={
             'pdf_references': [{'source_index': 0, 'selection_ref': {
-                'chapter_id': unit['chapter_id'], 'section_id': unit['section_id'],
+                **reference(unit['chapter_id']), 'chapter_id': unit['chapter_id'], 'section_id': unit['section_id'],
                 'text': unit['blocks'][0]['text']}}]})
         self.assertEqual(first['course_navigation']['status'], 'ready')
         self.assertEqual(first['course_navigation']['id'], unit['id'])

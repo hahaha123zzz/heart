@@ -96,6 +96,11 @@ class EvidenceBundle:
         if not used or not used<=set(range(len(self.evidence))):
             raise CitationGroundingError('回答没有有效证据引用，或引用编号超出本轮证据')
         references=[]
+        try:
+            from knowledge.course_release import binding as release_binding
+            release = release_binding()
+        except (OSError, ValueError, KeyError):
+            release = None
         for index in sorted(used):
             evidence=dict(self.evidence[index]);rects=evidence.pop('rects',[])
             record=next((r for r in documents() if r['document_id']==evidence['document_id']),None)
@@ -135,14 +140,10 @@ class EvidenceBundle:
                 evidence['page']=section['page'] if section and section.get('verified') else None
             evidence['selections']=selections
             evidence['claims']=[c for c in claims if index+1 in c['markers']]
-            try:
-                from knowledge.course_release import binding as release_binding
-                release = release_binding()
+            if release:
                 evidence['textbook_release'] = release['release_id']
                 evidence['release_status'] = release['status']
                 evidence['release_ready'] = release['ready']
-            except Exception:
-                release = None
             reference=selections[0] if selections else {'document_id':record['document_id'],'version':record['version'],
                 'chapter_id':record['chapter_id'],'section_id':evidence['section_id'],'section_title':self.sources[index].section,
                 'source':record['source'],'kind':'text','text':'','rects':[],'image_refs':[]}
@@ -164,6 +165,13 @@ def references_for_display(references):
     output=deepcopy(references)
     registry={record['document_id']:record for record in documents()}
     checked={}
+    release_id = None
+    if any((item.get('evidence') or {}).get('textbook_release') for item in output):
+        try:
+            from knowledge.course_release import binding
+            release_id = binding()['release_id']
+        except (OSError, ValueError, KeyError):
+            release_id = None
     for item in output:
         evidence=item.get('evidence')
         if not evidence:
@@ -176,7 +184,7 @@ def references_for_display(references):
                     hashlib.sha256(pdf_path(record).read_bytes()).hexdigest()==key[1])
             except OSError:
                 checked[key]=False
-        if not checked[key]:
+        if not checked[key] or (evidence.get('textbook_release') and evidence['textbook_release'] != release_id):
             evidence.update(saved_location_status=evidence['location_status'],location_status='stale',selections=[],
                             degradation_reason='保存的教材版本已失效，未改指向新版原文')
             item['selection_ref']=dict(item.get('selection_ref') or {},rects=[],image_refs=[],location_kind='stale')

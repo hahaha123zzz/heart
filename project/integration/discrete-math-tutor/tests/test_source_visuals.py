@@ -46,9 +46,11 @@ class SourceVisualTests(unittest.TestCase):
             (chapter / "assets").mkdir(parents=True)
             image = chapter / "assets" / "image-01-0001.png"
             Image.new("RGB", (400, 300), "white").save(image)
-            source_sha = "a" * 64
+            (chapter / 'source.docx').write_bytes(b'original-source')
+            source_sha = hashlib.sha256(b'original-source').hexdigest()
             (root / "manifest.json").write_text(json.dumps({
-                "full_import": {"chapters": [{"chapter_id": 1, "source_sha256": source_sha}]}}),
+                "full_import": {"chapters": [{"chapter_id": 1, "source_sha256": source_sha,
+                    "docx": "chapters/chapter_01/source.docx"}]}}),
                 encoding="utf-8")
             entry = {
                 "id": "image-01-0001", "kind": "image", "chapter_id": 1,
@@ -75,6 +77,19 @@ class SourceVisualTests(unittest.TestCase):
                 self.assertEqual(figures.retrieve_figures("解释这个概念", [source]), [])
                 self.assertEqual([item.id for item in figures.retrieve_figures("图1.1", [source])],
                                  ["image-01-0001"])
+                cached_figure = figures.get_figure('image-01-0001')
+                self.assertTrue(cached_figure.is_valid())
+                entry['section_id'] = 2
+                assets.write_text(json.dumps([entry]), encoding='utf-8')
+                self.assertFalse(loaded[0].is_valid())
+                self.assertFalse(cached_figure.is_valid())
+                entry['section_id'] = 1
+                assets.write_text(json.dumps([entry]), encoding='utf-8')
+                original_source = chapter / 'source.docx'
+                original_source.write_bytes(b'changed-edition')
+                self.assertFalse(loaded[0].is_valid())
+                self.assertFalse(cached_figure.is_valid())
+                original_source.write_bytes(b'original-source')
                 image.unlink()
                 source_visuals.clear_cache()
                 figures.load_figures.cache_clear()
