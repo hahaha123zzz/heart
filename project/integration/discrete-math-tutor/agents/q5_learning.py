@@ -219,7 +219,7 @@ class Q5LearningService:
             if replay is not None:
                 return replay
             binding = self._ensure_binding(session, scope)
-            path = self._binding_path(session, scope, binding)
+            path = self._binding_path(session, scope, binding, for_update=True)
             if path is None or path.kind != "textbook_navigation":
                 path = Q5PathRow(
                     path_id=uuid4().hex,
@@ -350,7 +350,7 @@ class Q5LearningService:
                 replay = self._command(session, scope, command_id)
                 if replay is not None:
                     return replay
-                path = self._owned_path(session, scope, path_id)
+                path = self._owned_path(session, scope, path_id, for_update=True)
                 ordered = self._ordered_objectives(session, path.path_id)
                 target = next(
                     (
@@ -414,7 +414,7 @@ class Q5LearningService:
             replay = self._command(session, scope, command_id)
             if replay is not None:
                 return replay
-            path = self._owned_path(session, scope, path_id)
+            path = self._owned_path(session, scope, path_id, for_update=True)
             if path.revision != int(base_revision):
                 raise ValueError("path_conflict")
             objectives = session.scalars(
@@ -459,7 +459,7 @@ class Q5LearningService:
             if replay is not None:
                 return replay
             binding = self._ensure_binding(session, scope)
-            path = self._binding_path(session, scope, binding)
+            path = self._binding_path(session, scope, binding, for_update=True)
             if mode == "study" and path is not None and not path.plan_confirmed:
                 if not confirm:
                     raise ValueError("plan_confirmation_required")
@@ -492,7 +492,7 @@ class Q5LearningService:
             if replay is not None:
                 return replay
             binding = self._ensure_binding(session, scope)
-            path = self._binding_path(session, scope, binding)
+            path = self._binding_path(session, scope, binding, for_update=True)
             if path is None:
                 raise ValueError("path_not_found")
             objective = self._objective(session, path.path_id, objective_id)
@@ -533,7 +533,7 @@ class Q5LearningService:
             if replay is not None:
                 return replay
             binding = self._ensure_binding(session, scope)
-            path = self._binding_path(session, scope, binding)
+            path = self._binding_path(session, scope, binding, for_update=True)
             if path is None:
                 raise ValueError("path_not_found")
             if base_revision is not None and path.revision != int(base_revision):
@@ -642,7 +642,7 @@ class Q5LearningService:
             replay = self._command(session, scope, command_id)
             if replay is not None:
                 return replay
-            path = self._owned_path(session, scope, path_id)
+            path = self._owned_path(session, scope, path_id, for_update=True)
             binding = self._ensure_binding(session, scope)
             binding.active_path_id = path.path_id
             binding.mode = "study" if path.plan_confirmed else "outline"
@@ -691,7 +691,7 @@ class Q5LearningService:
             replay = self._command(session, scope, command_id)
             if replay is not None:
                 return replay
-            path = self._owned_path(session, scope, path_id)
+            path = self._owned_path(session, scope, path_id, for_update=True)
             if path.revision != int(base_revision):
                 raise ValueError("path_conflict")
             binding = self._ensure_binding(session, scope)
@@ -1019,16 +1019,42 @@ class Q5LearningService:
             session.flush()
         return binding
 
-    def _binding_path(self, session, scope: LearningScope, binding: Q5BindingRow):
+    def _binding_path(
+        self,
+        session,
+        scope: LearningScope,
+        binding: Q5BindingRow,
+        *,
+        for_update: bool = False,
+    ):
         if not binding.active_path_id:
             return None
-        path = session.get(Q5PathRow, binding.active_path_id)
+        path = session.scalar(
+            select(Q5PathRow)
+            .where(Q5PathRow.path_id == binding.active_path_id)
+            .with_for_update()
+            if for_update
+            else select(Q5PathRow).where(Q5PathRow.path_id == binding.active_path_id)
+        )
         if path is None or path.student_id != scope.student_id:
             return None
         return path
 
-    def _owned_path(self, session, scope: LearningScope, path_id: str) -> Q5PathRow:
-        path = session.get(Q5PathRow, path_id)
+    def _owned_path(
+        self,
+        session,
+        scope: LearningScope,
+        path_id: str,
+        *,
+        for_update: bool = False,
+    ) -> Q5PathRow:
+        path = session.scalar(
+            select(Q5PathRow)
+            .where(Q5PathRow.path_id == path_id)
+            .with_for_update()
+            if for_update
+            else select(Q5PathRow).where(Q5PathRow.path_id == path_id)
+        )
         if path is None:
             raise ValueError("path_not_found")
         if path.student_id != scope.student_id:

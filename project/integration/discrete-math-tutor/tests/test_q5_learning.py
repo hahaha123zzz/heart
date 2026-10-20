@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -122,7 +123,7 @@ class Q5TestBase(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.engine = create_engine(
             "sqlite:///" + self.temp.name.replace("\\", "/") + "/q5.db",
-            connect_args={"check_same_thread": False},
+            connect_args={"check_same_thread": False, "timeout": 10},
         )
 
         @event.listens_for(self.engine, "connect")
@@ -311,6 +312,44 @@ class ExplainAndAdvanceTests(Q5TestBase):
             self.service.status(self.scope)["current"]["objective_id"],
             first["current"]["objective_id"],
         )
+
+    def test_concurrent_understood_advances_only_once(self):
+        self.confirmed_plan()
+        status = self.service.status(self.scope)
+        barrier = threading.Barrier(2)
+        results: list[object] = []
+
+        def worker(command_id: str) -> None:
+            barrier.wait()
+            try:
+                results.append(
+                    self.service.mark_understood(
+                        self.scope,
+                        command_id=command_id,
+                        base_revision=status["path_revision"],
+                    )
+                )
+            except Exception as exc:
+                results.append(exc)
+
+        threads = [
+            threading.Thread(target=worker, args=("concurrent-a",)),
+            threading.Thread(target=worker, args=("concurrent-b",)),
+        ]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=20)
+
+        advanced = [row for row in results if isinstance(row, dict)]
+        conflicts = [
+            row for row in results if isinstance(row, ValueError)
+        ]
+        self.assertEqual(len(advanced), 1, results)
+        self.assertEqual(len(conflicts), 1, results)
+        self.assertEqual(str(conflicts[0]), "path_conflict")
+        after = self.service.status(self.scope)
+        self.assertEqual(after["current"]["name"], "因变量")
 
     def test_understood_revision_conflict_does_not_advance(self):
         self.confirmed_plan()
