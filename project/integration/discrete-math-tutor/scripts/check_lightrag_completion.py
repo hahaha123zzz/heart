@@ -46,15 +46,18 @@ def check(candidate):
             statuses=Counter((v.get("llm_analyze_result") or {}).get("status","missing") for v in items.values())
             analyses[kind]={"total":len(items),"statuses":dict(statuses)}
             for status,count in statuses.items():modalities[kind+":"+status]+=count
+        families=Counter(next((kind for kind in ("drawing","table","equation") if "-mm-"+kind+"-" in key),"text") for key in stored)
         complete=doc["status"]=="processed" and all(actual.values()) and not ids-vectors
         if state["state"]=="candidate_complete":assert complete
         chapters.append({"chapter_id":chapter,"status":doc["status"],**actual,"vectorized_chunks":len(ids&vectors),
-                         "planned_chunks":len(ids),"missing_text_chunks":sorted(ids-stored),"missing_vector_chunks":sorted(ids-vectors),"complete":bool(complete),"analysis":analyses,
+                         "native_chunk_families":dict(families),"planned_chunks":len(ids),"missing_text_chunks":sorted(ids-stored),"missing_vector_chunks":sorted(ids-vectors),"complete":bool(complete),"analysis":analyses,
                          "exact_model_token_usage":None,"token_note":"历史并发调用无完整逐章归属；不反推估算"})
     assert not set(chunks)-used,{"unclaimed_chunks":len(set(chunks)-used)}
     actual={"entities":len(nodes),"relationships":len(edges),"chunks":len(chunks)}
     assert all(actual[k]==state["graph"][k] for k in ("entities","relationships")),actual
-    if state["state"]=="candidate_complete":assert actual==state["graph"]
+    if state["state"]=="candidate_complete":
+        assert actual==state["graph"]
+        assert vectors==set(chunks),"文本向量与实际原文块身份不一致"
     report={"state":state["state"],"input_signature":state["input_signature"],"chapters":chapters,"graph":actual,
             "vectorized_chunks":len(vectors),"multimodal_analysis":dict(modalities),"visual_review":"179 pending; 44 decorations excluded",
             "omml_verification":"81 object identities preserved; per-formula PDF/semantic verification not completed",

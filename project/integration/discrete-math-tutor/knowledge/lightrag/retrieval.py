@@ -117,6 +117,16 @@ def rank_sources(query, sources):
     return [dict(source,score=_sigmoid(float(value))) for value,source in ranked if _sigmoid(float(value))>=.15]
 
 
+def _graph_context(records, sources):
+    output=[]
+    for record in records:
+        if record["kind"] not in ("entity","relationship"): continue
+        chunks=set(record.get("source_id","").split("<SEP>"))
+        linked=[source["source_id"] for source in sources if chunks.intersection(source["location"]["sdk_chunk_ids"])]
+        output.append(dict(record,evidence_eligible=False,original_source_ids=linked))
+    return output
+
+
 class LightRagBackend:
     def __init__(self, candidate, *, authorized_course_ids, allow_candidate=False):
         path=Path(candidate)
@@ -213,10 +223,11 @@ class LightRagBackend:
                             "sha256":visual.sha256,"sdk_chunk_id":record["chunk_id"],
                             "evidence_status":"original_image_requires_q2_visual_verification"}
             from knowledge.inference_runtime import runtime_status
-            background=[dict(record,evidence_eligible=False) for record in records if record["kind"] in ("entity","relationship")]
+            selected=selected[:limit]
+            background=_graph_context(records,selected)
             # 图谱摘要只在独立字段给出；reference 和 metadata 不生成证据卡。
             return {"provider":"lightrag","sdk":"1.5.7","mode":mode,"answer":"",
-                    "status":"success" if selected else "no_evidence","sources":selected[:limit],
+                    "status":"success" if selected else "no_evidence","sources":selected,
                     "graph_context":background,"visuals":list(selected_visuals.values()),"references":[r for r in records if r["kind"]=="reference"],
                     "metadata":[r["metadata"] for r in records if r["kind"]=="query_metadata"],
                     "input_signature":expected["input_signature"],"usage":metrics.public(),"runtime":runtime_status(),

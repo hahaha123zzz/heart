@@ -229,7 +229,9 @@ class HostEmbedding:
                              "weights_sha256": self.weights_sha256})
 
 def query_kwargs_from_settings():
-    return {"top_k": 20, "chunk_top_k": 12, "max_total_tokens": 10000, "enable_rerank": False}
+    # 固定SDK先分配图谱摘要预算；显式留出原文空间，避免成功返回却0个教材块。
+    return {"top_k": 20, "chunk_top_k": 12, "max_entity_tokens": 2000,
+            "max_relation_tokens": 2000, "max_total_tokens": 10000, "enable_rerank": False}
 
 def indexing_kwargs_from_settings(): return {"max_parallel_parse_native": 1}
 

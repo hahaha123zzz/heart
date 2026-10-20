@@ -19,6 +19,17 @@ class ContractTests(unittest.TestCase):
             blocks=directory/"document.blocks.jsonl";blocks.write_text("{}")
             self.assertEqual(Path(sidecar_blocks_path(sidecar_uri_for(directory))),blocks)
 
+    def test_graph_links_use_original_sources_without_verifying_summary(self):
+        from knowledge.lightrag.retrieval import _graph_context
+        records=[{"kind":"entity","source_id":"c1<SEP>c2","content":"模型摘要"},
+                 {"kind":"relationship","source_id":"c3"},{"kind":"query_metadata"}]
+        sources=[{"source_id":"q2:block1","location":{"sdk_chunk_ids":["c2"]}}]
+        result=_graph_context(records,sources)
+        self.assertEqual(result[0]["original_source_ids"],["q2:block1"])
+        self.assertEqual(result[1]["original_source_ids"],[])
+        self.assertTrue(all(not item["evidence_eligible"] for item in result))
+        self.assertEqual(len(result),2)
+
     def test_exact_version(self):
         self.assertEqual(engine.installed_version(),"1.5.7")
         with patch.object(engine,"installed_version",return_value="1.5.8"):
@@ -32,6 +43,9 @@ class ContractTests(unittest.TestCase):
             async def aquery_llm(self,*args,**kwargs): raise AssertionError("不得生成答案")
         rag=R();answer,records=asyncio.run(engine.query_with_sources(rag,"教材概念"))
         self.assertEqual(answer,"");self.assertEqual(rag.param.mode,"hybrid")
+        self.assertEqual(rag.param.max_entity_tokens,2000)
+        self.assertEqual(rag.param.max_relation_tokens,2000)
+        self.assertGreaterEqual(rag.param.max_total_tokens-rag.param.max_entity_tokens-rag.param.max_relation_tokens,6000)
         self.assertEqual([r["kind"] for r in records],["query_metadata"])
 
     def test_failure_is_explicit(self):

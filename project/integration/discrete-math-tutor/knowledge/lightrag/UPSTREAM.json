@@ -115,7 +115,7 @@
       "origin": "cache_reuse.py"
     },
     "config.py": {
-      "sha256": "f9fe386192a54f4c83214fdd5f1b5b56cfadbb349965b64a42c0c922cebfe854",
+      "sha256": "d5a65c96e9dd50a58b384f19655ddcb4983d1efefaadc92b6688ef5f571ffcfd",
       "origin": "config.py"
     },
     "course_input.py": {
@@ -155,7 +155,7 @@
       "origin": "pipeline.py"
     },
     "retrieval.py": {
-      "sha256": "31d3180981be5bbb52db8aa0da9524c0029f53e36c8a3adc87d50b8a9661b98b",
+      "sha256": "aecbcd2674a8ffe90dec2236fcc23beda82e53e8f1222210cde6026e2350e980",
       "origin": "host adaptation"
     },
     "roles.py": {
