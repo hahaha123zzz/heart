@@ -7,6 +7,7 @@ def main():
     parser=argparse.ArgumentParser();parser.add_argument("source",type=Path)
     parser.add_argument("--env-file",type=Path,required=True)
     parser.add_argument("--report",type=Path,default=ROOT/".runtime/lightrag-model-check.json")
+    parser.add_argument("--sdk-prompt-cache",type=Path,help="仅重放本候选已保存的SDK抽取请求以检查长文本契约")
     args=parser.parse_args()
     from dotenv import load_dotenv
     load_dotenv(args.env_file,override=False)
@@ -27,9 +28,18 @@ def main():
         payload={"base64":base64.b64encode(visual.path.read_bytes()).decode(),"mime_type":mimetypes.guess_type(visual.path.name)[0] or "image/png"}
         text=await build_vision_model_func(llm_config=vision)(prompt='Describe visible shapes briefly in a JSON object with a summary string.',image_inputs=[payload],response_format={"type":"json_object"})
         assert isinstance(extract_json(text).get("summary"),str) and extract_json(text)["summary"].strip(),"图像输入/JSON契约不符"
+        if args.sdk_prompt_cache:
+            cache=json.loads(args.sdk_prompt_cache.read_text(encoding="utf-8"))
+            cached=next(v for k,v in cache.items() if ":extract:" in k)
+            reply=await build_llm_model_func(llm_config=extract)(cached["original_prompt"])
+            assert "<|COMPLETE|>" in reply and "entity<|#|>" in reply,"真实SDK抽取请求返回协议不符"
+        for call in metrics.calls:
+            details=call.get("usage",{}).get("completion_tokens_details") or {}
+            if extract.thinking_mode=="disabled" and details.get("reasoning_tokens") is not None:
+                assert details["reasoning_tokens"]==0,"服务忽略thinking=disabled"
     asyncio.run(run())
     report={"passed":True,"extract":extract.identity,"vlm":vision.identity,"input_signature":declaration["snapshot_id"],
-            "visual_id":visual.id,"review_status":visual.review_status,"scope":"API contract only; not teacher visual review","usage":metrics.public()}
+            "sdk_extraction_replay":bool(args.sdk_prompt_cache),"visual_id":visual.id,"review_status":visual.review_status,"scope":"API contract only; not teacher visual review","usage":metrics.public()}
     atomic_write_json(args.report,report)
     print(json.dumps({"passed":True,"extract":extract.identity,"usage":metrics.public()},ensure_ascii=False))
     return 0

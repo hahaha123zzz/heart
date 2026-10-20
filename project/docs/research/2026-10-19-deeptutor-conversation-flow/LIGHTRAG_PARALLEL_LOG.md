@@ -112,3 +112,16 @@ build-07和08记录耗时分别935.361s、3392.019s；均为实际运行记录�
 用户随后提供新测试服务，并明确选择用新服务建立独立全书候选、保留原10章候选与缓存。新endpoint为https://cn.chatapi.app/v1，模型列表及返回模型名均包含deepseek-flash；JSON/真实原图输入契约预检通过，2次调用、717个API返回token。凭据只在测试进程环境使用，没有写入配置、Git或报告。
 
 build-09候选：`.runtime/lightrag-proxy/0a6096dc43a8829d48776cbcd0c583b6dc779bd6b450614b4bd20bd1d7f0e5ce/`；SDK workspace `deeptutor_afca9240c7d2bdfd`。同一Q2冻结输入，独立模型策略和SDK缓存（启动日志0条cache），不把不同endpoint冒充相同指纹，不复制原候选图谱到新策略。全部11章已直接入队，有限并发不变。原候选未修改，正式服务与ready=false均不变。真实查询/证据发布待新候选全书完整后执行；Q3稳定基线/公共接线/页面仍未验收。
+
+
+## 新代理长文本兼容与build-10
+
+第三批提交 `4c1da2d` 已交付：失败收尾保留嵌入队列、真实存储数量核验、模型预检及23项专项。build-09随后暴露长文本抽取 `finish_reason=length`；适配未接受截断内容，第8章明确失败。小JSON和图像请求通过不能替代SDK长文本契约。主动取消build-09，状态cancelled、进程退出，候选/SDK缓存全部保留。
+
+原宿主只在api.deepseek.com端点发送thinking=disabled，新代理默认开启thinking（初次预检返回reasoning_tokens>0）。现对已使用的deepseek-flash明确发送disabled，并将thinking/max_output_tokens/temperature写入模型身份。没有通过增加输出上限或忽略截断来制造成功。为不把生成策略变化混入同一索引，build-10使用全新独立候选，build-09不复用为已验收图谱。
+
+实测兼容预检通过：结构化JSON、真实Q2原图输入、从build-09缓存重放的一条真实SDK长文本抽取请求，三次响应finish_reason=stop、reasoning_tokens=0，实际API返回总计3,607 tokens；长文本抽取返回entity协议及COMPLETE结束标记。图像仍pending，这只是请求契约检查。报告 `.runtime/lightrag-proxy-compatible-preflight.json`，不含凭据。
+
+补齐截断失败的usage记录：原实现在检查finish_reason后才取usage，build-09截断调用的可得token未捕获，不能事后估算为实测；新实现收到响应即记录返回模型、finish_reason和usage，再执行严格非空/截断校验。新增回归首次因测试替身缺mock属性失败，补齐替身后24项专项通过（tests-11），原截断保护保留。
+
+build-10：`.runtime/lightrag-proxy-nothinking/0a6096dc43a8829d48776cbcd0c583b6dc779bd6b450614b4bd20bd1d7f0e5ce/`，日志 `.runtime-lightrag-build-10-proxy-nothinking.log`。全部11章直接排队，同一95b956a冻结输入，CPU embedding、模型共享并发2、文件1；服务凭据只存在进程环境，原.env未修改。所有旧候选保留，未切正式服务。build-10结束后再独立核查实际块/向量/实体/关系及真实查询；全书/Q3/页面仍未标通过。

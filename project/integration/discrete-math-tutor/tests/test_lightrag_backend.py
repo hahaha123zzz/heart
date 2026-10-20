@@ -179,6 +179,26 @@ class ContractTests(unittest.TestCase):
             self.assertEqual(events[-1],("embedding",not cancelled))
             self.assertEqual(sum(name=="model" for name,_ in events),1)
 
+    def test_proxy_thinking_and_truncation_usage(self):
+        from types import SimpleNamespace
+        from knowledge.lightrag.config import HostModel,Metrics,build_llm_model_func
+        metrics=Metrics();sent=[]
+        response=SimpleNamespace(model="deepseek-flash",choices=[SimpleNamespace(finish_reason="length",message=SimpleNamespace(content="incomplete"))],
+                                 usage=SimpleNamespace(model_dump=lambda:{"total_tokens":8192}))
+        class Client:
+            def __init__(self,**kwargs):self.chat=SimpleNamespace(completions=self)
+            async def __aenter__(self):return self
+            async def __aexit__(self,*args):pass
+            async def create(self,**kwargs):sent.append(kwargs);return response
+        host=HostModel(SimpleNamespace(model="deepseek-flash",base_url="https://proxy.example/v1",api_key="fixture",mock=False),metrics)
+        self.assertEqual(host.identity["thinking"],"disabled")
+        with patch("openai.AsyncOpenAI",Client):
+            with self.assertRaisesRegex(RuntimeError,"截断"):
+                asyncio.run(build_llm_model_func(llm_config=host)("extract"))
+        self.assertEqual(sent[0]["extra_body"],{"thinking":{"type":"disabled"}})
+        self.assertEqual(metrics.public()["usage"]["total_tokens"],8192)
+        self.assertEqual(metrics.calls[0]["status"],"failed")
+
     def test_nonretryable_does_not_retry(self):
         calls=[]
         async def run():

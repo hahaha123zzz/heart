@@ -204,10 +204,15 @@ class HostModel:
     def model(self): return self.client.model
 
     @property
+    def thinking_mode(self):
+        return "disabled" if self.model=="deepseek-flash" or "api.deepseek.com" in self.client.base_url else "provider_default"
+
+    @property
     def identity(self):
         from .indexing_policy import _endpoint_identity
         return {"binding": self.binding, "model": self.model,
-                "endpoint": _endpoint_identity(self.client.base_url), "role": self.role}
+                "endpoint": _endpoint_identity(self.client.base_url), "role": self.role,
+                "thinking":self.thinking_mode,"max_output_tokens":8192,"temperature":0.1}
 
 @dataclass
 class HostEmbedding:
@@ -253,7 +258,7 @@ def build_llm_model_func(*, io_bridge=None, llm_config=None, owner=None):
                 kwargs["response_format"] = {"type": "json_object"}
             elif isinstance(response_format, dict): kwargs["response_format"] = response_format
             else: raise ValueError("不支持的结构化输出契约")
-        if "api.deepseek.com" in config.client.base_url:
+        if config.thinking_mode=="disabled":
             kwargs["extra_body"] = {"thinking": {"type": "disabled"}}
         async def request():
             if config.metrics.limiter is None: config.metrics.limiter=asyncio.Semaphore(2)
@@ -268,10 +273,12 @@ def build_llm_model_func(*, io_bridge=None, llm_config=None, owner=None):
                     response=await client.chat.completions.create(model=config.model,
                         messages=request_messages, temperature=0.1, max_tokens=8192, **kwargs)
                 choice=response.choices[0]
+                item.update(response_model=getattr(response,"model",None),finish_reason=choice.finish_reason,
+                            usage=response.usage.model_dump() if response.usage else {})
                 if choice.finish_reason == "length": raise RuntimeError("LightRAG 模型输出截断")
                 content=choice.message.content
                 if not content or not content.strip(): raise RuntimeError("LightRAG 模型返回空内容")
-                item.update(status="success", response_model=getattr(response,"model",None), usage=response.usage.model_dump() if response.usage else {})
+                item["status"]="success"
                 return content
             except BaseException as exc:
                 item["error_type"]=type(exc).__name__

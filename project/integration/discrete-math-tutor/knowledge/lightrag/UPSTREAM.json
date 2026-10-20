@@ -93,7 +93,7 @@
     "write_lock.py": "宿主异常类及Windows reparse保护",
     "storage.py": "宿主embedding签名及候选状态；移除不适用的DeepTutor KB枚举依赖",
     "cache_reuse.py": "仅file_io导入；保留算法但未启用跨候选缓存继承，恢复使用SDK同候选缓存",
-    "config.py": "复用上游重试分类/延迟/模式；宿主模型传输、并发、用量和CPU embedding适配；记录API返回模型名",
+    "config.py": "复用上游重试分类/延迟/模式；宿主模型传输、并发、用量和CPU embedding适配；记录API返回模型名；deepseek-flash跨代理显式thinking=disabled，生成参数纳入身份；截断响应也记录可得usage",
     "roles.py": "宿主模型角色，不迁入账户或目录",
     "indexing_policy.py": "保留端点规范化和散列，替换全局策略源",
     "pipeline.py": "保留引擎/冻结/锁/worker组合；宿主全书候选编排与完整性门禁替换原KB管理/发布",
@@ -114,7 +114,7 @@
       "origin": "cache_reuse.py"
     },
     "config.py": {
-      "sha256": "a1252bf77cbf9a485f7088a6f14c4e8b69fe6c5451ff16dabc825eb35fe77ec7",
+      "sha256": "b59caa33ac9bc15349d0d1c04eb84810e3126a13649bee57235fd19e072c1753",
       "origin": "config.py"
     },
     "course_input.py": {
