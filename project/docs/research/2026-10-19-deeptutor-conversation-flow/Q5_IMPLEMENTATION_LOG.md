@@ -150,3 +150,47 @@ $env:PYTHONPATH=(Get-Location).Path
 - 与集成窗口的 `TaskService`/页面接线和真实页面验收。
 
 本记录只证明首批隔离链路；不表示 Q5 整阶段完成。
+
+## 6. 集成窗口接线与页面验收（2026-10-20）
+
+### 6.1 基线与提交
+
+- Q1–Q4 已先合入并推送 `origin/main`：`055793b`。
+- Q5 分支 `codex/q5-learning-design` 最新 `51b0f9d`；集成分支 `codex/integration-q1-q5` 从 `055793b` 合并 Q5，未重复迁入 Q1–Q4 基础提交。
+- 集成提交 `32213b6`：新增 `agents/q5_runtime.py`，并接入 `TaskService`、`agent_loop_service`、`main._execute_task_turn`、Q3 工具注册与 `.env.example`。
+
+### 6.2 实际接线
+
+- `Q5_LEARNING_ENABLED` 默认 `0`；开启后每个请求使用独立 `LearningScope(student_id, session_id, course_id)`。
+- 计划请求由 Q2 `outline()` 的真实章节/小节目标生成 `PlanDraft`，保存为 draft；通过现有 clarification 卡展示模块、目标与来源，提供“确认计划并开始/调整计划”。
+- 调整文本支持“改名为/改为”；确认后写入 `plan_confirmed=true`、`mode=study`。
+- Q3 `run_agent_loop_turn` 使用 Q5 当前目标与 `Q5Navigator`；Q2 只提供来源检索，不再计算第二套目录下一项。
+- Q5 工具通过 Q3 `BaseTool`/Q4 `ScopedToolRegistry` 加入 Q3 registry；`build_registry` 增加显式 extra tools/scopes。
+- 讲解后只调用 `record_explained`；“我懂了/下一部分”只调用 `mark_understood` 推进教学位置，`mastered` 始终 false。
+- Q5 状态行在 Q3 memory 写入前加入回答，因此刷新后可从历史恢复当前路径/目标。
+- 未接入：TaskService 对圈选自动 `bind_selection`、路径切换页面操作、正式题卡/评分/复习/教师审核。
+
+### 6.3 真实页面（隔离 8013，库 `.runtime/q5-page3`）
+
+| 场景 | 结果 |
+| --- | --- |
+| “帮我制定一个实验心理学学习计划” | 6 秒生成 4 模块计划，页面显示目标、模块、来源与确认/调整按钮 |
+| “调整计划”→“把第一个目标改名为实验心理学的定义” | 2 秒返回更新后的计划，第一目标名称改变 |
+| 确认计划并开始 | Q5 路径 `active/study`；首次确认曾因把 binding dict 当 runtime 传入失败，已修复；随后 Q3 真实回答成功 |
+| “请讲解实验心理学的含义” | Q5 当前目标回答，36 秒，页面显示 `学习路径：… · 当前目标：实验心理学的含义`，引用卡正常 |
+| “我懂了，下一部分” | 推进到“笛卡儿的哲学思想”，回答带新状态行；未产生掌握分 |
+| 刷新页面 | 15–20 秒后历史恢复，状态行、当前目标与引用卡仍在 |
+| 插入普通问题 | 未把普通问答强制升级成计划；计划路径保持（本轮页面主要验证继续讲解） |
+
+### 6.4 测试
+
+- Q5 + Q3/Q4：`tests.test_q5_learning` + Q3/Q4 五组，**132 项通过，0 失败**（`.runtime/q5-final-tests.log`）。
+- Q1/Q2：13 组，**158 项通过，0 失败**（`.runtime/q5-q2-regression.log`）。
+- Q5 service 自身 31 项覆盖计划、确认、讲解、位置、刷新、重复命令、路径切换/离开、来源失效、并发单次推进、圈选 source ref 绑定、Q3 工具调用。
+
+### 6.5 数据库与开关
+
+- Q5 只新增 6 张表，不改旧表；`database.database.init_db()` 在 `Base.metadata.create_all` 前 import `database.q5_learning`。
+- 正式库变更前必须停止服务并备份现有 SQLite，再执行 `init_db()`；本批只在隔离库创建，未对正式库执行。若正式库是 PostgreSQL/其他数据库，需按现有迁移方式建表并验证外键/级联，不能直接复制 SQLite 文件。
+- 页面验收开关：`LOCAL_AGENT_LOOP_ENABLED=1`、`Q5_LEARNING_ENABLED=1`、`Q3_RETRIEVAL_MODE=local`。正式默认仍为 `Q5_LEARNING_ENABLED=0`。
+- 正式题卡、评分、掌握门槛、复习、教师审核、课程交接仍不属于本批，不能标记完成。
