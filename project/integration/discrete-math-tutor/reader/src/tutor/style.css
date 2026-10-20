@@ -16,7 +16,18 @@
 .tutor-markdown code { font: .92em ui-monospace, Consolas, monospace; }
 .tutor-markdown .md-inline-code { padding: .1em .25em; background: #edf1eb; border-radius: 3px; }
 .tutor-markdown a { color: #326bc0; text-decoration: underline; }
-.tutor-markdown .citation-group { font-size: .85em; white-space: nowrap; }
+.tutor-markdown .citation-group { font-size: .75em; vertical-align: super; line-height: 0; white-space: nowrap; }
+.tutor-markdown .citation-group button { border: 0; background: transparent; color: #32609a; font: inherit; cursor: pointer; padding: .2em .28em; min-width: 1.3em; text-decoration: none; }
+.tutor-markdown .citation-group button:hover { background: #e7eef7; border-radius: 3px; }
+.tutor-markdown .citation-group button:focus-visible { outline: 2px solid #32609a; outline-offset: 2px; }
+.citation-popover { box-sizing: border-box; width: min(34rem, calc(100vw - 2rem)); max-height: min(80vh, 44rem); overflow: auto; padding: 1.25rem; color: #243644; background: #fff; border: 1px solid #cbd5dc; border-radius: 12px; box-shadow: 0 12px 36px #152a4026; }
+.citation-popover header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.citation-popover h3 { margin: 0; font-size: 1.1rem; }
+.citation-popover header button { min-width: 2.75rem; min-height: 2.75rem; border: 0; background: transparent; font-size: 1.5rem; cursor: pointer; }
+.citation-popover p { line-height: 1.7; }.citation-popover blockquote { margin: 1rem 0; line-height: 1.8; }
+.citation-popover .citation-title, .citation-popover code { overflow-wrap: anywhere; }
+.citation-popover details { margin: 1rem 0; }.citation-popover button:focus-visible { outline: 2px solid #32609a; outline-offset: 3px; }
+.legacy-citation { border: 0; background: transparent; color: #536b7a; font: inherit; cursor: pointer; }
 .tutor-markdown input { margin-right: .4em; }.tutor-markdown mark { background: #fff0a9; color: inherit; }
 .tutor-markdown .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
 .tutor-markdown .markdown-image-label { color: #71809b; }

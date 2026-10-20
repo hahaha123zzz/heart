@@ -230,34 +230,46 @@ function renderPDFReference(ref, index, referenceIndex = -1, label = "", selecti
   return `<button type="button" class="pdf-citation" data-pdf-citation="${index}" data-pdf-reference="${referenceIndex}" data-evidence-selection="${selectionIndex}">${label ? esc(label) + " · " : ""}教材第 ${esc(pages.join("、"))} 页 · ${esc(ref.section_title || "选中内容")} ↗</button>`;
 }
 function renderChatReferences(message, index) {
-  const refs = message.pdfReferences || [];
-  const sources = message.sources || (message.source ? [message.source] : []);
-  const used = new Set([...String(message.content || "").matchAll(/\[(\d+)\]/g)].map(match => Number(match[1]) - 1));
-  const visible = sources.map((source, sourceIndex) => ({source, sourceIndex}))
-    .filter(item => refs.some(ref => ref.source_index === item.sourceIndex) || (used.size ? used.has(item.sourceIndex) : item.sourceIndex === 0));
-  const cropURLs=new Set();
-  const sourceLink = (source,sourceIndex,stale=false) => `<button type="button" class="message-source pdf-citation" data-source-citation="${index}" data-source-index="${sourceIndex}" ${stale?'disabled':''} title="${stale?'保存的教材版本已失效':'打开已保存的证据；旧来源仅打开当前教材小节'}">[${sourceIndex + 1}] 教材：${esc(source)} ↗</button>`;
-  const crops = ref => (ref?.image_refs || []).filter(image=>{if(cropURLs.has(image.image_url))return false;cropURLs.add(image.image_url);return true;}).map(image => `<img class="pdf-chat-crop" src="${esc(image.image_url)}" alt="${esc(image.label || "教材选区")}" loading="lazy">`).join("");
-  if (refs.length) {
-    return visible.map(({source, sourceIndex}) => {
-      const refIndex = refs.findIndex(ref => ref.source_index === sourceIndex);
-      const item = refs[refIndex];
-      if(item?.evidence){
-        const evidence=item.evidence;
-        const selections=evidence.selections || [];
-        const location={exact:'精确证据',page:'页级来源 · 无文字高亮',section:'小节位置 · 无精确高亮',stale:'版本已失效',unlocated:'无法定位'}[evidence.location_status] || '无法定位';
-        return `<div class="grounded-evidence">${sourceLink(source,sourceIndex,evidence.location_status==='stale')}<small class="evidence-status">${esc(location)}</small>${evidence.quote?`<blockquote>${esc(evidence.quote)}</blockquote>`:''}${evidence.degradation_reason?`<small>${esc(evidence.degradation_reason)}</small>`:''}${selections.map((ref,part)=>renderPDFReference(ref,index,refIndex,`证据片段 ${part+1}`,part)).join('')}${selections.length?`<details class="source-crop"><summary>查看完整支持原文（${selections.length} 个片段）</summary>${selections.map(crops).join('')}</details>`:crops(item.selection_ref)}</div>`;
-      }
-      return sourceLink(source,sourceIndex) + (item ? `<small>旧引用 · 未按新证据协议核验</small>` + renderPDFReference(item.selection_ref,index,refIndex,item.label) + (item.selection_ref?.image_refs?.length?`<details class="source-crop"><summary>查看已保存的教材选区</summary>${crops(item.selection_ref)}</details>`:"") : "");
-    }).join("");
-  }
-  return visible.map(({source,sourceIndex}) => sourceLink(source,sourceIndex)).join("")
-    + renderPDFReference(message.selectionRef,index)
-    + (message.pdfImageRefs || []).map(image => `<img class="pdf-chat-crop" src="${esc(image.image_url)}" alt="${esc(image.label || "教材选区")}" loading="lazy">`).join("");
+  // 旧记录没有行内编号时仍可按需查看，不在正文下展开来源。
+  const sources=message.sources || (message.source?[message.source]:[]);
+  return sources.length && !/\[\d+\]/.test(message.content || '')
+    ? `<button type="button" class="legacy-citation" data-legacy-citations="${esc(message.renderKey ? 'message:'+message.renderKey : index)}">查看旧来源（未核验）</button>` : '';
 }
-window.renderPracticeReferences=(result,partId)=>renderChatReferences({content:result.reply,
-  sources:result.textbook_sources || [],pdfReferences:result.pdf_references || []},'exercise:'+encodeURIComponent(partId));
+window.renderPracticeReferences=(result,partId)=>`<span hidden data-exercise-citation="${esc(partId)}"></span>`;
+let citationPopover;
+function showCitation(message, key, sourceIndex, trigger) {
+  citationPopover?.remove();
+  const panel=document.createElement('section');
+  panel.className='citation-popover';panel.setAttribute('popover','auto');panel.setAttribute('role','dialog');
+  panel.setAttribute('aria-label','教材来源');
+  const sources=message?.sources || (message?.source?[message.source]:[]);
+  const item=message?.pdfReferences?.find(ref=>ref.source_index===sourceIndex);
+  const evidence=item?.evidence;
+  const source=sources[sourceIndex];
+  const known=Number.isInteger(sourceIndex)&&sourceIndex>=0&&(source||item);
+  const stale=evidence?.location_status==='stale';
+  const status=evidence ? ({exact:'精确证据',page:'页级来源，无文字高亮',section:'小节位置，无精确高亮',stale:'来源版本已失效'}[evidence.location_status] || '无法精确定位') : '旧引用，未按新证据协议核验';
+  panel.innerHTML=`<header><h3>${known?'来源 '+(sourceIndex+1):'来源暂不可用'}</h3><button type="button" data-close-citation aria-label="关闭来源">×</button></header>`+
+    (sourceIndex===null?sources.map((source,i)=>`<p><button type="button" data-choose-legacy="${i}">${i+1}. ${esc(source)}</button></p>`).join(''):known?`<p class="citation-title">${esc(source || item.label || '教材')}</p><p>${esc(status)}</p>`+
+      (evidence?.quote?`<blockquote>${esc(evidence.quote)}</blockquote>`:'')+
+      (item?.selection_ref?.version?`<details><summary>教材版本</summary><code>${esc(item.selection_ref.version)}</code></details>`:'')+
+      (stale?'<p>这条回答保存的教材版本已失效，不能跳转到新版冒充原证据。</p>':`<button type="button" class="primary-button" data-source-citation="${esc(key)}" data-source-index="${sourceIndex}">打开教材</button>`)
+      : `<p>${message?.pending?'来源仍在核验，完成后可查看。':'这条回答没有对应编号的来源，未跳转到其他证据。'}</p>`);
+  document.body.append(panel);citationPopover=panel;
+  panel.querySelector('[data-close-citation]').onclick=()=>panel.hidePopover();
+  panel.querySelectorAll('[data-choose-legacy]').forEach(button=>button.onclick=()=>showCitation(message,key,Number(button.dataset.chooseLegacy),trigger));
+  panel.addEventListener('toggle',event=>{if(event.newState==='closed'&&trigger?.isConnected)trigger.focus();});
+  panel.showPopover();panel.querySelector('[data-close-citation]').focus();
+}
+function showInlineCitation(trigger){
+  const scope=trigger.closest('.message,.exercise-help,.exercise-feedback');
+  const practice=scope?.querySelector('[data-exercise-citation]');
+  const key=practice?'exercise:'+encodeURIComponent(practice.dataset.exerciseCitation):
+    'message:'+scope?.dataset.messageKey;
+  showCitation(citationMessage(key),key,Number(trigger.dataset.tutorCitation)-1,trigger);
+}
 function citationMessage(key){
+  if(String(key).startsWith('message:'))return state.chat.find(message=>message.renderKey===String(key).slice(8));
   return String(key).startsWith('exercise:') ? window.ExercisePractice?.citationMessage(decodeURIComponent(String(key).slice(9))) : state.chat[Number(key)];
 }
 function renderSelectionDraft() {
@@ -723,6 +735,10 @@ function bindEvents() {
       if(!focused)toast(detail.error || '暂时无法查看这张图的依据。');
       return;
     }
+    const inlineCitation=event.target.closest('[data-tutor-citation]');
+    if(inlineCitation){event.preventDefault();showInlineCitation(inlineCitation);return;}
+    const legacy=event.target.closest('[data-legacy-citations]');
+    if(legacy){const key=legacy.dataset.legacyCitations;const message=citationMessage(key);showCitation(message,key,null,legacy);return;}
     const sourceCitation=event.target.closest('[data-source-citation]');
     if(sourceCitation){
       const message=citationMessage(sourceCitation.dataset.sourceCitation);
@@ -730,7 +746,9 @@ function bindEvents() {
       if(!message||sourceCitation.disabled)return;
       sourceCitation.disabled=true;
       (async()=>{
-        let reference=message.pdfReferences?.find(item=>item.source_index===sourceIndex)?.selection_ref;
+        const item=message.pdfReferences?.find(item=>item.source_index===sourceIndex);
+        if(item){const checked=await post('/api/course/citation-state',{reference:item});if(checked.stale)throw new Error('保存的教材版本已失效，请重新提问核验');}
+        let reference=item?.selection_ref;
         if(!reference){
           const source=(message.sources || (message.source?[message.source]:[]))[sourceIndex];
           const located=await api('/api/course/citation-location',{method:'POST',body:JSON.stringify({source,response:String(message.content||'').slice(0,30000)})});

@@ -52,6 +52,28 @@ class CitationLocationRequest(BaseModel):
     response: str = Field(default='',max_length=30000)
 
 
+class CitationStateRequest(BaseModel):
+    reference: dict
+
+
+@router.post('/course/citation-state')
+def citation_state(request: CitationStateRequest):
+    """点击时再次核对保存版本，只报告失效，不能重定位并升级历史。"""
+    import hashlib
+    from knowledge.pdf_reader import document, pdf_path
+    from knowledge.grounded_citations import references_for_display
+    try:
+        item = references_for_display([request.reference])[0]
+        ref = item.get('selection_ref') or {}
+        record = document(ref.get('document_id'))
+        stale = (not record or record['version'] != ref.get('version') or
+                 hashlib.sha256(pdf_path(record).read_bytes()).hexdigest() != ref.get('version') or
+                 (item.get('evidence') or {}).get('location_status') == 'stale')
+        return {'stale': bool(stale)}
+    except (KeyError, TypeError, ValueError, OSError):
+        raise HTTPException(422, '引用记录不完整或无法核验') from None
+
+
 @router.post('/course/citation-location')
 def citation_location(request: CitationLocationRequest):
     from knowledge.citation_locations import resolve_source_label

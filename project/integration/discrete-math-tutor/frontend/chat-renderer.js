@@ -5,9 +5,10 @@ window.renderTutorAnswer = text => {
   if (window.TutorMarkdown) return window.TutorMarkdown.render(text);
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const tokens = /\$\$[\s\S]*?\$\$|\$[^$\n]+\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|`[^`\n]+`|\*\*[^*\n]+\*\*|==[^=\n]+==/g;
+  const plain = value => escape(value).replace(/\[(\d+)\]/g, (_,number)=>`<sup class="citation-group"><button type="button" data-tutor-citation="${number}" aria-label="查看来源 ${number}">${number}</button></sup>`);
   let result='', end=0;
   for (const match of String(text).matchAll(tokens)) {
-    result+=escape(String(text).slice(end,match.index));
+    result+=plain(String(text).slice(end,match.index));
     const token=match[0];
     if(token.startsWith('**'))result+='<strong>'+escape(token.slice(2,-2))+'</strong>';
     else if(token.startsWith('=='))result+='<mark>'+escape(token.slice(2,-2))+'</mark>';
@@ -15,7 +16,7 @@ window.renderTutorAnswer = text => {
     else result+=escape(token);
     end=match.index+token.length;
   }
-  return '<p class="answer-text">'+result+escape(String(text).slice(end))+'</p>';
+  return '<p class="answer-text">'+result+plain(String(text).slice(end))+'</p>';
 };
 
 // 按稳定消息键更新文字区域，互动组件拥有独立生命周期。

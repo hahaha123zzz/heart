@@ -1,7 +1,26 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import ReactMarkdown from 'react-markdown-base';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import {MarkdownContext} from './context';
+
+// 上游为避免与强调混淆会跳过 **术语**[n]；仅补齐 AST 正文节点中的引用。
+function remarkCitations() {
+  return function visit(node: any) {
+    if (!node.children || ['link', 'code', 'inlineCode', 'math', 'inlineMath', 'image'].includes(node.type)) return;
+    node.children = node.children.flatMap((child: any) => {
+      if (child.type !== 'text') { visit(child); return [child]; }
+      const parts: any[] = []; let end = 0;
+      for (const match of child.value.matchAll(/\[(\d+)\]/g)) {
+        parts.push({type: 'text', value: child.value.slice(end, match.index)});
+        parts.push({type: 'link', url: '#references', title: 'citation', children: [{type: 'text', value: match[1]}]});
+        end = match.index + match[0].length;
+      }
+      parts.push({type: 'text', value: child.value.slice(end)});
+      return parts;
+    });
+  };
+}
 
 // 高亮只处理文本节点，代码、公式和 URL 不参与替换。
 function remarkMark() {
@@ -22,10 +41,13 @@ function remarkMark() {
 }
 
 export default function HostMarkdown({components, remarkPlugins, urlTransform, ...props}: any) {
+  const {literals} = useContext(MarkdownContext);
+  let content = String(props.children || '');
+  for (const [key, literal] of literals) content = content.replaceAll(key, literal);
   const InlineCode = components.code;
   const Link = components.a;
   return <ReactMarkdown {...props}
-    remarkPlugins={[...remarkPlugins, remarkMath, remarkMark]}
+    remarkPlugins={[...remarkPlugins, remarkMath, remarkMark, remarkCitations]}
     rehypePlugins={[[rehypeKatex, {trust: false, throwOnError: false, strict: 'ignore'}]]}
     urlTransform={(value: string, key: string, node: unknown) => {
       const safe = urlTransform(value, key, node);
@@ -38,12 +60,19 @@ export default function HostMarkdown({components, remarkPlugins, urlTransform, .
       return '';
     }}
     components={{...components,
-      a: (props: any) => props.href ? <Link {...props} /> : <span>{props.children}</span>,
+      a: (props: any) => {
+        const label = String(props.children || '');
+        if (props.title === 'citation' && props.href === '#references' && /^\d+$/.test(label)) {
+          return <sup className="citation-group"><button type="button" data-tutor-citation={label}
+            aria-label={`查看来源 ${label}`}>{label}</button></sup>;
+        }
+        return props.href ? <Link {...props} /> : <span>{props.children}</span>;
+      },
       // 上游基础组件把单行围栏当成行内代码；保留围栏的块级含义。
       code: ({children, className, ...props}: any) => String(children).endsWith('\n') || className?.startsWith('language-')
         ? <div className="md-code-block"><pre><code className={className}>{String(children).replace(/\n$/, '')}</code></pre></div>
         : <InlineCode {...props} className={className}>{children}</InlineCode>,
       img: ({alt}: any) => alt ? <span className="markdown-image-label">[图片：{alt}]</span> : null,
       input: ({checked}: any) => <input type="checkbox" checked={Boolean(checked)} disabled />,
-    }} />;
+    }}>{content}</ReactMarkdown>;
 }
