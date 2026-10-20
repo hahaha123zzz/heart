@@ -1,0 +1,4 @@
+-r requirements.txt
+lightrag-hku==1.5.7
+psutil==7.2.2
+langchain-text-splitters==0.3.11

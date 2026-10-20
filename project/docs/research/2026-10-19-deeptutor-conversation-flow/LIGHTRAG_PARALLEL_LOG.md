@@ -1,0 +1,75 @@
+# LightRAG 并行执行记录
+
+日期：2026-10-20。本窗口继续执行全书11章迁入和真实建图；以下状态随实际结果更新，当前仍在构建。
+
+## 工作树、基线与边界
+
+- 主工作树 `E:/项目/heart` 当前基线核对为 `9c746e28173f7dcfeef34e8d6134dab7e58c5286`，不是旧报告中的 SHA。
+- 独立工作树 `E:/项目/heart-worktrees/lightrag-integration`，分支 `codex/lightrag-integration`。
+- Q3/Q4 稳定集成提交已核对为 `f886144`；该工作树有尚未提交的公共入口修改，只作为已登记依赖，不复制、不修改。
+- 项目根没有磁盘上的 AGENTS.md；遵循用户提供的全局 AGENTS 指令。未修改 vendor/DeepTutor，因此其内部 AGENTS 不在本次写入范围。
+- 主工作树4,455项教材删除、未跟踪心理学课程、数据库、其他窗口代码均保留。
+- 独立 `.venv-lightrag` 安装固定 SDK 与必要缺失依赖；只读借用既有 GPU/CPU 环境的已安装包，新包不写入共享环境。不复制 `.env` 和密钥。
+
+## 源码与修改
+
+来源：`D:/deeptutor` 当前 HEAD `6cf793bd868ba5ecbe64722936d4be8fab5a01df`。该仓库 llm/factory.py 有修改，与本次 lightrag 源文件无关；实际逐文件哈希另存 UPSTREAM.json，不仅依赖 HEAD。
+
+现有 `project/vendor/DeepTutor` 已含原始来源副本，18项文件逐字节SHA256与D:/deeptutor一致，因此直接复用该固定副本，不重复提交第二套来源；`third_party/DeepTutor/lightrag-source/README.md` 指向来源台账。上游无根NOTICE，许可证保留。活动适配保存在 `knowledge/lightrag/`，不导入完整 DeepTutor 应用。
+
+| 文件组 | 处理 |
+| --- | --- |
+| engine/parser/sidecar | 复用 SDK 校验、解析/IR 与结构化源校验；注册路径改为本项目；改用 aquery_data；修正 Windows URI 恢复 |
+| ingress/block_policy | 保留冻结、摘要、路径/资源校验及块审计；补 Windows reparse point 拒绝 |
+| worker/write_lock | 保留固定工作循环、回调/取消和跨进程写锁；补 Windows reparse point 拒绝 |
+| storage/cache_reuse | 保留存储/状态读取和可用缓存算法；embedding 签名接宿主；候选状态独立，不调用全局发布器 |
+| config/roles/indexing_policy | 保留上游重试分类/上限、模式与身份散列语义；替换全局账户、模型目录、配置入口 |
+| pipeline | 保留上游引擎/冻结/工作循环/锁，宿主编排改为全书冻结、逐章状态、SDK 原生重试、全书完整性门禁；不引入 KB 管理应用 |
+| course_input/retrieval/q3_adapter | 必要 Q2 结构转换、原文交集映射、宿主权限及可选 Q3 适配；不实现另一套学习状态或引用协议 |
+
+依赖与许可证：DeepTutor Apache-2.0；lightrag-hku 1.5.7 MIT；langchain-text-splitters 0.3.11 MIT；psutil 7.2.2 BSD-3-Clause。实际依赖版本与目标文件哈希将在最终快照中登记。
+
+## 输入与构建记录
+
+全书Q2数据真实存在但未跟踪，课程 `staging`。固定输入含11章正文/原件/PDF/表格/公式/原图及清单；冻结副本和哈希均位于独立候选目录。原始 snapshot 包含 crops，但这些派生产物从教材版本核验中排除；正式教材字段变更仍拒绝混用。
+
+当前真实候选：`.runtime/lightrag/2331025f52c8061dbee866dde4330b04fb075f7dfba9203f738be34173f342e0/`。`input_signature` 为该目录名；实际物质输入哈希另见最终输入清单。之前候选保留失败/取消记录，不冒充全书完成。
+
+`input_validation.json` 已验证11章、4,602块、163表格、81个OMML对象；179项有效视觉资源全部映射，44项异常资源全部排除。179项仍 `pending` 审核，OMML仍待PDF逐式核验，不标多模态完整。
+
+资源策略：CPU embedding，模型共享并发2、文件处理1、嵌入1；EXTRACT/VLM/KEYWORD 使用已有 deepseek-flash 配置。SDK 原生 Sidecar/paragraph_semantic 分块，1200 tokens，gleaning=0。角色限额和共享限额均有限；不占用本地GPU进行建图。
+
+## 失败、取消、恢复与验证记录
+
+- build 首次：Q2 load_visuals 实际返回 `(visuals,gaps)`，首次适配按数组访问失败；修正，原日志保留。
+- build-02/03：独立环境未自动继承原 venv 的 CPU依赖链，随后只读补齐；资源记录缺 psutil 后在独立环境安装。
+- build-04：真实模型调用47次后，主动取消验证完成，状态 `cancelled`，进程退出，冻结输入与SDK缓存保留。取消后的SDK子任务关闭错误完整保留，不算建图成功。
+- build-05：恢复正确识别11个中断文档；暴露 SDK 1.5.7 Windows sidecar URI 写入/解析不对称，使 blocks_path 丢失，备用R分块又缺 langchain-text-splitters。适配层修复URI，新增实际SDK往返测试；安装必要分块依赖。
+- build-06：固定SDK对FAILED文档需要原生 manual-retry 意图，仅驱动 process_enqueue 不会重试；已按SDK协议接入 commit_manual_retry_request，不手改状态。
+- 两次旧签名变化来自其他页面新增 crops，非教材变化；修正物质输入范围，新增裁图不污染版本测试。
+- build-07：正在真实处理全部11章，实际图像/表格分析及实体关系抽取已发生，未完成。
+- 专项：19项通过（`.runtime-lightrag-tests-03.log`）；Windows sidecar往返、结构化API不生成答案、版本/返回形状、失败、无结果、路径、锁、权限、来源隔离、嵌入身份、重试和取消。
+- 全书结构检查通过（`.runtime-lightrag-input-check-03.log`）；最初相对路径检查失败，已明确转绝对路径后独立复验。
+
+模型调用和可得 token 用量见每个候选 usage.json；不估算费用，不把聚合用量伪装成逐章精确分账。资源占用记录在 progress.json 的 runs/resource 与采样峰值；首次启动尚未进入记录器的失败只保留日志，不能补造耗时。
+
+## 接口与后续交付
+
+稳定接口、Q2证据发布和Q3调用边界见 LIGHTRAG_INTERFACE.md。公共入口/工具注册/AgentLoop/页面由集成窗口负责。
+
+最终将补充逐章状态、实体/关系/文本块实数、真实检索与Q3工具调用、版本/失败/恢复检查、实际耗时/用量、未运行项和提交顺序。未自动合入 main、未开启正式服务、未切换教材或索引。
+
+
+## Q2 固定交付补充（95b956a）
+
+已阅读 `Q2_TARGET_INPUT_STAGE.md`，用该提交中的原 `freeze_course_inputs.py --verify` 实际复核 v2：11章/325文件/102,504,640字节，snapshot_id `0a6096dc43a8829d48776cbcd0c583b6dc779bd6b450614b4bd20bd1d7f0e5ce`，清单SHA256 `02b3a221c1d795d5894b1810332d0762f2ce7276b03cd73ba7bb49362cf2fc9d`；清单字节与Git提交一致。
+
+逐项比较325个固定交付文件与现有候选输入，325/325哈希完全相同、0差异；已有抽取没有混入另一教材版本。为停止后续读取可变主目录，先写本候选取消标记、确认进程退出并取得原跨进程写锁，然后在本候选内保留 `input-before-q2/` 和 `input_manifest.before-q2.json`，复制Q2冻结输入，绑定到本窗口只读副本 `.runtime/q2-delivery-95b956a/snapshot/course`。原图谱/SDK已接受文档/缓存不删除。该暂停用于固定数据权威，不用于更新Git基线；分支基线仍为9c746e2。
+
+候选目录ID继续保留原2331025f…以维持SDK工作区名；规范输入身份已改为Q2的0a6096dc…，不再把候选目录名当教材snapshot_id。`q2_adoption` 保存等价证明。build-08正在同一候选中续跑，后续只读本窗口Q2固定副本。
+
+更正视觉结论：44项由Q2确认是装饰栏头（不是44张丢失的知识图），按 `exclude_decoration` 排除，未生成替代图；179项保持pending。全书input_manifest.json保持staging，ready=false。Q2交付没有单独OMML XML文件；81个对象的解析身份和原DOCX仍在快照中，公式视觉/逐式语义核验未完成，不冒称多模态完整。
+
+真实SDK替身模型专项通过：一次部分失败（1 processed/1 failed）、原生manual-retry后两文档完成、实际2实体/1关系、重启后0重新生成；这是隔离SDK/恢复验证，不是教材真实模型通过。首次验证脚本把调度记录当完整记录，暴露 `get_docs_by_ids` 不含chunks_list；已改用严格完整点读，避免把已处理文档错误统计为0块。实际全书后续采样和最终门禁使用完整记录。
+
+当前21项专项通过（tests-04），真实全书尚未结束，真实查询/Q3工具脚本尚未运行；不将其记为全书或Q3联调通过。接口接线保持后续独立批次，等待集成窗口给出稳定基线。
