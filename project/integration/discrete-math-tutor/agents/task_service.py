@@ -66,18 +66,25 @@ class TaskService:
         return None
 
     @staticmethod
-    def _navigation_message(message):
-        """Normalize natural continuation wording for Q2's directory resolver.
+    def _prefer_current_cursor(bound, previous):
+        """Keep the established path when a cross-section answer is ambiguous.
 
-        Q2 owns the path and intentionally recognizes a narrow set of phrases.
-        The page/LLM frequently says "我懂了，下一部分"; treating that as the
-        same navigation action avoids a false "no path" clarification without
-        duplicating Q2's chapter logic in this module.
+        Q2's ``bind_result`` correctly returns ``clarify`` when one answer cites
+        several sections.  That must not erase a cursor the student was already
+        following; otherwise the next "下一部分" becomes a dead end.
         """
-        if re.search(r"(?:我懂了|明白了|懂了|学会了|清楚了).{0,8}(?:下一部分|下一段|继续往下|往下学)|"
-                     r"(?:下一部分|下一段)(?:内容)?[。！？!?]?$", message.strip()):
-            return "继续下一个知识点"
-        return message
+        if isinstance(bound, dict) and bound.get("status") == "ready":
+            return bound
+        if isinstance(previous, dict) and previous.get("status") == "ready":
+            return dict(previous, explained=True)
+        return bound
+
+    @staticmethod
+    def _needs_navigation_fallback(message):
+        """Whether Q2 should resume from the last valid cursor on this turn."""
+        return bool(re.search(
+            r"(?:我懂了|明白了|懂了|学会了|清楚了).{0,8}(?:下一部分|下一段|继续往下|往下学)|"
+            r"(?:下一部分|下一段)|(?:继续|接着)(?:下一个?知识点|下一部分|往下)", message.strip()))
 
     def _context(self, request):
         recent = self.repo.recent(request.student_id, request.session_id, limit=12)
@@ -115,11 +122,11 @@ class TaskService:
                 **(request.style_overrides.model_dump(exclude_none=True) if request.style_overrides else {})})
         from knowledge.course_navigation import resolve, previous_cursor
         cursor = previous_cursor(recent, self.tutor.memory, request.student_id)
-        if cursor is None and self._navigation_message(request.message) != request.message:
+        if cursor is None and self._needs_navigation_fallback(request.message):
             cursor = self._last_navigation_cursor(recent)
         if not any((request.selection, request.exercise_target, request.visualization_target,
                     request.truth_table_target, request.relation_target)):
-            context.course_navigation = resolve(self._navigation_message(request.message),
+            context.course_navigation = resolve(request.message,
                                                 cursor=cursor, reader_location=request.reader_location)
             if (context.course_navigation is None and cursor and re.fullmatch(
                     r'(?:我|还是|刚才|请|没听懂|再解释(?:一次|一下|一遍)?|换(?:个|一种)说法|'
@@ -377,6 +384,11 @@ class TaskService:
                     and context.course_navigation is None):
                 from knowledge.course_navigation import bind_result
                 bound_navigation = bind_result(result)
+                if bound_navigation and bound_navigation.get('status') != 'ready':
+                    bound_navigation = self._prefer_current_cursor(
+                        bound_navigation,
+                        self._last_navigation_cursor(
+                            self.repo.recent(request.student_id, request.session_id, limit=12)))
             # 与最后一次保存使用相同工作单元检查，拒绝已删除/取消的迟到结果。
             with self.tutor.memory.repo.unit_of_work():
                 guard()

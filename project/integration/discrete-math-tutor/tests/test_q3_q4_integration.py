@@ -17,6 +17,7 @@ from agents.agent_loop_service import (
 )
 from agents.q3_navigation import (
     LearningTarget, NavigationDecision, SourceRef, StubLearningNavigator,
+    source_from_chunk,
 )
 from agents.q3_tools import AskUserTool, RetrieveCourseTool, build_registry
 from agents.quality_checker import QualityChecker
@@ -377,13 +378,12 @@ class ResumeNumberingTests(unittest.TestCase):
 
 
 class NavigationWordingTests(unittest.TestCase):
-    def test_natural_continuation_is_normalized_for_q2(self):
+    def test_natural_continuation_uses_last_cursor_fallback(self):
         from agents.task_service import TaskService
 
-        self.assertEqual(TaskService._navigation_message("我懂了，下一部分"),
-                         "继续下一个知识点")
-        self.assertEqual(TaskService._navigation_message("下一段"), "继续下一个知识点")
-        self.assertEqual(TaskService._navigation_message("请解释自变量"), "请解释自变量")
+        self.assertTrue(TaskService._needs_navigation_fallback("我懂了，下一部分"))
+        self.assertTrue(TaskService._needs_navigation_fallback("下一段"))
+        self.assertFalse(TaskService._needs_navigation_fallback("请解释自变量"))
 
     def test_last_valid_cursor_survives_a_non_navigation_answer(self):
         from agents.task_service import TaskService
@@ -395,6 +395,18 @@ class NavigationWordingTests(unittest.TestCase):
         ]
         self.assertEqual(TaskService._last_navigation_cursor(recent),
                          {"id": "ch1:s1:b6", "status": "ready"})
+
+    def test_bound_ambiguity_prefers_established_cursor(self):
+        from agents.task_service import TaskService
+
+        ready = {"id": "ch1:s1:b6", "title": "含义", "status": "ready"}
+        clarify = {"status": "clarify", "mode": "bind", "reply": "涉及多个小节"}
+        kept = TaskService._prefer_current_cursor(clarify, ready)
+        self.assertEqual(kept["id"], "ch1:s1:b6")
+        self.assertTrue(kept["explained"])
+        self.assertIs(TaskService._prefer_current_cursor(clarify, None), clarify)
+        bound = {"id": "ch1:s1:b20", "status": "ready"}
+        self.assertIs(TaskService._prefer_current_cursor(bound, ready), bound)
 
 
 class TimeoutBoundaryTests(unittest.TestCase):
@@ -510,16 +522,48 @@ class CitationPersistenceTests(unittest.TestCase):
         context = TaskContext(student_id="s", message="请解释", knowledge_point="目标")
         request = ChatRequest(student_id="s", session_id="legacy", request_id="r",
                               message="请解释")
-        result = run_agent_loop_turn(
-            orchestrator=orchestrator, request=request, context=context,
-            navigator=navigation, publish_gate=lambda text, state: (True, ""), llm=llm)
+        with patch("agents.agent_loop_service._release_binding",
+                   return_value={"release_id": "rel-1", "status": "staging", "ready": False}):
+            result = run_agent_loop_turn(
+                orchestrator=orchestrator, request=request, context=context,
+                navigator=navigation, publish_gate=lambda text, state: (True, ""), llm=llm)
         self.assertEqual(result["answer_status"], "answered")
         stored = memory.calls[0]["kwargs"]["selection_ref"]
-        self.assertEqual(stored["pdf_references"][0]["evidence"]["evidence_id"], "s1")
+        reference = stored["pdf_references"][0]
+        self.assertEqual(reference["evidence"]["evidence_id"], "s1")
+        self.assertEqual(reference["selection_ref"]["textbook_release"], "rel-1")
+        self.assertEqual(reference["evidence"]["release_status"], "staging")
+        self.assertFalse(reference["evidence"]["release_ready"])
         self.assertEqual(stored["textbook_sources"], ["doc（第1页）"])
+
+    def test_local_chunk_uses_q2_document_identity(self):
+        from knowledge.pdf_reader import document_for_chapter
+
+        record = document_for_chapter(1)
+        self.assertIsNotNone(record)
+        chunk = SimpleNamespace(
+            source=record["source"], text="教材原文", chapter_id=1,
+            section_id=1, page=1, id="chunk-1", quote="教材原文",
+        )
+        source = source_from_chunk(chunk, 0)
+        self.assertEqual(source.document_id, record["document_id"])
+        self.assertEqual(source.version, record["version"])
+        self.assertEqual(source.location["source_file"], record["source"])
 
 
 class AgentLoopQualityGateTests(unittest.TestCase):
+    def test_attached_image_prompt_does_not_claim_teacher_review(self):
+        llm = RecordingQualityLLM()
+        checker = QualityChecker(llm)
+        plan = TeachingPlan(goal="解释", strategy="scaffolding",
+                            action="explain", difficulty="medium")
+        checker.check("教材图片说明。[1]", StudentState(), plan, "请看原图",
+                      textbook_excerpts="[1] 教材原文",
+                      figure_images=[Path("crop.png")])
+        prompt = llm.calls[0]["messages"][1]["content"]
+        self.assertIn("不表示教师审核通过", prompt)
+        self.assertNotIn("经审核的教材", prompt)
+
     def test_loop_mode_scopes_quality_issues_to_publishability(self):
         llm = RecordingQualityLLM()
         checker = QualityChecker(llm)

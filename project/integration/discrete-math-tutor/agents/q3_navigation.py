@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import hashlib
+from pathlib import Path
 from typing import Any, Callable, Protocol, Literal
 
 
@@ -160,22 +161,43 @@ class CallbackNavigator:
 
 
 def source_from_chunk(chunk: Any, index: int) -> SourceRef:
-    """Map a Q2/TextbookChunk-like source without inventing a version."""
+    """Map a Q2/TextbookChunk-like source to the authoritative release record.
+
+    Local RAG chunks usually carry a readable source filename but no document
+    id/version.  Citation display compares both against Q2's document registry;
+    leaving them empty makes every later history card look stale.  Use the Q2
+    chapter record only when its source file matches, otherwise keep the chunk
+    identity rather than inventing a version.
+    """
     text = str(getattr(chunk, "text", "") or "")
     source = str(getattr(chunk, "source", "") or "")
+    chapter_id = getattr(chunk, "chapter_id", None)
+    record = None
+    if chapter_id is not None:
+        try:
+            from knowledge.pdf_reader import document_for_chapter
+            candidate = document_for_chapter(int(chapter_id))
+            if candidate and (not source or Path(candidate["source"]).stem == Path(source).stem):
+                record = candidate
+        except (ImportError, OSError, ValueError, TypeError):
+            record = None
+    document_id = str((record or {}).get("document_id") or getattr(chunk, "document_id", "") or source)
+    version = str((record or {}).get("version") or getattr(chunk, "version", "") or "")
+    source_file = str((record or {}).get("source") or source)
     source_id = str(getattr(chunk, "id", "") or getattr(chunk, "chunk_id", "") or "")
     if not source_id:
         source_id = hashlib.sha256((source + "\0" + text).encode("utf-8")).hexdigest()[:16]
     return SourceRef(
         source_id=source_id,
-        document_id=str(getattr(chunk, "document_id", "") or source),
+        document_id=document_id,
         text=text,
-        version=str(getattr(chunk, "version", "") or ""),
-        chapter_id=getattr(chunk, "chapter_id", None),
+        version=version,
+        chapter_id=chapter_id,
         section_id=getattr(chunk, "section_id", None),
         page=getattr(chunk, "page", None),
         quote=str(getattr(chunk, "quote", "") or text[:160]),
-        location={"origin": "q2_chunk", "index": index},
+        location={"origin": "q2_chunk", "index": index,
+                  "source_file": source_file, "document_version": version},
     )
 
 

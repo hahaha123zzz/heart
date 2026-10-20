@@ -49,7 +49,7 @@ class QualityGuardTests(unittest.TestCase):
         return tutor
     def run_turn(self,tutor):
         source=TextbookChunk(source='教材.txt',section='小节',text='已知条件',terms=frozenset())
-        with patch('orchestrator.retrieve_course',return_value=[source]),patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)):
+        with patch('knowledge.grounded_citations.settings',return_value=None),patch('orchestrator.retrieve_course',return_value=[source]),patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)):
             return tutor.handle_turn('guard-test','解释这个证明')
     def test_simplify_followup_uses_previous_explanation_not_reader_section(self):
         tutor=self.tutor([QualityResult(passed=True)])
