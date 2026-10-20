@@ -26,10 +26,12 @@ def _resource():
             "system_available_bytes":psutil.virtual_memory().available,
             "sampled_at":time.time()}
 
-async def embedding_config(metrics=None):
-    # 权重哈希随候选固定；使用现有本地 FastEmbed CPU 入口。
+async def embedding_config(metrics=None, *, device=None):
+    # 设备使用宿主既有配置；语义签名固定权重，不把设备当教材/模型版本。
     from knowledge.hybrid_retrieval import _embedder_on_device
-    model=await asyncio.to_thread(_embedder_on_device,"BAAI/bge-small-zh-v1.5","cpu")
+    from knowledge.inference_runtime import configured_device
+    device=device or configured_device("EMBED")
+    model=await asyncio.to_thread(_embedder_on_device,"BAAI/bge-small-zh-v1.5",device)
     inner=getattr(model,"model",getattr(model,"_model",None))
     paths=[]
     for obj in (model,inner,getattr(inner,"model",None)):
@@ -42,7 +44,7 @@ async def embedding_config(metrics=None):
             if item.is_file() and item.suffix.lower() in (".onnx",".json",".txt"):
                 files[item.name]=digest(item)
     if not files: raise RuntimeError("无法固定本地 embedding 权重签名")
-    return HostEmbedding(metrics=metrics,weights_sha256=_fingerprint(files))
+    return HostEmbedding(metrics=metrics,weights_sha256=_fingerprint(files),device=device)
 
 async def build_book(source, base, *, retries=2, resume_candidate=None):
     if not isinstance(retries,int) or not 0<=retries<=3: raise ValueError("重试次数必须为0到3")
@@ -81,6 +83,9 @@ async def build_book(source, base, *, retries=2, resume_candidate=None):
             "course_status":manifest["status"],"started_at":time.time(),"runs":[],
             "chapters":{str(c):{"chapter_id":c,"status":"queued","attempts":[]} for c in range(1,12)}}
         run={"started_at":time.time(),"resource_start":_resource(),"resumed":bool(state["runs"])}
+        from knowledge.inference_runtime import runtime_status
+        import onnxruntime as ort
+        run.update(embedding_runtime=runtime_status(),onnxruntime_module_version=ort.__version__)
         state["runs"].append(run)
         def save():
             state["resource_latest"]=_resource()

@@ -54,9 +54,16 @@ async def check(root):
         await rag.apipeline_process_enqueue_documents()
         assert len(calls)==previous_calls,"重启不得重新生成已处理文档"
         assert len(rows)==2
+        class KnownKeywords:
+            async def aquery_data(self,question,param):
+                param.hl_keywords=["Alpha"];param.ll_keywords=["Beta"]
+                return await rag.aquery_data(question,param=param)
+        answer,records=await engine.query_with_sources(KnownKeywords(),"Alpha Beta")
+        assert answer=="" and all(any(row["kind"]==kind for row in records) for kind in
+                                  ("chunk","entity","relationship","reference","query_metadata"))
     finally:await engine.finalize(rag,cancel_pending=False)
     return {"sdk":"1.5.7","model":"deterministic substitute; no remote model", "partial_failure":partial,
-            "partial_finalize_restart_passed":True,"native_retry_passed":True,"restart_passed":True,"entities":len(nodes),"relationships":len(edges),
+            "structured_sdk_context_passed":True,"query_generation":"none; deterministic supplied keywords","partial_finalize_restart_passed":True,"native_retry_passed":True,"restart_passed":True,"entities":len(nodes),"relationships":len(edges),
             "llm_calls":len(calls),"source_scope":"isolated temporary fixtures"}
 if __name__=="__main__":
     target=ROOT/".runtime/lightrag-sdk-check";target.mkdir(parents=True,exist_ok=True)

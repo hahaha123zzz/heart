@@ -199,6 +199,18 @@ class ContractTests(unittest.TestCase):
         self.assertEqual(metrics.public()["usage"]["total_tokens"],8192)
         self.assertEqual(metrics.calls[0]["status"],"failed")
 
+    def test_device_keeps_weight_identity_and_selects_provider(self):
+        import numpy as np
+        from knowledge.lightrag.config import build_embedding_func
+        cpu=HostEmbedding(weights_sha256="same",device="cpu")
+        gpu=HostEmbedding(weights_sha256="same",device="cuda")
+        self.assertEqual(cpu.signature(),gpu.signature())
+        class Model:
+            def embed(self,texts):return [np.ones(512,dtype=np.float32) for _ in texts]
+        with patch("knowledge.hybrid_retrieval._embedder_on_device",return_value=Model()) as loader:
+            value=asyncio.run(build_embedding_func(embedding_config=gpu).func(["text"]))
+            self.assertEqual(value.shape,(1,512));loader.assert_called_once_with(gpu.model,"cuda")
+
     def test_nonretryable_does_not_retry(self):
         calls=[]
         async def run():

@@ -219,6 +219,7 @@ class HostEmbedding:
     model: str = "BAAI/bge-small-zh-v1.5"
     dim: int = 512
     max_tokens: int = 512
+    device: str = "cpu"
     metrics: Any = None
     weights_sha256: str = ""
 
@@ -313,12 +314,12 @@ def build_embedding_func(*, io_bridge=None, embedding_config=None):
     async def embed(texts, context=None, **ignored):
         from knowledge.hybrid_retrieval import _embedder_on_device
         def run():
-            model=_embedder_on_device(cfg.model,"cpu")
+            model=_embedder_on_device(cfg.model,cfg.device)
             vectors=np.asarray(list(model.embed(texts)),dtype=np.float32)
             if vectors.shape!=(len(texts),cfg.dim) or not np.isfinite(vectors).all() or (np.linalg.norm(vectors,axis=1)==0).any():
                 raise ValueError("嵌入维度/数值不符合索引契约")
             return vectors
-        # 等待 CPU 回调结束后才确认取消，防止取消后仍写用量。
+        # 等待本地推理回调结束后才确认取消，防止取消后仍写用量。
         task=asyncio.create_task(asyncio.to_thread(run))
         try: vectors=await asyncio.shield(task)
         except asyncio.CancelledError:

@@ -13,8 +13,20 @@
     "tiktoken": "0.14.0",
     "langchain-text-splitters": "0.3.11",
     "langchain-core": "1.6.12",
-    "psutil": "7.2.2"
+    "psutil": "7.2.2",
+    "onnxruntime-gpu": "1.26.0"
   },
   "environment": "isolated .venv-lightrag; existing host GPU/CPU dependencies read via .pth; new packages installed locally",
-  "scope": "tested direct runtime package versions, not an all-platform dependency lock"
+  "scope": "tested direct runtime package versions, not an all-platform dependency lock",
+  "loaded_module_versions": {
+    "lightrag": "1.5.7",
+    "openai": "3.26.1",
+    "fastembed": "0.8.1",
+    "onnxruntime": "1.26.0",
+    "numpy": "2.5.3",
+    "pydantic": "2.14.0",
+    "networkx": "3.7",
+    "psutil": "7.2.2"
+  },
+  "version_note": "packages为发行版元数据；loaded_module_versions为实际导入模块。GPU环境中onnxruntime模块版本以1.26.0实际导入为准，不能把CPU发行版1.31.0元数据误作实际执行版本。此文件为本机观察快照，不是全平台安装锁。"
 }

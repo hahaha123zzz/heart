@@ -106,7 +106,8 @@ def rank_sources(query, sources):
     if not sources: return []
     from knowledge.hybrid_retrieval import _reranker_on_device
     from knowledge.local_rag.rerank import _sigmoid
-    backend,model=_reranker_on_device("BAAI/bge-reranker-base","cpu")
+    from knowledge.inference_runtime import configured_device
+    backend,model=_reranker_on_device("BAAI/bge-reranker-base",configured_device("RERANK"))
     texts=[source["text"] for source in sources]
     values=list(model.rerank(query,texts,batch_size=4)) if backend=="fastembed" else model.compute_score([[query,t] for t in texts])
     if len(values)!=len(sources) or not all(math.isfinite(float(v)) for v in values):
@@ -211,13 +212,14 @@ class LightRagBackend:
                         selected_visuals[visual.id]=visual.public()|{"document_id":doc["document_id"],"version":doc["version"],
                             "sha256":visual.sha256,"sdk_chunk_id":record["chunk_id"],
                             "evidence_status":"original_image_requires_q2_visual_verification"}
+            from knowledge.inference_runtime import runtime_status
             background=[dict(record,evidence_eligible=False) for record in records if record["kind"] in ("entity","relationship")]
             # 图谱摘要只在独立字段给出；reference 和 metadata 不生成证据卡。
             return {"provider":"lightrag","sdk":"1.5.7","mode":mode,"answer":"",
                     "status":"success" if selected else "no_evidence","sources":selected[:limit],
                     "graph_context":background,"visuals":list(selected_visuals.values()),"references":[r for r in records if r["kind"]=="reference"],
                     "metadata":[r["metadata"] for r in records if r["kind"]=="query_metadata"],
-                    "input_signature":expected["input_signature"],"usage":metrics.public(),
+                    "input_signature":expected["input_signature"],"usage":metrics.public(),"runtime":runtime_status(),
                     "citation_status":"Q2 verification required","rerank_status":"applied" if mapped else "not_needed"}
 
     def retrieve(self, query, **kwargs):

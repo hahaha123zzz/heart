@@ -125,3 +125,29 @@ build-09候选：`.runtime/lightrag-proxy/0a6096dc43a8829d48776cbcd0c583b6dc779b
 补齐截断失败的usage记录：原实现在检查finish_reason后才取usage，build-09截断调用的可得token未捕获，不能事后估算为实测；新实现收到响应即记录返回模型、finish_reason和usage，再执行严格非空/截断校验。新增回归首次因测试替身缺mock属性失败，补齐替身后24项专项通过（tests-11），原截断保护保留。
 
 build-10：`.runtime/lightrag-proxy-nothinking/0a6096dc43a8829d48776cbcd0c583b6dc779bd6b450614b4bd20bd1d7f0e5ce/`，日志 `.runtime-lightrag-build-10-proxy-nothinking.log`。全部11章直接排队，同一95b956a冻结输入，CPU embedding、模型共享并发2、文件1；服务凭据只存在进程环境，原.env未修改。所有旧候选保留，未切正式服务。build-10结束后再独立核查实际块/向量/实体/关系及真实查询；全书/Q3/页面仍未标通过。
+
+
+## build-10 宿主睡眠与恢复
+
+Windows Power-Troubleshooter事件1实测：2026-10-20 11:59:25.617562至19:40:20.222987（Asia/Shanghai）处于低功耗睡眠，约27,654.605秒。SDK日志包含跨睡眠的27,612.8秒任务超时，另有第2章544.7秒超时与连接失败；未把所有失败统一归因，也未将其覆盖为成功。API调用seconds和本轮elapsed包含宿主睡眠，不能当模型服务性能测试结果；CPU时间/实际token与睡眠墙钟分开记录。
+
+恢复后HTTP请求重新成功，第6章完成并继续第1章。失败文档将由SDK原生有限manual retry处理，缓存保留，没有为更新Git基线重启。已为本构图进程58120建立临时SYSTEM_REQUIRED电源请求，最长4小时，进程退出或状态终态自动释放，不持久改变电源计划。观察进程会自行结束。
+
+追加SDK真实结构化契约（sdk-check-05）：在隔离临时小数据上调用实际1.5.7 aquery_data，固定关键词以避免替身LLM影响；真实返回chunk/entity/relationship/reference/metadata，并且未生成答案。该验证使用替身模型，不算全书真实检索或Q3通过。
+
+build-10输入独立检查input-check-06通过，11章、179个有效唯一原图全部映射、无未映射资源。查询验证脚本仍待全书门禁；裁图只写候选validation_crops，冻结输入不作为派生输出目录。图/公式查询分别只检查有效原图身份和公式相关原文，审核/逐式公式核验继续单列未完成。
+
+
+## GPU 功能核查与build-11同候选恢复
+
+用户询问本机GPU后实查：RTX5060 Laptop GPU，8151MiB，查询时已用1383MiB、利用率2%；这是该时刻管理工具读数，不能当本任务GPU峰值。资源探测显示GPU管理可见与CUDA运行能力需要分开检查。
+
+实际加载既有BGE-small-zh-v1.5，分别CPU/CUDA推理3条文本，CUDA会话真实启用（CPU形状算子仍可存在）。两设备权重签名均与现候选的76ea289a…一致；最小余弦0.9999998211860657、最大分量差0.00009504519402980804。GPU BGE-reranker-base也实测，相关/无关文本得分8.245918/-6.704670，CUDA会话验证通过。这是少量输入功能兼容检查，不是速度基准；报告同候选device_validation.json。
+
+复用项目已有RAG_EMBED_DEVICE/RAG_RERANK_DEVICE配置，本地推理仍并发1、远程模型仍共享并发2。设备作为运行记录，索引语义签名继续固定同一模型、512维、512-token配置及相同权重，不为设备变化伪造教材/模型版本。25项专项通过（tests-12），包括CUDA设备传递和同权重签名。
+
+第2章已原生重试成功，累计6章processed。受控取消build-10后确认进程退出及candidate写锁，保留第7章约69块成功抽取缓存，在同一候选启动build-11 CUDA恢复，未改输入或模型端点/生成参数，未创建另一份正式索引。取消时SDK排队回调的Queue is shutting down错误如实留在build-10日志，不算该文档完成。
+
+build-11日志`.runtime-lightrag-build-11-cuda.log`，进程65832，恢复后从缓存推进第7章；progress.runs的新运行项已记录CUDAExecutionProvider以及实际ONNX模块版本1.26.0。依赖快照新增实际模块版本，明确onnxruntime CPU发行版1.31.0元数据与实际GPU模块1.26.0的区别。当前venv基础依赖只读借用宿主，未在其他窗口环境装包。
+
+旧进程电源请求已释放，新GPU进程建立独立最长4小时临时运行请求，进程终态自动释放。正式服务、主工作树和staging/ready=false保持原状态。

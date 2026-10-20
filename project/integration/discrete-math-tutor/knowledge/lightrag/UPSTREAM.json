@@ -93,12 +93,13 @@
     "write_lock.py": "宿主异常类及Windows reparse保护",
     "storage.py": "宿主embedding签名及候选状态；移除不适用的DeepTutor KB枚举依赖",
     "cache_reuse.py": "仅file_io导入；保留算法但未启用跨候选缓存继承，恢复使用SDK同候选缓存",
-    "config.py": "复用上游重试分类/延迟/模式；宿主模型传输、并发、用量和CPU embedding适配；记录API返回模型名；deepseek-flash跨代理显式thinking=disabled，生成参数纳入身份；截断响应也记录可得usage",
+    "config.py": "复用上游重试分类/延迟/模式；宿主模型传输、并发、用量和CPU embedding适配；记录API返回模型名；deepseek-flash跨代理显式thinking=disabled，生成参数纳入身份；截断响应也记录可得usage；复用宿主CPU/CUDA设备配置，权重签名与执行设备分离",
     "roles.py": "宿主模型角色，不迁入账户或目录",
     "indexing_policy.py": "保留端点规范化和散列，替换全局策略源",
-    "pipeline.py": "保留引擎/冻结/锁/worker组合；宿主全书候选编排与完整性门禁替换原KB管理/发布",
+    "pipeline.py": "保留引擎/冻结/锁/worker组合；宿主全书候选编排与完整性门禁替换原KB管理/发布；记录实际CUDA会话与ONNX模块版本",
     "file_io.py": "原样复用",
-    "parse_types.py": "原样复用"
+    "parse_types.py": "原样复用",
+    "retrieval.py": "宿主结构化原文/证据适配；复用现有RERANK设备配置并返回实际运行会话"
   },
   "active_files": {
     "__init__.py": {
@@ -114,7 +115,7 @@
       "origin": "cache_reuse.py"
     },
     "config.py": {
-      "sha256": "b59caa33ac9bc15349d0d1c04eb84810e3126a13649bee57235fd19e072c1753",
+      "sha256": "f9fe386192a54f4c83214fdd5f1b5b56cfadbb349965b64a42c0c922cebfe854",
       "origin": "config.py"
     },
     "course_input.py": {
@@ -150,11 +151,11 @@
       "origin": "host adaptation"
     },
     "pipeline.py": {
-      "sha256": "ce34952d6072f2f8ad8b04886796269b2b1c5ca6c660b264c751501a0efe9f83",
+      "sha256": "af1403bbafe098ab90de43035196cf94e13e0dfbab6a194af14201d0c748d73e",
       "origin": "pipeline.py"
     },
     "retrieval.py": {
-      "sha256": "43dfc76872164aebdcdf92cfcd1eb4016fa6edf0c7170bf85d53dc55d2210775",
+      "sha256": "31d3180981be5bbb52db8aa0da9524c0029f53e36c8a3adc87d50b8a9661b98b",
       "origin": "host adaptation"
     },
     "roles.py": {
