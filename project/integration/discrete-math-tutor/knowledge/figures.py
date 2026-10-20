@@ -37,6 +37,12 @@ class Figure:
 
     def is_valid(self) -> bool:
         """读取或发送前再次验证，防止缓存后文件被替换。"""
+        from knowledge.course_config import PSYCHOLOGY
+        if PSYCHOLOGY:
+            from knowledge.source_visuals import get_visual
+            visual = get_visual(self.id)
+            return bool(visual and visual.sha256 == self.sha256 and visual.path == self.path
+                        and visual.chapter_id == self.chapter_id and visual.section_id == self.section_id)
         return self.path.is_file() and hashlib.sha256(self.path.read_bytes()).hexdigest() == self.sha256
 
     def public(self) -> dict:

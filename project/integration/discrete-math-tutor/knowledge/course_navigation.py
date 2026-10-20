@@ -7,10 +7,17 @@ import re
 from knowledge.course import chapters
 from knowledge.course_config import PSYCHOLOGY, PSYCHOLOGY_DIR
 from knowledge.local_rag.syllabus import SyllabusUnit
-from knowledge.pdf_reader import document_for_chapter, pdf_path
-from knowledge.psychology_retrieval import HEADING, _group
+from knowledge.pdf_reader import pdf_path
+from knowledge.course_release import chapter_source_identity
+from knowledge.psychology_retrieval import HEADING
+from knowledge.teaching_targets import SCHEMA as TARGET_SCHEMA, extract_targets, word_headings
 from knowledge.source_mapping import source_spans
 from knowledge.textbook import TextbookChunk, terms_for
+
+
+def _record(chapter_id):
+    records = json.loads((PSYCHOLOGY_DIR / 'pdf_manifest.json').read_bytes())
+    return next((record for record in records if record['chapter_id'] == chapter_id), None)
 
 
 def _number(value):
@@ -31,33 +38,34 @@ def _depth(text):
 def outline():
     """目录顺序只来自已发布章/节和正文标题，不生成隐式知识路径。"""
     result = []
-    for chapter in chapters():
+    manifest_raw = (PSYCHOLOGY_DIR / 'manifest.json').read_bytes()
+    manifest = json.loads(manifest_raw)
+    for chapter in manifest['chapters']:
         path = PSYCHOLOGY_DIR / 'chapters' / f'chapter_{chapter["id"]:02d}' / 'document.json'
         raw = path.read_bytes()
         document = json.loads(raw)
-        record = document_for_chapter(chapter['id'])
-        version = hashlib.sha256(raw).hexdigest() + ':' + record['version']
+        record = _record(chapter['id'])
+        assets = path.with_name('assets.json').read_bytes()
+        source_version, source_valid = chapter_source_identity(chapter['id'], manifest, assets)
+        # 目录重排和原图映射变更也会使旧路径失效，不能只比较 PDF。
+        version = hashlib.sha256(manifest_raw + raw + assets + source_version.encode()
+            + json.dumps(record, sort_keys=True).encode() + TARGET_SCHEMA.encode()).hexdigest() + ':' + record['version']
+        original = next(item for item in manifest['full_import']['chapters'] if item['chapter_id'] == chapter['id'])
+        headings = word_headings(PSYCHOLOGY_DIR / original['docx'], source_version) if source_valid else {}
         for section in chapter['sections']:
             blocks = [b for b in document['blocks'] if b.get('section_id') == section['id']]
-            headings = [(i, b) for i, b in enumerate(blocks)
-                        if len(b['text'].strip()) <= 65 and HEADING.match(b['text'].strip())]
-            # 父标题不再作为重复教学点，保留正文中可定位的叶子标题。
-            leaves = [(i, b) for pos, (i, b) in enumerate(headings)
-                      if pos + 1 == len(headings)
-                      or _depth(headings[pos + 1][1]['text'].strip()) <= _depth(b['text'].strip())]
-            if not leaves and blocks:
-                leaves = [(0, blocks[0])]
-            for position, (index, block) in enumerate(leaves):
-                title = HEADING.sub('', block['text'].strip()).strip() if headings else section['title']
+            targets, _ = extract_targets(blocks, headings, section['title'])
+            for target in targets:
+                block = blocks[target['index']]
                 unit = SyllabusUnit(id=f'ch{chapter["id"]}:s{section["id"]}:b{block["block_index"]}',
-                    position=len(result), title=title, topics=[section['title']])
-                group = _group(blocks, index) if headings else blocks
-                # 章/节入口同时带上首个标题前的导言，避免仅有标题而无正文。
-                if position == 0:
-                    group = blocks[:index] + group
+                    position=len(result), title=target['title'], topics=[section['title']])
+                group = target['blocks']
                 result.append(asdict(unit) | {'chapter_id': chapter['id'], 'section_id': section['id'],
                     'chapter_title': chapter['title'], 'section_title': section['title'],
                     'version': version, 'blocks': group, 'source': document['source'],
+                    'source_version': source_version, 'source_valid': source_valid,
+                    'source_title': target['source_title'], 'target_schema': TARGET_SCHEMA,
+                    'source_block_ids': [b['block_index'] for b in group],
                     'page': next(s['page'] for s in record['sections'] if s['id'] == section['id'])})
     return result
 
@@ -101,7 +109,16 @@ def previous_cursor(recent, memory, student_id):
             continue
         cursor = result.get('course_navigation')
         if cursor and row.get('epoch') == memory.repo.memory_epoch(student_id, row['knowledge_point']):
-            return cursor
+            move = result.get('instructional_move') or result.get('teaching_plan') or {}
+            move = move if isinstance(move, dict) else {}
+            question = result.get('question_spec') or {}
+            progress = result.get('lesson_progress') or {}
+            return dict(cursor, activity={
+                'goal': row['knowledge_point'],
+                'awaiting_answer': bool(question and move.get('action') == 'ask_question'),
+                'within_point': bool(result.get('response_path') == 'tutoring'
+                    and progress.get('status') == 'in_progress' and progress.get('current_step')),
+            })
         # 已明确换到其他对象后，旧目录不能自动成为新对象的路径。
         return None
     return None
@@ -140,11 +157,25 @@ def bind_result(result):
                   if item.get('chapter_id') and item.get('section_id')]
     if not references:
         return None
+    # 只建立路径，不改写历史引用；旧记录缺少版本时不能升级为已验证来源。
+    for reference in references:
+        record = _record(reference['chapter_id'])
+        if (not record or reference.get('document_id') != record['document_id']
+                or reference.get('version') != record['version']
+                or hashlib.sha256(pdf_path(record).read_bytes()).hexdigest() != record['version']):
+            return {'status': 'clarify', 'mode': 'bind',
+                    'reply': '这次回答的教材版本无法确认。请说明要继续的章节名称，无需重新圈选。'}
     pairs = {(int(item['chapter_id']), int(item['section_id'])) for item in references}
     units = outline()
+    if any(not unit['source_valid'] for unit in units
+           if (unit['chapter_id'], unit['section_id']) in pairs):
+        return {'status': 'clarify', 'mode': 'bind', 'reply': '教材源文件已变化，请先确认当前教材版本和章节。'}
     if len(pairs) > 1:
-        candidates = [_candidate(unit) for unit in units
-                      if (unit['chapter_id'], unit['section_id']) in pairs][:6]
+        candidates = []
+        for pair in sorted(pairs):
+            unit = next((unit for unit in units if (unit['chapter_id'], unit['section_id']) == pair), None)
+            if unit:
+                candidates.append(_candidate(unit) | {'title': unit['section_title']})
         return {'status': 'clarify', 'mode': 'bind', 'path_kind': 'textbook_heading_order',
                 'explained': True, 'reply': '这次回答涉及多个教材小节。请说明要从哪一节继续。',
                 'candidates': candidates}
@@ -160,17 +191,38 @@ def bind_result(result):
         score = sum(min(len(text), len(block)) for text in texts if text
                     for block in blocks if block and (text in block or block in text))
         scored.append((score, unit['position'], unit))
-    scored.sort(key=lambda item: (item[0], item[1]), reverse=True)
-    if len(scored) > 1 and scored[0][0] == scored[1][0] == 0:
-        candidates = [_candidate(unit) for _, _, unit in scored[:6]]
+    scored.sort(key=lambda item: item[0], reverse=True)
+    best = [unit for score, _, unit in scored if score == scored[0][0]]
+    if scored[0][0] == 0 or len(best) != 1:
+        candidates = [_candidate(unit) for unit in best]
         return {'status': 'clarify', 'mode': 'bind', 'path_kind': 'textbook_heading_order',
                 'explained': True, 'reply': '这次回答对应的教材位置不唯一。请说明要从哪一部分继续。',
                 'candidates': candidates}
     return _cursor(scored[0][2], mode='bind', explained=True)
 
 
-def resolve(message, *, cursor=None, reader_location=None):
+def resolve(message, *, cursor=None, reader_location=None, activity=None):
+    if re.search(r'(?:不要|不用|别|暂不|先不|不想).{0,6}(?:下一|换章|换节|继续|接下来|下一步)', _flat(message)):
+        return None
     mode = intent(message)
+    state = activity or (cursor or {}).get('activity') or {}
+    if state.get('awaiting_answer') and re.match(r'^(?:我选|答案是|选)?[A-Da-d][，,。\s]', message):
+        # 作答交给现有路由/评估，不把夹带的“接下来”当作目录命令。
+        return None
+    same_point = bool(re.search(r'下一步(?:推导|证明|计算|怎么|如何)|'
+        r'(?:这个|刚才|上面|这一).{0,6}(?:例子|推导|证明).{0,8}(?:继续|接下来)|'
+        r'继续(?:这个|刚才|上面|这一)', _flat(message)) or re.fullmatch(
+        r'(?:请)?(?:解释|解释一下|再解释一下|没听懂|换个说法|换说法)[。！!？?]*', _flat(message)))
+    if same_point:
+        mode = 'repeat'
+    if cursor and cursor.get('status') == 'clarify':
+        choices = cursor.get('candidates') or []
+        matches = [item for item in choices if _flat(message) in (item['id'], _flat(item['title']))]
+        if len(matches) == 1:
+            mode = 'repeat'
+            cursor = matches[0]
+        elif re.fullmatch(r'第[一二三四五六七八九十零\d]+章', _flat(message)):
+            return resolve('学习' + message)
     if not PSYCHOLOGY or mode is None:
         return None
     if cursor and cursor.get('status') == 'clarify' and mode in ('next', 'topic', 'section', 'chapter'):
@@ -198,6 +250,14 @@ def resolve(message, *, cursor=None, reader_location=None):
                             and u['section_id'] == reader_location.section_id), None)
         if current is None:
             return {'status': 'clarify', 'reply': '还没有可确认的学习路径和当前位置。请先说明章节或选择要学习的小节。'}
+        activity = activity or (cursor or {}).get('activity') or {}
+        if mode == 'next' and activity.get('awaiting_answer'):
+            return {'status': 'clarify', 'continuation_action': 'await_answer',
+                    'reply': '上一轮的问题还未作答。请先回答；如果想跳过，请明确说明要进入下一个知识点。'}
+        if mode == 'repeat' or (mode == 'next' and activity.get('within_point')):
+            return _cursor(current, mode='repeat', explained=False) | {
+                'continuation_action': 'rephrase_current' if re.search(
+                    r'没听懂|换.*说法|解释', message) else 'continue_current'}
         candidates = [u for u in units if u['position'] > current['position']]
         if mode in ('topic', 'next'):
             # 本阶段路径为当前章的真实标题顺序；不推断跨章概念关系。
@@ -218,7 +278,9 @@ def validate(target):
     unit = next((u for u in outline() if u['id'] == target['id'] and u['version'] == target['version']), None)
     if unit is None:
         raise ValueError('教材目录或正文已更新，请重新选择章节')
-    record = document_for_chapter(unit['chapter_id'])
+    if not unit.get('source_valid'):
+        raise ValueError('教材源文件已变化或缺失，请重新建立来源绑定')
+    record = _record(unit['chapter_id'])
     if hashlib.sha256(pdf_path(record).read_bytes()).hexdigest() != record['version']:
         raise ValueError('教材原件已变化，请重新建立页码索引')
     return unit
@@ -226,9 +288,15 @@ def validate(target):
 
 def read_target(target):
     unit = validate(target)
-    blocks = unit['blocks']
-    text = '\n'.join(b['text'] if b['kind'] != 'table' else '\n'.join(' | '.join(row) for row in b['rows'])
-                     for b in blocks)[:6000]
+    blocks = []
+    parts = []
+    for block in unit['blocks']:
+        part = block['text'] if block['kind'] != 'table' else '\n'.join(' | '.join(row) for row in block['rows'])
+        if len(parts) >= 2 and sum(len(text) + 1 for text in parts) + len(part) > 6000:
+            break
+        blocks.append(block)
+        parts.append(part)
+    text = '\n'.join(parts)
     return [TextbookChunk(source=unit['source'], section=unit['section_title'],
         text=text, terms=terms_for(text), section_id=unit['section_id'], chapter_id=unit['chapter_id'],
         chunk_id='navigation:' + unit['id'], parent_id='navigation:' + unit['id'], page=unit['page'],

@@ -191,6 +191,14 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget):
     return gate
 
 
+def _release_binding() -> dict[str, Any] | None:
+    try:
+        from knowledge.course_release import binding
+        return binding()
+    except Exception:
+        return None
+
+
 def _map_result(result: LoopResult, target: LearningTarget,
                 conversation_id: int | None = None) -> dict[str, Any]:
     base = {
@@ -261,7 +269,8 @@ def _map_result(result: LoopResult, target: LearningTarget,
         }
     textbook_sources = []
     for position, source in enumerate(result.sources, 1):
-        label = str(source.get("document_id") or "教材")
+        label = str((source.get("location") or {}).get("source_file")
+                    or source.get("document_id") or "教材")
         if source.get("page"):
             label += f"（第{source['page']}页）"
         textbook_sources.append(label)
@@ -271,12 +280,13 @@ def _map_result(result: LoopResult, target: LearningTarget,
     cited = {int(value) for value in re.findall(r"\[(\d+)\]", result.final_text)}
     by_index = {int(source.get("index") or position): source
                 for position, source in enumerate(result.sources, 1)}
+    release = _release_binding()
     pdf_references = []
     for citation_index in sorted(cited):
         source = by_index.get(citation_index)
         if source is None:
             continue
-        pdf_references.append({
+        reference = {
             "source_index": citation_index - 1,
             "label": "Q3 教材检索",
             "selection_ref": {
@@ -287,7 +297,8 @@ def _map_result(result: LoopResult, target: LearningTarget,
                 "chapter_id": source.get("chapter_id"),
                 "section_id": source.get("section_id"),
                 "section_title": target.name,
-                "source": source.get("document_id") or "",
+                "source": ((source.get("location") or {}).get("source_file")
+                           or source.get("document_id") or ""),
                 "text": source.get("text") or "",
                 "image_refs": source.get("image_refs") or [],
             },
@@ -299,7 +310,18 @@ def _map_result(result: LoopResult, target: LearningTarget,
                 "location_status": "page" if source.get("page") else "section",
                 "selections": [],
             },
-        })
+        }
+        if release:
+            reference["selection_ref"].update({
+                "textbook_release": release.get("release_id"),
+                "release_status": release.get("status"),
+            })
+            reference["evidence"].update({
+                "textbook_release": release.get("release_id"),
+                "release_status": release.get("status"),
+                "release_ready": release.get("ready"),
+            })
+        pdf_references.append(reference)
     return {
         **base,
         "reply": result.final_text,

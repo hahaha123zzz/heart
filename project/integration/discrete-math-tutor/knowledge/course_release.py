@@ -32,6 +32,22 @@ def _manifest() -> dict:
         return {}
 
 
+def chapter_source_identity(chapter_id, manifest, assets):
+    directory = PSYCHOLOGY_DIR / 'chapters' / f'chapter_{chapter_id:02d}'
+    source = next((item for item in manifest.get('full_import', {}).get('chapters', [])
+                   if item['chapter_id'] == chapter_id), {})
+    paths = [(PSYCHOLOGY_DIR / source['docx'], source.get('source_sha256'))] if source.get('docx') else []
+    paths += [(directory / item['filename'], item.get('sha256')) for item in json.loads(assets)]
+    actual = []
+    for path, expected in paths:
+        # 版本核验不能越出本课程目录，也不能把缺失文件当成原版本。
+        digest = hashlib.sha256(path.read_bytes()).hexdigest() if (
+            path.resolve().is_relative_to(PSYCHOLOGY_DIR.resolve()) and path.is_file()) else None
+        actual.append((str(path.relative_to(PSYCHOLOGY_DIR)), expected, digest))
+    return hashlib.sha256(json.dumps(actual, ensure_ascii=False).encode()).hexdigest(), (
+        bool(source.get('docx')) and bool(actual) and bool(actual[0][1]) and actual[0][1] == actual[0][2])
+
+
 @lru_cache(maxsize=1)
 def snapshot() -> dict:
     manifest = _manifest()
@@ -48,6 +64,9 @@ def snapshot() -> dict:
         assets_path = directory / "assets.json"
         document_sha = _sha256(document_path)
         assets_sha = _sha256(assets_path)
+        source_version, source_valid = chapter_source_identity(chapter_id, manifest, assets_path.read_bytes()) if assets_sha else (None, False)
+        if not source_valid:
+            gaps.append(f"第{chapter_id}章原始源文件缺失或哈希变化")
         record = document_for_chapter(chapter_id)
         pdf_sha = _sha256(pdf_path(record)) if record else None
         declared_pdf = record.get("version") if record else None
@@ -65,6 +84,7 @@ def snapshot() -> dict:
             "document_version": declared_pdf,
             "pdf_sha256": pdf_sha,
             "assets_sha256": assets_sha,
+            "source_version": source_version,
         })
     index_path = PSYCHOLOGY_DIR / "rag_index.sqlite3"
     index_sha = _sha256(index_path)
@@ -77,14 +97,17 @@ def snapshot() -> dict:
         visuals = {"total": 0, "by_chapter": {}, "pending_review": 0, "gaps": 0}
     if visuals.get("pending_review"):
         gaps.append(f"{visuals['pending_review']} 个原图资产待教师审核")
-    if visuals.get("gaps"):
-        gaps.append(f"{visuals['gaps']} 个原图资产缺失/占位/哈希异常")
+    unresolved = visuals.get('unresolved_gaps', visuals.get('gaps', 0))
+    if unresolved:
+        gaps.append(f"{unresolved} 个原图资产缺失/占位/哈希异常")
     status = str(manifest.get("status") or "unknown")
     if status not in ("ready", "published", "released"):
         gaps.append(f"教材发布清单状态为 {status}")
     ready = not gaps and bool(chapters) and bool(index_sha)
     identity = {
         "course_id": course_id,
+        "manifest_sha256": _sha256(PSYCHOLOGY_DIR / "manifest.json"),
+        "pdf_manifest_sha256": _sha256(PSYCHOLOGY_DIR / "pdf_manifest.json"),
         "status": status,
         "chapters": chapters,
         "index_sha256": index_sha,
@@ -102,6 +125,8 @@ def snapshot() -> dict:
 
 def clear_cache():
     snapshot.cache_clear()
+    from knowledge.source_visuals import clear_cache as clear_visual_cache
+    clear_visual_cache()
 
 
 def validate(expected=None, *, refresh=True) -> dict:
@@ -117,6 +142,6 @@ def validate(expected=None, *, refresh=True) -> dict:
 
 
 def binding() -> dict:
-    state = snapshot()
+    state = validate()
     return {"release_id": state["release_id"], "status": state["status"],
             "ready": state["ready"], "gaps": state["gaps"]}

@@ -21,6 +21,14 @@ except ImportError:  # pragma: no cover - Pillow is present in the project runti
 
 from knowledge.course_config import PSYCHOLOGY_DIR
 
+# 已逐种查看原件字节；只排除装饰，不用尺寸推断真实实验图一定缺失。
+DECORATIONS = {
+    '4250a56e71376f1b1942e48441304918a374f701f1e95c8423719ddf8b333b6f': '拓展阅读装饰横条',
+    'f7d9231730c647ca17e962e662288f568a799620b081137f212dbc3f660f971c': '概念术语栏头',
+    '02214750659c0c3f157cf0973b6d38797bbe94204a75cdcd487ed9daf1e19972': '本章重点栏头',
+    'b930fe5d39fe05ccd1fdc04fac54044b5d6accb27d921b4319e2959c0b76b5b2': '推荐阅读栏头',
+}
+
 
 @dataclass(frozen=True)
 class SourceVisual:
@@ -41,8 +49,27 @@ class SourceVisual:
 
     def is_valid(self) -> bool:
         try:
-            return self.path.is_file() and hashlib.sha256(self.path.read_bytes()).hexdigest() == self.sha256
-        except OSError:
+            manifest = json.loads((PSYCHOLOGY_DIR / 'manifest.json').read_bytes())
+            source = next(item for item in manifest['full_import']['chapters']
+                          if item['chapter_id'] == self.chapter_id)
+            original = (PSYCHOLOGY_DIR / source['docx']).resolve()
+            if (not original.is_relative_to(PSYCHOLOGY_DIR.resolve()) or
+                    source['source_sha256'] != self.source_sha256 or
+                    _sha256(original) != self.source_sha256):
+                return False
+            # 缓存中的位置不能继续用于已重排的小节或已替换的资产登记。
+            current = next(item for item in json.loads((_chapter_dir(self.chapter_id) / 'assets.json').read_bytes())
+                           if item['id'] == self.id)
+            return (current.get('section_id') == self.section_id and current.get('block_index') == self.block_index
+                and tuple(item['block'] for item in current.get('occurrences', [])) == self.occurrences
+                and tuple(current.get('labels') or ()) == self.labels
+                and current.get('review_status', 'pending') == self.review_status
+                and current.get('kind') == self.kind
+                and current.get('source_sha256') == self.source_sha256
+                and current.get('sha256') == self.sha256
+                and (_chapter_dir(self.chapter_id) / current['filename']).resolve() == self.path.resolve()
+                and self.path.is_file() and _sha256(self.path) == self.sha256)
+        except (OSError, ValueError, KeyError, TypeError, StopIteration):
             return False
 
     def public(self) -> dict:
@@ -65,9 +92,11 @@ class VisualGap:
     chapter_id: int
     visual_id: str
     reason: str
+    classification: str = 'unresolved'
 
     def public(self) -> dict:
-        return {"chapter_id": self.chapter_id, "visual_id": self.visual_id, "reason": self.reason}
+        return {"chapter_id": self.chapter_id, "visual_id": self.visual_id, "reason": self.reason,
+                "classification": self.classification}
 
 
 def _sha256(path: Path) -> str:
@@ -154,9 +183,12 @@ def _load_chapter(chapter_id: int):
             except (OSError, ValueError):
                 gaps.append(VisualGap(chapter_id, visual_id, "原图无法读取"))
                 continue
-            # 教材转换包里的缺图/占位条通常是很扁的固定尺寸图片；不能当原图送出。
+            # 尺寸异常只负责过滤；能确认的装饰和不能确认的缺口分别登记。
             if height < 80 or (height and width / height > 12):
-                gaps.append(VisualGap(chapter_id, visual_id, "占位/缺图资产尺寸异常，不作为教材原图"))
+                decoration = DECORATIONS.get(digest)
+                gaps.append(VisualGap(chapter_id, visual_id,
+                    f'装饰性栏头：{decoration}，不作为知识证据' if decoration else '占位/缺图资产尺寸异常，不作为教材原图',
+                    'decoration' if decoration else 'unresolved'))
                 continue
         occurrences = tuple(int(value.get("block")) for value in item.get("occurrences") or []
                             if isinstance(value, dict) and isinstance(value.get("block"), (int, str))
@@ -218,4 +250,6 @@ def stats() -> dict:
         by_chapter[visual.chapter_id] = by_chapter.get(visual.chapter_id, 0) + 1
     return {"total": len(visuals), "by_chapter": by_chapter,
             "pending_review": sum(1 for visual in visuals if visual.review_status != "approved"),
-            "gaps": len(gaps)}
+            "gaps": len(gaps),
+            "filtered_decorations": sum(gap.classification == 'decoration' for gap in gaps),
+            "unresolved_gaps": sum(gap.classification != 'decoration' for gap in gaps)}

@@ -86,9 +86,10 @@ class ReplyBudgetTests(unittest.TestCase):
         tutor.quality_checker.check.side_effect=[QualityResult(passed=False,issues=['回复过长']),QualityResult(passed=True)]
         context=TaskContext(student_id='s',message='解释选中内容',knowledge_point='实验设计')
         reference={'source':'教材','image_refs':[],'chapter_id':2,'section_id':4,'section_title':'实验设计'}
-        resolved={'section':{'title':'实验设计'},'text':'教材定义','context':'教材条件','images':[],'reference':reference}
+        resolved={'section':{'title':'实验设计'},'text':'教材定义','context':'教材条件','images':[],'reference':reference,
+                  'record':{'document_id':'doc','version':'v','chapter_id':2,'source':'教材'}}
         selection=SimpleNamespace(document_id='book',rects=[SimpleNamespace(page=1)])
-        with patch('agents.pdf_selection_tutor.selection_memory',return_value={'preferences':{},'summary':''}),patch.dict('os.environ',{'VISUALIZATION_ON_DEMAND':'0'}):
+        with patch('knowledge.grounded_citations.settings',return_value=None),patch('agents.pdf_selection_tutor.selection_memory',return_value={'preferences':{},'summary':''}),patch.dict('os.environ',{'VISUALIZATION_ON_DEMAND':'0'}):
             result=explain_selection(tutor,'s',context.message,selection,'production',task_context=context,resolved_selection=resolved)
         self.assertEqual(tutor.quality_checker.check.call_args_list[0].args[0],long)
         self.assertIn(long,tutor.llm.chat.call_args_list[1].args[0][1]['content'])
