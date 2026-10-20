@@ -1,14 +1,14 @@
 # LightRAG 并行执行记录
 
-日期：2026-10-20。本窗口继续执行全书11章迁入和真实建图；以下状态随实际结果更新，当前仍在构建。
+日期：2026-10-20。本窗口继续执行全书11章迁入和真实建图；全书候选已完成，真实检索6项通过/2项失败，Q2精确证据链通过；最新结果见文末和 LIGHTRAG_FULL_BOOK_REPORT.md。
 
 ## 工作树、基线与边界
 
-- 主工作树 `E:/项目/heart` 当前基线核对为 `9c746e28173f7dcfeef34e8d6134dab7e58c5286`，不是旧报告中的 SHA。
+- 任务开始时主工作树 `E:/项目/heart` 基线核对为 `9c746e28173f7dcfeef34e8d6134dab7e58c5286`，不是旧报告中的 SHA。
 - 独立工作树 `E:/项目/heart-worktrees/lightrag-integration`，分支 `codex/lightrag-integration`。
-- Q3/Q4 稳定集成提交已核对为 `f886144`；该工作树有尚未提交的公共入口修改，只作为已登记依赖，不复制、不修改。
+- Q3/Q4 历史契约参考提交已核对为 `f886144`（不是当前确认稳定基线）；该工作树有尚未提交的公共入口修改，只作为已登记依赖，不复制、不修改。
 - 项目根没有磁盘上的 AGENTS.md；遵循用户提供的全局 AGENTS 指令。未修改 vendor/DeepTutor，因此其内部 AGENTS 不在本次写入范围。
-- 主工作树4,455项教材删除、未跟踪心理学课程、数据库、其他窗口代码均保留。
+- 最初观察到的主工作树4,455项教材删除、未跟踪心理学课程、数据库、其他窗口代码均保留。
 - 独立 `.venv-lightrag` 安装固定 SDK 与必要缺失依赖；只读借用既有 GPU/CPU 环境的已安装包，新包不写入共享环境。不复制 `.env` 和密钥。
 
 ## 源码与修改
@@ -25,7 +25,7 @@
 | storage/cache_reuse | 保留存储/状态读取和可用缓存算法；embedding 签名接宿主；候选状态独立，不调用全局发布器 |
 | config/roles/indexing_policy | 保留上游重试分类/上限、模式与身份散列语义；替换全局账户、模型目录、配置入口 |
 | pipeline | 保留上游引擎/冻结/工作循环/锁，宿主编排改为全书冻结、逐章状态、SDK 原生重试、全书完整性门禁；不引入 KB 管理应用 |
-| course_input/retrieval/q3_adapter | 必要 Q2 结构转换、原文交集映射、宿主权限及可选 Q3 适配；不实现另一套学习状态或引用协议 |
+| course_input/retrieval | 必要 Q2 结构转换、原文交集映射、宿主权限；Q3适配仅保留在.runtime/drafts草稿，不交付正式接线 |
 
 依赖与许可证：DeepTutor Apache-2.0；lightrag-hku 1.5.7 MIT；langchain-text-splitters 0.3.11 MIT；psutil 7.2.2 BSD-3-Clause。实际依赖版本与目标文件哈希将在最终快照中登记。
 
@@ -33,11 +33,11 @@
 
 全书Q2数据真实存在但未跟踪，课程 `staging`。固定输入含11章正文/原件/PDF/表格/公式/原图及清单；冻结副本和哈希均位于独立候选目录。原始 snapshot 包含 crops，但这些派生产物从教材版本核验中排除；正式教材字段变更仍拒绝混用。
 
-当前真实候选：`.runtime/lightrag/2331025f52c8061dbee866dde4330b04fb075f7dfba9203f738be34173f342e0/`。`input_signature` 为该目录名；实际物质输入哈希另见最终输入清单。之前候选保留失败/取消记录，不冒充全书完成。
+当时真实候选：`.runtime/lightrag/2331025f52c8061dbee866dde4330b04fb075f7dfba9203f738be34173f342e0/`。早期 input_signature 使用该目录名，后已按下文切换为 Q2 规范快照身份。之前候选保留失败/取消记录，不冒充全书完成。
 
 `input_validation.json` 已验证11章、4,602块、163表格、81个OMML对象；179项有效视觉资源全部映射，44项异常资源全部排除。179项仍 `pending` 审核，OMML仍待PDF逐式核验，不标多模态完整。
 
-资源策略：CPU embedding，模型共享并发2、文件处理1、嵌入1；EXTRACT/VLM/KEYWORD 使用已有 deepseek-flash 配置。SDK 原生 Sidecar/paragraph_semantic 分块，1200 tokens，gleaning=0。角色限额和共享限额均有限；不占用本地GPU进行建图。
+早期资源策略：CPU embedding，模型共享并发2、文件处理1、嵌入1；EXTRACT/VLM/KEYWORD 使用已有 deepseek-flash 配置。SDK 原生 Sidecar/paragraph_semantic 分块，1200 tokens，gleaning=0。角色限额和共享限额均有限；后续已按下文 build-11 启用 CUDA embedding。
 
 ## 失败、取消、恢复与验证记录
 
@@ -47,7 +47,7 @@
 - build-05：恢复正确识别11个中断文档；暴露 SDK 1.5.7 Windows sidecar URI 写入/解析不对称，使 blocks_path 丢失，备用R分块又缺 langchain-text-splitters。适配层修复URI，新增实际SDK往返测试；安装必要分块依赖。
 - build-06：固定SDK对FAILED文档需要原生 manual-retry 意图，仅驱动 process_enqueue 不会重试；已按SDK协议接入 commit_manual_retry_request，不手改状态。
 - 两次旧签名变化来自其他页面新增 crops，非教材变化；修正物质输入范围，新增裁图不污染版本测试。
-- build-07：正在真实处理全部11章，实际图像/表格分析及实体关系抽取已发生，未完成。
+- build-07：当时正在真实处理全部11章；后续结束状态与实数见下文 build-08 和最终核验。
 - 专项：19项通过（`.runtime-lightrag-tests-03.log`）；Windows sidecar往返、结构化API不生成答案、版本/返回形状、失败、无结果、路径、锁、权限、来源隔离、嵌入身份、重试和取消。
 - 全书结构检查通过（`.runtime-lightrag-input-check-03.log`）；最初相对路径检查失败，已明确转绝对路径后独立复验。
 
@@ -151,3 +151,16 @@ build-10输入独立检查input-check-06通过，11章、179个有效唯一原�
 build-11日志`.runtime-lightrag-build-11-cuda.log`，进程65832，恢复后从缓存推进第7章；progress.runs的新运行项已记录CUDAExecutionProvider以及实际ONNX模块版本1.26.0。依赖快照新增实际模块版本，明确onnxruntime CPU发行版1.31.0元数据与实际GPU模块1.26.0的区别。当前venv基础依赖只读借用宿主，未在其他窗口环境装包。
 
 旧进程电源请求已释放，新GPU进程建立独立最长4小时临时运行请求，进程终态自动释放。正式服务、主工作树和staging/ready=false保持原状态。
+
+
+## build-11全书完成、真实查询与最终交付
+
+build-11已退出且临时电源请求自动释放。11/11章processed，逐章原文块/向量/实体/关系非空；独立GraphML/KV/vector读盘核验全局7,138实体、14,741关系、1,239实际块和同ID向量，854正文块、219图片出现块、166表格块。逐章实数、重试、资源、模型可得用量及文件签名全部写入LIGHTRAG_FULL_BOOK_REPORT.md，不将运行数据提交Git。
+
+真实aquery_data首轮暴露SDK默认图谱预算挤占原文，返回0块；显式设实体/关系各2,000、总10,000 tokens后修复。原失败报告保留。补充original_source_ids关联已有Q2原文ID，摘要仍evidence_eligible=false；metadata/reference不生成卡片。真实Q2发布验证脚本按实际正文/来源/引用三元契约修正，未改Q2内部。
+
+五种检索模式真实调用有原文；8项内容检查6通过、2失败：跨第一/二章问题漏第一章，第二章概述缺1/3/5节。query_validation.passed=false保持真实；不能将有限召回当全章素材。Q2精确引用、版本、页码、高亮、编号、裁图核验通过，并已查看实际裁图。source_verified不是正式答案语义验收；Q3工具/AgentLoop/页面未运行，稳定基线仍待确认。
+
+26项专项通过，真实SDK隔离失败/原生重试/重启/结构化验证通过，查询后全书输入与封存图谱签名再核验通过。本候选模型尝试1,981次，1,925成功/56失败，可得5,788,486 tokens；56次无usage失败未知，逐章精确token未知，费用未返回。build-10墙钟32,049.706秒含27,654.605秒宿主睡眠；build-11墙钟1,980.551秒，不能作为CPU/GPU速度比较。
+
+本批源码/脚本/接口提交 bd93051ca7db483c160fca9886dfb693d0bef652，接在06a5571→f92c200→4c1da2d→5ff9f6b→8fe8244之后。完整SHA、集成依赖与全部逐章结果见最终报告。旧候选和全部缓存保留，正式教材/数据库/索引未切换，staging/ready=false不变。179原图仍pending、44装饰排除、81公式未逐式核验；不宣称多模态完成。
