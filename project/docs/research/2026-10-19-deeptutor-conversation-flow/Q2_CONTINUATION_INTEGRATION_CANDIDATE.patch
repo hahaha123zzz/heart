@@ -1,0 +1,97 @@
+diff --git a/project/integration/discrete-math-tutor/agents/reply_budget.py b/project/integration/discrete-math-tutor/agents/reply_budget.py
+index 4fb4e5343d03c4850556d4189f4f9042bfae7e4d..f4d7ac1027b05b2d87a525f6cd9b1175a9699ab8 100644
+--- a/project/integration/discrete-math-tutor/agents/reply_budget.py
++++ b/project/integration/discrete-math-tutor/agents/reply_budget.py
+@@ -50,7 +50,8 @@ def reply_budget(text="", *, preferences=None, execution=None, action="explain",
+         if multi_part:
+             target, maximum = max(target, 320), max(maximum, 360)
+         # 目录导学需同时交代位置和正文；简化追问仍沿用普通短回复预算。
+-        if execution is not None and any(t.get('kind') == 'course_navigation' and t.get('mode') != 'repeat'
++        if execution is not None and any(t.get('kind') == 'course_navigation' and
++                                         (t.get('mode') != 'repeat' or t.get('continuation_action') == 'continue_current')
+                                          for t in execution.targets):
+             target, maximum = max(target, 320), max(maximum, 360)
+     if question_options:
+diff --git a/project/integration/discrete-math-tutor/orchestrator.py b/project/integration/discrete-math-tutor/orchestrator.py
+index 29bc45e81a41453aeaf67b17087c518c265e9070..5ddad463903e5058724ce066c906a2bc4a9bfffb 100644
+--- a/project/integration/discrete-math-tutor/orchestrator.py
++++ b/project/integration/discrete-math-tutor/orchestrator.py
+@@ -230,7 +230,11 @@ class TutorOrchestrator:
+             execution.target_refs = []
+             execution.targets = [{'kind': 'course_navigation', 'chapter': navigation['chapter_title'],
+                 'section': navigation['section_title'], 'title': navigation['title'], 'mode': navigation['mode'],
+-                'scope': '按教材标题顺序逐点学习；本轮先说明当前位置，再讲该目标，不一次讲完整章，不宣称学生已经掌握。'}]
++                'continuation_action': navigation.get('continuation_action'),
++                'scope': ('承接上一轮的同一例子或推导，只推进尚未讲完的步骤，不重复导言和整段定义；'
++                          '若历史没有对应例子或推导，先说明需要确认的具体对象，不虚构上轮内容。'
++                          if navigation.get('continuation_action') == 'continue_current' else
++                          '按教材标题顺序逐点学习；本轮先说明当前位置，再讲该目标，不一次讲完整章，不宣称学生已经掌握。')}]
+         query = (navigation['section_title'] + ' ' + navigation['title'] if navigation else
+                  execution.retrieval_query if execution.target_refs else self._retrieval_query(message, point, routing, history))
+         citation_path=None
+@@ -321,7 +325,9 @@ class TutorOrchestrator:
+                              navigation['title'] + '；这是按目录逐点学习，不要求一次讲完整章。' if navigation else
+                              execution.retrieval_query if execution.target_refs else message)
+         if navigation and navigation['mode'] == 'repeat':
+-            evidence_question += '本轮要求围绕这个目标重述上一轮讲解：' + message
++            evidence_question += ('本轮承接同一目标的当前例子或推导，依据历史确认尚未讲完的步骤：'
++                if navigation.get('continuation_action') == 'continue_current' else
++                '本轮要求围绕这个目标重述上一轮讲解：') + message
+         if is_self_report_understood(message) and not execution.no_questions:
+             evidence_question = f"围绕{point}及最近教材讲解设计一个简短理解检查，核验检查所需定义和条件是否有教材依据。学生本轮只是确认理解，不是新的事实问题。"
+         evidence_check = self.context_sufficiency.check(
+diff --git a/project/integration/discrete-math-tutor/scripts/check_course_navigation.py b/project/integration/discrete-math-tutor/scripts/check_course_navigation.py
+index 00595b64a8ea5ed77ccd7701fe7763b3064d7bb9..34c4a56060da0d7a28598f1d7887cde184cd1cfa 100644
+--- a/project/integration/discrete-math-tutor/scripts/check_course_navigation.py
++++ b/project/integration/discrete-math-tutor/scripts/check_course_navigation.py
+@@ -67,7 +67,7 @@ def main():
+                 return passed
+
+             def run_scenario(name, messages, *, chapter, selection=None, same_last=False,
+-                             require_images=False):
++                             require_images=False, same_turns=()):
+                 previous = None
+                 for index, message in enumerate(messages):
+                     started = time.monotonic()
+@@ -80,7 +80,7 @@ def main():
+                         result = service.run(ChatRequest(**payload), execute)
+                         navigation = result.get('course_navigation') or {}
+                         passed = check(result, chapter=chapter, previous=previous,
+-                            same=same_last and index == len(messages) - 1,
++                            same=index in same_turns or (same_last and index == len(messages) - 1),
+                             require_images=require_images)
+                         rows.append({'scenario': name, 'message': message,
+                             'elapsed_seconds': round(time.monotonic() - started, 3),
+@@ -95,8 +95,11 @@ def main():
+                     print(json.dumps({'scenario': name, 'turn': index, 'passed': passed,
+                         'status': result.get('answer_status')}, ensure_ascii=True), flush=True)
+
+-            run_scenario('explicit', ('我想要学习教材第一章的内容', '继续下一个知识点',
+-                '没听懂，请换个说法'), chapter=1, same_last=True)
++            run_scenario('explicit', ('学习第一章', '解释', '没听懂', '换说法',
++                '我懂了，下一部分', '下一知识点'), chapter=1, same_turns=(1, 2, 3))
++
++            run_scenario('within-point', ('学习第一章', '下一步推导', '继续这个例子'),
++                chapter=1, same_turns=(1, 2))
+
+             run_scenario('ordinary', ('请解释教材里的自变量，不要出题。',
+                 '我懂了，下一部分', '继续'), chapter=2)
+diff --git a/project/integration/discrete-math-tutor/tests/test_q2_continuation_handoff.py b/project/integration/discrete-math-tutor/tests/test_q2_continuation_handoff.py
+new file mode 100644
+--- /dev/null
++++ b/project/integration/discrete-math-tutor/tests/test_q2_continuation_handoff.py
+@@ -0,0 +1,14 @@
++"""集成窗口接续候选补丁的检查；不属于目标质量提交。"""
++import unittest
++
++
++class ContinuationHandoffTests(unittest.TestCase):
++    def test_continuation_budget_uses_action_and_keeps_rephrase_short(self):
++        from agents.reply_budget import reply_budget
++        from agents.task_execution import TaskExecution
++        execution = TaskExecution(learning_intents=['explain'], targets=[{
++            'kind': 'course_navigation', 'mode': 'repeat', 'continuation_action': 'continue_current'}])
++        self.assertEqual(reply_budget('继续这个例子', execution=execution).maximum, 360)
++        execution.targets[0]['continuation_action'] = 'rephrase_current'
++        self.assertEqual(reply_budget('没听懂', execution=execution).maximum, 260)
++

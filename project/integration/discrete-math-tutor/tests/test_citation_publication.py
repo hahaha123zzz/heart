@@ -102,6 +102,14 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(references_for_display(refs),refs)
         self.assertNotIn('evidence',refs[0])
 
+    def test_source_release_change_invalidates_projection_without_rewriting_history(self):
+        refs=self.bundle().references('条件[1]');original=deepcopy(refs)
+        with patch('knowledge.course_release.binding',return_value={'release_id':'new-release'}):
+            projected=references_for_display(refs)
+        self.assertEqual(projected[0]['evidence']['location_status'],'stale')
+        self.assertEqual(projected[0]['selection_ref']['image_refs'],[])
+        self.assertEqual(refs,original)
+
     def test_selection_without_verifiable_evidence_returns_explicit_rejection(self):
         from agents.pdf_selection_tutor import explain_selection
         from models.task_context import TaskContext,TaskObject
