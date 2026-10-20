@@ -49,6 +49,36 @@ class TaskService:
                 return str(option.get("label") or request.message)
         return request.message
 
+    @staticmethod
+    def _last_navigation_cursor(recent):
+        """Find the newest valid Q2 cursor when a later turn did not persist one.
+
+        A non-navigation follow-up can be answered without a directory cursor;
+        the next "下一部分" must still continue from the last valid path.
+        """
+        for row in reversed(recent or ()):
+            result = row.get("result") or {}
+            if result.get("answer_status") != "answered":
+                continue
+            navigation = result.get("course_navigation")
+            if isinstance(navigation, dict) and navigation.get("status") == "ready":
+                return navigation
+        return None
+
+    @staticmethod
+    def _navigation_message(message):
+        """Normalize natural continuation wording for Q2's directory resolver.
+
+        Q2 owns the path and intentionally recognizes a narrow set of phrases.
+        The page/LLM frequently says "我懂了，下一部分"; treating that as the
+        same navigation action avoids a false "no path" clarification without
+        duplicating Q2's chapter logic in this module.
+        """
+        if re.search(r"(?:我懂了|明白了|懂了|学会了|清楚了).{0,8}(?:下一部分|下一段|继续往下|往下学)|"
+                     r"(?:下一部分|下一段)(?:内容)?[。！？!?]?$", message.strip()):
+            return "继续下一个知识点"
+        return message
+
     def _context(self, request):
         recent = self.repo.recent(request.student_id, request.session_id, limit=12)
         history = self.tutor.memory.get_history(request.student_id) if request.session_id == "legacy" else [
@@ -85,9 +115,12 @@ class TaskService:
                 **(request.style_overrides.model_dump(exclude_none=True) if request.style_overrides else {})})
         from knowledge.course_navigation import resolve, previous_cursor
         cursor = previous_cursor(recent, self.tutor.memory, request.student_id)
+        if cursor is None and self._navigation_message(request.message) != request.message:
+            cursor = self._last_navigation_cursor(recent)
         if not any((request.selection, request.exercise_target, request.visualization_target,
                     request.truth_table_target, request.relation_target)):
-            context.course_navigation = resolve(request.message, cursor=cursor, reader_location=request.reader_location)
+            context.course_navigation = resolve(self._navigation_message(request.message),
+                                                cursor=cursor, reader_location=request.reader_location)
             if (context.course_navigation is None and cursor and re.fullmatch(
                     r'(?:我|还是|刚才|请|没听懂|再解释(?:一次|一下|一遍)?|换(?:个|一种)说法|'
                     r'再简单(?:点|一点)?|继续这个例子|继续讲|接着讲|[，。！？、\s])+', request.message)):

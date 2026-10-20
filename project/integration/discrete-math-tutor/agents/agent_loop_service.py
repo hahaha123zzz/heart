@@ -393,6 +393,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         answer=str((previous or {}).get("_resume_answer") or ""),
     )
     conversation_id = None
+    mapped = _map_result(result, target)
     if result.completed:
         memory = getattr(orchestrator, "memory", None)
         if memory is not None:
@@ -400,8 +401,20 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 _, epoch = memory.read_version(request.student_id, target.name)
                 user_message = (str((previous or {}).get("_resume_answer") or "")
                                 if resume_state else request.message)
+                # Persist the same citation cards the page just rendered, so a
+                # refresh/reload can restore body numbering and source cards.
+                stored_reference = {
+                    "pdf_references": mapped.get("pdf_references", []),
+                    "textbook_sources": mapped.get("textbook_sources", []),
+                    "chapter_id": target.chapter_id,
+                    "section_id": target.section_id,
+                    "section_title": target.name,
+                }
                 conversation_id = memory.append_exchange(
                     request.student_id, user_message, result.final_text,
+                    selection_ref=stored_reference
+                    if stored_reference["pdf_references"] or stored_reference["textbook_sources"]
+                    else None,
                     expected_epoch=epoch, expected_point=target.name, task_guard=guard)
                 if conversation_id is False:
                     release(request.task_id or request.request_id)
@@ -411,6 +424,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                         "step_advanced": False,
                         "loop_state": result.state(),
                     }
+                mapped["conversation_id"] = conversation_id
+                mapped["memory_commit"] = {"status": "committed",
+                                          "conversation_id": conversation_id}
             except Exception as exc:
                 release(request.task_id or request.request_id)
                 return {
@@ -422,7 +438,6 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 }
     if not result.paused:
         release(request.task_id or request.request_id)
-    mapped = _map_result(result, target, conversation_id)
     navigation_row = getattr(context, "course_navigation", None)
     if isinstance(navigation_row, dict) and navigation_row.get("status") == "ready":
         explained = (mapped.get("answer_status") == "answered"
