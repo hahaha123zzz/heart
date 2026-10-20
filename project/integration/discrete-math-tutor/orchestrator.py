@@ -286,6 +286,15 @@ class TutorOrchestrator:
             # 原页包含完整公式和相邻说明，避免两张零散公式图占满视觉输入。
             figures = []
         model_images = pdf_supplement.images if pdf_supplement else [figure.path for figure in figures[:2]]
+        if FIGURE_NUMBER.search(message) and not figures and pdf_supplement is None:
+            # 明确问图号时不能用纯文字回答冒充“看过图”；缺原图要明确暴露。
+            reply = "这个图号对应的教材原图暂未定位或不完整。请选中原页/区域，或确认图号后再问。"
+            save_exchange(reply)
+            return {"reply": reply, "answer_status": "visual_unavailable", "step_advanced": False,
+                    "routing": routing.model_dump(), "knowledge_point": active_point,
+                    "student_state": self.memory.get_state(student_id, active_point).model_dump(),
+                    "textbook_sources": [], "image_refs": [], "pdf_references": [],
+                    "pdf_image_refs": [], "selection_ref": None}
         if not sources and not figures:
             reply = "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。"
             save_exchange(reply)
@@ -368,7 +377,7 @@ class TutorOrchestrator:
             if citation_path:
                 report('citation-selection','选择支持原文','从检索上下文中选择可逐项核验的细粒度证据')
                 try:
-                    grounded_bundle=choose_evidence(self.llm,message,sources,citation_path,history=history)
+                    grounded_bundle=choose_evidence(self.llm,evidence_question,sources,citation_path,history=history)
                     sources=grounded_bundle.sources
                     evidence=[{'id':str(i),'source':s.source,'section':s.section,'text':s.text} for i,s in enumerate(sources,1)]
                     pdf_supplement=None
@@ -626,7 +635,7 @@ class TutorOrchestrator:
             if self._quality_accepted(quality):
                 if grounded_bundle:
                     report('citation-grounding','核验引用与展示范围','按同一证据记录核对引句、版本、高亮和裁图')
-                    try:grounded_references=grounded_bundle.references(response,allow_uncited_question=plan.action=='ask_question')
+                    try:response,sources,grounded_references=grounded_bundle.publish(response,allow_uncited_question=plan.action=='ask_question')
                     except (ValueError,OSError):
                         quality=QualityResult(passed=False,issues=['本轮引用编号或原文位置核验失败，请只引用提供的证据并保留必要条件'])
                 if self._quality_accepted(quality):break
@@ -634,7 +643,7 @@ class TutorOrchestrator:
             if grounded_bundle and attempts <= MAX_REGEN:
                 report('citation-reselection','重新选择支持原文','依据质检缺项重新选择；新草稿必须重新核验')
                 try:
-                    grounded_bundle=choose_evidence(self.llm,message,grounded_bundle.backgrounds,citation_path,feedback=feedback,history=history)
+                    grounded_bundle=choose_evidence(self.llm,evidence_question,grounded_bundle.backgrounds,citation_path,feedback=feedback,history=history)
                     sources=grounded_bundle.sources
                     excerpts=format_excerpts(sources)
                     check_context['grounded_evidence']=grounded_bundle.evidence

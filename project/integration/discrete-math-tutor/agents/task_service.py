@@ -147,7 +147,9 @@ class TaskService:
             request_key = request.request_id or str(uuid4())
             self.repo.expire(request.student_id, request.session_id)
             replay = self.repo.replay(request.student_id, request.session_id, request_key, payload, self.tutor.memory.repo)
-            if replay is not None: return replay
+            if replay is not None:
+                from knowledge.grounded_citations import references_for_display
+                return dict(replay,pdf_references=references_for_display(replay['pdf_references'])) if replay.get('pdf_references') else replay
             pending = self.repo.pending(request.student_id, request.session_id)
             task_id, revision = request.task_id, request.task_revision
             if task_id is None and pending and not re.search(r"换到|换个|改学|想学|重新提问", request.message):
@@ -167,7 +169,9 @@ class TaskService:
             task, receipt, duplicate = self.repo.claim(student_id=request.student_id, session_id=request.session_id,
                 request_id=request_key, payload=payload, point=point, epoch=epoch, memory_repo=self.tutor.memory.repo,
                 task_id=task_id, revision=revision, ttl_seconds=self.ttl_seconds)
-            if duplicate is not None: return duplicate
+            if duplicate is not None:
+                from knowledge.grounded_citations import references_for_display
+                return dict(duplicate,pdf_references=references_for_display(duplicate['pdf_references'])) if duplicate.get('pdf_references') else duplicate
             def guard():
                 self.repo.guard(task["student_id"], task["session_id"], task["id"], task["revision"], self.tutor.memory.repo)
                 if context.course_navigation and context.course_navigation['status'] == 'ready':
@@ -281,17 +285,29 @@ class TaskService:
                     logging.getLogger(__name__).exception("Optional visualization failed")
                 result = dict(result, guided_visualization=guide,
                     visualization_status="ready" if guide else "unavailable")
+            # 普通问答/选区回答若引用真实教材位置，绑定可接续的目录游标；
+            # 绑定只读文件，放在写事务之外，避免持锁做目录解析。
+            bound_navigation = None
+            if (result.get('answer_status') == 'answered'
+                    and result.get('memory_commit', {}).get('status') == 'committed'
+                    and context.course_navigation is None):
+                from knowledge.course_navigation import bind_result
+                bound_navigation = bind_result(result)
             # 与最后一次保存使用相同工作单元检查，拒绝已删除/取消的迟到结果。
             with self.tutor.memory.repo.unit_of_work():
                 guard()
                 if (result.get('answer_status') == 'answered' and result.get('memory_commit', {}).get('status') == 'committed'):
                     navigation = context.course_navigation
-                    if not navigation:
+                    if navigation and navigation.get('status') == 'ready' and result.get('knowledge_point') == navigation['title']:
+                        result = dict(result, course_navigation=dict(navigation, explained=True))
+                    elif navigation is None and bound_navigation:
+                        result = dict(result, course_navigation=bound_navigation)
+                    elif navigation is None:
                         from knowledge.course_navigation import previous_cursor
                         navigation = previous_cursor(self.repo.recent(request.student_id, request.session_id, limit=12),
                                                      self.tutor.memory, request.student_id)
-                    if navigation and navigation.get('status') == 'ready' and result.get('knowledge_point') == navigation['title']:
-                        result = dict(result, course_navigation=dict(navigation, explained=True))
+                        if navigation and navigation.get('status') == 'ready' and result.get('knowledge_point') == navigation['title']:
+                            result = dict(result, course_navigation=dict(navigation, explained=True))
                 if result.get("visualization_status") == "ready":
                     if not self.tutor.memory.repo.attach_guide(request.student_id, result["conversation_id"], result["guided_visualization"]):
                         raise TaskConflict("memory_deleted", "相关对话已删除，图解未保存")

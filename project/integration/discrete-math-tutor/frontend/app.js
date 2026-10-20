@@ -236,7 +236,7 @@ function renderChatReferences(message, index) {
   const visible = sources.map((source, sourceIndex) => ({source, sourceIndex}))
     .filter(item => refs.some(ref => ref.source_index === item.sourceIndex) || (used.size ? used.has(item.sourceIndex) : item.sourceIndex === 0));
   const cropURLs=new Set();
-  const sourceLink = (source,sourceIndex) => `<button type="button" class="message-source pdf-citation" data-source-citation="${index}" data-source-index="${sourceIndex}" title="打开已保存的证据；旧来源仅打开当前教材小节">[${sourceIndex + 1}] 教材：${esc(source)} ↗</button>`;
+  const sourceLink = (source,sourceIndex,stale=false) => `<button type="button" class="message-source pdf-citation" data-source-citation="${index}" data-source-index="${sourceIndex}" ${stale?'disabled':''} title="${stale?'保存的教材版本已失效':'打开已保存的证据；旧来源仅打开当前教材小节'}">[${sourceIndex + 1}] 教材：${esc(source)} ↗</button>`;
   const crops = ref => (ref?.image_refs || []).filter(image=>{if(cropURLs.has(image.image_url))return false;cropURLs.add(image.image_url);return true;}).map(image => `<img class="pdf-chat-crop" src="${esc(image.image_url)}" alt="${esc(image.label || "教材选区")}" loading="lazy">`).join("");
   if (refs.length) {
     return visible.map(({source, sourceIndex}) => {
@@ -246,7 +246,7 @@ function renderChatReferences(message, index) {
         const evidence=item.evidence;
         const selections=evidence.selections || [];
         const location={exact:'精确证据',page:'页级来源 · 无文字高亮',section:'小节位置 · 无精确高亮',stale:'版本已失效',unlocated:'无法定位'}[evidence.location_status] || '无法定位';
-        return `<div class="grounded-evidence">${sourceLink(source,sourceIndex)}<small class="evidence-status">${esc(location)}</small>${evidence.quote?`<blockquote>${esc(evidence.quote)}</blockquote>`:''}${evidence.degradation_reason?`<small>${esc(evidence.degradation_reason)}</small>`:''}${selections.map((ref,part)=>renderPDFReference(ref,index,refIndex,`证据片段 ${part+1}`,part)).join('')}${selections.length?`<details class="source-crop"><summary>查看完整支持原文（${selections.length} 个片段）</summary>${selections.map(crops).join('')}</details>`:''}</div>`;
+        return `<div class="grounded-evidence">${sourceLink(source,sourceIndex,evidence.location_status==='stale')}<small class="evidence-status">${esc(location)}</small>${evidence.quote?`<blockquote>${esc(evidence.quote)}</blockquote>`:''}${evidence.degradation_reason?`<small>${esc(evidence.degradation_reason)}</small>`:''}${selections.map((ref,part)=>renderPDFReference(ref,index,refIndex,`证据片段 ${part+1}`,part)).join('')}${selections.length?`<details class="source-crop"><summary>查看完整支持原文（${selections.length} 个片段）</summary>${selections.map(crops).join('')}</details>`:crops(item.selection_ref)}</div>`;
       }
       return sourceLink(source,sourceIndex) + (item ? `<small>旧引用 · 未按新证据协议核验</small>` + renderPDFReference(item.selection_ref,index,refIndex,item.label) + (item.selection_ref?.image_refs?.length?`<details class="source-crop"><summary>查看已保存的教材选区</summary>${crops(item.selection_ref)}</details>`:"") : "");
     }).join("");

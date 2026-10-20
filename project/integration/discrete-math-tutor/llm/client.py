@@ -122,7 +122,10 @@ class LLMClient:
             image = resolved.read_bytes()
             if len(image) > 8 * 1024 * 1024:
                 raise LLMError("教材图片超过视觉输入限制")
-            data_url = "data:image/png;base64," + base64.b64encode(image).decode("ascii")
+            media_type = ("image/png" if resolved.suffix.lower() == ".png" else
+                          "image/jpeg" if resolved.suffix.lower() in (".jpg", ".jpeg") else
+                          "application/octet-stream")
+            data_url = f"data:{media_type};base64," + base64.b64encode(image).decode("ascii")
             parts.append({"type": "image_url", "image_url": {"url": data_url, "detail": "original"}})
         result[-1]["content"] = parts
         return result

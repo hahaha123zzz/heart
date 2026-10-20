@@ -10,7 +10,7 @@ from agents.task_service import TaskService
 from database import database as db
 from database.learning_tasks import LearningTaskRepository
 from database.models import Base
-from knowledge.course_navigation import intent, outline, read_target, resolve
+from knowledge.course_navigation import bind_result, intent, outline, read_target, resolve
 from memory.memory_manager import MemoryManager
 from models.chat_request import ChatRequest
 from models.task_context import ReaderLocation
@@ -50,6 +50,58 @@ class NavigationTests(unittest.TestCase):
                         '我想学习第一章的自变量', '讲解第一章的实验程序', '下一个知识点是什么意思'):
             with self.subTest(message=message):
                 self.assertIsNone(intent(message))
+
+    def test_natural_next_phrases_navigate_but_same_point_phrases_do_not(self):
+        for message in ('我懂了，下一部分', '下一步', '继续', '接下来',
+                        '继续学习', '好的，继续'):
+            with self.subTest(message=message):
+                self.assertEqual(intent(message), 'next')
+        for message in ('下一步推导', '下一步证明', '继续这个例子',
+                        '继续刚才的证明', '继续讲刚才的', '不要继续', '先不继续'):
+            with self.subTest(message=message):
+                self.assertIsNone(intent(message))
+
+    def test_natural_next_uses_the_current_cursor(self):
+        first = resolve('学习第一章')
+        targets = [resolve(message, cursor=first) for message in
+                   ('我懂了，下一部分', '下一步', '继续', '接下来')]
+        self.assertTrue(all(target['status'] == 'ready' for target in targets))
+        self.assertTrue(all(target['mode'] == 'next' for target in targets))
+        self.assertEqual(len({target['id'] for target in targets}), 1)
+        self.assertNotEqual(targets[0]['id'], first['id'])
+        self.assertEqual(resolve('继续')['status'], 'clarify')
+
+    def test_ordinary_and_selection_answers_bind_real_outline_location(self):
+        first = resolve('学习第一章')
+        unit = next(item for item in outline() if item['id'] == first['id'])
+        text = unit['blocks'][0]['text']
+        for key in ('pdf_references', 'selection_ref'):
+            with self.subTest(key=key):
+                if key == 'pdf_references':
+                    result = {key: [{'source_index': 0, 'selection_ref': {
+                        'chapter_id': unit['chapter_id'], 'section_id': unit['section_id'], 'text': text}}]}
+                else:
+                    result = {key: {'chapter_id': unit['chapter_id'],
+                                    'section_id': unit['section_id'], 'text': text}}
+                cursor = bind_result(result)
+                self.assertEqual(cursor['status'], 'ready')
+                self.assertEqual(cursor['id'], unit['id'])
+                self.assertTrue(cursor['explained'])
+                self.assertEqual(resolve('我懂了，下一部分', cursor=cursor)['id'],
+                                 resolve('我懂了，下一部分', cursor=first)['id'])
+
+    def test_answer_spanning_sections_binds_a_clarification_not_a_guess(self):
+        first = resolve('学习第一章')
+        second = resolve('学习第二章')
+        result = {'pdf_references': [
+            {'selection_ref': {'chapter_id': first['chapter_id'], 'section_id': first['section_id'],
+                               'text': '第一章内容'}},
+            {'selection_ref': {'chapter_id': second['chapter_id'], 'section_id': second['section_id'],
+                               'text': '第二章内容'}}]}
+        cursor = bind_result(result)
+        self.assertEqual(cursor['status'], 'clarify')
+        self.assertTrue(cursor['candidates'])
+        self.assertEqual(resolve('继续', cursor=cursor)['status'], 'clarify')
 
     def test_section_and_chapter_have_different_scope(self):
         first = resolve('学习第一章')
@@ -94,6 +146,10 @@ class NavigationTests(unittest.TestCase):
         tutor = test_quality_guard.QualityGuardTests().tutor([QualityResult(passed=True)])
         tutor.response_generator.generate.side_effect = None
         tutor.response_generator.generate.return_value = '实验心理学使用实验方法研究心理现象。[1]'
+        def select(messages, **kwargs):
+            import json
+            return {'evidence_ids':[json.loads(messages[1]['content'])['candidates'][0]['evidence_id']]}
+        tutor.llm.chat_json.side_effect=select
         with patch('orchestrator.retrieve_course', side_effect=AssertionError('导航不应搜索口令')):
             result = tutor.handle_turn('guard-test', '我想要学习教材第一章的内容')
         self.assertEqual(result['answer_status'], 'answered')
@@ -124,7 +180,8 @@ class NavigationTaskTests(unittest.TestCase):
         self.engine.dispose()
         self.temp.cleanup()
 
-    def run_turn(self, message, request_id, *, status='answered', after_start=None, session_id='tab', **kwargs):
+    def run_turn(self, message, request_id, *, status='answered', after_start=None, session_id='tab',
+                 result_extra=None, **kwargs):
         request = ChatRequest(student_id='nav', message=message, request_id=request_id, session_id=session_id, **kwargs)
         def execute(request, context, resolved, intercept, guard, progress):
             self.contexts.append(context)
@@ -135,8 +192,23 @@ class NavigationTaskTests(unittest.TestCase):
                 after_start(context)
             guard()
             return {'reply': '有来源的解释', 'answer_status': status, 'knowledge_point': context.knowledge_point,
-                    'memory_commit': {'status': 'committed'}, 'step_advanced': False}
+                    'memory_commit': {'status': 'committed'}, 'step_advanced': False,
+                    **(result_extra or {})}
         return self.service.run(request, execute)
+
+    def test_ordinary_answer_binds_location_and_natural_next_continues(self):
+        unit = next(item for item in outline()
+                    if item['chapter_id'] == 1 and item['section_id'] == 1)
+        first = self.run_turn('请解释这一节', 'a', result_extra={
+            'pdf_references': [{'source_index': 0, 'selection_ref': {
+                'chapter_id': unit['chapter_id'], 'section_id': unit['section_id'],
+                'text': unit['blocks'][0]['text']}}]})
+        self.assertEqual(first['course_navigation']['status'], 'ready')
+        self.assertEqual(first['course_navigation']['id'], unit['id'])
+        second = self.run_turn('我懂了，下一部分', 'b')
+        self.assertEqual(second['course_navigation']['status'], 'ready')
+        self.assertNotEqual(second['course_navigation']['id'], first['course_navigation']['id'])
+        self.assertEqual(self.contexts[-1].course_navigation['mode'], 'next')
 
     def test_replay_does_not_advance_twice_and_service_recreation_resumes(self):
         first = self.run_turn('学习第一章', 'a')
