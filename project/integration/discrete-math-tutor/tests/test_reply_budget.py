@@ -16,6 +16,20 @@ from llm.client import LLMClient, LLMError
 
 
 class ReplyBudgetTests(unittest.TestCase):
+    def test_detailed_plan_budget_is_shared_and_hint_stays_short(self):
+        budget = reply_budget('请给出全书详细学习计划', preferences={'answer_length': 0})
+        self.assertEqual((budget.target, budget.maximum, budget.max_tokens), (1800, 2400, 4800))
+        self.assertLess(reply_budget('全书详细学习计划，只给提示', action='give_hint').maximum, 300)
+
+    def test_structured_q5_plan_projection_keeps_last_objective(self):
+        from agents.q5_runtime import Q5Runtime
+        proposal = {'modules': [{'name': f'第{i}章', 'objectives': [
+            {'name': f'目标{i}-{j}', 'source_refs': [{'title': f'来源{i}-{j}'}]}
+            for j in range(12)]} for i in range(1, 12)]}
+        rendered = Q5Runtime.format_plan(None, proposal)
+        self.assertIn('目标11-11', rendered)
+        self.assertEqual(rendered.count('（来源：'), 132)
+
     def plan(self,action='explain'):
         return TeachingPlan(goal='实验设计',strategy='worked_example',action=action,difficulty='easy')
 

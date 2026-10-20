@@ -33,3 +33,12 @@
 验证：`npm run build:chat` 通过并同步产物；`node --check frontend/app.js`、基础文字降级测试通过；`python -m unittest tests.test_response_citations -q` 19 项通过（含导入的实际 PDF 基础用例）。可见 Edge、真实测试历史和实际教材接口：`.runtime/response-experience/20261020/ux1-release/citations.json` **18 项通过**，覆盖桌面/375px、键盘/焦点、精确原文、实际版本跳转、刷新、重复编号、跨消息重排、旧历史、失效/未知编号和练习入口夹具；两种视口截图已查看。首轮失败与后续运行分别保留。
 
 本阶段不宣称真实正文流式、教材原图入正文或四入口模型验收完成。UX2—UX5 按计划继续；8000 服务未动。
+# UX2：排版与任务预算（2026-10-20）
+
+解除 RESPONSE 的统一三段限制及 Q3 的 400 字限制；普通概念与仅提示保持短预算，明确详细/全书规划说明使用 1800/2400 字、4800 tokens 上限，生成与质检共用。既有 Q5 结构化计划直接展示，不另调模型，11 章 132 目标的最后目标保留测试通过；这不代表全书规划业务完成。
+
+现有 renderer 增加 streaming/settled 生命周期、缓存键与解析异常文字降级。复用固定 DeepTutor 源码已有 repairChineseEmphasis，解决中文标点相邻强调；未添加依赖、未修改 vendor。构建 555.63 kB / gzip 171.66 kB，许可产物保留。
+
+验证：`python -m unittest tests.test_reply_budget tests.test_q3_entrypoint tests.test_q3_task_loop -q` 20 项通过；新增 Q5 完整投影后单独 `tests.test_reply_budget` 13 项通过。`node tests/browser/answer-emphasis.node.cjs`、`node --check frontend/app.js`、`npm run build:chat` 均通过。`tests/browser/response-format.cjs` 可见 Edge 中 8 个标准样本和 UX0 真实 concept 回复共 9 类通过逐字符增量、完成/历史一致、公式、表格、代码、中文强调、HTML/URL 和 375px 检查；截图已查看。
+
+证据：`.runtime/response-experience/20261020/ux2/format.json`、`format-mobile.png`，同级 ux2 日志。首轮 runner 相对路径错误、缺少正式 KaTeX 样式的夹具溢出、中文强调实际失败记录保留。最终复验加载正式 reader.css。未用这些排版夹具代替 SDK 真流式或四入口真实模型验收；UX3—UX5 仍待实施。

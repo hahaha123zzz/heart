@@ -2,15 +2,18 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server.browser';
 import SimpleMarkdownRenderer from '@/components/common/SimpleMarkdownRenderer';
 import { processMarkdownContent } from '@/lib/latex';
+import {repairChineseEmphasis} from '@/lib/markdown-display';
 import {MarkdownContext, protectLiterals} from './context';
 // 复用宿主已加载的 reader.css 与同一版本 KaTeX，避免重复打包字体。
 import './style.css';
 
-export function render(text: string) {
+export function render(text: string, {streaming = false} = {}) {
   const protectedText = protectLiterals(processMarkdownContent(String(text)));
   return renderToStaticMarkup(<MarkdownContext.Provider value={protectedText}>
-    <SimpleMarkdownRenderer content={protectedText.content}
-      variant="compact" className="tutor-markdown answer-text" />
+    <div data-markdown-state={streaming ? 'streaming' : 'settled'}>
+      <SimpleMarkdownRenderer content={repairChineseEmphasis(protectedText.content, 'zh')}
+        variant="compact" className="tutor-markdown answer-text" />
+    </div>
   </MarkdownContext.Provider>);
 }
 

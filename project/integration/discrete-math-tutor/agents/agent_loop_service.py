@@ -8,6 +8,7 @@ from typing import Any, Callable
 
 from agents.agent_loop import LocalAgentLoop, LoopRequest, LoopResult
 from agents.loop_prompts import build_loop_system_prompt
+from agents.reply_budget import reply_budget
 from agents.q3_navigation import (
     CallbackNavigator, LearningTarget, NavigationDecision, StubLearningNavigator,
     source_from_chunk,
@@ -181,7 +182,7 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget):
             quality = checker.check(text, state, plan, request.message,
                                     context={"loop_sources": result.sources,
                                              "agent_loop": True,
-                                             "reply_maximum_override": max(600, maximum)},
+                                             "reply_maximum_override": max(600, maximum, reply_budget(request.message).maximum)},
                                     textbook_excerpts=excerpts)
             if not quality.passed or quality.issues:
                 return False, "本次回答未通过教材核对：" + "；".join(quality.issues or [])
@@ -395,7 +396,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         extra_tools=tuple((q5_binding or {}).get("tool_instances") or ()),
         extra_scopes=tuple((q5_binding or {}).get("scopes") or ()),
     )
-    system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions())
+    budget = reply_budget(request.message)
+    system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions()) + "\n" + budget.instructions()
     cancellation = register(request.task_id or request.request_id)
 
     def emit(event_type: str, message: str,
@@ -410,13 +412,15 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             text = detail or message or ""
         progress("loop-" + event_type, event_type, str(text)[:300])
 
-    loop = LocalAgentLoop(llm or orchestrator.llm)
+    round_tokens = max(1200, budget.max_tokens)
+    loop = LocalAgentLoop(llm or orchestrator.llm, max_round_tokens=round_tokens)
     result = loop.run(
         LoopRequest(
             student_id=request.student_id, session_id=request.session_id,
             task_id=request.task_id or request.request_id,
             request_id=request.request_id or "",
             message=request.message, system_prompt=system_prompt, tools=registry,
+            round_max_tokens=round_tokens,
             seed_messages=list(context.history or []), target=target,
             navigation=navigation, cancellation=cancellation, guard=guard,
             tool_state={"workspace_root": str(workspace_root),

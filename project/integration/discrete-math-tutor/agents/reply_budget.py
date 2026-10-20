@@ -18,6 +18,8 @@ class ReplyBudget:
 
     @property
     def max_tokens(self):
+        if self.target >= 1000:
+            return self.maximum * 2
         return 900 if self.target >= 480 else 700 if self.target >= 320 else 400
 
     def instructions(self):
@@ -58,6 +60,9 @@ def reply_budget(text="", *, preferences=None, execution=None, action="explain",
         if multi_part and re.search(r"公式|符号|[A-Za-z][A-Za-z0-9]*\s*、", text):
             # 多个公式符号逐项解释需要保留符号、参照点和各自引用。
             target, maximum = max(target, 480), max(maximum, 500)
+        # 结构化 Q5 计划直接投影；这里只放宽需要模型撰写的规划说明。
+        if re.search(r"计划|规划|学习路线", text) and re.search(r"详细|完整|全书|全部|每章|逐章", text):
+            target, maximum = max(target, 1800), max(maximum, 2400)
     if question_options:
         target, maximum = max(target, 420), max(maximum, 440)
     return ReplyBudget(target, maximum)

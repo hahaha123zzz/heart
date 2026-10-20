@@ -481,10 +481,11 @@ function renderAnswerContent(message) {
   if (!message.content) return '';
   if (message.role !== 'assistant') return '<p>'+esc(message.content)+'</p>';
   const previous=answerMarkup.get(message);
-  if (previous?.content===message.content && previous.renderer===window.TutorMarkdown) return previous.html;
-  const html=window.renderTutorAnswer(message.content);
+  const streaming=message.answerState==='generating';
+  if (previous?.content===message.content && previous.streaming===streaming && previous.renderer===window.TutorMarkdown) return previous.html;
+  const html=window.renderTutorAnswer(message.content,{streaming});
   // 进度变化不重新解析整条正文；消息删除后缓存随对象释放。
-  answerMarkup.set(message,{content:message.content,renderer:window.TutorMarkdown,html});
+  answerMarkup.set(message,{content:message.content,streaming,renderer:window.TutorMarkdown,html});
   return html;
 }
 let chatRenderer;

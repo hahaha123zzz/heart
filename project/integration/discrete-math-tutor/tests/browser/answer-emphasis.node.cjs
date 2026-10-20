@@ -7,4 +7,7 @@ assert.ok(!render('$a==b$ `**literal**`').includes('<mark>'));
 assert.ok(!render('$a==b$ `**literal**`').includes('<strong>'));
 assert.ok(render('尚未闭合**重点').includes('**重点'));
 assert.ok(render('$$a==b\n+c$$').includes('$$a==b\n+c$$'));
+assert.ok(!render('```text\n[1]\n``` [链接](https://example.org/[1]) [1, 2]').includes('data-tutor-citation'));
+window.TutorMarkdown={render(){throw Error('测试解析异常')}};
+assert.ok(render('原始说明').includes('原始说明'));
 console.log('PASS: 加粗、高亮、安全转义、公式与代码保护、未闭合标记');

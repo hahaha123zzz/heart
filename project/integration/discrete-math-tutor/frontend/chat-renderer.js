@@ -1,10 +1,13 @@
 "use strict";
 
 // 富文本资源加载失败时保留原基础正文。
-window.renderTutorAnswer = text => {
-  if (window.TutorMarkdown) return window.TutorMarkdown.render(text);
+window.renderTutorAnswer = (text, options = {}) => {
+  if (window.TutorMarkdown) {
+    try { return window.TutorMarkdown.render(text, options); }
+    catch (error) { console.error('正文富文本解析失败，显示基础正文', error); }
+  }
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const tokens = /\$\$[\s\S]*?\$\$|\$[^$\n]+\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|`[^`\n]+`|\*\*[^*\n]+\*\*|==[^=\n]+==/g;
+  const tokens = /```[\s\S]*?(?:```|$)|~~~[\s\S]*?(?:~~~|$)|!?\[[^\]\n]*\]\([^\n)]*\)|\[\s*\d+(?:\s*[,，]\s*\d+)+\s*\]|\$\$[\s\S]*?(?:\$\$|$)|\$[^$\n]+\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|`[^`\n]+`|\*\*[^*\n]+\*\*|==[^=\n]+==/g;
   const plain = value => escape(value).replace(/\[(\d+)\]/g, (_,number)=>`<sup class="citation-group"><button type="button" data-tutor-citation="${number}" aria-label="查看来源 ${number}">${number}</button></sup>`);
   let result='', end=0;
   for (const match of String(text).matchAll(tokens)) {
@@ -12,6 +15,7 @@ window.renderTutorAnswer = text => {
     const token=match[0];
     if(token.startsWith('**'))result+='<strong>'+escape(token.slice(2,-2))+'</strong>';
     else if(token.startsWith('=='))result+='<mark>'+escape(token.slice(2,-2))+'</mark>';
+    else if(token.startsWith('```') || token.startsWith('~~~'))result+='<code>'+escape(token)+'</code>';
     else if(token.startsWith('`'))result+='<code>'+escape(token.slice(1,-1))+'</code>';
     else result+=escape(token);
     end=match.index+token.length;
