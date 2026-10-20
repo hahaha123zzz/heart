@@ -1,0 +1,72 @@
+[
+  {
+    "case": "concept",
+    "synthetic": true,
+    "cold": true,
+    "message": "请解释教材里的自变量，不要出题。",
+    "status": "answered",
+    "seconds": 20.221,
+    "model_calls": 5,
+    "tokens": 16369,
+    "refs": 4,
+    "media": 0,
+    "true_delta_events": 0,
+    "raw_sse_sha256": "822ec37e01858028d8563b885607fbfa2e15232abefc61e1091d314e3833dea4"
+  },
+  {
+    "case": "comparison",
+    "synthetic": true,
+    "cold": false,
+    "message": "比较被试内设计与被试间设计，使用对照表，不要出题。",
+    "status": "answered",
+    "seconds": 9.651,
+    "model_calls": 5,
+    "tokens": 19692,
+    "refs": 4,
+    "media": 2,
+    "true_delta_events": 0,
+    "raw_sse_sha256": "1ef5a83718555c0900583dc45b7960d280c7d0e1c5ab8e95be1424d99452de37"
+  },
+  {
+    "case": "formula",
+    "synthetic": true,
+    "cold": false,
+    "message": "请解释韦伯定律的公式和各符号的含义，不要出题。",
+    "status": "evidence_rejected",
+    "seconds": 1.532,
+    "model_calls": 1,
+    "tokens": 2555,
+    "refs": 0,
+    "media": 0,
+    "true_delta_events": 0,
+    "raw_sse_sha256": "16b011de5c5ac23dfe9ab0de12161c199f92d532d13c0e9c8972307222e2d7ea"
+  },
+  {
+    "case": "table",
+    "synthetic": true,
+    "cold": false,
+    "message": "请用表格比较自变量、因变量与额外变量，不要出题。",
+    "status": "answered",
+    "seconds": 12.768,
+    "model_calls": 5,
+    "tokens": 19781,
+    "refs": 4,
+    "media": 1,
+    "true_delta_events": 0,
+    "raw_sse_sha256": "3549abd856c32eebb0e19ef5785981ba63eda99858ba23bdfaa8e76fc5f4043c"
+  },
+  {
+    "case": "planning",
+    "synthetic": true,
+    "cold": false,
+    "message": "请详细制定第一章四节的学习计划，按节列出目标、活动、教材来源和完成标准，不要出题。",
+    "status": "evidence_rejected",
+    "seconds": 5.229,
+    "model_calls": 3,
+    "tokens": 11718,
+    "refs": 0,
+    "media": 0,
+    "true_delta_events": 0,
+    "raw_sse_sha256": "6cd2b88218e0baa4b4b32d213caff2de0a47e1881e113cf575d04b0727887b46"
+  }
+]
