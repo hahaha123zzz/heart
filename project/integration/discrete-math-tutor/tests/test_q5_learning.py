@@ -147,7 +147,7 @@ class Q5TestBase(unittest.TestCase):
             student_id="s", session_id="sess", course_id="course-1"
         )
         self.service = Q5LearningService(
-            source_validator=lambda ref: str(ref.get("version") or "") == "v1"
+            source_validator=lambda ref: str(ref.get("version") or "") == "v1" and ref.get("source_valid", True)
         )
 
     def tearDown(self):
@@ -375,7 +375,7 @@ class ExplainAndAdvanceTests(Q5TestBase):
         self.confirmed_plan()
         first = self.service.mark_understood(self.scope, command_id="u-1")
         fresh = Q5LearningService(
-            source_validator=lambda ref: str(ref.get("version") or "") == "v1"
+            source_validator=lambda ref: str(ref.get("version") or "") == "v1" and ref.get("source_valid", True)
         )
         status = fresh.status(self.scope)
         self.assertEqual(status["path_id"], first["path_id"])
@@ -544,7 +544,7 @@ class SelectionBindingTests(Q5TestBase):
             command_id="selection-explain",
         )
         fresh = Q5LearningService(
-            source_validator=lambda ref: str(ref.get("version") or "") == "v1"
+            source_validator=lambda ref: str(ref.get("version") or "") == "v1" and ref.get("source_valid", True)
         )
         self.assertEqual(
             fresh.status(self.scope)["current"]["objective_id"], objective_id
@@ -587,6 +587,11 @@ class TextbookNavigationTests(Q5TestBase):
             "version": "v1",
             "page": 3,
             "source": "doc-1",
+            "source_version": "sv-1",
+            "source_title": title,
+            "target_schema": "q2-target-v1",
+            "source_block_ids": [6],
+            "release_id": "release-1",
         }
 
     def test_q2_target_is_projected_without_local_next_cursor(self):
@@ -597,6 +602,10 @@ class TextbookNavigationTests(Q5TestBase):
         status = self.service.status(self.scope)
         self.assertEqual(status["path"]["kind"], "textbook_navigation")
         self.assertEqual(status["current"]["name"], "实验心理学的含义")
+        self.assertEqual(status["current"]["source_refs"][0]["release_id"], "release-1")
+        self.assertEqual(
+            status["current"]["source_refs"][0]["source_block_ids"], [6]
+        )
         self.assertEqual(self.service.current_target(self.scope).target_id, "ch1:s1:b6")
 
         second = self.service.bind_textbook_target(
@@ -608,6 +617,19 @@ class TextbookNavigationTests(Q5TestBase):
         status = self.service.status(self.scope)
         self.assertEqual(status["current"]["name"], "主要讲心理学实验方法的教材")
         self.assertEqual(self.service.current_target(self.scope).target_id, "ch1:s1:b20")
+
+    def test_invalid_q2_source_target_is_not_used(self):
+        target = self.target()
+        target["source_valid"] = False
+        self.service.bind_textbook_target(
+            self.scope, target, command_id="nav-invalid"
+        )
+        status = self.service.status(self.scope)
+        self.assertEqual(status["status"], "source_unavailable")
+        with self.assertRaises(ValueError):
+            self.service.mark_understood(
+                self.scope, command_id="nav-invalid-mark"
+            )
 
     def test_understood_on_textbook_path_asks_q2_for_next(self):
         self.service.bind_textbook_target(

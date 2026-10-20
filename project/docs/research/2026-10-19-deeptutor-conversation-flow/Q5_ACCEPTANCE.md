@@ -4,7 +4,7 @@
 
 本矩阵覆盖 `IMPLEMENTATION_PLAN.md` Q5.7—Q5.12 与“学习第一章→我懂了→下一部分”场景。**当前所有行仍按完整验收口径记录；首批代码只完成下面“首批实现证据”列出的子集，不等于对应整行通过。** 任何“完成”声明必须附实现提交、隔离数据库、请求/任务 ID、事件/结果、来源版本和失败样本；设计文档不能代替验收。
 
-> **首批实现证据（2026-10-20）**：Q5 计划草稿/确认/study、讲解记录、`mastery_understood` 教学位置推进、刷新恢复、路径切换/离开、局部改名保护、圈选 source_ref 建/绑路径、来源失效阻断，已有隔离 SQLite 测试（30 项）并与 Q3/Q4 联合回归 128 项通过。正式题卡/评分/掌握门槛/复习/教师审核/课程交接和真实页面仍未实现；详见 [Q5_IMPLEMENTATION_LOG.md](Q5_IMPLEMENTATION_LOG.md)。
+> **首批实现证据（2026-10-20）**：Q5 计划草稿/确认/study、讲解记录、`mastery_understood` 教学位置推进、刷新恢复、路径切换/离开、局部改名保护、圈选 source_ref 建/绑路径、来源失效阻断，已有隔离 SQLite 测试（31 项）并与 Q3/Q4 联合回归 132 项通过。正式题卡/评分/掌握门槛/复习/教师审核/课程交接和真实页面仍未实现；详见 [Q5_IMPLEMENTATION_LOG.md](Q5_IMPLEMENTATION_LOG.md)。
 
 配套：[Q5 学习设计](Q5_LEARNING_DESIGN.md)、[Q5 接口契约](Q5_INTERFACE_CONTRACT.md)、[Q3 契约](Q3_INTERFACE_CONTRACT.md)。
 

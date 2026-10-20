@@ -5,8 +5,8 @@
 ## 1. 基线
 
 - 设计提交：`4bb7921`（Q5 设计、接口、验收矩阵）。
-- 集成分支最新已提交：`1d81a92`（`codex/integration-q1-q4`，已合并 Q2 `9c746e2`）。
-- 本批合并提交：`8601a78`（Q3/Q4 基线）与 `852b324`（Q2 最新接口基线）。
+- 集成分支稳定提交：`67ecc28`（`codex/integration-q1-q4`，已包含 main `95b956a` 与最新 Q2/Q3/Q4）。
+- 本批合并提交：`8601a78`、`852b324`（早期基线），`4e341b4`（稳定提交 `67ecc28`）。
 - 未复制其他窗口未提交工作树；未修改主工作区 `E:\项目\heart`。
 
 ## 2. 上游来源与许可证
@@ -37,7 +37,7 @@
 | `agents/q5_plan_generator.py` | `LLMPlanGenerator`：通过项目 LLM 客户端生成计划 JSON；系统提示要求来源、模块能力句、知识类型，不产生掌握分 |
 | `agents/q5_tools.py` | Q3 `BaseTool` 首批工具：`mastery_status`、`mastery_build`、`mastery_note_explained`、`mastery_understood`、`mastery_mode`、`mastery_paths`、`mastery_switch`、`mastery_leave`、`mastery_revise`；`build_q5_registry` 用 Q4 `ScopedToolRegistry` 授权挂载 |
 | `agents/q5_turn_adapter.py` | 集成窗口最小接线：生成计划、确认开始、绑定 Q2 教材目标/圈选来源、返回 Q3 target/registry/tool_state；不修改 main.py/TaskService |
-| `tests/test_q5_learning.py` | 30 项隔离 SQLite 测试 |
+| `tests/test_q5_learning.py` | 31 项隔离 SQLite 测试 |
 | `database/database.py` | `init_db()` 增加 Q5 模型 import，确保建表（一行集成改动） |
 
 ### 3.1 已实现语义
@@ -58,6 +58,13 @@
 - 来源失效：`status` 返回 `source_unavailable`；`mark_understood` 抛 `source_unavailable`，不推进。
 - 局部修改：未确认草稿可改目标名；已确认需 outline 模式；已讲解/已理解目标拒绝修改。
 - Q3/Q4：Q5 工具通过 Q3 `BaseTool` 协议和 Q4 `ScopedToolRegistry` 挂载；测试跑真实 `LocalAgentLoop` + `dispatch_tool_calls`；未另建循环或工具协议。
+
+### 3.1.1 直接迁入与参考重写的边界
+
+- **直接复用本项目**：Q2 的课程目录/来源/版本/发布接口、Q3 的 `BaseTool`/`ToolContext`/`LocalAgentLoop`/事件、Q4 的 `ScopedToolRegistry`/授权代理；没有重写这些模块。
+- **按上游语义改写**：`Q5LearningService`、Q5 表结构、计划生成器。原因是上游 `LearningStore`/`LearningService` 依赖 JSON 文件、账户/工作区路径和完整应用容器；本批必须使用本项目 SQLAlchemy、学生身份和任务边界。改写只覆盖首批教学位置链路，不是第二套 Mastery 引擎。
+- **后续优先直接迁入**：正式题卡/评分/掌握门槛/复习的纯策略（`learning/policy.py` 的 `is_mastered`/`next_objective`、`scheduler.py`、`pending.py`、`question_card.py`）应在第二批按依赖封装迁入，不重新手写门槛算法；上游 `LearningService` 的事务/证据重算逻辑优先适配，不复制其存储容器。
+- **明确没有复制**：上游账户、会话、`LearningStore` JSON、路径服务、应用容器、完整 mastery 提示词运行时。上游提示词只作为语义参考。
 
 ### 3.2 数据库
 
@@ -93,7 +100,7 @@ $env:PYTHONPATH=(Get-Location).Path
 & 'E:\项目\heart\project\integration\discrete-math-tutor\.venv\Scripts\python.exe' -B -m unittest tests.test_q5_learning -q
 ```
 
-结果：**30 项通过，0 失败**。使用临时 SQLite（`.runtime` 之外临时目录），未触碰正式数据库。覆盖：
+结果：**31 项通过，0 失败**。使用临时 SQLite（`.runtime` 之外临时目录），未触碰正式数据库。覆盖：
 
 - 计划生成/确认/开始/目录/来源版本；
 - 讲解/理解推进/不产生掌握；
@@ -120,11 +127,11 @@ $env:PYTHONPATH=(Get-Location).Path
   tests.test_q4_tool_foundation tests.test_q3_q4_integration tests.test_q5_learning -q
 ```
 
-结果：**128 项通过，0 失败**（使用 `.venv-gpu`，因为 Q2/Q3 集成测试依赖 `llama_index`；Q5 自身测试也可在 `.venv` 运行）。未跑真实模型、浏览器或正式服务。
+结果：**132 项通过，0 失败**（使用 `.venv-gpu`，因为 Q2/Q3 集成测试依赖 `llama_index`；Q5 自身测试也可在 `.venv` 运行）。未跑真实模型、浏览器或正式服务。
 
-### 4.3 Q2 接口核对（未复制未提交修复）
+### 4.3 Q2 最新接口核对
 
-本批只读主工作区最新 Q2 接口，不复制其未提交工作树。合并 `1d81a92` 后在本 worktree 运行 `tests.test_course_navigation`：**24/25 通过**；失败项为 `test_ordinary_answer_binds_location_and_natural_next_continues`，期望 `mode='next'`，实际 `mode='topic'`。集成分支 worktree 中该测试通过，但其 `task_service.py`/`agent_loop_service.py` 有未提交修复（与本批无关），按边界未复制进 Q5。Q5 自身 30 项测试不依赖该行为；该 Q2/Q3 未提交差异需集成窗口提交后再复验，不能改写为本批通过。
+合并稳定提交 `67ecc28` 后，Q2 相关测试 `test_course_navigation`、`test_course_release`、`test_teaching_targets`、`test_course_inputs` 共 **34 项通过，0 失败**。Q5 source ref 已保留 Q2 的 `source_version`、`source_title`、`target_schema`、`source_block_ids`、`release_id` 字段；`course_release.validate` 仍由集成窗口在绑定前调用。
 
 ### 4.4 未执行/未声明
 

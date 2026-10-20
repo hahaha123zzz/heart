@@ -193,4 +193,4 @@ Q5 source ref 已保留 `release_id`/`source_version` 字段；来源版本失�
 - **不改** `main.py`、`TaskService`、前端公共入口；由集成窗口在任务前后调用 `Q5TurnAdapter`。
 - 不复制其他窗口未提交的 `task_service.py`/`agent_loop_service.py`/Q2 代码。
 - 正式题卡、评分、掌握门槛、复习、教师审核不在本批。
-- 本批已验证：隔离 SQLite 30 项；Q3/Q4/Q5 联合 128 项通过。真实模型/页面/正式 TaskService 接线尚未完成。
+- 本批已验证：隔离 SQLite 31 项；Q3/Q4/Q5 联合 132 项通过；Q2 相关 34 项通过。真实模型/页面/正式 TaskService 接线尚未完成。

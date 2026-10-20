@@ -210,6 +210,10 @@ class Q5LearningService:
             "title": title[:200],
             "release_id": str(target.get("release_id") or ""),
             "source_version": str(target.get("source_version") or ""),
+            "source_title": str(target.get("source_title") or ""),
+            "target_schema": str(target.get("target_schema") or ""),
+            "source_block_ids": list(target.get("source_block_ids") or []),
+            "source_valid": bool(target.get("source_valid", True)),
         }
         replayed = self._replay(scope, command_id)
         if replayed is not None:
@@ -1197,6 +1201,9 @@ def selection_source_ref(selection: dict[str, Any]) -> dict[str, Any]:
         "quote": str(selection.get("quote") or text)[:500],
         "release_id": str(selection.get("release_id") or ""),
         "source_version": str(selection.get("source_version") or ""),
+        "source_title": str(selection.get("source_title") or ""),
+        "target_schema": str(selection.get("target_schema") or ""),
+        "source_block_ids": list(selection.get("source_block_ids") or []),
     }
 
 
@@ -1256,7 +1263,11 @@ def _default_source_valid(ref: dict[str, Any]) -> bool:
         return False
     version = str(ref.get("version") or "").strip()
     if ref.get("source_kind") == "q2_navigation":
-        return bool(str(ref.get("unit_id") or "").strip() and version)
+        return bool(
+            str(ref.get("unit_id") or "").strip()
+            and version
+            and ref.get("source_valid", True)
+        )
     return bool(str(ref.get("document_id") or "").strip() and version)
 
 
