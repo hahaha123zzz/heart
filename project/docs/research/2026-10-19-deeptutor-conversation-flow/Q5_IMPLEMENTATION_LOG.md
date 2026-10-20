@@ -5,8 +5,8 @@
 ## 1. 基线
 
 - 设计提交：`4bb7921`（Q5 设计、接口、验收矩阵）。
-- 集成分支最新已提交：`aef246b`（`codex/integration-q1-q4`）。
-- 本批合并提交：`8601a78`（`Q5: 引入集成分支 Q3/Q4 最新提交作为实现基线`）。
+- 集成分支最新已提交：`1d81a92`（`codex/integration-q1-q4`，已合并 Q2 `9c746e2`）。
+- 本批合并提交：`8601a78`（Q3/Q4 基线）与 `852b324`（Q2 最新接口基线）。
 - 未复制其他窗口未提交工作树；未修改主工作区 `E:\项目\heart`。
 
 ## 2. 上游来源与许可证
@@ -118,17 +118,11 @@ $env:PYTHONPATH=(Get-Location).Path
   tests.test_q4_tool_foundation tests.test_q3_q4_integration tests.test_q5_learning -q
 ```
 
-结果：**121 项通过，0 失败**（使用 `.venv-gpu`，因为 Q2/Q3 集成测试依赖 `llama_index`；Q5 自身测试也可在 `.venv` 运行）。未跑真实模型、浏览器或正式服务。
+结果：**127 项通过，0 失败**（使用 `.venv-gpu`，因为 Q2/Q3 集成测试依赖 `llama_index`；Q5 自身测试也可在 `.venv` 运行）。未跑真实模型、浏览器或正式服务。
 
-### 4.3 Q1/Q2 相关回归
+### 4.3 Q2 接口核对（未复制未提交修复）
 
-```powershell
-& 'E:\项目\heart\project\integration\discrete-math-tutor\.venv-gpu\Scripts\python.exe' -B -m unittest `
-  tests.test_reply_budget tests.test_conversation_context tests.test_task_execution `
-  tests.test_quality_guard tests.test_course_navigation tests.test_grounded_citations -q
-```
-
-结果：**109 项通过，0 失败**。日志中的 PDF 质检打印是测试预期输出，不是失败。
+本批只读主工作区最新 Q2 接口，不复制其未提交工作树。合并 `1d81a92` 后在本 worktree 运行 `tests.test_course_navigation`：**24/25 通过**；失败项为 `test_ordinary_answer_binds_location_and_natural_next_continues`，期望 `mode='next'`，实际 `mode='topic'`。集成分支 worktree 中该测试通过，但其 `task_service.py`/`agent_loop_service.py` 有未提交修复（与本批无关），按边界未复制进 Q5。Q5 自身 29 项测试不依赖该行为；该 Q2/Q3 未提交差异需集成窗口提交后再复验，不能改写为本批通过。
 
 ### 4.4 未执行/未声明
 
