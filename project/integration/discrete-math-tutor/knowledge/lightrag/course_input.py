@@ -61,10 +61,34 @@ def visual_inventory(root):
         break
     return {v.id:v for v in visuals}, gaps, stats
 
+def declared_snapshot(source):
+    path=Path(source).parent/"input_manifest.json"
+    if not path.is_file(): return None
+    value=json.loads(path.read_text(encoding="utf-8"))
+    if value.get("schema")!="full-course-inputs-v1": return None
+    calculated=hashlib.sha256(json.dumps(value["files"],ensure_ascii=False,sort_keys=True).encode()).hexdigest()
+    if value.get("snapshot_id")!=calculated: raise IngressError("Q2冻结清单身份无效")
+    if sorted(c["chapter_id"] for c in value["chapters"])!=list(range(1,12)):
+        raise IngressError("Q2冻结清单不含完整11章")
+    if value.get("ready") is not False or value.get("course_status")!="staging":
+        # 本适配仅构建当前已授权的staging候选，不推导任何发布状态。
+        raise IngressError("Q2输入发布状态不属于当前候选任务")
+    expected={f["path"]:f["sha256"] for f in value["files"]}
+    if len(expected)!=len(value["files"]): raise IngressError("Q2冻结清单存在重复路径")
+    for f in value["files"]:
+        relative=Path(f["path"])
+        if relative.is_absolute() or ".." in relative.parts: raise IngressError("Q2清单路径越界")
+        if (Path(source)/relative).stat().st_size!=f["size"]: raise IngressError("Q2冻结文件长度不符")
+    verify(source,expected)
+    return value
+
+
 def freeze(source, base):
     source=Path(source);base=Path(base).resolve()
     before=inventory(source)
-    source=source.resolve(strict=True); signature=_fingerprint(before)
+    source=source.resolve(strict=True)
+    q2=declared_snapshot(source)
+    signature=q2["snapshot_id"] if q2 else _fingerprint(before)
     candidate=base/signature;candidate.mkdir(parents=True,exist_ok=True)
     target=candidate/"input"; record=candidate/"input_manifest.json"
     if record.exists():
@@ -84,10 +108,14 @@ def freeze(source, base):
     manifest=json.loads((target/"manifest.json").read_text(encoding="utf-8"))
     if manifest.get("course_id")!=COURSE or {c["id"] for c in manifest["chapters"]}!=set(range(1,12)):
         raise IngressError("课程必须包含且仅包含 1—11 章")
+    if q2:
+        (candidate/"q2_input_manifest.json").write_bytes((source.parent/"input_manifest.json").read_bytes())
     visuals,gaps,stats=visual_inventory(target)
     frozen={"schema":1,"course_id":COURSE,"input_signature":signature,"source_root":str(source),
             "files":before,"status":manifest.get("status"),"visuals":stats,"visual_gaps":gaps,
             "q2_source_visuals_sha256":digest(Path(__file__).parents[1]/"source_visuals.py")}
+    if q2:
+        frozen.update(q2_snapshot_id=q2["snapshot_id"],q2_manifest_sha256=digest(source.parent/"input_manifest.json"))
     atomic_write_json(record,frozen)
     return candidate,frozen
 
@@ -101,7 +129,7 @@ def convert(course, chapter, *, visual_map=None):
     pdf=next(r for r in json.loads((course/"pdf_manifest.json").read_text(encoding="utf-8")) if r["chapter_id"]==chapter)
     pdf_file=directory/f"chapter_{chapter:02d}.generated.pdf"
     if digest(pdf_file)!=pdf["version"]: raise IngressError("PDF 版本哈希不符")
-    docx=directory/doc["word_source"]
+    docx=_contained_regular_file(course,directory/doc["word_source"],label="Q2 DOCX")
     if digest(docx)!=doc["docx_sha256"]: raise IngressError("DOCX 版本哈希不符")
     visual_map=visual_map if visual_map is not None else visual_inventory(course)[0]
     blocks=[];mapping=[];current_section=None

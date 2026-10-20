@@ -118,7 +118,7 @@
       "origin": "config.py"
     },
     "course_input.py": {
-      "sha256": "4f1eae179dca030d4e4af6aeda81f2824ea6900e53abcd0a4c0ec07551b5909a",
+      "sha256": "7cb0ff8362c4e2ac5008b888c1ccf32ab667f5572c8840241223b48868cf8522",
       "origin": "host adaptation"
     },
     "engine.py": {
@@ -150,11 +150,11 @@
       "origin": "host adaptation"
     },
     "pipeline.py": {
-      "sha256": "81d7d3f3a5828d4f0f9c8e7ec7a03789edb71da8186b569c0f6087349b8b6fa8",
+      "sha256": "ce34952d6072f2f8ad8b04886796269b2b1c5ca6c660b264c751501a0efe9f83",
       "origin": "pipeline.py"
     },
     "retrieval.py": {
-      "sha256": "d6f354d4602b5aa3abb6b23e0b3f235d73095bd8b014bd95980b57ea947fa503",
+      "sha256": "43dfc76872164aebdcdf92cfcd1eb4016fa6edf0c7170bf85d53dc55d2210775",
       "origin": "host adaptation"
     },
     "roles.py": {

@@ -143,6 +143,10 @@ async def build_book(source, base, *, retries=2, resume_candidate=None):
                         if row is not None:
                             record=_row(row);entry.update(chunks=len(record.get("chunks_list") or []),
                                 chunk_ids=record.get("chunks_list") or [],error=record.get("error_msg") or "")
+                            if entry["status"]=="failed":
+                                failures=entry.setdefault("failures",[])
+                                if not failures or failures[-1]["error"]!=entry["error"] or failures[-1]["run"]!=len(state["runs"]):
+                                    failures.append({"observed_at":time.time(),"run":len(state["runs"]),"error":entry["error"]})
                     save();return rows
                 for attempt in range(retries+1):
                     bridge.raise_if_cancelled()

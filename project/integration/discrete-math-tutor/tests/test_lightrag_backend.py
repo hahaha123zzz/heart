@@ -54,6 +54,21 @@ class ContractTests(unittest.TestCase):
     def test_unsupported_mode_rejected(self):
         with self.assertRaises(ValueError): asyncio.run(engine.query_with_sources(None,"教材概念","invalid"))
 
+    def test_q2_declared_snapshot_identity(self):
+        from knowledge.lightrag.course_input import declared_snapshot
+        import hashlib
+        with tempfile.TemporaryDirectory() as temp:
+            parent=Path(temp);root=parent/"course";root.mkdir()
+            (root/"manifest.json").write_text("fixed")
+            files=[{"path":"manifest.json","size":5,"sha256":hashlib.sha256(b"fixed").hexdigest()}]
+            identity=hashlib.sha256(json.dumps(files,ensure_ascii=False,sort_keys=True).encode()).hexdigest()
+            report={"schema":"full-course-inputs-v1","files":files,"snapshot_id":identity,
+                    "chapters":[{"chapter_id":n} for n in range(1,12)],"ready":False,"course_status":"staging"}
+            atomic_write_json(parent/"input_manifest.json",report)
+            self.assertEqual(declared_snapshot(root)["snapshot_id"],identity)
+            (root/"manifest.json").write_text("drift")
+            with self.assertRaises(ingress.IngressError):declared_snapshot(root)
+
     def test_rendered_crops_are_not_inputs(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);(root/"manifest.json").write_text("original")

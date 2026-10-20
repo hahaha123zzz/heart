@@ -118,7 +118,10 @@ def rank_sources(query, sources):
 
 class LightRagBackend:
     def __init__(self, candidate, *, authorized_course_ids, allow_candidate=False):
-        self.candidate=Path(candidate).resolve(strict=True)
+        path=Path(candidate)
+        if path.is_symlink() or bool(getattr(path.lstat(),"st_file_attributes",0)&0x400):
+            raise ValueError("候选根不得为 reparse point")
+        self.candidate=path.resolve(strict=True)
         self.authorized_course_ids=frozenset(authorized_course_ids)
         self.allow_candidate=bool(allow_candidate)
 
@@ -135,8 +138,10 @@ class LightRagBackend:
         if not index_files: raise RuntimeError("候选索引缺少文件签名")
         for relative,sha in index_files.items():
             path=Path(relative)
-            if path.is_absolute() or ".." in path.parts or digest(self.candidate/"index"/path)!=sha:
-                raise RuntimeError("候选图谱/向量/文本/状态文件身份变化")
+            if path.is_absolute() or ".." in path.parts: raise RuntimeError("候选索引路径越界")
+            from .ingress import _contained_regular_file
+            checked=_contained_regular_file(self.candidate,self.candidate/"index"/path,label="native index")
+            if digest(checked)!=sha: raise RuntimeError("候选图谱/向量/文本/状态文件身份变化")
         verify(self.candidate/"input",manifest["files"])
         verify(Path(manifest["source_root"]),manifest["files"])
         return manifest
