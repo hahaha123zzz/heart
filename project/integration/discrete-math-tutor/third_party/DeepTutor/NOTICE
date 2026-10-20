@@ -15,3 +15,18 @@ knowledge/local_rag/syllabus.py. The host project binds these ordered units to
 published textbook headings and existing task receipts. Learning/mastery policy
 and the upstream application service are not copied by this checkpoint.
 The source symbol and source/target hashes are recorded in local_rag/UPSTREAM.json.
+
+Q5 first batch adapts the module/objective, learner-profile, progress and
+path-binding concepts from deeptutor/learning/models.py and the
+explained/understood/next-position semantics from deeptutor/learning/policy.py
+and deeptutor/learning/service.py at the same commit into project-owned
+agents/q5_learning.py and database/q5_learning.py. The tool surface follows the
+mastery_status/build/note_explained/mode/paths/switch/leave/revise semantics
+from deeptutor/capabilities/mastery/tools.py, mounted through the project's Q3
+protocol and Q4 authorized registry. ``mastery_understood`` is a project-specific
+first-batch adapter for teaching-position advancement; it does not grant mastery.
+It does not copy the upstream account,
+session, LearningStore JSON, path service, question grading, mastery gate,
+spaced review, teacher review or application container. Source hashes and the
+implemented boundary are recorded in
+project/docs/research/2026-10-19-deeptutor-conversation-flow/Q5_IMPLEMENTATION_LOG.md.

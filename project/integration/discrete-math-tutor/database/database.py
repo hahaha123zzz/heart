@@ -76,6 +76,7 @@ _current_session: ContextVar[Session | None] = ContextVar("memory_session", defa
 def init_db() -> None:
     """建表（幂等）。"""
     from database import models  # noqa: F401  确保模型已注册
+    from database import q5_learning  # noqa: F401  Q5 首批路径表
 
     models.Base.metadata.create_all(engine)
 

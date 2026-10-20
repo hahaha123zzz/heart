@@ -2,7 +2,7 @@
 
 日期：2026-10-19。设计 worktree：`E:\项目\heart-worktrees\q5-learning-design`；分支：`codex/q5-learning-design`；基线：`20ae6a7`。
 
-本文定义 Q5 与 Q2/Q3/Q4 的项目内部接口、数据结构、持久化、幂等、权限和失败语义。**全部为实现前设计，不是已实现接口，也没有运行结果。** 任何实现不得把整轮请求交给 `DeepTutorApp`、`TurnApplicationService` 或独立 DeepTutor 服务。
+本文定义 Q5 与 Q2/Q3/Q4 的项目内部接口、数据结构、持久化、幂等、权限和失败语义。**主体仍是实现前设计；2026-10-20 首批只实现计划/确认/讲解/位置推进/恢复/切换与 Q3/Q4 工具接入，见 [Q5_IMPLEMENTATION_LOG.md](Q5_IMPLEMENTATION_LOG.md)。** 任何实现不得把整轮请求交给 `DeepTutorApp`、`TurnApplicationService` 或独立 DeepTutor 服务。
 
 配套：[Q5 学习设计](Q5_LEARNING_DESIGN.md)、[Q5 验收矩阵](Q5_ACCEPTANCE.md)、[Q3 接口契约](Q3_INTERFACE_CONTRACT.md)、[Q2 导航检查点](Q2_NAVIGATION_STAGE.md)。
 
