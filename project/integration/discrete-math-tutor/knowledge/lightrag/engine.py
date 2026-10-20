@@ -351,9 +351,9 @@ def _managed_queue_funcs(rag: Any) -> Iterable[Callable[..., Any]]:
             yield candidate
 
 
-async def _shutdown_queues(rag: Any, *, cancel_pending: bool) -> None:
+async def _shutdown_queues(funcs, *, cancel_pending: bool) -> None:
     shutdowns: list[Awaitable[Any]] = []
-    for func in _managed_queue_funcs(rag):
+    for func in funcs:
         shutdown = getattr(func, "shutdown", None)
         if callable(shutdown):
             result = shutdown(graceful=not cancel_pending, timeout=5.0)
@@ -369,10 +369,17 @@ async def _shutdown_queues(rag: Any, *, cancel_pending: bool) -> None:
 
 
 async def finalize(rag: Any, *, cancel_pending: bool) -> None:
-    await _shutdown_queues(rag, cancel_pending=cancel_pending)
-    result = rag.finalize_storages()
-    if inspect.isawaitable(result):
-        await result
+    funcs=list(_managed_queue_funcs(rag))
+    embedding=getattr(getattr(rag,"embedding_func",None),"func",None)
+    early=[f for f in funcs if f is not embedding] if cancel_pending else []
+    late=[f for f in funcs if f not in early]
+    try:
+        if early: await _shutdown_queues(early,cancel_pending=True)
+        # SDK 1.5.7 finalize 会嵌入尚未落盘的 upsert，嵌入队列必须保持可用。
+        result=rag.finalize_storages()
+        if inspect.isawaitable(result): await result
+    finally:
+        await _shutdown_queues(late,cancel_pending=cancel_pending)
 
 
 def _string(value: Any, *, label: str) -> str:

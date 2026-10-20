@@ -81,3 +81,34 @@
 - 随后补齐Q2固定快照的规范snapshot_id/文件长度/唯一清单/完整11章校验、DOCX和原生索引的路径边界；实际325文件声明复核通过。22项专项通过，日志 `.runtime-lightrag-tests-07-boundaries.log`。
 - 构建中未更改Git基线，未为提交停止/重启模型任务；build-08仍在运行。逐章失败除SDK日志外，追加观察在 `document_observations.jsonl`；观察时间不冒充实际失败发生时间。
 - 模型可得用量按API真实返回保存；逐章缓存键可核对，历史并发调用缺少完整逐章token归属时保持未知，不估算为实测。
+
+
+## build-08 实测结束与用户授权新服务候选
+
+build-08以 `partial_failed` 结束：第2章先API连接失败，后两次原生manual retry实际返回HTTP402 Insufficient Balance；其余10章processed。未写全书候选就绪签名，未运行真实全书查询，未切正式索引。原候选及所有缓存保留。
+
+独立读盘核对（completion-02）：全局6,688实体、13,962关系、1,149实际文本块、1,149实际文本向量。SDK状态清单合计1,237仅为计划块数；第2章88个块未实际保存，不能把1,237宣称为已摄取文本块。逐章如下，实体/关系存在跨章共享，不能简单相加当全局总数。
+
+|章|状态|实际块/向量|实体|关系|
+|---|---|---:|---:|---:|
+|1|processed|107|859|1127|
+|2|failed|0（计划88）|0|0|
+|3|processed|131|727|1502|
+|4|processed|130|561|1458|
+|5|processed|131|687|1706|
+|6|processed|116|663|1361|
+|7|processed|156|759|1801|
+|8|processed|102|763|1345|
+|9|processed|84|575|1123|
+|10|processed|65|409|706|
+|11|processed|127|1568|2018|
+
+素材sidecar为219次原图出现、163张表格分析成功；179个唯一有效原图仍pending，44项装饰排除，不能把模型分析成功当审核。81个OMML仍未逐式PDF/语义核验。逐章精确token归属未知，未反推。
+
+build-07和08记录耗时分别935.361s、3392.019s；均为实际运行记录，不含早期未进入记录器的失败启动。模型可得用量与资源快照见保留候选的usage.json/progress.json/completion_validation.json；金额未返回。
+
+关闭错误根因：SDK1.5.7的nano_vector_db.finalize仍需嵌入pending upsert；上游适配先关闭所有队列，导致chunks_vdb关闭失败。宿主修复为失败/取消时先停止模型队列，SDK落盘后再关闭嵌入队列；正常情况先SDK落盘再关闭队列。23项专项通过；真实SDK替身模型验证部分失败后finalize、重启、原生retry及再次重启通过（sdk-check-04），不等于全书成功。
+
+用户随后提供新测试服务，并明确选择用新服务建立独立全书候选、保留原10章候选与缓存。新endpoint为https://cn.chatapi.app/v1，模型列表及返回模型名均包含deepseek-flash；JSON/真实原图输入契约预检通过，2次调用、717个API返回token。凭据只在测试进程环境使用，没有写入配置、Git或报告。
+
+build-09候选：`.runtime/lightrag-proxy/0a6096dc43a8829d48776cbcd0c583b6dc779bd6b450614b4bd20bd1d7f0e5ce/`；SDK workspace `deeptutor_afca9240c7d2bdfd`。同一Q2冻结输入，独立模型策略和SDK缓存（启动日志0条cache），不把不同endpoint冒充相同指纹，不复制原候选图谱到新策略。全部11章已直接入队，有限并发不变。原候选未修改，正式服务与ready=false均不变。真实查询/证据发布待新候选全书完整后执行；Q3稳定基线/公共接线/页面仍未验收。

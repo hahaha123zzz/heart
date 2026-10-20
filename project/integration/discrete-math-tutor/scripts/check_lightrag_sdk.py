@@ -37,6 +37,8 @@ async def check(root):
         assert sorted(states.values())==["failed","processed"],states
         assert storage.has_output(working)
         partial=dict(states)
+        await engine.finalize(rag,cancel_pending=True)
+        rag=make();await engine.initialize(rag)
         failures["enabled"]=False
         await engine.request_retry_failed(rag);await rag.apipeline_process_enqueue_documents()
         rows=await engine.document_records(rag,ids)
@@ -54,7 +56,7 @@ async def check(root):
         assert len(rows)==2
     finally:await engine.finalize(rag,cancel_pending=False)
     return {"sdk":"1.5.7","model":"deterministic substitute; no remote model", "partial_failure":partial,
-            "native_retry_passed":True,"restart_passed":True,"entities":len(nodes),"relationships":len(edges),
+            "partial_finalize_restart_passed":True,"native_retry_passed":True,"restart_passed":True,"entities":len(nodes),"relationships":len(edges),
             "llm_calls":len(calls),"source_scope":"isolated temporary fixtures"}
 if __name__=="__main__":
     target=ROOT/".runtime/lightrag-sdk-check";target.mkdir(parents=True,exist_ok=True)

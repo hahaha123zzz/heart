@@ -271,7 +271,7 @@ def build_llm_model_func(*, io_bridge=None, llm_config=None, owner=None):
                 if choice.finish_reason == "length": raise RuntimeError("LightRAG 模型输出截断")
                 content=choice.message.content
                 if not content or not content.strip(): raise RuntimeError("LightRAG 模型返回空内容")
-                item.update(status="success", usage=response.usage.model_dump() if response.usage else {})
+                item.update(status="success", response_model=getattr(response,"model",None), usage=response.usage.model_dump() if response.usage else {})
                 return content
             except BaseException as exc:
                 item["error_type"]=type(exc).__name__

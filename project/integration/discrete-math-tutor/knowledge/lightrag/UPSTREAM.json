@@ -84,7 +84,7 @@
     "working_branch_base": "9c746e28173f7dcfeef34e8d6134dab7e58c5286"
   },
   "adaptations": {
-    "engine.py": "本项目parser注册；SDK aquery_data结构化检索；严格完整记录读取；原生失败重试意图；Windows reparse保护",
+    "engine.py": "本项目parser注册；SDK aquery_data结构化检索；严格完整记录读取；原生失败重试意图；Windows reparse保护；失败时先停止模型队列，保留嵌入队列至SDK pending upsert落盘",
     "parser.py": "本项目导入；Windows sidecar URI适配，保留完整原校验和归档",
     "sidecar.py": "原样复用",
     "ingress.py": "file_io/ParsedDocument改本项目导入，补Windows reparse拒绝",
@@ -93,7 +93,7 @@
     "write_lock.py": "宿主异常类及Windows reparse保护",
     "storage.py": "宿主embedding签名及候选状态；移除不适用的DeepTutor KB枚举依赖",
     "cache_reuse.py": "仅file_io导入；保留算法但未启用跨候选缓存继承，恢复使用SDK同候选缓存",
-    "config.py": "复用上游重试分类/延迟/模式；宿主模型传输、并发、用量和CPU embedding适配",
+    "config.py": "复用上游重试分类/延迟/模式；宿主模型传输、并发、用量和CPU embedding适配；记录API返回模型名",
     "roles.py": "宿主模型角色，不迁入账户或目录",
     "indexing_policy.py": "保留端点规范化和散列，替换全局策略源",
     "pipeline.py": "保留引擎/冻结/锁/worker组合；宿主全书候选编排与完整性门禁替换原KB管理/发布",
@@ -114,7 +114,7 @@
       "origin": "cache_reuse.py"
     },
     "config.py": {
-      "sha256": "054e6a19b878d22aab7fc2470479ee97a809005de159a9bb8f315453560f7bea",
+      "sha256": "a1252bf77cbf9a485f7088a6f14c4e8b69fe6c5451ff16dabc825eb35fe77ec7",
       "origin": "config.py"
     },
     "course_input.py": {
@@ -122,7 +122,7 @@
       "origin": "host adaptation"
     },
     "engine.py": {
-      "sha256": "4de56788620424828ddcca349f2fcb8063e737d3437f8e69613446f68661ae44",
+      "sha256": "627adf36e8a59545176eddb0695871a0e5816e912947f94f6b883c121f8bb728",
       "origin": "engine.py"
     },
     "file_io.py": {

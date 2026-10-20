@@ -159,6 +159,26 @@ class ContractTests(unittest.TestCase):
         with self.assertRaises(asyncio.CancelledError):asyncio.run(run())
         self.assertEqual(len(calls),1)
 
+    def test_finalize_preserves_embedding_until_flush(self):
+        from types import SimpleNamespace
+        for cancelled in (False,True):
+            events=[]
+            def queue(name):
+                async def func():pass
+                async def shutdown(**kwargs):events.append((name,kwargs["graceful"]))
+                func.shutdown=shutdown
+                return func
+            model=queue("model");embed=queue("embedding")
+            async def flush():
+                self.assertFalse(any(name=="embedding" for name,_ in events))
+                if cancelled:self.assertIn(("model",False),events)
+                events.append(("flush",True))
+            rag=SimpleNamespace(role_llm_funcs={"extract":model},embedding_func=SimpleNamespace(func=embed),
+                                finalize_storages=flush)
+            asyncio.run(engine.finalize(rag,cancel_pending=cancelled))
+            self.assertEqual(events[-1],("embedding",not cancelled))
+            self.assertEqual(sum(name=="model" for name,_ in events),1)
+
     def test_nonretryable_does_not_retry(self):
         calls=[]
         async def run():
