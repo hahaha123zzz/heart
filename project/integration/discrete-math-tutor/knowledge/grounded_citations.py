@@ -3,7 +3,7 @@ import hashlib,json,os,re
 from dataclasses import dataclass,replace
 from pathlib import Path
 from pydantic import BaseModel,ConfigDict,Field
-from knowledge.citation_index import CitationIndex,POINTER,SCHEMA
+from knowledge.citation_index import CitationIndex,LiveCitationIndex,_live_document,POINTER,SCHEMA
 from knowledge.grounding_text import normalized,selection_ranges
 from knowledge.pdf_reader import documents,pdf_path,PDFSelection,resolve_selection,evidence_text
 from llm.client import LLMError
@@ -22,10 +22,10 @@ def settings():
     if mode not in (None,'off','active'):raise ValueError('CITATION_GROUNDING_MODE无效')
     if mode=='off':return None
     if os.getenv('CITATION_GROUNDING_INDEX'):
-        return Path(os.environ['CITATION_GROUNDING_INDEX']).resolve() if mode=='active' else None
-    if not POINTER.is_file():return None
+        return Path(os.environ['CITATION_GROUNDING_INDEX']).resolve() if mode=='active' else 'live'
+    if not POINTER.is_file():return 'live'
     pointer=json.loads(POINTER.read_text(encoding='utf-8'))
-    if not pointer.get('enabled'):return None
+    if not pointer.get('enabled'):return 'live'
     target=(POINTER.parent/pointer['path']).resolve()
     if not target.is_relative_to(POINTER.parent.resolve()):raise CitationGroundingError('引用索引路径不合法')
     if hashlib.sha256(target.read_bytes()).hexdigest()!=pointer['sha256']:raise CitationGroundingError('引用索引校验失败')
@@ -64,6 +64,31 @@ class EvidenceBundle:
     evidence:list
     backgrounds:list
 
+    def publish(self, response, *, allow_uncited_question=False):
+        """核验后按实际原文范围去重，正文和保存记录使用同一紧凑编号。"""
+        references = self.references(response, allow_uncited_question=allow_uncited_question)
+        unique = {}; mapping = {}; sources = []; output = []
+        for reference in references:
+            evidence = reference['evidence']
+            # 同一教材版本和实际原文范围只保留一份；引句文字不同不能把同一范围重复展示。
+            # 图像/页级证据没有文字范围，仍以证据ID区分不同原图或页级来源。
+            identity = json.dumps([evidence.get(k) for k in ('document_id', 'document_version', 'source_block_id',
+                'block_start', 'block_end', 'media_kind')] +
+                ([evidence['evidence_id']] if evidence.get('media_kind') == 'image' else []), ensure_ascii=False)
+            if identity not in unique:
+                unique[identity] = len(output)
+                sources.append(self.sources[reference['source_index']])
+                output.append(dict(reference, source_index=len(output)))
+            mapping[reference['source_index'] + 1] = unique[identity] + 1
+        def markers(match):
+            numbers = dict.fromkeys(mapping[int(n)] for n in re.findall(r'\[(\d+)\]', match.group()))
+            return ''.join(f'[{n}]' for n in numbers)
+        response = re.sub(r'\[\d+\](?:[ \t]*\[\d+\])*', markers, response)
+        claims = claims_for(response)
+        for i, reference in enumerate(output, 1):
+            reference['evidence'] = dict(reference['evidence'], claims=[c for c in claims if i in c['markers']])
+        return response, sources, output
+
     def references(self,response,*,allow_uncited_question=False):
         claims=claims_for(response)
         used={int(n)-1 for n in re.findall(r'\[(\d+)\]',response)}
@@ -78,6 +103,10 @@ class EvidenceBundle:
                 raise CitationGroundingError('引用教材版本已失效')
             if hashlib.sha256(pdf_path(record).read_bytes()).hexdigest()!=record['version']:
                 raise CitationGroundingError('引用教材文件已变化')
+            if evidence.get('quote') and normalized(evidence['quote']) not in _live_document(
+                    pdf_path(record),record['version'])['folded']:
+                raise CitationGroundingError('引句不属于当前教材原件')
+            evidence['verification']='source_verified'
             selections=[]
             if evidence['location_status']=='exact':
                 pages=sorted({r['page'] for r in rects})
@@ -98,24 +127,65 @@ class EvidenceBundle:
                 rendered='\n'.join(s['text'] for s in selections)
                 if normalized(evidence['quote']) not in normalized(rendered):
                     evidence['location_status']='section';evidence['degradation_reason']='裁图范围未完整包含引句';selections=[]
+            if selections:
+                evidence['pages']=sorted({rect['page'] for selection in selections for rect in selection['rects']})
+                evidence['page']=evidence['pages'][0]
             if not selections and evidence['location_status']=='section':
                 section=next((s for s in record['sections'] if s['id']==evidence['section_id']),None)
                 evidence['page']=section['page'] if section and section.get('verified') else None
             evidence['selections']=selections
             evidence['claims']=[c for c in claims if index+1 in c['markers']]
+            try:
+                from knowledge.course_release import binding as release_binding
+                release = release_binding()
+                evidence['textbook_release'] = release['release_id']
+                evidence['release_status'] = release['status']
+                evidence['release_ready'] = release['ready']
+            except Exception:
+                release = None
             reference=selections[0] if selections else {'document_id':record['document_id'],'version':record['version'],
                 'chapter_id':record['chapter_id'],'section_id':evidence['section_id'],'section_title':self.sources[index].section,
                 'source':record['source'],'kind':'text','text':'','rects':[],'image_refs':[]}
             reference={**reference,'origin':'grounded_citation','location_kind':evidence['location_status'],
                 'evidence_id':evidence['evidence_id'],'quote':evidence['quote'],'grounding_schema':SCHEMA,'page':evidence.get('page')}
+            if release:
+                reference['textbook_release'] = release['release_id']
+                reference['release_status'] = release['status']
+            if evidence.get('media_kind')=='image':
+                reference['image_refs']=evidence.get('image_refs',[])
             references.append({'source_index':index,'label':{'exact':'精确证据','page':'页级来源','section':'小节位置'}[evidence['location_status']],
                 'selection_ref':reference,'evidence':evidence})
         return references
 
 
+def references_for_display(references):
+    """失效只投影到展示结果，绝不覆盖原始历史或重定位到新版本。"""
+    from copy import deepcopy
+    output=deepcopy(references)
+    registry={record['document_id']:record for record in documents()}
+    checked={}
+    for item in output:
+        evidence=item.get('evidence')
+        if not evidence:
+            continue
+        key=(evidence['document_id'],evidence['document_version'])
+        if key not in checked:
+            record=registry.get(key[0])
+            try:
+                checked[key]=bool(record and record['version']==key[1] and
+                    hashlib.sha256(pdf_path(record).read_bytes()).hexdigest()==key[1])
+            except OSError:
+                checked[key]=False
+        if not checked[key]:
+            evidence.update(saved_location_status=evidence['location_status'],location_status='stale',selections=[],
+                            degradation_reason='保存的教材版本已失效，未改指向新版原文')
+            item['selection_ref']=dict(item.get('selection_ref') or {},rects=[],image_refs=[],location_kind='stale')
+    return output
+
+
 def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=None,history=()):
     registry={r['chapter_id']:r for r in documents()}
-    candidates=[];seen=set();index=CitationIndex(index_path)
+    candidates=[];seen=set();index=LiveCitationIndex() if index_path=='live' else CitationIndex(index_path)
     try:
         lookup=re.search(r'(?:核对|查找|定位|查证|确认)\s*[“「"]([^”」"]+)[”」"][^\n]*(?:出处|来源)',message)
         if lookup and selection is None:
@@ -139,6 +209,7 @@ def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=Non
                 for quote,start,end in parts:
                     if len(normalized(quote))<12:continue
                     if normalized(quote) not in normalized(source.text.replace(' | ',' ')):continue
+                    if index_path=='live' and normalized(quote) not in index.document(record['document_id'],record['version'])['folded']:continue
                     key=hashlib.sha256(json.dumps([record['document_id'],record['version'],block['block_id'],start,end,quote],ensure_ascii=False).encode()).hexdigest()
                     if key in seen:continue
                     seen.add(key)
@@ -184,6 +255,7 @@ def selection_evidence(llm,message,resolved,index_path):
         item={'evidence_id':key,'retrieval_source_id':'selected-image','document_id':record['document_id'],
               'document_version':record['version'],'source_block_id':None,'section_id':section['id'],'quote':'',
               'media_kind':'image','location_status':'page','page':reference['rects'][0]['page'],
+              'image_refs':reference.get('image_refs',[]),
               'degradation_reason':'原图区域没有可提取文字，未声明精确文字证据','rects':[]}
         return EvidenceBundle([source],[item],[])
     sources=[TextbookChunk(record['source'],section['title'],value,terms_for(value),chapter_id=record['chapter_id'],section_id=section['id'])

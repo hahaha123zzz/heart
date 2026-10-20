@@ -3,6 +3,7 @@ import hashlib
 import json
 import sqlite3
 import zlib
+from functools import lru_cache
 from contextlib import closing
 from pathlib import Path
 import fitz
@@ -142,3 +143,52 @@ class CitationIndex:
         if len(matches)!=1:return {'status':'ambiguous' if matches else 'unlocated','rects':[]}
         a,b=matches[0];a+=start;b+=start
         return {'status':'exact','start':a,'end':b,'rects':_rectangles([g for g in document['glyphs'][a:b] if g])}
+
+
+@lru_cache(maxsize=2)
+def _live_document(path, version):
+    text, glyphs, pages = pdf_characters(path)
+    if hashlib.sha256(path.read_bytes()).hexdigest() != version:
+        raise ValueError('教材在定位过程中发生变化')
+    folded,mapping=normalized_with_map(text)
+    return {'text': text, 'glyphs': glyphs, 'pages': pages, 'folded':folded, 'mapping':mapping}
+
+
+class LiveCitationIndex:
+    """没有已发布坐标索引时，直接核验当前原件；不创建或启用索引。"""
+    def __init__(self):
+        from knowledge.pdf_reader import documents
+        self.records = {r['document_id']: r for r in documents()}
+
+    def close(self):
+        pass
+
+    def document(self, document_id, version):
+        from knowledge.pdf_reader import pdf_path
+        record = self.records.get(document_id)
+        if not record or record['version'] != version:
+            raise ValueError('引用教材版本已失效')
+        path = pdf_path(record)
+        if hashlib.sha256(path.read_bytes()).hexdigest() != version:
+            raise ValueError('引用教材文件已变化')
+        return _live_document(path, version)
+
+    def blocks(self, document_id, start=None, end=None):
+        record = self.records[document_id]
+        document = self.document(document_id, record['version'])
+        path = PSYCHOLOGY_DIR/'chapters'/f'chapter_{record["chapter_id"]:02d}'/'document.json'
+        result = []
+        for block in json.loads(path.read_text(encoding='utf-8'))['blocks']:
+            number = block['block_index']
+            if (start is not None and number < start) or (end is not None and number > end):
+                continue
+            text = block['text'] if block['kind'] != 'table' else '\n'.join(' '.join(row) for row in block['rows'])
+            needle=normalized(text)
+            position=document['folded'].find(needle) if needle else -1
+            unique=position>=0 and document['folded'].find(needle,position+1)<0
+            a,b=(document['mapping'][position],document['mapping'][position+len(needle)-1]+1) if unique else (None,None)
+            result.append({'block_id': number, 'section_id': block.get('section_id', 1), 'text': text,
+                           'start': a, 'end': b, 'status': 'exact' if unique else 'ambiguous' if position>=0 else 'unlocated'})
+        return result
+
+    locate = CitationIndex.locate

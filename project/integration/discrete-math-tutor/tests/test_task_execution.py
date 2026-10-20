@@ -131,9 +131,16 @@ class TaskExecutionTests(unittest.TestCase):
         tutor.response_generator.generate.side_effect=['先看度数之间的关系。']
         context=self.context(message)
         source=TextbookChunk(source='教材.txt',section='小节',text='已知条件',terms=frozenset())
-        with patch('orchestrator.retrieve_course',return_value=[source]) as retrieve,patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)),patch('orchestrator.complete_pdf_references',return_value=[]):
+        with patch('knowledge.grounded_citations.settings',return_value=None),patch('orchestrator.retrieve_course',return_value=[source]) as retrieve,patch('orchestrator.retrieve_figures',return_value=[]),patch('orchestrator.expand_proof_sources',return_value=([source],None)),patch('orchestrator.enrich_sources',return_value=([source],None)),patch('orchestrator.complete_pdf_references',return_value=[]):
             result=tutor.handle_turn('guard-test',message,task_context=context)
         return tutor,result,retrieve
+
+    def test_missing_figure_request_is_explicit_not_answered_from_text_only(self):
+        tutor, result, _ = self.run_task(
+            TaskUnderstanding(student_move='question', learning_intents=['explain']),
+            message='请解释图99.99')
+        self.assertEqual(result['answer_status'], 'visual_unavailable')
+        tutor.response_generator.generate.assert_not_called()
 
     def test_hint_survives_old_direct_explanation_strategy(self):
         tutor,result,_=self.run_task(TaskUnderstanding(student_move='question',learning_intents=['hint','proof'],answer_constraints=['hint_only']))

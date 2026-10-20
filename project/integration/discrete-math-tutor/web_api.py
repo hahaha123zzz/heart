@@ -253,10 +253,11 @@ def conversation_history(student_id: str):
     _student_id(student_id)
     from main import orchestrator
     rows = orchestrator.memory.repo.get_conversation_with_figures(student_id, limit=40)
+    from knowledge.grounded_citations import references_for_display
     return [
         {"id": row["id"], "role": row["role"], "content": row["content"],
          "selection_ref": row.get("selection_ref"),
-         "pdf_references": (row.get("selection_ref") or {}).get("pdf_references", []),
+         "pdf_references": references_for_display((row.get("selection_ref") or {}).get("pdf_references", [])),
          "textbook_sources": (row.get("selection_ref") or {}).get("textbook_sources", []),
          "image_refs": [figure.public() for figure_id in row["image_ref_ids"]
                         if (figure := get_figure(figure_id)) is not None]}

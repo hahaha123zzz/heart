@@ -91,8 +91,9 @@ class GroundingTests(unittest.TestCase):
         self.assertEqual(ref['selection_ref']['rects'],[])
 
     def test_missing_crop_quote_downgrades_without_fake_highlight(self):
-        bundle=self.bundle();bundle.evidence[0]['quote']='A nonexistent quote.'
-        ref=bundle.references('结论。[1]')[0]
+        bundle=self.bundle()
+        with patch('knowledge.grounded_citations.evidence_text',return_value='裁图不含完整引句'):
+            ref=bundle.references('结论。[1]')[0]
         self.assertEqual(ref['evidence']['location_status'],'section')
         self.assertEqual(ref['selection_ref']['rects'],[])
         self.assertEqual(ref['evidence']['selections'],[])

@@ -167,12 +167,19 @@ tutor=SimpleNamespace(memory=memory,llm=Mock(),conversation_router=Mock(),contex
 tutor.conversation_router.route.return_value=TaskUnderstanding(student_move='question',learning_intents=['explain'])
 tutor.context_sufficiency.check.return_value=SimpleNamespace(allowed=True,model_dump=lambda:{'allowed':True})
 tutor.llm.chat.return_value=reply+'[1]'
+def choose_citation(messages,**kwargs):
+ candidates=json.loads(messages[1]['content'])['candidates']
+ selected=[c for c in candidates if c['selected_target']]
+ return {'evidence_ids':[c['evidence_id'] for c in (selected or candidates[:1])]}
+tutor.llm.chat_json.side_effect=choose_citation
 tutor.quality_checker.check.return_value=SimpleNamespace(passed=True,issues=[],model_dump=lambda:{'passed':True})
 with patch('memory.retrieval._model',return_value=(None,None)):
  result=explain_selection(tutor,'synthetic-selection',q,selection,'production',request_id='preset-pdf')
 assert result['answer_status']=='answered'
 assert result['guided_visualization']['generation']['method']=='textbook-preset'
-tutor.llm.chat_json.assert_not_called()
+assert tutor.llm.chat_json.call_count==1
+assert '[AGENT:citation_selection]' in tutor.llm.chat_json.call_args.args[0][0]['content']
+assert all(r['evidence']['verification']=='source_verified' for r in result['pdf_references'])
 history=memory.repo.get_conversation_with_figures('synthetic-selection')
 assert history[-1]['selection_ref']['guided_visualization']==result['guided_visualization']
 ''')
