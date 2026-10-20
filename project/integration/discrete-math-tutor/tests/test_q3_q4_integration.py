@@ -8,15 +8,18 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from agents.agent_loop import LoopResult
+from agents.agent_loop import LocalAgentLoop, LoopRequest, LoopResult
 from agents.agent_loop_service import (
-    _default_navigator, _map_result, _target_from_context, run_agent_loop_turn,
+    _citation_format_issues, _default_navigator, _map_result, _target_from_context,
+    run_agent_loop_turn,
 )
-from agents.q3_navigation import LearningTarget, SourceRef, StubLearningNavigator
-from agents.q3_tools import RetrieveCourseTool, build_registry
+from agents.q3_navigation import (
+    LearningTarget, NavigationDecision, SourceRef, StubLearningNavigator,
+)
+from agents.q3_tools import AskUserTool, RetrieveCourseTool, build_registry
 from agents.quality_checker import QualityChecker
 from agents.teaching_planner import TeachingPlan
-from agents.tool_protocol import ToolContext
+from agents.tool_protocol import ToolContext, ToolRegistry
 from llm.client import ChatToolCall, ChatToolResult
 from models.chat_request import ChatRequest
 from models.student_state import StudentState
@@ -307,9 +310,61 @@ class CitationFormatGateTests(unittest.TestCase):
     def test_valid_markers_pass_and_malformed_number_text_is_rejected(self):
         from agents.agent_loop_service import _citation_format_issues
 
-        self.assertEqual(_citation_format_issues("结论[1][2,3][4-5]。"), "")
+        self.assertEqual(_citation_format_issues("结论[1][2][3]。"), "")
+        self.assertIn("引用格式无效", _citation_format_issues("结论[2,3]。"))
+        self.assertIn("引用格式无效", _citation_format_issues("结论[4-5]。"))
         self.assertIn("引用格式无效",
                       _citation_format_issues("结论[1 第二组检索结果第1条，即摘录一)。]"))
+
+
+class ResumeNumberingTests(unittest.TestCase):
+    def test_resume_after_pause_continues_source_numbers(self):
+        target = LearningTarget(target_id="t1", name="目标", chapter_id=1, section_id=1)
+
+        class QueryNavigator:
+            def resolve(self, **kwargs):
+                return NavigationDecision("teach", target, reason="test")
+
+            def search(self, *, target, query, limit, preferred_types=()):
+                return [SourceRef(source_id=query, document_id="doc", text=query, page=1)]
+
+        registry = ToolRegistry()
+        registry.register(RetrieveCourseTool())
+        registry.register(AskUserTool())
+        llm = ScriptedLLM([
+            ChatToolResult(
+                text="", finish_reason="tool_calls",
+                tool_calls=[
+                    ChatToolCall(id="r1", name="retrieve_course",
+                                 arguments={"query": "甲", "limit": 1},
+                                 raw_arguments=json.dumps({"query": "甲", "limit": 1})),
+                    ChatToolCall(id="a1", name="ask_user",
+                                 arguments={"questions": [{"id": "q1", "prompt": "继续？"}]},
+                                 raw_arguments=json.dumps({"questions": [{"id": "q1", "prompt": "继续？"}]})),
+                ],
+            ),
+            ChatToolResult(
+                text="", finish_reason="tool_calls",
+                tool_calls=[ChatToolCall(id="r2", name="retrieve_course",
+                                         arguments={"query": "乙", "limit": 1},
+                                         raw_arguments=json.dumps({"query": "乙", "limit": 1}))],
+            ),
+            ChatToolResult(text="继续回答[2]", finish_reason="stop"),
+        ])
+        loop = LocalAgentLoop(llm)
+        request = LoopRequest(
+            student_id="s", session_id="x", task_id="t", request_id="r",
+            message="请解释", system_prompt="system", tools=registry,
+            target=target, navigation=QueryNavigator(),
+            publish_gate=lambda text, state: (True, ""),
+        )
+        paused = loop.run(request)
+        self.assertTrue(paused.paused, paused.error)
+        self.assertEqual([source["index"] for source in paused.sources], [1])
+
+        resumed = loop.run(request, resume_state=paused.state(), answer="继续")
+        self.assertTrue(resumed.completed, resumed.error)
+        self.assertEqual([source["index"] for source in resumed.sources], [1, 2])
 
 
 class AgentLoopQualityGateTests(unittest.TestCase):
@@ -332,6 +387,39 @@ class AgentLoopQualityGateTests(unittest.TestCase):
         self.assertIn("只把下列问题列为 issues", user)
         self.assertNotIn("遗漏任一比较对象", user)
         self.assertIn("800", user)
+
+    def test_citation_format_accepts_single_numbers_only(self):
+        self.assertEqual(_citation_format_issues("结论[1]，另一处[2]。"), "")
+        self.assertTrue(_citation_format_issues("结论[1-3]。"))
+        self.assertTrue(_citation_format_issues("结论[1,2]。"))
+
+    def test_citation_repair_asks_for_format_not_compression(self):
+        llm = ScriptedLLM([
+            ChatToolResult(text="回答[1-3]", finish_reason="stop"),
+            ChatToolResult(text="回答[1]", finish_reason="stop"),
+        ])
+        calls = {"count": 0}
+
+        def gate(text, result):
+            calls["count"] += 1
+            if calls["count"] == 1:
+                return False, "引用格式无效：[1-3]"
+            return True, ""
+
+        loop = LocalAgentLoop(llm)
+        result = loop.run(LoopRequest(
+            student_id="s", session_id="x", task_id="t", request_id="r",
+            message="请解释", system_prompt="system",
+            tools=ToolRegistry(), target=LearningTarget("t1", "目标"),
+            navigation=StubLearningNavigator(target=LearningTarget("t1", "目标")),
+            publish_gate=gate,
+        ))
+        self.assertTrue(result.completed, result.error)
+        repairs = [message["content"] for message in llm.calls[1]["messages"]
+                   if "上一版回答未通过课程核验" in message.get("content", "")]
+        self.assertEqual(len(repairs), 1)
+        self.assertIn("只修正引用格式", repairs[0])
+        self.assertNotIn("压缩重写", repairs[0])
 
     def test_loop_mode_still_rejects_unsupported_citation(self):
         llm = RecordingQualityLLM()

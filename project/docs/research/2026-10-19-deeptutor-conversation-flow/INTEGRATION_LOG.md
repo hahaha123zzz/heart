@@ -19,7 +19,7 @@
 | `agents/agent_loop_service.py` | 优先使用 Q2 `course_navigation` 作为权威目标；主机已解析的下一目标不再被 Q3 重新澄清；优先读取精确目标块；结果写入 `knowledge_point`/`memory_commit`/`course_navigation`；`pdf_references` 只发布正文实际引用的 sources | 修复“继续下一个知识点”被 Q3 重新拦截、答偏到同节其他内容，以及未引用来源被展示为引用卡 |
 | `agents/quality_checker.py` | 新增 `agent_loop` 模式：只把教材事实、引用支持、明确问题未回答、编造内容列为 issues；措辞/扩展/未要求出题只放 suggestions | 避免普通 AgentLoop 问答被结构化教学审计误拒；引用核验仍然保留 |
 | `scripts/check_q3_loop.py` | 新增 `--mode live_navigation`：通过 `TaskService` 跑“第一章→继续下一个知识点”两轮 | 真实页面同路径的可复现验收 |
-| `tests/test_q3_q4_integration.py` | 新增 17 项集成测试：Q4 注册表、技能/工作区授权、Q3 工具循环、全局来源编号、预算、主机导航、质量门禁、进度回调、重复检索去重、仅发布被引用来源 | 覆盖本轮新增接口与失败模式 |
+| `tests/test_q3_q4_integration.py` | 新增 20 项集成测试：Q4 注册表、技能/工作区授权、Q3 工具循环、全局来源编号、预算、主机导航、质量门禁、进度回调、重复检索去重、仅发布被引用来源、暂停恢复编号、引用格式与修订指令 | 覆盖本轮新增接口与失败模式 |
 
 ## 3. 验证结果
 
@@ -27,8 +27,8 @@
 
 | 检查 | 命令 | 结果 |
 | --- | --- | --- |
-| 单轮教材问答 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live` | `20261019T153441Z-a51e90`：`answer_status=answered`，8 个来源，2 轮，1 次工具调用；`exit=0` |
-| 第一章→下一知识点 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live_navigation` | `20261019T153412Z-748a13`：两轮均 `answered`；第一轮 `ch1:s1:b6`、1 个来源、9.704 秒、引用[1]；第二轮 `ch1:s1:b20`、1 个来源、9.875 秒、引用[1]；`navigation_advanced=true`，引用编号与 sources 顺序一致；`exit=0` |
+| 单轮教材问答 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live` | `20261020T011508Z-90551a`：`answer_status=answered`，8 个来源，2 轮，1 次工具调用；`exit=0` |
+| 第一章→下一知识点 | `.venv-gpu/Scripts/python.exe -B scripts/check_q3_loop.py --mode live_navigation` | `20261020T011630Z-b125ca`：两轮均 `answered`；第一轮 `ch1:s1:b6`、1 个来源、引用[1]；第二轮 `ch1:s1:b20`、1 个来源、引用[1]；引用编号与 sources 顺序一致；`exit=0` |
 
 运行日志：`.runtime/q3-live-navigation-final.log`、`.runtime/q3-live-final.log`。
 
@@ -36,7 +36,9 @@
 
 - `20261019T152155Z-dbcb44`：导航两轮 answered，但第一轮同批次两次 `retrieve_course` 都从 offset 0 编号，12 个来源只有编号 1–6，引用 `[n]` 含义重复。修复：检索工具用 `_RETRIEVE_LOCK` 串行分配全局编号，并在成功后推进 `source_offset`；新增同批次并行检索测试。
 - `20261019T152617Z-e2e937`：导航两轮 answered，但第二轮虽读取 `ch1:s1:b20`，回答内容落到同节的“科学方法”，未围绕解析出的目标块。修复：主机已解析目标时优先 `read_target` 精确目标块，再回退到节内检索。
-- `20261019T152406Z-23fa95`：单轮 live 曾返回 `[1 第二组检索结果第1条…]` 畸形引用但门禁通过。修复：新增 `_citation_format_issues`，只接受 `[n]`/`[n,m]`/`[n-m]`，畸形数字引用触发一次有界修订或拒绝。
+- `20261019T152406Z-23fa95`：单轮 live 曾返回 `[1 第二组检索结果第1条…]` 畸形引用但门禁通过。修复：新增 `_citation_format_issues`，畸形数字引用触发一次有界修订或拒绝。
+- 恢复场景审查发现：`ask_user` 暂停前已有检索来源时，恢复后 `source_offset` 从 0 重新开始，可能再次生成 `[1]`。修复：恢复时用已有 `sources` 初始化 `source_offset` 和 `seen_source_ids`；新增 `ResumeNumberingTests`。
+- 引用格式门禁曾允许 `[1,2]`/`[1-3]`，但页面只按单个 `[n]` 映射引用卡。修复：只接受单个数字引用；引用格式失败时的修复指令改为“只修正引用格式”，不再要求压缩。新增格式与修复指令测试。
 
 ### 3.2 离线回归
 
@@ -59,7 +61,7 @@ $env:PYTHONPATH=(Get-Location).Path
 
 此前 207 项集成回归的结论来自本窗口之前的快照；本轮按窗口要求复跑了上述两组，未把旧结果当作本轮通过。worktree 缺少 `.venv-gpu`/`.env`，命令使用主项目虚拟环境；脚本只读加载主项目 `.env`，数据库为隔离 `.runtime/q3-live`。
 
-最终合并相关集合再跑一次：**213 项通过，0 失败**（`.runtime/integration-regressions-final2.log`）。该集合包含上面的 Q3/Q4 89 项、相关回归 109 项，以及 `test_psychology_presets` 等页面相关测试。
+最终合并相关集合再跑一次：**216 项通过，0 失败**（`.runtime/integration-regressions-final3.log`）。该集合包含 Q3/Q4 集成 92 项、相关回归 109 项，以及 `test_psychology_presets` 等页面相关测试。
 
 ### 3.3 浏览器页面级验收
 
@@ -85,7 +87,8 @@ $env:PYTHONPATH=(Get-Location).Path
 - `928f410`：引用收敛后续提交（只发布正文实际引用的 sources、重复检索去重、探索轮数 4）；Q3/Q4 89 项、相关回归 109 项通过。
 - `2e67e04`：集成日志更新。
 - `11c1d75`：真实导航最终复验记录。
-- 本轮页面级验收记录提交：见本文件所在提交；最终合并相关集合 213 项通过。
+- `be81a0b`：浏览器页面级验收记录。
+- 本轮暂停恢复编号、引用格式与修订指令修复：见本文件所在提交；最终合并相关集合 **216 项通过**。
 
 
 

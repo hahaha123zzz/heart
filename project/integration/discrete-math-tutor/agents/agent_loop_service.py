@@ -134,7 +134,10 @@ def _citation_format_issues(text: str) -> str:
         inner = match.group(1).strip()
         if not inner or not inner[0].isdigit():
             continue
-        if re.fullmatch(r"\d+(?:\s*[-–,，]\s*\d+)*", inner):
+        # The page and the citation publisher both map one [n] to one
+        # source_index.  Ranges such as [1-3] would pass this gate but render
+        # no cards, so only single numeric citations are accepted.
+        if re.fullmatch(r"\d+", inner):
             continue
         return f"引用格式无效：{match.group(0)[:60]}"
     return ""
