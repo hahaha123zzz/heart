@@ -3,6 +3,8 @@
 日期：2026-10-18。依据：本目录 REPORT.md、REUSE_MATRIX.md、SOURCE_AUDIT.json。
 授权：保留现有页面，大块接入全部相关后端与组件；用户已要求制定计划并开始执行。
 
+2026-10-19 最新方向：用户要求整体采用 DeepTutor 从请求/能力路由到输出反馈的完整对话流程，已完成源码深度调研并要求编写实施计划。**当前执行顺序和验收标准以 [完整对话实施计划](../2026-10-19-deeptutor-conversation-flow/IMPLEMENTATION_PLAN.md) 及 [11/14/100 验收矩阵](../2026-10-19-deeptutor-conversation-flow/ACCEPTANCE_MATRIX.md) 为准。** 本文件保留原有成果与更广平台功能的历史清单；FAST_TRACK.md 和 NATIVE_RAG_CHAT_DESIGN.md 不再单独定义本次完整对话复用范围。
+
 ## 目标与约束
 
 复用单位是完整服务、运行资源和配套组件。保留当前页面入口、心理学教材和已验证的课程证据规则。以固定源码副本、独立后端进程、现有 API/SSE 兼容层和前端组件挂载实现接入。

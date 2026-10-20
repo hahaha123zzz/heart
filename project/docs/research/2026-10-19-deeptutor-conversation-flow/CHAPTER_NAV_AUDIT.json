@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-19",
+  "method": "源码阅读、只读教材检查、隔离函数分支探测及上游专项测试；未重放用户在线请求",
+  "files": [
+    {
+      "path": "D:/deeptutor/deeptutor/services/courses.py",
+      "sha256": "533d436b19031b58cbed0f14cac412c807fb36d3a9f088947fead2e780f0b81d"
+    },
+    {
+      "path": "D:/deeptutor/deeptutor/services/courses_state.py",
+      "sha256": "d5a31ecd4ba7de06af25d8cf9a81532cbe4d6fef2b6e65fff05565ff861b39c3"
+    },
+    {
+      "path": "D:/deeptutor/deeptutor/capabilities/course_study/capability.py",
+      "sha256": "4cfdb4ce186143fdb5b5e47ab3e295011453f271b6b9c1aecc2bd9a2bf95ac39"
+    },
+    {
+      "path": "D:/deeptutor/deeptutor/capabilities/course_study/tools.py",
+      "sha256": "f7e4a28029478af090820e68989314aca582ec6336dc8d4abd5b903b460ac0be"
+    },
+    {
+      "path": "D:/deeptutor/deeptutor/capabilities/reading/tools.py",
+      "sha256": "1788f9e2b9329ea8068de7312bcce369c90f6c7f4ae34b75d6da6a8a633cd89d"
+    },
+    {
+      "path": "D:/deeptutor/deeptutor/capabilities/mastery/tools.py",
+      "sha256": "b6be3c50425472056c4744f7d80917a6a2e3ccd8226f752e1d9e4092608c3872"
+    },
+    {
+      "path": "D:/deeptutor/deeptutor/learning/policy.py",
+      "sha256": "07f4f8cf5911c1c383a674844c84adfd7355a2b28cfd1620742272514138e91c"
+    },
+    {
+      "path": "D:/deeptutor/deeptutor/capabilities/mastery/prompts/zh/mastery_loop.yaml",
+      "sha256": "4df64164ad95ff0fcd3072bb65cf7811c16c2fa0d65db9c33efbb627a18acffd"
+    },
+    {
+      "path": "E:/项目/heart/project/integration/discrete-math-tutor/knowledge/hybrid_retrieval.py",
+      "sha256": "37caa06df1efbaeb21b2efcaf341b88fd326b8c66b1f9023bc81ddf0b3281159"
+    },
+    {
+      "path": "E:/项目/heart/project/integration/discrete-math-tutor/knowledge/course.py",
+      "sha256": "133e0babc4ecb84ef9fc762e6fdc44fbf4c44887cdec5b36ef46f7b773a6f20b"
+    },
+    {
+      "path": "E:/项目/heart/project/integration/discrete-math-tutor/orchestrator.py",
+      "sha256": "f16fdf5b1b11cf22526c7e21ce5a03fe28c92641e71bbd29db71e7caedf739f9"
+    },
+    {
+      "path": "E:/项目/heart/project/integration/discrete-math-tutor/models/lesson_plan.py",
+      "sha256": "ce0c8ac5ab5857a383ba67c2263a2704c49f548cbc46026370560ebcb22e3775"
+    },
+    {
+      "path": "E:/项目/heart/project/integration/discrete-math-tutor/models/task_context.py",
+      "sha256": "384aa7c1c8d0bb26ccff1e4b5c459c1a8e5bde31c5c99737684af2bf01495eeb"
+    }
+  ],
+  "observations": {
+    "chapter1_chunks": 191,
+    "chapter_hint_chinese": null,
+    "chapter_hint_arabic": 1,
+    "next_query_without_context": "继续下一个知识点",
+    "next_query_with_context": "自变量 继续下一个知识点 + 最近历史，未计算下一目标"
+  },
+  "tests": {
+    "modules": [
+      "deeptutor/learning/tests/test_policy.py",
+      "tests/capabilities/test_course_study.py",
+      "tests/services/test_courses.py"
+    ],
+    "passed": 60,
+    "failed": 0,
+    "seconds": 3.63
+  }
+}
