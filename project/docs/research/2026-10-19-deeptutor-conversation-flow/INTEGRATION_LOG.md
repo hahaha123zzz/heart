@@ -105,3 +105,36 @@ $env:PYTHONPATH=(Get-Location).Path
 - 已完成隔离端口/隔离数据库的普通聊天页面验收；`ask_user` 问题卡、刷新恢复、选区/视觉和跨会话长期路径仍未做页面验收。
 - 真实模型验收走的是 `TaskService → TutorOrchestrator → run_agent_loop_turn` 的宿主链路，不是独立 DeepTutor 应用。
 - 未合并 `main`、未推送、未修改主工作区 `E:\项目\heart`。
+
+## 6. Q1–Q4 主线收拢（2026-10-20，替代第 3–5 节的旧状态）
+
+### 6.1 提交与基线
+
+- 起点 `1d81a92`（已含 Q2 `9c746e2`）；随后提交 `9b49002`（来源身份、接续游标、审核文案及 3 个测试）、`ad207ac`（Q2 `continuation_action` 的 Orchestrator/预算/验收脚本消费）、`9c338a4`（计划与调研文档）。
+- 合入 `95b956a`（Q2 目标质量、冻结输入与来源接口），合并提交 `67ecc28`。
+- 本批不包含 Q5 学习业务、LightRAG 建图、正式题卡/评分/复习/教师审核。
+
+### 6.2 回归结果
+
+- Q3/Q4：`tests.test_q3_agent_loop tests.test_q3_task_loop tests.test_q3_entrypoint tests.test_q4_tool_foundation tests.test_q3_q4_integration`，**101 项通过，0 失败**（`.runtime/final-q3q4.log`）。
+- Q1/Q2：`test_course_navigation test_citation_publication test_source_visuals test_course_release test_grounded_citations test_psychology_presets test_task_execution test_quality_guard test_reply_budget test_conversation_context test_course_inputs test_teaching_targets test_q2_closeout`，**158 项通过，0 失败**（`.runtime/final-q2.log`）。
+- 合并 `95b956a` 后额外回归 70 项接续/预算/导航用例通过（`.runtime/continuation-consumer-tests.log`）。
+
+### 6.3 当前页面验收（隔离端口 8012，隔离库 `.runtime/q3-page-main`，`LOCAL_AGENT_LOOP_ENABLED=1`）
+
+| 场景 | 当前结果 |
+| --- | --- |
+| “学习第一章” | `answered`，65 秒；引用 `[1]`，点击卡打开第 1 章第 1 页；来源版本不再显示失效 |
+| “我懂了，下一部分” | `answered`，33 秒；进入 Q2 下一目标“什么是科学”，引用 `[1]` |
+| “下一个知识点” | `answered`，18 秒；进入“非科学方法”，引用 `[1]` |
+| 刷新/历史 | 等页面初始化完成后自动恢复 6 条消息及引用卡；不再出现“版本已失效” |
+| `ask_user` 自然触发 | 出现 3 个选项和取消按钮；文本答复“B. 科学方法的三个特点……”继续原任务，14 秒 `answered`，引用 `[1]` |
+| `ask_user` 选项点击 | 点击自然选项 B 的一次尝试 3 秒返回“本轮没有可核验的教材来源”，未记为通过；文本路径通过 |
+| 框选/视觉入口 | “框选图 / 公式”切换为 active，提示“拖动框选一页内的图、公式或表格”；未完成真实拖拽和视觉解释 |
+
+### 6.4 剩余边界
+
+- Q2 历史来源现已带 `document_id/version/textbook_release/release_status`；Q3 页级来源仍无 `rects`，点击只到页/小节，不能声称精确高亮。
+- `ask_user` 选项点击存在一次无来源失败，需在 Q5 批次继续观察；不能据此宣称选项路径稳定通过。
+- 本轮未执行真实拖拽选区、视觉解释、并发推进和正式题卡/评分/复习。
+- 主工作区 `E:\项目\heart` 仍有大量未提交教材删除、运行产物和未跟踪调研文件；本批不清理、不覆盖。合入 main 使用独立临时 worktree，保留主工作区原状。
