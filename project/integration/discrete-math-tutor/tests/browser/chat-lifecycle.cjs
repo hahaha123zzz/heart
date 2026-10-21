@@ -6,8 +6,21 @@ const path=require('node:path');
 const http=require('node:http');
 const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/discrete-math-tutor';
 (async()=>{
+ let delayed=false,delayedClosed=false,delayedRequests=0,releaseFinal;
  const server=http.createServer((req,res)=>{
   const url=new URL(req.url,'http://localhost');
+  if(url.pathname==='/api/chat/stream'){
+   delayedRequests++;req.resume();
+   const identity={task_id:'delayed-task',task_revision:1,answer_id:'delayed-answer',round_id:1};
+   const frame=(event,data)=>`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+   res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache'});
+   res.flushHeaders();
+   res.write(frame('answer_state',{...identity,seq:1,state:'generating'}));
+   res.write(frame('answer_delta',{...identity,seq:2,text:'延迟关闭前可读。'}));
+   // 只由浏览器确认正文可见后释放，证明不是响应结束后的播放动画。
+   releaseFinal=()=>{delayedClosed=true;res.end(frame('done',{answer_status:'answered',reply:'延迟关闭前可读。完整收尾。',...identity}));};
+   return;
+  }
   const relative=url.pathname==='/'?'index.html':url.pathname.replace(/^\/static\//,'');
   const file=path.resolve(ROOT,'frontend',relative);
   if(!file.startsWith(path.resolve(ROOT,'frontend')+path.sep)){res.writeHead(404);res.end();return;}
@@ -39,6 +52,7 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
     await route.fulfill({body:'id: recover-task:3:1\nevent: sources\ndata: {"sources":[]}\n\nid: recover-task:3:2\nevent: done\ndata: '+JSON.stringify(result)+'\n\n',contentType:'text/event-stream'});return;
    }
    else if(url.pathname==='/api/chat/stream'){
+    if(delayed){await route.continue();return;}
     generationRequests++;
     if(recoverStream){await route.fulfill({body:'event: progress\ndata: {"order":1,"label":"保存","status":"running"}\n\n',contentType:'text/event-stream'});return;}
     const result=rejectEvidence
@@ -237,6 +251,19 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
   });
   assert.deepEqual(compatibility,{preserved:true,legacyMath:1,practiceClicks:1,unsafeMedia:0});
   console.log('PASS：真实阅读器不重复排版富文本，原公式与练习反馈引用保持兼容');
+  delayed=true;recoverStream=false;deletedRecovery=false;rejectEvidence=false;
+  await page.reload();await page.waitForFunction(()=>!state.taskRecoveryNeeded && state.sectionData);
+  await page.locator('[data-mobile-pane="chat"]').click();
+  await page.locator('#chat-input').fill('验证真实HTTP流在结束前显示');
+  await page.locator('#chat-form').evaluate(form=>form.requestSubmit());
+  await page.waitForFunction(()=>state.sending && state.chat.at(-1)?.pending && state.chat.at(-1)?.content==='延迟关闭前可读。');
+  assert.equal(await page.locator('.message.assistant').last().getByText('延迟关闭前可读。',{exact:true}).isVisible(),true);
+  assert.equal(delayedClosed,false);assert.equal(delayedRequests,1);
+  const beforeClose=Date.now();releaseFinal();
+  await page.waitForFunction(()=>!state.sending && state.chat.at(-1)?.content==='延迟关闭前可读。完整收尾。');
+  assert.equal(delayedRequests,1);
+  if(process.env.UX_OUTPUT)fs.writeFileSync(path.join(process.env.UX_OUTPUT,'delayed-close.json'),JSON.stringify({fixture:true,model_called:false,http_stream:true,visible_before_close:true,first_visible:beforeClose,completed:Date.now(),generation_requests:delayedRequests},null,2));
+  console.log('PASS：真实HTTP响应未结束时正文已可见，浏览器确认后才收尾，生成请求一次');
   assert.deepEqual(errors,[]);console.log('浏览器检查全部通过');
- }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
+ }finally{if(releaseFinal&&!delayedClosed)releaseFinal();await browser?.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);process.exitCode=1;});
