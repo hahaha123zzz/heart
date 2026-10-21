@@ -81,6 +81,8 @@ Q3 `ux3-q3` 三次真实流/工具调用但检索原文为空，门禁拒绝且�
 
 ## UX4 / 公共检索接线增量（2026-10-21）
 
+AI测试输入后续增量：用户授权后，9b626d4/bbd69c4完成3道明确标注的生成题及一题真实练习提示/讲解/引用、禁正式评分、草稿与辅导刷新，47项定向回归通过。详见[AI测试题交付](AI_PRACTICE_TEST_HANDOFF.md)。官方ds.env凭据可用，LightRAG仍因候选endpoint绑定阻塞；未重建或切换正式索引。
+
 收尾状态更新：见 [UX0—UX5验收矩阵](RESPONSE_UX_CLOSEOUT_MATRIX.md)、[运行准备与回滚](RESPONSE_UX_ENABLEMENT_RUNBOOK.md)及指标JSON。业务基线be8daa7的已提交导出宿主重新验证161项后端、9项传输、生命周期和8类格式；f0886a0补上A07真实HTTP延迟关闭夹具，提交后完整浏览器重跑通过。5374个导出文件未改写，备份命令在2份隔离WAL库通过；正式库未备份/改动。真实课程11章练习仍为0。未新增网关调用、未重跑成功跨章Q5整条，不拼接历史子流程。8000当前未运行，主venv缺一般检索依赖，回答体验暂不整体启用；LightRAG独立判定为不可正式切换。
 
 后续联合交付：见 [LIGHTRAG_JOINT_INTEGRATION_REPORT.md](LIGHTRAG_JOINT_INTEGRATION_REPORT.md)。已在e3b7073上合并完整LightRAG交付祖先链，接入CoverageNavigator/ContextualRetrieveCourseTool与Q3/Q5公共search。当前混合工作树161项通过；精确教材、PDF追问、ask_user恢复、取消/断线刷新、同图像素质检及页面分别有隔离实证。网关专用凭据缺失，原跨章检索、真实partial与成功跨章Q5闭环仍阻塞，不记为LightRAG通过；未切正式索引、服务或ready标记。早期失败与完整指标见上述报告。

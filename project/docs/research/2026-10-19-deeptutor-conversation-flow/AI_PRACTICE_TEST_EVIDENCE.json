@@ -1,0 +1,122 @@
+{
+  "tested_revision": "bbd69c47e205578653013786284fee9da84b1042",
+  "generation": {
+    "endpoint": "https://api.deepseek.com",
+    "requested_model": "deepseek-flash",
+    "calls": [
+      {
+        "seconds": 2.015,
+        "model": "deepseek-flash",
+        "usage": {
+          "completion_tokens": 92,
+          "prompt_tokens": 168,
+          "total_tokens": 260,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0,
+            "image_tokens": null,
+            "text_tokens": null
+          },
+          "prompt_cache_hit_tokens": 0,
+          "prompt_cache_miss_tokens": 168
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "gateway_called": false,
+    "basis_text_sha256": "75dc885b2dc2c1a5181edbc05a5b8c79cb925bc3854a3121e6c960933e9f8ed0"
+  },
+  "fixture_sha256": "69728e5807e097335b6165b24497b1d6df44578a78459f9105f224ea20549062",
+  "generated_questions": 3,
+  "review_status": "unreviewed",
+  "configured_endpoint": "https://api.deepseek.com",
+  "database_counts": {
+    "exercise_submissions": 0,
+    "exercise_help": 2,
+    "exercise_skill_observations": 0
+  },
+  "cases": [
+    {
+      "action": "hint",
+      "seconds": 5.519,
+      "first_page_delta_seconds": 3.682,
+      "answer_status": "answered",
+      "question_origin": "ai_generated",
+      "test_only": true,
+      "reply": "AI生成 · 测试用 · 未人工审核\n\n**提示**：你已抓住“自然科学方法”这一关键，但题目问的是**标志性事件**。请把“方法”与“谁、何时、何地做了什么”联系起来，注意==建立实验室==这一具体行动[1]。",
+      "citation_numbers": [
+        1
+      ],
+      "reference_numbers": [
+        1
+      ],
+      "step_advanced": false
+    },
+    {
+      "action": "explain",
+      "seconds": 4.434,
+      "first_page_delta_seconds": 2.226,
+      "answer_status": "answered",
+      "question_origin": "ai_generated",
+      "test_only": true,
+      "reply": "AI生成 · 测试用 · 未人工审核\n\n**结论**：1879年，德国心理学家**冯特**在德国**莱比锡大学**建立世界上第一个**心理学实验室**，并采用自然科学方法研究心理现象，这标志着科学心理学的诞生[1]。\n\n你的答案抓住了“自然科学方法”，但题目问的是**标志性事件**，需要落到“谁、何时、何地做了什么”。因此应把方法作为该事件的特征，而不是把方法本身当作标志。波林称其为“心理学研究史上无可比拟的、伟大的、杰出的事件”[1]。",
+      "citation_numbers": [
+        1
+      ],
+      "reference_numbers": [
+        1
+      ],
+      "step_advanced": false
+    }
+  ],
+  "sdk_calls": 6,
+  "streaming_calls": 2,
+  "total_tokens": 18004,
+  "amount": null,
+  "generation_posts": 2,
+  "refresh_restored": true,
+  "submit_http_status": 409,
+  "evidence_path": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\.runtime\\response-experience\\20261020\\ai-practice-live-v2",
+  "offline": {
+    "tests": 47,
+    "seconds": 18.318,
+    "exit_code": 0,
+    "log": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\.runtime\\ai-practice-20261021\\regression.log"
+  },
+  "lightrag": {
+    "official_credentials_available": true,
+    "candidate_extract": {
+      "binding": "host-llm-client",
+      "model": "deepseek-flash",
+      "endpoint": "https://cn.chatapi.app/v1",
+      "role": "extract",
+      "thinking": "disabled",
+      "max_output_tokens": 8192,
+      "temperature": 0.1
+    },
+    "actual_official_extract": {
+      "binding": "host-llm-client",
+      "model": "deepseek-flash",
+      "endpoint": "https://api.deepseek.com",
+      "role": "extract",
+      "thinking": "disabled",
+      "max_output_tokens": 8192,
+      "temperature": 0.1
+    },
+    "changed_fields": [
+      "endpoint"
+    ],
+    "strict_binding_compatible": false,
+    "native_query_executed": false,
+    "gateway_called": false,
+    "candidate_rebuilt": false,
+    "policy_sha256": "63e2e2c0747a250a9d5c8706ee64506e40975ebcd543ebbe9820f6d4022b630f",
+    "policy_unchanged": true,
+    "status": "blocked_model_policy_binding"
+  },
+  "formal_service_changed": false,
+  "formal_index_changed": false,
+  "ds_env_in_git": false
+}
