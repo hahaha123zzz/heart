@@ -418,7 +418,10 @@ class TaskService:
             from llm.answer_events import current_answer
             answer = current_answer.get()
             if answer:
-                answer.bind(lambda: {'task_id': task['id'], 'task_revision': task['revision']}, guard)
+                # 每个增量检查取消/版本号；教材全量哈希仍在模型轮开始、核验和保存边界检查。
+                answer.bind(lambda: {'task_id': task['id'], 'task_revision': task['revision']}, guard,
+                            lambda: self.repo.guard(task['student_id'], task['session_id'],
+                                task['id'], task['revision'], self.tutor.memory.repo))
             if q5_binding is not None:
                 result = executor(effective, context, resolved, intercept, guard,
                                   progress, previous=previous,

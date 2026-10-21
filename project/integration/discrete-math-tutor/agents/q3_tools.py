@@ -21,10 +21,11 @@ class RetrieveCourseTool(BaseTool):
 
     definition = ToolDefinition(
         name="retrieve_course",
-        description="检索当前学习目标范围内的教材原文。先由系统确定学习目标，再调用本工具；返回带项目来源身份的摘录，引用时使用返回的[n]编号。",
+        description="检索教材原文。系统保留当前学习目标和路径；用户显式跨章插问时按问题范围检索。引用时使用返回的[n]编号。关联候选不是独立事实或先修关系。",
         parameters=(
             ToolParameter("query", "string", "要在当前目标范围内查找的具体问题或关键词"),
             ToolParameter("limit", "integer", "返回片段数，默认6，最多10", required=False, default=6),
+            ToolParameter("asset_id", "string", "仅使用工具返回过或用户指定的教材原图ID", required=False),
         ),
     )
 
@@ -90,10 +91,29 @@ class RetrieveCourseTool(BaseTool):
             location = f"第{source.page}页" if source.page else ""
             lines.append(f"[{index}] {source.document_id} {location}\n{source.text}")
             payload.append(source.to_dict() | {"index": index,
+                                                "image_refs": [],
                                                 "stub": bool(source.location.get("stub"))})
         context.state["source_offset"] = offset + len(payload)
-        return ToolResult(content="\n\n".join(lines), sources=payload,
+        from knowledge.answer_media import selected_media, model_message
+        media = selected_media(query, payload, asset_id=arguments.get('asset_id'))
+        for item in media:
+            source = next(s for s in payload if (s['chapter_id'], s['section_id']) == (item['chapter_id'], item['section_id']))
+            source.setdefault('image_refs', []).append(item)
+        visual_message = model_message(media)
+        if media:
+            import json
+            lines.append('有效教材原图（身份已核对，审核状态仍按原记录；未收到像素时只依据文字）：\n'
+                         + json.dumps(media, ensure_ascii=False))
+        from agents.course_search import association_context
+        relations = association_context(context.navigation, fresh)
+        if relations:
+            import json
+            lines.append('关联候选（图谱描述，仅供查找联系；不得据此推断先修、重点或掌握，'
+                         '只有所链接原文支持的事实可用原文编号引用）：\n' + json.dumps(relations, ensure_ascii=False))
+        return ToolResult(content="\n\n".join(lines), sources=payload, model_message=visual_message,
                           metadata={"target_id": target.target_id, "query": query,
+                                    "retrieval": list(getattr(context.navigation, 'calls', []))[-1:],
+                                    "association_candidates": len(relations),
                                     "stub": any(item["stub"] for item in payload)})
 
 

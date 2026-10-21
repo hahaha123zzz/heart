@@ -99,10 +99,16 @@ def home():
 
 
 @app.get("/api/figures/{figure_id}/image", include_in_schema=False)
-def figure_image(figure_id: str):
+def figure_image(figure_id: str, sha256: str | None = None, version: str | None = None, document_id: str | None = None):
     figure = get_figure(figure_id)
     if figure is None:
-        raise HTTPException(404, "教材图片不存在或尚未审核")
+        raise HTTPException(404, "教材图片不存在或原图身份已失效")
+    if sha256 is not None and sha256 != figure.sha256:
+        raise HTTPException(410, '教材图片版本已变化')
+    if version is not None and version != figure.public().get('version'):
+        raise HTTPException(410, '教材文档版本已变化')
+    if document_id is not None and document_id != figure.public().get('document_id'):
+        raise HTTPException(410, '原图不属于该教材文档')
     media_type = mimetypes.guess_type(figure.path.name)[0] or "application/octet-stream"
     return FileResponse(figure.path, media_type=media_type)
 

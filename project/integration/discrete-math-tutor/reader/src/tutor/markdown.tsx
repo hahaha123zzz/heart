@@ -41,7 +41,11 @@ function remarkMark() {
 }
 
 export default function HostMarkdown({components, remarkPlugins, urlTransform, ...props}: any) {
-  const {literals} = useContext(MarkdownContext);
+  const {literals, media} = useContext(MarkdownContext);
+  const validMedia = media.filter(item => /^[a-f0-9]{64}$/.test(item.sha256 || '')
+    && /^[a-f0-9]{64}$/.test(item.version || '') && item.document_id
+    && item.image_url === `/api/figures/${item.id}/image?sha256=${item.sha256}&version=${item.version}&document_id=${encodeURIComponent(item.document_id)}`
+    && /^(?:figure|formula|image)-\d+-\d+$/.test(item.id || ''));
   let content = String(props.children || '');
   // 回调返回原文，避免替换字符串中的 $$、$& 被 JavaScript 再解释。
   for (const [key, literal] of literals) content = content.replaceAll(key, () => literal);
@@ -51,6 +55,7 @@ export default function HostMarkdown({components, remarkPlugins, urlTransform, .
     remarkPlugins={[...remarkPlugins, remarkMath, remarkMark, remarkCitations]}
     rehypePlugins={[[rehypeKatex, {trust: false, throwOnError: false, strict: 'ignore'}]]}
     urlTransform={(value: string, key: string, node: unknown) => {
+      if (key === 'src' && validMedia.some(item => value === `media:${item.id}`)) return value;
       const safe = urlTransform(value, key, node);
       if (key !== 'href') return '';
       if (safe.startsWith('#')) return safe;
@@ -73,7 +78,15 @@ export default function HostMarkdown({components, remarkPlugins, urlTransform, .
       code: ({children, className, ...props}: any) => String(children).endsWith('\n') || className?.startsWith('language-')
         ? <div className="md-code-block"><pre><code className={className}>{String(children).replace(/\n$/, '')}</code></pre></div>
         : <InlineCode {...props} className={className}>{children}</InlineCode>,
-      img: ({alt}: any) => alt ? <span className="markdown-image-label">[图片：{alt}]</span> : null,
+      img: ({alt, src}: any) => {
+        const item = validMedia.find(item => src === `media:${item.id}`);
+        if (!item) return alt ? <span className="markdown-image-label">[图片：{alt}]</span> : null;
+        return <span className="textbook-figure answer-media">
+          <a href={item.image_url} target="_blank" rel="noopener noreferrer"><img src={item.image_url} alt={item.label || alt} loading="lazy" /></a>
+          <span className="answer-media-caption">{item.label} · {item.review_status === 'approved' ? '已审核' : '待审核'}
+            <button type="button" data-tutor-media={item.id}>返回教材</button></span>
+        </span>;
+      },
       input: ({checked}: any) => <input type="checkbox" checked={Boolean(checked)} disabled />,
     }}>{content}</ReactMarkdown>;
 }

@@ -182,11 +182,11 @@ function formatParagraph(text) {
 
 function renderFigure(figure, options = {}) {
   const url = String(figure.image_url || "");
-  if (!/^\/api\/figures\/(?:figure-\d+-\d+|formula-\d+-\d+|image-\d+-\d+)\/image$/.test(url)) return "";
+  if (!/^\/api\/figures\/(?:figure-\d+-\d+|formula-\d+-\d+|image-\d+-\d+)\/image(?:\?sha256=[a-f0-9]{64}&version=[a-f0-9]{64}&document_id=[A-Za-z0-9%:_.-]+)?$/.test(url)) return "";
   const label = String(figure.label || "").replace(/插图对象\s*\d+/g, "教材插图").replace(/公式对象\s*\d+/g, "教材公式");
   const rawCaption = String(figure.caption || "").replace(/Word 锚点 \d+，/g, "");
   const caption = rawCaption.startsWith(label) ? rawCaption.slice(label.length).replace(/^[：:\s]+/, '') : rawCaption;
-  return `<figure class="textbook-figure"><a href="${esc(url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(url)}" alt="${esc(options.showCaption === false ? label : label + "：" + caption)}" loading="lazy"></a>${options.showCaption === false ? "" : `<figcaption><strong>${esc(label)}</strong> ${esc(caption)}<small>来源：${esc(figure.source)}</small></figcaption>`}</figure>`;
+  return `<figure class="textbook-figure"><a href="${esc(url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(url)}" alt="${esc(options.showCaption === false ? label : label + "：" + caption)}" loading="lazy"></a>${options.showCaption === false ? "" : `<figcaption><strong>${esc(label)}</strong> ${esc(caption)}<small>来源：${esc(figure.source)}${figure.review_status === 'pending' ? ' · 待审核' : ''}</small>${figure.selection_ref ? `<button type="button" data-tutor-media="${esc(figure.id)}">返回教材</button>` : ''}</figcaption>`}</figure>`;
 }
 
 
@@ -373,7 +373,7 @@ function renderContent() {
 }
 
 function messagesFromHistory(history) {
-  return history.map((m) => ({conversationId:m.id,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || [],selectionRef:m.selection_ref,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?m.selection_ref?.image_refs || []:[]}));
+  return history.map((m) => ({conversationId:m.id,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
 }
 
 const graphArtifacts = new Map();
@@ -483,10 +483,11 @@ function renderAnswerContent(message) {
   if (message.role !== 'assistant') return '<p>'+esc(message.content)+'</p>';
   const previous=answerMarkup.get(message);
   const streaming=message.answerState==='generating';
-  if (previous?.content===message.content && previous.streaming===streaming && previous.renderer===window.TutorMarkdown) return previous.html;
-  const html=window.renderTutorAnswer(message.content,{streaming});
+  const media=JSON.stringify(message.imageRefs || []);
+  if (previous?.content===message.content && previous.streaming===streaming && previous.media===media && previous.renderer===window.TutorMarkdown) return previous.html;
+  const html=window.renderTutorAnswer(message.content,{streaming,media:message.imageRefs || []});
   // 进度变化不重新解析整条正文；消息删除后缓存随对象释放。
-  answerMarkup.set(message,{content:message.content,streaming,renderer:window.TutorMarkdown,html});
+  answerMarkup.set(message,{content:message.content,streaming,media,renderer:window.TutorMarkdown,html});
   return html;
 }
 let chatRenderer;
@@ -500,7 +501,9 @@ function renderChat() {
     content:renderAnswerContent(m),
     references:renderChatReferences(m,index),clarification:renderClarification(m),style:renderStyleSuggestion(m,index),
     memory:m.memorySummary?'<div class="memory-summary">'+esc(m.memorySummary)+'</div>':'',
-    figures:(m.imageRefs||[]).map(renderFigure).join(''),
+    figures:(m.imageRefs||[]).filter(image=>!m.content?.includes('(media:'+image.id+')')).map(image=>
+      image.sha256 && image.version && image.document_id && image.image_url?.includes('?sha256=')
+        ? renderFigure(image) : '<small>历史图片缺少版本绑定，保留原回答文字。</small>').join(''),
     retry:m.failed&&m.request?'<button type="button" class="secondary-button retry-message" data-retry-message="'+index+'">'+(m.networkFailed?'重试原请求':'重新提问')+'</button>':'',
   }})));
   for(const message of messages) {
@@ -745,6 +748,22 @@ function bindEvents() {
       return;
     }
     const inlineCitation=event.target.closest('[data-tutor-citation]');
+    const mediaButton=event.target.closest('[data-tutor-media]');
+    if(mediaButton){
+      const key=mediaButton.closest('[data-message-key]')?.dataset.messageKey;
+      const image=citationMessage('message:'+key)?.imageRefs?.find(item=>item.id===mediaButton.dataset.tutorMedia);
+      if(image?.selection_ref){
+        (async()=>{
+          const checked=await post('/api/course/citation-state',{reference:{selection_ref:image.selection_ref}});
+          if(checked.stale)throw new Error('原图对应的教材版本已失效');
+          if(await selectSection(image.chapter_id,image.section_id,{record:false})){
+            state.pdfFocus=image.selection_ref;showView('course');syncPDFReader();
+            if(!image.selection_ref.rects?.length)toast('已打开教材小节，未提供精确原图区域');
+          }
+        })().catch(error=>toast(error.message));
+      }
+      return;
+    }
     if(inlineCitation){event.preventDefault();showInlineCitation(inlineCitation);return;}
     const legacy=event.target.closest('[data-legacy-citations]');
     if(legacy){const key=legacy.dataset.legacyCitations;const message=citationMessage(key);showCitation(message,key,null,legacy);return;}

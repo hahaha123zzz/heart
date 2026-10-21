@@ -202,7 +202,7 @@ class LLMClient:
                 from knowledge.pdf_reader import crop_path
                 valid = crop_path(resolved.stem) == resolved
             if not valid:
-                raise LLMError("图片不在已审核教材目录中")
+                raise LLMError("图片不在已校验教材目录中")
             image = resolved.read_bytes()
             if len(image) > 8 * 1024 * 1024:
                 raise LLMError("教材图片超过视觉输入限制")
@@ -296,7 +296,9 @@ class LLMClient:
             return ChatToolResult(text=text, finish_reason="stop")
         try:
             args: Dict[str, Any] = {
-                "model": model or self.model,
+                "model": model or (self.vision_model if any(
+                    isinstance(m.get('content'), list) and any(p.get('type') == 'image_url' for p in m['content'])
+                    for m in messages) else self.model),
                 "messages": messages,
                 "temperature": temperature,
                 "max_tokens": max_tokens,

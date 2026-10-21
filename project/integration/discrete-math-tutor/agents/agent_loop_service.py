@@ -87,7 +87,8 @@ def _default_navigator(target: LearningTarget | None,
             # block first so a generic query cannot pull the answer into a
             # different part of the same section.
             from knowledge.course_navigation import read_target
-            exact = read_target({"id": target.target_id, "version": target.version})
+            is_exact = bool(re.fullmatch(r'ch\d+:s\d+:b\d+', target.target_id))
+            exact = read_target({"id": target.target_id, "version": target.version}) if is_exact else []
             if exact:
                 return [source_from_chunk(chunk, index)
                         for index, chunk in enumerate(exact[:limit])]
@@ -96,11 +97,11 @@ def _default_navigator(target: LearningTarget | None,
                                   limit=max(12, limit * 3),
                                   preferred_types=preferred_types)
             scoped = [chunk for chunk in candidates
-                      if target.chapter_id is not None
-                      and getattr(chunk, "chapter_id", None) == target.chapter_id
+                      if (target.chapter_id is None
+                          or getattr(chunk, "chapter_id", None) == target.chapter_id)
                       and (target.section_id is None
                            or getattr(chunk, "section_id", None) == target.section_id)]
-            if not scoped:
+            if not scoped and is_exact:
                 # The section may not have a matching semantic chunk (for
                 # example a heading-only target).  Read the resolved unit so
                 # the answer still stays inside the selected knowledge point.
@@ -112,20 +113,13 @@ def _default_navigator(target: LearningTarget | None,
 
     mode = os.getenv("Q3_RETRIEVAL_MODE", "stub").strip().lower()
     if mode in ("local", "q2", "local_llamaindex"):
-        try:
-            from knowledge.local_rag.course_retrieval import retrieve
-
-            def search(*, target: LearningTarget, query: str, limit: int,
+        def search(*, target: LearningTarget, query: str, limit: int,
                        preferred_types: tuple[str, ...] = ()):
+                from knowledge.local_rag.course_retrieval import retrieve
                 chunks = retrieve(f"{target.name} {query}".strip(), limit=limit,
                                   preferred_types=preferred_types)
                 return [source_from_chunk(chunk, index) for index, chunk in enumerate(chunks)]
-
-            return CallbackNavigator(search_fn=search)
-        except Exception:
-            # The caller/report must see the degraded state; do not silently
-            # claim Q2 retrieval ran.
-            return StubLearningNavigator(target=target, sources=[])
+        return CallbackNavigator(search_fn=search)
     return StubLearningNavigator(target=target, sources=[])
 
 
@@ -161,6 +155,24 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget):
             return False, "模型没有返回可发布回答。"
         if not result.sources:
             return False, "本轮没有可核验的教材来源，暂不发布正式回答。"
+        from agents.course_search import explicit_chapters
+        required = explicit_chapters(request.message)
+        missing = required - {source.get('chapter_id') for source in result.sources}
+        if len(required) > 1 and missing:
+            return False, '跨章问题缺少原文依据：' + '、'.join(f'第{chapter}章' for chapter in sorted(missing))
+        evidence = [source.get('location', {}).get('evidence') for source in result.sources]
+        if any(evidence):
+            if not all(evidence):
+                return False, '本轮混入未经原文核验的来源，暂不发布。'
+            try:
+                from knowledge.grounded_citations import EvidenceBundle
+                from knowledge.lightrag.retrieval import as_textbook_chunk
+                bundle = EvidenceBundle([as_textbook_chunk(s) for s in result.sources], evidence, [])
+                body, sources, references = bundle.publish(text)
+                result._publication = {'reply': body, 'pdf_references': references,
+                                       'textbook_sources': [f'{s.source} · {s.section}' for s in sources]}
+            except ValueError as exc:
+                return False, '本次原文发布核验失败：' + str(exc)
         excerpts = _excerpts(result.sources)
         issues = citation_issues(text, excerpts)
         if issues:
@@ -179,13 +191,20 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget):
             plan = TeachingPlan(goal=f"回答{target.name}", strategy="scaffolding",
                                 action="explain", difficulty="medium")
             maximum = int(os.getenv("Q3_REPLY_MAXIMUM", "800"))
+            from knowledge.answer_media import current_media
+            refs = [image for source in result.sources for image in source.get('image_refs', [])
+                    if image.get('model_saw_pixels')]
+            checked_media = current_media(refs)
             quality = checker.check(text, state, plan, request.message,
                                     context={"loop_sources": result.sources,
                                              "agent_loop": True,
                                              "reply_maximum_override": max(600, maximum, reply_budget(request.message).maximum)},
-                                    textbook_excerpts=excerpts)
+                                    textbook_excerpts=excerpts,
+                                    **({'figure_images': [f.path for _, f in checked_media]} if checked_media else {}))
             if not quality.passed or quality.issues:
                 return False, "本次回答未通过教材核对：" + "；".join(quality.issues or [])
+            for image, _ in checked_media:
+                image['visual_quality_checked'] = True
         except Exception as exc:
             return False, f"教材核验未完成：{type(exc).__name__}"
         return True, ""
@@ -364,12 +383,16 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     else:
         navigation = navigator or _default_navigator(
             current_target, getattr(context, "course_navigation", None))
+    from agents.course_search import shared_search
+    navigation = shared_search(navigation, message=request.message,
+                              llm=llm or orchestrator.llm, navigator=navigator)
     decision: NavigationDecision = navigation.resolve(
         message=request.message, student_id=request.student_id,
         session_id=request.session_id, current_target=current_target,
         context=context,
     )
     if decision.action == "clarify" and decision.missing:
+        release(request.task_id or request.request_id)
         return {
             "reply": "需要先确定本轮学习目标：当前没有可用的课程路径或明确的下一目标，"
                      "因此不会用“下一知识点”原句直接检索教材。",
@@ -398,7 +421,6 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     )
     budget = reply_budget(request.message)
     system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions()) + "\n" + budget.instructions()
-    cancellation = register(request.task_id or request.request_id)
 
     def emit(event_type: str, message: str,
              detail: str | dict[str, Any] | None = None) -> None:
@@ -414,6 +436,10 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
 
     round_tokens = max(1200, budget.max_tokens)
     loop = LocalAgentLoop(llm or orchestrator.llm, max_round_tokens=round_tokens)
+    cancellation = register(request.task_id or request.request_id)
+    navigation.cancellation = cancellation
+    if navigation.backend is not None and hasattr(navigation.backend, 'cancellation'):
+        navigation.backend.cancellation = cancellation
     result = loop.run(
         LoopRequest(
             student_id=request.student_id, session_id=request.session_id,
@@ -441,6 +467,21 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             pass
     mapped = _map_result(result, target)
     if result.completed:
+        media = {}
+        for source in result.sources:
+            for image in source.get('image_refs', []):
+                media[image['id']] = image
+        mapped['image_refs'] = list(media.values())[:2]
+    if result.completed and getattr(result, '_publication', None):
+        mapped.update(result._publication)
+        # Q5 状态提示不参与来源编号，也不覆盖已核验正文。
+        if q5_binding:
+            status_line = q5.status_line()
+            if status_line:
+                mapped['reply'] = status_line + '\n\n' + mapped['reply']
+        result.final_text = mapped['reply']
+    mapped['retrieval_calls'] = navigation.calls
+    if result.completed:
         memory = getattr(orchestrator, "memory", None)
         if memory is not None:
             try:
@@ -455,6 +496,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     "chapter_id": target.chapter_id,
                     "section_id": target.section_id,
                     "section_title": target.name,
+                    "image_refs": mapped.get('image_refs', []),
                 }
                 conversation_id = memory.append_exchange(
                     request.student_id, user_message, result.final_text,

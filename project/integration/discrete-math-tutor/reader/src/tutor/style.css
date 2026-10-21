@@ -31,3 +31,6 @@
 .tutor-markdown input { margin-right: .4em; }.tutor-markdown mark { background: #fff0a9; color: inherit; }
 .tutor-markdown .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
 .tutor-markdown .markdown-image-label { color: #71809b; }
+.answer-media { display: block; margin: 1rem 0; max-width: 100%; }
+.answer-media img { display: block; max-width: 100%; max-height: 32rem; object-fit: contain; }
+.answer-media-caption { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; font-size: .85rem; }

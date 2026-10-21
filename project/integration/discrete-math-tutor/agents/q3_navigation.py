@@ -197,7 +197,13 @@ def source_from_chunk(chunk: Any, index: int) -> SourceRef:
         page=getattr(chunk, "page", None),
         quote=str(getattr(chunk, "quote", "") or text[:160]),
         location={"origin": "q2_chunk", "index": index,
-                  "source_file": source_file, "document_version": version},
+                  "source_file": source_file, "document_version": version,
+                  "source": source_file, "section": getattr(chunk, 'section', ''),
+                  "kind": getattr(chunk, 'kind', 'paragraph'),
+                  "asset_ids": list(getattr(chunk, 'asset_ids', ()) or ()),
+                  "block_start": getattr(chunk, 'block_start', None),
+                  "block_end": getattr(chunk, 'block_end', None),
+                  "source_spans": list(getattr(chunk, 'source_spans', ()) or ())},
     )
 
 

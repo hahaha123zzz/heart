@@ -23,6 +23,7 @@ from knowledge.course_config import PSYCHOLOGY_DIR
 
 # 已逐种查看原件字节；只排除装饰，不用尺寸推断真实实验图一定缺失。
 DECORATIONS = {
+    'f4c0857a987cb18d93fe16d4e485a11225a61a5437b303af0e196e71d5803c3e': '扫码入口（已查看原件，不是实验图5-7）',
     '4250a56e71376f1b1942e48441304918a374f701f1e95c8423719ddf8b333b6f': '拓展阅读装饰横条',
     'f7d9231730c647ca17e962e662288f568a799620b081137f212dbc3f660f971c': '概念术语栏头',
     '02214750659c0c3f157cf0973b6d38797bbe94204a75cdcd487ed9daf1e19972': '本章重点栏头',
@@ -171,6 +172,10 @@ def _load_chapter(chapter_id: int):
         digest = _sha256(file_path)
         if digest != str(item.get("sha256") or ""):
             gaps.append(VisualGap(chapter_id, visual_id, "原图哈希与登记不一致"))
+            continue
+        if digest in DECORATIONS:
+            gaps.append(VisualGap(chapter_id, visual_id,
+                                  f'非知识图：{DECORATIONS[digest]}，不作为知识证据', 'decoration'))
             continue
         source_sha = str(item.get("source_sha256") or "")
         if expected_source and source_sha != expected_source:

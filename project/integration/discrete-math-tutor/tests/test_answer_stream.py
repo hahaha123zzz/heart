@@ -19,6 +19,36 @@ class Stream:
 
 
 class AnswerStreamTests(unittest.TestCase):
+    def test_full_source_validation_is_not_repeated_for_every_token(self):
+        from llm.answer_events import AnswerEvents
+        full, live = Mock(), Mock()
+        publisher = AnswerEvents(lambda *_: None)
+        publisher.bind(lambda: {'task_id': 't', 'task_revision': 1}, full, live)
+        publisher.begin()
+        for _ in range(30):
+            publisher.guard()
+            publisher.delta('字')
+        full.assert_called_once()
+        self.assertEqual(live.call_count, 60)
+        full.side_effect = ValueError('教材版本已改变')
+        with self.assertRaisesRegex(ValueError, '教材版本'):
+            publisher.checking()
+
+    def test_full_source_validation_is_not_repeated_for_every_token(self):
+        from llm.answer_events import AnswerEvents
+        full, live = Mock(), Mock()
+        publisher = AnswerEvents(lambda *_: None)
+        publisher.bind(lambda: {'task_id': 't', 'task_revision': 1}, full, live)
+        publisher.begin()
+        for _ in range(30):
+            publisher.guard()
+            publisher.delta('字')
+        full.assert_called_once()
+        self.assertEqual(live.call_count, 60)
+        full.side_effect = ValueError('教材版本已改变')
+        with self.assertRaisesRegex(ValueError, '教材版本'):
+            publisher.checking()
+
     def test_q3_sdk_tool_round_retracted_then_checked_final(self):
         from agents.agent_loop import LocalAgentLoop, LoopRequest
         from agents.tool_protocol import ToolRegistry

@@ -194,6 +194,15 @@ class AgentLoopTests(unittest.TestCase):
         self.assertLessEqual(len(llm.calls), 5)
         self.assertEqual(llm.calls[-1]["tools"], [])
 
+    def test_forced_finish_cannot_publish_an_unexecuted_tool_round(self):
+        llm = ScriptedLLM([tool_round(('echo', {'text': str(i)})) for i in range(3)] +
+                          [tool_round(('echo', {'text': 'late'}), text='不能发布')])
+        result = LocalAgentLoop(llm).run(request(
+            llm, self.registry(), max_exploration_rounds=2, max_settlement_rounds=1))
+        self.assertFalse(result.completed)
+        self.assertEqual(result.error, 'unfinished_tool_round')
+        self.assertNotIn('不能发布', result.final_text)
+
     def test_ask_user_pauses_and_resumes_same_task(self):
         llm = ScriptedLLM([
             tool_round(("ask_user", {"questions": [{"id": "q1", "prompt": "你指哪一种？"}]})),

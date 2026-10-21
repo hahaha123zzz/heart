@@ -13,10 +13,15 @@ class AnswerEvents:
         self.seq = 0
         self.binding = None
 
-    def bind(self, identity, guard):
+    def bind(self, identity, guard, stream_guard=None):
         self.binding = identity, guard
+        self.stream_guard = stream_guard or guard
 
     def guard(self):
+        if self.binding:
+            self.stream_guard()
+
+    def validate(self):
         if self.binding:
             self.binding[1]()
 
@@ -27,7 +32,7 @@ class AnswerEvents:
         self.emit(event, {**self.identity, 'round_id': self.round_id, 'seq': self.seq, **data})
 
     def begin(self):
-        self.guard()
+        self.validate()
         if self.identity:
             self.send('answer_replace', text='')
             self.send('answer_state', state='rejected')
@@ -42,7 +47,7 @@ class AnswerEvents:
 
     def checking(self):
         if self.identity:
-            self.guard()
+            self.validate()
             self.send('answer_state', state='checking')
 
     def retract(self):

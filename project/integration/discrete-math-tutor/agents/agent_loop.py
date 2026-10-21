@@ -21,6 +21,7 @@ from agents.tool_protocol import (
 )
 from llm.client import LLMClient, LLMError
 from llm.answer_events import answer_kwargs, checking, retract
+from agents.transient_messages import with_transient_model_messages, extend_transient_model_messages
 
 
 @dataclass
@@ -100,6 +101,7 @@ class LocalAgentLoop:
             answer: str = "") -> LoopResult:
         collector = EventCollector(request.emit)
         result = LoopResult()
+        result._transient = []
         result._target = request.target
         try:
             messages = self._initial_messages(request, resume_state, answer, result)
@@ -109,6 +111,12 @@ class LocalAgentLoop:
                 result.settlement_rounds = int(resume_state.get("settlement_rounds", 0))
                 result.tool_steps = int(resume_state.get("tool_steps", 0))
                 result.sources = list(resume_state.get("sources") or [])
+                from knowledge.answer_media import model_message
+                for source in result.sources:
+                    anchor = source.get('location', {}).get('model_message_anchor')
+                    image = model_message(source.get('image_refs', [])) if anchor else None
+                    if image:
+                        extend_transient_model_messages(result._transient, [{**image, '_after_tool_call_id': anchor}])
                 collector("progress", "继续原任务", {"detail": "已恢复待回答的同一任务"})
             seen_sources = {str(source.get("source_id") or "")
                             for source in result.sources if source.get("source_id")}
@@ -179,7 +187,8 @@ class LocalAgentLoop:
             tools = [] if no_tools_next else request.tools.schemas()
             try:
                 round_result = self.llm.chat_with_tools(
-                    messages, tools or [], temperature=request.temperature,
+                    with_transient_model_messages(messages, result._transient), tools or [], temperature=request.temperature,
+                    timeout=90,
                     max_tokens=request.round_max_tokens,
                     tool_choice=request.tool_choice if result.rounds == 0 else None,
                     **answer_kwargs(),
@@ -192,6 +201,7 @@ class LocalAgentLoop:
                 return self._forced_finish(request, messages, result, context, collector,
                                            reason=f"模型调用失败：{exc}")
             result.rounds += 1
+            self._mark_pixels(result)
             if settling:
                 result.settlement_rounds += 1
             else:
@@ -221,6 +231,7 @@ class LocalAgentLoop:
                 )
                 result.tool_steps += 1
                 messages.extend(dispatch.tool_messages)
+                extend_transient_model_messages(result._transient, dispatch.model_messages)
                 result.sources.extend(dispatch.sources)
                 context.state["source_offset"] = len(result.sources)
                 if dispatch.sources:
@@ -304,12 +315,14 @@ class LocalAgentLoop:
         messages.append({"role": "user", "content": instruction})
         try:
             round_result = self.llm.chat_with_tools(
-                messages, [], temperature=request.temperature,
+                with_transient_model_messages(messages, result._transient), [], temperature=request.temperature,
+                timeout=90,
                 max_tokens=request.round_max_tokens, **answer_kwargs())
         except LLMError as exc:
             return self._error_result(result, messages, collector, "forced_finish_failed",
                                       f"收尾回答失败：{exc}")
         result.rounds += 1
+        self._mark_pixels(result)
         if result.exploration_rounds >= request.max_exploration_rounds:
             result.settlement_rounds += 1
         for key, value in (round_result.usage or {}).items():
@@ -344,6 +357,14 @@ class LocalAgentLoop:
         collector("done", "", {"rounds": result.rounds, "tool_steps": result.tool_steps,
                                "forced_finish": True})
         return result
+
+    @staticmethod
+    def _mark_pixels(result):
+        received = {id for message in result._transient for id in message.get('_media_ids', [])}
+        for source in result.sources:
+            for image in source.get('image_refs', []):
+                if image['id'] in received:
+                    image['model_saw_pixels'] = True
 
     @staticmethod
     def _error_result(result: LoopResult, messages: list[dict[str, Any]],

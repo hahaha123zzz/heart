@@ -46,7 +46,7 @@ class Figure:
         return self.path.is_file() and hashlib.sha256(self.path.read_bytes()).hexdigest() == self.sha256
 
     def public(self) -> dict:
-        return {
+        result = {
             "id": self.id,
             "label": self.label,
             "caption": self.caption,
@@ -57,6 +57,15 @@ class Figure:
             "review_status": self.review_status,
             "image_url": f"/api/figures/{self.id}/image",
         }
+        from knowledge.pdf_reader import document_for_chapter
+        from knowledge.course_release import binding
+        record = document_for_chapter(self.chapter_id)
+        if record:
+            release = binding()
+            result.update(document_id=record['document_id'], version=record['version'],
+                          sha256=self.sha256, textbook_release=release['release_id'],
+                          release_status=release['status'], release_ready=release['ready'])
+        return result
 
 
 @lru_cache(maxsize=1)
@@ -174,8 +183,7 @@ def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -
     """明确图号优先；其余仅按图注/说明匹配，避免泛泛的“图”触发错误图片。"""
     labels = {(int(a), int(b)) for a, b in FIGURE_NUMBER.findall(query)}
     kinds = _visual_kinds()
-    if (not labels and not re.search(r"图|表|公式|插图|曲线|示意|图片|照片", query)
-            and not any(getattr(source, "kind", "") in ("formula", "table") for source in sources)):
+    if not labels and not re.search(r'图中|表中|这[张幅个].{0,2}图|原图|原表|插图|曲线|示意图|图片|照片|公式', query):
         return []
     if labels:
         exact = [figure for figure in load_figures()
@@ -183,7 +191,8 @@ def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -
                 and any((int(a), int(b)) in labels for a, b in FIGURE_NUMBER.findall(figure.label))][:limit]
         if exact:
             return exact
-        # 未核定图号时只跟随检索到的锚点资源，仍以对象编号显示。
+        # 明确图号未命中时不以相似图替代。
+        return []
     # 顶点/边集是用户自定义实例，不能用同主题教材图片代替。
     if not labels and re.search(r'\bv\d+\s*[-−—]\s*v\d+|四节点环', query, re.I):
         return []
@@ -218,7 +227,7 @@ def format_figure_context(figures: list[Figure]) -> str:
     if not figures:
         return ""
     return "\n".join(
-        f"[{figure.label}] {figure.caption}。教材说明：{figure.context}"
+        f"[{figure.label}｜media:{figure.id}] {figure.caption}。教材说明：{figure.context}"
         + ("（原图状态：待教师审核）" if figure.review_status not in ("approved", "verified") else "")
         for figure in figures
     )

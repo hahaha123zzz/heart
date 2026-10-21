@@ -7,6 +7,12 @@ from llm.client import LLMError, LLMClient
 from orchestrator import TutorOrchestrator
 
 class SufficiencyTests(unittest.TestCase):
+    def test_pending_does_not_mean_missing_pixels_or_teacher_approval(self):
+        model=SimpleNamespace(mock=False,chat_json=Mock(return_value={
+            'status':'sufficient','source_ids':['1'],'missing':[],'reason':'像素支持'}))
+        ContextSufficiency(model).check('解释原图',[{'id':'1','text':'图注，pending'}],image_paths=['actual'])
+        self.assertIn('pending只表示尚未教师审核',model.chat_json.call_args.args[0][0]['content'])
+
     def test_learning_memory_informs_preferences_without_becoming_textbook_evidence(self):
         model=SimpleNamespace(mock=False,chat_json=Mock(return_value={'status':'sufficient','source_ids':['1'],'missing':[],'reason':'定义有依据，偏好有历史来源'}))
         memory={'preferences':{'example_density':.9},'related_history':[

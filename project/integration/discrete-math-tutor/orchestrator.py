@@ -725,8 +725,16 @@ class TutorOrchestrator:
             # 已核验的检查题没有教材结论引文时，不强加编号，也不自动展开可能泄露答案的定义。
             textbook_sources=[]
         base_reference = pdf_supplement.reference if pdf_supplement else (pdf_references[0]["selection_ref"] if pdf_references else None)
+        from agents.q3_navigation import source_from_chunk
+        from knowledge.answer_media import selected_media
+        answer_media = selected_media(message, [source_from_chunk(s, i).to_dict() for i, s in enumerate(sources)]) if figures else []
+        for image in answer_media:
+            image['model_saw_pixels'] = any(f.id == image['id'] and f.path in model_images for f in figures)
+            image['visual_quality_checked'] = bool(image['model_saw_pixels'] and quality and quality.passed)
         stored_reference = (base_reference | {"pdf_references": pdf_references,
             "textbook_sources": textbook_sources}) if base_reference else None
+        if answer_media:
+            stored_reference = {**(stored_reference or {}), 'image_refs': answer_media}
         if grounded_bundle and stored_reference:
             stored_reference['grounding_schema']='citation-grounding-v1'
         if task_context and task_context.relation_snapshot:
@@ -811,7 +819,7 @@ class TutorOrchestrator:
             "routing": routing.model_dump(),
             "instructional_move": move.model_dump(),
             "textbook_sources": textbook_sources,
-            "image_refs": [figure.public() for figure in figures],
+            "image_refs": answer_media,
         }
 
     @staticmethod

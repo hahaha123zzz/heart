@@ -281,8 +281,10 @@ def conversation_history(student_id: str):
          "selection_ref": row.get("selection_ref"),
          "pdf_references": references_for_display((row.get("selection_ref") or {}).get("pdf_references", [])),
          "textbook_sources": (row.get("selection_ref") or {}).get("textbook_sources", []),
-         "image_refs": [figure.public() for figure_id in row["image_ref_ids"]
-                        if (figure := get_figure(figure_id)) is not None]}
+         # 从原回答恢复身份和像素标记；不能按旧 ID 查询新版图片后伪升级历史。
+         "image_refs": [image for image in (row.get('selection_ref') or {}).get('image_refs', [])
+                        if str(image.get('image_url') or '').startswith('/api/figures/')]
+                       or [{'id': figure_id, 'legacy': True} for figure_id in row['image_ref_ids']]}
         for row in rows
     ]
 

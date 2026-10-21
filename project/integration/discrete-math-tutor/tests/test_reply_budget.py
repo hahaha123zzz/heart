@@ -16,6 +16,12 @@ from llm.client import LLMClient, LLMError
 
 
 class ReplyBudgetTests(unittest.TestCase):
+    def test_media_protocol_is_only_enabled_with_actual_pixels(self):
+        llm=Mock();llm.chat.return_value='说明[1]'
+        ResponseGenerator(llm).generate(StudentState(),self.plan(),'解释图5-2',[],
+            figure_context='[图5-2｜media:image-05-0004]',figure_images=['actual-image'])
+        self.assertIn('media:资源ID',llm.chat.call_args.args[0][0]['content'])
+
     def test_detailed_plan_budget_is_shared_and_hint_stays_short(self):
         budget = reply_budget('请给出全书详细学习计划', preferences={'answer_length': 0})
         self.assertEqual((budget.target, budget.maximum, budget.max_tokens), (1800, 2400, 4800))

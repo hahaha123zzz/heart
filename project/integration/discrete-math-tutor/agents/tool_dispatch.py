@@ -155,7 +155,10 @@ def dispatch_tool_calls(*, tool_calls: list[Any], registry: ToolRegistry,
         outcome.tool_messages.append(_tool_message(call, result))
         outcome.sources.extend(result.sources)
         if result.model_message:
-            outcome.model_messages.append(result.model_message)
+            for source in result.sources:
+                if source.get('image_refs'):
+                    source.setdefault('location', {})['model_message_anchor'] = call['id']
+            outcome.model_messages.append({**result.model_message, '_after_tool_call_id': call['id']})
         if result.pause_for_user and not outcome.pause:
             outcome.pause = True
             outcome.pause_payload = {"tool_name": call["name"], "ask_user": result.pause_for_user}
