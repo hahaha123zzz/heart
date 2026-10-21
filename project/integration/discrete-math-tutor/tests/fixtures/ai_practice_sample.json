@@ -1,0 +1,323 @@
+{
+  "schema": "ai-practice-test-v1",
+  "course_id": "experimental-psychology-3",
+  "origin": "ai_generated",
+  "test_only": true,
+  "review_status": "unreviewed",
+  "generated_at": "2026-10-21T14:14:07.365505+00:00",
+  "generation": {
+    "endpoint": "https://api.deepseek.com",
+    "requested_model": "deepseek-flash",
+    "calls": [
+      {
+        "seconds": 2.015,
+        "model": "deepseek-flash",
+        "usage": {
+          "completion_tokens": 92,
+          "prompt_tokens": 168,
+          "total_tokens": 260,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0,
+            "image_tokens": null,
+            "text_tokens": null
+          },
+          "prompt_cache_hit_tokens": 0,
+          "prompt_cache_miss_tokens": 168
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "gateway_called": false,
+    "basis_text_sha256": "75dc885b2dc2c1a5181edbc05a5b8c79cb925bc3854a3121e6c960933e9f8ed0"
+  },
+  "questions": [
+    {
+      "id": "ai-test-01-001",
+      "origin": "ai_generated",
+      "test_only": true,
+      "review_status": "unreviewed",
+      "chapter_id": 1,
+      "section_id": 1,
+      "group_id": "AI测试",
+      "number": 1,
+      "knowledge_point": "科学心理学的诞生标志",
+      "text": "AI生成 · 测试用 · 未人工审核\n根据材料，什么事件标志着科学心理学的诞生？",
+      "source_version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+      "basis_selection": {
+        "document_id": "experimental-psychology-3:chapter-01",
+        "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+        "kind": "text",
+        "rects": [
+          {
+            "page": 1,
+            "x1": 0.18912219093158575,
+            "y1": 0.5175282392526862,
+            "x2": 0.8364728596412365,
+            "y2": 0.536696450861733
+          },
+          {
+            "page": 1,
+            "x1": 0.15326102527556934,
+            "y1": 0.5391030456062378,
+            "x2": 0.8451127309407428,
+            "y2": 0.5582712572152846
+          },
+          {
+            "page": 1,
+            "x1": 0.15326102527556934,
+            "y1": 0.5606778519597893,
+            "x2": 0.8292992895285735,
+            "y2": 0.5798460635688361
+          },
+          {
+            "page": 1,
+            "x1": 0.15326102527556934,
+            "y1": 0.5822526583133407,
+            "x2": 0.8048761045082702,
+            "y2": 0.6014208699223875
+          }
+        ],
+        "text": ""
+      },
+      "source": {
+        "document_id": "experimental-psychology-3:chapter-01",
+        "page": 1,
+        "end_page": 1,
+        "role": "knowledge_basis_not_question_origin"
+      },
+      "shared_blocks": [
+        {
+          "type": "paragraph",
+          "segments": [
+            {
+              "type": "text",
+              "text": "AI生成 · 测试用 · 未人工审核。本题为生成题目，教材选区仅作为知识依据，不是教材原题。"
+            }
+          ]
+        }
+      ],
+      "parts": [
+        {
+          "id": "p1",
+          "label": "测试问答",
+          "type": "written",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "segments": [
+                {
+                  "type": "text",
+                  "text": "根据材料，什么事件标志着科学心理学的诞生？"
+                }
+              ]
+            }
+          ],
+          "stem_blocks": [
+            {
+              "type": "paragraph",
+              "segments": [
+                {
+                  "type": "text",
+                  "text": "根据材料，什么事件标志着科学心理学的诞生？"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ai-test-01-002",
+      "origin": "ai_generated",
+      "test_only": true,
+      "review_status": "unreviewed",
+      "chapter_id": 1,
+      "section_id": 1,
+      "group_id": "AI测试",
+      "number": 2,
+      "knowledge_point": "冯特建立实验室的时间与地点",
+      "text": "AI生成 · 测试用 · 未人工审核\n冯特于哪一年在哪个大学建立了世界上第一个心理学实验室？",
+      "source_version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+      "basis_selection": {
+        "document_id": "experimental-psychology-3:chapter-01",
+        "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+        "kind": "text",
+        "rects": [
+          {
+            "page": 1,
+            "x1": 0.18912219093158575,
+            "y1": 0.5175282392526862,
+            "x2": 0.8364728596412365,
+            "y2": 0.536696450861733
+          },
+          {
+            "page": 1,
+            "x1": 0.15326102527556934,
+            "y1": 0.5391030456062378,
+            "x2": 0.8451127309407428,
+            "y2": 0.5582712572152846
+          },
+          {
+            "page": 1,
+            "x1": 0.15326102527556934,
+            "y1": 0.5606778519597893,
+            "x2": 0.8292992895285735,
+            "y2": 0.5798460635688361
+          },
+          {
+            "page": 1,
+            "x1": 0.15326102527556934,
+            "y1": 0.5822526583133407,
+            "x2": 0.8048761045082702,
+            "y2": 0.6014208699223875
+          }
+        ],
+        "text": ""
+      },
+      "source": {
+        "document_id": "experimental-psychology-3:chapter-01",
+        "page": 1,
+        "end_page": 1,
+        "role": "knowledge_basis_not_question_origin"
+      },
+      "shared_blocks": [
+        {
+          "type": "paragraph",
+          "segments": [
+            {
+              "type": "text",
+              "text": "AI生成 · 测试用 · 未人工审核。本题为生成题目，教材选区仅作为知识依据，不是教材原题。"
+            }
+          ]
+        }
+      ],
+      "parts": [
+        {
+          "id": "p1",
+          "label": "测试问答",
+          "type": "written",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "segments": [
+                {
+                  "type": "text",
+                  "text": "冯特于哪一年在哪个大学建立了世界上第一个心理学实验室？"
+                }
+              ]
+            }
+          ],
+          "stem_blocks": [
+            {
+              "type": "paragraph",
+              "segments": [
+                {
+                  "type": "text",
+                  "text": "冯特于哪一年在哪个大学建立了世界上第一个心理学实验室？"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ai-test-01-003",
+      "origin": "ai_generated",
+      "test_only": true,
+      "review_status": "unreviewed",
+      "chapter_id": 1,
+      "section_id": 1,
+      "group_id": "AI测试",
+      "number": 3,
+      "knowledge_point": "波林评价的依据",
+      "text": "AI生成 · 测试用 · 未人工审核\n材料中波林对冯特建立心理学实验室这项工作给出了高度评价，这一评价是基于冯特工作的哪些具体内容？",
+      "source_version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+      "basis_selection": {
+        "document_id": "experimental-psychology-3:chapter-01",
+        "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+        "kind": "text",
+        "rects": [
+          {
+            "page": 1,
+            "x1": 0.18912219093158575,
+            "y1": 0.5175282392526862,
+            "x2": 0.8364728596412365,
+            "y2": 0.536696450861733
+          },
+          {
+            "page": 1,
+            "x1": 0.15326102527556934,
+            "y1": 0.5391030456062378,
+            "x2": 0.8451127309407428,
+            "y2": 0.5582712572152846
+          },
+          {
+            "page": 1,
+            "x1": 0.15326102527556934,
+            "y1": 0.5606778519597893,
+            "x2": 0.8292992895285735,
+            "y2": 0.5798460635688361
+          },
+          {
+            "page": 1,
+            "x1": 0.15326102527556934,
+            "y1": 0.5822526583133407,
+            "x2": 0.8048761045082702,
+            "y2": 0.6014208699223875
+          }
+        ],
+        "text": ""
+      },
+      "source": {
+        "document_id": "experimental-psychology-3:chapter-01",
+        "page": 1,
+        "end_page": 1,
+        "role": "knowledge_basis_not_question_origin"
+      },
+      "shared_blocks": [
+        {
+          "type": "paragraph",
+          "segments": [
+            {
+              "type": "text",
+              "text": "AI生成 · 测试用 · 未人工审核。本题为生成题目，教材选区仅作为知识依据，不是教材原题。"
+            }
+          ]
+        }
+      ],
+      "parts": [
+        {
+          "id": "p1",
+          "label": "测试问答",
+          "type": "written",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "segments": [
+                {
+                  "type": "text",
+                  "text": "材料中波林对冯特建立心理学实验室这项工作给出了高度评价，这一评价是基于冯特工作的哪些具体内容？"
+                }
+              ]
+            }
+          ],
+          "stem_blocks": [
+            {
+              "type": "paragraph",
+              "segments": [
+                {
+                  "type": "text",
+                  "text": "材料中波林对冯特建立心理学实验室这项工作给出了高度评价，这一评价是基于冯特工作的哪些具体内容？"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

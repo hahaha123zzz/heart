@@ -1,6 +1,6 @@
 """教材逐题练习：版本化草稿、幂等提交、规则判分、AI 辅助反馈。"""
 from __future__ import annotations
-import copy,datetime as dt,hashlib,json,math,re,threading,uuid
+import copy,datetime as dt,hashlib,json,math,os,re,threading,uuid
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -22,6 +22,10 @@ _GATE=threading.BoundedSemaphore(3)
 def catalog():
     from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
     if PSYCHOLOGY:
+        if path := os.getenv('AI_PRACTICE_TEST_CATALOG'):
+            from knowledge.ai_practice_test import load_catalog
+            from knowledge.course_config import COURSE_ID
+            return load_catalog(path, COURSE_ID)
         manifest=json.loads((PSYCHOLOGY_DIR/'manifest.json').read_text(encoding='utf-8'))
         return {'version':manifest['source_sha256']['textbook.docx'],
                 '_catalog_source_version':manifest['source_sha256']['textbook.docx'],'questions':[],'by_id':{},
@@ -119,7 +123,7 @@ def chapter_questions(chapter_id:int,student_id:str):
         items=[]
         for q in qs:
             d=drafts.get(q['id']);a=attempts.get(q['id'])
-            items.append({'id':q['id'],'number':q['number'],'group_id':q['group_id'],'section_id':q['section_id'],'knowledge_point':q['knowledge_point'],'types':list(dict.fromkeys(p['type'] for p in q['parts'])),'part_count':len(q['parts']),'status':a['status'] if a else 'draft' if d and d.version==catalog()['version'] and filled(d.answers) else 'new','submission':a})
+            items.append({'id':q['id'],'number':q['number'],'group_id':q['group_id'],'section_id':q['section_id'],'knowledge_point':q['knowledge_point'],'types':list(dict.fromkeys(p['type'] for p in q['parts'])),'part_count':len(q['parts']),'status':a['status'] if a else 'draft' if d and d.version==catalog()['version'] and filled(d.answers) else 'new','submission':a,'origin':q.get('origin'),'origin_label':q.get('origin_label')})
     return {'version':catalog()['version'],'chapter_id':chapter_id,'questions':items,'total_parts':sum(i['part_count'] for i in items),'rule_parts':sum(len(keys().get(q['id'],{})) for q in qs)}
 @router.get('/questions/{qid}')
 def get_question(qid:str,student_id:str):
@@ -139,6 +143,9 @@ def save_draft(qid:str,body:AnswersRequest):
     return {'saved':True,'question_id':qid}
 
 def exercise_context(q):
+    if q.get('origin') == 'ai_generated':
+        # 选区定位知识依据；不能把AI题面伪装成PDF中的原题。
+        return resolve_selection(PDFSelection.model_validate(q['basis_selection']))
     src=q['source'];record=document(src['document_id']);rects=[]
     if record['version']!=q['source_version']:raise ValueError('教材已更新，需重新导入习题')
     with fitz.open(pdf_path(record)) as pdf:
@@ -178,6 +185,11 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
 输出JSON。批改时输出parts数组，每项含part_id、verdict(correct/partial/incorrect/uncertain)、score(0到100整数)、feedback(中文具体指出理由和改法)、reference_answer(中文或LaTeX)、steps(中文字符串数组)。每项还须返回criteria数组，对应给定rubric的全部评分项：id、score(整数，0到该项max_score)、feedback(具体依据)。总score等于各项score之和。uncertain时criteria可为空、总score=null。先独立解题再比较答案，证明题逐步核查前提与推导；不要求与参考答案字面一致。允许等价数学形式。遇到题意歧义、原题问题、无法辨认、无法严格确定时verdict=uncertain，score=null，不给肯定分。没有相关记录不得编造用户历史。仅作AI辅助批改，不声称已经掌握。
 提示或讲解时输出reply字符串；hint的level=1只提示知识点、2提示方法、3提示关键步骤，均不直接给完整答案。explain可给完整步骤并指出当前答案的不足。'''
     from agents.response_generator import ANSWER_PRESENTATION
+    if PSYCHOLOGY:
+        system=system.replace('你是离散数学习题助教。','你是实验心理学习题助教。')
+    if q.get('origin') == 'ai_generated':
+        system=system.replace('原PDF裁图是权威题面','题面以本次target_parts为准，教材PDF裁图仅是知识依据')
+        system+='\n这是AI生成的测试题，未人工审核，不是教材原题；不得声称教师审核、正式评分或掌握。'
     system += '\n' + ANSWER_PRESENTATION
     payload={'action':action,'hint_level':level,'parent_question':q['text'],'shared_blocks':q['shared_blocks'],'target_parts':[{'id':p['id'],'label':p['label'],'text':'\n'.join(block_text(b) for b in p['blocks']),'type':p['type'],'rubric':grading_spec(p)} for p in parts],'student_answers':answers,'context':resolved['context'],'memory':memories}
     if task_execution is not None:
@@ -222,6 +234,9 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
             figure_images=resolved['images'], task_execution=execution)
         if not quality.passed or quality.issues:
             return {'reply':'本次辅导未通过任务核对，请重新提问。','answer_status':'quality_rejected','quality':quality.model_dump(),'image_refs':[]}
+        if q.get('origin') == 'ai_generated':
+            from knowledge.ai_practice_test import LABEL
+            reply=LABEL+'\n\n'+reply
         grounded_refs=grounded_bundle.references(reply) if grounded_bundle else []
         guide=None
         if action=='explain':
@@ -235,6 +250,7 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
                     reply,[source],execution,student_id=sid,turn_id=q['id']+'|'+parts[0]['id'],references=[{'source_index':0,'selection_ref':ref}])
                 if guide:guide=guide | {'exercise_target':{'chapter_id':q['chapter_id'],'question_id':q['id'],'part_id':parts[0]['id'],'version':catalog()['version']}}
         return {'reply':reply,'guided_visualization':guide,'memory_summary':memories['summary'],'source':q['source'],
+            'question_origin':q.get('origin'),'test_only':q.get('test_only',False),
             'image_refs':resolved['reference']['image_refs'],'pdf_references':grounded_refs,
             'textbook_sources':[f'{s.source}／{s.section}' for s in grounded_bundle.sources] if grounded_bundle else []}
     got=result.get('parts')
@@ -299,6 +315,8 @@ def run_submission(submission_id):
 
 @router.post('/questions/{qid}/submit')
 def submit(qid:str,body:SubmitRequest,tasks:BackgroundTasks):
+    if question(qid).get('origin') == 'ai_generated':
+        raise HTTPException(409,'AI生成测试题未人工审核，仅用于提示、讲解与草稿测试，不作正式评分')
     sid=student(body.student_id);check_version(body.version);q=question(qid);answers=validate_answers(q,body.answers)
     if not any(filled(v) for v in answers.values()):raise HTTPException(422,'请先完成至少一个小题')
     def existing():
