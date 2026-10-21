@@ -43,7 +43,7 @@ body, published_sources, references = bundle.publish(generated_text)
 
 ## Q3 可选接线
 
-`knowledge.lightrag.q3_adapter.LightRagNavigator(base_navigator, backend, course_id=...)` 只包装既有导航器；`resolve` 完全委托 Q2。精确 `ch...` 目标或带 block_start 的目标继续调用 Q2 search/read_target，不用图谱推断教学顺序。一般概念检索走本后端。该适配当前仅为本工作树 .runtime/drafts/q3_adapter.py 未提交草稿，待稳定集成基线确认后再适配、验证并独立提交；未注册、未开启正式入口。
+`knowledge.lightrag.q3_adapter.LightRagNavigator(base_navigator, backend, course_id=...)` 只包装既有导航器；`resolve` 完全委托 Q2。精确 `ch...` 目标或带 block_start 的目标继续调用 Q2 search/read_target，不用图谱推断教学顺序。一般概念检索走本后端。该适配现已位于 knowledge/lightrag/q3_adapter.py，并在固定已提交宿主 a2be38741c2c08162efd2335e7249db3353f9812 的隔离HTTP/现有工具链验证；未注册或开启正式入口。测试、失败、Q5覆盖注入注意事项及采用步骤见 LIGHTRAG_ISOLATED_ACCEPTANCE.md。
 
 工具返回 SourceRef 仍是候选；正式发布必须遵循上面的 Q2 bundle 流程。检索与 Q3 工具调用测试不等于 AgentLoop 正式生成和页面验收。
 

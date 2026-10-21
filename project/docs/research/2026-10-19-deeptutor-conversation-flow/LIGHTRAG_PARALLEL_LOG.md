@@ -164,3 +164,23 @@ build-11已退出且临时电源请求自动释放。11/11章processed，逐章�
 26项专项通过，真实SDK隔离失败/原生重试/重启/结构化验证通过，查询后全书输入与封存图谱签名再核验通过。本候选模型尝试1,981次，1,925成功/56失败，可得5,788,486 tokens；56次无usage失败未知，逐章精确token未知，费用未返回。build-10墙钟32,049.706秒含27,654.605秒宿主睡眠；build-11墙钟1,980.551秒，不能作为CPU/GPU速度比较。
 
 本批源码/脚本/接口提交 bd93051ca7db483c160fca9886dfb693d0bef652，接在06a5571→f92c200→4c1da2d→5ff9f6b→8fe8244之后。完整SHA、集成依赖与全部逐章结果见最终报告。旧候选和全部缓存保留，正式教材/数据库/索引未切换，staging/ready=false不变。179原图仍pending、44装饰排除、81公式未逐式核验；不宣称多模态完成。
+
+## 2026-10-21 可集成交付与隔离验收
+
+本轮开始实际HEAD 9f8f52d8eb75f6d7c5c1eccef1c4bec582adc9fc，分支codex/lightrag-integration，独立worktree E:\项目\heart-worktrees\lightrag-integration，原分叉9c746e28173f7dcfeef34e8d6134dab7e58c5286。主工作树只读确认的已提交验收宿主a2be38741c2c08162efd2335e7249db3353f9812，仅提取该提交Python/agents JSON至忽略目录；未复制未提交公共代码，也没有将其合入本分支。已经阅读回答体验实施计划；不修改公共入口、AgentLoop、TaskService、前端。
+
+本轮交付：LightRagNavigator在现有SourceRef/LearningNavigator边界映射原文、范围、版本、release与有效原图身份，精确目标仍走Q2；结构化图谱摘要不作原文。新增固定宿主/基线复制、隔离HTTP服务、全量对照和交付锁核验脚本、SourceRef/故障判据专项测试。上游Apache-2.0来源及原代码不变，新增宿主适配哈希记录在UPSTREAM.json。依赖入口沿用前序requirements-lightrag.txt；本机观察锁非自包含部署锁，不改共享环境。
+
+最终重复核验Q2冻结源及候选input 325文件；与95b956a交付一致，无运行中替换输入。封存锁SHA256 9453b0d7c11d8447464f92f59052286de9e78a498e1a12f6b0aa0a473581aa89一致。候选位置仍为应用.runtime/lightrag-proxy-nothinking/0a6096dc43a8829d48776cbcd0c583b6dc779bd6b450614b4bd20bd1d7f0e5ce；11/11 processed，实体7138/关系14741/块及同ID向量1239，逐章缺块/向量为空。逐章表、模型身份和真实加载证据见LIGHTRAG_ISOLATED_ACCEPTANCE.md，未覆盖正式索引；staging/ready=false不变。
+
+实际工具链：127.0.0.1:18977隔离HTTP→宿主现有LocalAgentLoop→RetrieveCourseTool→Navigator→SDK→Q2 EvidenceBundle→现有QualityChecker→独立students.sqlite3。主索引只读核验后复制，旧索引SHA256 2a052d6d90624119c7bb10d445bcfb7c0a82306021f2af55ed29c71d23b0e7ef，未读写正式学生库。测试学生均lr-test-UUID。正式TaskService/public HTTP/页面未接线；Q5启用时覆盖navigator的依赖已明确交付，不另建Q5流程。
+
+保留全部49次验收尝试。首轮22项因基线重排环境变量名称错误不当公平对照；纠正RAG_RERANK_MODEL后第二轮18/22通过：两个后端跨章均漏第1章，LR同义问回答超260字，LR分支第一章Q2导航回答超260字；全保留失败。显式下一点目标均b6→b81，但LR首轮未发布，所以完整两轮学习流程未通过，不能当LR质量提升。图1-1来源身份有效，但image_inputs=0，未通过像素语义解释；179原图pending、44装饰排除、81OMML未逐式验收。
+
+末次SDK冷进程重启完整加载、封存哈希、34项专项（26后端+8适配/验收）通过。真实工具内缺旧索引/LR候选的故障均未fallback/未保存历史；外层quality_rejected，内层真实FileNotFoundError保留。故障通过判据已收紧，模型Connection error不能充当工具故障通过。正常概念首次Connection error保留，显式重试2f380735-861d-470f-8341-86f8989ac7d5成功，实际backend=lightrag，84.625秒，1次工具、2行测试历史。
+
+第二轮可得token旧70376/LR64797，模型create调用各40（LR含关键词），旧有1次usage缺失；旧客户端底层隐藏传输重试未全观测，不将create次数冒称全部HTTP尝试。最后服务客户端retries=0、timeout90。金额未返回，cost=null；逐章精确token未知。不将冷启动/缓存差异或含导航的总耗时当性能提升。单点RSS1,699,086,336字节，CPU user71.390625/system33.015625秒；GPU宿主总占用4287/8151MiB，非本进程峰值。全部原始尝试、模型/工具事件、引用、门禁、用量、失败和资源快照位于应用.runtime/lightrag-acceptance-01；日志/运行产物不入Git。
+
+本轮独立代码提交22ac81d0b0c8d0791cd153bc41101dfe2e599b35，随后故障验收补充提交effd694fb256fa0940f05b66aa1794a3179dcd9b。按06a5571→f92c200→4c1da2d→5ff9f6b→8fe8244→bd93051→9f8f52d→22ac81d→故障补充→本轮文档的顺序供集成窗口采用；不自动cherry-pick/合并main。完整命令、固定路径加载方式、候选就绪门禁、未来显式切换/回退步骤见LIGHTRAG_SWITCH_RUNBOOK.md。索引含绝对source_root/sidecar路径，任意搬迁未验证；保留本机固定目录，不提交教材/模型/学生库/索引/密钥。
+
+结论：可交付独立后端与候选，不满足正式切换。跨章/概述覆盖、公共回答门禁失败、正式Q3/Q5入口/页面、图像像素链路和独立部署环境仍待完成。隔离服务仅停止核对后的PID60572，GPU资源释放，旧/新候选、冻结输入、缓存与证据全部保留。没有切换正式服务、索引或发布状态。文档提交后本窗口工作树应无未提交代码；运行数据继续保持ignored。
