@@ -11,6 +11,16 @@ from agents.q3_navigation import LearningTarget,NavigationDecision,SourceRef
 from knowledge.lightrag.q3_adapter import LightRagNavigator
 
 class AdapterTests(unittest.TestCase):
+ def test_fault_requires_actual_failed_tool_not_model_connection_error(self):
+  from scripts.check_lightrag_acceptance import fault_verified
+  result={'completed':False,'fallback':False,'error':'model_unavailable'}
+  self.assertFalse(fault_verified(result,'backend_unavailable','lightrag'))
+  result.update(actual_backends=['lightrag'],loop_messages=[{'role':'tool','content':'retrieve_course 执行失败：FileNotFoundError: missing'}])
+  self.assertTrue(fault_verified(result,'backend_unavailable','lightrag'))
+  self.assertFalse(fault_verified(result,'backend_unavailable','baseline'))
+  self.assertFalse(fault_verified(result,'source_stale','lightrag'))
+  self.assertTrue(fault_verified({'error':'教材已更新，请重新选择内容'},'source_stale','lightrag'))
+
  def base(self):
   class Base:
    def resolve(self,**kwargs):return NavigationDecision('teach',LearningTarget('q2-target','Q2目标'))

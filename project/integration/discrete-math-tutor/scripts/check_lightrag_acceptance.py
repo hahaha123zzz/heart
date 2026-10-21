@@ -3,6 +3,14 @@ import argparse,json,time,os
 from pathlib import Path
 import requests
 
+def fault_verified(result,case,backend):
+ if result.get('completed') or result.get('fallback') or not result.get('error'):return False
+ if case=='source_stale':return '教材已更新' in result['error']
+ expected='lightrag' if backend=='lightrag' else 'local_llamaindex'
+ return expected in result.get('actual_backends',[]) and any(
+  m.get('role')=='tool' and 'retrieve_course 执行失败：FileNotFoundError' in str(m.get('content',''))
+  for m in result.get('loop_messages',[]))
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--url',default='http://127.0.0.1:18977');p.add_argument('--output',type=Path,required=True);a=p.parse_args()
  a.output.mkdir(parents=True,exist_ok=True);run_id=str(time.time_ns());rows=[]
@@ -28,7 +36,7 @@ def main():
     tokens=sum((c.get('usage') or {}).get('total_tokens',0) for c in result.get('model_calls',[]))
     tokens+=sum(c.get('usage',{}).get('usage',{}).get('total_tokens',0) for c in result.get('retrieval_calls',[]))
     retrieval_seconds=sum(c.get('seconds',0) for c in result.get('retrieval_calls',[]) if c.get('actual_backend')!='q2_exact')
-    fault_pass=not result.get('completed') and not result.get('fallback') and bool(result.get('error'))
+    fault_pass=fault_verified(result,case,which)
     quality_pass=bool(result.get('completed') and result.get('source_mapping_passed') and result.get('references'))
     if which=='lightrag' and case not in ('first_chapter','next_target','source_stale','backend_unavailable'):
      quality_pass=quality_pass and actual==['lightrag']
