@@ -1,7 +1,8 @@
 """LightRAG 结构化检索及原文映射；不生成正式回答或引用卡。"""
 from pathlib import Path
-import asyncio,json,math
+import asyncio,json,math,time
 from . import engine,storage
+from .trace import stage
 from .course_input import verify,digest,COURSE
 from .pipeline import embedding_config
 from .config import Metrics
@@ -102,7 +103,7 @@ def as_textbook_chunk(source):
         block_start=loc["block_start"],block_end=loc["block_end"],source_spans=tuple(loc["source_spans"]))
 
 
-def rank_sources(query, sources):
+def rank_sources(query, sources, trace=None):
     if not sources: return []
     from knowledge.hybrid_retrieval import _reranker_on_device
     from knowledge.local_rag.rerank import _sigmoid
@@ -114,7 +115,10 @@ def rank_sources(query, sources):
         raise ValueError("原文重排分数不符合契约")
     # 与 Q2 相同的未经概率校准门槛；失败明确上抛，不回退旧引擎。
     ranked=sorted(zip(values,sources),key=lambda pair:float(pair[0]),reverse=True)
-    return [dict(source,score=_sigmoid(float(value))) for value,source in ranked if _sigmoid(float(value))>=.15]
+    scored=[dict(source,score=_sigmoid(float(value))) for value,source in ranked]
+    selected=[source for source in scored if source['score']>=.15]
+    stage(trace,'rerank_threshold',scored,selected,'below_rerank_threshold',threshold=.15,query=query)
+    return selected
 
 
 def _graph_context(records, sources):
@@ -158,80 +162,96 @@ class LightRagBackend:
         return manifest
 
     async def search(self, query, *, course_id, mode="hybrid", limit=6, chapter_id=None, section_id=None, cancellation=None):
-        if not isinstance(query,str) or not query.strip() or len(query)>4000: raise ValueError("检索问题无效或过长")
-        if isinstance(limit,bool) or not isinstance(limit,int) or not 1<=limit<=40: raise ValueError("结果数必须为1到40")
-        if mode not in ("naive","local","global","hybrid","mix"): raise ValueError("检索模式不支持")
-        if cancellation is not None and cancellation.is_cancelled(): raise asyncio.CancelledError()
-        self.validate(course_id)
-        working=self.candidate/"index"
-        with write_ownership(self.candidate):
-            metrics=Metrics();embedding=await embedding_config(metrics)
-            storage.require_compatible_embedding(working,embedding)
-            expected=json.loads((self.candidate/"policy.json").read_text(encoding="utf-8"))
-            calls=resolve_query_roles(metrics)
-            if calls["extract"].config.identity!=expected["extract"]:
-                raise RuntimeError("模型配置已变化，需要核对候选策略")
-            async def job(bridge):
-                rag=engine.build_rag(working,io_bridge=bridge,query_roles=calls,embedding_config=embedding)
-                failed=True
+        trace=[];metrics=None;started=time.monotonic()
+        try:
+            if not isinstance(query,str) or not query.strip() or len(query)>4000: raise ValueError("检索问题无效或过长")
+            if isinstance(limit,bool) or not isinstance(limit,int) or not 1<=limit<=40: raise ValueError("结果数必须为1到40")
+            if mode not in ("naive","local","global","hybrid","mix"): raise ValueError("检索模式不支持")
+            if cancellation is not None and cancellation.is_cancelled(): raise asyncio.CancelledError()
+            self.validate(course_id)
+            working=self.candidate/"index"
+            with write_ownership(self.candidate):
+                metrics=Metrics();embedding=await embedding_config(metrics)
+                storage.require_compatible_embedding(working,embedding)
+                expected=json.loads((self.candidate/"policy.json").read_text(encoding="utf-8"))
+                calls=resolve_query_roles(metrics)
+                if calls["extract"].config.identity!=expected["extract"]:
+                    raise RuntimeError("模型配置已变化，需要核对候选策略")
+                async def job(bridge):
+                    rag=engine.build_rag(working,io_bridge=bridge,query_roles=calls,embedding_config=embedding)
+                    failed=True
+                    try:
+                        await engine.initialize(rag)
+                        _,records=await engine.query_with_sources(rag,query,mode)
+                        records=await attach_provenance(rag,working,records)
+                        failed=False;return records
+                    finally: await engine.finalize(rag,cancel_pending=failed)
+                operation=asyncio.create_task(run_in_worker_loop(job))
                 try:
-                    await engine.initialize(rag)
-                    _,records=await engine.query_with_sources(rag,query,mode)
-                    records=await attach_provenance(rag,working,records)
-                    failed=False;return records
-                finally: await engine.finalize(rag,cancel_pending=failed)
-            operation=asyncio.create_task(run_in_worker_loop(job))
-            try:
-                while not operation.done():
-                    if cancellation is not None and cancellation.is_cancelled(): raise asyncio.CancelledError()
-                    await asyncio.wait({operation},timeout=.1)
-                records=await operation
-            finally:
-                if not operation.done():
-                    operation.cancel();await asyncio.gather(operation,return_exceptions=True)
-            self.validate(course_id)
-            source_map=json.loads((self.candidate/"source_map.json").read_text(encoding="utf-8"))
-            registry=json.loads((self.candidate/"input/pdf_manifest.json").read_text(encoding="utf-8"))
-            for name,doc in source_map.items():
-                chapter=doc["chapter_id"]
-                if not isinstance(chapter,int) or not 1<=chapter<=11 or name!=f"chapter_{chapter:02d}.generated.pdf":
-                    raise engine.LightRagContractError("来源映射章节身份错误")
-                raw_path=self.candidate/"input/chapters"/f"chapter_{chapter:02d}"/"document.json"
-                original=json.loads(raw_path.read_text(encoding="utf-8"))
-                pdf=next(r for r in registry if r["chapter_id"]==chapter)
-                if digest(raw_path)!=doc["document_sha256"] or doc["source"]!=original["source"] or doc["document_id"]!=pdf["document_id"] or doc["version"]!=pdf["version"]:
-                    raise engine.LightRagContractError("来源映射版本不符合冻结原文")
-                if len(original["blocks"])!=len(doc["blocks"]): raise engine.LightRagContractError("来源映射块数不符")
-                for block,raw in zip(doc["blocks"],original["blocks"]):
-                    if any(block.get(k)!=raw.get(k) for k in ("block_index","text","rows","section_id","section","kind","image_ids","formula_ids")):
-                        raise engine.LightRagContractError("来源映射不是冻结原文")
-            mapped=map_chunks(records,source_map)
-            if chapter_id is not None: mapped=[s for s in mapped if s["chapter_id"]==chapter_id]
-            if section_id is not None: mapped=[s for s in mapped if s["section_id"]==section_id]
-            selected=await asyncio.to_thread(rank_sources,query,mapped)
-            self.validate(course_id)
-            from .course_input import visual_inventory
-            visual_map,_,_=visual_inventory(self.candidate/"input")
-            selected_visuals={}
-            for record in records:
-                if record.get("kind")!="chunk": continue
-                doc=source_map[Path(record["source"]).name]
-                for ref in record.get("original_blocks",[]):
-                    visual=visual_map.get(ref.get("asset_id"))
-                    if visual and (chapter_id is None or visual.chapter_id==chapter_id) and (section_id is None or visual.section_id==section_id):
-                        selected_visuals[visual.id]=visual.public()|{"document_id":doc["document_id"],"version":doc["version"],
-                            "sha256":visual.sha256,"sdk_chunk_id":record["chunk_id"],
-                            "evidence_status":"original_image_requires_q2_visual_verification"}
-            from knowledge.inference_runtime import runtime_status
-            selected=selected[:limit]
-            background=_graph_context(records,selected)
-            # 图谱摘要只在独立字段给出；reference 和 metadata 不生成证据卡。
-            return {"provider":"lightrag","sdk":"1.5.7","mode":mode,"answer":"",
-                    "status":"success" if selected else "no_evidence","sources":selected,
-                    "graph_context":background,"visuals":list(selected_visuals.values()),"references":[r for r in records if r["kind"]=="reference"],
-                    "metadata":[r["metadata"] for r in records if r["kind"]=="query_metadata"],
-                    "input_signature":expected["input_signature"],"usage":metrics.public(),"runtime":runtime_status(),
-                    "citation_status":"Q2 verification required","rerank_status":"applied" if mapped else "not_needed"}
+                    while not operation.done():
+                        if cancellation is not None and cancellation.is_cancelled(): raise asyncio.CancelledError()
+                        await asyncio.wait({operation},timeout=.1)
+                    records=await operation
+                finally:
+                    if not operation.done():
+                        operation.cancel();await asyncio.gather(operation,return_exceptions=True)
+                self.validate(course_id)
+                source_map=json.loads((self.candidate/"source_map.json").read_text(encoding="utf-8"))
+                registry=json.loads((self.candidate/"input/pdf_manifest.json").read_text(encoding="utf-8"))
+                for name,doc in source_map.items():
+                    chapter=doc["chapter_id"]
+                    if not isinstance(chapter,int) or not 1<=chapter<=11 or name!=f"chapter_{chapter:02d}.generated.pdf":
+                        raise engine.LightRagContractError("来源映射章节身份错误")
+                    raw_path=self.candidate/"input/chapters"/f"chapter_{chapter:02d}"/"document.json"
+                    original=json.loads(raw_path.read_text(encoding="utf-8"))
+                    pdf=next(r for r in registry if r["chapter_id"]==chapter)
+                    if digest(raw_path)!=doc["document_sha256"] or doc["source"]!=original["source"] or doc["document_id"]!=pdf["document_id"] or doc["version"]!=pdf["version"]:
+                        raise engine.LightRagContractError("来源映射版本不符合冻结原文")
+                    if len(original["blocks"])!=len(doc["blocks"]): raise engine.LightRagContractError("来源映射块数不符")
+                    for block,raw in zip(doc["blocks"],original["blocks"]):
+                        if any(block.get(k)!=raw.get(k) for k in ("block_index","text","rows","section_id","section","kind","image_ids","formula_ids")):
+                            raise engine.LightRagContractError("来源映射不是冻结原文")
+                native=[dict(r,chapter_id=source_map[Path(r['source']).name]['chapter_id']) for r in records if r.get('kind')=='chunk']
+                stage(trace,'native_recall',native,native,'',query=query)
+                mapped=map_chunks(records,source_map)
+                linked={cid for row in mapped for cid in row['location']['sdk_chunk_ids']}
+                stage(trace,'original_mapping_input',native,[r for r in native if r['chunk_id'] in linked],
+                      'no_eligible_contiguous_original_intersection')
+                stage(trace,'original_mapping',mapped,mapped,'')
+                scoped=[s for s in mapped if (chapter_id is None or s['chapter_id']==chapter_id)
+                        and (section_id is None or s['section_id']==section_id)]
+                stage(trace,'scope_filter',mapped,scoped,'outside_requested_scope',chapter_id=chapter_id,section_id=section_id)
+                mapped=scoped
+                selected=await asyncio.to_thread(rank_sources,query,mapped,trace)
+                self.validate(course_id)
+                from .course_input import visual_inventory
+                visual_map,_,_=visual_inventory(self.candidate/"input")
+                selected_visuals={}
+                for record in records:
+                    if record.get("kind")!="chunk": continue
+                    doc=source_map[Path(record["source"]).name]
+                    for ref in record.get("original_blocks",[]):
+                        visual=visual_map.get(ref.get("asset_id"))
+                        if visual and (chapter_id is None or visual.chapter_id==chapter_id) and (section_id is None or visual.section_id==section_id):
+                            selected_visuals[visual.id]=visual.public()|{"document_id":doc["document_id"],"version":doc["version"],
+                                "sha256":visual.sha256,"sdk_chunk_id":record["chunk_id"],
+                                "evidence_status":"original_image_requires_q2_visual_verification"}
+                from knowledge.inference_runtime import runtime_status
+                stage(trace,'limit',selected,selected[:limit],'beyond_limit',limit=limit)
+                selected=selected[:limit]
+                background=_graph_context(records,selected)
+                # 图谱摘要只在独立字段给出；reference 和 metadata 不生成证据卡。
+                return {"provider":"lightrag","sdk":"1.5.7","mode":mode,"answer":"",
+                        "status":"success" if selected else "no_evidence","sources":selected,
+                        "graph_context":background,"visuals":list(selected_visuals.values()),"references":[r for r in records if r["kind"]=="reference"],
+                        "metadata":[r["metadata"] for r in records if r["kind"]=="query_metadata"],
+                        "input_signature":expected["input_signature"],"trace":trace,"usage":metrics.public(),"runtime":runtime_status(),
+                        "citation_status":"Q2 verification required","rerank_status":"applied" if mapped else "not_needed"}
+        except BaseException as exc:
+            exc.lightrag_audit={'trace':trace,'usage':metrics.public() if metrics else Metrics().public(),
+                                'seconds':time.monotonic()-started}
+            raise
+
 
     def retrieve(self, query, **kwargs):
         result=asyncio.run(self.search(query,**kwargs))

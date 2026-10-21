@@ -9,6 +9,7 @@ class LightRagNavigator:
         self.cancellation=cancellation;self.calls=[];self.last_result=None
     def resolve(self, **kwargs):return self.base.resolve(**kwargs)
     def search(self, *, target, query, limit, preferred_types=()):
+        self.last_result=None
         started=time.monotonic()
         record={"query":query,"target_id":target.target_id,"requested_backend":"lightrag","fallback":False}
         self.calls.append(record)
@@ -37,17 +38,35 @@ class LightRagNavigator:
                         "sha256":asset.sha256,"textbook_release":release["release_id"],"model_saw_pixels":False})
                 fields["image_refs"]=images
                 fields["location"]={**fields["location"],"retrieval_backend":"lightrag","fallback":False,
-                    "course_id":self.course_id,"textbook_release":release["release_id"],
+                    "course_id":self.course_id,"retrieval_score":row.get("score"),"textbook_release":release["release_id"],
                     "release_status":release["status"],"release_ready":release["ready"],
                     "relationship_semantics":"association_only; no prerequisite or mastery inference"}
                 sources.append(SourceRef(**fields))
-            record.update(status=self.last_result["status"],sources=len(sources),usage=self.last_result["usage"])
+            record.update(status=self.last_result["status"],sources=len(sources),usage=self.last_result["usage"],trace=self.last_result.get("trace",[]))
             return sources
-        except asyncio.CancelledError:
+        except asyncio.CancelledError as exc:
             from agents.tool_protocol import CancelledError
-            record.update(status="cancelled")
+            record.update(getattr(exc,"lightrag_audit",{}));record.update(status="cancelled")
             raise CancelledError("LightRAG检索已取消") from None
         except Exception as exc:
-            record.update(status="failed",error_type=type(exc).__name__,error=str(exc))
+            record.update(getattr(exc,"lightrag_audit",{}));record.update(status="failed",error_type=type(exc).__name__,error=str(exc))
             raise
         finally:record["seconds"]=time.monotonic()-started
+
+    def tool_context(self,sources):
+        from .relationships import relationship_context
+        return relationship_context((self.last_result or {}).get('graph_context',[]),sources)
+
+
+from agents.q3_tools import RetrieveCourseTool,_RETRIEVE_LOCK
+class ContextualRetrieveCourseTool(RetrieveCourseTool):
+    """保留原工具授权/编号/去重；仅附加独立关联与缺口区块。"""
+    def run(self,arguments,context):
+        from .relationships import append_tool_context
+        from .trace import stage
+        with _RETRIEVE_LOCK:
+            result=super().run(arguments,context)
+            stage(getattr(context.navigation,'trace',None),'tool_output',result.sources,result.sources,'')
+            if hasattr(context.navigation,'tool_context'):
+                return append_tool_context(result,context.navigation.tool_context(result.sources))
+            return result

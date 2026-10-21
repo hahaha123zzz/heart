@@ -74,6 +74,24 @@
     "__init__.py": {
       "source_sha256": "e627674ac55c65a063587d8433bdeba1e83abe3e4e886d5fb6b879cdbef28cd6",
       "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/__init__.py"
+    },
+    "book/agents/source_explorer.py": {
+      "source_sha256": "c86a8d16da236450603db42e47d39502290d59b110ae9b4a5ef7dd1e7d827817",
+      "source_path": "D:/deeptutor/deeptutor/book/agents/source_explorer.py",
+      "license": "Apache-2.0",
+      "reuse": "exact _balanced_slice excerpt; bounded source/subquestion scheduling adapted"
+    },
+    "services/rag/smart_retriever.py": {
+      "source_sha256": "9f494004b97284d3d1cdb0e6d4d9fe4c055addd9fb7d8888a238bb3209492b60",
+      "source_path": "D:/deeptutor/deeptutor/services/rag/smart_retriever.py",
+      "license": "Apache-2.0",
+      "reuse": "query_hints/multi-query scheduling reference; aggregation not copied"
+    },
+    "book/engine.py": {
+      "source_sha256": "f8dfcfb6900d34347c01337426c4e3a46b42563b7d4877f89a116a42f8047173",
+      "source_path": "D:/deeptutor/deeptutor/book/engine.py",
+      "license": "Apache-2.0",
+      "reuse": "_source_quality_summary requested/covered/missing reporting adapted; application not copied"
     }
   },
   "baseline": "9c746e28173f7dcfeef34e8d6134dab7e58c5286",
@@ -93,14 +111,18 @@
     "write_lock.py": "宿主异常类及Windows reparse保护",
     "storage.py": "宿主embedding签名及候选状态；移除不适用的DeepTutor KB枚举依赖",
     "cache_reuse.py": "仅file_io导入；保留算法但未启用跨候选缓存继承，恢复使用SDK同候选缓存",
-    "config.py": "复用上游重试分类/延迟/模式；宿主模型传输、并发、用量和CPU embedding适配；记录API返回模型名；deepseek-flash跨代理显式thinking=disabled，生成参数纳入身份；截断响应也记录可得usage；复用宿主CPU/CUDA设备配置，权重签名与执行设备分离",
+    "config.py": "复用上游重试分类/延迟/模式；宿主模型传输、并发、用量和CPU embedding适配；记录API返回模型名；deepseek-flash跨代理显式thinking=disabled，生成参数纳入身份；截断响应也记录可得usage；复用宿主CPU/CUDA设备配置，权重签名与执行设备分离；补充去凭据的异常cause链用于TLS故障审计，不改模型身份/传输策略",
     "roles.py": "宿主模型角色，不迁入账户或目录",
     "indexing_policy.py": "保留端点规范化和散列，替换全局策略源",
     "pipeline.py": "保留引擎/冻结/锁/worker组合；宿主全书候选编排与完整性门禁替换原KB管理/发布；记录实际CUDA会话与ONNX模块版本",
     "file_io.py": "原样复用",
     "parse_types.py": "原样复用",
-    "retrieval.py": "宿主结构化原文/证据适配；复用现有RERANK设备配置并返回实际运行会话",
-    "q3_adapter.py": "结构化原文转现有SourceRef；精确目标仍委托Q2；保留版本/范围/发布状态；有效pending原图身份不代表模型看图；错误与取消透传，不回退"
+    "retrieval.py": "保持固定SDK/aquery_data与原文映射；新增逐层来源轨迹及失败时可得Metrics附带审计，不调整索引/阈值/排序算法",
+    "q3_adapter.py": "现有SourceRef、精确Q2目标、可选独立关系上下文；ContextualRetrieveCourseTool复用父类锁/授权/编号/去重，未改公共文件",
+    "coverage.py": "按显式对象/章节拆分；原样SourceExplorer分组轮转；成熟有界调度适配为每对象最多初查+补查各1；Q2逐对象选择后核查语义、合并去重，路径只读；不使用SmartRetriever聚合答案或BookEngine应用",
+    "relationships.py": "结构化实体/关系独立有界区块；有效Q2 source/version/release/range链接；未链接只作补查提示；无新证据卡或先修语义",
+    "source_explorer_reuse.py": "原样摘取_balanced_slice，SourceChunk采用结构同形的宿主对象；分组变成子问题/章，排序保留子问题重排结果",
+    "trace.py": "原生→原文映射→范围→重排阈值→limit→逐对象Q2/语义→工具输出，保留块ID/章节/子问题及排除原因"
   },
   "active_files": {
     "__init__.py": {
@@ -116,7 +138,7 @@
       "origin": "cache_reuse.py"
     },
     "config.py": {
-      "sha256": "d5a65c96e9dd50a58b384f19655ddcb4983d1efefaadc92b6688ef5f571ffcfd",
+      "sha256": "45a8bf2955776e7179163da43eb244986948b45c855fb92676d9c5311b2366d4",
       "origin": "config.py"
     },
     "course_input.py": {
@@ -156,7 +178,7 @@
       "origin": "pipeline.py"
     },
     "retrieval.py": {
-      "sha256": "aecbcd2674a8ffe90dec2236fcc23beda82e53e8f1222210cde6026e2350e980",
+      "sha256": "ee57785eec2b2672fca64daac1df8b95e73fdbf131cbc18c76b0fe7014b695ee",
       "origin": "host adaptation"
     },
     "roles.py": {
@@ -180,13 +202,29 @@
       "origin": "write_lock.py"
     },
     "q3_adapter.py": {
-      "sha256": "899452d9e97f25556cbb4dabc2227dd1f89ace6e67443328a9e6eb0e61639e6f",
+      "sha256": "e2f5523bca7fdc7cdd9c7306ace52993552abcf7786daaaf2e36463141e4d4cd",
       "origin": "host adaptation; existing Q3 SourceRef/LearningNavigator boundary"
+    },
+    "coverage.py": {
+      "sha256": "d8e44350e9991d930b41baa779f7933ba32c334e7aa971077ce5bd2158959aec",
+      "origin": "host adaptation"
+    },
+    "relationships.py": {
+      "sha256": "d326fe97de9473583c9572d7d8b84169ff1e7c09d014ffb27f539b84476b274b",
+      "origin": "host adaptation"
+    },
+    "source_explorer_reuse.py": {
+      "sha256": "0f2e03775024d9c296f1733212f388e14c1d88c54f1d33089c348c6f0da46abd",
+      "origin": "book/agents/source_explorer.py::_balanced_slice (exact excerpt)"
+    },
+    "trace.py": {
+      "sha256": "42f856467323c793e24f9fd27eeef8a5bb82e0d1cd3215a2c9e124fd95da607d",
+      "origin": "host adaptation"
     }
   },
   "upstream_worktree_changes": [
     "deeptutor/services/llm/factory.py (not imported/copied)",
     "providers.json/setup.json (not read/copied)"
   ],
-  "source_copy_policy": "Existing project/vendor/DeepTutor verified byte-identical against D:/deeptutor for all listed sources; no duplicate source payload."
+  "source_copy_policy": "SDK sources with vendor_path retain the original verified vendor copy. SourceExplorer _balanced_slice is an exact Apache-2.0 function excerpt in source_explorer_reuse.py. SmartRetriever and book/engine.py are fixed-SHA design/adaptation references; no full BookEngine, synthesis, app or account dependencies copied."
 }

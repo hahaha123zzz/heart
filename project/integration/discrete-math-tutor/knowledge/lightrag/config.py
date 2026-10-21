@@ -285,6 +285,11 @@ def build_llm_model_func(*, io_bridge=None, llm_config=None, owner=None):
                 return content
             except BaseException as exc:
                 item["error_type"]=type(exc).__name__
+                chain=[];cause=exc.__cause__
+                while cause is not None and len(chain)<4:
+                    chain.append({'type':type(cause).__name__,'message':str(cause).replace(config.client.api_key,'[REDACTED]')[:300]})
+                    cause=cause.__cause__
+                item['error_chain']=chain
                 raise
             finally:
                 item["seconds"]=time.monotonic()-started
