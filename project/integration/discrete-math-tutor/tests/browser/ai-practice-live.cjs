@@ -10,7 +10,7 @@ const url=process.env.UX_TEST_URL||'http://127.0.0.1:8012',out=process.env.UX_OU
   page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/api/chat/stream'))posts++;});
   async function openPractice(){
    await page.waitForFunction(()=>!state.taskRecoveryNeeded&&state.sectionData,null,{timeout:60000});
-   await page.locator('[data-start-practice="reading"]').click();
+   await page.locator('#course-view [data-start-practice="reading"]').click();
    await page.locator('#practice-question .source-label').waitFor();
   }
   await page.goto(url);await openPractice();
