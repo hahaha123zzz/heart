@@ -77,6 +77,19 @@ class PausedExecutor:
 
 
 class TaskLoopPersistenceTests(unittest.TestCase):
+    def test_answered_interjection_does_not_record_q5_explained_or_advance(self):
+        q5=Mock();q5.has_path.return_value=True;q5.is_understood.return_value=False
+        q5.status.return_value={'path_id':'path','plan_confirmed':True,'mode':'study','current':{'name':'当前目标'}}
+        def executor(request,context,resolved,intercept,guard,progress,*,previous=None,q5_binding=None):
+            self.assertIs(q5_binding,q5)
+            return {'reply':'双方原文的局部解释','answer_status':'answered',
+                    'learning_interjection':True,'step_advanced':False}
+        with patch('agents.q5_runtime.q5_enabled',return_value=True),patch('agents.q5_runtime.Q5Runtime',return_value=q5):
+            result=self.service.run(ChatRequest(student_id='s',request_id='side',
+                message='第一章的实验程序和第二章的自变量控制有哪些联系？'),executor)
+        self.assertEqual(result['answer_status'],'answered')
+        q5.record_explained.assert_not_called();q5.advance_understood.assert_not_called()
+
     def test_practice_button_preserves_hint_level_and_saves_help_once(self):
         from agents.exercise_task_tutor import explain_exercise
         from models.task_context import TaskContext, TaskObject

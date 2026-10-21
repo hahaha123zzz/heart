@@ -276,16 +276,19 @@ def conversation_history(student_id: str):
     from main import orchestrator
     rows = orchestrator.memory.repo.get_conversation_with_figures(student_id, limit=40)
     from knowledge.grounded_citations import references_for_display
+    grouped = [(row.get('selection_ref') or {}).get('pdf_references', []) for row in rows]
+    # 一次请求核验一次发布身份及各PDF；不为每条旧消息重算全书哈希。
+    displayed = iter(references_for_display([ref for refs in grouped for ref in refs]))
     return [
         {"id": row["id"], "role": row["role"], "content": row["content"],
          "selection_ref": row.get("selection_ref"),
-         "pdf_references": references_for_display((row.get("selection_ref") or {}).get("pdf_references", [])),
+         "pdf_references": [next(displayed) for _ in refs],
          "textbook_sources": (row.get("selection_ref") or {}).get("textbook_sources", []),
          # 从原回答恢复身份和像素标记；不能按旧 ID 查询新版图片后伪升级历史。
          "image_refs": [image for image in (row.get('selection_ref') or {}).get('image_refs', [])
                         if str(image.get('image_url') or '').startswith('/api/figures/')]
                        or [{'id': figure_id, 'legacy': True} for figure_id in row['image_ref_ids']]}
-        for row in rows
+        for row, refs in zip(rows, grouped)
     ]
 
 

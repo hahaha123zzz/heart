@@ -170,6 +170,33 @@ class LLMToolProtocolTests(unittest.TestCase):
 
 
 class AgentLoopTests(unittest.TestCase):
+    def test_missing_retrieval_gets_one_bounded_repair_in_same_loop(self):
+        llm=ScriptedLLM([final_round('仅作确认'),tool_round(('echo',{'text':'原文'})),final_round('解释[1]')])
+        gate=lambda text,result:(bool(result.sources),'本轮没有可核验的教材来源，暂不发布正式回答。')
+        result=LocalAgentLoop(llm).run(request(llm,self.registry(),publish_gate=gate))
+        self.assertTrue(result.completed);self.assertEqual(result.rounds,3)
+        self.assertEqual(result.tool_steps,1)
+        llm=ScriptedLLM([final_round('仍未读取'),final_round('仍然未读取')])
+        result=LocalAgentLoop(llm).run(request(llm,self.registry(),publish_gate=gate))
+        self.assertEqual(result.error,'quality_rejected');self.assertEqual(result.rounds,2)
+
+    def test_missing_object_citation_gets_one_text_only_repair(self):
+        llm=ScriptedLLM([tool_round(('echo',{'text':'双方原文'})),final_round('只引一方[1]'),final_round('双方[1][2]')])
+        result=LocalAgentLoop(llm).run(request(llm,self.registry(),publish_gate=lambda text,result:
+            ('[2]' in text,'回答尚未引用双方对象的相关原文')))
+        self.assertTrue(result.completed);self.assertEqual(result.rounds,3)
+        self.assertEqual(llm.calls[-1]['tools'],[])
+
+    def test_ask_user_counts_do_not_prevent_missing_retrieval_repair(self):
+        llm=ScriptedLLM([tool_round(('ask_user',{'question':'要哪种解释？'})),
+            final_round('仅作确认'),tool_round(('echo',{'text':'教材原文'})),final_round('解释[1]')])
+        loop=LocalAgentLoop(llm)
+        req=request(llm,self.registry(),publish_gate=lambda text,result:
+            (bool(result.sources),'本轮没有可核验的教材来源，暂不发布正式回答。'))
+        paused=loop.run(req);self.assertTrue(paused.paused)
+        resumed=loop.run(req,resume_state=paused.state(),answer='简短解释')
+        self.assertTrue(resumed.completed);self.assertEqual(resumed.rounds,4)
+
     def registry(self):
         registry = ToolRegistry(); registry.register(EchoTool()); registry.register(AskUserTool())
         return registry

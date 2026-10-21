@@ -7,7 +7,7 @@ const fs=require('node:fs');const assert=require('node:assert/strict');
  try{
   const page=await browser.newPage({viewport:{width:375,height:812}});let generations=0;
   page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/api/chat/stream'))generations++;});
-  await page.addInitScript(()=>localStorage.setItem('experimental-psychology-3-demo-student','response-ux-real-media-inline'));
+  await page.addInitScript(id=>localStorage.setItem('experimental-psychology-3-demo-student',id),process.env.UX_MEDIA_STUDENT||'response-ux-real-media-inline');
   await page.goto(url);await page.waitForFunction(()=>typeof state!=='undefined'&&!state.taskRecoveryNeeded&&state.chat.some(m=>m.imageRefs?.length),null,{timeout:60000});
   await page.locator('[data-mobile-pane="chat"]').click();
   const media=await page.evaluate(()=>state.chat.find(m=>m.imageRefs?.length).imageRefs[0]);
@@ -15,6 +15,7 @@ const fs=require('node:fs');const assert=require('node:assert/strict');
   const img=page.locator('#chat-messages .answer-media img');await img.waitFor();
   await page.waitForFunction(()=>document.querySelector('#chat-messages .answer-media img')?.naturalWidth>0);
   assert.equal(await img.count(),1);assert.equal(await img.getAttribute('src'),media.image_url);checks.push('真实历史恢复同一张原图，正文内嵌且pending');
+  assert.equal(await page.locator('#chat-messages img[src^="/api/figures/"]').count(),1,'回答引用的原图不得再在用户消息下重复附图');
   assert.equal(await page.locator('#chat-messages .grounded-evidence,#chat-messages .message-source').count(),0);
   await page.locator('#chat-messages [data-tutor-citation]').first().click();await page.locator('.citation-popover:popover-open').waitFor();
   assert.ok((await page.locator('.citation-popover blockquote').textContent()).length);await page.keyboard.press('Escape');checks.push('正文上标打开实际原文，无底部引用清单');

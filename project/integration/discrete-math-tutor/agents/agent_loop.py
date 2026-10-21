@@ -88,6 +88,7 @@ class LoopResult:
             return None
         target = self._target
         return {"target_id": target.target_id, "name": target.name,
+                "source_scope": target.source_scope,
                 "chapter_id": target.chapter_id, "section_id": target.section_id,
                 "version": target.version, "reason": target.reason}
 
@@ -267,8 +268,17 @@ class LocalAgentLoop:
                 checking()
                 ok, reason = request.publish_gate(final_text, result)
                 if not ok:
+                    retrieved = any(call.get('function', {}).get('name') == 'retrieve_course'
+                                    for row in messages if row.get('role') == 'assistant'
+                                    for call in row.get('tool_calls', []))
+                    if not repair_used and not retrieved and reason == '本轮没有可核验的教材来源，暂不发布正式回答。':
+                        repair_used = True
+                        messages.extend([{'role':'assistant','content':final_text},
+                            {'role':'user','content':'本轮还未调用 retrieve_course。请先读取当前问题的教材原文，再完成讲解；历史不是本轮引用依据。'}])
+                        collector('progress','补取教材依据',{'detail':reason})
+                        continue
                     if not repair_used and any(token in (reason or "") for token in
-                                               ("过长", "压缩", "字数", "超过", "引用格式", "格式无效")):
+                                               ("过长", "压缩", "字数", "超过", "引用格式", "格式无效", "尚未引用双方")):
                         repair_used = True
                         no_tools_next = True
                         messages.append({"role": "assistant", "content": final_text})
@@ -276,6 +286,10 @@ class LocalAgentLoop:
                             instruction = ("\n请在不新增事实、不改变引用编号和范围的前提下压缩重写，"
                                            "不要调用工具，直接给出修订后的完整回答。")
                             label = "压缩修订"
+                        elif '尚未引用双方' in reason:
+                            instruction = ('\n只使用已有原文重新组织回答，分别解释双方对象并在支持的结论旁标注各自引用；'
+                                           '不能为了补编号硬贴不支持结论的引文，不新增事实或调用工具。')
+                            label = '覆盖引用修订'
                         else:
                             instruction = ("\n请只修正引用格式，使用单独的 [n] 编号；"
                                            "不新增事实、不改变引用对应的来源，不要调用工具，"

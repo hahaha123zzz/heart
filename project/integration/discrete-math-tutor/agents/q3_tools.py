@@ -105,7 +105,7 @@ class RetrieveCourseTool(BaseTool):
             lines.append('有效教材原图（身份已核对，审核状态仍按原记录；未收到像素时只依据文字）：\n'
                          + json.dumps(media, ensure_ascii=False))
         from agents.course_search import association_context
-        relations = association_context(context.navigation, fresh)
+        relations = [] if hasattr(context.navigation, 'tool_context') else association_context(context.navigation, fresh)
         if relations:
             import json
             lines.append('关联候选（图谱描述，仅供查找联系；不得据此推断先修、重点或掌握，'

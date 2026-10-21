@@ -9,6 +9,19 @@ from web_api import citation_state, CitationStateRequest
 class CitationStateTests(unittest.TestCase):
     setUp = GroundingTests.setUp
 
+    def test_history_batches_validation_without_merging_message_numbering(self):
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from web_api import conversation_history
+        repo=Mock();refs=[{'source_index':0,'label':'第一条'},{'source_index':0,'label':'另一消息的第一条'}]
+        repo.get_conversation_with_figures.return_value=[{'id':i,'role':'assistant','content':'[1]',
+            'selection_ref':{'pdf_references':[ref]},'image_ref_ids':[]} for i,ref in enumerate(refs)]
+        with patch.dict('sys.modules',{'main':SimpleNamespace(orchestrator=SimpleNamespace(memory=SimpleNamespace(repo=repo)))}), \
+             patch('web_api._student_id'),patch('knowledge.grounded_citations.references_for_display',side_effect=lambda items:items) as validate:
+            rows=conversation_history('isolated')
+        validate.assert_called_once_with(refs)
+        self.assertEqual([row['pdf_references'] for row in rows],[[refs[0]],[refs[1]]])
+
     def test_history_preserves_bound_media_without_looking_up_new_editions(self):
         from types import SimpleNamespace
         from unittest.mock import Mock

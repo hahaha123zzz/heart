@@ -319,7 +319,8 @@ class TaskService:
                         return save_q5(q5.plan_result(proposal, task))
                     if q5_confirm:
                         q5.confirm(q5_plan, request_key)
-                    if q5.is_understood(effective.message):
+                    from agents.course_search import explicit_chapters
+                    if q5.is_understood(effective.message) and len(explicit_chapters(effective.message)) < 2:
                         q5.advance_understood(request_key)
                     status = q5.status()
                     if (status.get("path_id") and status.get("plan_confirmed")
@@ -445,6 +446,7 @@ class TaskService:
                 )
                 return result
             if (q5 is not None and q5_binding is not None
+                    and not result.get('learning_interjection')
                     and result.get("answer_status") == "answered"):
                 try:
                     q5.record_explained(str(result.get("reply") or ""), request_key)
@@ -487,7 +489,7 @@ class TaskService:
             bound_navigation = None
             if (result.get('answer_status') == 'answered'
                     and result.get('memory_commit', {}).get('status') == 'committed'
-                    and context.course_navigation is None):
+                    and context.course_navigation is None and not result.get('learning_interjection')):
                 from knowledge.course_navigation import bind_result
                 bound_navigation = bind_result(result)
                 if bound_navigation and bound_navigation.get('status') != 'ready':

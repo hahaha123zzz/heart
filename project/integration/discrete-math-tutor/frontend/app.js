@@ -218,7 +218,7 @@ function renderProgress(message) {
   const elapsed = Math.round(((message.finishedAt || Date.now()) - message.startedAt) / 1000);
   const current = stages.at(-1);
   const answerLabel={generating:'正在生成（未核验）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮草稿已撤回'}[message.answerState];
-  const title = message.pending ? (answerLabel || current?.label || "正在连接助教") : message.answerSaved && message.networkFailed ? "文字已保存，图解待恢复" : message.failed ? "处理未完成" : message.answerState==='saved' ? '已保存' : "已完成";
+  const title = message.pending ? (answerLabel || current?.label || "正在连接助教") : message.answerSaved && message.networkFailed ? "文字已保存，图解待恢复" : message.failed ? "处理未完成" : message.answerState==='awaiting_clarification' ? '等待补充或确认' : message.answerState==='saved' ? '已保存' : "已完成";
   return `<div class="turn-progress ${message.failed ? "failed" : ""}"><div class="progress-heading" role="status"><span class="${message.pending ? "progress-spinner" : "progress-check"}">${message.pending ? "" : message.failed ? "!" : "✓"}</span><strong>${esc(title)}</strong><span class="progress-elapsed" data-start="${message.startedAt}" data-finished="${message.finishedAt || ""}">${elapsed} 秒</span></div>${message.pending ? `<div class="progress-detail">${esc(current?.detail || "请求已发出，等待服务响应")}</div>` : ""}<details><summary>处理记录（点击展开）</summary><ol>${stages.map(p => `<li class="${p.status}"><span>${p.status === "completed" ? "✓" : message.failed ? "!" : "·"}</span><div><strong>${esc(p.label)}</strong><small>${esc(p.detail)}</small></div></li>`).join("")}</ol></details></div>`;
 }
 
@@ -501,7 +501,7 @@ function renderChat() {
     content:renderAnswerContent(m),
     references:renderChatReferences(m,index),clarification:renderClarification(m),style:renderStyleSuggestion(m,index),
     memory:m.memorySummary?'<div class="memory-summary">'+esc(m.memorySummary)+'</div>':'',
-    figures:(m.imageRefs||[]).filter(image=>!m.content?.includes('(media:'+image.id+')')).map(image=>
+    figures:(m.role==='assistant'?(m.imageRefs||[]):[]).filter(image=>!m.content?.includes('(media:'+image.id+')')).map(image=>
       image.sha256 && image.version && image.document_id && image.image_url?.includes('?sha256=')
         ? renderFigure(image) : '<small>历史图片缺少版本绑定，保留原回答文字。</small>').join(''),
     retry:m.failed&&m.request?'<button type="button" class="secondary-button retry-message" data-retry-message="'+index+'">'+(m.networkFailed?'重试原请求':'重新提问')+'</button>':'',
@@ -548,7 +548,7 @@ async function sendMessage(message, options={}) {
     if(finished)pending.styleSuggestion=styleControl().observe(result);
     renderStyleStatus();
     Object.assign(pending, {taskId:result.task_id, conversationId:result.conversation_id, pending:!finished, networkFailed:false,
-      answerSettled:true,answerState:result.answer_status==='answered'?'saved':'rejected',
+      answerSettled:true,answerState:result.answer_status==='answered'?'saved':result.answer_status==='awaiting_clarification'?'awaiting_clarification':'rejected',
       failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable'].includes(result.answer_status),
       content:result.reply || "助教暂时没有返回内容。",
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
@@ -674,7 +674,7 @@ async function refreshLearning() {
     ]);
     $("#review-list").innerHTML = review.length ? review.map((item) => `<div class="review-item"><div><strong>${esc(item.point)}</strong><p>${esc(item.reason)}</p></div>${item.question_id ? `<button data-exercise-review="${esc(item.question_id)}" data-review-chapter="${item.chapter_id}">回到这道题</button>` : `<button data-review="${esc(item.point)}">请助教带我复习</button>`}</div>`).join("") : '<div class="resource-note">暂时没有识别到需要复习的难点。继续学习或完成测验后再来看看。</div>';
     $('#home-review-list').innerHTML=$('#review-list').innerHTML;
-    $("#history-list").innerHTML = history.length ? history.slice(-16).reverse().map((m) => `<div class="history-item"><small>${m.role === "user" ? "我" : "助教"}</small><p>${esc(m.content)}</p>${(m.image_refs || []).map(renderFigure).join("")}</div>`).join("") : '<div class="resource-note">还没有对话记录。向助教提一个问题吧。</div>';
+    $("#history-list").innerHTML = history.length ? history.slice(-16).reverse().map((m) => `<div class="history-item"><small>${m.role === "user" ? "我" : "助教"}</small><p>${esc(m.content)}</p>${(m.role==='assistant'?(m.image_refs || []):[]).map(renderFigure).join("")}</div>`).join("") : '<div class="resource-note">还没有对话记录。向助教提一个问题吧。</div>';
   } catch (error) { toast(`学习记录暂不可用：${error.message}`); }
 }
 

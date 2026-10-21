@@ -81,6 +81,8 @@ Q3 `ux3-q3` 三次真实流/工具调用但检索原文为空，门禁拒绝且�
 
 ## UX4 / 公共检索接线增量（2026-10-21）
 
+后续联合交付：见 [LIGHTRAG_JOINT_INTEGRATION_REPORT.md](LIGHTRAG_JOINT_INTEGRATION_REPORT.md)。已在e3b7073上合并完整LightRAG交付祖先链，接入CoverageNavigator/ContextualRetrieveCourseTool与Q3/Q5公共search。当前混合工作树161项通过；精确教材、PDF追问、ask_user恢复、取消/断线刷新、同图像素质检及页面分别有隔离实证。网关专用凭据缺失，原跨章检索、真实partial与成功跨章Q5闭环仍阻塞，不记为LightRAG通过；未切正式索引、服务或ready标记。早期失败与完整指标见上述报告。
+
 本批交付详见 [RESPONSE_UX_LIGHTRAG_HANDOFF.md](RESPONSE_UX_LIGHTRAG_HANDOFF.md)，分别登记代码、真实模型和浏览器证据。以 d3d6a76 为接口候选基线，不切换正式检索。Q3/Q5共用search、关联候选、临时像素消息、正文媒体、版本与历史恢复已接入；图5-2真实像素/质检/页面/刷新和Q3精确教材讲解已验证，其余入口仍保留待验。
 
 重点修复每个流式增量重算全书哈希的问题，同题隔离实测183.106秒→12.488秒；保留模型轮、核验与保存的完整版本门禁。旧313/339字失败草稿在最新门禁及真实事实质检通过；跨章缺第1章仍失败，未冒称覆盖改善。已确认二维码原图误配并过滤，当前178个pending/45个过滤项，未改变审核状态或原教材文件。

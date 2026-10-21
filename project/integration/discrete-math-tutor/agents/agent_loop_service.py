@@ -56,6 +56,7 @@ def _target_from_state(state: dict[str, Any] | None) -> LearningTarget | None:
         chapter_id=row.get("chapter_id"),
         section_id=row.get("section_id"),
         version=str(row.get("version") or ""),
+        source_scope=dict(row.get('source_scope') or {}),
         reason=str(row.get("reason") or "恢复的任务目标"),
     )
 
@@ -149,7 +150,7 @@ def _excerpts(sources: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget):
+def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navigation=None):
     def gate(text: str, result: LoopResult) -> tuple[bool, str]:
         if not text.strip():
             return False, "模型没有返回可发布回答。"
@@ -158,8 +159,17 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget):
         from agents.course_search import explicit_chapters
         required = explicit_chapters(request.message)
         missing = required - {source.get('chapter_id') for source in result.sources}
-        if len(required) > 1 and missing:
+        partial = getattr(navigation, 'coverage_report', {}).get('status') == 'partial'
+        if len(required) > 1 and missing and not partial:
             return False, '跨章问题缺少原文依据：' + '、'.join(f'第{chapter}章' for chapter in sorted(missing))
+        coverage = getattr(navigation, 'coverage_report', {})
+        if coverage.get('status') == 'covered':
+            cited = {int(value) for value in re.findall(r'\[(\d+)\]', text)}
+            supported = {item for position, source in enumerate(result.sources, 1)
+                         if int(source.get('index') or position) in cited
+                         for item in source.get('location', {}).get('retrieval_requirements', [])}
+            if set(coverage.get('covered', [])) - supported:
+                return False, '回答尚未引用双方对象的相关原文；请保留每方实际支持结论的引用，不能只引用其中一方。'
         evidence = [source.get('location', {}).get('evidence') for source in result.sources]
         if any(evidence):
             if not all(evidence):
@@ -402,6 +412,10 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                            "reason": decision.reason},
         }
     target = decision.target or current_target
+    from agents.course_search import explicit_chapters
+    chapters = explicit_chapters(request.message)
+    interjection = bool(len(chapters) > 1 or
+        (q5_binding and chapters and target.chapter_id not in chapters))
     root = Path(__file__).resolve().parents[1]
     skills_root = root / "visualization" / "skills"
     task_key = re.sub(r"[^A-Za-z0-9_.-]+", "_",
@@ -411,16 +425,22 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     allow_workspace = os.getenv("Q3_ENABLE_WORKSPACE_TOOLS", "0").strip() == "1"
     if allow_workspace:
         workspace_root.mkdir(parents=True, exist_ok=True)
+    from knowledge.lightrag.q3_adapter import ContextualRetrieveCourseTool
+    q5_tools = tuple((q5_binding or {}).get('tool_instances') or ())
+    if interjection:
+        q5_tools = tuple(tool for tool in q5_tools if tool.definition.name in ('mastery_status', 'mastery_paths'))
     registry = build_registry(
         workspace_root=workspace_root,
         skills_root=skills_root,
         allow_workspace=allow_workspace,
         allow_skills=skills_root.is_dir(),
-        extra_tools=tuple((q5_binding or {}).get("tool_instances") or ()),
-        extra_scopes=tuple((q5_binding or {}).get("scopes") or ()),
+        extra_tools=(*q5_tools, ContextualRetrieveCourseTool()),
+        extra_scopes=('learning:read',) if interjection else tuple((q5_binding or {}).get("scopes") or ()),
     )
     budget = reply_budget(request.message)
     system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions()) + "\n" + budget.instructions()
+    if interjection:
+        system_prompt += '\n本轮是跨章插问，只回答学生当前问题；保留原学习目标，不记录本目标已讲解、掌握或推进路径。'
 
     def emit(event_type: str, message: str,
              detail: str | dict[str, Any] | None = None) -> None:
@@ -435,9 +455,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         progress("loop-" + event_type, event_type, str(text)[:300])
 
     round_tokens = max(1200, budget.max_tokens)
+    tool_seconds = 120 * max(1, len(navigation.coverage.requirements)) if navigation.coverage else 120
     loop = LocalAgentLoop(llm or orchestrator.llm, max_round_tokens=round_tokens)
     cancellation = register(request.task_id or request.request_id)
     navigation.cancellation = cancellation
+    if navigation.coverage is not None:
+        navigation.coverage.cancellation = cancellation
     if navigation.backend is not None and hasattr(navigation.backend, 'cancellation'):
         navigation.backend.cancellation = cancellation
     result = loop.run(
@@ -451,20 +474,16 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             navigation=navigation, cancellation=cancellation, guard=guard,
             tool_state={"workspace_root": str(workspace_root),
                         "skills_root": str(skills_root), "deferred_loader": None},
-            publish_gate=publish_gate or _publish_gate(orchestrator, request, target),
-            emit=emit, tool_timeout_seconds=120, max_exploration_rounds=4,
+            publish_gate=publish_gate or _publish_gate(orchestrator, request, target, navigation),
+            emit=emit, tool_timeout_seconds=tool_seconds, max_exploration_rounds=4,
         ),
         resume_state=resume_state,
         answer=str((previous or {}).get("_resume_answer") or ""),
     )
+    if not result.paused:
+        # 超时后可能仍有只读检索线程；回合结束即停止其后续补查，不取消等待学生的任务。
+        cancellation.cancel()
     conversation_id = None
-    if q5_binding and result.completed:
-        try:
-            status_line = q5.status_line()
-            if status_line:
-                result.final_text = status_line + "\n\n" + result.final_text
-        except (ValueError, RuntimeError):
-            pass
     mapped = _map_result(result, target)
     if result.completed:
         media = {}
@@ -474,13 +493,28 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         mapped['image_refs'] = list(media.values())[:2]
     if result.completed and getattr(result, '_publication', None):
         mapped.update(result._publication)
+    if result.completed:
         # Q5 状态提示不参与来源编号，也不覆盖已核验正文。
         if q5_binding:
-            status_line = q5.status_line()
+            try:
+                status_line = q5.status_line()
+            except (ValueError, RuntimeError):
+                status_line = ''
             if status_line:
+                first, _, rest = mapped['reply'].partition('\n')
+                if re.sub(r'[*_`\s]', '', first) == re.sub(r'[*_`\s]', '', status_line):
+                    mapped['reply'] = rest.lstrip()
                 mapped['reply'] = status_line + '\n\n' + mapped['reply']
         result.final_text = mapped['reply']
     mapped['retrieval_calls'] = navigation.calls
+    mapped['retrieval_coverage'] = navigation.coverage_report
+    mapped['retrieval_trace'] = navigation.trace
+    mapped['backend_calls'] = list(getattr(navigation.backend, 'calls', []) or []) if navigation.backend else []
+    mapped['learning_interjection'] = interjection
+    if result.completed and navigation.coverage_report.get('status') == 'partial':
+        gaps = '、'.join(row['query'] for row in navigation.coverage_report['missing'])
+        mapped['reply'] = f'本次仅回答已有原文支持的部分；尚缺“{gaps}”的可靠教材证据，无法完整说明双方联系。\n\n' + mapped['reply']
+        result.final_text = mapped['reply']
     if result.completed:
         memory = getattr(orchestrator, "memory", None)
         if memory is not None:
@@ -528,7 +562,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         release(request.task_id or request.request_id)
     navigation_row = getattr(context, "course_navigation", None)
     if isinstance(navigation_row, dict) and navigation_row.get("status") == "ready":
-        explained = (mapped.get("answer_status") == "answered"
+        explained = (not mapped.get('learning_interjection') and mapped.get("answer_status") == "answered"
                      and mapped.get("memory_commit", {}).get("status") == "committed")
         mapped["course_navigation"] = dict(navigation_row, explained=explained)
     return mapped
