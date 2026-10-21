@@ -145,7 +145,17 @@ window.ExercisePractice=(()=>{
  async function help(pid,action){
   const qid=P.data.question.id,seq=P.seq,version=P.data.version,answers=snapshot(),target=$('#help-'+pid);if(P.help[pid]?.busy)return;
   const level=action==='hint'?Math.min(3,(P.help[pid]?.level||0)+1):1;P.help[pid]={busy:true,level};target.innerHTML='<p role="status">正在读取教材和你的相关学习记录…</p>';showPartHelp(pid);
-  try{await save();const r=await post('/api/practice/questions/'+qid+'/help',{student_id:studentId,version,answers,part_id:pid,action,level});
+  try{await save();const draft={content:''};let frame=null;
+   const r=await window.TutorChatTransport.streamChat({student_id:studentId,account_type:'test',session_id:tabSessionId,
+    request_id:newRequestId(),message:action==='hint'?'只给这个小题的提示':'讲解这个小题',
+    exercise_target:{question_id:qid,part_id:pid,version},exercise_help:action,exercise_hint_level:level},null,null,(event,data)=>{
+     if(seq!==P.seq||!window.TutorChatTransport.applyDraft(draft,event,data)||frame)return;
+     frame=requestAnimationFrame(()=>{frame=null;if(seq!==P.seq)return;
+      const label={generating:'正在生成（未核验）',checking:'正在核验（未保存）',saved:'已保存',rejected:'草稿已撤回'}[draft.answerState];
+      target.innerHTML='<strong role="status">'+esc(label)+'</strong>'+window.renderTutorAnswer(draft.content,{streaming:draft.answerState==='generating'});showPartHelp(pid);
+     });
+    });
+   draft.answerSettled=true;if(frame)cancelAnimationFrame(frame);
    if(seq!==P.seq)return;P.help[pid].guide=r.guided_visualization||null;P.help[pid].result=r;target.innerHTML='<strong>'+ (action==='hint'?'提示 '+level+'/3':'AI 讲解')+'</strong>'+window.renderTutorAnswer(r.reply)+window.renderPracticeReferences(r,pid)+'<small>'+esc(r.memory_summary)+'</small>';window.TextbookPDF?.renderMath(target);showPartHelp(pid);
   }catch(e){if(seq===P.seq){target.textContent=e.message;showPartHelp(pid);}}finally{if(seq===P.seq)P.help[pid]={...P.help[pid],busy:false,level};}
  }

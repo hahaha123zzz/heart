@@ -43,7 +43,8 @@ function remarkMark() {
 export default function HostMarkdown({components, remarkPlugins, urlTransform, ...props}: any) {
   const {literals} = useContext(MarkdownContext);
   let content = String(props.children || '');
-  for (const [key, literal] of literals) content = content.replaceAll(key, literal);
+  // 回调返回原文，避免替换字符串中的 $$、$& 被 JavaScript 再解释。
+  for (const [key, literal] of literals) content = content.replaceAll(key, () => literal);
   const InlineCode = components.code;
   const Link = components.a;
   return <ReactMarkdown {...props}

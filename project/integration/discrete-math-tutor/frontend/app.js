@@ -217,7 +217,8 @@ function renderProgress(message) {
   const stages = message.progress || [];
   const elapsed = Math.round(((message.finishedAt || Date.now()) - message.startedAt) / 1000);
   const current = stages.at(-1);
-  const title = message.pending ? (current?.label || "正在连接助教") : message.answerSaved && message.networkFailed ? "文字已保存，图解待恢复" : message.failed ? "处理未完成" : "已完成";
+  const answerLabel={generating:'正在生成（未核验）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮草稿已撤回'}[message.answerState];
+  const title = message.pending ? (answerLabel || current?.label || "正在连接助教") : message.answerSaved && message.networkFailed ? "文字已保存，图解待恢复" : message.failed ? "处理未完成" : message.answerState==='saved' ? '已保存' : "已完成";
   return `<div class="turn-progress ${message.failed ? "failed" : ""}"><div class="progress-heading" role="status"><span class="${message.pending ? "progress-spinner" : "progress-check"}">${message.pending ? "" : message.failed ? "!" : "✓"}</span><strong>${esc(title)}</strong><span class="progress-elapsed" data-start="${message.startedAt}" data-finished="${message.finishedAt || ""}">${elapsed} 秒</span></div>${message.pending ? `<div class="progress-detail">${esc(current?.detail || "请求已发出，等待服务响应")}</div>` : ""}<details><summary>处理记录（点击展开）</summary><ol>${stages.map(p => `<li class="${p.status}"><span>${p.status === "completed" ? "✓" : message.failed ? "!" : "·"}</span><div><strong>${esc(p.label)}</strong><small>${esc(p.detail)}</small></div></li>`).join("")}</ol></details></div>`;
 }
 
@@ -544,6 +545,7 @@ async function sendMessage(message, options={}) {
     if(finished)pending.styleSuggestion=styleControl().observe(result);
     renderStyleStatus();
     Object.assign(pending, {taskId:result.task_id, conversationId:result.conversation_id, pending:!finished, networkFailed:false,
+      answerSettled:true,answerState:result.answer_status==='answered'?'saved':'rejected',
       failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable'].includes(result.answer_status),
       content:result.reply || "助教暂时没有返回内容。",
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
@@ -591,7 +593,13 @@ async function sendMessage(message, options={}) {
         if (index >= 0) pending.progress[index] = progress;
         else pending.progress.push(progress);
         renderChat();
-      }, result => showAnswer(result, false));
+      }, result => showAnswer(result, false), (event,data)=>{
+        if(!isCurrent()||!window.TutorChatTransport.applyDraft(pending,event,data))return;
+        // 合并同一动画帧的 SDK 分片，保留稳定消息节点和滚动位置。
+        if(!pending.draftFrame)pending.draftFrame=requestAnimationFrame(()=>{
+          pending.draftFrame=null;if(isCurrent())renderChat();
+        });
+      });
     if (!isCurrent()) return;
     state.clarification=result.answer_status==='awaiting_clarification'?result:null;
     state.clarificationObject=state.clarification?objectKey:null;
@@ -599,7 +607,7 @@ async function sendMessage(message, options={}) {
     if(['task_conflict','task_expired','task_not_found','task_busy','request_conflict','memory_deleted','invalid_option','task_disabled'].includes(result.answer_status)) await restoreClarification();
   } catch (error) {
     if (!isCurrent()) return;
-    Object.assign(pending, {pending:false, failed:!pending.answerSaved, networkFailed:!!pending.request.payload && (!error.status || error.status>=500), finishedAt:Date.now()});
+    Object.assign(pending, {pending:false, answerSettled:true,answerState:pending.answerSaved?'saved':'rejected',failed:!pending.answerSaved, networkFailed:!!pending.request.payload && (!error.status || error.status>=500), finishedAt:Date.now()});
     if (!pending.answerSaved) pending.content = error.message;
     renderChat();
     $("#chat-error").textContent = error.message;

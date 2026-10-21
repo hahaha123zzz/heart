@@ -197,7 +197,14 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
             grounded_bundle=selection_evidence(main.orchestrator.llm,user_question or q['text'],resolved,citation_path)
             payload['context']=format_excerpts(grounded_bundle.sources)
             system+='\n教材结论使用context中的本轮[n]证据编号；题目条件和学生答案不是教材引文。'
-    result=main.orchestrator.llm.chat_json([{'role':'system','content':system},{'role':'user','content':json.dumps(payload,ensure_ascii=False)}],temperature=.1,max_tokens=min(8000,1800+len(parts)*550),retries=0,image_paths=resolved['images'])
+    messages=[{'role':'system','content':system},{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]
+    if action != 'grade':
+        from llm.answer_events import answer_kwargs
+        messages[0]['content'] += '\n本次只输出面向学生的 reply 正文，不输出 JSON 或内部思考。'
+        result={'reply':main.orchestrator.llm.chat(messages,temperature=.1,
+            max_tokens=min(8000,1800+len(parts)*550),image_paths=resolved['images'],**answer_kwargs())}
+    else:
+        result=main.orchestrator.llm.chat_json(messages,temperature=.1,max_tokens=min(8000,1800+len(parts)*550),retries=0,image_paths=resolved['images'])
     if action!='grade':
         reply=result.get('reply')
         if not isinstance(reply,str) or not reply.strip():raise ValueError('模型未返回有效提示')

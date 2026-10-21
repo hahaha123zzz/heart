@@ -90,7 +90,10 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
   await page.locator('#chat-input').fill('追加问题');await page.locator('#chat-form').evaluate(form=>form.requestSubmit());
   await page.waitForFunction(()=>!state.sending && state.chat.length===3);
   assert.equal(await page.evaluate(()=>testInput.isConnected && testCounts.mount===1),true);
-  assert.equal(await page.locator('.message-source').last().textContent(),'[1] 教材：图的定义 ↗');
+  assert.equal(await page.locator('.message-source').count(),0);
+  await page.locator('.message.assistant').last().locator('[data-tutor-citation="1"]').click();
+  assert.equal(await page.locator('.citation-title').textContent(),'图的定义');
+  await page.keyboard.press('Escape');
   const styles=await page.evaluate(()=>({
    assistant:getComputedStyle(document.querySelector('.message.assistant [data-message-part="content"] p')).whiteSpace,
    user:getComputedStyle(document.querySelector('.message.user [data-message-part="content"] p')).marginBottom,
@@ -164,10 +167,7 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
   await page.evaluate(content=>{
    state.chat=[{renderKey:'markdown-a',role:'assistant',content,sources:['第一条证据']},
     {renderKey:'markdown-b',role:'assistant',content:'第二条回答 [1]，无对应来源 [99]。',sources:['第二条证据']}];
-   renderChat();window.markdownClicks=[];
-   document.querySelectorAll('.message-source').forEach(button=>button.addEventListener('click',event=>{
-    event.stopPropagation();markdownClicks.push(button.dataset.sourceCitation);
-   }));
+   renderChat();
   },rich);
   const markdown=page.locator('[data-message-key="markdown-a"] .tutor-markdown');
   assert.equal(await markdown.locator('h2').textContent(),'随机分配');
@@ -182,7 +182,7 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
   assert.match(await markdown.locator('pre').first().textContent(),/\*\*保持代码\*\*.*\[2\].*\$x\$/);
   assert.equal(await markdown.locator('pre strong, pre .katex, pre .citation-group').count(),0);
   assert.equal(await markdown.locator('.katex').count(),3);
-  assert.equal(await markdown.locator('.katex-display').count(),1);
+  assert.equal(await markdown.locator('.katex-display').count(),1,await markdown.innerHTML());
   assert.equal(await markdown.locator('.citation-group').count(),1);
   assert.equal(await markdown.locator('img, script, iframe, svg').count(),0);
   assert.equal(await page.evaluate(()=>window.__markdownXSS),undefined);
@@ -192,11 +192,12 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
   assert.equal(await markdown.getByText('安全链接',{exact:true}).getAttribute('target'),'_blank');
   assert.deepEqual(mediaRequests,[]);
   assert.equal(await page.evaluate(()=>state.chat[0].content),rich);
-  await page.locator('[data-message-key="markdown-b"] .citation-group a').first().click();
-  await page.locator('[data-message-key="markdown-b"] .citation-group a').last().click();
-  assert.deepEqual(await page.evaluate(()=>markdownClicks),['1']);
-  await markdown.locator('.citation-group a').click();
-  assert.deepEqual(await page.evaluate(()=>markdownClicks),['1','0']);
+  await page.locator('[data-message-key="markdown-b"] .citation-group button').first().click();
+  assert.equal(await page.locator('.citation-title').textContent(),'第二条证据');
+  await page.locator('[data-message-key="markdown-b"] .citation-group button').last().click();
+  assert.equal(await page.locator('.citation-popover [data-source-citation]').count(),0);
+  await markdown.locator('.citation-group button').click();
+  assert.equal(await page.locator('.citation-title').textContent(),'第一条证据');
   console.log('PASS：真实上游 Markdown、GFM、中文强调、代码、公式、安全边界及同消息引用');
 
   await page.evaluate(()=>{
@@ -222,9 +223,11 @@ const ROOT=process.env.TASK_TEST_ROOT || 'E:/项目/heart/project/integration/di
     const math=host.querySelector('.tutor-markdown');const before=math.innerHTML;const formula=math.querySelector('.katex');
     window.TextbookPDF.renderMath(host);
     window.TextbookPDF.renderMath(math.querySelector('p'));
-    let practiceClicks=0;
-    host.querySelector('.message-source').addEventListener('click',event=>{event.stopPropagation();practiceClicks++;});
-    host.querySelector('.citation-group a').click();
+    const original=window.ExercisePractice;
+    window.ExercisePractice={citationMessage:()=>({content,sources:['练习证据'],pdfReferences:[]})};
+    host.querySelector('.citation-group button').click();
+    const practiceClicks=document.querySelector('.citation-title')?.textContent==='练习证据'?1:0;
+    window.ExercisePractice=original;
     const unsafe=document.createElement('div');
     unsafe.innerHTML=window.renderTutorAnswer(String.raw`$\href{javascript:alert(1)}{危险}$ $\includegraphics{https://example.com/tex.png}$`);
     return {preserved:math.innerHTML===before && formula.isConnected,

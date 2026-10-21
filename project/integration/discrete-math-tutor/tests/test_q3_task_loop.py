@@ -77,6 +77,70 @@ class PausedExecutor:
 
 
 class TaskLoopPersistenceTests(unittest.TestCase):
+    def test_practice_button_preserves_hint_level_and_saves_help_once(self):
+        from agents.exercise_task_tutor import explain_exercise
+        from models.task_context import TaskContext, TaskObject
+        from sqlalchemy import select
+        from database.models import ExerciseHelpRow
+        from database.database import session_scope
+        version='a'*64;target={'question_id':'fixture-question','part_id':'p1','version':version}
+        request=ChatRequest(student_id='s',message='只给提示',exercise_target=target,exercise_help='hint',exercise_hint_level=3)
+        context=TaskContext(student_id='s',message=request.message,knowledge_point='实验条件',objects=[
+            TaskObject(id=f'exercise:fixture-question:p1:{version}',kind='exercise_part',title='夹具小题',chapter_id=1,section_id=1)])
+        catalog={'version':version,'by_id':{'fixture-question':{'id':'fixture-question','knowledge_point':'实验条件','parts':[{'id':'p1'}]}}}
+        self.tutor.memory=self.memory
+        with patch('practice_api.catalog',return_value=catalog),patch('practice_api.ai_parts',return_value={'reply':'只提示关键条件'}) as model:
+            result=explain_exercise(self.tutor,request,context,lambda *_:None,lambda:None)
+        self.assertEqual(result['answer_status'],'answered');self.assertFalse(result['step_advanced'])
+        self.assertEqual(model.call_args.args[4:6],('hint',3))
+        self.assertTrue(model.call_args.kwargs['task_execution'].hint_only)
+        with session_scope() as session:
+            rows=session.scalars(select(ExerciseHelpRow).where(ExerciseHelpRow.student_id=='s')).all()
+            self.assertEqual(len(rows),1);self.assertEqual(rows[0].level,3)
+        self.tutor.conversation_router.route.assert_not_called()
+
+    def test_cancel_after_first_delta_closes_sdk_and_never_saves_draft(self):
+        from llm.client import LLMClient, LLMError
+        from llm.answer_events import answer_kwargs
+        from tests.test_answer_stream import chunk, Stream
+        client=LLMClient(api_key='test',mock=False);sdk=Mock();sdk.with_options.return_value=sdk;client._client=sdk
+        stream=Stream([chunk('草稿'),chunk('晚到正文','stop')]);sdk.chat.completions.create.return_value=stream
+        events=[]
+        def emit(event,data):
+            events.append((event,data))
+            if event=='answer_delta':self.repository.cancel('s','legacy',data['task_id'],data['task_revision'])
+        def execute(request,context,resolved,intercept,guard,progress):
+            reply=client.chat([{'role':'user','content':request.message}],**answer_kwargs())
+            self.fail('取消后的模型结果不得返回执行器')
+        with self.assertRaises(LLMError):self.service.run(
+            ChatRequest(student_id='s',request_id='cancel-stream',message='解释条件'),execute,answer_event=emit)
+        self.assertTrue(stream.closed)
+        self.assertEqual([d['text'] for e,d in events if e=='answer_delta'],['草稿'])
+        self.assertEqual(self.memory.repo.get_conversation('s'),[])
+        self.assertFalse(any(d.get('state')=='saved' for e,d in events))
+
+    def test_sdk_drafts_are_ephemeral_and_receipt_is_authoritative(self):
+        from llm.client import LLMClient
+        from llm.answer_events import answer_kwargs
+        from tests.test_answer_stream import chunk, Stream
+        events=[];client=LLMClient(api_key='test',mock=False)
+        sdk=Mock();sdk.with_options.return_value=sdk;client._client=sdk
+        stream=Stream([chunk('草稿'),chunk('结束[1]','stop')]);sdk.chat.completions.create.return_value=stream
+        def execute(request,context,resolved,intercept,guard,progress):
+            text=client.chat([{'role':'user','content':request.message}],**answer_kwargs())
+            self.assertNotIn('草稿',str(self.memory.repo.get_conversation('s')))
+            conversation=self.memory.append_exchange('s',request.message,text,
+                expected_point=context.knowledge_point,task_guard=guard)
+            return {'reply':text,'answer_status':'answered','memory_commit':{'status':'committed'},'conversation_id':conversation,'step_advanced':False}
+        request=ChatRequest(student_id='s',session_id='legacy',request_id='stream-test',message='解释实验条件')
+        result=self.service.run(request,execute,answer_event=lambda event,data:events.append((event,data)))
+        self.assertTrue(stream.closed);self.assertEqual(events[-1][1]['state'],'saved')
+        self.assertEqual(events[-2][1]['text'],result['reply'])
+        self.assertTrue(any(e=='answer_delta' for e,_ in events))
+        self.assertEqual(self.memory.repo.get_conversation('s')[-1]['content'],result['reply'])
+        before=len(events);self.assertEqual(self.service.run(request,execute,answer_event=lambda e,d:events.append((e,d)))['reply'],result['reply'])
+        self.assertEqual(len(events),before);sdk.chat.completions.create.assert_called_once()
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.engine = create_engine(

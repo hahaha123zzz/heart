@@ -198,7 +198,26 @@ class TaskService:
             style_overrides=request.model_dump()["style_overrides"])
         return ChatRequest.model_validate(payload)
 
-    def run(self, request, executor, progress=None, *, visualization_jobs=None, answer_ready=None):
+    def run(self, request, executor, progress=None, *, visualization_jobs=None, answer_ready=None, answer_event=None):
+        from llm.answer_events import AnswerEvents, current_answer
+        answer = AnswerEvents(answer_event) if answer_event else None
+        token = current_answer.set(answer)
+        try:
+            result = self._run(request, executor, progress, visualization_jobs=visualization_jobs, answer_ready=answer_ready)
+            if answer and answer.identity:
+                # 已保存任务的 guard 只允许执行态；用既有收据复核最终版本及 epoch。
+                try:
+                    replay = self.repo.replay(request.student_id, request.session_id, request.request_id,
+                                              request.model_dump(), self.tutor.memory.repo)
+                    if replay and replay.get('task_id') == result.get('task_id') and replay.get('task_revision') == result.get('task_revision'):
+                        answer.finish(result)
+                except TaskConflict:
+                    pass
+            return result
+        finally:
+            current_answer.reset(token)
+
+    def _run(self, request, executor, progress=None, *, visualization_jobs=None, answer_ready=None):
         try:
             # 模型未开始前确保账户；后续执行器在task_guard存在时不重建账户。
             if request.account_type == "test": self.tutor.memory.accounts.create_test_account(request.student_id, ttl_hours=24)
@@ -396,6 +415,10 @@ class TaskService:
                     context=context.model_dump() | {"document_versions": document_versions}, routing=routing.model_dump(), payload=effective.model_dump())
                 return None
             guard()
+            from llm.answer_events import current_answer
+            answer = current_answer.get()
+            if answer:
+                answer.bind(lambda: {'task_id': task['id'], 'task_revision': task['revision']}, guard)
             if q5_binding is not None:
                 result = executor(effective, context, resolved, intercept, guard,
                                   progress, previous=previous,

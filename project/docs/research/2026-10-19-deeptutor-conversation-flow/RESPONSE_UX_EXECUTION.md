@@ -42,3 +42,39 @@
 验证：`python -m unittest tests.test_reply_budget tests.test_q3_entrypoint tests.test_q3_task_loop -q` 20 项通过；新增 Q5 完整投影后单独 `tests.test_reply_budget` 13 项通过。`node tests/browser/answer-emphasis.node.cjs`、`node --check frontend/app.js`、`npm run build:chat` 均通过。`tests/browser/response-format.cjs` 可见 Edge 中 8 个标准样本和 UX0 真实 concept 回复共 9 类通过逐字符增量、完成/历史一致、公式、表格、代码、中文强调、HTML/URL 和 375px 检查；截图已查看。
 
 证据：`.runtime/response-experience/20261020/ux2/format.json`、`format-mobile.png`，同级 ux2 日志。首轮 runner 相对路径错误、缺少正式 KaTeX 样式的夹具溢出、中文强调实际失败记录保留。最终复验加载正式 reader.css。未用这些排版夹具代替 SDK 真流式或四入口真实模型验收；UX3—UX5 仍待实施。
+
+## UX3：实际正文流与发布状态（2026-10-21，主体提交，联合验收未完成）
+
+基于 `78fb20f`，保留全部原有教材和其他窗口改动。SDK stream→请求内 AnswerEvents→TaskService→现有 SSE→transport→稳定消息节点贯通；普通 ResponseGenerator、PDFSelectionTutor、Q3 探索/收尾及练习帮助接同一入口。直接练习按钮复用 `/api/chat/stream`，旧帮助接口兼容；评分仍走原确定性/JSON 路径。没有新增 token 持久表或额外答案生成。
+
+迁入固定 DeepTutor `6cf793bd868ba5ecbe64722936d4be8fab5a01df` 的 `tool_call_stream.py`、`think_stream.py` 并保留 Apache-2.0 LICENSE；事件发布与宿主接线为本项目适配。工具参数、reasoning_content 和 think 标签不作为正文。stream_options 不兼容仅在首个流创建失败且明确 400/422 时回退一次；流开始后不自动重播。length/缺失结束标志/未执行的收尾工具调用不得发布成功。取消 guard 在迭代和提交前检查并关闭 SDK 流，断线仍使用原请求收据恢复；正式历史不存草稿。
+
+事件协议仍为计划第4节；最终完整 answer/done 覆盖草稿。新增可选 ChatRequest.exercise_help、exercise_hint_level，旧调用无需传参。正文核验拒绝先清空草稿，最终显示拒绝原因。此事件上下文只在请求内存在，未绑定调用者仍取原完整返回值。
+
+本次复查另发现真正的排版问题：保护文本恢复时 replaceAll 的字符串替换将 `$$` 解释为转义。改为回调原样恢复，补独立公式断言并重新构建（557.14 kB/gzip172.18 kB）；没有修改 vendor 或新增依赖。初期误读 runner 额外空行导致的堆栈偏移，已通过直接执行原文件定位；不是工作区版本不一致。
+
+### 已留存的模型和页面证据
+
+所有运行均为隔离 8012/独立 host.db 与 course.db，正式 8000 未切换；测试服务完成后关闭。路径位于应用 `.runtime/response-experience/20261020/`，目录日期沿用原基线，各阶段独立。
+
+| 同组案例（ux3-five） | 请求完成秒 | 首次正文秒 | SDK调用/total_tokens | 结果 | 页面领先模型流关闭毫秒 |
+|---|---:|---:|---:|---|---:|
+| concept | 68.845 | 60.510 | 5/16237 | saved/刷新一致 | -50.310（本次未达提前显示门槛） |
+| comparison | 42.204 | 29.013 | 5/19935 | saved/刷新一致 | 2714.784 |
+| formula | 4.352 | 无 | 1/2554 | 来源拒绝 | 不适用 |
+| table | 42.844 | 34.288 | 5/16486 | saved/刷新一致 | 1681.134 |
+| planning | 10.713 | 无 | 3/11770 | 来源拒绝 | 不适用 |
+
+不能宣称整体加速：concept 的 citation-selection 阶段约45.9秒；comparison/table 相比 UX0 总时间退化。SDK create 计数不代表内部所有 HTTP 重试可观测；stream 设置 max_retries=0。未提供计价，未猜费用。
+
+`ux3-retry` concept 请求64.595秒，首次正文43.947秒，领先关闭335.395毫秒；旧页面计数71.176秒包含刷新，不当作请求时间。用户要求“重试”后 `ux3-user-retry-2` 请求41.707秒，首次正文36.090秒，模型实际流输入/输出和历史一致均留存。此前代理不通、错误案例参数、连接失败都保留，不改写为成功。
+
+Q3 `ux3-q3` 三次真实流/工具调用但检索原文为空，门禁拒绝且未保存；`ux3-q3-chapter` 同样拒绝。不能把旧 Orchestrator 页面通过算成 Q3 来源接通。后续统一 Q3/Q5 search 边界处理，保留事实门禁。浏览器截图另暴露旧自动配图返回不相关二维码，记为 UX4 待修复。
+
+### 定向验证和未通过项
+
+`node --test tests/chat-transport.cjs` 9通过；76项后端组合已通过，新增收尾工具调用负例后重新运行结果见 `ux3-backend-final.log`。命令：`.venv/Scripts/python.exe -m unittest tests.test_answer_stream tests.test_reply_budget tests.test_q3_agent_loop tests.test_q3_task_loop tests.test_q3_entrypoint tests.test_quality_guard tests.test_task_api -q`。
+
+真实 Edge 执行 `tests/browser/chat-lifecycle.cjs` 全部检查通过，日志 `ux3-lifecycle-final-v2.log`，覆盖进度/焦点/公式节点保留、拒绝、断线不重生成、删除失效、引用及练习兼容、390px。`tests/browser/response-format.cjs` 增量/重放/独立公式检查通过，报告 `ux3-format/format.json`。构建通过。SDK迭代器、取消后不保存、工具参数分片/配对、收据重放及练习提示级别由离线夹具验证。
+
+仍待：PDF选区/实际练习/Q5路径/ask_user恢复/取消的真实模型页面联验、延迟关闭替身的浏览器端断言、工具线程实际退出时间、UX4像素/展示/历史链及 LightRAG 统一接线。当前心理学题库为空，未用旧数学题库测试伪造练习真实验收；test_interactive_practice 只同步其 mock 调用契约，未宣称整模块通过。UX3—UX5不标整阶段完成。

@@ -204,7 +204,8 @@ class ResponseGenerator:
         else:
             messages += history
         messages.append({"role": "user", "content": content})
-        answer=self.llm.chat(messages, temperature=0.4,
+        from llm.answer_events import answer_kwargs
+        answer=self.llm.chat(messages, temperature=0.4, **answer_kwargs(),
                              max_tokens=budget.max_tokens,
                              agentic_evidence=textbook_excerpts or None,
                              agentic_max_characters=budget.maximum,

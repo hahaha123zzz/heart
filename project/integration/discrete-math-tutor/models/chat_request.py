@@ -1,4 +1,5 @@
 """API请求模型独立于应用启动，便于无副作用测试。"""
+from typing import Literal
 from pydantic import BaseModel, Field, model_validator
 from knowledge.pdf_reader import PDFSelection
 from models.task_context import ReaderLocation, ExerciseTarget
@@ -16,6 +17,8 @@ class ChatRequest(BaseModel):
     selection: PDFSelection | None = None
     reader_location: ReaderLocation | None = None
     exercise_target: ExerciseTarget | None = None
+    exercise_help: Literal['hint', 'explain'] | None = None
+    exercise_hint_level: int = Field(default=1, ge=1, le=3)
     visualization_target: VisualizationTarget | None = None
     truth_table_target: TruthTableTarget | None = None
     relation_target: RelationTarget | None = None
@@ -29,6 +32,8 @@ class ChatRequest(BaseModel):
 
     @model_validator(mode="after")
     def one_explicit_object(self):
+        if self.exercise_help is not None and self.exercise_target is None:
+            raise ValueError('练习帮助必须指定小题')
         if sum(x is not None for x in (self.selection, self.exercise_target, self.visualization_target, self.truth_table_target, self.relation_target)) > 1:
             raise ValueError("教材选区、练习小题、互动图和真值表请分别提问")
         if (self.task_id is None) != (self.task_revision is None):

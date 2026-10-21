@@ -19,7 +19,7 @@ function harness(responses) {
   };
   const sandbox = {window:{}, fetch, TextDecoder, URLSearchParams};
   vm.runInNewContext(source, sandbox);
-  return {chat:sandbox.window.TutorChatTransport.streamChat, calls};
+  return {chat:sandbox.window.TutorChatTransport.streamChat, applyDraft:sandbox.window.TutorChatTransport.applyDraft, calls};
 }
 
 test('兼容带 id 的 SSE、CRLF、跨字节分片以及提前保存的回答', async () => {
@@ -85,4 +85,25 @@ test('请求尚未入库时保留原错误，不自动再次提交', async () =>
   const {chat, calls} = harness([new TypeError('offline'), json({detail:'请求不存在'}, 404)]);
   await assert.rejects(chat(payload), /offline/);
   assert.equal(calls.length, 2);
+});
+
+test('真正正文事件、尾部无空行、重复事件与撤回', async()=>{
+ const id={task_id:'t',task_revision:2,answer_id:'a',round_id:1};
+ const body=frame('answer_state',{...id,seq:1,state:'generating'})+frame('answer_delta',{...id,seq:2,text:'中文'})+
+   'event: done\ndata: {"reply":\n'+'data: "最终"}';
+ const {chat,applyDraft}=harness([new Response(body)]);const message={content:''};
+ const result=await chat(payload,null,null,(event,data)=>applyDraft(message,event,data));
+ assert.equal(message.content,'中文');assert.equal(result.reply,'最终');
+ assert.equal(applyDraft(message,'answer_delta',{...id,seq:2,text:'重复'}),false);
+ assert.equal(applyDraft(message,'answer_delta',{...id,seq:3,task_revision:1,text:'旧版本'}),false);
+ assert.equal(applyDraft(message,'answer_delta',{...id,seq:3,answer_id:'other',text:'其他答案'}),false);
+ assert.ok(applyDraft(message,'answer_replace',{...id,seq:4,text:''}));assert.equal(message.content,'');
+ assert.ok(applyDraft(message,'answer_state',{...id,seq:5,state:'rejected'}));
+ assert.equal(applyDraft(message,'answer_delta',{...id,seq:6,text:'已撤回'}),false);
+ assert.ok(applyDraft(message,'answer_state',{...id,seq:7,round_id:2,state:'generating'}));
+ assert.equal(applyDraft(message,'answer_delta',{...id,seq:8,text:'旧轮'}),false);
+ assert.ok(applyDraft(message,'answer_delta',{...id,seq:9,round_id:2,text:'修订'}));
+ message.answerSettled=true;
+ assert.equal(applyDraft(message,'answer_replace',{...id,seq:10,round_id:2,text:'晚到'}),false);
+ assert.equal(message.content,'修订');
 });

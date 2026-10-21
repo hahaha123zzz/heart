@@ -94,6 +94,8 @@ class QualityChecker:
         figure_images: Optional[List[Path]] = None,
         task_execution=None,
     ) -> QualityResult:
+        from llm.answer_events import checking
+        checking()
         rule_context = dict(context or {})
         rule_context["question_options"] = bool(question_spec is not None and question_spec.options)
         rule_context["task_proof"] = bool(not PSYCHOLOGY and task_execution is not None and task_execution.proof_requested)

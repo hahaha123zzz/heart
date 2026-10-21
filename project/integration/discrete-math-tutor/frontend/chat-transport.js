@@ -10,7 +10,7 @@ window.TutorChatTransport = (() => {
     throw error;
   }
 
-  async function readEvents(response, onProgress, onAnswer) {
+  async function readEvents(response, onProgress, onAnswer, onDraft) {
     await check(response);
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
@@ -23,6 +23,7 @@ window.TutorChatTransport = (() => {
       const payload = JSON.parse(raw);
       if (event === "progress") onProgress?.(payload);
       if (event === "answer") onAnswer?.(payload);
+      if (['answer_delta','answer_replace','answer_state'].includes(event)) onDraft?.(event,payload);
       if (event === "done") result = payload;
       if (event === "error") throw new Error(payload.message || "本次回答失败");
     }
@@ -35,7 +36,10 @@ window.TutorChatTransport = (() => {
           parseFrame(buffer.slice(0, boundary));
           buffer = buffer.slice(boundary + 2);
         }
-        if (done) break;
+        if (done) {
+          if(buffer.trim())parseFrame(buffer);
+          break;
+        }
       }
       if (!result) throw new Error("连接已中断。已开始的回答会继续保存，稍后可恢复对话记录。");
       return result;
@@ -45,10 +49,10 @@ window.TutorChatTransport = (() => {
     }
   }
 
-  async function streamChat(data, onProgress, onAnswer) {
+  async function streamChat(data, onProgress, onAnswer, onDraft) {
     try {
       const response = await fetch("/api/chat/stream", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(data)});
-      return await readEvents(response, onProgress, onAnswer);
+      return await readEvents(response, onProgress, onAnswer, onDraft);
     } catch (original) {
       if (!data.request_id || (original.status && original.status < 500)) throw original;
       const params = new URLSearchParams({student_id: data.student_id, session_id: data.session_id || "legacy"});
@@ -69,5 +73,22 @@ window.TutorChatTransport = (() => {
     }
   }
 
-  return {streamChat};
+  function applyDraft(message, event, data) {
+    if(message.answerSettled || !data || !['answer_delta','answer_replace','answer_state'].includes(event))return false;
+    if(typeof data.answer_id!=='string'||!data.answer_id||typeof data.task_id!=='string'||!data.task_id||
+       !Number.isInteger(data.task_revision)||!Number.isInteger(data.round_id)||!Number.isInteger(data.seq))return false;
+    const identity=message.answerIdentity;
+    if(identity && (identity.answer_id!==data.answer_id || identity.task_id!==data.task_id || identity.task_revision!==data.task_revision))return false;
+    if(data.seq<=(message.answerSeq||0)||data.round_id<(message.answerRound||0))return false;
+    if(event==='answer_delta'&&(message.answerState!=='generating'||message.answerRound!==data.round_id||typeof data.text!=='string'))return false;
+    if(event==='answer_replace'&&typeof data.text!=='string')return false;
+    if(event==='answer_state'&&!['generating','checking','saved','rejected'].includes(data.state))return false;
+    message.answerIdentity??={answer_id:data.answer_id,task_id:data.task_id,task_revision:data.task_revision};
+    message.answerSeq=data.seq;message.answerRound=data.round_id;
+    if(event==='answer_delta')message.content+=data.text;
+    if(event==='answer_replace')message.content=data.text;
+    if(event==='answer_state')message.answerState=data.state;
+    return true;
+  }
+  return {streamChat,applyDraft};
 })();

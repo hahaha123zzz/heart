@@ -9,7 +9,9 @@ import re
 import base64
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
+from llm.tool_call_stream import ToolCallAccumulator
+from llm.think_stream import InlineThinkFilter
 
 try:
     from dotenv import load_dotenv
@@ -35,6 +37,7 @@ class ChatToolCall:
     name: str
     arguments: Dict[str, Any]
     raw_arguments: str = ""
+    extra_content: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -114,6 +117,70 @@ class LLMClient:
         choice = response.choices[0]
         return choice.message.content or "", choice.finish_reason
 
+    def _stream_call(self, args: dict[str, Any], on_delta: Callable[[str], None],
+                     *, timeout: float | None = None, guard: Callable[[], None] | None = None) -> ChatToolResult:
+        """一次 SDK 真流；只转发正文，流开始后不重试或重播。"""
+        client = self._client_lazy().with_options(max_retries=0, **({"timeout": timeout} if timeout is not None else {}))
+        request = dict(args, stream=True, stream_options={"include_usage": True})
+        if "api.deepseek.com" in self.base_url:
+            request.setdefault("extra_body", {"thinking": {"type": "disabled"}})
+        if guard:
+            guard()
+        try:
+            stream = client.chat.completions.create(**request)
+        except Exception as exc:
+            # 仅兼容明确拒绝 usage 参数的 provider，且此时尚未建立流。
+            if getattr(exc, "status_code", None) not in (400, 422) or "stream_options" not in str(exc):
+                raise
+            request.pop("stream_options")
+            if guard:
+                guard()
+            stream = client.chat.completions.create(**request)
+        accumulator = ToolCallAccumulator()
+        thinking = InlineThinkFilter()
+        result = ChatToolResult()
+        def emit(segments):
+            for kind, text in segments:
+                if kind == "content" and text:
+                    if guard:
+                        guard()
+                    result.text += text
+                    on_delta(text)
+        try:
+            for chunk in stream:
+                if guard:
+                    guard()
+                raw_usage = getattr(chunk, "usage", None)
+                if raw_usage:
+                    for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+                        value = getattr(raw_usage, key, None)
+                        if isinstance(value, int):
+                            result.usage[key] = value
+                for choice in getattr(chunk, "choices", []) or []:
+                    if getattr(choice, "index", 0) != 0:
+                        continue
+                    delta = choice.delta
+                    for call in getattr(delta, "tool_calls", None) or []:
+                        accumulator.feed(call)
+                    emit(thinking.feed(getattr(delta, "content", None) or ""))
+                    if choice.finish_reason:
+                        result.finish_reason = choice.finish_reason
+            emit(thinking.flush())
+            if result.finish_reason not in ("stop", "tool_calls"):
+                raise LLMError("模型输出达到长度上限，未完成回答" if result.finish_reason == "length" else "模型流未完整结束")
+            for raw in accumulator.collected():
+                try:
+                    arguments = extract_json(raw["arguments"])
+                except (ValueError, TypeError):
+                    arguments = {}
+                result.tool_calls.append(ChatToolCall(raw["id"], raw["name"], arguments,
+                                                      raw["arguments"], raw.get("extra_content") or {}))
+            if result.finish_reason == "tool_calls" and not result.tool_calls:
+                raise LLMError("模型工具流缺少完整工具名称")
+            return result
+        finally:
+            stream.close()
+
     @staticmethod
     def _with_images(messages: List[Dict[str, Any]], image_paths: List[Path]) -> List[Dict[str, Any]]:
         """仅将已核对的教材 PNG 附加到最后一条用户消息。"""
@@ -157,6 +224,8 @@ class LLMClient:
         reasoning_effort: str | None = None,
         agentic_evidence: str | None = None,
         agentic_max_characters: int | None = None,
+        on_delta: Callable[[str], None] | None = None,
+        stream_guard: Callable[[], None] | None = None,
     ) -> str:
         if self.mock:
             return str(mock_reply(messages, json_mode=False))
@@ -164,6 +233,14 @@ class LLMClient:
             reasoning = {"reasoning_effort": reasoning_effort} if reasoning_effort else {}
             visual = bool(image_paths)
             request_messages = self._with_images(messages, image_paths) if visual else messages
+            if on_delta is not None:
+                result = self._stream_call({"messages": request_messages,
+                    "model": self.vision_model if visual else self.model,
+                    "temperature": temperature, "max_tokens": max_tokens, **reasoning},
+                    on_delta, timeout=timeout, guard=stream_guard)
+                if not result.text.strip() or result.tool_calls:
+                    raise LLMError("模型未返回完整正文")
+                return result.text.strip()
             if agentic_evidence is not None and os.getenv("DEEPTUTOR_AGENTIC_ENABLED", "0") == "1":
                 if os.getenv("DEEPTUTOR_LLM_ENABLED", "0") != "1":
                     raise LLMError("教学执行链需要先启用 DeepTutor 模型网关")
@@ -205,6 +282,8 @@ class LLMClient:
         timeout: float | None = None,
         tool_choice: str | None = None,
         model: str | None = None,
+        on_delta: Callable[[str], None] | None = None,
+        stream_guard: Callable[[], None] | None = None,
     ) -> ChatToolResult:
         """One OpenAI-compatible tool-calling round.
 
@@ -225,6 +304,8 @@ class LLMClient:
             if tools:
                 args["tools"] = tools
                 args["tool_choice"] = tool_choice or "auto"
+            if on_delta is not None:
+                return self._stream_call(args, on_delta, timeout=timeout, guard=stream_guard)
             client = self._client_lazy()
             if timeout is not None:
                 client = client.with_options(timeout=timeout, max_retries=0)
@@ -247,6 +328,7 @@ class LLMClient:
                     name=str(getattr(function, "name", "") or ""),
                     arguments=parsed,
                     raw_arguments=str(raw_arguments),
+                    extra_content=getattr(raw, 'extra_content', None) or {},
                 ))
             usage = {}
             raw_usage = getattr(response, "usage", None)

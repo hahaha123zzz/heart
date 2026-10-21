@@ -172,7 +172,7 @@ from fastapi.responses import StreamingResponse
 _turn_locks = [threading.Lock() for _ in range(64)]
 _running_turns = set()
 
-def _run_turn(request: ChatRequest, progress=None, answer_ready=None):
+def _run_turn(request: ChatRequest, progress=None, answer_ready=None, answer_event=None):
     index = int.from_bytes(hashlib.sha256(request.student_id.encode()).digest()[:2], "big") % len(_turn_locks)
     if progress:
         progress("queued", "等待处理", "请求已接收")
@@ -182,7 +182,7 @@ def _run_turn(request: ChatRequest, progress=None, answer_ready=None):
         def execute(*args, previous=None, **kwargs):
             return _execute_task_turn(*args, previous=previous, **kwargs, visualization_jobs=jobs)
         result = TaskService(orchestrator).run(request, execute, progress,
-            visualization_jobs=jobs, answer_ready=answer_ready)
+            visualization_jobs=jobs, answer_ready=answer_ready, answer_event=answer_event)
         from integrations.deeptutor.session_sync import sync_completed_session
         from integrations.deeptutor.task_projection import sync_saved_turn
         result = sync_completed_session(request, result)
@@ -240,7 +240,7 @@ async def chat_stream(request: ChatRequest):
 
         def work():
             try:
-                result = _run_turn(request, progress, answer_ready=lambda result: emit("answer", result))
+                result = _run_turn(request, progress, answer_ready=lambda result: emit("answer", result), answer_event=emit)
                 if current:
                     emit("progress", {**current, "status": "completed"})
                 emit("done", result)

@@ -15,8 +15,12 @@ def explain_exercise(tutor, request, context, intercept, guard, progress=None):
     part = next(p for p in q['parts'] if p['id'] == target.part_id)
     if progress: progress('routing', '理解小题问题', '确认小题与辅导需求')
     guard()
-    task = tutor.conversation_router.route(request.message, context.knowledge_point,
-        context.history, context.known_points, context=context)
+    if request.exercise_help:
+        from agents.task_context_builder import TaskContextBuilder
+        task = TaskContextBuilder.button_task(context, request.exercise_help)
+    else:
+        task = tutor.conversation_router.route(request.message, context.knowledge_point,
+            context.history, context.known_points, context=context)
     halted = intercept(task, context)
     if halted is not None: return halted
     execution = build_execution(request.message, task, context)
@@ -37,7 +41,7 @@ def explain_exercise(tutor, request, context, intercept, guard, progress=None):
     guard()
     with _GATE:
         result = ai_parts(q,[part],answers,request.student_id,'hint' if execution.hint_only else 'explain',
-            task_execution=execution,user_question=request.message)
+            request.exercise_hint_level, task_execution=execution,user_question=request.message)
     guard()
     if result.get('answer_status') == 'quality_rejected': return result
     point = q['knowledge_point']
@@ -53,6 +57,6 @@ def explain_exercise(tutor, request, context, intercept, guard, progress=None):
         with session_scope() as session:
             session.add(ExerciseHelpRow(id=str(uuid4()),student_id=request.student_id,question_id=q['id'],
                 version=target.version,part_id=part['id'],action='hint' if execution.hint_only else 'explain',
-                level=1,answers=answers,response=result))
+                level=request.exercise_hint_level,answers=answers,response=result))
     return dict(result, answer_status='answered', routing=task.model_dump(), task_execution=execution.model_dump(),
         knowledge_point=point,step_advanced=False)

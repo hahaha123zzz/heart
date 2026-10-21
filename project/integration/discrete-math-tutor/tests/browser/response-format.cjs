@@ -27,13 +27,13 @@ for(const [name,text] of samples){const result=await page.evaluate(({name,text})
  const incremental=TutorMarkdown.render(text,{streaming:true});host.innerHTML=incremental;
  const settled=TutorMarkdown.render(text);const replay=TutorMarkdown.render(text);
  const result={readable,sameBody:incremental.replace('streaming','settled')===settled,replay:settled===replay,
-  h2:host.querySelectorAll('h2').length,table:host.querySelectorAll('tbody tr').length,math:host.querySelectorAll('.katex').length,
+  h2:host.querySelectorAll('h2').length,table:host.querySelectorAll('tbody tr').length,math:host.querySelectorAll('.katex').length,displayMath:host.querySelectorAll('.katex-display').length,
   strong:host.querySelectorAll('strong').length,unsafe:!!host.querySelector('script,img,a[href^="javascript:"]'),text:host.textContent,
   overflow:document.documentElement.scrollWidth>innerWidth+1};return result;
 },{name,text});
 report.checks.push({name,...result});
 assert.ok(result.readable,`${name}: 增量正文不可消失`);assert.ok(result.sameBody&&result.replay,`${name}: 完成/历史一致`);assert.ok(!result.unsafe&&!result.overflow,`${name}: 安全与窄屏`);
-if(name==='table')assert.equal(result.table,2);if(name==='math')assert.equal(result.math,2);if(name==='chinese')assert.equal(result.strong,2);if(name==='long_plan')assert.equal(result.h2,11);
+if(name==='table')assert.equal(result.table,2);if(name==='math'){assert.equal(result.math,2);assert.equal(result.displayMath,1);}if(name==='chinese')assert.equal(result.strong,2);if(name==='long_plan')assert.equal(result.h2,11);
 report.checks.at(-1).passed=true;}
 await page.evaluate(()=>document.querySelector('main').innerHTML=TutorMarkdown.render('## 比较变量\n\n| 变量 | 条件与观察 |\n|---|---|\n| 自变量 | **主动改变**的条件[1] |\n| 因变量 | 测量的反应 |\n\n$$DL=kI$$'));
 if(output)await page.screenshot({path:output+'/format-mobile.png',fullPage:true});

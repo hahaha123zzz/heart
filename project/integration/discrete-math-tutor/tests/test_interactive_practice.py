@@ -56,7 +56,7 @@ class PracticeTest(unittest.TestCase):
   self.assertFalse(r[0]['confirmed']);self.assertIsNone(r[0]['score'])
  def test_hint_receives_grading_spec(self):
   q=p.question('ex-01-01-003');part=q['parts'][0]
-  with patch.object(p,'exercise_context',return_value={'context':'context','images':[],'reference':{'image_refs':[]}}),patch.object(p,'memory_for',return_value={'summary':'暂无相关记录'}),patch.object(main.orchestrator.quality_checker,'check',return_value=QualityResult(passed=True)),patch.object(main.orchestrator.llm,'chat_json',return_value={'reply':'先使用单元素集合的定义'}) as model:
+  with patch.object(p,'exercise_context',return_value={'context':'context','images':[],'reference':{'image_refs':[]}}),patch.object(p,'memory_for',return_value={'summary':'暂无相关记录'}),patch.object(main.orchestrator.quality_checker,'check',return_value=QualityResult(passed=True)),patch.object(main.orchestrator.llm,'chat',return_value='先使用单元素集合的定义') as model:
    result=p.ai_parts(q,[part],{},self.sid,'hint',1)
   self.assertIn('单元素集合',result['reply']);self.assertIn('rubric',model.call_args.args[0][-1]['content'])
  def test_set_equivalence_and_safe_parser(self):

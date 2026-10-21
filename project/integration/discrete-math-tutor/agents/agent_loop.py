@@ -20,6 +20,7 @@ from agents.tool_protocol import (
     Cancellation, CancelledError, ToolContext, ToolRegistry, ToolResult,
 )
 from llm.client import LLMClient, LLMError
+from llm.answer_events import answer_kwargs, checking, retract
 
 
 @dataclass
@@ -181,6 +182,7 @@ class LocalAgentLoop:
                     messages, tools or [], temperature=request.temperature,
                     max_tokens=request.round_max_tokens,
                     tool_choice=request.tool_choice if result.rounds == 0 else None,
+                    **answer_kwargs(),
                 )
             except LLMError as exc:
                 if result.rounds == 0:
@@ -196,12 +198,17 @@ class LocalAgentLoop:
                 result.exploration_rounds += 1
             for key, value in (round_result.usage or {}).items():
                 result.usage[key] = result.usage.get(key, 0) + int(value)
+            if round_result.finish_reason == 'length':
+                retract()
+                return self._error_result(result, messages, collector, 'incomplete_answer', '模型输出达到长度上限，未完成回答')
             if round_result.tool_calls:
+                retract()
                 messages.append({
                     "role": "assistant",
                     "content": round_result.text or "",
                     "tool_calls": [
                         {"id": call.id, "type": "function",
+                         **({'extra_content': call.extra_content} if call.extra_content else {}),
                          "function": {"name": call.name,
                                       "arguments": call.raw_arguments or json.dumps(call.arguments, ensure_ascii=False)}}
                         for call in round_result.tool_calls
@@ -246,6 +253,7 @@ class LocalAgentLoop:
                 return self._error_result(result, messages, collector, "empty_answer",
                                           "模型没有返回可发布回答")
             if request.publish_gate is not None:
+                checking()
                 ok, reason = request.publish_gate(final_text, result)
                 if not ok:
                     if not repair_used and any(token in (reason or "") for token in
@@ -297,7 +305,7 @@ class LocalAgentLoop:
         try:
             round_result = self.llm.chat_with_tools(
                 messages, [], temperature=request.temperature,
-                max_tokens=request.round_max_tokens)
+                max_tokens=request.round_max_tokens, **answer_kwargs())
         except LLMError as exc:
             return self._error_result(result, messages, collector, "forced_finish_failed",
                                       f"收尾回答失败：{exc}")
@@ -307,10 +315,18 @@ class LocalAgentLoop:
         for key, value in (round_result.usage or {}).items():
             result.usage[key] = result.usage.get(key, 0) + int(value)
         text = (round_result.text or "").strip()
+        if round_result.tool_calls or round_result.finish_reason == 'tool_calls':
+            retract()
+            return self._error_result(result, messages, collector, 'unfinished_tool_round',
+                                      '收尾阶段仍返回工具调用，未完成回答')
+        if round_result.finish_reason == 'length':
+            retract()
+            return self._error_result(result, messages, collector, 'incomplete_answer', '模型输出达到长度上限，未完成回答')
         if not text:
             return self._error_result(result, messages, collector, "empty_answer",
                                       "预算用尽后模型仍未给出回答")
         if request.publish_gate is not None:
+            checking()
             ok, gate_reason = request.publish_gate(text, result)
             if not ok:
                 result.final_text = gate_reason or "本次回答未通过课程核验，暂不发布。"
