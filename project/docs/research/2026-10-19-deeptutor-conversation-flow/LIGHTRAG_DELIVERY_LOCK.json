@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "course_id": "experimental-psychology-3",
+  "candidate": "E:\\项目\\heart-worktrees\\lightrag-integration\\project\\integration\\discrete-math-tutor\\.runtime\\lightrag-proxy-nothinking\\0a6096dc43a8829d48776cbcd0c583b6dc779bd6b450614b4bd20bd1d7f0e5ce",
+  "input_signature": "0a6096dc43a8829d48776cbcd0c583b6dc779bd6b450614b4bd20bd1d7f0e5ce",
+  "files": {
+    "input_manifest.json": "ca81fddc5c4c970569d1feebba208ffe147e75b3611b0f4e33d720754f289c77",
+    "q2_input_manifest.json": "02b3a221c1d795d5894b1810332d0762f2ce7276b03cd73ba7bb49362cf2fc9d",
+    "source_map.json": "986fd9bf9785588b023a6ca1c19036e0a936c94f4ab0ae00a1b43c852a1988a3",
+    "policy.json": "63e2e2c0747a250a9d5c8706ee64506e40975ebcd543ebbe9820f6d4022b630f",
+    "index_files.json": "28317ae34f66f4cf0365555f58b71cccb0932672ce2d3f7500d7fd1f754f26ed",
+    "index/meta.json": "4e552f354df218adf31dcd7c4daf0f204c0b692ea82bf587bc5f3abdcb7f8c77",
+    "index/deeptutor_426733019d24d665/graph_chunk_entity_relation.graphml": "427b51f74e77a96f1c494007b43a7c3a336f8f763d669a6caf3b06b757f0cc42",
+    "index/deeptutor_426733019d24d665/kv_store_doc_status.json": "78c2f0a8dccbd25876a16567ea975689955931062f5f940c87e5a7100ebfe47f",
+    "index/deeptutor_426733019d24d665/kv_store_full_docs.json": "75e15ded2a6993e33add7f8a0fa37e07ef150882db115801e7c8b77cb8670527",
+    "index/deeptutor_426733019d24d665/kv_store_text_chunks.json": "1243968dedb88a2833ac2c9b6c6afe35faf7b8e206b05a17545a5a7818cb7a86",
+    "index/deeptutor_426733019d24d665/vdb_chunks.json": "6b9bd3a9dea3edf65c1e81ee8a14a5a5454e0987bfb33aacf3ab705a4e5e43e3",
+    "index/deeptutor_426733019d24d665/vdb_entities.json": "4af492c00ea7429560c581e29346a72d45a8a46009203e2c839d8cbf2f527729",
+    "index/deeptutor_426733019d24d665/vdb_relationships.json": "72f2e2f5362558e1d85883a96f3f3c6a0c72a931e9bc24582626329ceddd58cc"
+  },
+  "embedding_model": "BAAI/bge-small-zh-v1.5",
+  "embedding_dimension": 512,
+  "embedding_signature": "76ea289a945b5bba118930654cffe3c5841570dba3b405148bd310910f841b6c",
+  "policy": {
+    "extract": {
+      "binding": "host-llm-client",
+      "model": "deepseek-flash",
+      "endpoint": "https://cn.chatapi.app/v1",
+      "role": "extract",
+      "thinking": "disabled",
+      "max_output_tokens": 8192,
+      "temperature": 0.1
+    },
+    "vlm": {
+      "binding": "host-llm-client",
+      "model": "deepseek-flash",
+      "endpoint": "https://cn.chatapi.app/v1",
+      "role": "vlm",
+      "thinking": "disabled",
+      "max_output_tokens": 8192,
+      "temperature": 0.1
+    },
+    "embedding_signature": "76ea289a945b5bba118930654cffe3c5841570dba3b405148bd310910f841b6c",
+    "input_signature": "0a6096dc43a8829d48776cbcd0c583b6dc779bd6b450614b4bd20bd1d7f0e5ce",
+    "sdk": "1.5.7",
+    "chunk_token_size": 1200,
+    "llm_concurrency": 2,
+    "files_concurrency": 1,
+    "gleaning": 0,
+    "image_analysis": true
+  },
+  "python": "3.12.14",
+  "observed_distributions": {
+    "lightrag-hku": "1.5.7",
+    "openai": "3.26.1",
+    "fastembed": "0.8.1",
+    "onnxruntime-gpu": "1.26.0",
+    "onnxruntime": "1.31.0",
+    "numpy": "2.5.3",
+    "pydantic": "2.14.0",
+    "networkx": "3.7",
+    "psutil": "7.2.2",
+    "langchain-text-splitters": "0.3.11",
+    "fastapi": "0.143.0",
+    "uvicorn": "0.54.0",
+    "sqlalchemy": "2.1.4"
+  },
+  "loaded_onnxruntime_module": "1.26.0",
+  "state": "candidate only; staging; ready=false",
+  "relocation": "fixed local paths; preserve source_root and SDK sidecar paths",
+  "dependency_note": "observed local environment; base packages are read-only borrowed, not a complete deployment lock"
+}
