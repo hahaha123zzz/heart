@@ -7,6 +7,9 @@ ROOT=Path(__file__).resolve().parents[1]
 if os.getenv('LIGHTRAG_ACCEPTANCE_HOST'):sys.path.insert(0,os.environ['LIGHTRAG_ACCEPTANCE_HOST'])
 import knowledge
 if str(ROOT/'knowledge') not in knowledge.__path__:knowledge.__path__.append(str(ROOT/'knowledge'))
+# 宿主可能已有旧后端，隔离验收只覆盖当前分支的LightRAG包。
+import knowledge.lightrag
+knowledge.lightrag.__path__.insert(0,str(ROOT/'knowledge/lightrag'))
 from agents.q3_navigation import LearningTarget,NavigationDecision,SourceRef
 from knowledge.lightrag.q3_adapter import LightRagNavigator
 

@@ -105,3 +105,7 @@ navigator = LightRagNavigator(existing_q2_navigator, backend, course_id=COURSE,
 3. 就绪全部通过后由集成窗口批准并显式切换公共检索工厂到已核验候选。仅改变检索路由，不移动教材、重置学习状态或删除会话。
 4. 发生失效、错误或资源争用：停止向候选分配新请求，等待/取消已有worker并释放锁；显式恢复原工厂/旧索引路径与已固定模型配置，再做旧检索health/来源检查。记录切换时间、真实backend及失败原因；保留候选、缓存、运行证据用于复盘。
 5. 不清理其他窗口worktree/数据库/索引，不以自动fallback掩盖未完成验收。
+
+## 跨章覆盖增量（2026-10-21）
+
+当前已新增有界协调器及关系工具后处理；原题的对象原文覆盖专项通过，不再将该原题描述为只有第二章。接线与复验使用LIGHTRAG_COVERAGE_INTERFACE.md（隔离端口18978），全尝试记录见LIGHTRAG_COVERAGE_REPORT.md。单查询、所有章节概述、正式答案和页面仍不能据此判定通过。保持原发布/切换门禁，不执行全书重建，也不把staging/ready=false改为正式就绪。

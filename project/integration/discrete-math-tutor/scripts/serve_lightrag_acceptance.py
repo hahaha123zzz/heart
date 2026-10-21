@@ -14,13 +14,15 @@ def main():
  sys.path.insert(0,str(host))
  import knowledge
  knowledge.__path__.append(str(ROOT/'knowledge'))
+ import knowledge.lightrag
+ knowledge.lightrag.__path__.insert(0,str(ROOT/'knowledge/lightrag'))
  from knowledge import course_config
  course_config.PSYCHOLOGY_DIR=candidate/'input'
  from knowledge import pdf_reader
  pdf_reader.CROPS=out/'crops'
  from knowledge.lightrag.retrieval import LightRagBackend,map_chunks,as_textbook_chunk
  from knowledge.lightrag.course_input import COURSE,digest
- from knowledge.lightrag.q3_adapter import LightRagNavigator
+ from knowledge.lightrag.q3_adapter import LightRagNavigator,ContextualRetrieveCourseTool
  from knowledge.lightrag import engine,storage
  from knowledge.lightrag.pipeline import embedding_config
  from knowledge.lightrag.roles import resolve_query_roles
@@ -30,6 +32,10 @@ def main():
  from knowledge.course_release import binding
  from agents.q3_navigation import CallbackNavigator,LearningTarget,NavigationDecision,SourceRef,source_from_chunk
  from agents.q3_tools import build_registry
+ from knowledge.lightrag.coverage import CoverageNavigator,semantic_selection
+ from knowledge.lightrag.relationships import append_tool_context
+ from knowledge.lightrag.trace import stage
+ from agents.tool_protocol import ToolContext,Cancellation
  from agents.agent_loop import LocalAgentLoop,LoopRequest
  from agents.loop_prompts import build_loop_system_prompt
  from agents.quality_checker import QualityChecker
@@ -60,7 +66,11 @@ def main():
       response=create(**kwargs);record.update(status='success',finish_reason=response.choices[0].finish_reason,
          usage=response.usage.model_dump() if response.usage else {},response_model=response.model)
       return response
-     except Exception as exc:record.update(error_type=type(exc).__name__);raise
+     except Exception as exc:
+      chain=[];cause=exc.__cause__
+      while cause is not None and len(chain)<4:
+       chain.append({'type':type(cause).__name__,'message':str(cause).replace(self.api_key,'[REDACTED]')[:300]});cause=cause.__cause__
+      record.update(error_type=type(exc).__name__,error_chain=chain);raise
      finally:record['seconds']=time.monotonic()-started
     client.chat.completions.create=measured;self.instrumented=True
    return client
@@ -86,6 +96,7 @@ def main():
    'files':{name:digest(candidate/name) for name in ('input_manifest.json','source_map.json','policy.json','index_files.json')},
    'release':binding(),'server_sha256':digest(Path(__file__)),'adapter_sha256':digest(ROOT/'knowledge/lightrag/q3_adapter.py'),
    'runtime_config':{k:os.getenv(k) for k in ('RAG_RERANK_MODEL','RAG_EMBED_DEVICE','RAG_RERANK_DEVICE','OPENAI_BASE_URL','DEEPSEEK_MODEL')},
+   'backend_code_hashes':{name:digest(ROOT/'knowledge/lightrag'/name) for name in ('coverage.py','retrieval.py','q3_adapter.py','relationships.py','source_explorer_reuse.py','trace.py','config.py')},
    'answer_prompt_policy':'same prompt for both backends; concise answer 120-180 Chinese characters; existing 260-char gate unchanged'}
  (out/'deployment.json').write_text(json.dumps(deployment,ensure_ascii=False,indent=2),encoding='utf-8')
  app=FastAPI(title='LightRAG isolated acceptance; not production')
@@ -102,7 +113,7 @@ def main():
    question=str(body.get('question',''));student='lr-test-'+attempt[:20]
    record={'attempt_id':attempt,'case':body.get('case'),'requested_backend':which,'fallback':False,'student_id':student,
            'question':question,'host_revision':pin['host_revision'],'input_signature':pin['input_signature'],'started_at':time.time()}
-   client=MeasuredClient();navigation_calls=[];chunks_by_id={};published={};judgements=[]
+   client=MeasuredClient();navigation_calls=[];chunks_by_id={};published={};judgements=[];stages=[];coverage_nav=None;chosen=None;q5_service=None;q5_scope=None;cancellation=Cancellation()
    memory.ensure_student(student,account_type='test')
    try:
     if body.get('fault')=='source_stale':
@@ -112,6 +123,17 @@ def main():
     nav=resolve(question,cursor=body.get('cursor'))
     exact=bool(nav and nav.get('status')=='ready')
     target=LearningTarget(target_id=nav['id'],name=nav['title'],chapter_id=nav['chapter_id'],section_id=nav['section_id'],version=nav['version']) if exact else LearningTarget('query',question)
+    if body.get('q5_path'):
+     from agents.q5_learning import Q5LearningService,LearningScope
+     from database.q5_learning import ensure_q5_schema
+     ensure_q5_schema();q5_service=Q5LearningService();q5_scope=LearningScope(student,student,COURSE)
+     fixture=resolve('学习第五章');assert fixture and fixture['status']=='ready'
+     q5_service.bind_textbook_target(q5_scope,fixture,command_id=attempt+'-fixture')
+     record['q5_before']=q5_service.status(q5_scope)
+     target=q5_service.current_target(q5_scope);exact=False
+    if body.get('fault')=='cancel':cancellation.cancel()
+    if body.get('current_target'):
+     target=LearningTarget(**body['current_target']);exact=False
     def base_search(*,target,query,limit,preferred_types=()):
      begin=time.monotonic();trace={'actual_backend':'q2_exact' if exact else 'local_llamaindex','fallback':False,'query':query,'navigation_only':exact}
      navigation_calls.append(trace)
@@ -123,9 +145,25 @@ def main():
            'asset_ids':list(row.asset_ids),'block_start':row.block_start,'block_end':row.block_end,'source_spans':list(row.source_spans)}
         result.append(SourceRef(**{**ref.to_dict(),'location':loc}));chunks_by_id[ref.source_id]=row
        return result
-      rows=retrieve(query,limit=limit,index_path=(out/'unavailable-baseline.sqlite3') if body.get('fault')=='backend_unavailable' else pin['baseline_index'],trace=trace)
+      from unittest.mock import patch
+      from knowledge.local_rag.course_retrieval import rerank_nodes
+      def observe_rerank(q,nodes,**kwargs):
+       def rows_for(values):return [{'chunk_id':n.node.node_id,'chapter_id':n.node.metadata['chapter_id'],'score':n.score} for n in values]
+       before=rows_for(nodes);stage(stages,'native_recall',before,before,'',backend='local_llamaindex',query=q)
+       ranked=rerank_nodes(q,nodes,**kwargs);scores=rows_for(ranked)
+       stage(stages,'rerank_threshold',scores,[r for r in scores if r['score'] is not None and r['score']>=.15],'below_rerank_threshold',threshold=.15)
+       stage(stages,'limit',[r for r in scores if r['score'] is not None and r['score']>=.15],rows_for(ranked[:limit]),'beyond_limit',limit=limit)
+       return ranked
+      with patch('knowledge.local_rag.course_retrieval.rerank_nodes',observe_rerank):
+       rows=retrieve(query,limit=limit,index_path=(out/'unavailable-baseline.sqlite3') if body.get('fault')=='backend_unavailable' else pin['baseline_index'],trace=trace)
       records=[{'kind':'chunk','source':f'chapter_{r.chapter_id:02d}.generated.pdf','content':r.text,'chunk_id':r.chunk_id} for r in rows]
-      mapped=map_chunks(records,source_map)[:limit]
+      mapped=map_chunks(records,source_map)
+      stage(stages,'original_mapping',mapped,mapped,'')
+      scoped=[r for r in mapped if (target.chapter_id is None or r['chapter_id']==target.chapter_id) and (target.section_id is None or r['section_id']==target.section_id)]
+      stage(stages,'scope_filter',mapped,scoped,'outside_requested_scope')
+      mapped=scoped
+      stage(stages,'mapping_limit',mapped,mapped[:limit],'beyond_limit',limit=limit)
+      mapped=mapped[:limit]
       return [SourceRef(**{k:r[k] for k in ('source_id','document_id','version','chapter_id','section_id','text','quote','page','image_refs','location')}) for r in mapped]
      finally:trace['seconds']=time.monotonic()-begin
     base=CallbackNavigator(resolve_fn=lambda **_:NavigationDecision('teach',target),search_fn=base_search)
@@ -134,21 +172,33 @@ def main():
       missing=LightRagBackend(out/'unavailable-candidate',authorized_course_ids={COURSE},allow_candidate=True)
       return await missing.search(*args,**kwargs)
     query_backend=UnavailableBackend() if body.get('fault')=='backend_unavailable' else backend
-    chosen=LightRagNavigator(base,query_backend) if which=='lightrag' else base
+    chosen=LightRagNavigator(base,query_backend,cancellation=cancellation) if which=='lightrag' else base
     units={}
     class EvidenceNavigator:
      def search(self,**kwargs):
       raw=chosen.search(**kwargs)
+      return select_for_query(kwargs['query'],raw)
+     def tool_context(self,sources):
+      return chosen.tool_context(sources) if hasattr(chosen,'tool_context') else {}
+    def select_for_query(selection_query,raw,subproblem="single"):
       if not raw:return []
       chunks=[chunks_by_id[r.source_id] if r.source_id in chunks_by_id else as_textbook_chunk(r.to_dict()) for r in raw]
-      bundle=choose_evidence(client,kwargs['query'],chunks,settings());refs=[]
+      bundle=choose_evidence(client,selection_query,chunks,settings());refs=[]
+      stage(stages,'q2_selection',raw,[raw[i['retrieval_source_index']] for i in bundle.evidence],'not_selected_by_q2; reason_not_returned',query=selection_query,subproblem=subproblem)
       for ch,item in zip(bundle.sources,bundle.evidence):
        original=raw[item['retrieval_source_index']];sid=item['evidence_id'];units[sid]=(ch,item)
        loc={**original.location,'source_spans':list(ch.source_spans),'textbook_release':binding()['release_id'],
-            'release_status':binding()['status'],'release_ready':binding()['ready'],'evidence_id':sid}
+            'release_status':binding()['status'],'release_ready':binding()['ready'],'evidence_id':sid,
+            'retrieval_source_id':original.source_id,'sdk_chunk_ids':original.location.get('sdk_chunk_ids',[]),
+            'block_start':item['source_block_id'],'block_end':item['source_block_id'],
+            'block_char_start':item['block_start'],'block_char_end':item['block_end']}
        refs.append(SourceRef(sid,item['document_id'],ch.text,item['document_version'],ch.chapter_id,ch.section_id,None,ch.text,list(original.image_refs),loc))
       return refs
     navigation=EvidenceNavigator()
+    if body.get('coverage'):
+     coverage_nav=CoverageNavigator(chosen,question=question,select=lambda req,raw:select_for_query(req.query,raw,req.id),
+          judge=lambda req,refs:semantic_selection(client,req,refs),cancellation=cancellation)
+     navigation=coverage_nav
     def gate(text,state):
      try:
       if not state.sources:return False,'没有教材原文，不发布正式回答'
@@ -166,7 +216,17 @@ def main():
      except Exception as exc:
       judgements.append({'passed':False,'error_type':type(exc).__name__,'error':str(exc)})
       return False,str(exc)
-    registry=build_registry(allow_skills=False)
+    registry=build_registry(allow_skills=False,extra_tools=(ContextualRetrieveCourseTool(),))
+    if body.get('retrieval_only'):
+     context=ToolContext(student_id=student,session_id=student,navigation=navigation,state={'learning_target':target},cancellation=cancellation)
+     output=registry.get('retrieve_course').run({'query':question,'limit':8},context)
+     stage(stages,'tool_output',output.sources,output.sources,'')
+     actual_calls=(chosen.calls if which=='lightrag' else [])+navigation_calls
+     record.update(completed=False,retrieval_completed=output.success,no_answer_generated=True,
+       sources=output.sources,tool_content=output.content,tool_metadata=output.metadata,
+       retrieval_calls=actual_calls,trace=stages,actual_backends=sorted({c['actual_backend'] for c in actual_calls}),
+       graph_context=chosen.last_result.get('graph_context',[]) if which=='lightrag' and chosen.last_result else [])
+     return record
     prompt=build_loop_system_prompt(target=target,definitions=registry.definitions())+'\n必须先调用retrieve_course取得本轮教材原文，再按其编号回答；无依据明确说明，不根据图谱关系发明先修顺序。回答用120至180字，比较覆盖双方；不要长篇逐字重复来源，遵守当前宿主260字门禁。'
     loop=LocalAgentLoop(client)
     history=body.get('history') or []
@@ -186,6 +246,17 @@ def main():
     record['stored_history_rows']=len(memory.get_history(student))
    except Exception as exc:record.update(completed=False,error_type=type(exc).__name__,error=str(exc),actual_backends=[],fault_injection=body.get('fault'))
    finally:
+    record.setdefault('trace',stages)
+    if coverage_nav is not None:
+     record.update(coverage=coverage_nav.report,coverage_trace=coverage_nav.trace)
+    record['current_target_unchanged']=body.get('current_target')
+    if q5_service is not None:
+     record['q5_after']=q5_service.status(q5_scope)
+     record['q5_unchanged']=record['q5_before']==record['q5_after']
+    record['stored_history_rows']=len(memory.get_history(student))
+    record.setdefault('retrieval_calls',(chosen.calls if which=='lightrag' and chosen is not None else [])+navigation_calls)
+    if not record.get('actual_backends'):
+     record['actual_backends']=sorted({c['actual_backend'] for c in record['retrieval_calls'] if c.get('actual_backend')})
     record.update(model_calls=client.calls,total_seconds=time.monotonic()-started,cost=None,cost_note='API未返回金额；只记录返回token，不估价')
     (out/'attempts').mkdir(exist_ok=True)
     (out/'attempts'/f'{attempt}.json').write_text(json.dumps(record,ensure_ascii=False,indent=2),encoding='utf-8')
