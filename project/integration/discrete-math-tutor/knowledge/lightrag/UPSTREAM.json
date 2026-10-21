@@ -1,0 +1,192 @@
+{
+  "repository": "D:/deeptutor",
+  "sha": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "license": "Apache-2.0",
+  "files": {
+    "block_policy.py": {
+      "source_sha256": "37ef48a7be07157fe3243432f1a27ccd2ec341b5bef76f1cee42e554ca7af5cb",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/block_policy.py"
+    },
+    "cache_reuse.py": {
+      "source_sha256": "140b6e8f2ffbe509344d152838e39f5086afd22579d891d089204d5a67b477a5",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/cache_reuse.py"
+    },
+    "config.py": {
+      "source_sha256": "f719bdc1b42f8cac4d4494aba9ae839e82ddd18a3d2ed96b4b46ab195fd944b6",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/config.py"
+    },
+    "engine.py": {
+      "source_sha256": "97a3f6d42380280932977b6cb2cb234db95c7842141f8e6c6c5cd95e9ad2d46c",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/engine.py"
+    },
+    "file_io.py": {
+      "source_sha256": "38fec18d8c72261c8b7e6f9a05b9597212d75150df355dc023ed58e5e15706e6",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/file_io.py"
+    },
+    "indexing_policy.py": {
+      "source_sha256": "a3073eaaa8093f449eebfd36e328cbcf95cda83d5f23679761fbb2d4d6d2f718",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/indexing_policy.py"
+    },
+    "ingress.py": {
+      "source_sha256": "2f87af56ead6e5217402d2b37b5b35d40ac26ce099bc9e9aa96c528e3005c426",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/ingress.py"
+    },
+    "LICENSE": {
+      "source_sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4",
+      "vendor_path": "project/vendor/DeepTutor/LICENSE"
+    },
+    "parser.py": {
+      "source_sha256": "1bbab28375529f97a6af0d7b7083c42ef0a9dbfc745f18797fb6d5d11684c2cb",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/parser.py"
+    },
+    "parse_types.py": {
+      "source_sha256": "c71af832dea76b2498763f685c5c3f1ce57e7cd1834af8c2d68d16c291faa82a",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/parsing/types.py"
+    },
+    "pipeline.py": {
+      "source_sha256": "d798339208cdc92f3c965e56583e2b89c3e3a313c83cff22a140e86caf16211c",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/pipeline.py"
+    },
+    "README.md": {
+      "source_sha256": "a420cdbcb335d0277cefe929ff521ac88f9f19914e1f0af9e9b0d56b4bf2a125",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/README.md"
+    },
+    "roles.py": {
+      "source_sha256": "1a02a48083091e08ded87cd5eb8cd3f679edd8233a7e7f0fb4a01b9268ab2114",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/roles.py"
+    },
+    "sidecar.py": {
+      "source_sha256": "05d8af6f3a532ba19a1b37f98068fd6d04e73aab3a85db9aeb218441df790bd4",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/sidecar.py"
+    },
+    "storage.py": {
+      "source_sha256": "7495fef90309ef25b8bbacc2f28aeee0544be10c4158436876450f420e72137c",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/storage.py"
+    },
+    "worker.py": {
+      "source_sha256": "0d111d3985d8abfc22b4b6d809144130f58c39b1675851ccc131e9de2b5f929b",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/worker.py"
+    },
+    "write_lock.py": {
+      "source_sha256": "0af14819c2eb04a2347a6d54caa71504be9969eb34d0fcf3d3256bdf08e81d27",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/write_lock.py"
+    },
+    "__init__.py": {
+      "source_sha256": "e627674ac55c65a063587d8433bdeba1e83abe3e4e886d5fb6b879cdbef28cd6",
+      "vendor_path": "project/vendor/DeepTutor/deeptutor/services/rag/pipelines/lightrag/__init__.py"
+    }
+  },
+  "baseline": "9c746e28173f7dcfeef34e8d6134dab7e58c5286",
+  "integration_dependency": "f886144 (Q3/Q4), read only; no uncommitted interfaces copied",
+  "host_dependencies": {
+    "Q2": "95b956a515d1868341c8f18b29fc2d23e3a7ebb6; data/decoration contract only, not merged",
+    "Q3_Q4": "f886144; optional adapter contract only, not merged",
+    "working_branch_base": "9c746e28173f7dcfeef34e8d6134dab7e58c5286"
+  },
+  "adaptations": {
+    "engine.py": "本项目parser注册；SDK aquery_data结构化检索；严格完整记录读取；原生失败重试意图；Windows reparse保护；失败时先停止模型队列，保留嵌入队列至SDK pending upsert落盘",
+    "parser.py": "本项目导入；Windows sidecar URI适配，保留完整原校验和归档",
+    "sidecar.py": "原样复用",
+    "ingress.py": "file_io/ParsedDocument改本项目导入，补Windows reparse拒绝",
+    "block_policy.py": "仅改file_io导入",
+    "worker.py": "原样复用",
+    "write_lock.py": "宿主异常类及Windows reparse保护",
+    "storage.py": "宿主embedding签名及候选状态；移除不适用的DeepTutor KB枚举依赖",
+    "cache_reuse.py": "仅file_io导入；保留算法但未启用跨候选缓存继承，恢复使用SDK同候选缓存",
+    "config.py": "复用上游重试分类/延迟/模式；宿主模型传输、并发、用量和CPU embedding适配；记录API返回模型名；deepseek-flash跨代理显式thinking=disabled，生成参数纳入身份；截断响应也记录可得usage；复用宿主CPU/CUDA设备配置，权重签名与执行设备分离",
+    "roles.py": "宿主模型角色，不迁入账户或目录",
+    "indexing_policy.py": "保留端点规范化和散列，替换全局策略源",
+    "pipeline.py": "保留引擎/冻结/锁/worker组合；宿主全书候选编排与完整性门禁替换原KB管理/发布；记录实际CUDA会话与ONNX模块版本",
+    "file_io.py": "原样复用",
+    "parse_types.py": "原样复用",
+    "retrieval.py": "宿主结构化原文/证据适配；复用现有RERANK设备配置并返回实际运行会话",
+    "q3_adapter.py": "结构化原文转现有SourceRef；精确目标仍委托Q2；保留版本/范围/发布状态；有效pending原图身份不代表模型看图；错误与取消透传，不回退"
+  },
+  "active_files": {
+    "__init__.py": {
+      "sha256": "43c9baf0e5fbf867e312d54996c456210847dcf185e8904efb59d7618c138986",
+      "origin": "__init__.py"
+    },
+    "block_policy.py": {
+      "sha256": "8532c551f0bd5eebbb5a10df8495eae6a11372f8cccbefa57c9c06b4f89b8864",
+      "origin": "block_policy.py"
+    },
+    "cache_reuse.py": {
+      "sha256": "ef21fa0445c138cc8b381dc2b1b39be226b8a837ded9ee0b75bde1a73678552b",
+      "origin": "cache_reuse.py"
+    },
+    "config.py": {
+      "sha256": "d5a65c96e9dd50a58b384f19655ddcb4983d1efefaadc92b6688ef5f571ffcfd",
+      "origin": "config.py"
+    },
+    "course_input.py": {
+      "sha256": "7cb0ff8362c4e2ac5008b888c1ccf32ab667f5572c8840241223b48868cf8522",
+      "origin": "host adaptation"
+    },
+    "engine.py": {
+      "sha256": "627adf36e8a59545176eddb0695871a0e5816e912947f94f6b883c121f8bb728",
+      "origin": "engine.py"
+    },
+    "file_io.py": {
+      "sha256": "38fec18d8c72261c8b7e6f9a05b9597212d75150df355dc023ed58e5e15706e6",
+      "origin": "file_io.py"
+    },
+    "indexing_policy.py": {
+      "sha256": "1d0ff97039bf437920c673a4fd8752d559f31416fa1e371e13ec44a67a1e6e17",
+      "origin": "indexing_policy.py"
+    },
+    "ingress.py": {
+      "sha256": "ecfcd08dddf30a76b4be82c5ae1b81edbc166d1b8ebeeb0da9c21bc67f772a79",
+      "origin": "ingress.py"
+    },
+    "parse_types.py": {
+      "sha256": "c71af832dea76b2498763f685c5c3f1ce57e7cd1834af8c2d68d16c291faa82a",
+      "origin": "parse_types.py"
+    },
+    "parser.py": {
+      "sha256": "37e52215508a00cd4efbb38816e55eacaf3194a62409c26cb69cb498100cc975",
+      "origin": "parser.py"
+    },
+    "paths.py": {
+      "sha256": "67a2c596a58468f89e86462f03d86d521b2d3391b97585b4baef1a528b145629",
+      "origin": "host adaptation"
+    },
+    "pipeline.py": {
+      "sha256": "af1403bbafe098ab90de43035196cf94e13e0dfbab6a194af14201d0c748d73e",
+      "origin": "pipeline.py"
+    },
+    "retrieval.py": {
+      "sha256": "aecbcd2674a8ffe90dec2236fcc23beda82e53e8f1222210cde6026e2350e980",
+      "origin": "host adaptation"
+    },
+    "roles.py": {
+      "sha256": "d7af9c3286eceb378754805b29f02edb98dc4410e8c64765c8559a84321cb0cf",
+      "origin": "roles.py"
+    },
+    "sidecar.py": {
+      "sha256": "05d8af6f3a532ba19a1b37f98068fd6d04e73aab3a85db9aeb218441df790bd4",
+      "origin": "sidecar.py"
+    },
+    "storage.py": {
+      "sha256": "3d9d818b6067cea848a2b8bc64ec08b12f0f18f41a2164f62303c29ff2fe6faf",
+      "origin": "storage.py"
+    },
+    "worker.py": {
+      "sha256": "0d111d3985d8abfc22b4b6d809144130f58c39b1675851ccc131e9de2b5f929b",
+      "origin": "worker.py"
+    },
+    "write_lock.py": {
+      "sha256": "b241e71999cf305c02786d10a4408478a36be63bfd5f20ffa1f0958f508348c5",
+      "origin": "write_lock.py"
+    },
+    "q3_adapter.py": {
+      "sha256": "899452d9e97f25556cbb4dabc2227dd1f89ace6e67443328a9e6eb0e61639e6f",
+      "origin": "host adaptation; existing Q3 SourceRef/LearningNavigator boundary"
+    }
+  },
+  "upstream_worktree_changes": [
+    "deeptutor/services/llm/factory.py (not imported/copied)",
+    "providers.json/setup.json (not read/copied)"
+  ],
+  "source_copy_policy": "Existing project/vendor/DeepTutor verified byte-identical against D:/deeptutor for all listed sources; no duplicate source payload."
+}

@@ -30,3 +30,6 @@ knowledge/pdf/crops/
 # CUDA 编译缓存
 .cache/
 artifacts/cuda-cache-*/
+
+# LightRAG 独立环境与候选产物
+.venv-lightrag/
