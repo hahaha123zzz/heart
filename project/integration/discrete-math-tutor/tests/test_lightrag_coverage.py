@@ -7,6 +7,9 @@ import knowledge
 if str(ROOT/"knowledge") not in knowledge.__path__:knowledge.__path__.append(str(ROOT/"knowledge"))
 from dataclasses import replace
 from types import SimpleNamespace
+# 宿主可能已有旧后端，隔离验收只覆盖当前分支的LightRAG包。
+import knowledge.lightrag
+knowledge.lightrag.__path__.insert(0,str(ROOT/'knowledge/lightrag'))
 from agents.q3_navigation import LearningTarget,SourceRef
 from agents.tool_protocol import Cancellation,CancelledError,ToolResult
 from knowledge.lightrag.coverage import CoverageNavigator,requirements_for

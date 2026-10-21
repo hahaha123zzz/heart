@@ -14,6 +14,8 @@ def main():
  sys.path.insert(0,str(host))
  import knowledge
  knowledge.__path__.append(str(ROOT/'knowledge'))
+ import knowledge.lightrag
+ knowledge.lightrag.__path__.insert(0,str(ROOT/'knowledge/lightrag'))
  from knowledge import course_config
  course_config.PSYCHOLOGY_DIR=candidate/'input'
  from knowledge import pdf_reader
