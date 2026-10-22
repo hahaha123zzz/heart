@@ -43,6 +43,7 @@ class LightRagNavigator:
                     "relationship_semantics":"association_only; no prerequisite or mastery inference"}
                 sources.append(SourceRef(**fields))
             record.update(status=self.last_result["status"],sources=len(sources),usage=self.last_result["usage"],trace=self.last_result.get("trace",[]))
+            record['source_binding']=self.last_result.get('source_binding')
             return sources
         except asyncio.CancelledError as exc:
             from agents.tool_protocol import CancelledError

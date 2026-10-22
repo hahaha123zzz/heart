@@ -132,13 +132,14 @@ def _graph_context(records, sources):
 
 
 class LightRagBackend:
-    def __init__(self, candidate, *, authorized_course_ids, allow_candidate=False):
+    def __init__(self, candidate, *, authorized_course_ids, allow_candidate=False, source_root=None):
         path=Path(candidate)
         if path.is_symlink() or bool(getattr(path.lstat(),"st_file_attributes",0)&0x400):
             raise ValueError("候选根不得为 reparse point")
         self.candidate=path.resolve(strict=True)
         self.authorized_course_ids=frozenset(authorized_course_ids)
         self.allow_candidate=bool(allow_candidate)
+        self.source_root=Path(source_root) if source_root is not None else None
 
     def validate(self, course_id):
         if course_id not in self.authorized_course_ids or course_id!=COURSE:
@@ -158,17 +159,19 @@ class LightRagBackend:
             checked=_contained_regular_file(self.candidate,self.candidate/"index"/path,label="native index")
             if digest(checked)!=sha: raise RuntimeError("候选图谱/向量/文本/状态文件身份变化")
         verify(self.candidate/"input",manifest["files"])
-        verify(Path(manifest["source_root"]),manifest["files"])
+        verify(self.source_root if self.source_root is not None else Path(manifest["source_root"]),manifest["files"])
         return manifest
 
     async def search(self, query, *, course_id, mode="hybrid", limit=6, chapter_id=None, section_id=None, cancellation=None):
-        trace=[];metrics=None;binding=None;started=time.monotonic()
+        trace=[];metrics=None;binding=None;source_binding=None;started=time.monotonic()
         try:
             if not isinstance(query,str) or not query.strip() or len(query)>4000: raise ValueError("检索问题无效或过长")
             if isinstance(limit,bool) or not isinstance(limit,int) or not 1<=limit<=40: raise ValueError("结果数必须为1到40")
             if mode not in ("naive","local","global","hybrid","mix"): raise ValueError("检索模式不支持")
             if cancellation is not None and cancellation.is_cancelled(): raise asyncio.CancelledError()
-            self.validate(course_id)
+            manifest=self.validate(course_id)
+            source_binding={'indexed_source_root':manifest['source_root'],
+                'active_source_root':str(self.source_root if self.source_root is not None else Path(manifest['source_root']))}
             working=self.candidate/"index"
             with write_ownership(self.candidate):
                 metrics=Metrics();embedding=await embedding_config(metrics)
@@ -181,6 +184,8 @@ class LightRagBackend:
                     failed=True
                     try:
                         await engine.initialize(rag)
+                        from .paths import bind_candidate_sidecars
+                        source_binding['sidecars']=bind_candidate_sidecars(rag,working)
                         _,records=await engine.query_with_sources(rag,query,mode)
                         records=await attach_provenance(rag,working,records)
                         failed=False;return records
@@ -245,11 +250,11 @@ class LightRagBackend:
                         "graph_context":background,"visuals":list(selected_visuals.values()),"references":[r for r in records if r["kind"]=="reference"],
                         "metadata":[r["metadata"] for r in records if r["kind"]=="query_metadata"],
                         "input_signature":expected["input_signature"],"trace":trace,"usage":metrics.public(),"runtime":runtime_status(),
-                        "model_binding":binding,
+                        "model_binding":binding,"source_binding":source_binding,
                         "citation_status":"Q2 verification required","rerank_status":"applied" if mapped else "not_needed"}
         except BaseException as exc:
             exc.lightrag_audit={'trace':trace,'usage':metrics.public() if metrics else Metrics().public(),
-                                'model_binding':binding,
+                                'model_binding':binding,'source_binding':source_binding,
                                 'seconds':time.monotonic()-started}
             raise
 

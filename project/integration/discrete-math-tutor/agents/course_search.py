@@ -76,6 +76,7 @@ class CourseSearch:
                 self.last_result = getattr(self.backend, 'last_result', None)
                 if self.last_result:
                     record['model_binding'] = self.last_result.get('model_binding')
+                    record['source_binding'] = self.last_result.get('source_binding')
                     record['input_signature'] = self.last_result.get('input_signature')
                     record['index_identity'] = str(getattr(getattr(self.backend, 'backend', None), 'candidate', ''))
             else:
@@ -148,14 +149,14 @@ class CourseSearch:
 def shared_search(base, *, message, llm, navigator=None, cancellation=None):
     backend = navigator if navigator is not None else None
     if backend is None and os.getenv('Q3_RETRIEVAL_MODE', '').lower() == 'lightrag':
-        from knowledge.course_config import COURSE_ID
+        from knowledge.course_config import COURSE_ID, PSYCHOLOGY_DIR
         from knowledge.lightrag.retrieval import LightRagBackend
         from knowledge.lightrag.q3_adapter import LightRagNavigator
         path = os.environ.get('LIGHTRAG_CANDIDATE_PATH')
         if not path:
             raise ValueError('LightRAG 未提供索引路径，不能静默回退')
         backend = LightRagNavigator(base, LightRagBackend(path, authorized_course_ids={COURSE_ID},
-            allow_candidate=os.getenv('LIGHTRAG_ALLOW_CANDIDATE') == '1'), cancellation=cancellation)
+            allow_candidate=os.getenv('LIGHTRAG_ALLOW_CANDIDATE') == '1', source_root=PSYCHOLOGY_DIR), cancellation=cancellation)
     search = CourseSearch(base, message=message, llm=llm, backend=backend, cancellation=cancellation)
     from knowledge.lightrag.q3_adapter import LightRagNavigator
     if isinstance(backend, LightRagNavigator):
