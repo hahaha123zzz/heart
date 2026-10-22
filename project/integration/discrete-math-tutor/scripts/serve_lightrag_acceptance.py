@@ -25,7 +25,7 @@ def main():
  from knowledge.lightrag.q3_adapter import LightRagNavigator,ContextualRetrieveCourseTool
  from knowledge.lightrag import engine,storage
  from knowledge.lightrag.pipeline import embedding_config
- from knowledge.lightrag.roles import resolve_query_roles
+ from knowledge.lightrag.roles import resolve_query_roles,query_binding
  from knowledge.lightrag.worker import run_in_worker_loop
  from knowledge.lightrag.write_lock import write_ownership
  from knowledge.grounded_citations import choose_evidence,settings,EvidenceBundle
@@ -79,9 +79,9 @@ def main():
   embedding=await embedding_config();storage.require_compatible_embedding(candidate/'index',embedding)
   roles=resolve_query_roles(None)
   expected=json.loads((candidate/'policy.json').read_text(encoding='utf-8'))
-  assert roles['extract'].config.identity==expected['extract'],'模型策略不符'
+  query_binding(expected,roles)
   async def job(bridge):
-   rag=engine.build_rag(candidate/'index',io_bridge=bridge,query_roles=roles,embedding_config=embedding)
+   rag=engine.build_rag(candidate/'index',io_bridge=bridge,query_roles=roles,embedding_config=embedding,query_only=True)
    try:
     await engine.initialize(rag)
     return {'entities':len(await rag.chunk_entity_relation_graph.get_all_nodes()),

@@ -1,0 +1,252 @@
+{
+  "business_revision": "99aadf2",
+  "native": {
+    "query": "什么是自变量？",
+    "actual_backend": "lightrag",
+    "formal_switch": false,
+    "sidecar_read_view_relocated": true,
+    "status": "success",
+    "seconds": 28.844,
+    "index_unchanged": true,
+    "policy_unchanged": true
+  },
+  "native_sources": 4,
+  "native_usage": {
+    "calls": [
+      {
+        "role": "keyword",
+        "model": "deepseek-flash",
+        "status": "success",
+        "endpoint": "https://api.deepseek.com",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "usage": {
+          "completion_tokens": 24,
+          "prompt_tokens": 666,
+          "total_tokens": 690,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0,
+            "image_tokens": null,
+            "text_tokens": null
+          },
+          "prompt_cache_hit_tokens": 0,
+          "prompt_cache_miss_tokens": 666
+        },
+        "seconds": 0.8900000000139698
+      }
+    ],
+    "llm_calls": 1,
+    "usage": {
+      "prompt_tokens": 666,
+      "completion_tokens": 24,
+      "total_tokens": 690
+    },
+    "embedding_batches": 1,
+    "embedding_texts": 3,
+    "cost": null,
+    "cost_note": "服务未返回金额，未估算费用"
+  },
+  "native_model_binding": {
+    "mode": "official_deepseek_query",
+    "indexed_extract": {
+      "binding": "host-llm-client",
+      "model": "deepseek-flash",
+      "endpoint": "https://cn.chatapi.app/v1",
+      "role": "extract",
+      "thinking": "disabled",
+      "max_output_tokens": 8192,
+      "temperature": 0.1
+    },
+    "query": {
+      "binding": "host-llm-client",
+      "model": "deepseek-flash",
+      "endpoint": "https://api.deepseek.com",
+      "role": "query",
+      "thinking": "disabled",
+      "max_output_tokens": 8192,
+      "temperature": 0.1
+    },
+    "keyword": {
+      "binding": "host-llm-client",
+      "model": "deepseek-flash",
+      "endpoint": "https://api.deepseek.com",
+      "role": "keyword",
+      "thinking": "disabled",
+      "max_output_tokens": 8192,
+      "temperature": 0.1
+    },
+    "query_only": true
+  },
+  "q5_single_run_passed": true,
+  "q5_interjection_state_unchanged": true,
+  "return_to_same_target": true,
+  "total_outer_sdk_calls": 21,
+  "total_outer_tokens": 65865,
+  "next_target": "笛卡儿的哲学思想",
+  "next_mastered": false,
+  "refresh_equal": true,
+  "cross_reference_chapters": [
+    1,
+    2
+  ],
+  "both_originals_in_actual_model_request": true,
+  "linked_association_candidates_in_model": 6,
+  "core_index_files_unchanged": true,
+  "core_index_file_count": 7,
+  "metrics": [
+    {
+      "case": "q5-plan",
+      "seconds": 1.369,
+      "first_page_body_seconds": null,
+      "answer_status": "awaiting_clarification",
+      "actual_backends": [],
+      "outer_sdk_calls": 0,
+      "outer_tokens": 0,
+      "native_api_calls": [],
+      "coverage": null
+    },
+    {
+      "case": "q5-confirm",
+      "seconds": 8.229,
+      "first_page_body_seconds": 4.984,
+      "answer_status": "answered",
+      "actual_backends": [
+        "q2_exact"
+      ],
+      "outer_sdk_calls": 4,
+      "outer_tokens": 13220,
+      "native_api_calls": [],
+      "coverage": {}
+    },
+    {
+      "case": "q5-cross",
+      "seconds": 28.443,
+      "first_page_body_seconds": 25.303,
+      "answer_status": "answered",
+      "actual_backends": [
+        "lightrag"
+      ],
+      "outer_sdk_calls": 7,
+      "outer_tokens": 13802,
+      "native_api_calls": [
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "success",
+          "endpoint": "https://api.deepseek.com",
+          "response_model": "deepseek-flash",
+          "finish_reason": "stop",
+          "usage": {
+            "completion_tokens": 18,
+            "prompt_tokens": 666,
+            "total_tokens": 684,
+            "completion_tokens_details": null,
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cache_write_tokens": null,
+              "cached_tokens": 512,
+              "image_tokens": null,
+              "text_tokens": null
+            },
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 154
+          },
+          "seconds": 0.9690000000409782
+        },
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "success",
+          "endpoint": "https://api.deepseek.com",
+          "response_model": "deepseek-flash",
+          "finish_reason": "stop",
+          "usage": {
+            "completion_tokens": 20,
+            "prompt_tokens": 666,
+            "total_tokens": 686,
+            "completion_tokens_details": null,
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cache_write_tokens": null,
+              "cached_tokens": 512,
+              "image_tokens": null,
+              "text_tokens": null
+            },
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 154
+          },
+          "seconds": 0.5309999999590218
+        }
+      ],
+      "coverage": {
+        "status": "covered",
+        "required": [
+          {
+            "id": "object-1",
+            "query": "实验程序",
+            "chapter_id": 1,
+            "section_id": null
+          },
+          {
+            "id": "object-2",
+            "query": "自变量控制",
+            "chapter_id": 2,
+            "section_id": null
+          }
+        ],
+        "covered": [
+          "object-1",
+          "object-2"
+        ],
+        "missing": [],
+        "retrieval_calls": 2,
+        "supplemental_calls": 0,
+        "fallback": false,
+        "seconds": 23.57799999997951,
+        "warning": ""
+      }
+    },
+    {
+      "case": "q5-return",
+      "seconds": 7.232,
+      "first_page_body_seconds": 3.734,
+      "answer_status": "answered",
+      "actual_backends": [
+        "q2_exact"
+      ],
+      "outer_sdk_calls": 5,
+      "outer_tokens": 21437,
+      "native_api_calls": [],
+      "coverage": {}
+    },
+    {
+      "case": "q5-next",
+      "seconds": 10.656,
+      "first_page_body_seconds": 6.279,
+      "answer_status": "answered",
+      "actual_backends": [
+        "q2_exact"
+      ],
+      "outer_sdk_calls": 5,
+      "outer_tokens": 17406,
+      "native_api_calls": [],
+      "coverage": {}
+    }
+  ],
+  "evidence_path": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\.runtime\\response-experience\\20261020\\deepseek-query-q5",
+  "formal_index_switched": false,
+  "candidate_rebuilt": false,
+  "ready_modified": false,
+  "remaining": [
+    "missing-evidence partial live case",
+    "native cancel/timeout actual exit and late-result host validation",
+    "independent production deployment"
+  ],
+  "limits": [
+    "candidate sidecar read-view relocation used in isolation; stored bytes not rewritten",
+    "one fixed Q5 sequence; not whole-course path coverage"
+  ]
+}

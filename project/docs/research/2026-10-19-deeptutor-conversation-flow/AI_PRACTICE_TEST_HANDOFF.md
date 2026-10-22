@@ -34,6 +34,8 @@
 
 ## LightRAG兼容核对
 
+后续2026-10-22已通过99aadf2显式官方查询迁移解除地址绑定阻塞，native、原跨章及固定Q5完整序列有真实实证，见[迁移报告](DEEPSEEK_QUERY_MIGRATION.md)。下面保留本文件最初静态核对时的失败事实，不再代表当前官方查询不可用。
+
 官方DeepSeek凭据及模型列表检查已通过。只读核对候选policy与当前官方extract身份，差异仅`endpoint`：候选`https://cn.chatapi.app/v1`，当前`https://api.deepseek.com`。按当前`LightRagBackend.search`的严格身份比较会拒绝，状态为`blocked_model_policy_binding`。
 
 这是身份静态核对，**没有执行native检索**，不代表跨章覆盖通过。候选policy未改、未重建、无网关调用。证据`.runtime/ai-practice-20261021/lightrag-compatibility.json`。官方key不能通过改URL解决原网关凭据；后续由LightRAG窗口核验查询角色与既有抽取身份的兼容方案，不在公共窗口绕过检查或伪装endpoint。

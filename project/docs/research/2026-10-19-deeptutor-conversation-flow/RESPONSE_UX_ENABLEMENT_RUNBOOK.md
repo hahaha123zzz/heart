@@ -1,5 +1,7 @@
 # 回答体验启用准备与回滚
 
+2026-10-22增量：官方DeepSeek查询迁移已接通，原网关绑定不再阻塞，本机.env通过LIGHTRAG_QUERY_ENV_FILE引用ds.env；见[迁移与真实实证](DEEPSEEK_QUERY_MIGRATION.md)。本文件其余部分保留此前正式启用前准备方案；不因迁移通过就自动执行8000启动或正式LightRAG索引切换。
+
 2026-10-21；业务版本 `be8daa73b60c7e47d6954b95d85a574b191ecc72`。本轮未执行正式启动、备份或LightRAG切换。[收尾矩阵](RESPONSE_UX_CLOSEOUT_MATRIX.md)分别记录代码、离线、模型、页面及阻塞。
 
 ## 当前运行实况
