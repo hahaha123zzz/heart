@@ -24,3 +24,5 @@
 下一步在固定已提交代码、独立venv/输入/DB及候选副本中，移除旧验收initialize重写URI的临时hook，执行真实native与页面。需要分别核对普通聊天、Q5跨章接续、PDF选区、AI练习、ask_user、取消/刷新和原图像素；缺少真实证据的入口保留未完成。source_binding与原始API/模型输入用于区分实际LightRAG、Q2精确读取及缓存/回退。
 
 首轮803db64真实native自变量成功、返回4条来源，sidecar指向新候选；直接“图5-2”检索no_evidence，未计成功。宿主启动暴露了纯建图快照没有Q2索引的问题；宿主副本相对冻结文件没有缺失/变更，额外84项为OMML、原始全书/前言及rag_index.sqlite3。原整目录严格比较误把两种输入域混为一谈，已改用上述双边界。旧verify及默认source_root不变，新增测试确保宿主额外Q2文件不入图、冻结快照仍拒绝新增、缺失/换版继续拒绝。71项3.923秒通过，应用`.runtime/deepseek-query-20261021/relocation-host-tests.log`。803db64的失败目录和日志保留；最终代码仍须重跑页面，不拼接为整体通过。
+
+启动器递归专项：根据LIGHTRAG_DEPLOYMENT_ROOT_CAUSE_AUDIT.md复核，55f930a独立页面批次的fresh读取被再次赋值的query，出现RecursionError，并未进入原SDK查询。已保留`.runtime/response-portable-20261022/serve-recursion-failure.py`、`recursion-earliest-reproduced-traceback.txt`及`failure-recursion-55f930a`。仅修复验收层：`scripts/lightrag_acceptance_instrumentation.py::wrap_native_query`通过闭包绑定原函数，将禁缓存/计时/注入截止合为一次包装；启动器保存一次original_native_query，不再定义fresh。普通/异常/原函数取消/外部取消/本次SDK开始后的超时五项离线检查0.199秒通过，日志应用`.runtime/deepseek-query-20261021/launcher-selfcheck.log`。本批不改生产检索、SDK、冻结来源或图谱；真实部署须在该提交后重新导出资源并顺序执行，旧递归批次不算成功。
