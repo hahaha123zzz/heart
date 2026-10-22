@@ -1,0 +1,326 @@
+{
+  "baseline": "2ae1e5fd9618ea80a999a22cb30339a153e15d0c",
+  "runs": [
+    {
+      "base": "http://127.0.0.1:64460",
+      "readerSHA256": "5dd7b64191d3b4c991edca16a32bd13d3db613e619ec1bbdee742d7f17c99e0e",
+      "attempts": [
+        {
+          "name": "正文中部 CDP 滚轮上下翻页，不必到边缘",
+          "pass": true,
+          "ms": 726
+        },
+        {
+          "name": "触控板小幅累计与 2 秒惯性连续序列仅一页",
+          "pass": true,
+          "ms": 6686
+        },
+        {
+          "name": "工具栏按钮及输入；首尾不越界，不推动外层或推进章节",
+          "pass": true,
+          "ms": 1209
+        },
+        {
+          "name": "目录聊天外层及工具栏未拦截；修饰键与横向不翻页",
+          "pass": true,
+          "ms": 1859
+        },
+        {
+          "name": "真实文字层选区及菜单活跃不翻页，取消后可翻页",
+          "pass": true,
+          "ms": 1803
+        },
+        {
+          "name": "鼠标区域圈选拖动和菜单不翻页，取消恢复",
+          "pass": true,
+          "ms": 1242
+        },
+        {
+          "name": "引用坐标跳转高亮保留，随后可滚轮翻页",
+          "pass": true,
+          "ms": 863
+        },
+        {
+          "name": "200% 缩放后滚动条可访问页下半部分，滚轮仍直接翻页",
+          "pass": true,
+          "ms": 858
+        },
+        {
+          "name": "现有 pdf-position / Workspace 刷新恢复页码和缩放",
+          "pass": true,
+          "ms": 676
+        },
+        {
+          "name": "换章与重复挂载后单个滚轮仅翻一页；page_map沿用来源页",
+          "pass": true,
+          "ms": 1781
+        }
+      ],
+      "errors": [],
+      "pdfs": [
+        {
+          "url": "/api/pdf/documents/experimental-psychology-3:chapter-01/file",
+          "sha256": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e"
+        },
+        {
+          "url": "/api/pdf/documents/experimental-psychology-3:chapter-02/file",
+          "sha256": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7"
+        }
+      ],
+      "evidence_directory": "E:\\项目\\heart-worktrees\\reader-wheel-paging\\project\\integration\\discrete-math-tutor\\artifacts\\reader-wheel"
+    },
+    {
+      "base": "http://127.0.0.1:60302",
+      "readerSHA256": "cae56d95ffe3c022ce12699235f7c8d1f8db105f20a068b9d9633c89a98c6992",
+      "attempts": [
+        {
+          "name": "正文中部 CDP 滚轮上下翻页，不必到边缘",
+          "pass": true,
+          "ms": 740
+        },
+        {
+          "name": "触控板小幅累计与 2 秒惯性连续序列仅一页",
+          "pass": true,
+          "ms": 6401
+        },
+        {
+          "name": "工具栏按钮及输入；首尾不越界，不推动外层或推进章节",
+          "pass": true,
+          "ms": 1296
+        },
+        {
+          "name": "目录聊天外层及工具栏未拦截；修饰键与横向不翻页",
+          "pass": true,
+          "ms": 1838
+        },
+        {
+          "name": "真实文字层选区及菜单活跃不翻页，取消后可翻页",
+          "pass": true,
+          "ms": 1886
+        },
+        {
+          "name": "鼠标区域圈选拖动和菜单不翻页，取消恢复",
+          "pass": true,
+          "ms": 1302
+        },
+        {
+          "name": "引用坐标跳转高亮保留，随后可滚轮翻页",
+          "pass": true,
+          "ms": 917
+        },
+        {
+          "name": "200% 缩放后滚动条可访问页下半部分，滚轮仍直接翻页",
+          "pass": true,
+          "ms": 853
+        },
+        {
+          "name": "现有 pdf-position / Workspace 刷新恢复页码和缩放",
+          "pass": true,
+          "ms": 939
+        },
+        {
+          "name": "换章与重复挂载后单个滚轮仅翻一页；page_map沿用来源页",
+          "pass": true,
+          "ms": 1643
+        }
+      ],
+      "errors": [],
+      "pdfs": [
+        {
+          "url": "/api/pdf/documents/experimental-psychology-3:chapter-01/file",
+          "sha256": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e"
+        },
+        {
+          "url": "/api/pdf/documents/experimental-psychology-3:chapter-02/file",
+          "sha256": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7"
+        }
+      ],
+      "evidence_directory": "E:\\项目\\heart-worktrees\\reader-wheel-paging\\project\\integration\\discrete-math-tutor\\artifacts\\reader-wheel\\2026-10-22T15-46-08-153Z"
+    },
+    {
+      "base": "http://127.0.0.1:50909",
+      "readerSHA256": "cae56d95ffe3c022ce12699235f7c8d1f8db105f20a068b9d9633c89a98c6992",
+      "attempts": [
+        {
+          "name": "正文中部 CDP 滚轮上下翻页，不必到边缘",
+          "pass": true,
+          "ms": 622
+        },
+        {
+          "name": "触控板小幅累计与 2 秒惯性连续序列仅一页",
+          "pass": true,
+          "ms": 6746
+        },
+        {
+          "name": "工具栏按钮及输入；首尾不越界，不推动外层或推进章节",
+          "pass": true,
+          "ms": 1174
+        },
+        {
+          "name": "目录聊天外层及工具栏未拦截；修饰键与横向不翻页",
+          "pass": true,
+          "ms": 1858
+        },
+        {
+          "name": "真实文字层选区及菜单活跃不翻页，取消后可翻页",
+          "pass": true,
+          "ms": 1793
+        },
+        {
+          "name": "鼠标区域圈选拖动和菜单不翻页，取消恢复",
+          "pass": true,
+          "ms": 1266
+        },
+        {
+          "name": "引用坐标跳转高亮保留，随后可滚轮翻页",
+          "pass": true,
+          "ms": 690
+        },
+        {
+          "name": "200% 缩放后滚动条可访问页下半部分，滚轮仍直接翻页",
+          "pass": true,
+          "ms": 803
+        },
+        {
+          "name": "现有 pdf-position / Workspace 刷新恢复页码和缩放",
+          "pass": true,
+          "ms": 845
+        },
+        {
+          "name": "换章与重复挂载后单个滚轮仅翻一页；page_map沿用来源页",
+          "pass": true,
+          "ms": 1837
+        }
+      ],
+      "errors": [],
+      "pdfs": [
+        {
+          "url": "/api/pdf/documents/experimental-psychology-3:chapter-01/file",
+          "sha256": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e"
+        },
+        {
+          "url": "/api/pdf/documents/experimental-psychology-3:chapter-02/file",
+          "sha256": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7"
+        }
+      ],
+      "evidence_directory": "E:\\项目\\heart-worktrees\\reader-wheel-paging\\project\\integration\\discrete-math-tutor\\artifacts\\reader-wheel\\2026-10-22T15-47-29-156Z"
+    },
+    {
+      "base": "http://127.0.0.1:53688",
+      "readerSHA256": "cae56d95ffe3c022ce12699235f7c8d1f8db105f20a068b9d9633c89a98c6992",
+      "attempts": [
+        {
+          "name": "正文中部 CDP 滚轮上下翻页，不必到边缘",
+          "pass": true,
+          "ms": 532
+        },
+        {
+          "name": "触控板小幅累计与 2 秒惯性连续序列仅一页",
+          "pass": true,
+          "ms": 6841
+        },
+        {
+          "name": "工具栏按钮及输入；首尾不越界，不推动外层或推进章节",
+          "pass": true,
+          "ms": 1281
+        },
+        {
+          "name": "目录聊天外层及工具栏未拦截；修饰键与横向不翻页",
+          "pass": true,
+          "ms": 1839
+        },
+        {
+          "name": "目录和右侧聊天实际 CDP 滚动保持独立",
+          "pass": false,
+          "error": "page.waitForFunction: Timeout 30000ms exceeded.\n    at E:\\项目\\heart-worktrees\\reader-wheel-paging\\project\\integration\\discrete-math-tutor\\tests\\browser\\reader-wheel.cjs:84:16\n    at async check (E:\\项目\\heart-worktrees\\reader-wheel-paging\\project\\integration\\discrete-math-tutor\\tests\\browser\\reader-wheel.cjs:53:60)\n    at async E:\\项目\\heart-worktrees\\reader-wheel-paging\\project\\integration\\discrete-math-tutor\\tests\\browser\\reader-wheel.cjs:79:3",
+          "ms": 30149
+        }
+      ],
+      "errors": [],
+      "pdfs": [
+        {
+          "url": "/api/pdf/documents/experimental-psychology-3:chapter-01/file",
+          "sha256": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e"
+        },
+        {
+          "url": "/api/pdf/documents/experimental-psychology-3:chapter-02/file",
+          "sha256": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7"
+        }
+      ],
+      "evidence_directory": "E:\\项目\\heart-worktrees\\reader-wheel-paging\\project\\integration\\discrete-math-tutor\\artifacts\\reader-wheel\\2026-10-22T15-49-55-571Z"
+    },
+    {
+      "base": "http://127.0.0.1:51921",
+      "readerSHA256": "cae56d95ffe3c022ce12699235f7c8d1f8db105f20a068b9d9633c89a98c6992",
+      "attempts": [
+        {
+          "name": "正文中部 CDP 滚轮上下翻页，不必到边缘",
+          "pass": true,
+          "ms": 526
+        },
+        {
+          "name": "触控板小幅累计与 2 秒惯性连续序列仅一页",
+          "pass": true,
+          "ms": 6492
+        },
+        {
+          "name": "工具栏按钮及输入；首尾不越界，不推动外层或推进章节",
+          "pass": true,
+          "ms": 1156
+        },
+        {
+          "name": "目录聊天外层及工具栏未拦截；修饰键与横向不翻页",
+          "pass": true,
+          "ms": 1852
+        },
+        {
+          "name": "目录和右侧聊天实际 CDP 滚动保持独立",
+          "pass": true,
+          "ms": 255
+        },
+        {
+          "name": "真实文字层选区及菜单活跃不翻页，取消后可翻页",
+          "pass": true,
+          "ms": 1839
+        },
+        {
+          "name": "鼠标区域圈选拖动和菜单不翻页，取消恢复",
+          "pass": true,
+          "ms": 1374
+        },
+        {
+          "name": "引用坐标跳转高亮保留，随后可滚轮翻页",
+          "pass": true,
+          "ms": 682
+        },
+        {
+          "name": "200% 缩放后滚动条可访问页下半部分，滚轮仍直接翻页",
+          "pass": true,
+          "ms": 893
+        },
+        {
+          "name": "现有 pdf-position / Workspace 刷新恢复页码和缩放",
+          "pass": true,
+          "ms": 852
+        },
+        {
+          "name": "换章与重复挂载后单个滚轮仅翻一页；page_map沿用来源页",
+          "pass": true,
+          "ms": 1523
+        }
+      ],
+      "errors": [],
+      "pdfs": [
+        {
+          "url": "/api/pdf/documents/experimental-psychology-3:chapter-01/file",
+          "sha256": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e"
+        },
+        {
+          "url": "/api/pdf/documents/experimental-psychology-3:chapter-02/file",
+          "sha256": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7"
+        }
+      ],
+      "evidence_directory": "E:\\项目\\heart-worktrees\\reader-wheel-paging\\project\\integration\\discrete-math-tutor\\artifacts\\reader-wheel\\2026-10-22T15-52-30-011Z"
+    }
+  ]
+}

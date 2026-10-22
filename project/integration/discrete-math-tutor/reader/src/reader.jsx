@@ -2,6 +2,7 @@ import React, {useState,useRef,useEffect} from 'react';
 import {createRoot} from 'react-dom/client';
 import {PdfLoader,PdfHighlighter,Highlight,AreaHighlight} from 'react-pdf-highlighter';
 import './reader.css';
+import {createWheelPaging} from './wheel-paging';
 import renderMathInElement from 'katex/contrib/auto-render';
 import 'katex/dist/katex.min.css';
 class ReaderHighlighter extends PdfHighlighter {
@@ -31,6 +32,7 @@ function Reader({metadata,reference,onAsk}){
  const [mode,setMode]=useState('text'),[scale,setScale]=useState(metadata.resume?.scale||'page-width'),[page,setPage]=useState(metadata.section.page),[tip,setTip]=useState(null),[error,setError]=useState('');
  const modeRef=useRef(mode);modeRef.current=mode;
  const metadataRef=useRef(metadata);metadataRef.current=metadata;
+ const tipRef=useRef(tip);tipRef.current=tip;
  const highlighter=useRef(null),scrollTo=useRef(null),drag=useRef(null),surface=useRef(null);
  const [touchBox,setTouchBox]=useState(null);
  const [ready,setReady]=useState(false);
@@ -57,6 +59,25 @@ function Reader({metadata,reference,onAsk}){
   if(!ready)return;
   const viewer=highlighter.current?.viewer;
   if(!viewer)return;
+  const container=viewer.container;
+  let pointerHeld=false;
+  const pressed=()=>{pointerHeld=true;};
+  const released=()=>{pointerHeld=false;};
+  const wheel=createWheelPaging(direction=>{
+   const target=Math.max(1,Math.min(metadataRef.current.page_count,viewer.currentPageNumber+direction));
+   if(target!==viewer.currentPageNumber)jump(target);
+  },event=>{
+   const selection=window.getSelection();
+   return pointerHeld||event.buttons||drag.current||tipRef.current||
+    event.target.closest?.('input,textarea,select,button,[contenteditable]:not([contenteditable="false"]),.pdf-selection-menu,.pdf-touch-menu')||
+    surface.current?.querySelector('.pdf-selection-menu')||
+    (selection&&!selection.isCollapsed&&surface.current?.contains(selection.anchorNode));
+  });
+  container.addEventListener('wheel',wheel,{passive:false});
+  container.addEventListener('pointerdown',pressed,true);
+  window.addEventListener('pointerup',released);
+  window.addEventListener('pointercancel',released);
+  window.addEventListener('blur',released);
   let timer;
   const publish=()=>{const m=metadataRef.current;const n=viewer.currentPageNumber;const pageView=viewer.getPageView(n-1);const element=pageView?.div;const y=element?Math.max(0,Math.min(.98,(viewer.container.scrollTop-element.offsetTop)/element.clientHeight)):0;
    window.dispatchEvent(new CustomEvent('pdf-position',{detail:{chapter:m.chapter_id,section:m.section.id,document_id:m.document_id,version:m.version,page:m.page_map?.[n-1]||n,y,scale:viewer.currentScaleValue}}));};
@@ -65,7 +86,7 @@ function Reader({metadata,reference,onAsk}){
   viewer.container.addEventListener('scroll',queue,{passive:true});viewer.eventBus.on('scalechanging',queue);queue();
   viewer.eventBus.on('pagechanging',changed);
   setPage(viewer.currentPageNumber);
-  return()=>{clearTimeout(timer);viewer.eventBus.off('pagechanging',changed);viewer.eventBus.off('scalechanging',queue);viewer.container.removeEventListener('scroll',queue);};
+  return()=>{container.removeEventListener('wheel',wheel);container.removeEventListener('pointerdown',pressed,true);window.removeEventListener('pointerup',released);window.removeEventListener('pointercancel',released);window.removeEventListener('blur',released);clearTimeout(timer);viewer.eventBus.off('pagechanging',changed);viewer.eventBus.off('scalechanging',queue);viewer.container.removeEventListener('scroll',queue);};
  },[ready]);
  useEffect(()=>{const close=e=>{if(e.key==='Escape'){setTip(null);setTouchBox(null);highlighter.current?.hideTipAndSelection();}}; document.addEventListener('keydown',close);return()=>document.removeEventListener('keydown',close);},[]);
  function makeSelection(position,content,hide){
