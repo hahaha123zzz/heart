@@ -77,6 +77,29 @@ class PausedExecutor:
 
 
 class TaskLoopPersistenceTests(unittest.TestCase):
+    def test_fresh_executor_cancellation_uses_claimed_task_identity(self):
+        from sqlalchemy import select
+        from database.database import session_scope
+        from database.models import LearningTaskRow
+        from agents import task_cancellation
+        request = ChatRequest(student_id='s', request_id='fresh-native-cancel', message='解释条件')
+        def execute(effective, context, resolved, intercept, guard, progress):
+            with session_scope() as session:
+                task = session.execute(select(LearningTaskRow).where(
+                    LearningTaskRow.student_id == 's')).scalar_one()
+                self.assertEqual(effective.task_id, task.id)
+                self.assertEqual(effective.task_revision, task.revision)
+                token = task_cancellation.register(effective.task_id)
+                try:
+                    self.assertTrue(task_cancellation.cancel(task.id))
+                    self.assertTrue(token.is_cancelled())
+                finally:
+                    task_cancellation.release(task.id)
+            return {'reply': '已取消', 'answer_status': 'task_cancelled', 'step_advanced': False}
+        result = self.service.run(request, execute)
+        self.assertEqual(result['answer_status'], 'task_cancelled')
+        self.assertIsNone(request.task_id)
+
     def test_answered_interjection_does_not_record_q5_explained_or_advance(self):
         q5=Mock();q5.has_path.return_value=True;q5.is_understood.return_value=False
         q5.status.return_value={'path_id':'path','plan_confirmed':True,'mode':'study','current':{'name':'当前目标'}}

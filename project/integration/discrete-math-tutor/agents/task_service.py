@@ -423,14 +423,17 @@ class TaskService:
                 answer.bind(lambda: {'task_id': task['id'], 'task_revision': task['revision']}, guard,
                             lambda: self.repo.guard(task['student_id'], task['session_id'],
                                 task['id'], task['revision'], self.tutor.memory.repo))
+            # 新任务也必须把已认领身份传给循环，使HTTP取消命中同一令牌。
+            execution_request = effective.model_copy(update={
+                'task_id': task['id'], 'task_revision': task['revision']})
             if q5_binding is not None:
-                result = executor(effective, context, resolved, intercept, guard,
+                result = executor(execution_request, context, resolved, intercept, guard,
                                   progress, previous=previous,
                                   q5_binding=q5_binding)
             elif self._accepts_previous(executor):
-                result = executor(effective, context, resolved, intercept, guard, progress, previous=previous)
+                result = executor(execution_request, context, resolved, intercept, guard, progress, previous=previous)
             else:
-                result = executor(effective, context, resolved, intercept, guard, progress)
+                result = executor(execution_request, context, resolved, intercept, guard, progress)
             if result.get("loop_paused"):
                 # ask_user pauses the same task; persist the pending question and
                 # the complete loop protocol before returning to the page.
