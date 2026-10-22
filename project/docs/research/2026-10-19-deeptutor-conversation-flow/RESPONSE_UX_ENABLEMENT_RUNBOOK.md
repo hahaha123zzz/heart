@@ -1,5 +1,7 @@
 # 回答体验启用准备与回滚
 
+最新部署收尾（2026-10-22，已提交业务537dfb4）：启动器递归已修复；独立完整宿主/候选/依赖/缓存、157项回归及真实native、跨章、partial、单次完整Q5、PDF、同图像素/页面、ask_user、取消/超时/晚到与刷新已有证据。**最终整轮AI测试练习触发CitationGroundingError，保持失败；全入口和整计划未完成，正式LightRAG不切换，staging/ready=false不变。** 以[部署收尾报告](LIGHTRAG_DEPLOYMENT_CLOSEOUT_REPORT.md)及[逐项证据](LIGHTRAG_DEPLOYMENT_CLOSEOUT_EVIDENCE.json)为本轮事实，下方旧日期保留历史。
+
 ## 2026-10-22 当前可执行首批方案（准备完成，未启动）
 
 业务 **421f871**；[收尾报告](RESPONSE_UX_REMAINING_CLOSEOUT.md)记录独立环境111项、真实一般检索/页面、固定代码/输入及只读备份。旧段落保留此前未就绪状态，不再作为当前仍缺独立环境或备份的结论。
