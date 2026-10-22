@@ -214,6 +214,10 @@ def workspace_for(working_dir: Path) -> str:
     return f"deeptutor_{hashlib.sha256(identity).hexdigest()[:16]}"
 
 
+async def _deny_query_extraction(*args, **kwargs):
+    raise LightRagContractError('查询实例禁止抽取或重建索引')
+
+
 def build_rag(
     working_dir: Path,
     *,
@@ -222,8 +226,11 @@ def build_rag(
     indexing_snapshot: Any | None = None,
     query_roles: dict[str, Any] | None = None,
     embedding_config: EmbeddingConfig | None = None,
+    query_only: bool = False,
 ) -> Any:
     """Construct one exact-version, version-isolated LightRAG instance."""
+    if query_only and indexing_snapshot is not None:
+        raise LightRagContractError('查询实例不能传入建图快照')
     _require_exact_version()
     _register_parser()
     from lightrag.llm_roles import RoleLLMConfig
@@ -245,7 +252,7 @@ def build_rag(
         calls = query_roles if query_roles is not None else resolve_query_roles()
         for role, call in calls.items():
             role_configs[role] = RoleLLMConfig(
-                func=build_llm_model_func(
+                func=_deny_query_extraction if query_only and role == 'extract' else build_llm_model_func(
                     **llm_adapter_kwargs, llm_config=call.config, owner=call.owner
                 ),
                 metadata={

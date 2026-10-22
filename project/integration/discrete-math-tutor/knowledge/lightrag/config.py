@@ -269,7 +269,9 @@ def build_llm_model_func(*, io_bridge=None, llm_config=None, owner=None):
                 return await request_owned()
         async def request_owned():
             started=time.monotonic()
-            item={"role": config.role, "model": config.model, "status": "failed"}
+            from .indexing_policy import _endpoint_identity
+            item={"role": config.role, "model": config.model, "status": "failed",
+                  "endpoint":_endpoint_identity(config.client.base_url)}
             try:
                 async with AsyncOpenAI(api_key=config.client.api_key, base_url=config.client.base_url,
                                        timeout=150, max_retries=0) as client:

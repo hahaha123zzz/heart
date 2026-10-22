@@ -75,6 +75,7 @@ class CourseSearch:
                         self._covered_sources = sources
                 self.last_result = getattr(self.backend, 'last_result', None)
                 if self.last_result:
+                    record['model_binding'] = self.last_result.get('model_binding')
                     record['input_signature'] = self.last_result.get('input_signature')
                     record['index_identity'] = str(getattr(getattr(self.backend, 'backend', None), 'candidate', ''))
             else:

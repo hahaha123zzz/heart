@@ -6,7 +6,7 @@ from .trace import stage
 from .course_input import verify,digest,COURSE
 from .pipeline import embedding_config
 from .config import Metrics
-from .roles import resolve_query_roles
+from .roles import resolve_query_roles, query_binding
 from .worker import run_in_worker_loop
 from .write_lock import write_ownership
 from .indexing_policy import _fingerprint
@@ -162,7 +162,7 @@ class LightRagBackend:
         return manifest
 
     async def search(self, query, *, course_id, mode="hybrid", limit=6, chapter_id=None, section_id=None, cancellation=None):
-        trace=[];metrics=None;started=time.monotonic()
+        trace=[];metrics=None;binding=None;started=time.monotonic()
         try:
             if not isinstance(query,str) or not query.strip() or len(query)>4000: raise ValueError("检索问题无效或过长")
             if isinstance(limit,bool) or not isinstance(limit,int) or not 1<=limit<=40: raise ValueError("结果数必须为1到40")
@@ -175,10 +175,9 @@ class LightRagBackend:
                 storage.require_compatible_embedding(working,embedding)
                 expected=json.loads((self.candidate/"policy.json").read_text(encoding="utf-8"))
                 calls=resolve_query_roles(metrics)
-                if calls["extract"].config.identity!=expected["extract"]:
-                    raise RuntimeError("模型配置已变化，需要核对候选策略")
+                binding=query_binding(expected,calls)
                 async def job(bridge):
-                    rag=engine.build_rag(working,io_bridge=bridge,query_roles=calls,embedding_config=embedding)
+                    rag=engine.build_rag(working,io_bridge=bridge,query_roles=calls,embedding_config=embedding,query_only=True)
                     failed=True
                     try:
                         await engine.initialize(rag)
@@ -246,9 +245,11 @@ class LightRagBackend:
                         "graph_context":background,"visuals":list(selected_visuals.values()),"references":[r for r in records if r["kind"]=="reference"],
                         "metadata":[r["metadata"] for r in records if r["kind"]=="query_metadata"],
                         "input_signature":expected["input_signature"],"trace":trace,"usage":metrics.public(),"runtime":runtime_status(),
+                        "model_binding":binding,
                         "citation_status":"Q2 verification required","rerank_status":"applied" if mapped else "not_needed"}
         except BaseException as exc:
             exc.lightrag_audit={'trace':trace,'usage':metrics.public() if metrics else Metrics().public(),
+                                'model_binding':binding,
                                 'seconds':time.monotonic()-started}
             raise
 
