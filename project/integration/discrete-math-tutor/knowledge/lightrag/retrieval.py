@@ -3,7 +3,7 @@ from pathlib import Path
 import asyncio,json,math,time
 from . import engine,storage
 from .trace import stage
-from .course_input import verify,digest,COURSE
+from .course_input import verify,verify_active,digest,COURSE
 from .pipeline import embedding_config
 from .config import Metrics
 from .roles import resolve_query_roles, query_binding
@@ -159,7 +159,10 @@ class LightRagBackend:
             checked=_contained_regular_file(self.candidate,self.candidate/"index"/path,label="native index")
             if digest(checked)!=sha: raise RuntimeError("候选图谱/向量/文本/状态文件身份变化")
         verify(self.candidate/"input",manifest["files"])
-        verify(self.source_root if self.source_root is not None else Path(manifest["source_root"]),manifest["files"])
+        if self.source_root is None:
+            verify(Path(manifest["source_root"]),manifest["files"])
+        else:
+            verify_active(self.source_root,manifest["files"])
         return manifest
 
     async def search(self, query, *, course_id, mode="hybrid", limit=6, chapter_id=None, section_id=None, cancellation=None):
@@ -172,6 +175,10 @@ class LightRagBackend:
             manifest=self.validate(course_id)
             source_binding={'indexed_source_root':manifest['source_root'],
                 'active_source_root':str(self.source_root if self.source_root is not None else Path(manifest['source_root']))}
+            if self.source_root is not None:
+                extras=verify_active(self.source_root,manifest['files'])
+                source_binding['additional_host_files']={'count':len(extras),'sha256':_fingerprint(extras),
+                    'evidence_eligible':False}
             working=self.candidate/"index"
             with write_ownership(self.candidate):
                 metrics=Metrics();embedding=await embedding_config(metrics)

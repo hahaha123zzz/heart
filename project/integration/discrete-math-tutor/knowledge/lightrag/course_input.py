@@ -38,6 +38,13 @@ def verify(root, expected):
     actual=inventory(root)
     if actual!=material_files(expected): raise IngressError("教材输入已变化，拒绝在同一候选索引混入新版本")
 
+def verify_active(root, expected):
+    """宿主还含Q2索引/未入图产物；冻结原文必须逐项相同，额外文件不成为图证据。"""
+    actual=inventory(root);required=material_files(expected)
+    if any(actual.get(path)!=sha for path,sha in required.items()):
+        raise IngressError("宿主教材缺失或版本变化，拒绝混用候选来源")
+    return {path:sha for path,sha in actual.items() if path not in required}
+
 def visual_inventory(root):
     # 独立模块实例绑定明确资源根，避免改写 Q2 模块全局状态。
     spec=importlib.util.spec_from_file_location("knowledge._lightrag_source_visuals",Path(__file__).parents[1]/"source_visuals.py")

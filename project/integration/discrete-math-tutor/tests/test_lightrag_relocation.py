@@ -84,12 +84,25 @@ class RelocationTests(unittest.TestCase):
         (candidate/'progress.json').write_text(json.dumps({'state':'candidate_complete','chapters':{str(i):{'complete':True} for i in range(1,12)}}))
         (candidate/'index_files.json').write_text(json.dumps({'core':'sha'}))
         backend=LightRagBackend(candidate,authorized_course_ids={'experimental-psychology-3'},allow_candidate=True,source_root=local)
-        with patch('knowledge.lightrag.retrieval.verify') as verify,patch('knowledge.lightrag.ingress._contained_regular_file',return_value=candidate/'core'),patch('knowledge.lightrag.retrieval.digest',return_value='sha'):
+        with patch('knowledge.lightrag.retrieval.verify') as frozen,patch('knowledge.lightrag.retrieval.verify_active') as verify,patch('knowledge.lightrag.ingress._contained_regular_file',return_value=candidate/'core'),patch('knowledge.lightrag.retrieval.digest',return_value='sha'):
             self.assertEqual(backend.validate('experimental-psychology-3'),manifest)
             self.assertEqual(verify.call_args_list[-1].args[0],local)
+            frozen.assert_called_once_with(candidate/'input',manifest['files'])
             verify.side_effect=ingress.IngressError('drift')
             with self.assertRaisesRegex(ingress.IngressError,'drift'):backend.validate('experimental-psychology-3')
         self.assertEqual(json.loads((candidate/'input_manifest.json').read_text()),manifest)
+
+    def test_host_additional_q2_artifacts_are_not_indexed_and_frozen_snapshot_stays_strict(self):
+        from knowledge.lightrag.course_input import verify,verify_active,inventory
+        book=self.root/'book';book.mkdir();(book/'manifest.json').write_text('frozen')
+        expected=inventory(book);(book/'rag_index.sqlite3').write_bytes(b'existing host index')
+        extra=verify_active(book,expected)
+        self.assertEqual(set(extra),{'rag_index.sqlite3'})
+        with self.assertRaises(ingress.IngressError):verify(book,expected)
+        (book/'manifest.json').write_text('new edition')
+        with self.assertRaises(ingress.IngressError):verify_active(book,expected)
+        (book/'manifest.json').unlink()
+        with self.assertRaises(ingress.IngressError):verify_active(book,expected)
 
 
 if __name__=='__main__':unittest.main()
