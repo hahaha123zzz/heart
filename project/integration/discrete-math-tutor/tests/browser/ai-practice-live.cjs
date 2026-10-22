@@ -36,6 +36,7 @@ const url=process.env.UX_TEST_URL||'http://127.0.0.1:8012',out=process.env.UX_OU
    const response=page.waitForResponse(r=>r.url().endsWith('/api/chat/stream')&&r.request().method()==='POST');
    await page.locator('[data-practice-'+action+'="p1"]').click();await response;
    const body=await page.evaluate(async()=>await aiBodies.at(-1));
+   fs.writeFileSync(out+'/'+action+'.sse',body);
    const done=body.split(/\r?\n\r?\n/).filter(frame=>frame.includes('event: done')).at(-1);
    assert.ok(done,'缺少最终收据');const result=JSON.parse(done.split(/\r?\n/).filter(l=>l.startsWith('data:')).map(l=>l.slice(5).trimStart()).join('\n'));
    const row={action,seconds:(Date.now()-started)/1000,first_delta_seconds:await page.evaluate(start=>aiFirst?(aiFirst-start)/1000:null,started),result};report.cases.push(row);

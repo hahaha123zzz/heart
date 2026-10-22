@@ -1,10 +1,12 @@
 """AI测试题只能显式加载，来源不能伪装，未审核题不得正式评分。"""
 import copy
 import json
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from knowledge.ai_practice_test import LABEL, load_catalog
 
@@ -62,6 +64,52 @@ class AIPracticeTests(unittest.TestCase):
             self.assertEqual(api.exercise_context(q)['context'],'真实原文')
         self.assertEqual(resolve.call_args.args[0].document_id,q['source']['document_id'])
         self.assertNotIn('AI生成',resolve.call_args.args[0].text)
+
+    def test_invalid_citations_reject_hint_and_explanation_even_after_quality_passes(self):
+        import practice_api as api
+        from agents.quality_checker import QualityResult
+        from knowledge.grounded_citations import EvidenceBundle
+        q=load_catalog(FIXTURE,COURSE)['questions'][0]
+        tutor=SimpleNamespace(llm=Mock(),quality_checker=Mock(),memory=Mock())
+        tutor.quality_checker.check.return_value=QualityResult(passed=True)
+        resolved={'context':'教材原文','images':[],'reference':{'image_refs':[]}}
+        for action in ['hint','explain']:
+            for reply in ['没有引用编号的解释','越界引用[99]']:
+                tutor.llm.chat.return_value=reply
+                bundle=EvidenceBundle(sources=[],evidence=[],backgrounds=[])
+                with self.subTest(action=action,reply=reply), patch.dict(sys.modules,{'main':SimpleNamespace(orchestrator=tutor)}), \
+                     patch('knowledge.course_config.PSYCHOLOGY',True), patch('knowledge.grounded_citations.settings',return_value='fixture'), \
+                     patch('knowledge.grounded_citations.selection_evidence',return_value=bundle), \
+                     patch.object(api,'exercise_context',return_value=resolved), patch.object(api,'memory_for',return_value={'summary':''}):
+                    result=api.ai_parts(q,[q['parts'][0]],{},'isolated',action)
+                self.assertEqual(result['answer_status'],'quality_rejected')
+                self.assertEqual(result['reason'],'citation_grounding_failed')
+                self.assertFalse(result['quality']['passed'])
+                self.assertFalse(result['step_advanced'])
+                self.assertEqual(result['pdf_references'],[])
+                self.assertNotIn(reply,result['reply'])
+
+    def test_stale_citation_is_rejected_but_unexpected_failures_are_not_hidden(self):
+        import practice_api as api
+        from agents.quality_checker import QualityResult
+        from knowledge.grounded_citations import CitationGroundingError
+        q=load_catalog(FIXTURE,COURSE)['questions'][0]
+        tutor=SimpleNamespace(llm=Mock(),quality_checker=Mock(),memory=Mock())
+        tutor.llm.chat.return_value='解释[1]'
+        tutor.quality_checker.check.return_value=QualityResult(passed=True)
+        bundle=SimpleNamespace(sources=[],evidence=[],references=Mock())
+        with patch.dict(sys.modules,{'main':SimpleNamespace(orchestrator=tutor)}), \
+             patch('knowledge.course_config.PSYCHOLOGY',True), patch('knowledge.grounded_citations.settings',return_value='fixture'), \
+             patch('knowledge.grounded_citations.selection_evidence',return_value=bundle), \
+             patch.object(api,'exercise_context',return_value={'context':'原文','images':[],'reference':{'image_refs':[]}}), \
+             patch.object(api,'memory_for',return_value={'summary':''}):
+            bundle.references.side_effect=CitationGroundingError('引用教材版本已失效')
+            self.assertEqual(api.ai_parts(q,[q['parts'][0]],{},'isolated','hint')['answer_status'],'quality_rejected')
+            failure=RuntimeError('unexpected storage failure')
+            bundle.references.side_effect=failure
+            with self.assertRaises(RuntimeError) as raised:
+                api.ai_parts(q,[q['parts'][0]],{},'isolated','hint')
+            self.assertIs(raised.exception,failure)
 
 
 if __name__=='__main__':unittest.main()

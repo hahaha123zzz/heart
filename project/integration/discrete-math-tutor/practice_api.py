@@ -237,7 +237,15 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
         if q.get('origin') == 'ai_generated':
             from knowledge.ai_practice_test import LABEL
             reply=LABEL+'\n\n'+reply
-        grounded_refs=grounded_bundle.references(reply) if grounded_bundle else []
+        from knowledge.grounded_citations import CitationGroundingError
+        try:
+            grounded_refs=grounded_bundle.references(reply) if grounded_bundle else []
+        except CitationGroundingError:
+            # 引用拒绝沿用公共终态，不让无效草稿落库或中断最终收据。
+            return {'reply':'本次辅导未能核验教材引用，未保存。请重新提问。',
+                'answer_status':'quality_rejected','reason':'citation_grounding_failed',
+                'quality':quality.model_copy(update={'passed':False,'issues':['教材引用未通过核验']}).model_dump(),
+                'step_advanced':False,'image_refs':[],'pdf_references':[],'textbook_sources':[]}
         guide=None
         if action=='explain':
             from visualization.service import rollout_settings,VisualizationService
