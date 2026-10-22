@@ -1,0 +1,761 @@
+{
+  "revision": "2ae1e5f",
+  "evidence_root": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\proof-2ae1e5f-final",
+  "all_passed": true,
+  "cases": [
+    {
+      "name": "cross",
+      "seconds": 66.059,
+      "first_paint_seconds": 61.047,
+      "answer_status": "answered",
+      "actual_backends": [
+        "lightrag"
+      ],
+      "model_calls": 7,
+      "native_queries": 2,
+      "retrieval_calls": 2,
+      "supplemental_calls": 0,
+      "coverage": "covered",
+      "missing": [],
+      "fallback": false,
+      "references": 5,
+      "cited_chapters": [
+        1,
+        2
+      ],
+      "all_final_refs_verified": true,
+      "both_chapter_original_quotes_in_model": true
+    },
+    {
+      "name": "single",
+      "seconds": 34.905,
+      "first_paint_seconds": 26.432,
+      "answer_status": "answered",
+      "actual_backends": [
+        "lightrag"
+      ],
+      "model_calls": 4,
+      "native_queries": 1,
+      "retrieval_calls": 1,
+      "supplemental_calls": 0,
+      "coverage": "passthrough",
+      "missing": [],
+      "fallback": null,
+      "references": 5,
+      "cited_chapters": [
+        2
+      ],
+      "all_final_refs_verified": true
+    },
+    {
+      "name": "q5-plan",
+      "seconds": 2.374,
+      "first_paint_seconds": null,
+      "answer_status": "awaiting_clarification",
+      "actual_backends": [],
+      "model_calls": 0,
+      "native_queries": 0,
+      "retrieval_calls": null,
+      "supplemental_calls": null,
+      "coverage": null,
+      "missing": null,
+      "fallback": null,
+      "references": 0,
+      "cited_chapters": [],
+      "all_final_refs_verified": false
+    },
+    {
+      "name": "q5-confirm",
+      "seconds": 7.894,
+      "first_paint_seconds": 4.351,
+      "answer_status": "answered",
+      "actual_backends": [
+        "q2_exact"
+      ],
+      "model_calls": 4,
+      "native_queries": 0,
+      "retrieval_calls": null,
+      "supplemental_calls": null,
+      "coverage": null,
+      "missing": null,
+      "fallback": null,
+      "references": 2,
+      "cited_chapters": [
+        1
+      ],
+      "all_final_refs_verified": true
+    },
+    {
+      "name": "q5-cross",
+      "seconds": 29.48,
+      "first_paint_seconds": 25.853,
+      "answer_status": "answered",
+      "actual_backends": [
+        "lightrag"
+      ],
+      "model_calls": 7,
+      "native_queries": 2,
+      "retrieval_calls": 2,
+      "supplemental_calls": 0,
+      "coverage": "covered",
+      "missing": [],
+      "fallback": false,
+      "references": 4,
+      "cited_chapters": [
+        1,
+        2
+      ],
+      "all_final_refs_verified": true,
+      "both_chapter_original_quotes_in_model": true,
+      "linked_association_candidates_in_model": 6,
+      "graph_candidates_not_evidence": true
+    },
+    {
+      "name": "q5-return",
+      "seconds": 10.397,
+      "first_paint_seconds": 1.767,
+      "answer_status": "answered",
+      "actual_backends": [
+        "q2_exact"
+      ],
+      "model_calls": 6,
+      "native_queries": 0,
+      "retrieval_calls": null,
+      "supplemental_calls": null,
+      "coverage": null,
+      "missing": null,
+      "fallback": null,
+      "references": 3,
+      "cited_chapters": [
+        1
+      ],
+      "all_final_refs_verified": true
+    },
+    {
+      "name": "q5-next",
+      "seconds": 12.15,
+      "first_paint_seconds": 6.797,
+      "answer_status": "answered",
+      "actual_backends": [
+        "q2_exact"
+      ],
+      "model_calls": 5,
+      "native_queries": 0,
+      "retrieval_calls": null,
+      "supplemental_calls": null,
+      "coverage": null,
+      "missing": null,
+      "fallback": null,
+      "references": 1,
+      "cited_chapters": [
+        1
+      ],
+      "all_final_refs_verified": true
+    },
+    {
+      "name": "pdf-explain",
+      "seconds": 12.742,
+      "first_paint_seconds": 7.912,
+      "answer_status": "answered",
+      "actual_backends": [],
+      "model_calls": 5,
+      "native_queries": 0,
+      "retrieval_calls": null,
+      "supplemental_calls": null,
+      "coverage": null,
+      "missing": null,
+      "fallback": null,
+      "references": 1,
+      "cited_chapters": [
+        1
+      ],
+      "all_final_refs_verified": true
+    },
+    {
+      "name": "pdf-followup",
+      "seconds": 9.334,
+      "first_paint_seconds": 5.319,
+      "answer_status": "answered",
+      "actual_backends": [],
+      "model_calls": 5,
+      "native_queries": 0,
+      "retrieval_calls": null,
+      "supplemental_calls": null,
+      "coverage": null,
+      "missing": null,
+      "fallback": null,
+      "references": 1,
+      "cited_chapters": [
+        1
+      ],
+      "all_final_refs_verified": true
+    },
+    {
+      "name": "media-tool",
+      "seconds": 24.78,
+      "first_paint_seconds": 15.761,
+      "answer_status": "answered",
+      "actual_backends": [
+        "q2_exact"
+      ],
+      "model_calls": 4,
+      "native_queries": 0,
+      "retrieval_calls": null,
+      "supplemental_calls": null,
+      "coverage": null,
+      "missing": null,
+      "fallback": null,
+      "references": 2,
+      "cited_chapters": [
+        5
+      ],
+      "all_final_refs_verified": true,
+      "pixel_hash_sets": [
+        [
+          "d713f3bae36f099e03fefaea8533fa84c0afae74e3b8891ca164087db43e0f75"
+        ],
+        [
+          "d713f3bae36f099e03fefaea8533fa84c0afae74e3b8891ca164087db43e0f75"
+        ]
+      ],
+      "generation_and_quality_same_pixels": true,
+      "image_statuses": [
+        "pending"
+      ],
+      "browser_image": {
+        "image_loaded": true,
+        "image_src": "/api/figures/image-05-0004/image?sha256=d713f3bae36f099e03fefaea8533fa84c0afae74e3b8891ca164087db43e0f75&version=b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026&document_id=experimental-psychology-3%3Achapter-05",
+        "source_target": {
+          "chapter": 5,
+          "section": 3
+        },
+        "refresh_loaded_same_image": true,
+        "generation_posts": 0
+      }
+    },
+    {
+      "name": "ask-pause",
+      "seconds": 1.685,
+      "first_paint_seconds": null,
+      "answer_status": "awaiting_clarification",
+      "actual_backends": [],
+      "model_calls": 1,
+      "native_queries": 0,
+      "retrieval_calls": null,
+      "supplemental_calls": null,
+      "coverage": null,
+      "missing": null,
+      "fallback": null,
+      "references": 0,
+      "cited_chapters": [],
+      "all_final_refs_verified": false
+    },
+    {
+      "name": "ask-resume",
+      "seconds": 30.086,
+      "first_paint_seconds": 23.743,
+      "answer_status": "answered",
+      "actual_backends": [
+        "lightrag"
+      ],
+      "model_calls": 4,
+      "native_queries": 1,
+      "retrieval_calls": 1,
+      "supplemental_calls": 0,
+      "coverage": "passthrough",
+      "missing": [],
+      "fallback": null,
+      "references": 2,
+      "cited_chapters": [
+        1
+      ],
+      "all_final_refs_verified": true
+    },
+    {
+      "name": "partial",
+      "seconds": 34.28,
+      "first_paint_seconds": 29.444,
+      "answer_status": "answered",
+      "actual_backends": [
+        "lightrag"
+      ],
+      "model_calls": 5,
+      "native_queries": 3,
+      "retrieval_calls": 3,
+      "supplemental_calls": 1,
+      "coverage": "partial",
+      "missing": [
+        {
+          "id": "object-2",
+          "query": "火星玄武岩晶体结构",
+          "chapter_id": 2,
+          "reason": "没有可核验原文"
+        }
+      ],
+      "fallback": false,
+      "references": 3,
+      "cited_chapters": [
+        1
+      ],
+      "all_final_refs_verified": true
+    }
+  ],
+  "runs": [
+    {
+      "case": "native-probe",
+      "started": 1792682189.2761662,
+      "ended": 1792682209.9278078,
+      "exit_code": 0,
+      "passed": true
+    },
+    {
+      "case": "plain",
+      "started": 1792682209.9288735,
+      "script": "response-stream.cjs",
+      "exit_code": 0,
+      "passed": true,
+      "ended": 1792682333.815019,
+      "seconds": 123.88614535331726
+    },
+    {
+      "case": "partial",
+      "started": 1792682333.8162713,
+      "script": "lightrag-native-lifecycle.cjs",
+      "exit_code": 0,
+      "passed": true,
+      "ended": 1792682377.5351076,
+      "seconds": 43.718836307525635
+    },
+    {
+      "case": "q5",
+      "started": 1792682377.5361063,
+      "script": "lightrag-joint-flow.cjs",
+      "exit_code": 0,
+      "passed": true,
+      "ended": 1792682445.6350186,
+      "seconds": 68.0989122390747
+    },
+    {
+      "case": "pdf",
+      "started": 1792682445.6360207,
+      "script": "lightrag-joint-flow.cjs",
+      "exit_code": 0,
+      "passed": true,
+      "ended": 1792682474.5310771,
+      "seconds": 28.89505648612976
+    },
+    {
+      "case": "media",
+      "started": 1792682474.5310771,
+      "script": "lightrag-joint-flow.cjs",
+      "exit_code": 0,
+      "passed": true,
+      "ended": 1792682507.4728022,
+      "seconds": 32.94172501564026
+    },
+    {
+      "case": "practice",
+      "started": 1792682507.4728022,
+      "script": "ai-practice-live.cjs",
+      "exit_code": 0,
+      "passed": true,
+      "ended": 1792682528.695678,
+      "seconds": 21.222875833511353
+    },
+    {
+      "case": "ask",
+      "started": 1792682528.6966748,
+      "script": "lightrag-joint-flow.cjs",
+      "exit_code": 0,
+      "passed": true,
+      "ended": 1792682567.6174498,
+      "seconds": 38.920774936676025
+    },
+    {
+      "case": "native-edges",
+      "started": 1792682567.6174498,
+      "script": "lightrag-native-lifecycle.cjs",
+      "exit_code": 0,
+      "passed": true,
+      "ended": 1792682619.2656581,
+      "seconds": 51.64820837974548
+    },
+    {
+      "case": "recovery",
+      "started": 1792682619.2656581,
+      "script": "lightrag-public-recovery.cjs",
+      "exit_code": 0,
+      "passed": true,
+      "ended": 1792682654.85273,
+      "seconds": 35.587071895599365
+    }
+  ],
+  "environment": {
+    "revision": "2ae1e5f",
+    "release": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\code-proof-2ae1e5f\\project\\integration\\discrete-math-tutor",
+    "candidate": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\candidate",
+    "python": "E:\\项目\\heart\\.runtime\\response-release-20261022\\.venv\\Scripts\\python.exe",
+    "packages": {
+      "lightrag-hku": "1.5.7",
+      "openai": "3.36.1",
+      "fastembed": "0.8.1",
+      "onnxruntime": "1.31.0",
+      "llama-index-core": "0.14.25"
+    },
+    "forbidden_old_reads": [],
+    "uri_test_hook": false,
+    "query_wrapper": "wrap_native_query",
+    "source_root": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\code-proof-2ae1e5f\\project\\integration\\discrete-math-tutor\\knowledge\\courses\\experimental-psychology-3"
+  },
+  "native": {
+    "status": "success",
+    "provider": "lightrag",
+    "usage": {
+      "calls": [
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "success",
+          "endpoint": "https://api.deepseek.com",
+          "response_model": "deepseek-flash",
+          "finish_reason": "stop",
+          "usage": {
+            "completion_tokens": 24,
+            "prompt_tokens": 666,
+            "total_tokens": 690,
+            "completion_tokens_details": null,
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cache_write_tokens": null,
+              "cached_tokens": 512,
+              "image_tokens": null,
+              "text_tokens": null
+            },
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 154
+          },
+          "seconds": 1.437999999965541
+        }
+      ],
+      "llm_calls": 1,
+      "usage": {
+        "prompt_tokens": 666,
+        "completion_tokens": 24,
+        "total_tokens": 690
+      },
+      "embedding_batches": 1,
+      "embedding_texts": 3,
+      "cost": null,
+      "cost_note": "服务未返回金额，未估算费用"
+    },
+    "source_binding": {
+      "indexed_source_root": "E:\\项目\\heart-worktrees\\lightrag-integration\\project\\integration\\discrete-math-tutor\\.runtime\\q2-delivery-95b956a\\snapshot\\course",
+      "active_source_root": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\code-proof-2ae1e5f\\project\\integration\\discrete-math-tutor\\knowledge\\courses\\experimental-psychology-3",
+      "additional_host_files": {
+        "count": 84,
+        "sha256": "0d836c3b5dbed11290b90fbf80252da70519e14bbd287e0785696378076e2b42",
+        "evidence_eligible": false
+      },
+      "sidecars": {
+        "mode": "candidate_local_read_view",
+        "documents": [
+          "chapter_09.generated.pdf",
+          "chapter_04.generated.pdf",
+          "chapter_02.generated.pdf",
+          "chapter_05.generated.pdf"
+        ]
+      }
+    },
+    "input_signature": "0a6096dc43a8829d48776cbcd0c583b6dc779bd6b450614b4bd20bd1d7f0e5ce",
+    "source_count": 4
+  },
+  "regression": {
+    "tests": 164,
+    "passed": 164,
+    "seconds": 120.252,
+    "log": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\regression-2ae1e5f.log"
+  },
+  "native_lifecycle": [
+    {
+      "mode": "cancel",
+      "passed": true,
+      "seconds": 9.598,
+      "posts": 1,
+      "cancel_at": 1792682576673,
+      "backend_end": [
+        {
+          "at": 1792682576.7651267,
+          "event": "backend_end",
+          "status": "CancelledError"
+        }
+      ],
+      "sdk_end": [
+        {
+          "at": 1792682576.7616062,
+          "event": "sdk_end",
+          "status": "CancelledError"
+        }
+      ],
+      "queries": 1,
+      "q5_unchanged": true,
+      "history_entries": 0
+    },
+    {
+      "mode": "timeout",
+      "passed": true,
+      "seconds": 16.288,
+      "posts": 1,
+      "cancel_at": null,
+      "backend_end": [
+        {
+          "at": 1792682589.654047,
+          "event": "backend_end",
+          "status": "TimeoutError"
+        },
+        {
+          "at": 1792682592.5710964,
+          "event": "backend_end",
+          "status": "TimeoutError"
+        },
+        {
+          "at": 1792682596.3399174,
+          "event": "backend_end",
+          "status": "TimeoutError"
+        },
+        {
+          "at": 1792682599.0025609,
+          "event": "backend_end",
+          "status": "TimeoutError"
+        }
+      ],
+      "sdk_end": [
+        {
+          "at": 1792682589.6507163,
+          "event": "sdk_end",
+          "status": "CancelledError"
+        },
+        {
+          "at": 1792682592.5675616,
+          "event": "sdk_end",
+          "status": "CancelledError"
+        },
+        {
+          "at": 1792682596.3376007,
+          "event": "sdk_end",
+          "status": "CancelledError"
+        },
+        {
+          "at": 1792682599.0003457,
+          "event": "sdk_end",
+          "status": "CancelledError"
+        }
+      ],
+      "queries": 4,
+      "q5_unchanged": true,
+      "history_entries": 0
+    },
+    {
+      "mode": "late",
+      "passed": true,
+      "seconds": 13.003,
+      "posts": 1,
+      "cancel_at": 1792682615926,
+      "backend_end": [
+        {
+          "at": 1792682615.9800832,
+          "event": "backend_end",
+          "status": "success"
+        }
+      ],
+      "sdk_end": [
+        {
+          "at": 1792682610.6459444,
+          "event": "sdk_end",
+          "status": "success"
+        }
+      ],
+      "queries": 1,
+      "q5_unchanged": true,
+      "history_entries": 0
+    }
+  ],
+  "practice": {
+    "input_origin": "ai_generated",
+    "test_only": true,
+    "refresh_restored": true,
+    "generation_posts": 2,
+    "submission_blocked": 409,
+    "formal_submissions": 0,
+    "cases": [
+      {
+        "action": "hint",
+        "seconds": 6.065,
+        "first_delta_seconds": 2.906,
+        "answer_status": "answered",
+        "references": 1,
+        "ai_label_present": true,
+        "step_advanced": false
+      },
+      {
+        "action": "explain",
+        "seconds": 7.876,
+        "first_delta_seconds": 3.578,
+        "answer_status": "answered",
+        "references": 1,
+        "ai_label_present": true,
+        "step_advanced": false
+      }
+    ],
+    "raw": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\proof-2ae1e5f-final\\practice\\practice-live.json"
+  },
+  "practice_rejection_protocol": {
+    "revision": "2ae1e5f",
+    "test_kind": "offline_real_http_application_with_mock_model_output",
+    "http": 200,
+    "answer_status": "quality_rejected",
+    "reason": "citation_grounding_failed",
+    "done_received": true,
+    "help_rows": 0,
+    "assistant_rows": 0,
+    "model_calls_real": 0
+  },
+  "tls_fault": {
+    "passed": true,
+    "seconds": 49.054,
+    "model_fault_fixture": "only_native_AsyncCompletions routed to local self-signed TLS; fake test key; no frozen data or return replacement",
+    "native_queries": 3,
+    "sdk_attempts": 9,
+    "tls_handshakes": 9,
+    "http_requests": 0,
+    "q5_unchanged": true,
+    "assistant_history": 0,
+    "fallback": false,
+    "first_error_chain": [
+      {
+        "type": "APIConnectionError",
+        "message": "Connection error."
+      },
+      {
+        "type": "ConnectError",
+        "message": "('已处理证书链，但是在不受信任提供程序信任的根证书中终止。',)"
+      },
+      {
+        "type": "ConnectError",
+        "message": "('已处理证书链，但是在不受信任提供程序信任的根证书中终止。',)"
+      }
+    ],
+    "server_tls_error_sample": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)",
+    "raw": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\proof-2ae1e5f-tls-v2\\edges.json",
+    "first_fixture_failure_kept": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\proof-2ae1e5f-tls\\edges.json"
+  },
+  "stale_source": {
+    "fixture": "only_client_saved_reference_version_changed; textbook_unchanged",
+    "api_stale": true,
+    "click_blocked": true,
+    "focus_unchanged": true,
+    "source_not_upgraded": true,
+    "generation_posts": 0
+  },
+  "standalone": {
+    "passed": true,
+    "code_revision": "2ae1e5f",
+    "test_hooks": false,
+    "actual_backend": "lightrag",
+    "coverage": {
+      "status": "covered",
+      "required": [
+        {
+          "id": "object-1",
+          "query": "实验程序",
+          "chapter_id": 1,
+          "section_id": null
+        },
+        {
+          "id": "object-2",
+          "query": "自变量控制",
+          "chapter_id": 2,
+          "section_id": null
+        }
+      ],
+      "covered": [
+        "object-1",
+        "object-2"
+      ],
+      "missing": [],
+      "retrieval_calls": 2,
+      "supplemental_calls": 0,
+      "fallback": false,
+      "seconds": 71.0,
+      "warning": ""
+    },
+    "references": 5,
+    "runtime_profile": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\start-isolated-lightrag.py"
+  },
+  "usage": {
+    "outer_model_calls": 75,
+    "outer_total_tokens": 212798,
+    "native_sdk_starts": 16,
+    "all_outer_endpoints_official": true,
+    "cost_currency": "not_calculated; no token prices assumed"
+  },
+  "resource_manifest": {
+    "path": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\resource-manifest-2ae1e5f.json",
+    "sha256": "17065331cb51a1ce9381d0291efbe55aa4db8be89ad7ba1578c1aa116f075d32",
+    "counts": {
+      "host_input": 469,
+      "candidate_sidecars": 223,
+      "model_cache": 17
+    },
+    "integrity_report": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\integrity-2ae1e5f.json"
+  },
+  "full_revision": "2ae1e5fd9618ea80a999a22cb30339a153e15d0c",
+  "citation_negative_regression": {
+    "tests": 32,
+    "passed": 32,
+    "seconds": 28.514,
+    "log": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\citation-negative-2ae1e5f.log"
+  },
+  "backup": {
+    "path": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\backup-before-lightrag-2ae1e5f\\manifest.json",
+    "databases": 2,
+    "consistency_checked": true,
+    "counts_match": true,
+    "source_hash_unchanged_during_backup": true
+  },
+  "integrity": {
+    "code_matches_archive": true,
+    "core_unchanged": true,
+    "q2_copy_identical": true,
+    "policy_unchanged": true,
+    "formal_db_hashes_unchanged_within_2ae1e5f_tests": true,
+    "cross_window_baseline_changes": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\formal-db-observation-history.json",
+    "host_material_files": 409,
+    "frozen_material_files": 325,
+    "extra_host_material_files": 84,
+    "runtime_crops_added": 12
+  },
+  "existing_runtime_receipt": {
+    "path": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\approved-runtime.json",
+    "revision": "537dfb4",
+    "backend": "local_llamaindex",
+    "owned_by_this_run": false,
+    "not_overwritten": true
+  },
+  "prepared_profiles": {
+    "start-lightrag-approved-2ae1e5f.py": {
+      "path": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\start-lightrag-approved-2ae1e5f.py",
+      "sha256": "defe5ca87d5ca3fa35021c281c3df187b0239660213e4625a4e6bb055cfe00c7",
+      "formal_started": false
+    },
+    "rollback-text-537dfb4.py": {
+      "path": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\rollback-text-537dfb4.py",
+      "sha256": "4c696e005e03a777ed083a814a5ba709fc12f0bc7a21645673f434c949706c5d",
+      "formal_started": false
+    }
+  },
+  "research": {
+    "local_deeptutor": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "github_deeptutor": "a31d82624c27d75f4e771d4fcb78dce16470b383",
+    "reused": "existing host quality_rejected contract; no second loop or upstream ready substitution"
+  }
+}

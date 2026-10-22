@@ -1,5 +1,7 @@
 # 回答体验改造实施计划
 
+最新公共接入收尾（2026-10-23，业务2ae1e5f）：练习引用异常已修复为受控拒绝；联合164项及引用32项通过（有重叠），最终同次完整10组全部通过。补验了本机真实TLS证书故障、旧来源页面拒绝、无测试包装完整宿主。**代码/隔离部署已接通，正式8000尚未由本窗口切换；现有候选可在明确采用后启用，不代表教材发布ready。** 新一致性备份、固定启动/回滚档已准备，staging/ready=false及pending保留。以[最终报告](LIGHTRAG_INTEGRATION_FINAL_REPORT.md)和[证据](LIGHTRAG_INTEGRATION_FINAL_EVIDENCE.json)为本轮结论，旧失败原样保留。
+
 最新部署收尾（2026-10-22，已提交业务537dfb4）：启动器递归已修复；独立完整宿主/候选/依赖/缓存、157项回归及真实native、跨章、partial、单次完整Q5、PDF、同图像素/页面、ask_user、取消/超时/晚到与刷新已有证据。**最终整轮AI测试练习触发CitationGroundingError，保持失败；全入口和整计划未完成，正式LightRAG不切换，staging/ready=false不变。** 以[部署收尾报告](LIGHTRAG_DEPLOYMENT_CLOSEOUT_REPORT.md)及[逐项证据](LIGHTRAG_DEPLOYMENT_CLOSEOUT_EVIDENCE.json)为本轮事实，下方旧日期保留历史。
 
 最新收尾（2026-10-22，业务421f871）：已修复新任务取消身份不一致，共享/独立环境各111项通过；禁用SDK关键词缓存后真实partial、native取消/截止超时/晚到门禁通过，修复后同次完整Q5已重跑。独立环境、固定代码/教材副本、local_llamaindex真实模型和浏览器、两份只读数据库备份已准备完成。见[收尾报告](RESPONSE_UX_REMAINING_CLOSEOUT.md)与[逐项证据](RESPONSE_UX_REMAINING_EVIDENCE.json)。回答体验可按已验文本首批配置准备启用，8000未启动；LightRAG部署可迁移性/全部入口及正式发布仍未完成，不标整计划完成。下列旧日期段落保留历史状态，以本段和最新验收矩阵为准。
