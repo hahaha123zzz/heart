@@ -1,0 +1,568 @@
+{
+  "business_revision": "421f871",
+  "all_four_edge_cases_passed": true,
+  "sdk_keyword_cache_disabled_for_final_native_runs": true,
+  "edge_metrics": [
+    {
+      "case": "partial",
+      "seconds": 35.257,
+      "first_draft_seconds": 31.945,
+      "answer_status": "answered",
+      "outer_sdk_calls": 5,
+      "outer_tokens": 11152,
+      "native_api_calls": [
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "success",
+          "endpoint": "https://api.deepseek.com",
+          "response_model": "deepseek-flash",
+          "finish_reason": "stop",
+          "usage": {
+            "completion_tokens": 18,
+            "prompt_tokens": 666,
+            "total_tokens": 684,
+            "completion_tokens_details": null,
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cache_write_tokens": null,
+              "cached_tokens": 512,
+              "image_tokens": null,
+              "text_tokens": null
+            },
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 154
+          },
+          "seconds": 0.875
+        },
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "success",
+          "endpoint": "https://api.deepseek.com",
+          "response_model": "deepseek-flash",
+          "finish_reason": "stop",
+          "usage": {
+            "completion_tokens": 31,
+            "prompt_tokens": 669,
+            "total_tokens": 700,
+            "completion_tokens_details": null,
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cache_write_tokens": null,
+              "cached_tokens": 512,
+              "image_tokens": null,
+              "text_tokens": null
+            },
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 157
+          },
+          "seconds": 0.8119999999180436
+        },
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "success",
+          "endpoint": "https://api.deepseek.com",
+          "response_model": "deepseek-flash",
+          "finish_reason": "stop",
+          "usage": {
+            "completion_tokens": 38,
+            "prompt_tokens": 675,
+            "total_tokens": 713,
+            "completion_tokens_details": null,
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cache_write_tokens": null,
+              "cached_tokens": 512,
+              "image_tokens": null,
+              "text_tokens": null
+            },
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 163
+          },
+          "seconds": 0.9839999999385327
+        }
+      ],
+      "coverage": {
+        "status": "partial",
+        "required": [
+          {
+            "id": "object-1",
+            "query": "实验程序",
+            "chapter_id": 1,
+            "section_id": null
+          },
+          {
+            "id": "object-2",
+            "query": "火星玄武岩晶体结构",
+            "chapter_id": 2,
+            "section_id": null
+          }
+        ],
+        "covered": [
+          "object-1"
+        ],
+        "missing": [
+          {
+            "id": "object-2",
+            "query": "火星玄武岩晶体结构",
+            "chapter_id": 2,
+            "reason": "没有可核验原文"
+          }
+        ],
+        "retrieval_calls": 3,
+        "supplemental_calls": 1,
+        "fallback": false,
+        "seconds": 26.57799999997951,
+        "warning": "仅支持已覆盖对象；具体缺口不得按常识补齐"
+      },
+      "actual_backends": [
+        "lightrag",
+        "lightrag"
+      ],
+      "reference_count": 3,
+      "posts": 1,
+      "q5_unchanged": true,
+      "refreshed_no_cancelled_body": false,
+      "sdk_starts": 3,
+      "sdk_terminal": [
+        {
+          "status": "success",
+          "at": 1792654431.9624639
+        },
+        {
+          "status": "success",
+          "at": 1792654446.107263
+        },
+        {
+          "status": "success",
+          "at": 1792654451.3701239
+        }
+      ],
+      "native_terminal": [
+        {
+          "status": "success",
+          "at": 1792654432.0103068
+        },
+        {
+          "status": "success",
+          "at": 1792654446.1583974
+        },
+        {
+          "status": "success",
+          "at": 1792654451.4528673
+        }
+      ],
+      "finalize_at": [
+        1792654432.3023036,
+        1792654446.5031674,
+        1792654451.8899856
+      ],
+      "backend_end_at": [
+        1792654437.8440242,
+        1792654448.156715,
+        1792654453.610246
+      ],
+      "partial_refresh_equal": true
+    },
+    {
+      "case": "cancel",
+      "seconds": 4.941,
+      "first_draft_seconds": null,
+      "answer_status": "task_conflict",
+      "outer_sdk_calls": 1,
+      "outer_tokens": 2390,
+      "native_api_calls": [],
+      "coverage": null,
+      "actual_backends": [],
+      "reference_count": 0,
+      "posts": 1,
+      "q5_unchanged": true,
+      "refreshed_no_cancelled_body": true,
+      "sdk_starts": 1,
+      "sdk_terminal": [
+        {
+          "status": "CancelledError",
+          "at": 1792654466.0013516
+        }
+      ],
+      "native_terminal": [
+        {
+          "status": "CancelledError",
+          "at": 1792654466.0009441
+        }
+      ],
+      "finalize_at": [
+        1792654466.002288
+      ],
+      "backend_end_at": [
+        1792654466.003889
+      ],
+      "cancel_at": 1792654465.942,
+      "backend_exit_after_cancel_seconds": 0.062
+    },
+    {
+      "case": "timeout",
+      "seconds": 26.399,
+      "first_draft_seconds": 25.469,
+      "answer_status": "quality_rejected",
+      "outer_sdk_calls": 3,
+      "outer_tokens": 7500,
+      "native_api_calls": [
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "failed",
+          "endpoint": "https://api.deepseek.com",
+          "error_type": "CancelledError",
+          "error_chain": [],
+          "seconds": 0.0779999999795109
+        },
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "failed",
+          "endpoint": "https://api.deepseek.com",
+          "error_type": "CancelledError",
+          "error_chain": [],
+          "seconds": 0.0779999999795109
+        },
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "failed",
+          "endpoint": "https://api.deepseek.com",
+          "error_type": "CancelledError",
+          "error_chain": [],
+          "seconds": 0.046999999904073775
+        }
+      ],
+      "coverage": {
+        "status": "retrieving",
+        "required": [
+          {
+            "id": "object-1",
+            "query": "实验程序的实施过程",
+            "chapter_id": 1,
+            "section_id": null
+          },
+          {
+            "id": "object-2",
+            "query": "自变量控制的执行要求",
+            "chapter_id": 2,
+            "section_id": null
+          }
+        ],
+        "covered": [],
+        "retrieval_calls": 1,
+        "supplemental_calls": 0,
+        "fallback": false
+      },
+      "actual_backends": [
+        "lightrag",
+        "lightrag",
+        "lightrag"
+      ],
+      "reference_count": 0,
+      "posts": 1,
+      "q5_unchanged": true,
+      "refreshed_no_cancelled_body": true,
+      "sdk_starts": 3,
+      "sdk_terminal": [
+        {
+          "status": "CancelledError",
+          "at": 1792654473.636901
+        },
+        {
+          "status": "CancelledError",
+          "at": 1792654476.1230443
+        },
+        {
+          "status": "CancelledError",
+          "at": 1792654493.1006289
+        }
+      ],
+      "native_terminal": [
+        {
+          "status": "TimeoutError",
+          "at": 1792654473.6348956
+        },
+        {
+          "status": "TimeoutError",
+          "at": 1792654476.1206565
+        },
+        {
+          "status": "TimeoutError",
+          "at": 1792654493.100124
+        }
+      ],
+      "finalize_at": [
+        1792654473.6376245,
+        1792654476.1245558,
+        1792654493.1021168
+      ],
+      "backend_end_at": [
+        1792654473.6386292,
+        1792654476.1255543,
+        1792654493.1041298
+      ]
+    },
+    {
+      "case": "late",
+      "seconds": 11.437,
+      "first_draft_seconds": null,
+      "answer_status": "task_conflict",
+      "outer_sdk_calls": 1,
+      "outer_tokens": 2392,
+      "native_api_calls": [],
+      "coverage": null,
+      "actual_backends": [],
+      "reference_count": 0,
+      "posts": 1,
+      "q5_unchanged": true,
+      "refreshed_no_cancelled_body": true,
+      "sdk_starts": 1,
+      "sdk_terminal": [
+        {
+          "status": "success",
+          "at": 1792654510.4556117
+        }
+      ],
+      "native_terminal": [
+        {
+          "status": "success",
+          "at": 1792654510.4953434
+        }
+      ],
+      "finalize_at": [
+        1792654511.9835398
+      ],
+      "backend_end_at": [
+        1792654514.3540368
+      ],
+      "cancel_at": 1792654514.329,
+      "backend_exit_after_cancel_seconds": 0.025,
+      "late_original_source_counts": [
+        6
+      ]
+    }
+  ],
+  "q5_single_fresh_run_passed": true,
+  "q5_metrics": [
+    {
+      "case": "q5-plan",
+      "seconds": 1.584,
+      "first_draft_seconds": null,
+      "answer_status": "awaiting_clarification",
+      "outer_sdk_calls": 0,
+      "outer_tokens": 0,
+      "native_api_calls": [],
+      "coverage": null,
+      "actual_backends": [],
+      "reference_count": 0
+    },
+    {
+      "case": "q5-confirm",
+      "seconds": 9.209,
+      "first_draft_seconds": 5.416,
+      "answer_status": "answered",
+      "outer_sdk_calls": 4,
+      "outer_tokens": 13358,
+      "native_api_calls": [],
+      "coverage": {},
+      "actual_backends": [
+        "q2_exact"
+      ],
+      "reference_count": 2
+    },
+    {
+      "case": "q5-cross",
+      "seconds": 44.034,
+      "first_draft_seconds": 1.209,
+      "answer_status": "answered",
+      "outer_sdk_calls": 8,
+      "outer_tokens": 17170,
+      "native_api_calls": [
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "success",
+          "endpoint": "https://api.deepseek.com",
+          "response_model": "deepseek-flash",
+          "finish_reason": "stop",
+          "usage": {
+            "completion_tokens": 18,
+            "prompt_tokens": 666,
+            "total_tokens": 684,
+            "completion_tokens_details": null,
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cache_write_tokens": null,
+              "cached_tokens": 512,
+              "image_tokens": null,
+              "text_tokens": null
+            },
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 154
+          },
+          "seconds": 0.8900000000139698
+        },
+        {
+          "role": "keyword",
+          "model": "deepseek-flash",
+          "status": "success",
+          "endpoint": "https://api.deepseek.com",
+          "response_model": "deepseek-flash",
+          "finish_reason": "stop",
+          "usage": {
+            "completion_tokens": 20,
+            "prompt_tokens": 666,
+            "total_tokens": 686,
+            "completion_tokens_details": null,
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cache_write_tokens": null,
+              "cached_tokens": 512,
+              "image_tokens": null,
+              "text_tokens": null
+            },
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 154
+          },
+          "seconds": 0.8589999999385327
+        }
+      ],
+      "coverage": {
+        "status": "covered",
+        "required": [
+          {
+            "id": "object-1",
+            "query": "实验程序",
+            "chapter_id": 1,
+            "section_id": null
+          },
+          {
+            "id": "object-2",
+            "query": "自变量控制",
+            "chapter_id": 2,
+            "section_id": null
+          }
+        ],
+        "covered": [
+          "object-1",
+          "object-2"
+        ],
+        "missing": [],
+        "retrieval_calls": 2,
+        "supplemental_calls": 0,
+        "fallback": false,
+        "seconds": 36.01600000006147,
+        "warning": ""
+      },
+      "actual_backends": [
+        "lightrag",
+        "lightrag"
+      ],
+      "reference_count": 5,
+      "grounded_sdk_first_content_seconds": 40.519,
+      "grounded_page_first_delta_seconds": 40.524
+    },
+    {
+      "case": "q5-return",
+      "seconds": 7.08,
+      "first_draft_seconds": 2.823,
+      "answer_status": "answered",
+      "outer_sdk_calls": 4,
+      "outer_tokens": 11390,
+      "native_api_calls": [],
+      "coverage": {},
+      "actual_backends": [
+        "q2_exact"
+      ],
+      "reference_count": 2
+    },
+    {
+      "case": "q5-next",
+      "seconds": 11.986,
+      "first_draft_seconds": 7.503,
+      "answer_status": "answered",
+      "outer_sdk_calls": 5,
+      "outer_tokens": 17599,
+      "native_api_calls": [],
+      "coverage": {},
+      "actual_backends": [
+        "q2_exact"
+      ],
+      "reference_count": 1
+    }
+  ],
+  "q5_cross_both_originals_in_model": true,
+  "q5_cross_valid_citation_chapters": [
+    1,
+    2
+  ],
+  "linked_ineligible_associations_in_model": 6,
+  "candidate_core_files_unchanged": 7,
+  "formal_lightrag_switched": false,
+  "ready_modified": false,
+  "independent_release": {
+    "release": "E:\\项目\\heart\\.runtime\\response-release-20261022\\code\\project\\integration\\discrete-math-tutor",
+    "python": "E:\\项目\\heart\\.runtime\\response-release-20261022\\.venv\\Scripts\\python.exe",
+    "python_path_independent": true,
+    "pip_check": "No broken requirements found.",
+    "code_archive_files_unchanged": 5380,
+    "copied_inputs_unchanged": 457,
+    "course_status": "staging"
+  },
+  "independent_regression": {
+    "tests": 111,
+    "seconds": 61.106,
+    "exit_code": 0
+  },
+  "shared_regression": {
+    "tests": 111,
+    "seconds": 49.569,
+    "exit_code": 0
+  },
+  "general_local_page": {
+    "passed": true,
+    "seconds": 17.225,
+    "first_body_seconds": 13.315,
+    "actual_backends": [
+      "local_llamaindex",
+      "local_llamaindex"
+    ],
+    "references": 6,
+    "refresh_equal": true
+  },
+  "verified_production_readonly_backups": [
+    {
+      "file": "ai_tutor.db",
+      "bytes": 3465216,
+      "sha256": "0935bea1c392101009cceaa2f287ce4d0cf467492362f20b79fdbf8ad2b164a0",
+      "integrity": "ok"
+    },
+    {
+      "file": "ai_tutor.experimental-psychology-3.db",
+      "bytes": 3604480,
+      "sha256": "5e861e4ca7538902189ef96da76994beb04556c2917d8715acc128e6e88a5137",
+      "integrity": "ok"
+    }
+  ],
+  "backup_path": "E:\\项目\\heart\\.runtime\\response-release-20261022\\backup-before-enable-verified",
+  "evidence": {
+    "edges": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\.runtime\\response-experience\\20261020\\deepseek-edges-421f871-fresh",
+    "q5": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\.runtime\\response-experience\\20261020\\deepseek-q5-421f871-fresh",
+    "independent": "E:\\项目\\heart\\.runtime\\response-release-20261022"
+  },
+  "limits": [
+    "native超时为实际SDK进行中注入50ms截止时间，并非真实网关自然超时",
+    "首个草稿可能是可撤回的探索文本，跨章另列取得双方原文后的首字时间",
+    "native_usage取自最终返回审计；取消/晚到可能无返回审计，以sdk_starts记录实际调用次数，不把缺usage当零费用",
+    "SDK关键词缓存关闭只用于隔离进程，不改候选policy；TLS重试上限未改",
+    "绝对sidecar仍经隔离读取视图重定位，独立LightRAG部署未通过；不正式切换",
+    "固定Q5序列通过不等于全书长期路径/所有题型/全部教学循环",
+    "8000未启动；图像/选区/AI练习沿用既有分项实证，未在新独立环境全部重跑"
+  ]
+}

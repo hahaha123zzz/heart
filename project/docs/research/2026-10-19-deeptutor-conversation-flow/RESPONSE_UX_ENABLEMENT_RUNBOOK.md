@@ -1,5 +1,51 @@
 # 回答体验启用准备与回滚
 
+## 2026-10-22 当前可执行首批方案（准备完成，未启动）
+
+业务 **421f871**；[收尾报告](RESPONSE_UX_REMAINING_CLOSEOUT.md)记录独立环境111项、真实一般检索/页面、固定代码/输入及只读备份。旧段落保留此前未就绪状态，不再作为当前仍缺独立环境或备份的结论。
+
+| 项目 | 本次实际值 |
+|---|---|
+| 固定release | `E:\项目\heart\.runtime\response-release-20261022\code\project\integration\discrete-math-tutor`；导出421f871，5380项对账不变 |
+| 独立Python | `E:\项目\heart\.runtime\response-release-20261022\.venv\Scripts\python.exe`；pip check通过，不借其他worktree包 |
+| 教材输入 | 独立副本457项，逐项哈希相同；原文、索引没有重建 |
+| 已验档 | Q3=1、Q5=0、local_llamaindex、CPU、官方DeepSeek、后台记忆/额外生成图关闭；不是LightRAG档 |
+| 一般检索预演 | 独立8013/库，真实回答17.225秒，6引用，上标与刷新通过；服务已停 |
+| 原库备份 | `E:\项目\heart\.runtime\response-release-20261022\backup-before-enable-verified`；两库完整性ok，源字节不变，哈希见证据JSON |
+| 启动器 | 同目录上级`start-approved.py`已生成、仅语法检查；读取本机ds.env，不复制/打印key；只把主.env数据库位置带入已验运行档 |
+| 当前8000 | 无监听；运行目录/SHA/backend为null，磁盘代码不代表生效 |
+
+启动会使用正式学习库，**本轮没有执行**。启动前重新核对8000占用和备份后是否已有新学习记录；若已变化，重新做只读online backup，不覆盖现有备份。首批只启用上述已验档，新独立环境没有全量重跑PDF/图像/AI练习，Q5保持关闭。LightRAG不启用，不改staging/ready=false。
+
+完成最终启用决定后，具体启动命令如下；它不会强停已有8000服务：
+
+```powershell
+$releaseHome = 'E:\项目\heart\.runtime\response-release-20261022'
+$releasePython = Join-Path $releaseHome '.venv\Scripts\python.exe'
+$launcher = Join-Path $releaseHome 'start-approved.py'
+if (Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue) { throw '8000已占用，先核对身份' }
+$launcherProcess = Start-Process -FilePath $releasePython -ArgumentList @('-B', $launcher) -WorkingDirectory $releaseHome -WindowStyle Hidden -PassThru
+$launcherProcess.Id | Set-Content -LiteralPath (Join-Path $releaseHome 'approved-launcher.pid')
+Invoke-RestMethod 'http://127.0.0.1:8000/health'
+```
+
+启动器会登记真正uvicorn PID至`approved-service.pid`，并把PID/创建时间/解释器/目录/SHA/backend写入`approved-runtime.json`，日志在`approved-service.log`。启动后除health外，还须核对PID/目录、实际retrieval_calls、保存/刷新；首次启动失败按下列命令只停本次已登记服务，不按名称杀全部Python，不恢复旧备份覆盖新学习数据：
+
+```powershell
+$releaseHome = 'E:\项目\heart\.runtime\response-release-20261022'
+$runtimeRecord = Get-Content -LiteralPath (Join-Path $releaseHome 'approved-runtime.json') -Raw | ConvertFrom-Json
+$serviceId = [int]$runtimeRecord.pid
+$process = Get-CimInstance Win32_Process -Filter "ProcessId=$serviceId"
+if (-not $process -or $process.CommandLine -notlike '*uvicorn*main:app*--port*8000*' -or $process.ExecutablePath -ne (Join-Path $releaseHome '.venv\Scripts\python.exe')) { throw '服务PID身份不符，停止操作' }
+$createdAt = ([DateTimeOffset]$process.CreationDate).ToUnixTimeSeconds()
+if ([Math]::Abs($createdAt - [double]$runtimeRecord.create_time) -gt 2) { throw 'PID创建时间不符，停止操作' }
+Stop-Process -Id $serviceId
+```
+
+PID复用须通过登记创建时间校验；当前未启动，所以还没有该运行记录。此前8000未运行，因此本次回滚基线是停止本次服务并保留学习数据。没有准备擅自恢复身份不明的旧版本。正式LightRAG的sidecar可迁移性和全部入口仍待验，这套文本首批启动方案不能代替其切换验收。
+
+## 以下为此前准备过程与通用命令（历史记录）
+
 2026-10-22增量：官方DeepSeek查询迁移已接通，原网关绑定不再阻塞，本机.env通过LIGHTRAG_QUERY_ENV_FILE引用ds.env；见[迁移与真实实证](DEEPSEEK_QUERY_MIGRATION.md)。本文件其余部分保留此前正式启用前准备方案；不因迁移通过就自动执行8000启动或正式LightRAG索引切换。
 
 2026-10-21；业务版本 `be8daa73b60c7e47d6954b95d85a574b191ecc72`。本轮未执行正式启动、备份或LightRAG切换。[收尾矩阵](RESPONSE_UX_CLOSEOUT_MATRIX.md)分别记录代码、离线、模型、页面及阻塞。
