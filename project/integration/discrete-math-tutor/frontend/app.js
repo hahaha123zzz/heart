@@ -61,10 +61,27 @@ window.addEventListener('storage', event => { if(event.key === studentKey) locat
 
 function renderClarification(message) {
   const task=state.clarification;
-  if(!task || message.taskId !== task.task_id || state.chat.findLast(m=>m.taskId===task.task_id)!==message) return '';
-  return '<div class="task-clarification"><p>正在补充上一个问题；也可以取消后重新提问。</p>' +
+  const snapshot=message.sessionPlan || (message.taskId===task?.task_id?task?.q5_session_plan:null);
+  const latest=snapshot?.plan_id && state.chat.findLast(m=>m.sessionPlan?.plan_id===snapshot.plan_id)===message;
+  const plan=latest && state.sessionPlan?.plan_id===snapshot.plan_id && snapshot.status!=='draft'?state.sessionPlan:snapshot;
+  const card=renderSessionPlan(plan);
+  if(!task || message.taskId !== task.task_id || state.chat.findLast(m=>m.taskId===task.task_id)!==message) return card;
+  return card+'<div class="task-clarification"><p>'+ (task.q5_session_plan?'可以确认这份安排，或直接输入时间、范围与教法的调整。':'正在补充上一个问题；也可以取消后重新提问。')+'</p>' +
     (task.clarification?.options || []).map((option,index)=>'<button type="button" class="secondary-button" data-task-option="'+index+'" '+(state.sending?'disabled':'')+'>'+esc(option.label)+'</button>').join(' ') +
     ' <button type="button" class="secondary-button" data-task-cancel '+(state.sending?'disabled':'')+'>取消本次问题</button></div>';
+}
+
+function renderSessionPlan(plan) {
+  if(!plan?.items?.length)return '';
+  const kinds={explain:'讲解',example:'例子',compare:'辨析',optional_check:'可选自测（不评分）',review:'回顾'};
+  const labels={planned:'未开始',in_progress:'正在学习',explained:'已讲解',skipped:'已跳过',done:'已结束'};
+  return '<section class="session-study-plan" aria-label="本次学习安排" data-session-plan="'+esc(plan.plan_id)+'">'+
+    '<strong>本次安排 · '+esc(plan.request.goal)+'</strong><p>预计 '+plan.items.reduce((sum,item)=>sum+item.estimated_minutes,0)+' 分钟'+
+    (plan.request.time_budget_minutes?' / 预算 '+plan.request.time_budget_minutes+' 分钟':'（可调整的估算）')+' · '+esc({draft:'待确认',active:'进行中',paused:'已暂停',done:'本次已结束'}[plan.status]||'')+'</p><ol>'+
+    plan.items.map(item=>'<li data-session-item="'+esc(item.item_id)+'" '+(item.item_id===plan.current_item_id?'aria-current="step"':'')+'><strong>'+esc(item.title)+'</strong> · '+item.estimated_minutes+' 分钟 · '+esc(labels[item.status])+
+      '<p>'+esc(kinds[item.kind])+'；完成标准：'+esc(item.completion_criterion)+'</p><small>顺序理由：'+esc(item.order_reason)+'；教材：'+item.source_refs.map(ref=>esc(ref.title||'原文')+'（第'+ref.chapter_id+'章 · 第'+ref.section_id+'节）').join('、')+'</small></li>').join('')+
+    '</ol>'+[...(plan.request.assumptions||[]),...(plan.omitted||[]).map(value=>'未纳入：'+value)].map(value=>'<p class="session-plan-note">'+esc(value)+'</p>').join('')+
+    '<small>预计用时不等于实际学习时间；活动完成不代表掌握或长期路径完成。</small></section>';
 }
 
 async function restoreClarification() {
@@ -75,6 +92,9 @@ async function restoreClarification() {
     if(owner!==studentId) return;
     state.taskRecoveryNeeded=false;
     state.clarification=result.pending?.answer_status==='awaiting_clarification'?result.pending:null;
+    const sessionResult=await api('/api/course/session-plan?student_id='+encodeURIComponent(owner)+'&session_id='+encodeURIComponent(tabSessionId));
+    if(owner!==studentId)return;
+    state.sessionPlan=sessionResult.session_plan;
     if(state.clarification && !state.chat.some(m=>m.taskId===state.clarification.task_id))
       state.chat.push({role:'assistant',content:state.clarification.reply,taskId:state.clarification.task_id});
     $('#chat-error').textContent=result.notice || '';renderChat();
@@ -373,7 +393,7 @@ function renderContent() {
 }
 
 function messagesFromHistory(history) {
-  return history.map((m) => ({conversationId:m.id,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
+  return history.map((m) => ({conversationId:m.id,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
 }
 
 const graphArtifacts = new Map();
@@ -553,8 +573,10 @@ async function sendMessage(message, options={}) {
       content:result.reply || "助教暂时没有返回内容。",
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
       selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
+      sessionPlan:result.q5_session_plan || result.session_plan || result.q5_status?.session_plan,
       relationContext:result.answer_status==='answered'?result.relation_context:undefined,
       guide:result.answer_status==='answered'||(!result.answer_status&&result.guided_visualization)?result.guided_visualization:undefined});
+    state.sessionPlan=result.session_plan || result.q5_status?.session_plan || state.sessionPlan;
     if (finished) pending.finishedAt = Date.now();
     else pending.answerSaved = true;
     renderChat();

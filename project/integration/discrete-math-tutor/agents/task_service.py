@@ -178,7 +178,7 @@ class TaskService:
             clarification_mode = row["result"].get("clarification", {}).get("mode")
             if clarification_mode == "ask_user":
                 suffix += "\n明确回答：" + option["label"]
-            elif clarification_mode in ("q5_plan", "q5_plan_adjust"):
+            elif clarification_mode in ("q5_plan", "q5_plan_adjust", "q5_session_plan", "q5_session_adjust", "q5_session_intake"):
                 suffix += "\n明确选择：" + option["label"]
             else:
                 origin = row["context"].get("option_requests", {}).get(chosen)
@@ -259,7 +259,15 @@ class TaskService:
             previous_result = (previous or {}).get("result") or {}
             q5_plan = previous_result.get("q5_plan") if isinstance(previous_result, dict) else None
             q5_previous_mode = (previous_result.get("clarification") or {}).get("mode")
-            q5_propose = bool(q5 and not q5.has_path() and q5.is_plan_request(effective.message))
+            q5_propose = bool(q5 and q5.is_plan_request(request.message))
+            session_draft = previous_result.get('q5_session_plan')
+            if q5 and not session_draft and q5.is_adjust(request.message):
+                session_draft = q5.sessions.current()
+            session_confirm = bool(q5 and session_draft and q5_previous_mode in ('q5_session_plan','q5_session_adjust')
+                and (request.selected_option=='q5sp:confirm' or q5.is_confirm(request.message)))
+            session_adjust_prompt = bool(q5 and session_draft and request.selected_option=='q5sp:adjust')
+            session_revise = bool(q5 and session_draft and q5.is_adjust(request.message) and not session_adjust_prompt)
+            session_intake = bool(q5 and session_draft and q5_previous_mode=='q5_session_intake')
             q5_adjust_prompt = bool(
                 q5 and q5_plan and request.selected_option == "q5:adjust"
             )
@@ -306,10 +314,18 @@ class TaskService:
                     return saved_result
 
                 try:
-                    if q5_propose:
-                        proposal = q5.propose_chapter_plan(
-                            effective.message, command_id=request_key)
-                        return save_q5(q5.plan_result(proposal, task))
+                    def planning_guard():
+                        self.repo.guard(task['student_id'],task['session_id'],task['id'],task['revision'],self.tutor.memory.repo)
+                    if session_confirm:
+                        q5.sessions.confirm(session_draft,command_id=request_key+':session-confirm',guard=planning_guard)
+                    elif session_adjust_prompt:
+                        return save_q5(q5.session_result(session_draft,task,adjust_prompt=True))
+                    elif q5_propose or session_revise or session_intake:
+                        if progress:progress('session_plan','安排本次学习','读取教材、核对画像与时间预算')
+                        proposal = q5.propose_session(effective.message,self.tutor.llm,self.tutor.memory,
+                            previous=session_draft if session_revise or session_intake else None,guard=planning_guard)
+                        planning_guard()
+                        return save_q5(q5.session_result(proposal,task))
                     if q5_adjust_prompt:
                         return save_q5(q5.plan_result(
                             q5_plan, task, adjust_prompt=True))
@@ -319,11 +335,32 @@ class TaskService:
                         return save_q5(q5.plan_result(proposal, task))
                     if q5_confirm:
                         q5.confirm(q5_plan, request_key)
+                    current_session = q5.sessions.current()
+                    if current_session and current_session['status'] in ('active','paused'):
+                        if re.fullmatch(r'(?:请)?暂停(?:本次安排|学习|一下)?[。！!\s]*',request.message):
+                            plan=q5.sessions.set_mode(current_session,'paused',command_id=request_key+':pause',guard=planning_guard)
+                            return save_q5({'reply':'本次安排已暂停，活动与长期路径均未推进。','answer_status':'answered',
+                                'session_plan':plan,'result_type':'session_plan','step_advanced':False})
+                        resumed=False
+                        if current_session['status']=='paused' and re.fullmatch(r'(?:继续|恢复)(?:本次安排|学习)?[。！!\s]*',request.message):
+                            q5.sessions.set_mode(current_session,'active',command_id=request_key+':resume',guard=planning_guard)
+                            resumed=True
+                        textbook_next=bool(re.search(r'教材.{0,6}下一|下一知识点',request.message))
+                        execution=None if textbook_next else q5.prepare_session('' if resumed else request.message,context.preferences)
+                        if execution and execution['status']=='done':
+                            plan=q5.sessions.finish(execution,command_id=request_key+':finish',guard=planning_guard)
+                            return save_q5({'reply':'本次安排已结束。已讲活动：'+ '、'.join(i['title'] for i in plan['items'] if i['status']=='done')+
+                                '。未纳入内容：'+('；'.join(plan['omitted']) or '无额外安排')+'。活动完成不代表长期路径完成或已经掌握。',
+                                'answer_status':'answered','session_plan':plan,'result_type':'session_plan','step_advanced':False})
+                        if execution and execution['status']=='active':
+                            q5_binding=q5
+                            context.session_study_plan=execution
+                            context.course_navigation=None
                     from agents.course_search import explicit_chapters
-                    if q5.is_understood(effective.message) and len(explicit_chapters(effective.message)) < 2:
+                    if not current_session and q5.is_understood(effective.message) and len(explicit_chapters(effective.message)) < 2:
                         q5.advance_understood(request_key)
                     status = q5.status()
-                    if (status.get("path_id") and status.get("plan_confirmed")
+                    if (q5_binding is None and not current_session and status.get("path_id") and status.get("plan_confirmed")
                             and status.get("mode") == "study"
                             and status.get("current")):
                         q5_binding = q5
@@ -337,6 +374,9 @@ class TaskService:
                     return save_q5(result)
             def guard():
                 self.repo.guard(task["student_id"], task["session_id"], task["id"], task["revision"], self.tutor.memory.repo)
+                if q5 and q5.session_snapshot:
+                    try:q5.session_guard()
+                    except ValueError as exc:raise TaskConflict('session_plan_changed',str(exc)) from exc
                 if context.course_navigation and context.course_navigation['status'] == 'ready':
                     from knowledge.course_navigation import validate
                     try:
@@ -452,7 +492,7 @@ class TaskService:
                     and not result.get('learning_interjection')
                     and result.get("answer_status") == "answered"):
                 try:
-                    q5.record_explained(str(result.get("reply") or ""), request_key)
+                    q5.record_explained(str(result.get("reply") or ""), request_key,guard=guard)
                     result = dict(result, q5_status=q5.status())
                 except (ValueError, RuntimeError):
                     pass
@@ -522,7 +562,7 @@ class TaskService:
                     context=context.model_dump() | {"document_versions": document_versions})
             return result
         except TaskConflict as error:
-            if error.code in ('visualization_changed', 'document_changed') and 'task' in locals():
+            if error.code in ('visualization_changed', 'document_changed','session_plan_changed') and 'task' in locals():
                 try:
                     self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo,
                         status='failed', result=self.conflict_reply(error))

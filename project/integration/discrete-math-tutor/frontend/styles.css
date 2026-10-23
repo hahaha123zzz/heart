@@ -89,3 +89,9 @@
 .grounded-evidence{margin-top:12px;padding:12px;border:1px solid #dce4df;border-radius:8px;overflow-wrap:anywhere}
 .grounded-evidence .evidence-status{display:block;color:#526454;margin:6px 0}
 .grounded-evidence blockquote{margin:8px 0;padding:4px 12px;border-left:3px solid #849d89;white-space:pre-wrap;max-height:12em;overflow:auto;line-height:1.7}
+/* 本次安排复用聊天卡；当前活动突出显示，已讲事实与完成标准始终可读。 */
+.session-study-plan { margin:12px 0; padding:14px; border:1px solid #cbd9df; border-radius:8px; background:#f7fafb; }
+.session-study-plan li { margin:10px 0; padding:6px; overflow-wrap:anywhere; }
+.session-study-plan li[aria-current="step"] { border-left:3px solid #386b77; background:#eaf3f5; }
+.session-study-plan p { margin:5px 0; }
+.session-study-plan small, .session-plan-note { color:#53636c; }

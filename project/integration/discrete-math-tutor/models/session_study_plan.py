@@ -46,6 +46,7 @@ class SessionStudyPlan(BaseModel):
     items: list[StudyItem] = Field(min_length=1, max_length=16)
     current_item_id: str | None = None
     omitted: list[str] = Field(default_factory=list, max_length=16)
+    source_binding: dict = Field(default_factory=dict)
 
     @model_validator(mode='after')
     def budgets_and_identity(self):

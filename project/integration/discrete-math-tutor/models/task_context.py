@@ -45,6 +45,7 @@ class TaskContext(BaseModel):
     truth_table_snapshot: dict | None = None
     relation_snapshot: dict | None = None
     course_navigation: dict | None = None
+    session_study_plan: dict | None = None
 
     def prompt_payload(self):
         # 识别无需知道学生ID，不把其作为模型生成引用的候选对象。
@@ -53,4 +54,7 @@ class TaskContext(BaseModel):
             payload['truth_table_snapshot'].pop('evaluation', None)
         if payload.get('relation_snapshot'):
             payload['relation_snapshot'].pop('evaluation',None)
+        if payload.get('session_study_plan'):
+            payload['session_study_plan'].pop('student_id',None)
+            payload['session_study_plan'].pop('session_id',None)
         return payload
