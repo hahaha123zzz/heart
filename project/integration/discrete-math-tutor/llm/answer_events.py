@@ -35,7 +35,6 @@ class AnswerEvents:
         self.validate()
         if self.identity:
             self.send('answer_replace', text='')
-            self.send('answer_state', state='rejected')
         else:
             self.identity = {**self.binding[0](), 'answer_id': str(uuid4())}
         self.round_id += 1
@@ -54,7 +53,7 @@ class AnswerEvents:
         if self.identity:
             self.guard()
             self.send('answer_replace', text='')
-            self.send('answer_state', state='rejected')
+            self.send('answer_state', state='retrieving')
 
     def finish(self, result):
         # 调用方已通过收据/epoch 检查；完成态不再调用只接受执行态的 guard。

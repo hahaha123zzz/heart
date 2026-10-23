@@ -217,7 +217,7 @@ function renderProgress(message) {
   const stages = message.progress || [];
   const elapsed = Math.round(((message.finishedAt || Date.now()) - message.startedAt) / 1000);
   const current = stages.at(-1);
-  const answerLabel={generating:'正在生成（未核验）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮草稿已撤回'}[message.answerState];
+  const answerLabel={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮未发布'}[message.answerState];
   const title = message.pending ? (answerLabel || current?.label || "正在连接助教") : message.answerSaved && message.networkFailed ? "文字已保存，图解待恢复" : message.failed ? "处理未完成" : message.answerState==='awaiting_clarification' ? '等待补充或确认' : message.answerState==='saved' ? '已保存' : "已完成";
   return `<div class="turn-progress ${message.failed ? "failed" : ""}"><div class="progress-heading" role="status"><span class="${message.pending ? "progress-spinner" : "progress-check"}">${message.pending ? "" : message.failed ? "!" : "✓"}</span><strong>${esc(title)}</strong><span class="progress-elapsed" data-start="${message.startedAt}" data-finished="${message.finishedAt || ""}">${elapsed} 秒</span></div>${message.pending ? `<div class="progress-detail">${esc(current?.detail || "请求已发出，等待服务响应")}</div>` : ""}<details><summary>处理记录（点击展开）</summary><ol>${stages.map(p => `<li class="${p.status}"><span>${p.status === "completed" ? "✓" : message.failed ? "!" : "·"}</span><div><strong>${esc(p.label)}</strong><small>${esc(p.detail)}</small></div></li>`).join("")}</ol></details></div>`;
 }

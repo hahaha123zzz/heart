@@ -1,5 +1,6 @@
 """按必要对象保留Q2精确证据；不修改学习路径或生成答案。"""
 from dataclasses import dataclass,replace
+from copy import deepcopy
 from types import SimpleNamespace
 import json,re,time
 from .source_explorer_reuse import _balanced_slice
@@ -72,7 +73,9 @@ class CoverageNavigator:
         if not self.requirements:
             raw=self.navigator.search(target=target,query=query,limit=limit,preferred_types=preferred_types)
             self._check();selected=self.select(Requirement('single',query,target.chapter_id,target.section_id),raw) if raw else []
-            self.report={'status':'passthrough','retrieval_calls':1,'supplemental_calls':0,'missing':[],'seconds':time.monotonic()-started}
+            self.report={'status':'passthrough' if selected else 'no_evidence','retrieval_calls':1,'supplemental_calls':0,
+                         'missing':[] if selected else [{'id':'single','query':query,'reason':'没有可核验原文'}],
+                         'seconds':time.monotonic()-started}
             self._capture_graph('single');return selected
         if not len(self.requirements)<=limit<=40:raise ValueError('输出预算不足以保留全部必要对象')
         groups={r.id:[] for r in self.requirements};reasons={};calls=0;supplemental=0
@@ -132,9 +135,10 @@ class CoverageNavigator:
         result=getattr(self.navigator,'last_result',None)
         if result:
             self.graph_records.extend(result.get('graph_context',[]))
-            for event in result.get('trace',[]):
+            for event in deepcopy(result.get('trace',[])):
                 event['subproblem']=subproblem
                 for row in event['rows']:row['subproblems']=[subproblem]
+                self.trace.append(event)
     def tool_context(self,sources):
         from .relationships import relationship_context
         return {'coverage':self.report,**relationship_context(self.graph_records,sources)}

@@ -68,6 +68,11 @@ class AnswerStreamTests(unittest.TestCase):
         self.assertTrue(first.closed and second.closed)
         self.assertTrue(any(e=='answer_replace' and d['text']=='' for e,d in events))
         self.assertEqual(events[-1][1]['state'],'checking')
+        states=[d['state'] for e,d in events if e=='answer_state']
+        self.assertIn('retrieving',states)
+        self.assertNotIn('rejected',states)
+        publisher.finish({'answer_status':'quality_rejected'})
+        self.assertEqual(events[-1][1]['state'],'rejected')
         tool_messages=[m for m in result.messages if m['role']=='tool'];self.assertEqual(tool_messages[0]['tool_call_id'],'tool-1')
         self.assertFalse(any(e['type']=='answer_delta' for e in result.events))
 

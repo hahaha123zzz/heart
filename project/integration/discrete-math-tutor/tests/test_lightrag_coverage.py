@@ -22,6 +22,16 @@ def ref(id,chapter,text='有效对象原文内容'):
    'textbook_release':'staging-id','release_status':'staging','release_ready':False})
 
 class CoverageTests(unittest.TestCase):
+ def test_single_empty_reports_missing_and_copies_native_trace(self):
+  event={'stage':'scope_filter','rows':[{'source_id':'outside','accepted':False}]}
+  backend=SimpleNamespace(search=lambda **kw:[],last_result={'trace':[event]})
+  nav=CoverageNavigator(backend,question='被试反应',select=self.selector,judge=self.judge)
+  self.assertEqual(nav.search(target=self.target(),query='被试反应',limit=6),[])
+  self.assertEqual(nav.report['status'],'no_evidence')
+  self.assertEqual(nav.report['missing'][0]['id'],'single')
+  self.assertEqual(nav.trace[0]['stage'],'scope_filter')
+  self.assertNotIn('subproblem',event)
+  self.assertNotIn('subproblems',event['rows'][0])
  def target(self):return LearningTarget('ch5:s1:b2','路径中目标',chapter_id=5,section_id=1)
  def navigator(self,search):return SimpleNamespace(search=search,resolve=lambda **kw:kw)
  def selector(self,req,rows):return rows
