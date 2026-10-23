@@ -74,6 +74,20 @@ def citation_state(request: CitationStateRequest):
         raise HTTPException(422, '引用记录不完整或无法核验') from None
 
 
+class FigureLocationRequest(BaseModel):
+    model_config = {'extra': 'forbid'}
+    asset_id: str = Field(min_length=1, max_length=80, pattern=r'^[a-z]+-[0-9]{2}-[0-9]{4}$')
+    sha256: str = Field(pattern=r'^[a-f0-9]{64}$')
+    document_id: str = Field(min_length=1, max_length=100)
+    version: str = Field(pattern=r'^[a-f0-9]{64}$')
+
+
+@router.post('/course/figure-location')
+def figure_location(request: FigureLocationRequest):
+    from knowledge.visual_locations import resolve_figure
+    return resolve_figure(**request.model_dump())
+
+
 @router.post('/course/citation-location')
 def citation_location(request: CitationLocationRequest):
     from knowledge.citation_locations import resolve_source_label

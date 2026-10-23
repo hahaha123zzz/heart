@@ -25,10 +25,18 @@ def selected_media(query, sources, *, asset_id=None):
         item['model_saw_pixels'] = False
         from urllib.parse import quote
         item['image_url'] += f"?sha256={item['sha256']}&version={item['version']}&document_id={quote(item['document_id'], safe='')}"
-        item['selection_ref'] = {'document_id': item['document_id'], 'version': item['version'],
-            'chapter_id': figure.chapter_id, 'section_id': figure.section_id,
-            'kind': 'text', 'rects': [], 'text': source.get('quote') or source['text'],
-            'location_status': 'section'}
+        from knowledge.course_config import PSYCHOLOGY
+        if PSYCHOLOGY:
+            from knowledge.visual_locations import resolve_figure
+            location = resolve_figure(item['id'], item['sha256'], item['document_id'], item['version'])
+            item['location_status'] = location['status']
+            item['location_basis'] = location['basis']
+            item['selection_ref'] = location['selection_ref']
+        else:
+            item['selection_ref'] = {'document_id': item['document_id'], 'version': item['version'],
+                'chapter_id': figure.chapter_id, 'section_id': figure.section_id,
+                'kind': 'text', 'rects': [], 'text': source.get('quote') or source['text'],
+                'location_status': 'section'}
         output.append(item)
     return output
 
