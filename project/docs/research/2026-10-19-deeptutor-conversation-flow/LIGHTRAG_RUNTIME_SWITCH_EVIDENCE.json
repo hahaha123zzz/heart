@@ -1,0 +1,900 @@
+{
+  "business_revision": "2ae1e5f",
+  "approved_by_user": true,
+  "runtime": {
+    "listener_pid": 43028,
+    "create_time": 1792747703.3808773,
+    "exe": "C:\\Users\\free\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "cwd": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\code-proof-2ae1e5f\\project\\integration\\discrete-math-tutor",
+    "registered_launcher_pid": 69688,
+    "lineage_matches": true,
+    "flags": {
+      "Q3_RETRIEVAL_MODE": "lightrag",
+      "Q5_LEARNING_ENABLED": "1",
+      "LOCAL_AGENT_LOOP_ENABLED": "1",
+      "LLM_MOCK": "0",
+      "LIGHTRAG_ALLOW_CANDIDATE": "1",
+      "LIGHTRAG_CANDIDATE_PATH": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\candidate",
+      "OPENAI_BASE_URL": "https://api.deepseek.com",
+      "FASTEMBED_CACHE_PATH": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\model-cache\\fastembed"
+    }
+  },
+  "preflight": {
+    "revision": "2ae1e5f",
+    "release": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\code-proof-2ae1e5f\\project\\integration\\discrete-math-tutor",
+    "code_files_verified": 5384,
+    "candidate_core_unchanged": true,
+    "policy_unchanged": true,
+    "databases": [
+      {
+        "source": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\ai_tutor.db",
+        "backup": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\backup-before-lightrag-2ae1e5f\\ai_tutor.db",
+        "backup_integrity": "ok",
+        "source_matches_backup_time": true,
+        "table_count": 43
+      },
+      {
+        "source": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\ai_tutor.experimental-psychology-3.db",
+        "backup": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\backup-before-lightrag-2ae1e5f\\ai_tutor.experimental-psychology-3.db",
+        "backup_integrity": "ok",
+        "source_matches_backup_time": true,
+        "table_count": 49
+      }
+    ],
+    "profile_sha256": "defe5ca87d5ca3fa35021c281c3df187b0239660213e4625a4e6bb055cfe00c7"
+  },
+  "smoke": [
+    {
+      "case": "ordinary",
+      "started": 1792752671.0169365,
+      "seconds": 221.377,
+      "first_paint_seconds": 210.218,
+      "actual_backend": "lightrag",
+      "citations": 3,
+      "coverage": {
+        "status": "covered",
+        "required": [
+          {
+            "id": "object-1",
+            "query": "实验程序",
+            "chapter_id": 1,
+            "section_id": null
+          },
+          {
+            "id": "object-2",
+            "query": "自变量控制",
+            "chapter_id": 2,
+            "section_id": null
+          }
+        ],
+        "covered": [
+          "object-1",
+          "object-2"
+        ],
+        "missing": [],
+        "retrieval_calls": 2,
+        "supplemental_calls": 0,
+        "fallback": false,
+        "seconds": 197.68799999996554,
+        "warning": ""
+      },
+      "refresh_equal": true,
+      "passed": true,
+      "ended": 1792752929.557821
+    },
+    {
+      "case": "q5",
+      "started": 1792752929.5616968,
+      "student_id": "lightrag-switch-1792752933126-q5",
+      "steps": [
+        {
+          "name": "q5-plan",
+          "seconds": 8.301,
+          "answer_status": "awaiting_clarification"
+        },
+        {
+          "name": "q5-confirm",
+          "seconds": 11.739,
+          "answer_status": "answered"
+        },
+        {
+          "name": "q5-cross",
+          "seconds": 29.643,
+          "answer_status": "answered"
+        },
+        {
+          "name": "q5-return",
+          "seconds": 17.943,
+          "answer_status": "answered"
+        },
+        {
+          "name": "q5-next",
+          "seconds": 14.895,
+          "answer_status": "answered"
+        }
+      ],
+      "cross_state_unchanged": true,
+      "returned_to_original": true,
+      "next_target_changed": true,
+      "refresh_equal": true,
+      "passed": true,
+      "ended": 1792753028.373568
+    }
+  ],
+  "ordinary_student_id": "response-ux-switch-cross-1792752671",
+  "ordinary_model_binding": [
+    null,
+    null
+  ],
+  "ordinary_source_binding": [
+    {
+      "indexed_source_root": "E:\\项目\\heart-worktrees\\lightrag-integration\\project\\integration\\discrete-math-tutor\\.runtime\\q2-delivery-95b956a\\snapshot\\course",
+      "active_source_root": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\code-proof-2ae1e5f\\project\\integration\\discrete-math-tutor\\knowledge\\courses\\experimental-psychology-3",
+      "additional_host_files": {
+        "count": 84,
+        "sha256": "0d836c3b5dbed11290b90fbf80252da70519e14bbd287e0785696378076e2b42",
+        "evidence_eligible": false
+      },
+      "sidecars": {
+        "mode": "candidate_local_read_view",
+        "documents": [
+          "chapter_01.generated.pdf",
+          "chapter_08.generated.pdf",
+          "chapter_09.generated.pdf",
+          "chapter_07.generated.pdf",
+          "chapter_05.generated.pdf"
+        ]
+      }
+    },
+    {
+      "indexed_source_root": "E:\\项目\\heart-worktrees\\lightrag-integration\\project\\integration\\discrete-math-tutor\\.runtime\\q2-delivery-95b956a\\snapshot\\course",
+      "active_source_root": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\code-proof-2ae1e5f\\project\\integration\\discrete-math-tutor\\knowledge\\courses\\experimental-psychology-3",
+      "additional_host_files": {
+        "count": 84,
+        "sha256": "0d836c3b5dbed11290b90fbf80252da70519e14bbd287e0785696378076e2b42",
+        "evidence_eligible": false
+      },
+      "sidecars": {
+        "mode": "candidate_local_read_view",
+        "documents": [
+          "chapter_02.generated.pdf",
+          "chapter_09.generated.pdf",
+          "chapter_01.generated.pdf",
+          "chapter_04.generated.pdf"
+        ]
+      }
+    }
+  ],
+  "q5_current_mastered": false,
+  "q5_side_question_advanced": false,
+  "q5_side_question": true,
+  "release_status": "staging",
+  "release_ready": false,
+  "data": {
+    "checked_at": 1792753138.736899,
+    "databases": [
+      {
+        "source": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\ai_tutor.db",
+        "all_original_ids_kept": true,
+        "all_original_rows_unchanged": true,
+        "new_rows": 0,
+        "tables": [
+          {
+            "table": "students",
+            "before": 15,
+            "after": 15,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "test_build_state",
+            "before": 1,
+            "after": 1,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "resource_views",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "quiz_attempts",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "learner_profiles",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "knowledge_states",
+            "before": 5,
+            "after": 5,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "misconceptions",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "conversations",
+            "before": 18,
+            "after": 18,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "teaching_plans",
+            "before": 23,
+            "after": 23,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "active_state",
+            "before": 5,
+            "after": 5,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "evidence",
+            "before": 22,
+            "after": 22,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "figure_citations",
+            "before": 2,
+            "after": 2,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "pdf_citations",
+            "before": 5,
+            "after": 5,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "exercise_drafts",
+            "before": 3,
+            "after": 3,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "exercise_submissions",
+            "before": 2,
+            "after": 2,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "exercise_help",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "learning_events",
+            "before": 10,
+            "after": 10,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_controls",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_exclusions",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_changes",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "event_evidence",
+            "before": 22,
+            "after": 22,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_revisions",
+            "before": 5,
+            "after": 5,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "misconception_observations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "strategy_observations",
+            "before": 5,
+            "after": 5,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_jobs",
+            "before": 5,
+            "after": 5,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "exercise_skill_observations",
+            "before": 2,
+            "after": 2,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_artifacts",
+            "before": 5,
+            "after": 5,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents_fts",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents_fts_data",
+            "before": 16,
+            "after": 16,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents_fts_idx",
+            "before": 14,
+            "after": 14,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents_fts_docsize",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents_fts_config",
+            "before": 1,
+            "after": 1,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "learning_tasks",
+            "before": 9,
+            "after": 9,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "visualizations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "task_requests",
+            "before": 9,
+            "after": 9,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "visualization_operations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "visualization_display",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "graph_attempts",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "truth_tables",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "truth_table_operations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "relation_artifacts",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "relation_operations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          }
+        ]
+      },
+      {
+        "source": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\ai_tutor.experimental-psychology-3.db",
+        "all_original_ids_kept": true,
+        "all_original_rows_unchanged": true,
+        "new_rows": 59,
+        "tables": [
+          {
+            "table": "students",
+            "before": 0,
+            "after": 2,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "test_build_state",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "resource_views",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "quiz_attempts",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "learner_profiles",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "knowledge_states",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "misconceptions",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "conversations",
+            "before": 0,
+            "after": 10,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "teaching_plans",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "active_state",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "exercise_drafts",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "exercise_submissions",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "exercise_help",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "learning_events",
+            "before": 0,
+            "after": 5,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_controls",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_exclusions",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_changes",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "learning_tasks",
+            "before": 0,
+            "after": 5,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "evidence",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "figure_citations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "pdf_citations",
+            "before": 0,
+            "after": 10,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_revisions",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_jobs",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "exercise_skill_observations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "task_requests",
+            "before": 0,
+            "after": 6,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "visualizations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "truth_tables",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "relation_artifacts",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "event_evidence",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "misconception_observations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "strategy_observations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_artifacts",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "visualization_display",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "visualization_operations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "graph_attempts",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "truth_table_operations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "relation_operations",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents_fts",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents_fts_data",
+            "before": 11,
+            "after": 11,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents_fts_idx",
+            "before": 9,
+            "after": 9,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents_fts_docsize",
+            "before": 0,
+            "after": 0,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "memory_documents_fts_config",
+            "before": 1,
+            "after": 1,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "q5_learning_paths",
+            "before": 0,
+            "after": 1,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "q5_learning_bindings",
+            "before": 0,
+            "after": 1,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "q5_learning_commands",
+            "before": 0,
+            "after": 7,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "q5_learning_modules",
+            "before": 0,
+            "after": 4,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "q5_learning_objectives",
+            "before": 0,
+            "after": 4,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          },
+          {
+            "table": "q5_learning_progress",
+            "before": 0,
+            "after": 4,
+            "all_original_ids_kept": true,
+            "original_rows_bytewise_unchanged": true
+          }
+        ]
+      }
+    ],
+    "candidate_core_unchanged": true,
+    "policy_unchanged": true,
+    "q2_index_unchanged": true
+  },
+  "evidence_root": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\switch-2ae1e5f-20261023",
+  "failed_auxiliary_probe": {
+    "path": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\switch-2ae1e5f-20261023\\preflight-v2.log",
+    "description": "主预检正常结束后辅助诊断脚本未生成，不是业务启动故障；默认沙箱Schannel探测失败，授权环境代理/官方端点正常"
+  },
+  "test_students": [
+    {
+      "student_id": "lightrag-switch-1792752933126-q5",
+      "account_type": "test"
+    },
+    {
+      "student_id": "response-ux-switch-cross-1792752671",
+      "account_type": "test"
+    }
+  ],
+  "full_business_revision": "2ae1e5fd9618ea80a999a22cb30339a153e15d0c",
+  "health": {
+    "status": "ok",
+    "course_id": "experimental-psychology-3",
+    "version": "0.8.0",
+    "mock_mode": false,
+    "purged_expired_accounts": 0,
+    "rag_runtime": {
+      "configured": {
+        "reranker": "cpu",
+        "embedding": "cpu"
+      },
+      "sessions": {
+        "embedding": {
+          "device": "cpu",
+          "providers": [
+            "CPUExecutionProvider"
+          ]
+        },
+        "reranker": {
+          "device": "cpu",
+          "providers": [
+            "CPUExecutionProvider"
+          ]
+        }
+      },
+      "cuda_cache_path": null
+    },
+    "memory_worker": {
+      "enabled": false,
+      "running": false
+    }
+  },
+  "service_started_at_china": "2026-10-23T17:28:23.380877+08:00",
+  "running_code_is_fixed_export": true,
+  "formal_activation_mode": "explicit_candidate_opt_in",
+  "auto_start_on_boot": false,
+  "artifact_sha256": {
+    "preflight.json": "4763edfe84a470b07608bf429dc5bdb7c189d53455e6b5d8852a88ac854e8459",
+    "actual-runtime.json": "ef2610fa20eae68882dfa2ee931e300554e510e2a321e20864d75c0f702e5e6f",
+    "smoke-results.json": "da1742d0402a007a1e25b26d49db13a97a566fb09898281eb4b55a322a2068fc",
+    "data-integrity-after.json": "07079d1c837978527ba406e524f3ae94f4769f6935642ac3fdd9f0df7421b8d2",
+    "health-final.json": "e697702c58e2d9d0101008a99bfe4213dff6cd46e34c8347e3375ae1fdf1d4ff"
+  }
+}
