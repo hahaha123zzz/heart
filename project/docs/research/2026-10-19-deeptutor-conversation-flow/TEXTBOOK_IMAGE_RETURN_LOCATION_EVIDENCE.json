@@ -1,0 +1,409 @@
+{
+  "revision": "f2b88cda75d59581787bb1361e9ae52b5a335848",
+  "initial_baseline": "9f2b01c4c525d1fa93d2231f8141150e886f7821",
+  "adopted_main": "974617de0d385fe945106e337ddc856351d6df6d",
+  "source_manifest_sha256": "d4b084a717bf48e4935b930f86eb84ec0bd2f421e0ae6dd0e32597026927cdab",
+  "release": {
+    "revision": "f2b88cda75d59581787bb1361e9ae52b5a335848",
+    "release": "E:\\项目\\heart\\.runtime\\textbook-image-location-f2b88cd\\code\\project\\integration\\discrete-math-tutor",
+    "archive_sha256": "8fa0fe11497d8a79b17d7857b794020f740fcdf94a6f7a569356feb59f809f99",
+    "code_and_resource_files": 9808,
+    "course_resource_files": 489,
+    "candidate": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\candidate",
+    "launcher": "E:\\项目\\heart\\.runtime\\textbook-image-location-f2b88cd\\start-approved.py",
+    "launcher_origin_sha256": "defe5ca87d5ca3fa35021c281c3df187b0239660213e4625a4e6bb055cfe00c7",
+    "started": false,
+    "student_databases_copied": false,
+    "requires_fresh_database_backup_before_enable": true,
+    "initial_revision": "86afc1d5dd9e7865bf63713c83af8ae12ec4e9d7",
+    "archive": "E:\\项目\\heart\\.runtime\\textbook-image-location-f2b88cd\\source-f2b88cda75d59581787bb1361e9ae52b5a335848.zip",
+    "finalized_changed_files": [
+      "project/docs/research/2026-10-19-deeptutor-conversation-flow/DIALOGUE_RETRACTION_FIGURE_RETRIEVAL_AUDIT.md",
+      "project/docs/research/2026-10-19-deeptutor-conversation-flow/DIALOGUE_RETRIEVAL_FIX_ACCEPTANCE.md",
+      "project/docs/research/2026-10-19-deeptutor-conversation-flow/DIALOGUE_RETRIEVAL_FIX_EVIDENCE.json",
+      "project/integration/discrete-math-tutor/agents/agent_loop_service.py",
+      "project/integration/discrete-math-tutor/agents/course_search.py",
+      "project/integration/discrete-math-tutor/agents/q3_tools.py",
+      "project/integration/discrete-math-tutor/frontend/app.js",
+      "project/integration/discrete-math-tutor/frontend/chat-transport.js",
+      "project/integration/discrete-math-tutor/frontend/practice.js",
+      "project/integration/discrete-math-tutor/knowledge/figure_reading.py",
+      "project/integration/discrete-math-tutor/knowledge/lightrag/coverage.py",
+      "project/integration/discrete-math-tutor/llm/answer_events.py",
+      "project/integration/discrete-math-tutor/tests/browser/reader-wheel.cjs",
+      "project/integration/discrete-math-tutor/tests/test_answer_stream.py",
+      "project/integration/discrete-math-tutor/tests/test_course_search_bridge.py",
+      "project/integration/discrete-math-tutor/tests/test_lightrag_coverage.py",
+      "project/integration/discrete-math-tutor/tests/test_visual_location_integration.py"
+    ]
+  },
+  "browser_attempts": [
+    {
+      "path": "E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\.runtime\\visual-location\\browser\\2026-10-23T11-54-22-847Z\\results.json",
+      "base": "http://127.0.0.1:18981",
+      "attempts": [],
+      "errors": [],
+      "requests": 33
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\.runtime\\visual-location\\browser\\2026-10-23T11-56-27-573Z\\results.json",
+      "base": "http://127.0.0.1:18982",
+      "attempts": [
+        {
+          "name": "历史空rects凭保存身份定位图1-2第14页且原图高亮进入视口",
+          "pass": false,
+          "error": "page.waitForFunction: Timeout 30000ms exceeded.\n    at located (E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:26:15)\n    at async E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:30:104\n    at async check (E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:9:59)\n    at async E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:29:3"
+        }
+      ],
+      "errors": [],
+      "requests": 39
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\.runtime\\visual-location\\browser\\2026-10-23T11-58-14-722Z\\results.json",
+      "base": "http://127.0.0.1:18982",
+      "attempts": [
+        {
+          "name": "历史空rects凭保存身份定位图1-2第14页且原图高亮进入视口",
+          "pass": true,
+          "ms": 1067
+        },
+        {
+          "name": "新回答保存区域、pending与像素标记不伪升级，同章两图各自定位",
+          "pass": true,
+          "ms": 1792
+        },
+        {
+          "name": "第7/8/9章图表跨章返回实际页和可见区域",
+          "pass": true,
+          "ms": 6449
+        },
+        {
+          "name": "放大与滚轮翻页后点击仍准确返回原图",
+          "pass": true,
+          "ms": 2813
+        },
+        {
+          "name": "拆分页page_map只换算一次，原图14页映射显示1页",
+          "pass": false,
+          "error": "page.waitForFunction: Timeout 30000ms exceeded.\n    at located (E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:24:15)\n    at E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:54:41\n    at async check (E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:9:59)\n    at async E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:49:3"
+        }
+      ],
+      "errors": [
+        "Cannot read properties of undefined (reading 'viewport')"
+      ],
+      "requests": 77
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\.runtime\\visual-location\\browser\\2026-10-23T12-00-18-631Z\\results.json",
+      "base": "http://127.0.0.1:18982",
+      "attempts": [
+        {
+          "name": "历史空rects凭保存身份定位图1-2第14页且原图高亮进入视口",
+          "pass": true,
+          "ms": 1443
+        },
+        {
+          "name": "新回答保存区域、pending与像素标记不伪升级，同章两图各自定位",
+          "pass": true,
+          "ms": 2205
+        },
+        {
+          "name": "第7/8/9章图表跨章返回实际页和可见区域",
+          "pass": true,
+          "ms": 7132
+        },
+        {
+          "name": "放大与滚轮翻页后点击仍准确返回原图",
+          "pass": true,
+          "ms": 3075
+        },
+        {
+          "name": "拆分页page_map只换算一次，原图14页映射显示1页",
+          "pass": true,
+          "ms": 2068
+        },
+        {
+          "name": "快速连点晚到响应不覆盖最后一次导航",
+          "pass": false,
+          "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n'16' !== '15'\n\n    at E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:61:162\n    at async check (E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:9:59)\n    at async E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\visual-return-location.cjs:57:3"
+        }
+      ],
+      "errors": [],
+      "requests": 82
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\.runtime\\visual-location\\browser\\2026-10-23T12-01-47-705Z\\results.json",
+      "base": "http://127.0.0.1:18982",
+      "attempts": [
+        {
+          "name": "历史空rects凭保存身份定位图1-2第14页且原图高亮进入视口",
+          "pass": true,
+          "ms": 1224
+        },
+        {
+          "name": "新回答保存区域、pending与像素标记不伪升级，同章两图各自定位",
+          "pass": true,
+          "ms": 3142
+        },
+        {
+          "name": "第7/8/9章图表跨章返回实际页和可见区域",
+          "pass": true,
+          "ms": 23804
+        },
+        {
+          "name": "放大与滚轮翻页后点击仍准确返回原图",
+          "pass": true,
+          "ms": 7850
+        },
+        {
+          "name": "拆分页page_map只换算一次，原图14页映射显示1页",
+          "pass": true,
+          "ms": 4048
+        },
+        {
+          "name": "快速连点晚到响应不覆盖最后一次导航",
+          "pass": true,
+          "ms": 4769
+        },
+        {
+          "name": "陈旧版本/错误哈希/缺资产实际API受控拒绝，不升级到当前版本",
+          "pass": true,
+          "ms": 73
+        },
+        {
+          "name": "接口错误不使用旧rects兜底；历史缺身份不发定位请求",
+          "pass": true,
+          "ms": 638
+        },
+        {
+          "name": "仅小节与图注诚实降级，歧义不导航",
+          "pass": true,
+          "ms": 3184
+        },
+        {
+          "name": "刷新恢复历史后再次定位，零新回答/学习推进请求",
+          "pass": true,
+          "ms": 4312
+        }
+      ],
+      "errors": [],
+      "requests": 123
+    },
+    {
+      "path": "E:\\项目\\heart\\.runtime\\textbook-image-location-f2b88cd\\code\\project\\integration\\discrete-math-tutor\\.runtime\\visual-location\\browser\\2026-10-23T13-22-19-905Z\\results.json",
+      "base": "http://127.0.0.1:18983",
+      "attempts": [
+        {
+          "name": "历史空rects凭保存身份定位图1-2第14页且原图高亮进入视口",
+          "pass": true,
+          "ms": 1234
+        },
+        {
+          "name": "新回答保存区域、pending与像素标记不伪升级，同章两图各自定位",
+          "pass": true,
+          "ms": 1806
+        },
+        {
+          "name": "第7/8/9章图表跨章返回实际页和可见区域",
+          "pass": true,
+          "ms": 6706
+        },
+        {
+          "name": "放大与滚轮翻页后点击仍准确返回原图",
+          "pass": true,
+          "ms": 2920
+        },
+        {
+          "name": "拆分页page_map只换算一次，原图14页映射显示1页",
+          "pass": true,
+          "ms": 3031
+        },
+        {
+          "name": "快速连点晚到响应不覆盖最后一次导航",
+          "pass": true,
+          "ms": 3675
+        },
+        {
+          "name": "陈旧版本/错误哈希/缺资产实际API受控拒绝，不升级到当前版本",
+          "pass": true,
+          "ms": 39
+        },
+        {
+          "name": "接口错误不使用旧rects兜底；历史缺身份不发定位请求",
+          "pass": true,
+          "ms": 484
+        },
+        {
+          "name": "仅小节与图注诚实降级，歧义不导航",
+          "pass": true,
+          "ms": 3150
+        },
+        {
+          "name": "刷新恢复历史后再次定位，零新回答/学习推进请求",
+          "pass": true,
+          "ms": 3435
+        }
+      ],
+      "errors": [],
+      "requests": 126
+    }
+  ],
+  "wheel_attempts": [
+    {
+      "path": "E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\artifacts\\reader-wheel\\2026-10-23T12-05-15-292Z\\results.json",
+      "attempts": [
+        {
+          "name": "正文中部 CDP 滚轮上下翻页，不必到边缘",
+          "pass": true,
+          "ms": 536
+        },
+        {
+          "name": "触控板小幅累计与 2 秒惯性连续序列仅一页",
+          "pass": false,
+          "error": "page.waitForFunction: Timeout 30000ms exceeded.\n    at expectPage (E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\reader-wheel.cjs:50:34)\n    at E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\reader-wheel.cjs:60:110\n    at async check (E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\reader-wheel.cjs:53:60)\n    at async E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\tests\\browser\\reader-wheel.cjs:59:3",
+          "ms": 44048
+        }
+      ],
+      "errors": [],
+      "reader_sha256": "f884341be48c4de9764f90d49517da29eff3e025e899395e8b3753fb95bf24c4"
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor\\artifacts\\reader-wheel\\2026-10-23T12-11-54-108Z\\results.json",
+      "attempts": [
+        {
+          "name": "正文中部 CDP 滚轮上下翻页，不必到边缘",
+          "pass": true,
+          "ms": 681
+        },
+        {
+          "name": "触控板小幅累计与 2 秒惯性连续序列仅一页",
+          "pass": true,
+          "ms": 3352
+        },
+        {
+          "name": "工具栏按钮及输入；首尾不越界，不推动外层或推进章节",
+          "pass": true,
+          "ms": 5102
+        },
+        {
+          "name": "目录聊天外层及工具栏未拦截；修饰键与横向不翻页",
+          "pass": true,
+          "ms": 3567
+        },
+        {
+          "name": "目录和右侧聊天实际 CDP 滚动保持独立",
+          "pass": true,
+          "ms": 1744
+        },
+        {
+          "name": "真实文字层选区及菜单活跃不翻页，取消后可翻页",
+          "pass": true,
+          "ms": 3119
+        },
+        {
+          "name": "鼠标区域圈选拖动和菜单不翻页，取消恢复",
+          "pass": true,
+          "ms": 4694
+        },
+        {
+          "name": "引用坐标跳转高亮保留，随后可滚轮翻页",
+          "pass": true,
+          "ms": 2403
+        },
+        {
+          "name": "200% 缩放后滚动条可访问页下半部分，滚轮仍直接翻页",
+          "pass": true,
+          "ms": 3252
+        },
+        {
+          "name": "现有 pdf-position / Workspace 刷新恢复页码和缩放",
+          "pass": true,
+          "ms": 5876
+        },
+        {
+          "name": "换章与重复挂载后单个滚轮仅翻一页；page_map沿用来源页",
+          "pass": true,
+          "ms": 7100
+        }
+      ],
+      "errors": [],
+      "reader_sha256": "f884341be48c4de9764f90d49517da29eff3e025e899395e8b3753fb95bf24c4"
+    }
+  ],
+  "baseline_repro": {
+    "baseline": "9f2b01c",
+    "before": {
+      "document_id": "experimental-psychology-3:chapter-01",
+      "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+      "chapter_id": 1,
+      "section_id": 2,
+      "kind": "text",
+      "rects": [],
+      "text": "historical retrieval quote, not the caption",
+      "location_status": "section"
+    },
+    "after": {
+      "document_id": "experimental-psychology-3:chapter-01",
+      "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+      "chapter_id": 1,
+      "section_id": 2,
+      "kind": "area",
+      "rects": [
+        {
+          "page": 14,
+          "x1": 0.2414258571067575,
+          "y1": 0.2760105082994997,
+          "x2": 0.7943568227857919,
+          "y2": 0.48355643204816684
+        }
+      ],
+      "text": "图1-2",
+      "location_status": "exact"
+    },
+    "model_calls": 0
+  },
+  "closeout_runtime": {
+    "stopped_own_test_servers": [
+      {
+        "pid": 3640,
+        "cwd": "E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor",
+        "port": "18981"
+      },
+      {
+        "pid": 45752,
+        "cwd": "E:\\项目\\heart\\.runtime\\textbook-image-location-f2b88cd\\code\\project\\integration\\discrete-math-tutor",
+        "port": "18983"
+      },
+      {
+        "pid": 48672,
+        "cwd": "E:\\项目\\heart-worktrees\\textbook-image-location\\project\\integration\\discrete-math-tutor",
+        "port": "18982"
+      }
+    ],
+    "production_8000": [
+      {
+        "pid": 43028,
+        "cwd": "E:\\项目\\heart\\.runtime\\response-portable-20261022\\code-proof-2ae1e5f\\project\\integration\\discrete-math-tutor",
+        "command": [
+          "C:\\Users\\free\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "-B",
+          "-m",
+          "uvicorn",
+          "main:app",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "8000"
+        ]
+      }
+    ]
+  },
+  "runtime_files": {
+    "frontend/app.js": "715d3200ca3a6ff00f695b6a91b334dd3f31a40a0faec28f0bcf7f58eaca1dff",
+    "frontend/pdf-reader/reader.js": "f884341be48c4de9764f90d49517da29eff3e025e899395e8b3753fb95bf24c4",
+    "frontend/tutor-markdown/tutor-markdown.js": "316b97275d483f108ae632dd6549397ef72a25111becda5be842d28cbec15523",
+    "knowledge/visual_locations.py": "fbdc2384d96d81c2ef564f3b6fa4326c023347a1d14f0fd92f48cd5f4f3c7261",
+    "knowledge/answer_media.py": "ee5c6d373b5af35c7b3c3cb2ffddfc9a7063b508e54377f1afb5fc008bf604a5",
+    "web_api.py": "a1f5680c443e018db46241bb75d0d6909b4f229b7bf773d3d8877960aa6a00e0"
+  }
+}
