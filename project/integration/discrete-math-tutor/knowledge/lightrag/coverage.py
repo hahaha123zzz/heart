@@ -72,11 +72,19 @@ class CoverageNavigator:
         started=time.monotonic();self._check();self.graph_records=[]
         if not self.requirements:
             raw=self.navigator.search(target=target,query=query,limit=limit,preferred_types=preferred_types)
+            self._capture_graph('single')
             self._check();selected=self.select(Requirement('single',query,target.chapter_id,target.section_id),raw) if raw else []
-            self.report={'status':'passthrough' if selected else 'no_evidence','retrieval_calls':1,'supplemental_calls':0,
+            calls=1
+            if not selected and target.chapter_id is not None and target.source_scope.get('allow_course_expansion'):
+                self._check()
+                expanded=replace(target,target_id='question',chapter_id=None,section_id=None,source_scope={},version='')
+                raw=self.navigator.search(target=expanded,query=self.question,limit=limit,preferred_types=preferred_types)
+                self._capture_graph('single-expanded');self._check();calls+=1
+                selected=self.select(Requirement('single',self.question),raw) if raw else []
+            self.report={'status':'passthrough' if selected else 'no_evidence','retrieval_calls':calls,'supplemental_calls':calls-1,
                          'missing':[] if selected else [{'id':'single','query':query,'reason':'没有可核验原文'}],
                          'seconds':time.monotonic()-started}
-            self._capture_graph('single');return selected
+            return selected
         if not len(self.requirements)<=limit<=40:raise ValueError('输出预算不足以保留全部必要对象')
         groups={r.id:[] for r in self.requirements};reasons={};calls=0;supplemental=0
         self.report={'status':'retrieving','required':[r.__dict__ for r in self.requirements],'covered':[],

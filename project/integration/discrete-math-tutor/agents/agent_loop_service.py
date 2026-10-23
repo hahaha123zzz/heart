@@ -412,10 +412,10 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                            "reason": decision.reason},
         }
     target = decision.target or current_target
-    from agents.course_search import explicit_chapters
+    from agents.course_search import explicit_chapters, question_interjection
     chapters = explicit_chapters(request.message)
     interjection = bool(len(chapters) > 1 or
-        (q5_binding and chapters and target.chapter_id not in chapters))
+        (q5_binding and question_interjection(request.message, target)))
     root = Path(__file__).resolve().parents[1]
     skills_root = root / "visualization" / "skills"
     task_key = re.sub(r"[^A-Za-z0-9_.-]+", "_",
@@ -440,7 +440,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     budget = reply_budget(request.message)
     system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions()) + "\n" + budget.instructions()
     if interjection:
-        system_prompt += '\n本轮是跨章插问，只回答学生当前问题；保留原学习目标，不记录本目标已讲解、掌握或推进路径。'
+        system_prompt += '\n本轮是插问，只回答学生当前问题；保留原学习目标，不记录本目标已讲解、掌握或推进路径。'
+    system_prompt += '\n页面当前学习目标仅作学习位置参考；具体提问优先，不要把旧小节主题擅自追加到检索词。指定图号先调用 retrieve_course 读取该图及登记原文，不能只检索旧主题便要求学生上传已有原图。'
 
     def emit(event_type: str, message: str,
              detail: str | dict[str, Any] | None = None) -> None:

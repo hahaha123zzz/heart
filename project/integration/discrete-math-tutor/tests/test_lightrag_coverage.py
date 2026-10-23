@@ -22,6 +22,18 @@ def ref(id,chapter,text='有效对象原文内容'):
    'textbook_release':'staging-id','release_status':'staging','release_ready':False})
 
 class CoverageTests(unittest.TestCase):
+ def test_empty_single_expands_once_and_keeps_native_trace(self):
+  calls=[]
+  def search(**kw):
+   calls.append(kw['target'])
+   return [ref('expanded',2)] if kw['target'].chapter_id is None else []
+  nav=CoverageNavigator(self.navigator(search),question='被试反应',select=self.selector,judge=self.judge)
+  target=replace(self.target(),source_scope={'allow_course_expansion':True})
+  self.assertEqual(len(nav.search(target=target,query='反应',limit=6)),1)
+  self.assertEqual(len(calls),2)
+  self.assertIsNone(calls[-1].chapter_id)
+  self.assertEqual(nav.report['supplemental_calls'],1)
+  self.assertEqual(target.chapter_id,5)
  def test_single_empty_reports_missing_and_copies_native_trace(self):
   event={'stage':'scope_filter','rows':[{'source_id':'outside','accepted':False}]}
   backend=SimpleNamespace(search=lambda **kw:[],last_result={'trace':[event]})

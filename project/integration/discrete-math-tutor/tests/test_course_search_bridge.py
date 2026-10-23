@@ -6,6 +6,74 @@ from agents.q3_navigation import LearningTarget, SourceRef, NavigationDecision
 
 
 class CourseSearchBridgeTests(unittest.TestCase):
+    def test_new_concept_question_does_not_inherit_reader_scope(self):
+        target = LearningTarget('kp:history', '第二节 实验心理学的产生与发展', chapter_id=1, section_id=2)
+        search = CourseSearch(self.base, message='给我解释一下被试反应', llm=Mock(), backend=self.backend)
+        search.search(target=target, query='被试反应', limit=6)
+        passed = self.backend.search.call_args.kwargs['target']
+        self.assertIsNone(passed.section_id)
+        self.assertIsNone(passed.chapter_id)
+        self.assertEqual((target.chapter_id, target.section_id), (1, 2))
+
+    def test_plain_question_uses_chapter_preference_without_section_lock(self):
+        search = CourseSearch(self.base, message='被试反应有哪些形式？', llm=Mock(), backend=self.backend)
+        search.search(target=self.target, query='反应形式', limit=6)
+        passed = self.backend.search.call_args.kwargs['target']
+        self.assertIsNone(passed.section_id)
+        self.assertEqual(passed.chapter_id, self.target.chapter_id)
+        self.assertTrue(passed.source_scope['allow_course_expansion'])
+
+    def test_figure_reads_original_without_semantic_backend(self):
+        from knowledge.figure_reading import named_figures, read_figure
+        figures = named_figures('图1-4讲的是什么')
+        if not figures:
+            self.skipTest('没有心理学原图输入')
+        chunk = read_figure(figures[0])[0]
+        self.assertEqual((chunk.chapter_id, chunk.section_id), (1, 3))
+        self.assertIn('图1-4', chunk.text)
+        self.assertTrue(chunk.source_spans)
+        search = CourseSearch(self.base, message='图1-4讲的是什么', llm=Mock(), backend=self.backend)
+        with patch.object(search, 'select', side_effect=lambda question, rows: rows):
+            sources = search.search(target=self.target, query='图1-4 冯特', limit=6)
+        self.assertTrue(sources)
+        self.assertEqual(sources[0].section_id, 3)
+        self.backend.search.assert_not_called()
+        self.assertEqual(search.calls[-1]['actual_backend'], 'q2_figure')
+
+    def test_missing_or_duplicate_figure_never_uses_wrong_text(self):
+        search = CourseSearch(self.base, message='图1-4讲的是什么', llm=Mock(), backend=self.backend)
+        figure = Mock(label='图1-4', id='duplicate')
+        for found in ([], [figure, figure]):
+            with patch('knowledge.figure_reading.named_figures', return_value=found):
+                self.assertEqual(search.search(target=self.target, query='图1-4', limit=6), [])
+        self.backend.search.assert_not_called()
+
+    def test_continuing_derivation_keeps_exact_q2_scope(self):
+        from agents.course_search import question_interjection
+        target = LearningTarget('ch1:s2:b3', '当前目标', chapter_id=1, section_id=2)
+        for message in ['下一步推导', '继续这个例子', '解释一下当前目标', '没听懂，换个说法']:
+            self.assertFalse(question_interjection(message, target), message)
+
+    def test_new_concept_turn_has_no_q5_write_tools(self):
+        from types import SimpleNamespace
+        from agents.agent_loop_service import run_agent_loop_turn
+        from agents.tool_protocol import ToolDefinition
+        from models.task_context import TaskContext
+        from models.chat_request import ChatRequest
+        from tests.test_q3_agent_loop import ScriptedLLM, final_round
+        llm = ScriptedLLM([final_round('插问回复')])
+        q5 = SimpleNamespace(service=Mock(), scope=Mock(), search=Mock(), status_line=lambda: '',
+            loop_binding=lambda: {'target': self.target, 'tool_instances': [
+                SimpleNamespace(definition=ToolDefinition('mastery_understood', '修改位置'))]})
+        message = '给我解释一下被试反应'
+        with patch('agents.q5_learning.Q5Navigator', return_value=self.base):
+            result = run_agent_loop_turn(orchestrator=SimpleNamespace(llm=llm, memory=None),
+                request=ChatRequest(student_id='isolated', request_id='concept-side', message=message),
+                context=TaskContext(student_id='isolated', message=message), q5=q5, navigator=self.backend,
+                publish_gate=lambda *_: (True, ''))
+        self.assertTrue(result['learning_interjection'])
+        self.assertNotIn('mastery_understood', [t['function']['name'] for t in llm.calls[0]['tools']])
+
     def test_per_object_selection_is_not_globally_dropped_or_repeated(self):
         from knowledge.lightrag.coverage import CoverageNavigator
         from tests.test_lightrag_coverage import ref
