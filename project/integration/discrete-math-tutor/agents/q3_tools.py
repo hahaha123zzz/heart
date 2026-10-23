@@ -61,7 +61,7 @@ class RetrieveCourseTool(BaseTool):
                               metadata={"dependency": "Q2"})
         sources = context.navigation.search(target=target, query=query, limit=limit)
         if not sources:
-            return ToolResult(content="当前学习目标的检索范围没有返回教材片段。", sources=[],
+            return ToolResult(content="本轮问题没有返回可核验原文。请按检索记录区分指定图号缺失/歧义与证据不足；不能据此断言整本教材没有，也不要重复相同查询。", sources=[],
                               metadata={"target_id": target.target_id, "query": query})
         seen = context.state.setdefault("seen_source_ids", set())
         fresh = []

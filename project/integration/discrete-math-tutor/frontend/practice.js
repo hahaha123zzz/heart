@@ -153,7 +153,7 @@ window.ExercisePractice=(()=>{
     exercise_target:{question_id:qid,part_id:pid,version},exercise_help:action,exercise_hint_level:level},null,null,(event,data)=>{
      if(seq!==P.seq||!window.TutorChatTransport.applyDraft(draft,event,data)||frame)return;
      frame=requestAnimationFrame(()=>{frame=null;if(seq!==P.seq)return;
-      const label={generating:'正在生成（未核验）',checking:'正在核验（未保存）',saved:'已保存',rejected:'草稿已撤回'}[draft.answerState];
+      const label={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮未发布'}[draft.answerState];
       target.innerHTML='<strong role="status">'+esc(label)+'</strong>'+window.renderTutorAnswer(draft.content,{streaming:draft.answerState==='generating'});showPartHelp(pid);
      });
     });
