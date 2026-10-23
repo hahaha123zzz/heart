@@ -290,8 +290,9 @@ def _map_result(result: LoopResult, target: LearningTarget,
     if not result.completed:
         return {
             **base,
-            "reply": "本次执行未完成，请重试或缩小问题范围。",
-            "answer_status": "loop_failed",
+            "reply": result.final_text or "本次执行未完成，请重试或缩小问题范围。",
+            "answer_status": result.error if result.error in {"answer_interrupted", "incomplete_answer", "active_timeout"} else "loop_failed",
+            "unpublished_draft": result.unpublished_draft,
             "loop_error": result.error,
             "sources": result.sources,
             "step_advanced": False,
@@ -456,7 +457,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         progress("loop-" + event_type, event_type, str(text)[:300])
 
     round_tokens = max(1200, budget.max_tokens)
-    tool_seconds = 120 * max(1, len(navigation.coverage.requirements)) if navigation.coverage else 120
+    tool_seconds = 120  # 共享活动预算还会取剩余时间的较小值。
     loop = LocalAgentLoop(llm or orchestrator.llm, max_round_tokens=round_tokens)
     cancellation = register(request.task_id or request.request_id)
     navigation.cancellation = cancellation
@@ -470,7 +471,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             task_id=request.task_id or request.request_id,
             request_id=request.request_id or "",
             message=request.message, system_prompt=system_prompt, tools=registry,
-            round_max_tokens=round_tokens,
+            round_max_tokens=round_tokens, requires_evidence=True,
             seed_messages=list(context.history or []), target=target,
             navigation=navigation, cancellation=cancellation, guard=guard,
             tool_state={"workspace_root": str(workspace_root),

@@ -1,3 +1,4 @@
+from llm.execution_budget import bounded_stage
 """按必要对象保留Q2精确证据；不修改学习路径或生成答案。"""
 from dataclasses import dataclass,replace
 from copy import deepcopy
@@ -44,6 +45,7 @@ def requirements_for(question):
     if len(output)>3:raise ValueError('单轮最多3个必要对象，请拆小问题')
     return output
 
+@bounded_stage('semantic_coverage')
 def semantic_selection(llm,requirement,sources):
     """章节/关键词相同不代表相关：核查Q2选出的实际引句。"""
     payload={'object':requirement.query,'chapter_id':requirement.chapter_id,

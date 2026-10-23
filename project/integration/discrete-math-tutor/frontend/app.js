@@ -217,7 +217,7 @@ function renderProgress(message) {
   const stages = message.progress || [];
   const elapsed = Math.round(((message.finishedAt || Date.now()) - message.startedAt) / 1000);
   const current = stages.at(-1);
-  const answerLabel={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮未发布'}[message.answerState];
+  const answerLabel={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮未发布',interrupted:'输出中断（未保存）',incomplete:'输出未完成（未保存）',timeout:'本轮已超时（未保存）'}[message.answerState];
   const title = message.pending ? (answerLabel || current?.label || "正在连接助教") : message.answerSaved && message.networkFailed ? "文字已保存，图解待恢复" : message.failed ? "处理未完成" : message.answerState==='awaiting_clarification' ? '等待补充或确认' : message.answerState==='saved' ? '已保存' : "已完成";
   return `<div class="turn-progress ${message.failed ? "failed" : ""}"><div class="progress-heading" role="status"><span class="${message.pending ? "progress-spinner" : "progress-check"}">${message.pending ? "" : message.failed ? "!" : "✓"}</span><strong>${esc(title)}</strong><span class="progress-elapsed" data-start="${message.startedAt}" data-finished="${message.finishedAt || ""}">${elapsed} 秒</span></div>${message.pending ? `<div class="progress-detail">${esc(current?.detail || "请求已发出，等待服务响应")}</div>` : ""}<details><summary>处理记录（点击展开）</summary><ol>${stages.map(p => `<li class="${p.status}"><span>${p.status === "completed" ? "✓" : message.failed ? "!" : "·"}</span><div><strong>${esc(p.label)}</strong><small>${esc(p.detail)}</small></div></li>`).join("")}</ol></details></div>`;
 }
@@ -484,10 +484,10 @@ function renderAnswerContent(message) {
   const previous=answerMarkup.get(message);
   const streaming=message.answerState==='generating';
   const media=JSON.stringify(message.imageRefs || []);
-  if (previous?.content===message.content && previous.streaming===streaming && previous.media===media && previous.renderer===window.TutorMarkdown) return previous.html;
-  const html=window.renderTutorAnswer(message.content,{streaming,media:message.imageRefs || []});
+  if (previous?.content===message.content && previous.streaming===streaming && previous.media===media && previous.draft===message.unpublishedDraft && previous.renderer===window.TutorMarkdown) return previous.html;
+  const html=window.renderTutorAnswer(message.content,{streaming,media:message.imageRefs || []})+window.TutorChatTransport.renderUnpublished(message.unpublishedDraft);
   // 进度变化不重新解析整条正文；消息删除后缓存随对象释放。
-  answerMarkup.set(message,{content:message.content,streaming,media,renderer:window.TutorMarkdown,html});
+  answerMarkup.set(message,{draft:message.unpublishedDraft,content:message.content,streaming,media,renderer:window.TutorMarkdown,html});
   return html;
 }
 let chatRenderer;
@@ -548,9 +548,9 @@ async function sendMessage(message, options={}) {
     if(finished)pending.styleSuggestion=styleControl().observe(result);
     renderStyleStatus();
     Object.assign(pending, {taskId:result.task_id, conversationId:result.conversation_id, pending:!finished, networkFailed:false,
-      answerSettled:true,answerState:result.answer_status==='answered'?'saved':result.answer_status==='awaiting_clarification'?'awaiting_clarification':'rejected',
-      failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable'].includes(result.answer_status),
-      content:result.reply || "助教暂时没有返回内容。",
+      answerSettled:true,answerState:result.answer_status==='answered'?'saved':result.answer_status==='awaiting_clarification'?'awaiting_clarification':({answer_interrupted:'interrupted',incomplete_answer:'incomplete',active_timeout:'timeout'}[result.answer_status]||'rejected'),
+      failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable','answer_interrupted','incomplete_answer','active_timeout','loop_failed'].includes(result.answer_status),
+      content:result.reply || "助教暂时没有返回内容。", unpublishedDraft:result.unpublished_draft || '',
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
       selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
       relationContext:result.answer_status==='answered'?result.relation_context:undefined,

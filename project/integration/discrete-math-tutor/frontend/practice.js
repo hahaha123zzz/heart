@@ -153,12 +153,12 @@ window.ExercisePractice=(()=>{
     exercise_target:{question_id:qid,part_id:pid,version},exercise_help:action,exercise_hint_level:level},null,null,(event,data)=>{
      if(seq!==P.seq||!window.TutorChatTransport.applyDraft(draft,event,data)||frame)return;
      frame=requestAnimationFrame(()=>{frame=null;if(seq!==P.seq)return;
-      const label={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮未发布'}[draft.answerState];
+      const label={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮未发布',interrupted:'输出中断（未保存）',incomplete:'输出未完成（未保存）',timeout:'本轮已超时（未保存）'}[draft.answerState];
       target.innerHTML='<strong role="status">'+esc(label)+'</strong>'+window.renderTutorAnswer(draft.content,{streaming:draft.answerState==='generating'});showPartHelp(pid);
      });
     });
    draft.answerSettled=true;if(frame)cancelAnimationFrame(frame);
-   if(seq!==P.seq)return;P.help[pid].guide=r.guided_visualization||null;P.help[pid].result=r;target.innerHTML='<strong>'+ (action==='hint'?'提示 '+level+'/3':'AI 讲解')+'</strong>'+window.renderTutorAnswer(r.reply)+window.renderPracticeReferences(r,pid)+'<small>'+esc(r.memory_summary)+'</small>';window.TextbookPDF?.renderMath(target);showPartHelp(pid);
+   if(seq!==P.seq)return;P.help[pid].guide=r.guided_visualization||null;P.help[pid].result=r;target.innerHTML='<strong>'+ (action==='hint'?'提示 '+level+'/3':'AI 讲解')+'</strong>'+window.renderTutorAnswer(r.reply)+window.TutorChatTransport.renderUnpublished(r.unpublished_draft)+window.renderPracticeReferences(r,pid)+'<small>'+esc(r.memory_summary)+'</small>';window.TextbookPDF?.renderMath(target);showPartHelp(pid);
   }catch(e){if(seq===P.seq){target.textContent=e.message;showPartHelp(pid);}}finally{if(seq===P.seq)P.help[pid]={...P.help[pid],busy:false,level};}
  }
  function input(e){

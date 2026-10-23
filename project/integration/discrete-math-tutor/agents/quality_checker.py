@@ -16,6 +16,7 @@
 """
 
 from __future__ import annotations
+from contextvars import copy_context
 
 import logging
 import re
@@ -222,8 +223,8 @@ class QualityChecker:
         audit=None
         if proof_required and not getattr(self.llm,"mock",False):
             # 输入已固定；两个检查互不消费对方结果，汇合后共同决定是否发布。
-            teaching_future=_CHECK_POOL.submit(teaching_check)
-            proof_future=_CHECK_POOL.submit(self.proof_checker.check,response,student_input,
+            teaching_future=_CHECK_POOL.submit(copy_context().run, teaching_check)
+            proof_future=_CHECK_POOL.submit(copy_context().run, self.proof_checker.check,response,student_input,
                                            textbook_excerpts,figure_images)
             result,teaching_ms=teaching_future.result()
             audit=proof_future.result()

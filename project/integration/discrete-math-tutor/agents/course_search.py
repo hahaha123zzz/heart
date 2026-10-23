@@ -1,3 +1,4 @@
+from llm.execution_budget import bounded_stage
 """Q3/Q5 共用检索边界；不改变路径解析，不实现检索引擎。"""
 from dataclasses import replace
 import json
@@ -50,6 +51,7 @@ class CourseSearch:
     def resolve(self, **kwargs):
         return self.base.resolve(**kwargs)
 
+    @bounded_stage('retrieval')
     def search(self, *, target, query, limit, preferred_types=()):
         chapters = explicit_chapters(self.message)
         side_question = question_interjection(self.message, target)
@@ -152,6 +154,7 @@ class CourseSearch:
             record['seconds'] = time.monotonic() - started
             log.info('course_search %s', json.dumps(record, ensure_ascii=False))
 
+    @bounded_stage('source_mapping')
     def select(self, question, sources, *, subproblem='single'):
         from knowledge.grounded_citations import choose_evidence, settings
         from knowledge.lightrag.retrieval import as_textbook_chunk
