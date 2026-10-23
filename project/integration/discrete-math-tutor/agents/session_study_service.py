@@ -20,7 +20,8 @@ def validate_source(ref):
     try:
         unit = validate({'id': ref['unit_id'], 'version': ref['version']})
         record = document_for_chapter(unit['chapter_id'])
-        return bool(record and ref.get('document_id') == record['document_id'])
+        return bool(record and ref.get('document_id') == record['document_id'] and
+                    ref.get('chapter_id')==unit['chapter_id'] and ref.get('section_id')==unit['section_id'])
     except (ValueError, KeyError, OSError):
         return False
 
@@ -41,7 +42,8 @@ class SessionStudyService:
         plan = SessionStudyPlan.model_validate(value)
         if (plan.student_id, plan.session_id, plan.course_id) != (self.scope.student_id, self.scope.session_id, self.scope.course_id):
             raise ValueError('session_plan_owner_mismatch')
-        if not all(self.source_validator(ref) for item in plan.items for ref in item.source_refs):
+        refs={json.dumps(ref,sort_keys=True):ref for item in plan.items for ref in item.source_refs}
+        if not all(self.source_validator(ref) for ref in refs.values()):
             raise ValueError('session_plan_source_unavailable')
         return plan
 

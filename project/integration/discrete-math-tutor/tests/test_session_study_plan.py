@@ -158,6 +158,23 @@ class PlannerTests(unittest.TestCase):
             generate_session(llm,StudyRequest(goal='自变量'),scope=self.scope,status={},current=None,previous=None,
                 materials=[self.material],profile={},validator=lambda p:None,guard=lambda:None)
 
+    def test_empty_annotation_is_discarded_but_identity_is_not(self):
+        from agents.session_study_planner import generate_session
+        llm=Mock();raw=deepcopy(self.raw);raw['items'][0]['order_reason_note']=''
+        llm.chat_json.return_value=raw
+        plan=generate_session(llm,StudyRequest(goal='自变量'),scope=self.scope,status={},current=None,previous=None,
+            materials=[self.material],profile={},validator=lambda p:None,guard=lambda:None)
+        self.assertNotIn('order_reason_note',plan['items'][0])
+        self.assertEqual(llm.chat_json.call_count,1)
+
+    def test_malformed_json_has_one_bounded_repair(self):
+        from agents.session_study_planner import generate_session
+        from llm.client import LLMJSONError
+        llm=Mock();llm.chat_json.side_effect=[LLMJSONError('invalid json'),self.raw]
+        value=generate_session(llm,StudyRequest(goal='自变量'),scope=self.scope,status={},current=None,previous=None,
+            materials=[self.material],profile={},validator=lambda p:None,guard=lambda:None)
+        self.assertTrue(value['items']);self.assertEqual(llm.chat_json.call_count,2)
+
     def test_revision_preserves_explained_identity_and_facts(self):
         from agents.session_study_planner import generate_session
         previous=SessionStudyPlan(**plan_payload(self.scope)).model_dump()

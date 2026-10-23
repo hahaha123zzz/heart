@@ -78,6 +78,12 @@ class Q5Runtime:
             current=self.sessions.current(), previous=previous, materials=materials, profile=profile,
             validator=self.sessions.validate, guard=guard)
         value['source_binding']['retrieval_calls'] = calls
+        if re.search(r'(?:以后|今后|每次|长期).{0,10}先讲(?:解)?.{0,4}(?:后|再)练',message):
+            from database.database import session_scope
+            with session_scope(immediate=True):
+                guard()
+                memory.set_preferences(self.scope.student_id,{'teaching_sequence':1.0})
+            value['source_binding']['long_preferences_updated']=['teaching_sequence']
         return value
 
     def session_result(self, proposal, task, *, adjust_prompt=False):
@@ -97,6 +103,8 @@ class Q5Runtime:
             '预计总用时：'+str(sum(item['estimated_minutes'] for item in proposal['items']))+' 分钟（估算）']
         for text in proposal['request'].get('assumptions',[]): lines.append('假设：'+text)
         for text in proposal.get('omitted',[]): lines.append('未纳入：'+text)
+        if proposal.get('source_binding',{}).get('long_preferences_updated'):
+            lines.append('已按你的明确要求长期保存“先讲后练”；可在风格设置调整或学习记忆管理中撤销。')
         lines.append('教材资料为有界选取，本安排不代表整章或全书覆盖；完成活动不等于掌握。')
         lines.append('请说明要调整的范围、时间或教法。' if adjust_prompt else '确认后按本次安排开始，不改变长期路径。')
         return {'reply':'\n'.join(lines),'answer_status':'awaiting_clarification','loop_paused':True,

@@ -37,7 +37,7 @@ function styleControl() {
   if(interactionStyle?.key!==key)interactionStyle=new window.InteractionStyle(sessionStorage,key);
   return interactionStyle;
 }
-const preferenceFields=['answer_length','example_density','learning_pace','explanation_order','question_frequency','style_suggestions'];
+const preferenceFields=['answer_length','example_density','learning_pace','explanation_order','question_frequency','teaching_sequence','style_suggestions'];
 function renderStyleSuggestion(message,index) {
   const suggestion=message.styleSuggestion;
   if(!suggestion || state.sending || message!==state.chat.at(-1))return '';
@@ -569,7 +569,7 @@ async function sendMessage(message, options={}) {
     renderStyleStatus();
     Object.assign(pending, {taskId:result.task_id, conversationId:result.conversation_id, pending:!finished, networkFailed:false,
       answerSettled:true,answerState:result.answer_status==='answered'?'saved':result.answer_status==='awaiting_clarification'?'awaiting_clarification':'rejected',
-      failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable'].includes(result.answer_status),
+      failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable','q5_error','session_plan_changed'].includes(result.answer_status),
       content:result.reply || "助教暂时没有返回内容。",
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
       selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
@@ -903,7 +903,7 @@ $('#open-relation')?.addEventListener('click',()=>openRelation());
 
 let memoryRequest = 0;
 const memoryBase = () => '/api/students/' + encodeURIComponent(studentId) + '/memory';
-const preferenceNames = {answer_length:'回答长度', example_density:'举例频率', learning_pace:'学习节奏',explanation_order:'讲解顺序',question_frequency:'追问频率',style_suggestions:'主动风格建议'};
+const preferenceNames = {answer_length:'回答长度', example_density:'举例频率', learning_pace:'学习节奏',explanation_order:'讲解顺序',question_frequency:'追问频率',teaching_sequence:'讲练顺序',style_suggestions:'主动风格建议'};
 const misconceptionNames = {hypothesis:'候选判断', supported:'有支持记录', confirmed:'多次支持', dismissed:'已否认', resolved:'已纠正'};
 async function refreshMemory(point) {
   const request = ++memoryRequest;

@@ -3,6 +3,7 @@ from uuid import uuid4
 import json
 from models.session_study_plan import StudyRequest, StudyItem, SessionStudyPlan
 from agents.q5_plan_generator import LLMPlanGenerator
+from llm.client import LLMJSONError
 
 
 def extract_request(llm, message, *, profile, path, previous=None):
@@ -10,7 +11,7 @@ def extract_request(llm, message, *, profile, path, previous=None):
         {'role':'system','content':'''[AGENT:study_request]
 从学生本次安排请求提取JSON，只允许goal,scope,time_budget_minutes,prior_knowledge,target_level,teaching_preference,practice_preference,assumptions。
 goal为具体目标，scope为主题/章名字符串数组；没有主题且无既有路径时scope=[]，不得默认第一章。分钟数必须正整数，未给用null；一小时=60。prior_knowledge只记学生明确说的基础，不从语气猜。
-practice_preference只允许none(只讲不要考试)、optional(未明确)、application(想练应用)。不明示的字段用空字符串；只缺时间可声明估算，不要求补问。
+practice_preference只允许none(只讲不要考试)、optional(未明确)、application(想练应用)。不明示的字段用空字符串；只缺时间可声明估算，不要求补问。teaching_preference只提取本次明示，不把confirmed_profile的文字混入明示字段；画像由服务端单独合并。
 上一安排用于解释调整，最新明示优先：改成20分钟只学自变量要同步修改范围和预算；其余未变约束保留。这里只提取一次性需求，不修改长期画像。'''},
         {'role':'user','content':json.dumps({'message':message,'previous_request':previous,
             'confirmed_profile':profile,'confirmed_path_goal':path.get('goal','')},ensure_ascii=False)}],
@@ -19,6 +20,10 @@ practice_preference只允许none(只讲不要考试)、optional(未明确)、app
         raise ValueError('study_request_not_object')
     values=dict(raw)
     values['value_sources']={k:'explicit' for k,v in values.items() if v not in ('',None,[],{}) and k!='assumptions'}
+    for key,source in (previous or {}).get('value_sources',{}).items():
+        if values.get(key)==previous.get(key):values['value_sources'][key]=source
+    if values['value_sources'].get('teaching_preference')=='confirmed_profile':
+        values['teaching_preference']=profile.get('teaching_preference','')
     if not values.get('teaching_preference') and profile.get('teaching_preference'):
         values['teaching_preference']=profile['teaching_preference']
         values['value_sources']['teaching_preference']='confirmed_profile'
@@ -62,6 +67,8 @@ def collect_materials(request, *, llm, status, guard):
     for unit in selected:
         guard()
         search=shared_search(CallbackNavigator(),message=unit['title'],llm=llm)
+        # 已选定真实单元，读取时不因标题中的“比较”再次拆成其他对象。
+        search.coverage=None
         target=LearningTarget(unit['id'],unit['title'],unit['chapter_id'],unit['section_id'],version=unit['version'])
         rows=search.search(target=target,query=unit['title'],limit=2)
         calls.extend(search.calls)
@@ -85,10 +92,10 @@ def generate_session(llm, request, *, scope, status, current, previous, material
     feedback=''
     for attempt in range(2):
         guard()
-        data=LLMPlanGenerator(llm).generate_session(request=request.model_dump(),materials=materials,profile=profile,
-            frozen_items=frozen,feedback=feedback)
-        guard()
         try:
+            data=LLMPlanGenerator(llm).generate_session(request=request.model_dump(),materials=materials,profile=profile,
+                frozen_items=frozen,feedback=feedback)
+            guard()
             if not isinstance(data,dict) or set(data)-{'items','omitted'} or not isinstance(data.get('items'),list):
                 raise ValueError('session_plan_response_invalid')
             items=[StudyItem.model_validate(i) for i in frozen]
@@ -97,8 +104,12 @@ def generate_session(llm, request, *, scope, status, current, previous, material
             for raw in data['items']:
                 raw=dict(raw);unit_id=raw.pop('unit_id');material=available.get(unit_id)
                 if material is None:raise ValueError('session_plan_unknown_source')
-                if set(raw)-{'kind','title','estimated_minutes','order_reason','completion_criterion'}:
+                if set(raw)&{'status','item_id','objective_id','source_refs','student_id','session_id','plan_id','revision','path_id'}:
                     raise ValueError('session_plan_model_cannot_set_identity_or_status')
+                allowed={'kind','title','estimated_minutes','order_reason','completion_criterion'}
+                if any(raw[key] not in ('',None,[],{}) for key in set(raw)-allowed):
+                    raise ValueError('session_plan_unexpected_fields: 只允许'+','.join(sorted(allowed)))
+                raw={key:value for key,value in raw.items() if key in allowed}
                 key=(unit_id,raw.get('kind'))
                 if key in frozen_keys:continue
                 if key in seen:raise ValueError('session_plan_duplicate_activity')
@@ -112,9 +123,10 @@ def generate_session(llm, request, *, scope, status, current, previous, material
                 path_id=status.get('path_id'),path_revision=status.get('path_revision') if status.get('path_id') else None,
                 base_plan_id=(current or {}).get('plan_id'),base_revision=(current or {}).get('revision',0),
                 request=request,items=items,omitted=data.get('omitted',[]),
-                source_binding={'coverage':'bounded_materials','unit_ids':list(available)})
+                source_binding={'coverage':'bounded_materials','unit_ids':list(available),'confirmed_profile':profile})
             validator(plan.model_dump())
             return plan.model_dump()
-        except (ValueError,TypeError,KeyError) as exc:
+        except (ValueError,TypeError,KeyError,LLMJSONError) as exc:
+            guard()
             feedback=str(exc)[:1000]
             if attempt:raise ValueError('session_plan_validation_failed: '+feedback) from exc

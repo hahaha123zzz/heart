@@ -446,6 +446,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     if q5_binding and q5_binding.get('session_study'):
         import json
         snapshot={k:v for k,v in q5_binding['session_plan'].items() if k not in ('student_id','session_id')}
+        from models.interaction_preferences import style_instructions
+        system_prompt += '\n当前仍有效的已确认风格（旧快照的画像文案不能覆盖这里；本次明确的学习约束仍保留）：\n'+style_instructions(context.preferences)
         system_prompt += '\n以下是本次已确认活动快照，只执行当前活动的kind和完成标准，估算时间不代表真实用时。学生本轮插问优先且不推进。不要一次教完整份安排，不改变长期路径，不把懂了当掌握。practice_preference=none时禁止检查题和考试。optional_check活动若生成自测，明确标注AI生成、非教材原题、未正式评分。\n' + json.dumps(snapshot,ensure_ascii=False)
 
     def emit(event_type: str, message: str,
