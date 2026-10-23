@@ -202,10 +202,9 @@ class LocalAgentLoop:
             tools = [] if no_tools_next or (request.requires_evidence and evidence_ready) else request.tools.schemas()
             choice = request.tool_choice if result.rounds == 0 else None
             if request.requires_evidence and not evidence_ready and result.rounds == 0:
-                retrieve = [tool for tool in tools if tool.get('function', {}).get('name') == 'retrieve_course']
-                if retrieve:
-                    tools = retrieve
-                    choice = {"type": "function", "function": {"name": "retrieve_course"}}
+                if any(tool.get('function', {}).get('name') == 'retrieve_course' for tool in tools):
+                    # 先取证或必要澄清；保留 ask_user/Q5 工具，避免强迫澄清轮读取教材。
+                    choice = 'required'
             role = 'progress' if tools else 'answer'
             try:
                 round_result = self.llm.chat_with_tools(

@@ -99,3 +99,22 @@ class RetractionTests(unittest.TestCase):
         finally:
             current_budget.reset(token)
         self.assertEqual(seen, [budget])
+
+
+    def test_required_evidence_phase_still_allows_ask_user(self):
+        from agents.q3_tools import AskUserTool, RetrieveCourseTool
+        from agents.ask_user_contract import build_ask_user_payload
+        registry=self.registry();registry.register(AskUserTool());registry.register(RetrieveCourseTool())
+        question={'questions':[{'id':'style','prompt':'希望怎样解释？','options':[{'label':'简短'},{'label':'详细'}]}]}
+        llm=ScriptedLLM([tool_round(('ask_user',question))])
+        result=LocalAgentLoop(llm).run(request(llm,registry,requires_evidence=True))
+        self.assertTrue(result.paused, result.error)
+        self.assertEqual(llm.calls[0]['tool_choice'],'required')
+        self.assertIn('ask_user',[t['function']['name'] for t in llm.calls[0]['tools']])
+
+    def test_complete_buffered_candidate_is_not_regenerated(self):
+        llm=ScriptedLLM([final_round('已完成候选')]);gate=Mock(return_value=(True,''))
+        result=LocalAgentLoop(llm).run(request(llm,self.registry(),publish_gate=gate))
+        self.assertTrue(result.completed)
+        self.assertEqual(len(llm.calls),1)
+        gate.assert_called_once()
