@@ -57,7 +57,11 @@ const OUT=path.resolve(process.env.READER_WHEEL_ARTIFACTS||path.join(ROOT,'artif
    await page.mouse.wheel(0,120);await expectPage(2);await idle();await page.mouse.wheel(0,-120);await expectPage(1);
   });
   await check('触控板小幅累计与 2 秒惯性连续序列仅一页',async()=>{
-   await idle();for(let i=0;i<80;i++){await dispatch({deltaY:i<40?3:1});await page.waitForTimeout(25);}await expectPage(2);
+   await idle();const maxGap=await container().evaluate(async el=>{
+    let last=performance.now(),maxGap=0;
+    for(let i=0;i<80;i++){const now=performance.now();maxGap=Math.max(maxGap,now-last);last=now;el.dispatchEvent(new WheelEvent('wheel',{deltaY:i<40?3:1,bubbles:true,cancelable:true}));await new Promise(resolve=>setTimeout(resolve,25));}
+    const event={kind:'continuous-gesture',events:80,maxGap};window.wheelEvidence.push(event);window.recordReaderWheel(event);return maxGap;
+   });assert(maxGap<280,'事件序列本身必须连续，避免测试宿主通信停顿制造新手势');await expectPage(2);
    await idle();await dispatch();await expectPage(3);
   });
   await check('工具栏按钮及输入；首尾不越界，不推动外层或推进章节',async()=>{
