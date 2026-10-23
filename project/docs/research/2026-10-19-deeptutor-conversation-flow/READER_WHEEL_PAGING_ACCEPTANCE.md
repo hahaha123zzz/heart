@@ -98,3 +98,16 @@ node tests/browser/reader-wheel.cjs
 
 - 未使用真实鼠标/触控板硬件测试。CDP wheel 和合成事件序列已覆盖行为，但不同设备的惯性间隔仍需实机确认；280 ms 空闲分组是浏览器没有标准手势结束事件时的本地判定。
 - 未验证真实触屏设备/跨浏览器；保留原触屏逻辑。本轮不验收聊天模型、学习路径或 LightRAG。
+
+
+## 2026-10-23 当前 8000 生效补充（替代上文原交付时的服务状态）
+
+用户反馈仍逐点滚动，复核发现：主工作区及 8000 均为旧 reader。已将独立交付提交接入 main，提交 `2572df9c9ded05e218597fae2befc12b34e37a65`。
+
+8000 实际使用 `.runtime/response-portable-20261022/code-proof-2ae1e5f/` 固定导出，并不直接读取 main。仅更新该运行目录下 `frontend/pdf-reader/reader.js`，未改后端、启动器、模型、数据库或其他前端文件，未重启服务。
+
+- 更新前 SHA256：`0a16910c957b242117ae9396999b5a471d7cc8ade9af8d8da1ef66d2c22f97c5`。
+- 更新后从 8000 HTTP 实际读取：`cae56d95ffe3c022ce12699235f7c8d1f8db105f20a068b9d9633c89a98c6992`，与已验证构建一致。
+- 备份和覆盖记录：`E:/项目/heart/.runtime/reader-wheel-live-20261023/reader.before.js`、同目录 `manifest.json`。
+- 用户已打开的页面需要 Ctrl+F5 重新加载 JS。未接管用户浏览器或读取其学习状态；本次只核验运行文件，未重新进行正式页面操作或真实硬件验收。
+- 部署身份必须标记为固定导出 + 此 reader 文件覆盖。**下一次严格 Git archive 预检/重建部署时，应从包含 `2572df9` 的新提交导出；不能继续把这一目录宣称为原封不动的 2ae1e5f。** 如需恢复原固定导出的完整一致性，将备份 reader.before.js 复制回 manifest 中的 target（同时会恢复旧滚轮行为）。本窗口不修改或放宽部署校验。
