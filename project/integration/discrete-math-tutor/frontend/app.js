@@ -13,6 +13,7 @@ if (!studentId) {
   localStorage.setItem(studentKey, studentId);
 }
 
+let mediaNavigation = 0;
 const state = { chapters: [], chapter: 1, section: 1, sectionData: null, contentTab: "text", openChapter: 1, quiz: null, chat: [], sending: false, view:"course" };
 state.taskRecoveryNeeded=true;
 const newRequestId = () => crypto.randomUUID();
@@ -186,7 +187,7 @@ function renderFigure(figure, options = {}) {
   const label = String(figure.label || "").replace(/插图对象\s*\d+/g, "教材插图").replace(/公式对象\s*\d+/g, "教材公式");
   const rawCaption = String(figure.caption || "").replace(/Word 锚点 \d+，/g, "");
   const caption = rawCaption.startsWith(label) ? rawCaption.slice(label.length).replace(/^[：:\s]+/, '') : rawCaption;
-  return `<figure class="textbook-figure"><a href="${esc(url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(url)}" alt="${esc(options.showCaption === false ? label : label + "：" + caption)}" loading="lazy"></a>${options.showCaption === false ? "" : `<figcaption><strong>${esc(label)}</strong> ${esc(caption)}<small>来源：${esc(figure.source)}${figure.review_status === 'pending' ? ' · 待审核' : ''}</small>${figure.selection_ref ? `<button type="button" data-tutor-media="${esc(figure.id)}">返回教材</button>` : ''}</figcaption>`}</figure>`;
+  return `<figure class="textbook-figure"><a href="${esc(url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(url)}" alt="${esc(options.showCaption === false ? label : label + "：" + caption)}" loading="lazy"></a>${options.showCaption === false ? "" : `<figcaption><strong>${esc(label)}</strong> ${esc(caption)}<small>来源：${esc(figure.source)}${figure.review_status === 'pending' ? ' · 待审核' : ''}</small>${figure.selection_ref ? `<button type="button" data-tutor-media="${esc(figure.id)}">${figure.location_status === 'section' ? '打开所在小节' : figure.location_status === 'caption' ? '查看图注位置' : '返回教材'}</button>` : ''}</figcaption>`}</figure>`;
 }
 
 
@@ -752,16 +753,20 @@ function bindEvents() {
     if(mediaButton){
       const key=mediaButton.closest('[data-message-key]')?.dataset.messageKey;
       const image=citationMessage('message:'+key)?.imageRefs?.find(item=>item.id===mediaButton.dataset.tutorMedia);
-      if(image?.selection_ref){
-        (async()=>{
-          const checked=await post('/api/course/citation-state',{reference:{selection_ref:image.selection_ref}});
-          if(checked.stale)throw new Error('原图对应的教材版本已失效');
-          if(await selectSection(image.chapter_id,image.section_id,{record:false})){
-            state.pdfFocus=image.selection_ref;showView('course');syncPDFReader();
-            if(!image.selection_ref.rects?.length)toast('已打开教材小节，未提供精确原图区域');
-          }
-        })().catch(error=>toast(error.message));
-      }
+      const navigation=++mediaNavigation, selection=++state.selection;
+      (async()=>{
+        if(!image?.id||!image.sha256||!image.document_id||!image.version)throw new Error('历史原图缺少完整身份，无法可靠返回教材');
+        const located=await post('/api/course/figure-location',{asset_id:image.id,sha256:image.sha256,document_id:image.document_id,version:image.version});
+        if(navigation!==mediaNavigation||selection!==state.selection)return;
+        if(!['exact','caption','section'].includes(located.status)||!located.selection_ref)throw new Error(located.basis||'无法可靠定位原图');
+        if(await selectSection(located.chapter_id,located.section_id,{record:false})){
+          if(navigation!==mediaNavigation)return;
+          state.pdfFocus=located.selection_ref;showView('course');syncPDFReader();
+          mediaButton.textContent=located.status==='section'?'打开所在小节':located.status==='caption'?'查看图注位置':'返回教材';
+          if(located.status==='section')toast('无法精确定位原图，已打开登记小节');
+          if(located.status==='caption')toast('已定位完整图注，尚未核验图片区域');
+        }
+      })().catch(error=>{if(navigation===mediaNavigation)toast(error.message);});
       return;
     }
     if(inlineCitation){event.preventDefault();showInlineCitation(inlineCitation);return;}

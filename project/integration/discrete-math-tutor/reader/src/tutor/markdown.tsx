@@ -84,7 +84,7 @@ export default function HostMarkdown({components, remarkPlugins, urlTransform, .
         return <span className="textbook-figure answer-media">
           <a href={item.image_url} target="_blank" rel="noopener noreferrer"><img src={item.image_url} alt={item.label || alt} loading="lazy" /></a>
           <span className="answer-media-caption">{item.label} · {item.review_status === 'approved' ? '已审核' : '待审核'}
-            <button type="button" data-tutor-media={item.id}>返回教材</button></span>
+            <button type="button" data-tutor-media={item.id}>{item.location_status === 'section' ? '打开所在小节' : item.location_status === 'caption' ? '查看图注位置' : '返回教材'}</button></span>
         </span>;
       },
       input: ({checked}: any) => <input type="checkbox" checked={Boolean(checked)} disabled />,
