@@ -1,0 +1,271 @@
+{
+  "revision": "c3b86f6ddefc1c75fcd693cfb9c8a08713e957d7",
+  "passed": true,
+  "cases": [
+    {
+      "name": "figure",
+      "status": "answered",
+      "seconds": 18.976,
+      "first_text_seconds": 12.934,
+      "backends": [
+        "q2_figure"
+      ],
+      "retrieval_count": 1,
+      "supplemental_count": 0,
+      "outer_model_rounds": 2,
+      "native_llm_calls": 0,
+      "reference_count": 2,
+      "trace_stages": [
+        "q2_selection",
+        "tool_output"
+      ]
+    },
+    {
+      "name": "subject",
+      "status": "answered",
+      "seconds": 35.353,
+      "first_text_seconds": 30.24,
+      "backends": [
+        "lightrag"
+      ],
+      "retrieval_count": 1,
+      "supplemental_count": 0,
+      "outer_model_rounds": 2,
+      "native_llm_calls": 1,
+      "reference_count": 5,
+      "trace_stages": [
+        "native_recall",
+        "original_mapping_input",
+        "original_mapping",
+        "scope_filter",
+        "rerank_threshold",
+        "limit",
+        "q2_selection",
+        "tool_output"
+      ]
+    },
+    {
+      "name": "repeat",
+      "status": "answered",
+      "seconds": 24.523,
+      "first_text_seconds": 19.375,
+      "backends": [
+        "lightrag"
+      ],
+      "retrieval_count": 1,
+      "supplemental_count": 0,
+      "outer_model_rounds": 3,
+      "native_llm_calls": 1,
+      "reference_count": 3,
+      "trace_stages": [
+        "native_recall",
+        "original_mapping_input",
+        "original_mapping",
+        "scope_filter",
+        "rerank_threshold",
+        "limit",
+        "q2_selection",
+        "tool_output"
+      ]
+    },
+    {
+      "name": "missing",
+      "status": "quality_rejected",
+      "seconds": 8.484,
+      "first_text_seconds": 2.416,
+      "backends": [
+        "q2_figure"
+      ],
+      "retrieval_count": 1,
+      "supplemental_count": 0,
+      "outer_model_rounds": 3,
+      "native_llm_calls": 0,
+      "reference_count": 0,
+      "trace_stages": [
+        "tool_output"
+      ]
+    },
+    {
+      "name": "q5-plan",
+      "status": "awaiting_clarification",
+      "seconds": 1.301,
+      "first_text_seconds": null,
+      "backends": [],
+      "retrieval_count": 0,
+      "supplemental_count": 0,
+      "outer_model_rounds": null,
+      "native_llm_calls": 0,
+      "reference_count": 0,
+      "trace_stages": []
+    },
+    {
+      "name": "q5-confirm",
+      "status": "answered",
+      "seconds": 12.268,
+      "first_text_seconds": 5.083,
+      "backends": [
+        "q2_exact"
+      ],
+      "retrieval_count": 1,
+      "supplemental_count": 0,
+      "outer_model_rounds": 2,
+      "native_llm_calls": 0,
+      "reference_count": 3,
+      "trace_stages": [
+        "q2_selection",
+        "tool_output"
+      ]
+    },
+    {
+      "name": "q5-concept",
+      "status": "answered",
+      "seconds": 24.909,
+      "first_text_seconds": 18.969,
+      "backends": [
+        "lightrag"
+      ],
+      "retrieval_count": 1,
+      "supplemental_count": 0,
+      "outer_model_rounds": 2,
+      "native_llm_calls": 0,
+      "reference_count": 4,
+      "trace_stages": [
+        "native_recall",
+        "original_mapping_input",
+        "original_mapping",
+        "scope_filter",
+        "rerank_threshold",
+        "limit",
+        "q2_selection",
+        "tool_output"
+      ]
+    },
+    {
+      "name": "q5-figure",
+      "status": "answered",
+      "seconds": 15.088,
+      "first_text_seconds": 8.895,
+      "backends": [
+        "q2_figure"
+      ],
+      "retrieval_count": 1,
+      "supplemental_count": 0,
+      "outer_model_rounds": 2,
+      "native_llm_calls": 0,
+      "reference_count": 2,
+      "trace_stages": [
+        "q2_selection",
+        "tool_output"
+      ]
+    },
+    {
+      "name": "q5-cross",
+      "status": "answered",
+      "seconds": 51.645,
+      "first_text_seconds": 2.355,
+      "backends": [
+        "lightrag",
+        "lightrag"
+      ],
+      "retrieval_count": 2,
+      "supplemental_count": 0,
+      "outer_model_rounds": 2,
+      "native_llm_calls": 0,
+      "reference_count": 5,
+      "trace_stages": [
+        "native_recall",
+        "original_mapping_input",
+        "original_mapping",
+        "scope_filter",
+        "rerank_threshold",
+        "limit",
+        "object_scope",
+        "object_dedupe",
+        "q2_selection",
+        "semantic_coverage",
+        "native_recall",
+        "original_mapping_input",
+        "original_mapping",
+        "scope_filter",
+        "rerank_threshold",
+        "limit",
+        "object_scope",
+        "object_dedupe",
+        "q2_selection",
+        "semantic_coverage",
+        "balanced_limit",
+        "merged_dedupe",
+        "tool_output",
+        "tool_output"
+      ]
+    },
+    {
+      "name": "q5-return",
+      "status": "answered",
+      "seconds": 11.948,
+      "first_text_seconds": 2.727,
+      "backends": [
+        "q2_exact"
+      ],
+      "retrieval_count": 1,
+      "supplemental_count": 0,
+      "outer_model_rounds": 3,
+      "native_llm_calls": 0,
+      "reference_count": 3,
+      "trace_stages": [
+        "q2_selection",
+        "tool_output"
+      ]
+    },
+    {
+      "name": "q5-next",
+      "status": "answered",
+      "seconds": 15.899,
+      "first_text_seconds": 11.723,
+      "backends": [
+        "q2_exact"
+      ],
+      "retrieval_count": 1,
+      "supplemental_count": 0,
+      "outer_model_rounds": 4,
+      "native_llm_calls": 0,
+      "reference_count": 1,
+      "trace_stages": [
+        "q2_selection",
+        "tool_output"
+      ]
+    }
+  ],
+  "q5_interjections_unchanged": true,
+  "q5_refresh_equal": true,
+  "candidate_core_unchanged": true,
+  "formal_candidate_core_unchanged": true,
+  "q2_index_unchanged": true,
+  "offline_final": "103 tests passed",
+  "model_note": "outer_model_rounds仅循环生成；不含证据选择与质检。native_llm_calls仅SDK自身调用；不相加冒充全部调用。",
+  "formal_service_modified": false,
+  "database_home": "E:\\项目\\heart\\.runtime\\dialogue-fix-c3b86f6-20261023",
+  "shutdown": {
+    "pid": 65532,
+    "create_time": 1792757051.724742,
+    "revision": "c3b86f6ddefc1c75fcd693cfb9c8a08713e957d7",
+    "isolated_port": 8013,
+    "isolated_port_closed": true,
+    "formal_health_status": "ok",
+    "formal_mock_mode": false,
+    "formal_service_modified": false
+  },
+  "evidence_root": "E:\\项目\\heart\\.runtime\\dialogue-fix-c3b86f6-20261023",
+  "q5_final_evidence": "q5-utf8/flow.json",
+  "q5_prior_observation_evidence": "q5/flow.json (encoding issue; not final)",
+  "implementation_commits": [
+    "e34ce01",
+    "c3b86f6ddefc1c75fcd693cfb9c8a08713e957d7"
+  ],
+  "remaining": [
+    "formal_8000_not_updated",
+    "precise_figure_return_location_not_implemented",
+    "no_fresh_full_native_lifecycle_regression",
+    "real_expansion_not_exercised"
+  ]
+}
