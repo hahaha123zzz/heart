@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 from tests.test_visual_locations import VisualFixture
 
 class VisualLocationIntegrationTests(VisualFixture, unittest.TestCase):
