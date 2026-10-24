@@ -68,6 +68,22 @@ class TextbookResourceFixture(unittest.TestCase):
         return {'document_id': self.docid, 'version': self.version, 'page': 1, **extra}
 
 class TextbookFixture(TextbookResourceFixture):
+    def test_empty_block_does_not_abort_unit_reading(self):
+        blocks = [{'block_id': 99, 'text': '', 'section_id': 1},
+                  {'block_id': 0, 'text': self.texts[0], 'section_id': 1}]
+        value, sources = self.service._blocks(self.record, blocks, lambda: None)
+        self.assertEqual([s['text'] for s in sources], [self.texts[0]])
+
+    def test_unmapped_unit_returns_explicit_page_fallback_without_fake_highlight(self):
+        from agents.tools.first_wave import ReadFailure
+        with patch.object(self.service, '_blocks', side_effect=ReadFailure('unlocated', '脚注不匹配')):
+            value, sources = self.service.read_material(self.binding, {'unit_id': self.unit['id']}, lambda: None)
+        self.assertFalse(value['unit_read_complete'])
+        self.assertEqual(value['range_kind'], 'page_fallback')
+        self.assertEqual(sources[0]['location']['evidence']['location_status'], 'page')
+        self.assertEqual(sources[0]['location']['evidence']['rects'], [])
+        self.service.verify_source(self.binding, sources[0])
+
     def test_outline_real_metadata_not_text_or_sources(self):
         result = MaterialOutlineTool().run({}, self.context)
         self.assertTrue(result.success, result.content)

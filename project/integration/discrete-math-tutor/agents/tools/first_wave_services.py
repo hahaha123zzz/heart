@@ -102,6 +102,8 @@ class CourseReadService:
             for position, block in enumerate(blocks):
                 check_cancelled()
                 start = char_offset if position == 0 else 0
+                if start == 0 and not block['text'].strip():
+                    continue
                 if start >= len(block['text']):
                     raise ReadFailure('invalid_range', '段内偏移超出原文范围。')
                 remaining = TEXT_LIMIT - used - (1 if sources else 0)
@@ -150,8 +152,18 @@ class CourseReadService:
         offset = args.get('block_offset', 0)
         if offset >= len(blocks):
             raise ReadFailure('invalid_range', '目标段落偏移超出范围。')
-        value, sources = self._blocks(record, blocks[offset:], check_cancelled,
-                                     char_offset=args.get('char_offset', 0))
+        try:
+            value, sources = self._blocks(record, blocks[offset:], check_cancelled,
+                                         char_offset=args.get('char_offset', 0))
+        except ReadFailure as error:
+            if error.code != 'unlocated':
+                raise
+            # 原PDF脚注可能穿插正文；保留原页文字，不把不一致的段落伪装成精确高亮。
+            value, sources = self._pages(binding, {'document_id': record['document_id'],
+                'version': record['version'], 'page': unit['page']}, check_cancelled)
+            return dict(value, requested_unit_id=unit['id'], unit_read_complete=False,
+                range_kind='page_fallback',
+                note='目标段落无法精确映射；仅返回目标起始页原文，不代表已读完整目标。后续请按页补读。'), sources
         if value['continuation']:
             pointer = value['continuation']
             value['continuation'] = {'unit_id': unit['id'],

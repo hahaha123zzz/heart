@@ -12,7 +12,7 @@ STRUCTURED_TOOL = {'outline': 'material_outline', 'catalog': 'kb_files',
 
 
 def purpose(message):
-    text = re.sub(r'\s+', '', message)
+    text = re.sub(r'\s+', '', message).replace('讲解偏好', '偏好')
     if re.search(r'解释|讲解|为什么|如何|证明|比较|区别|原理', text):
         return 'textbook'
     if re.search(r'跳转|带我到|打开.*页|定位到', text):

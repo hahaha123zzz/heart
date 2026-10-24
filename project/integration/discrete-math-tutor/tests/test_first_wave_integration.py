@@ -134,6 +134,8 @@ class FirstWaveIntegration(TextbookResourceFixture):
     def test_mixed_purpose_cannot_bypass_fact_gate(self):
         self.assertEqual(purpose('按我的偏好解释自变量'), 'textbook')
         self.assertEqual(purpose('我的偏好是什么'), 'personal_state')
+        self.assertEqual(purpose('我的讲解偏好是什么？'), 'personal_state')
+        self.assertEqual(purpose('按我的讲解偏好解释自变量'), 'textbook')
         self.assertEqual(purpose('教材有几个文档'), 'catalog')
 
     def test_course_skill_manifest_and_execution_share_allowlist(self):
