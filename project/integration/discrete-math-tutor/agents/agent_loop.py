@@ -292,10 +292,9 @@ class LocalAgentLoop:
                 continue
             final_text = (round_result.text or "").strip()
             if not final_text:
-                if result.rounds < exploration_budget + settlement_budget + 1:
-                    messages.append({"role": "user", "content":
-                        "上一轮没有给出面向学生的回答。请直接回答，或调用必要工具；不要只输出内部推理。"})
-                    continue
+                if result.sources:
+                    return self._forced_finish(request, messages, result, context, collector,
+                                               reason='上一轮没有返回正文，仅允许这一次基于已有证据收尾。')
                 return self._error_result(result, messages, collector, "empty_answer",
                                           "模型没有返回可发布回答")
             if request.publish_gate is not None:

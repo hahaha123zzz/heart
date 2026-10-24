@@ -208,3 +208,11 @@ class RetractionTests(unittest.TestCase):
             self.assertFalse(gate.is_set())
         finally:
             gate.set();current_budget.reset(token)
+
+
+    def test_empty_completed_response_gets_only_one_evidence_backed_recovery(self):
+        llm=ScriptedLLM([tool_round(('echo',{'text':'原文'})),final_round(''),final_round(''),final_round('不应调用')])
+        result=LocalAgentLoop(llm).run(request(llm,self.registry(),requires_evidence=True))
+        self.assertFalse(result.completed)
+        self.assertEqual(result.error,'empty_answer')
+        self.assertEqual(len(llm.calls),3)
