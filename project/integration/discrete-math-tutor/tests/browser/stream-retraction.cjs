@@ -4,6 +4,14 @@ const url=process.env.SR_URL,out=process.env.SR_OUTPUT;fs.mkdirSync(out,{recursi
 const cases=JSON.parse(process.env.SR_CASES||'[["concept","请解释教材里的自变量，不要出题。"],["figure14","给我解释一下图1-4，我有点看不懂"]]');
 (async()=>{const browser=await chromium.launch({headless:false,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});const report={url,realModel:!process.env.SR_SCENARIO,faultInjection:!!process.env.SR_SCENARIO,attempts:[]};
 let sharedContext,sharedPage;try{for(const [name,message,extra] of cases){const context=process.env.SR_REUSE_SESSION?(sharedContext??=await browser.newContext({extraHTTPHeaders:process.env.SR_SCENARIO?{'x-sr-scenario':process.env.SR_SCENARIO}:{}})):await browser.newContext({extraHTTPHeaders:process.env.SR_SCENARIO?{'x-sr-scenario':process.env.SR_SCENARIO}:{}});const page=process.env.SR_REUSE_SESSION?(sharedPage??=await context.newPage()):await context.newPage();let row={name,message,started:Date.now(),posts:0,errors:[]};
+ if(process.env.SR_DROP_FINAL)await page.route('**/api/chat/stream',async route=>{
+   const response=await route.fetch({timeout:240000});const body=await response.text();
+   fs.writeFileSync(path.join(out,name+'-server-complete.sse'),body);
+   const match=/event: (?:answer|done)\r?\n/.exec(body);const end=match?.index??-1;
+   if(end<0){await route.fulfill({response,body});row.disconnectFixtureError='宿主没有最终回答事件';return;}
+   await route.fulfill({response,body:body.slice(0,end),headers:{...response.headers(),'content-type':'text/event-stream'}});
+   row.simulatedBrowserDisconnect=true;
+ });
  const onError=e=>row.errors.push(e.message),onRequest=r=>{if(r.method()==='POST'&&r.url().endsWith('/api/chat/stream')){row.posts++;row.scenarioHeader=r.headers()['x-sr-scenario']||''}};page.on('pageerror',onError);page.on('request',onRequest);
  try{if(!page.url()||page.url()==='about:blank')await page.addInitScript(id=>localStorage.setItem('experimental-psychology-3-demo-student',id),('sr-'+path.basename(out)+'-'+name+'-'+Date.now()).slice(-60));
  await page.goto(url);await page.waitForFunction(()=>typeof state!=='undefined'&&!state.taskRecoveryNeeded&&state.chapters.length,null,{timeout:60000});
