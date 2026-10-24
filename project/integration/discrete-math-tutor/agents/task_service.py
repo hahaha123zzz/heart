@@ -578,7 +578,8 @@ class TaskService:
                 try:
                     # 失败收据仍走仓库身份/epoch 校验，不用已过期的活动时钟阻止收尾。
                     task, result = self.repo.save(task=task, receipt_id=receipt,
-                        memory_repo=self.tutor.memory.repo, status='failed', result=result)
+                        memory_repo=self.tutor.memory.repo, status='failed', result=result,
+                        context=context.model_dump() | {'document_versions': document_versions})
                 except TaskConflict as error:
                     return self.conflict_reply(error)
             return result
@@ -595,7 +596,8 @@ class TaskService:
             if 'task' in locals():
                 try:
                     task, result = self.repo.save(task=task, receipt_id=receipt,
-                        memory_repo=self.tutor.memory.repo, status='failed', result=result)
+                        memory_repo=self.tutor.memory.repo, status='failed', result=result,
+                        context=context.model_dump() | {'document_versions': document_versions})
                 except TaskConflict as conflict:
                     return self.conflict_reply(conflict)
             return result

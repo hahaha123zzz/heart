@@ -138,6 +138,8 @@ class RetractionTests(unittest.TestCase):
         receipt=case.repo.replay('s','tab-a','timeout-test',case.request(request_id='timeout-test').model_dump(),case.memory.repo)
         self.assertEqual(receipt['answer_status'],'active_timeout')
         self.assertIsNone(case.repo.pending('s','tab-a'))
+        row=case.repo.get('s','tab-a',result['task_id'])
+        self.assertIn('document_versions',row['context'])
 
 
     def test_pause_serializes_policy_without_process_deadline(self):
