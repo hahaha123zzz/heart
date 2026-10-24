@@ -116,10 +116,11 @@ class TaskLoopPersistenceTests(unittest.TestCase):
         q5.record_explained.assert_not_called();q5.advance_understood.assert_not_called()
 
     def test_planning_failure_before_execution_guard_releases_claimed_task(self):
-        q5=Mock();q5.is_plan_request.return_value=True
-        q5.propose_session.side_effect=RuntimeError('planning model offline')
+        q5=Mock();q5.is_plan_request.return_value=True;q5.is_adjust.return_value=False
+        q5.sessions.current.return_value=None;q5.session_snapshot=None
+        q5.propose_session.side_effect=TypeError('planning contract failure')
         with patch('agents.q5_runtime.q5_enabled',return_value=True),patch('agents.q5_runtime.Q5Runtime',return_value=q5):
-            with self.assertRaisesRegex(RuntimeError,'planning model offline'):
+            with self.assertRaisesRegex(TypeError,'planning contract failure'):
                 self.service.run(ChatRequest(student_id='s',request_id='plan-failure',
                     message='帮我安排本次学习'),Mock())
         from sqlalchemy import select
