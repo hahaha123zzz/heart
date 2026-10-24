@@ -552,6 +552,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 request_id=request.request_id or "",
                 message=request.message, system_prompt=system_prompt, tools=registry,
                 round_max_tokens=round_tokens, requires_evidence=teaching is None,
+                answer_ready=((lambda outcome: teaching.recorded and
+                    (bool(outcome.sources) or teaching.evidence_mode == 'blended')) if teaching else None),
                 prefetch_query=(request.message if not resume_state and not initial_sources and (
                     q5_binding or (context.course_navigation or {}).get("status")=="ready" or
                     (getattr(navigation.backend,"backend",None) is not None and target is not None and

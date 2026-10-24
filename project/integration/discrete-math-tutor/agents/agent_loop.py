@@ -52,6 +52,7 @@ class LoopRequest:
     tool_choice: str | None = None
     requires_evidence: bool = False
     prefetch_query: str | None = None
+    answer_ready: Callable[["LoopResult"], bool] | None = None
 
 
 @dataclass
@@ -217,7 +218,8 @@ class LocalAgentLoop:
             collector("stage_start", "收尾" if settling else "探索",
                       {"round": result.rounds + 1})
             evidence_ready = bool(result.sources)
-            tools = [] if no_tools_next or (request.requires_evidence and evidence_ready) else request.tools.schemas()
+            prepared = request.answer_ready(result) if request.answer_ready else False
+            tools = [] if no_tools_next or prepared or (request.requires_evidence and evidence_ready) else request.tools.schemas()
             choice = request.tool_choice if result.rounds == 0 else None
             if request.requires_evidence and not evidence_ready and first_active_round:
                 if any(tool.get('function', {}).get('name') == 'retrieve_course' for tool in tools):

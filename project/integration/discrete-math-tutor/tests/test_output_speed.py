@@ -165,6 +165,37 @@ class SpeedTests(unittest.TestCase):
         retract.assert_called_once()
         self.assertTrue(llm.calls[1]['tools'],'修订教学动作仍需工具，不能被取证优化封闭')
 
+    def test_recorded_teaching_switches_from_tools_to_live_body_before_gate(self):
+        from agents.agent_loop import LocalAgentLoop
+        from llm.answer_events import AnswerEvents, current_answer
+        from tests.test_q3_agent_loop import ScriptedLLM, final_round, tool_round, request, EchoTool
+        ready=[False]
+        class RecordTool(EchoTool):
+            def run(self, arguments, context):
+                ready[0]=True
+                return super().run(arguments,context)
+        class StreamingLLM(ScriptedLLM):
+            def chat_with_tools(self,messages,tools,**kwargs):
+                row=super().chat_with_tools(messages,tools,**kwargs)
+                kwargs['on_delta'](row.text)
+                return row
+        llm=StreamingLLM([tool_round(('echo',{'text':'原文'}),text='准备资料'),final_round('正式讲解[1]')])
+        registry=ToolRegistry();registry.register(RecordTool());events=[]
+        publisher=AnswerEvents(lambda event,data:events.append((event,data)))
+        publisher.bind(lambda:{'task_id':'t','task_revision':1},lambda:None)
+        def gate(*_):
+            self.assertTrue(any(e=='answer_delta' and d['text']=='正式讲解[1]' for e,d in events))
+            return True,''
+        token=current_answer.set(publisher)
+        try:
+            result=LocalAgentLoop(llm).run(request(llm,registry,
+                answer_ready=lambda outcome:ready[0] and bool(outcome.sources),publish_gate=gate))
+        finally:current_answer.reset(token)
+        self.assertTrue(result.completed,result.error)
+        self.assertTrue(llm.calls[0]['tools'])
+        self.assertEqual(llm.calls[1]['tools'],[])
+        self.assertFalse(any(e=='answer_delta' and '准备资料' in d['text'] for e,d in events))
+
     def test_ambiguous_intake_keeps_ask_user_without_prefetch(self):
         from agents.agent_loop_service import run_agent_loop_turn
         from knowledge.lightrag.q3_adapter import LightRagNavigator

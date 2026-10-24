@@ -48,3 +48,6 @@
 
 
 合并49cd0cc后固定导出跑256项：255通过，1失败（普通问答可发布性质检被新增blended分支的else附加结构化要求）。修复为elif not agent_loop，恢复原有普通问答与结构化计划的不同质检范围，blended补充知识说明仍独立保留。57项相关回归通过，日志offline-49cd0cc.log / merge-quality-scope.log；49cd0cc概念/图1-4/图5-2页面成功及刷新记录仅属修复前版本，后续最终提交重跑。
+
+
+7747969浏览器断线测试揭示真实集成缺陷：教学分支为了保留teaching_step而始终开放工具，普通循环把所有工具可用轮标为progress，结果没有answer_delta；页面保存成功不能替代真实流通过。失败证据disconnect-7747969/report.json保留。新增可选LoopRequest.answer_ready回调（默认None兼容旧调用），教学适配器只在recorded且有原文或明确blended时关闭工具并进入answer角色；先前的事实、引用、最终质检/保存门禁不变。新测试断言探索文字不泄露、正文增量在gate前发出、工具登记后才关闭。123项相关回归全过，日志teaching-stream-boundary.log。必须以此修复后的新提交重新执行整套真实流程。
