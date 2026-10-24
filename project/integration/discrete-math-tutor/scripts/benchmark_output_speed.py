@@ -8,7 +8,7 @@ import uuid
 import httpx
 
 
-def turn(url, payload, output):
+def turn(url, payload, output, *, expected_status="answered"):
     started = time.monotonic()
     row = {'request': payload, 'events': [], 'first_progress': None,
            'first_answer_delta': None, 'answer_ready': None, 'result': None}
@@ -33,9 +33,10 @@ def turn(url, payload, output):
                         if event == 'done':
                             row['result'] = data
         result = row['result'] or {}
-        row['passed'] = result.get('answer_status') == 'answered'
+        row['expected_status']=expected_status
+        row['passed'] = result.get('answer_status') == expected_status
         # 被拒绝的草稿不能作为成功回答首字；另保留原始事件时间。
-        row['effective_first_answer'] = row['first_answer_delta'] if row['passed'] else None
+        row['effective_first_answer'] = row['first_answer_delta'] if row['passed'] and expected_status=='answered' else None
     except Exception as exc:
         row.update(passed=False, error_type=type(exc).__name__, error=str(exc))
     finally:
@@ -81,11 +82,12 @@ def main():
     for pair in range(args.pairs):
         for case in json.loads(args.cases.read_text('utf8')):
             for version in (('before', 'after') if pair % 2 == 0 else ('after', 'before')):
-                payload = {k:v for k,v in case.items() if k != 'id'}
+                payload = {k:v for k,v in case.items() if k not in ('id','expected_status')}
                 payload.update(student_id='speed-'+uuid.uuid4().hex[:16],
                                session_id='speed-benchmark', request_id=uuid.uuid4().hex)
                 row = turn(getattr(args, version), payload,
-                           args.output/f'{pair}-{case["id"]}-{version}.json')
+                           args.output/f'{pair}-{case["id"]}-{version}.json',
+                           expected_status=case.get('expected_status','answered'))
                 row.update(case=case['id'], version=version, pair=pair)
                 rows.append(row)
                 (args.output/'summary.json').write_text(json.dumps(summary(rows), ensure_ascii=False, indent=2), encoding='utf8')

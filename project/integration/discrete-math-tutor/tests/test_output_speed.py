@@ -152,6 +152,22 @@ class SpeedTests(unittest.TestCase):
         self.assertEqual(result.sources[0]['index'],1)
         gate.assert_called_once()
 
+    def test_ambiguous_intake_keeps_ask_user_without_prefetch(self):
+        from agents.agent_loop_service import run_agent_loop_turn
+        from knowledge.lightrag.q3_adapter import LightRagNavigator
+        from models.chat_request import ChatRequest
+        from models.task_context import TaskContext
+        from tests.test_q3_agent_loop import ScriptedLLM,tool_round
+        message='我还没决定学什么，请先问我想学的内容'
+        llm=ScriptedLLM([tool_round(('ask_user',{'questions':[{'id':'topic','prompt':'你想学什么？'}]}))])
+        backend=Mock();navigator=LightRagNavigator(StubLearningNavigator(),backend)
+        result=run_agent_loop_turn(orchestrator=SimpleNamespace(llm=llm,memory=None),
+            request=ChatRequest(student_id='speed-intake',request_id='intake',message=message),
+            context=TaskContext(student_id='speed-intake',message=message,knowledge_point='实验心理学的研究方法'),
+            navigator=navigator,publish_gate=lambda *_:(True,''))
+        self.assertEqual(result['answer_status'],'awaiting_clarification')
+        backend.search.assert_not_called()
+
     def test_combined_object_decision_replaces_separate_judge(self):
         from knowledge.lightrag.coverage import CoverageNavigator,Requirement
         from tests.test_lightrag_coverage import ref
@@ -173,6 +189,16 @@ class SpeedTests(unittest.TestCase):
         self.assertEqual(bundle.sources,[])
         self.assertIn('不能支持',bundle.coverage_reason)
         llm.chat_json.assert_not_called()
+
+    def test_performance_summary_keeps_failures_out_of_success_latency(self):
+        from scripts.benchmark_output_speed import summary
+        rows=[{'case':'x','version':'before','passed':True,'seconds':10,'effective_first_answer':5},
+              {'case':'x','version':'before','passed':False,'seconds':1,'effective_first_answer':None},
+              {'case':'x','version':'after','passed':True,'seconds':8,'effective_first_answer':4}]
+        result=summary(rows)['x']
+        self.assertEqual(result['before']['failure_rate'],.5)
+        self.assertEqual(result['before']['complete_median'],10)
+        self.assertAlmostEqual(result['complete_median_improvement'],.2)
 
     def test_query_checks_content_twice_and_rejects_inflight_same_stat_change(self):
         from contextlib import ExitStack

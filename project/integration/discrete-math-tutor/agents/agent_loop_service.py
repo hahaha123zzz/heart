@@ -486,8 +486,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             message=request.message, system_prompt=system_prompt, tools=registry,
             round_max_tokens=round_tokens, requires_evidence=True,
             prefetch_query=(request.message if not resume_state and (
-                q5_binding or getattr(navigation.backend,'backend',None) is not None or
-                (context.course_navigation or {}).get('status')=='ready') else None),
+                q5_binding or (context.course_navigation or {}).get('status')=='ready' or
+                (getattr(navigation.backend,'backend',None) is not None and target is not None and
+                 (question_interjection(request.message,target) or target.name in request.message))) else None),
             seed_messages=list(context.history or []), target=target,
             navigation=navigation, cancellation=cancellation, guard=guard,
             tool_state={"workspace_root": str(workspace_root),
