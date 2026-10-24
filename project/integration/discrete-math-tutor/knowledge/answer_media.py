@@ -1,14 +1,23 @@
 """复用 Q2 原图映射；模型图片是临时消息，记录只保存资源身份。"""
+from llm.execution_budget import bounded_stage
 import os
 import re
 
 from knowledge.figures import get_figure, retrieve_figures
 
 
+@bounded_stage('media_selection')
 def selected_media(query, sources, *, asset_id=None):
     from knowledge.lightrag.retrieval import as_textbook_chunk
     chunks = [as_textbook_chunk(s) for s in sources if s.get('location', {}).get('source')]
-    figures = [get_figure(asset_id)] if asset_id else retrieve_figures(query, chunks)
+    if asset_id:
+        figure = get_figure(asset_id)
+        # 工具参数偶尔返回图号而非资源 ID，只允许从当前原文匹配同名登记原图。
+        figures = [figure] if figure else [f for f in retrieve_figures(asset_id, chunks) if f.label == asset_id]
+        if not figures:
+            raise ValueError('指定的教材原图 ID/图号无效，不能声称已读取像素。')
+    else:
+        figures = retrieve_figures(query, chunks)
     figures = [f for f in figures if f is not None and f.is_valid()]
     # 同号多来源需要澄清，不能无声选择其中一幅。
     if re.search(r'(?:图|表)\s*\d+[.．-]\d+', query) and len({f.label for f in figures}) < len(figures):
@@ -44,6 +53,7 @@ def current_media(refs):
     return output[:2]
 
 
+@bounded_stage('media_payload')
 def model_message(refs):
     if os.getenv('LLM_VISION_ENABLED', '1') == '0':
         return None

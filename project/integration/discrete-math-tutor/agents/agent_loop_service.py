@@ -290,8 +290,9 @@ def _map_result(result: LoopResult, target: LearningTarget,
     if not result.completed:
         return {
             **base,
-            "reply": "本次执行未完成，请重试或缩小问题范围。",
-            "answer_status": "loop_failed",
+            "reply": result.final_text or "本次执行未完成，请重试或缩小问题范围。",
+            "answer_status": result.error if result.error in {"answer_interrupted", "incomplete_answer", "active_timeout", "model_unavailable"} else "loop_failed",
+            "unpublished_draft": result.unpublished_draft,
             "loop_error": result.error,
             "sources": result.sources,
             "step_advanced": False,
@@ -460,10 +461,16 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             text = detail.get("detail") or message or ""
         else:
             text = detail or message or ""
-        progress("loop-" + event_type, event_type, str(text)[:300])
+        kind = event_type.removeprefix('loop-')
+        labels = {'stage_start':'准备本轮处理', 'tool_call':'读取所需资料', 'tool_result':'资料读取完成',
+                  'sources':'教材依据已就绪', 'wait_for_input':'等待补充信息', 'answer':'回答已核验',
+                  'done':'本轮完成', 'error':'本轮未完成', 'progress':'处理中'}
+        detail_text = {'retrieve_course':'读取教材原文', 'ask_user':'确认必要信息',
+                       '探索':'准备取证或确认问题', 'sources':'已取得本轮教材原文'}.get(str(text), str(text))
+        progress('loop-' + kind, labels.get(kind, '处理中'), detail_text[:300])
 
     round_tokens = max(1200, budget.max_tokens)
-    tool_seconds = 120 * max(1, len(navigation.coverage.requirements)) if navigation.coverage else 120
+    tool_seconds = 120  # 共享活动预算还会取剩余时间的较小值。
     loop = LocalAgentLoop(llm or orchestrator.llm, max_round_tokens=round_tokens)
     cancellation = register(request.task_id or request.request_id)
     navigation.cancellation = cancellation
@@ -477,7 +484,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             task_id=request.task_id or request.request_id,
             request_id=request.request_id or "",
             message=request.message, system_prompt=system_prompt, tools=registry,
-            round_max_tokens=round_tokens,
+            round_max_tokens=round_tokens, requires_evidence=True,
             seed_messages=list(context.history or []), target=target,
             navigation=navigation, cancellation=cancellation, guard=guard,
             tool_state={"workspace_root": str(workspace_root),

@@ -66,7 +66,8 @@ class AnswerStreamTests(unittest.TestCase):
         finally:current_answer.reset(token)
         self.assertTrue(result.completed,result.error);self.assertEqual(result.final_text,'最终说明[1]')
         self.assertTrue(first.closed and second.closed)
-        self.assertTrue(any(e=='answer_replace' and d['text']=='' for e,d in events))
+        self.assertFalse(any(e=='answer_replace' and d['text']=='' for e,d in events))
+        self.assertFalse(any(e=='answer_delta' and '查询中' in d['text'] for e,d in events))
         self.assertEqual(events[-1][1]['state'],'checking')
         states=[d['state'] for e,d in events if e=='answer_state']
         self.assertIn('retrieving',states)
@@ -88,7 +89,7 @@ class AnswerStreamTests(unittest.TestCase):
         finally:current_answer.reset(token)
         self.assertEqual([d['seq'] for _,d in events],list(range(1,len(events)+1)))
         self.assertEqual(len({d['answer_id'] for _,d in events}),1)
-        self.assertIn(('answer_replace',''),[(e,d.get('text')) for e,d in events])
+        self.assertNotIn(('answer_replace',''),[(e,d.get('text')) for e,d in events])
         self.assertEqual(events[-2][1]['text'],'最终编号[2]')
         self.assertEqual(events[-1][1]['state'],'saved')
         self.assertEqual(answer_kwargs(),{})

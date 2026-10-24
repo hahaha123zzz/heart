@@ -107,3 +107,18 @@ test('真正正文事件、尾部无空行、重复事件与撤回', async()=>{
  assert.equal(applyDraft(message,'answer_replace',{...id,seq:10,round_id:2,text:'晚到'}),false);
  assert.equal(message.content,'修订');
 });
+
+
+test('探索不污染正文，定点撤回不清空其他轮，未保存草稿仅显示纯文本',()=>{
+ const {applyDraft}=harness([]);const m={content:''};
+ const id={task_id:'t',task_revision:1,answer_id:'a'};
+ applyDraft(m,'answer_state',{...id,round_id:1,seq:1,role:'progress',state:'retrieving'});
+ applyDraft(m,'answer_replace',{...id,round_id:1,seq:2,role:'progress',text:'工具前猜测'});
+ assert.equal(m.content,'');
+ applyDraft(m,'answer_state',{...id,round_id:2,seq:3,role:'answer',state:'generating'});
+ applyDraft(m,'answer_delta',{...id,round_id:2,seq:4,role:'answer',text:'有据正文'});
+ applyDraft(m,'answer_replace',{...id,round_id:2,seq:5,role:'answer',target_round_id:1,text:''});
+ assert.equal(m.content,'有据正文');
+ applyDraft(m,'answer_replace',{...id,round_id:2,seq:6,role:'answer',target_round_id:2,text:''});
+ assert.equal(m.content,'');
+});

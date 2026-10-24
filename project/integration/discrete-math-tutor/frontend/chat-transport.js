@@ -82,13 +82,28 @@ window.TutorChatTransport = (() => {
     if(data.seq<=(message.answerSeq||0)||data.round_id<(message.answerRound||0))return false;
     if(event==='answer_delta'&&(message.answerState!=='generating'||message.answerRound!==data.round_id||typeof data.text!=='string'))return false;
     if(event==='answer_replace'&&typeof data.text!=='string')return false;
-    if(event==='answer_state'&&!['generating','retrieving','checking','saved','rejected'].includes(data.state))return false;
+    if(event==='answer_state'&&!['generating','retrieving','checking','saved','rejected','interrupted','incomplete','timeout'].includes(data.state))return false;
+    if(data.role && !['progress','answer'].includes(data.role))return false;
     message.answerIdentity??={answer_id:data.answer_id,task_id:data.task_id,task_revision:data.task_revision};
     message.answerSeq=data.seq;message.answerRound=data.round_id;
-    if(event==='answer_delta')message.content+=data.text;
-    if(event==='answer_replace')message.content=data.text;
+    if(data.role==='progress') {
+      if(event==='answer_state' && data.state==='retrieving')message.answerState='retrieving';
+      return true;
+    }
+    if(event==='answer_delta') {
+      if(message.contentRound!==data.round_id && data.role==='answer')message.content='';
+      message.contentRound=data.round_id;
+      message.content+=data.text;
+    }
+    if(event==='answer_replace' && (data.authoritative || data.target_round_id===undefined ||
+        data.target_round_id===message.contentRound))message.content=data.text;
     if(event==='answer_state')message.answerState=data.state;
     return true;
   }
-  return {streamChat,applyDraft};
+  function renderUnpublished(text) {
+    if(!text)return '';
+    const safe=String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    return '<details class="unpublished-draft"><summary>未完成草稿（未核验、未保存）</summary><pre style="white-space:pre-wrap">'+safe+'</pre></details>';
+  }
+  return {streamChat,applyDraft,renderUnpublished};
 })();

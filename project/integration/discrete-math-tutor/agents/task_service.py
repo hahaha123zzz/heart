@@ -10,6 +10,7 @@ from knowledge.course import get_section
 from knowledge.course_config import DEFAULT_GOAL
 from agents.intent_policy import IntentPolicy
 from visualization.service import VisualizationError
+from llm.execution_budget import BudgetExceeded
 
 
 class TaskService:
@@ -201,6 +202,12 @@ class TaskService:
     def run(self, request, executor, progress=None, *, visualization_jobs=None, answer_ready=None, answer_event=None):
         from llm.answer_events import AnswerEvents, current_answer
         answer = AnswerEvents(answer_event) if answer_event else None
+        from llm.execution_budget import ExecutionBudget, current_budget
+        text = request.message or ''
+        seconds = 180 if any(word in text for word in ('比较', '联系', '区别', '分别', '跨章')) else 120
+        budget = ExecutionBudget(seconds)
+        budget.progress = progress
+        budget_token = current_budget.set(budget)
         token = current_answer.set(answer)
         try:
             result = self._run(request, executor, progress, visualization_jobs=visualization_jobs, answer_ready=answer_ready)
@@ -216,6 +223,7 @@ class TaskService:
             return result
         finally:
             current_answer.reset(token)
+            current_budget.reset(budget_token)
 
     def _run(self, request, executor, progress=None, *, visualization_jobs=None, answer_ready=None):
         try:
@@ -257,6 +265,16 @@ class TaskService:
                 previous["_resume_answer"] = self._selected_label(request, previous)
             effective = self._resume(request, previous) if previous else request
             previous_result = (previous or {}).get("result") or {}
+            if previous:
+                from llm.execution_budget import current_budget
+                budget = current_budget.get()
+                policy = (previous_result.get('loop_state') or {}).get('execution_policy') or {}
+                seconds = policy.get('active_limit_seconds')
+                if seconds not in (120, 180):
+                    seconds = 180 if any(word in effective.message for word in ('比较', '联系', '区别', '分别', '跨章')) else 120
+                if budget:
+                    budget.seconds = seconds
+                    budget.deadline = budget.started + seconds
             q5_plan = previous_result.get("q5_plan") if isinstance(previous_result, dict) else None
             q5_previous_mode = (previous_result.get("clarification") or {}).get("mode")
             q5_propose = bool(q5 and q5.is_plan_request(request.message))
@@ -391,6 +409,8 @@ class TaskService:
                     }
                     return save_q5(result)
             def guard():
+                from llm.execution_budget import check_budget
+                check_budget()
                 self.repo.guard(task["student_id"], task["session_id"], task["id"], task["revision"], self.tutor.memory.repo)
                 if q5 and q5.session_snapshot:
                     try:q5.session_guard()
@@ -576,8 +596,15 @@ class TaskService:
                 if result.get("visualization_status") == "ready":
                     if not self.tutor.memory.repo.attach_guide(request.student_id, result["conversation_id"], result["guided_visualization"]):
                         raise TaskConflict("memory_deleted", "相关对话已删除，图解未保存")
+                from llm.execution_budget import current_budget
+                if current_budget.get():
+                    current_budget.get().record('save.start')
+                    result['execution_metrics'] = current_budget.get().snapshot()
                 task, result = self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo, status="completed", result=result,
                     context=context.model_dump() | {"document_versions": document_versions})
+            if current_budget.get():
+                current_budget.get().record('save.completed')
+                result['execution_metrics'] = current_budget.get().snapshot()
             return result
         except TaskConflict as error:
             if error.code in ('visualization_changed', 'document_changed','session_plan_changed') and 'task' in locals():
@@ -587,6 +614,23 @@ class TaskService:
                 except TaskConflict:
                     pass
             return self.conflict_reply(error)
+        except BudgetExceeded:
+            from llm.execution_budget import current_budget
+            result = {'reply': '本轮活动总时限已到，未完成内容不发布。',
+                      'answer_status': 'active_timeout', 'step_advanced': False,
+                      'execution_metrics': current_budget.get().snapshot()}
+            from llm.answer_events import current_answer
+            publisher = current_answer.get()
+            if publisher and publisher.role == 'answer':
+                result['unpublished_draft'] = publisher.text
+            if 'task' in locals():
+                try:
+                    # 失败收据仍走仓库身份/epoch 校验，不用已过期的活动时钟阻止收尾。
+                    task, result = self.repo.save(task=task, receipt_id=receipt,
+                        memory_repo=self.tutor.memory.repo, status='failed', result=result)
+                except TaskConflict as error:
+                    return self.conflict_reply(error)
+            return result
         except VisualizationError as error:
             result = {'reply':str(error), 'answer_status':'visualization_changed' if error.status == 409 else 'visualization_unavailable', 'step_advanced':False}
             if 'task' in locals():
