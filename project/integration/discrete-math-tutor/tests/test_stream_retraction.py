@@ -118,3 +118,56 @@ class RetractionTests(unittest.TestCase):
         self.assertTrue(result.completed)
         self.assertEqual(len(llm.calls),1)
         gate.assert_called_once()
+
+
+    def test_deadline_saves_terminal_receipt_without_conversation(self):
+        from unittest.mock import patch
+        from tests import test_clarification_tasks as fixture
+        from database.models import ConversationRow
+        case=fixture.ClarificationTests();case.setUp()
+        self.addCleanup(case.tearDown)
+        budget=ExecutionBudget(.03)
+        def execute(request,context,resolved,intercept,guard,progress):
+            time.sleep(.05)
+            guard()
+            return {'reply':'晚到回答','answer_status':'answered'}
+        with patch('llm.execution_budget.ExecutionBudget',return_value=budget):
+            result=case.service.run(case.request(request_id='timeout-test'),execute)
+        self.assertEqual(result['answer_status'],'active_timeout')
+        self.assertEqual(case.count(ConversationRow),0)
+        receipt=case.repo.replay('s','tab-a','timeout-test',case.request(request_id='timeout-test').model_dump(),case.memory.repo)
+        self.assertEqual(receipt['answer_status'],'active_timeout')
+        self.assertIsNone(case.repo.pending('s','tab-a'))
+
+
+    def test_pause_serializes_policy_without_process_deadline(self):
+        from agents.agent_loop import LoopResult
+        budget=ExecutionBudget(180);token=current_budget.set(budget)
+        try:state=LoopResult(paused=True).state()
+        finally:current_budget.reset(token)
+        self.assertEqual(state['execution_policy'],{'active_limit_seconds':180})
+        self.assertNotIn('deadline',str(state))
+        self.assertNotIn('started',str(state))
+
+    def test_gate_repair_retracts_only_answer_candidate_not_tool_round(self):
+        events=[];publisher=AnswerEvents(lambda e,d:events.append((e,d)))
+        publisher.bind(lambda:{'task_id':'t','task_revision':1},lambda:None)
+        token=current_answer.set(publisher);checks=[]
+        def gate(text,result):
+            checks.append(text)
+            return (len(checks)>1, '回复过长（超过 260 字）' if len(checks)==1 else '')
+        class EmittingLLM(ScriptedLLM):
+            def chat_with_tools(self,messages,tools,**kwargs):
+                result=super().chat_with_tools(messages,tools,**kwargs)
+                if result.text and kwargs.get('on_delta'):
+                    kwargs['on_delta'](result.text)
+                return result
+        llm=EmittingLLM([tool_round(('echo',{'text':'原文'})),final_round('被拒候选'),final_round('修订候选')])
+        try:result=LocalAgentLoop(llm).run(request(llm,self.registry(),requires_evidence=True,publish_gate=gate))
+        finally:current_answer.reset(token)
+        self.assertTrue(result.completed)
+        clears=[d for e,d in events if e=='answer_replace' and d['text']=='']
+        self.assertEqual(len(clears),1)
+        self.assertEqual(clears[0]['target_round_id'],2)
+        self.assertEqual(clears[0]['reason'],'candidate_rejected')
+        self.assertEqual(len(llm.calls),3)

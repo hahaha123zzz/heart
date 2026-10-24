@@ -549,7 +549,7 @@ async function sendMessage(message, options={}) {
     renderStyleStatus();
     Object.assign(pending, {taskId:result.task_id, conversationId:result.conversation_id, pending:!finished, networkFailed:false,
       answerSettled:true,answerState:result.answer_status==='answered'?'saved':result.answer_status==='awaiting_clarification'?'awaiting_clarification':({answer_interrupted:'interrupted',incomplete_answer:'incomplete',active_timeout:'timeout'}[result.answer_status]||'rejected'),
-      failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable','answer_interrupted','incomplete_answer','active_timeout','loop_failed'].includes(result.answer_status),
+      failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable','answer_interrupted','incomplete_answer','active_timeout','model_unavailable','loop_failed'].includes(result.answer_status),
       content:result.reply || "助教暂时没有返回内容。", unpublishedDraft:result.unpublished_draft || '',
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
       selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,

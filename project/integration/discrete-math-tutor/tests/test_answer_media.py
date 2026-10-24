@@ -40,6 +40,20 @@ class AnswerMediaTests(unittest.TestCase):
         self.assertEqual(len(transient), 2)
         self.assertEqual(transient[-1]['_media_ids'], ['4'])
 
+    def test_label_in_asset_argument_resolves_only_registered_exact_figure(self):
+        from knowledge.answer_media import selected_media
+        from types import SimpleNamespace
+        figure=SimpleNamespace(id='image-01-0006',label='图1-4',chapter_id=1,section_id=3,
+            is_valid=lambda:True,public=lambda:{'id':'image-01-0006','document_id':'doc','version':'v',
+                'sha256':'hash','image_url':'/api/figures/image-01-0006/image'})
+        sources=[{'chapter_id':1,'section_id':3,'document_id':'doc','version':'v','text':'原文','location':{}}]
+        with patch('knowledge.answer_media.get_figure',return_value=None), patch('knowledge.answer_media.retrieve_figures',return_value=[figure]):
+            media=selected_media('解释图1-4',sources,asset_id='图1-4')
+            self.assertEqual(media[0]['id'],'image-01-0006')
+            self.assertFalse(media[0]['model_saw_pixels'])
+            with self.assertRaisesRegex(ValueError,'原图'):
+                selected_media('解释图1-4',sources,asset_id='凭空生成的资源')
+
     def test_plain_comparison_does_not_attach_section_images(self):
         self.assertEqual(retrieve_figures('用对照表比较被试内与被试间设计', []), [])
 

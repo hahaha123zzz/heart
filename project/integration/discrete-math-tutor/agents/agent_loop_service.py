@@ -291,7 +291,7 @@ def _map_result(result: LoopResult, target: LearningTarget,
         return {
             **base,
             "reply": result.final_text or "本次执行未完成，请重试或缩小问题范围。",
-            "answer_status": result.error if result.error in {"answer_interrupted", "incomplete_answer", "active_timeout"} else "loop_failed",
+            "answer_status": result.error if result.error in {"answer_interrupted", "incomplete_answer", "active_timeout", "model_unavailable"} else "loop_failed",
             "unpublished_draft": result.unpublished_draft,
             "loop_error": result.error,
             "sources": result.sources,

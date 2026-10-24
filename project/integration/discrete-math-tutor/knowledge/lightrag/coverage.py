@@ -1,5 +1,6 @@
-from llm.execution_budget import bounded_stage
 """按必要对象保留Q2精确证据；不修改学习路径或生成答案。"""
+from llm.execution_budget import bounded_stage
+
 from dataclasses import dataclass,replace
 from copy import deepcopy
 from types import SimpleNamespace

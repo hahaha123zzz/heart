@@ -1,5 +1,6 @@
-from llm.execution_budget import bounded_stage
 """本轮小证据选择、原文存在性、坐标与最终展示核验。"""
+from llm.execution_budget import bounded_stage
+
 import hashlib,json,os,re
 from dataclasses import dataclass,replace
 from pathlib import Path

@@ -264,6 +264,16 @@ class TaskService:
                 previous["_resume_answer"] = self._selected_label(request, previous)
             effective = self._resume(request, previous) if previous else request
             previous_result = (previous or {}).get("result") or {}
+            if previous:
+                from llm.execution_budget import current_budget
+                budget = current_budget.get()
+                policy = (previous_result.get('loop_state') or {}).get('execution_policy') or {}
+                seconds = policy.get('active_limit_seconds')
+                if seconds not in (120, 180):
+                    seconds = 180 if any(word in effective.message for word in ('比较', '联系', '区别', '分别', '跨章')) else 120
+                if budget:
+                    budget.seconds = seconds
+                    budget.deadline = budget.started + seconds
             q5_plan = previous_result.get("q5_plan") if isinstance(previous_result, dict) else None
             q5_previous_mode = (previous_result.get("clarification") or {}).get("mode")
             q5_propose = bool(q5 and not q5.has_path() and q5.is_plan_request(effective.message))

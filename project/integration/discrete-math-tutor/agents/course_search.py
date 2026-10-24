@@ -1,5 +1,6 @@
-from llm.execution_budget import bounded_stage
 """Q3/Q5 共用检索边界；不改变路径解析，不实现检索引擎。"""
+from llm.execution_budget import bounded_stage
+
 from dataclasses import replace
 import json
 import logging

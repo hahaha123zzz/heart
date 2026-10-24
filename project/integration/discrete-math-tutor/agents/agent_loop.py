@@ -73,7 +73,10 @@ class LoopResult:
 
     def state(self) -> dict[str, Any]:
         """Serializable state for TaskService persistence."""
+        from llm.execution_budget import current_budget
+        budget = current_budget.get()
         return {
+            "execution_policy": {"active_limit_seconds": budget.seconds} if budget else {},
             "protocol_version": self.protocol_version,
             "messages": self.messages,
             "rounds": self.rounds,
@@ -187,6 +190,7 @@ class LocalAgentLoop:
         settlement_budget = max(0, request.max_settlement_rounds)
         repair_used = False
         no_tools_next = False
+        first_active_round = True
         while True:
             check_budget()
             if request.cancellation is not None:
@@ -201,7 +205,7 @@ class LocalAgentLoop:
             evidence_ready = bool(result.sources)
             tools = [] if no_tools_next or (request.requires_evidence and evidence_ready) else request.tools.schemas()
             choice = request.tool_choice if result.rounds == 0 else None
-            if request.requires_evidence and not evidence_ready and result.rounds == 0:
+            if request.requires_evidence and not evidence_ready and first_active_round:
                 if any(tool.get('function', {}).get('name') == 'retrieve_course' for tool in tools):
                     # 先取证或必要澄清；保留 ask_user/Q5 工具，避免强迫澄清轮读取教材。
                     choice = 'required'
@@ -223,13 +227,13 @@ class LocalAgentLoop:
                         'incomplete_answer' if exc.finish_reason == 'length' else 'answer_interrupted',
                         '本轮输出未完成，片段未保存；请确认后重试。')
                 if result.rounds == 0:
-                    result.error = f"model_unavailable: {exc}"
-                    collector("error", "模型暂时不可用", {"code": "model_unavailable"})
-                    return result
+                    return self._error_result(result, messages, collector, 'model_unavailable',
+                        '模型连接或响应暂时不可用，本轮没有生成已保存回答。')
                 if not result.sources:
                     return self._error_result(result, messages, collector, 'model_unavailable', '模型暂时不可用')
                 return self._forced_finish(request, messages, result, context, collector,
                                            reason=f"模型调用失败：{exc}")
+            first_active_round = False
             result.rounds += 1
             self._mark_pixels(result)
             if settling:

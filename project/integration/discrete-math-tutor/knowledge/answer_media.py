@@ -8,7 +8,14 @@ from knowledge.figures import get_figure, retrieve_figures
 def selected_media(query, sources, *, asset_id=None):
     from knowledge.lightrag.retrieval import as_textbook_chunk
     chunks = [as_textbook_chunk(s) for s in sources if s.get('location', {}).get('source')]
-    figures = [get_figure(asset_id)] if asset_id else retrieve_figures(query, chunks)
+    if asset_id:
+        figure = get_figure(asset_id)
+        # 工具参数偶尔返回图号而非资源 ID，只允许从当前原文匹配同名登记原图。
+        figures = [figure] if figure else [f for f in retrieve_figures(asset_id, chunks) if f.label == asset_id]
+        if not figures:
+            raise ValueError('指定的教材原图 ID/图号无效，不能声称已读取像素。')
+    else:
+        figures = retrieve_figures(query, chunks)
     figures = [f for f in figures if f is not None and f.is_valid()]
     # 同号多来源需要澄清，不能无声选择其中一幅。
     if re.search(r'(?:图|表)\s*\d+[.．-]\d+', query) and len({f.label for f in figures}) < len(figures):
