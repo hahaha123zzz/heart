@@ -110,6 +110,10 @@ class RuntimeTests(unittest.TestCase):
         self.execution.hint_only=False
         self.assertIsNone(self.run_guide(llm,message='只给提示，不要答案'))
         self.assertFalse(llm.chat_json.called)
+
+    def test_missing_json_capability_skips_optional_guide(self):
+        self.assertIsNone(self.run_guide(SimpleNamespace()))
+
     def test_multiple_templates_keep_per_frame_sources(self):
         second=dict(self.raw,template='formula',payload={'steps':[{'before':'a+b','after':'b+a','rule':'交换律'}]})
         llm=Mock();llm.chat_json.side_effect=[{'templates':['mapping','formula']},{'plans':[self.raw,second]},{'passed':True,'issues':[]}]

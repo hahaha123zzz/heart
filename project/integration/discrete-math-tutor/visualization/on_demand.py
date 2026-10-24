@@ -29,7 +29,9 @@ def permitted(message, execution):
 
 
 def generate_guide(llm, message, reply, sources, execution, *, student_id, turn_id, references=(), progress=None):
-    if os.getenv('VISUALIZATION_ON_DEMAND','0')!='1' or not sources or not permitted(message, execution):
+    if (os.getenv('VISUALIZATION_ON_DEMAND','0')!='1' or not sources
+            or not permitted(message, execution)
+            or not callable(getattr(llm, 'chat_json', None))):
         return None
     current_stage='visual-prepare'
     def report(stage, label):

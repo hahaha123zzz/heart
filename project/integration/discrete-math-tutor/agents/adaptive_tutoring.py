@@ -87,19 +87,23 @@ def analyze_teaching_turn(message: str, *, previous_strategy: str = "",
     support = is_difficulty(text)
     asks_example = bool(re.search(r"(?:举|换|给).{0,5}(?:个|一)?(?:例子|例)|比如|打个比方", text))
     explicit_check = bool(ALLOW_QUIZ.search(text))
+    side_question = bool(re.search(
+        r"先插问|另外问|什么是|是什么意思|为什么|请解释|图\s*\d|图片|原图|"
+        r"(?:只|仅)(?:给|要)?提示|给.{0,3}提示|换.{0,4}(?:例子|说法)", text))
     source_exact = bool(re.search(r"教材原文|原书怎么说|书上怎么写|按教材|引用原文|第\s*\d+页|原图|具体研究结果|数据结果", text))
     if support:
         move = "needs_support"
-        choices = ["worked_example", "break_down", "contrast", "prerequisite", "hint"]
-        strategy = next((item for item in choices if item != previous_strategy), "worked_example")
+        choices = ["worked_example", "contrast", "break_down", "prerequisite", "hint"]
+        previous_index = choices.index(previous_strategy) if previous_strategy in choices else -1
+        strategy = choices[(previous_index + 1) % len(choices)]
     elif asks_example:
         move, strategy = "teach_with_example", "worked_example"
     elif re.search(r"(?:为什么|原因|区别|差异|怎么联系)", text):
-        move, strategy = "explain_relation", "conceptual_comparison"
+        move, strategy = "explain_relation", "contrast"
     elif re.search(r"(?:怎么做|步骤|如何操作|流程)", text):
         move, strategy = "explain_procedure", "worked_example"
     elif re.search(r"(?:总结|归纳|概括)", text):
-        move, strategy = "summarize", "self_explanation"
+        move, strategy = "summarize", "explain"
     else:
         move, strategy = "explain", "explain"
     if strategy == previous_strategy and strategy in ("explain", "worked_example"):
@@ -107,8 +111,8 @@ def analyze_teaching_turn(message: str, *, previous_strategy: str = "",
     return TeachingDecision(
         move=move, strategy=strategy,
         evidence_mode="textbook" if source_exact else "blended",
-        reuse_evidence=bool(support or asks_example or has_pending and not re.search(
-            r"另外问|另一个问题|换个知识点|换个话题|不学这个|改学", text)),
+        reuse_evidence=bool(support or asks_example or has_pending and not side_question and not re.search(
+            r"另一个问题|换个知识点|换个话题|不学这个|改学", text)),
         invite_check=bool(explicit_check or question_frequency >= .85 and move == "explain" and not has_pending),
     )
 
@@ -237,7 +241,9 @@ class TeachingTurn:
             has_pending=bool(self.progress.pending_question),
             question_frequency=context.preferences.get("question_frequency", .5))
         self.evidence_mode = self.strategy_decision.evidence_mode
-        self.interjection = self.strategy_decision.move == "needs_support"
+        # A learner who is confused is still asking about the current lesson;
+        # only a genuine side question should suspend the active objective.
+        self.interjection = False
         if self.progress.learner_profile is None:
             self.progress.learner_profile = LearnerProfile(teaching_strategy="teach_first")
         if CHANGE_TOPIC.search(request.message) or (
@@ -317,9 +323,6 @@ class TeachingTurn:
         self.strategy = self.strategy_decision.strategy
         if self.state["assessment"]:
             self.strategy = "transfer" if self.state["assessment"]["verdict"] == "correct" else "contrast"
-        if not self.strategy_decision.invite_check and not ALLOW_QUIZ.search(request.message):
-            self.state["allow_check"] = False
-            self.state["requested_allow_check"] = False
         self._sync()
 
     def _fresh(self, topic, profile=None):
@@ -436,6 +439,8 @@ class TeachingTurn:
             "不要把补充冒充教材结论；具体研究数据、原书表述、图像细节必须查证。\n"
             "默认先把知识点讲清楚，不在每次讲解末尾加生硬的检查题。只有学生明确要求练习，"
             "或本轮诊断确实需要时才提一个贴合刚才例子的轻量问题；允许用自然邀请代替提问。\n"
+            "教学策略分析器的invite_check=true表示本轮建议检查；为false时讲解后自然收束，不要主动追问。"
+            "它不是长期偏好或会话禁令，学生明确要求练习时仍按其要求安排。"
             "需要小检查，在teaching_step传check_prompt/check_focus，可选check_expected_answer；最多一题。"
             "先讲解，问题清楚地放在正文最后，然后停止，不能同轮给答案。优先沿用原题；"
             "可以省略重复的情境背景，但检查的核心对象和所问内容必须一致。已有待答题不可覆盖；"

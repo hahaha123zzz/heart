@@ -39,7 +39,7 @@ class SelectionLoopTests(unittest.TestCase):
         self.patchers = [
             patch.dict("os.environ", {"LOCAL_AGENT_LOOP_ENABLED": "1",
                 "SELECTED_TEXT_AGENT_LOOP_ENABLED": "1", "ADAPTIVE_TUTORING_ENABLED": "1",
-                "Q5_LEARNING_ENABLED": "0"}),
+                "Q5_LEARNING_ENABLED": "0", "VISUALIZATION_ON_DEMAND": "0"}),
             patch("knowledge.pdf_reader.document", return_value=self.record),
             patch("knowledge.pdf_reader.pdf_path", return_value=self.path),
             patch("agents.selection_loop.document", return_value=self.record),
