@@ -9,6 +9,7 @@ class InteractionPreferences(BaseModel):
     learning_pace: float | None = Field(None, ge=0, le=1, strict=True)
     explanation_order: float | None = Field(None, ge=0, le=1, strict=True)
     question_frequency: float | None = Field(None, ge=0, le=1, strict=True)
+    teaching_sequence: float | None = Field(None, ge=0, le=1, strict=True)
     style_suggestions: float | None = Field(None, ge=0, le=1, strict=True)
 
 
@@ -24,5 +25,8 @@ def style_instructions(values):
         lines.append("先给结论，再解释依据。" if values["explanation_order"] < .34 else "本轮先给一个简短情境，标注‘辅助例子（非原书例题）’，再归纳概念和依据；不要先写完整定义。若本轮是仅提示，情境也不得泄露答案；若用户明确指定其他顺序或要求练习，优先完成本轮要求。" if values["explanation_order"] > .66 else "按问题选择讲解顺序。")
     if "question_frequency" in values:
         lines.append("不主动追加检查题或理由追问；用户本轮明确要求练习时仍完成练习。" if values["question_frequency"] < .34 else "适合时可邀请一次简短理解检查，不能每轮强制答题。" if values["question_frequency"] > .66 else "仅在必要时检查理解。")
+    if "teaching_sequence" in values:
+        lines.append('先讲解，再安排例子或可选练习；本次只讲不考时不强制练习。' if values['teaching_sequence']>.66 else
+                     '可先用一段可选练习了解问题，再讲解；本次禁止练习时先讲解。' if values['teaching_sequence']<.34 else '讲练顺序按当前问题安排。')
     lines.append("不能声称已替用户修改偏好；风格调整须由界面上的用户确认完成。")
     return "\n".join(lines)

@@ -27,9 +27,11 @@ SOURCE = {"index": 1, "source_id": "e1", "document_id": "d", "version": "v",
 def turn(message, old=None, llm=None, **extra):
     request = ChatRequest(student_id="s", session_id="x", request_id="r", message=message)
     context = TaskContext(student_id="s", session_id="x", knowledge_point="自变量", message=message,
-                          tutoring=deepcopy(old or {}))
+                          tutoring=deepcopy(old or {}), preferences=extra.get('preferences', {}),
+                          session_study_plan=extra.get('session_study_plan'))
     return TeachingTurn(context, request, llm or Mock(),
-                        validate_sources=extra.get("validate_sources", lambda x: deepcopy(x)))
+                        validate_sources=extra.get("validate_sources", lambda x: deepcopy(x)),
+                        target=extra.get('target'))
 
 
 def record(t, **extra):
@@ -39,6 +41,8 @@ def record(t, **extra):
 
 
 def prior(*, pending=False, **extra):
+    if 'allow_check' in extra:
+        extra.setdefault('requested_allow_check', extra['allow_check'])
     t = turn("请解释自变量")
     record(t, **({"check_prompt": "音乐影响阅读速度，操纵什么？", "check_focus": "操纵",
                   "check_expected_answer": "PRIVATE-背景音乐"} if pending else {}))
@@ -92,6 +96,30 @@ class TeachingPolicyTests(unittest.TestCase):
         t = turn("先教再测", prior())
         self.assertTrue(t.state["allow_check"])
         self.assertEqual(t.progress.learner_profile.teaching_strategy, "teach_first")
+
+    def test_confirmed_preferences_are_enforced_and_can_be_revoked(self):
+        t = turn('请解释', prior(), preferences={'question_frequency': 0.0, 'teaching_sequence': 1.0})
+        self.assertFalse(t.state['allow_check'])
+        self.assertTrue(t.state['requested_allow_check'])
+        self.assertEqual(t.progress.learner_profile.teaching_strategy, 'teach_first')
+        self.assertFalse(record(t, check_prompt='检查？', check_focus='操纵').success)
+        restored = turn('请解释', t.state, preferences={'question_frequency': .5})
+        self.assertTrue(restored.state['allow_check'])
+        explicit = turn('可以考考我', t.state, preferences={'question_frequency': 0.0})
+        self.assertTrue(explicit.state['allow_check'])
+
+    def test_confirmed_session_explain_only_blocks_new_or_old_checks(self):
+        t = turn('可以考考我', prior(pending=True),
+                 session_study_plan={'request': {'practice_preference': 'none'}})
+        self.assertFalse(t.state['allow_check'])
+        self.assertIsNone(t.progress.pending_question)
+        self.assertFalse(record(t, check_prompt='检查？', check_focus='操纵').success)
+
+    def test_authoritative_activity_target_change_drops_previous_question(self):
+        old = prior(pending=True) | {'target_id': 'activity-one'}
+        t = turn('继续', old, target=LearningTarget(target_id='activity-two', name='因变量'))
+        self.assertIsNone(t.progress.pending_question)
+        self.assertEqual(t.state['topic'], '因变量')
 
     def test_skip_not_wrong_and_ack_preserves_original_question(self):
         model = Mock()

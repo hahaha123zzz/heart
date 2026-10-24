@@ -394,7 +394,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     if q5_binding:
         current_target = q5_binding["target"]
         from agents.q5_learning import Q5Navigator
-        navigation = Q5Navigator(q5.service, q5.scope, search_fn=q5.search)
+        navigation = (CallbackNavigator(resolve_fn=lambda **_: NavigationDecision('teach',current_target))
+                      if q5_binding.get('session_study') else Q5Navigator(q5.service, q5.scope, search_fn=q5.search))
     else:
         navigation = navigator or _default_navigator(
             current_target, getattr(context, "course_navigation", None))
@@ -420,13 +421,14 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     from agents.adaptive_tutoring import enabled as tutoring_enabled, TeachingTurn, TeachingStepTool
     if guard:
         guard()
-    teaching = TeachingTurn(context, request, llm or orchestrator.llm) if tutoring_enabled() else None
+    teaching = TeachingTurn(context, request, llm or orchestrator.llm, target=target) if tutoring_enabled() else None
     if guard:
         guard()
     from agents.course_search import explicit_chapters, question_interjection
     chapters = explicit_chapters(request.message)
     interjection = bool(len(chapters) > 1 or
-        (q5_binding and question_interjection(request.message, target)))
+        (q5_binding and question_interjection(request.message, target))
+        or (teaching and teaching.interjection))
     root = Path(__file__).resolve().parents[1]
     skills_root = root / "visualization" / "skills"
     task_key = re.sub(r"[^A-Za-z0-9_.-]+", "_",
@@ -457,6 +459,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     if interjection:
         system_prompt += '\n本轮是插问，只回答学生当前问题；保留原学习目标，不记录本目标已讲解、掌握或推进路径。'
     system_prompt += '\n页面当前学习目标仅作学习位置参考；具体提问优先，不要把旧小节主题擅自追加到检索词。指定图号先调用 retrieve_course 读取该图及登记原文，不能只检索旧主题便要求学生上传已有原图。'
+    if q5_binding and q5_binding.get('session_study'):
+        import json
+        snapshot={k:v for k,v in q5_binding['session_plan'].items() if k not in ('student_id','session_id')}
+        from models.interaction_preferences import style_instructions
+        system_prompt += '\n当前仍有效的已确认风格（旧快照的画像文案不能覆盖这里；本次明确的学习约束仍保留）：\n'+style_instructions(context.preferences)
+        system_prompt += '\n以下是本次已确认活动快照，只执行当前活动的kind和完成标准，估算时间不代表真实用时。学生本轮插问优先且不推进。不要一次教完整份安排，不改变长期路径，不把懂了当掌握。practice_preference=none时禁止检查题和考试。optional_check活动若生成自测，明确标注AI生成、非教材原题、未正式评分。\n' + json.dumps(snapshot,ensure_ascii=False)
 
     def emit(event_type: str, message: str,
              detail: str | dict[str, Any] | None = None) -> None:
@@ -501,7 +509,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 initial_sources=teaching.sources if teaching else [],
                 navigation=navigation, cancellation=cancellation, guard=guard,
                 tool_state={"workspace_root": str(workspace_root),
-                            "skills_root": str(skills_root), "deferred_loader": None},
+                            "skills_root": str(skills_root), "deferred_loader": None,
+                            **((q5_binding or {}).get("tool_state") or {})},
                 publish_gate=publish_gate or _publish_gate(orchestrator, request, target, navigation, teaching),
                 emit=emit, tool_timeout_seconds=tool_seconds, max_exploration_rounds=4,
             ),
@@ -567,6 +576,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     "section_id": target.section_id,
                     "section_title": target.name,
                     "image_refs": mapped.get('image_refs', []),
+                    "session_study_plan": getattr(context,'session_study_plan',None),
                 }
                 conversation_id = memory.append_exchange(
                     request.student_id, user_message, result.final_text,

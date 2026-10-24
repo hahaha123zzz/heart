@@ -34,22 +34,111 @@ class Q5Runtime:
         self.scope = _scope(student_id, session_id)
         self.service = Q5LearningService()
         self.adapter = Q5TurnAdapter(self.service, self.scope)
+        from agents.session_study_service import SessionStudyService
+        self.sessions = SessionStudyService(self.scope)
+        self.session_snapshot = None
+        self.session_execution = None
 
     # -- plan lifecycle -------------------------------------------------
     def status(self) -> dict[str, Any]:
-        return self.service.status(self.scope)
+        return dict(self.service.status(self.scope), session_plan=self.sessions.current())
 
     def has_path(self) -> bool:
         return bool(self.status().get("path_id"))
 
     def is_plan_request(self, message: str) -> bool:
         text = "".join(str(message or "").split())
-        return bool(re.search(r"(?:制定|生成|做一份|设计|规划|安排).{0,8}(?:学习|复习)?计划", text))
+        return bool(re.search(r"(?:制定|生成|做一份|设计|规划|安排).{0,8}(?:学习|复习)?计划|"
+                              r"(?:今天|这次|本次).{0,12}(?:怎么安排|先学什么)|"
+                              r"(?:帮我|请|给我)?安排.{0,16}(?:分钟|小时|学习|复习)|"
+                              r"(?:今天|这次|本次).{0,20}(?:分钟|小时).{0,20}(?:想学|学习|复习)", text))
+
+    def propose_session(self, message, llm, memory, *, previous=None, guard=lambda: None):
+        from agents.session_study_planner import extract_request, collect_materials, generate_session
+        from models.interaction_preferences import style_instructions
+        profile_values = memory.get_profile(self.scope.student_id).preferences
+        profile = {'teaching_preference': style_instructions(profile_values)} if profile_values else {}
+        status = self.service.status(self.scope)
+        guard()
+        request = extract_request(llm, message, profile=profile, path=status.get('path',{}),
+                                  previous=(previous or {}).get('request'))
+        guard()
+        if not request.scope and not status.get('path_id'):
+            if previous and previous.get('intake_asked'):
+                raise ValueError('仍缺少学习主题，请明确主题后重新安排；不会反复补问')
+            return {'intake_asked':True, 'request':request.model_dump()}
+        if any(re.search(r'全书|整本|全部章节|全教材',topic) for topic in request.scope):
+            from knowledge.course import chapter_summary
+            return {'intake_asked':True,'request':request.model_dump(),
+                'coverage':{'status':'outline_only','chapters':[{'id':chapter['id'],'title':chapter['title']} for chapter in chapter_summary()]}}
+        materials, calls = collect_materials(request, llm=llm, status=status, guard=guard)
+        if not materials:
+            raise ValueError('本次范围没有可核验教材资料，请明确教材主题或章节')
+        value = generate_session(llm, request, scope=self.scope, status=status,
+            current=self.sessions.current(), previous=previous, materials=materials, profile=profile,
+            validator=self.sessions.validate, guard=guard)
+        value['source_binding']['retrieval_calls'] = calls
+        if re.search(r'(?:以后|今后|每次|长期).{0,10}先讲(?:解)?.{0,4}(?:后|再)练',message):
+            from database.database import session_scope
+            with session_scope(immediate=True):
+                guard()
+                memory.set_preferences(self.scope.student_id,{'teaching_sequence':1.0})
+            value['source_binding']['long_preferences_updated']=['teaching_sequence']
+        return value
+
+    def session_result(self, proposal, task, *, adjust_prompt=False):
+        if proposal.get('intake_asked'):
+            from agents.ask_user_contract import build_ask_user_payload
+            payload, error = build_ask_user_payload(questions=[{'id':'scope','prompt':'这次想学习哪个教材主题或章节？'}])
+            if error:raise ValueError(error)
+            inventory=proposal.get('coverage',{}).get('chapters',[])
+            intro=('教材共'+str(len(inventory))+'章：'+'、'.join(str(c['id'])+' '+c['title'] for c in inventory)+
+                '。这只是目录覆盖，尚未完成全书原文规划。请指定本次优先主题或章节，不会默认缩为第一章。') if inventory else '这次想学习哪个教材主题或章节？已提供的时长和偏好会保留。'
+            return {'reply':intro,
+                'answer_status':'awaiting_clarification','loop_paused':True,
+                'q5_session_plan':proposal,'ask_user':payload.to_dict(),
+                'clarification':{'mode':'q5_session_intake','ask_user':payload.to_dict(),'options':[]},
+                'result_type':'session_plan','step_advanced':False}
+        lines=['### 本次学习安排', '目标：'+proposal['request']['goal'],
+            '预计总用时：'+str(sum(item['estimated_minutes'] for item in proposal['items']))+' 分钟（估算）']
+        for text in proposal['request'].get('assumptions',[]): lines.append('假设：'+text)
+        for text in proposal.get('omitted',[]): lines.append('未纳入：'+text)
+        if proposal.get('source_binding',{}).get('long_preferences_updated'):
+            lines.append('已按你的明确要求长期保存“先讲后练”；可在风格设置调整或学习记忆管理中撤销。')
+        lines.append('教材资料为有界选取，本安排不代表整章或全书覆盖；完成活动不等于掌握。')
+        lines.append('请说明要调整的范围、时间或教法。' if adjust_prompt else '确认后按本次安排开始，不改变长期路径。')
+        return {'reply':'\n'.join(lines),'answer_status':'awaiting_clarification','loop_paused':True,
+            'q5_session_plan':proposal,'result_type':'session_plan','step_advanced':False,
+            'clarification':{'mode':'q5_session_adjust' if adjust_prompt else 'q5_session_plan',
+                'options':[{'id':'q5sp:confirm','label':'确认本次安排并开始'}, {'id':'q5sp:adjust','label':'调整本次安排'}]}}
+
+    def prepare_session(self, message, preferences=None):
+        """活动推进只在本轮内预演，成功发布后再提交，不提前移动数据库位置。"""
+        import copy
+        current = self.sessions.current()
+        if not current or current['status'] not in ('active','paused'):
+            return None
+        self.sessions.guard(current)
+        self.session_snapshot = current
+        self.session_execution = copy.deepcopy(current)
+        if current['request'].get('value_sources',{}).get('teaching_preference')=='confirmed_profile' and preferences is not None:
+            from models.interaction_preferences import style_instructions
+            self.session_execution['request']['teaching_preference']=style_instructions(preferences) if preferences else ''
+        if current['status'] == 'paused':
+            return current
+        if re.fullmatch(r'(?:我懂了[，,]?|明白了[，,]?|请)?(?:继续|下一部分|下一步|接下来|继续下一部分)[。！!？?\s]*', message.strip()):
+            self.session_execution = self.sessions.transition(self.session_execution)
+        return self.session_execution
+
+    def session_guard(self):
+        if self.session_snapshot:
+            self.sessions.guard(self.session_snapshot)
 
     @staticmethod
     def is_confirm(message: str) -> bool:
         text = "".join(str(message or "").split())
-        return bool(re.search(r"(?:确认|同意|认可|开始).{0,6}(?:计划|学习)|确认开始", text))
+        return bool(re.search(r"(?:确认|同意|认可|开始).{0,6}(?:计划|学习|安排)|确认开始", text)
+                    or re.fullmatch(r'(?:确认|同意|就这样|开始吧)[。！!]*',text))
 
     @staticmethod
     def is_adjust(message: str) -> bool:
@@ -197,7 +286,13 @@ class Q5Runtime:
                 raise
         return self.status()
 
-    def record_explained(self, summary: str, command_id: str) -> None:
+    def record_explained(self, summary: str, command_id: str, guard=lambda: None) -> None:
+        if self.session_execution:
+            self.sessions.guard(self.session_snapshot)
+            updated = self.sessions.explained(self.session_execution, command_id=command_id+':session-explained',guard=guard)
+            self.session_snapshot = updated
+            self.session_execution = updated
+            return
         status = self.status()
         current = status.get("current") or {}
         if not current.get("objective_id"):
@@ -211,6 +306,10 @@ class Q5Runtime:
             return
 
     def status_line(self) -> str:
+        if self.session_execution:
+            plan = self.session_execution
+            item = next((i for i in plan['items'] if i['item_id']==plan['current_item_id']),None)
+            return '本次安排：'+plan['request']['goal']+' · 当前活动：'+(item['title'] if item else '已结束')
         status = self.status()
         if not status.get("path_id"):
             return ""
@@ -221,6 +320,12 @@ class Q5Runtime:
                 f"当前目标：{current.get('name', '')}")
 
     def loop_binding(self) -> dict[str, Any]:
+        if self.session_execution:
+            return {'target':self.sessions.target(self.session_execution),'session_study':True,
+                    'session_plan':self.session_execution,
+                    'tool_instances':tuple(t for t in q5_tool_instances(self.service,self.scope)
+                        if t.definition.name in ('mastery_status','mastery_paths')),
+                    'tool_state':{'session_study_plan':self.session_execution},'scopes':('learning:read',)}
         binding = self.adapter.loop_binding()
         binding["tool_instances"] = q5_tool_instances(self.service, self.scope)
         binding["scopes"] = (

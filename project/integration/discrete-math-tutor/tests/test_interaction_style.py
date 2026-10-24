@@ -59,6 +59,12 @@ class StyleTests(unittest.TestCase):
 
 
 class StyleServiceTests(unittest.TestCase):
+    def test_teaching_sequence_uses_existing_confirmed_preference_and_revoke(self):
+        from models.interaction_preferences import style_instructions
+        self.memory.set_preferences('s',{'teaching_sequence':1.0})
+        self.assertIn('先讲解',style_instructions(self.memory.get_profile('s').preferences))
+        self.memory.forget_preference('s','teaching_sequence')
+        self.assertNotIn('teaching_sequence',self.memory.get_profile('s').preferences)
     setUp=fixtures.ClarificationTests.setUp
     tearDown=fixtures.ClarificationTests.tearDown
     request=fixtures.ClarificationTests.request

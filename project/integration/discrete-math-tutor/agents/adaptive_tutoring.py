@@ -70,7 +70,8 @@ def snapshot_from_recent(recent, context, memory_repo, student_id):
     old = deepcopy((row.get("context") or {}).get("tutoring") or {})
     chapter = next((o.chapter_id for o in context.objects if o.kind == "section"), None)
     if old.get("chapter_id") and chapter and old["chapter_id"] != chapter:
-        return {"allow_check": old.get("allow_check", True), "profile": old.get("profile") or {}}
+        return {"allow_check": old.get("requested_allow_check", old.get("allow_check", True)),
+                "profile": old.get("profile") or {}}
     old["source_candidates"] = deepcopy((result.get("sources") or [])[:8])
     return old
 
@@ -149,8 +150,10 @@ def redact_protocol(state):
 
 
 class TeachingTurn:
-    def __init__(self, context, request, llm, *, validate_sources=None):
+    def __init__(self, context, request, llm, *, validate_sources=None, target=None):
         self.context, self.request = context, request
+        topic = target.name if target is not None else context.knowledge_point
+        target_id = target.target_id if target is not None else None
         validate_sources = validate_sources or verified_sources
         old = deepcopy(context.tutoring or {})
         self.sources = []
@@ -165,18 +168,19 @@ class TeachingTurn:
                     or not self.progress.modules or not self.progress.modules[0].knowledge_points):
                 raise ValueError("incompatible_scope_or_schema")
         except (ValidationError, ValueError, TypeError):
-            self.progress = self._fresh(context.knowledge_point, old.get("profile"))
+            self.progress = self._fresh(topic, old.get("profile"))
         if self.progress.learner_profile is None:
             self.progress.learner_profile = LearnerProfile(teaching_strategy="teach_first")
         if CHANGE_TOPIC.search(request.message) or (
-                old.get("topic") and old["topic"] != context.knowledge_point):
-            self.progress = self._fresh(context.knowledge_point,
+                old.get("topic") and old["topic"] != topic) or (
+                old.get("target_id") and target_id and old["target_id"] != target_id):
+            self.progress = self._fresh(topic,
                                         self.progress.learner_profile.model_dump())
-            old = {"allow_check": old.get("allow_check", True)}
+            old = {"allow_check": old.get("requested_allow_check", old.get("allow_check", True))}
         self.state = {
-            "schema": SCHEMA, "topic": context.knowledge_point,
+            "schema": SCHEMA, "topic": topic, "target_id": target_id,
             "chapter_id": next((o.chapter_id for o in context.objects if o.kind == "section"), None),
-            "allow_check": old.get("allow_check", True),
+            "allow_check": old.get("requested_allow_check", old.get("allow_check", True)),
             "last_strategy": old.get("last_strategy"), "last_summary": old.get("last_summary"),
             "used_strategies": list(old.get("used_strategies") or [])[-6:],
             "assessment": None, "turn_move": "teach",
@@ -203,6 +207,22 @@ class TeachingTurn:
         elif ALLOW_QUIZ.search(request.message):
             self.state["allow_check"] = True
             self.progress.learner_profile.teaching_strategy = "probe_first"
+        self.state["requested_allow_check"] = self.state["allow_check"]
+        preferences = context.preferences
+        if "teaching_sequence" in preferences and not ALLOW_QUIZ.search(request.message):
+            self.progress.learner_profile.teaching_strategy = (
+                "teach_first" if preferences["teaching_sequence"] > .66 else
+                "probe_first" if preferences["teaching_sequence"] < .34 else
+                self.progress.learner_profile.teaching_strategy)
+        session_plan = getattr(context, "session_study_plan", None) or {}
+        plan_no_check = (session_plan.get("request") or {}).get("practice_preference") == "none"
+        if plan_no_check or (preferences.get("question_frequency", .5) < .34
+                             and not ALLOW_QUIZ.search(request.message)
+                             and not RESUME_CHECK.search(request.message)):
+            self.state["allow_check"] = False
+        if plan_no_check:
+            self.progress.pending_question = None
+            self.state["pending_sources"] = []
         if TEACH_FIRST.search(request.message) or self.difficulty:
             self.progress.learner_profile.teaching_strategy = "teach_first"
         if self.skip:
@@ -354,7 +374,7 @@ class TeachingTurn:
 
     def restore_reply(self):
         """A constrained server action, not an arbitrary model gate bypass."""
-        if (self.state["turn_move"] == "resume_check" and self.sources
+        if (self.state["turn_move"] == "resume_check" and self.state["allow_check"] and self.sources
                 and self.progress.pending_question):
             self.recorded = True
             return "原来的小检查是：\n\n" + self.progress.pending_question.prompt

@@ -102,6 +102,8 @@ class TaskLoopPersistenceTests(unittest.TestCase):
 
     def test_answered_interjection_does_not_record_q5_explained_or_advance(self):
         q5=Mock();q5.has_path.return_value=True;q5.is_understood.return_value=False
+        q5.is_plan_request.return_value=False;q5.is_adjust.return_value=False
+        q5.sessions.current.return_value=None;q5.session_snapshot=None
         q5.status.return_value={'path_id':'path','plan_confirmed':True,'mode':'study','current':{'name':'当前目标'}}
         def executor(request,context,resolved,intercept,guard,progress,*,previous=None,q5_binding=None):
             self.assertIs(q5_binding,q5)
@@ -112,6 +114,20 @@ class TaskLoopPersistenceTests(unittest.TestCase):
                 message='第一章的实验程序和第二章的自变量控制有哪些联系？'),executor)
         self.assertEqual(result['answer_status'],'answered')
         q5.record_explained.assert_not_called();q5.advance_understood.assert_not_called()
+
+    def test_planning_failure_before_execution_guard_releases_claimed_task(self):
+        q5=Mock();q5.is_plan_request.return_value=True
+        q5.propose_session.side_effect=RuntimeError('planning model offline')
+        with patch('agents.q5_runtime.q5_enabled',return_value=True),patch('agents.q5_runtime.Q5Runtime',return_value=q5):
+            with self.assertRaisesRegex(RuntimeError,'planning model offline'):
+                self.service.run(ChatRequest(student_id='s',request_id='plan-failure',
+                    message='帮我安排本次学习'),Mock())
+        from sqlalchemy import select
+        from database.database import session_scope
+        from database.models import LearningTaskRow
+        with session_scope() as session:
+            row=session.scalar(select(LearningTaskRow).where(LearningTaskRow.student_id=='s'))
+            self.assertEqual(row.status,'failed')
 
     def test_practice_button_preserves_hint_level_and_saves_help_once(self):
         from agents.exercise_task_tutor import explain_exercise

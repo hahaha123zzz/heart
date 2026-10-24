@@ -47,6 +47,22 @@ def course_reading_map():
     return {} if PSYCHOLOGY else json.loads((ROOT/'frontend/textbook/manifest.json').read_text(encoding='utf-8'))
 
 
+@router.get('/course/session-plan')
+def current_session_plan(student_id: str, session_id: str):
+    from agents.q5_runtime import Q5Runtime, q5_enabled
+    _student_id(student_id); _student_id(session_id)
+    if not q5_enabled():
+        return {'session_plan':None}
+    runtime=Q5Runtime(student_id,session_id)
+    plan=runtime.sessions.current()
+    if plan:
+        try:
+            runtime.sessions.guard(plan)
+        except ValueError:
+            return {'session_plan':plan,'source_status':'stale','notice':'安排来源或路径已变化，请重新调整确认；未升级历史来源。'}
+    return {'session_plan':plan,'source_status':'current'}
+
+
 class CitationLocationRequest(BaseModel):
     source: str = Field(min_length=1,max_length=500)
     response: str = Field(default='',max_length=30000)

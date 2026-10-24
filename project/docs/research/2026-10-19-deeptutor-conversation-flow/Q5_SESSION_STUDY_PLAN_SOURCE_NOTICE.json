@@ -1,0 +1,24 @@
+{
+  "upstream": "HKUDS/DeepTutor",
+  "revision": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "license": "Apache-2.0",
+  "use": "职责、提示词约定、有界资料与关系校验思路；未迁入账户、JSON存储或第二套循环。会话活动预算与SQL绑定为宿主适配。",
+  "files": [
+    {
+      "path": "capabilities/mastery/tools.py",
+      "sha256": "b6be3c50425472056c4744f7d80917a6a2e3ccd8226f752e1d9e4092608c3872"
+    },
+    {
+      "path": "capabilities/mastery/prompts/zh/mastery_loop.yaml",
+      "sha256": "4df64164ad95ff0fcd3072bb65cf7811c16c2fa0d65db9c33efbb627a18acffd"
+    },
+    {
+      "path": "learning/topic_generation.py",
+      "sha256": "28434ce3609b80a038278f6f20916f1ef513f6885c9180f420740c3182453efb"
+    },
+    {
+      "path": "learning/objective_relations.py",
+      "sha256": "5dc9c07625f96081634a09ed690a48b9d7eb98aad97d03bdd1c160a7b1acb87a"
+    }
+  ]
+}

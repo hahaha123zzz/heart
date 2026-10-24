@@ -12,7 +12,7 @@ from __future__ import annotations
 import datetime as dt
 from typing import Optional
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database.models import Base
@@ -97,6 +97,7 @@ class Q5ProgressRow(Base):
 
 class Q5BindingRow(Base):
     __tablename__ = "q5_learning_bindings"
+    __mapper_args__ = {"eager_defaults": False}
 
     student_id: Mapped[str] = mapped_column(
         String(64), ForeignKey("students.student_id", ondelete="CASCADE"), primary_key=True
@@ -105,6 +106,8 @@ class Q5BindingRow(Base):
     active_path_id: Mapped[str] = mapped_column(String(64), default="")
     mode: Mapped[str] = mapped_column(String(16), default="outline")
     teaching_strategy: Mapped[str] = mapped_column(String(20), default="probe_first")
+    # 旧库读取不隐式选取新列；启用本次安排前必须显式执行增量迁移。
+    session_plan: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True, deferred=True, server_default=text('NULL'))
     revision: Mapped[int] = mapped_column(Integer, default=1)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now, onupdate=_now)
 

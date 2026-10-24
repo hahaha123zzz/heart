@@ -56,7 +56,12 @@ class MasteryStatusTool(_Q5Tool):
 
     def run(self, arguments: dict[str, Any], context: ToolContext) -> ToolResult:
         try:
-            return self._result(self.service.status(self.scope))
+            from agents.session_study_service import SessionStudyService
+            current=SessionStudyService(self.scope).current()
+            staged=context.state.get('session_study_plan')
+            if staged and current and (staged['plan_id'],staged['revision'])==(current['plan_id'],current['revision']):
+                current=staged
+            return self._result(dict(self.service.status(self.scope), session_plan=current))
         except Exception as exc:
             return self._failure(exc)
 
