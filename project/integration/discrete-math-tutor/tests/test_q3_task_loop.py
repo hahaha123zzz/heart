@@ -130,6 +130,22 @@ class TaskLoopPersistenceTests(unittest.TestCase):
             row=session.scalar(select(LearningTaskRow).where(LearningTaskRow.student_id=='s'))
             self.assertEqual(row.status,'failed')
 
+    def test_selected_text_discussion_never_advances_active_q5_path_or_activity(self):
+        from models.task_context import TaskContext
+        context=TaskContext(student_id='s',message='请解释选区',knowledge_point='Variables',
+                            selection_scope={'target_id':'selection:test'})
+        q5=Mock();q5.is_plan_request.return_value=False;q5.is_adjust.return_value=False
+        q5.session_snapshot=None
+        def executor(request,ctx,resolved,intercept,guard,progress,*,previous=None,q5_binding=None):
+            self.assertIsNone(q5_binding)
+            return {'reply':'选区解释','answer_status':'answered','learning_interjection':True,'step_advanced':False}
+        with patch('agents.q5_runtime.q5_enabled',return_value=True),patch('agents.q5_runtime.Q5Runtime',return_value=q5), \
+             patch.object(self.service,'_context',return_value=(context,None,{})):
+            result=self.service.run(ChatRequest(student_id='s',request_id='selection-isolated',message=context.message),executor)
+        self.assertEqual(result['answer_status'],'answered')
+        q5.advance_understood.assert_not_called();q5.record_explained.assert_not_called()
+        q5.prepare_session.assert_not_called();q5.sessions.current.assert_not_called()
+
     def test_practice_button_preserves_hint_level_and_saves_help_once(self):
         from agents.exercise_task_tutor import explain_exercise
         from models.task_context import TaskContext, TaskObject

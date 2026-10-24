@@ -46,6 +46,7 @@ class TaskContext(BaseModel):
     relation_snapshot: dict | None = None
     course_navigation: dict | None = None
     tutoring: dict = Field(default_factory=dict)
+    selection_scope: dict | None = None
     session_study_plan: dict | None = None
 
     def prompt_payload(self):

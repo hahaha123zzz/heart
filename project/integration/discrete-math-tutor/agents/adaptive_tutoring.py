@@ -281,7 +281,8 @@ class TeachingTurn:
         pending = self.progress.pending_question
         # Explicit questions are not committed answers. Do not let a flaky
         # classifier turn a request for help or an original figure into a miss.
-        if re.search(r"先插问|另外问|什么是|是什么意思|为什么|请解释|图\s*\d|图片|原图", self.request.message):
+        if re.search(r"先插问|另外问|什么是|是什么意思|为什么|请解释|图\s*\d|图片|原图|"
+                     r"(?:只|仅)(?:给|要)?提示|给.{0,3}提示|换.{0,4}(?:例子|说法)", self.request.message):
             self.interjection = True
             self.state["turn_move"] = "question"
             return

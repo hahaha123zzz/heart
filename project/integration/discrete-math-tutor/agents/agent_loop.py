@@ -269,7 +269,7 @@ class LocalAgentLoop:
                 checking()
                 ok, reason = request.publish_gate(final_text, result)
                 if not ok:
-                    if not repair_used and reason.startswith(("教学闭环", "教学检查", "学生要求先讲不考")):
+                    if not repair_used and reason.startswith(("教学闭环", "教学检查", "学生要求先讲不考", "选区目标")):
                         repair_used = True
                         messages.extend([
                             {"role": "assistant", "content": final_text},

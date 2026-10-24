@@ -152,6 +152,12 @@ class QualityChecker:
                         "学生说没懂时应换讲法；若有练习反馈，要对照原问题和学生原话核验，不能盲从暂定判断。"
                         "末尾的小步检查是等待学生作答，不要求本轮给出其答案；不得据此称讲解不完整。"
                         "先讲不考时不强制出题。解释过或答对一次都不等于正式掌握整章。")
+        if rule_context.get('selection_target'):
+            import json
+            content += ('\n本轮锁定的是PDF文字选区，不是小节标题或整节课程。必须回应选区中的具体对象；'
+                        '可以依据已核验的邻近原文补充必要含义，但不能改讲别的对象或虚称已读取图像。'
+                        '若当前是在反馈待答检查，则先反馈学生原题答案，不要求重新讲完整段落。选区资料：'
+                        + json.dumps(rule_context['selection_target'], ensure_ascii=False))
         if rule_context.get("feedback_target"):
             content += "\n理解检查只可围绕刚才这段讲解中的一个要点；若换成章节里的其他概念必须拒绝：" + rule_context["feedback_target"]
         if rule_context.get("followup_simplify"):
