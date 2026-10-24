@@ -242,7 +242,10 @@ def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=Non
                     candidates.append((item,replace(source,text=quote,page=None,block_start=block['block_id'],block_end=block['block_id'],
                         evidence_id=key,source_spans=({'block_id':block['block_id'],'block_start':start,'block_end':end,'text_start':0,'text_end':len(quote)},))))
     finally:index.close()
-    if not candidates:raise CitationGroundingError('检索原文未能映射到本轮可核验的证据单元')
+    if not candidates:
+        if coverage is not None:
+            return EvidenceBundle([],[],sources,'候选没有可核验的原文范围，不能支持该对象')
+        raise CitationGroundingError('检索原文未能映射到本轮可核验的证据单元')
     if len(candidates)>100:raise CitationGroundingError('本轮证据单元过多，请缩小问题范围')
     payload={'question':message,'revision_feedback':feedback,
         'conversation_context':[{'role':row['role'],'content':re.sub(r'\[\d+\]','（历史引用）',row['content'])} for row in history[-6:]],

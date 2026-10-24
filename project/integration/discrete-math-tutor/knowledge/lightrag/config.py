@@ -306,6 +306,8 @@ def build_llm_model_func(*, io_bridge=None, llm_config=None, owner=None):
                             check_budget()
                             return response
                     finally:
+                        logger.info('lightrag_network_end role=%s seconds=%.3f ended_monotonic=%.3f',
+                            config.role,time.monotonic()-actual_started,time.monotonic())
                         with config.metrics.lock:
                             config.metrics.stages.append({'stage':'native.network.actual_end','seconds':time.monotonic()-actual_started,
                                 'ended_monotonic':time.monotonic(),'includes_children':False})

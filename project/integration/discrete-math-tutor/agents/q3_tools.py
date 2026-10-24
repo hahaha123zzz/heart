@@ -65,15 +65,17 @@ class RetrieveCourseTool(BaseTool):
     def _commit(self, arguments, context, target, query, sources, max_sources):
         offset = max(0, int(context.state.get("source_offset", 0) or 0))
         sources=sources[:max(0,max_sources-offset)]
-        seen = context.state.setdefault("seen_source_ids", set())
-        fresh = []
+        seen = context.state.get("seen_source_ids", set())
+        fresh = [];fresh_ids=set()
         for source in sources:
             source_id = str(getattr(source, "source_id", "") or "")
             if not source_id:
                 source_id = f"{source.document_id}:{hash(source.text)}"
             if source_id in seen:
                 continue
-            seen.add(source_id)
+            if source_id in fresh_ids:
+                continue
+            fresh_ids.add(source_id)
             fresh.append(source)
         if not fresh:
             return ToolResult(
@@ -95,7 +97,6 @@ class RetrieveCourseTool(BaseTool):
             payload.append(source.to_dict() | {"index": index,
                                                 "image_refs": [],
                                                 "stub": bool(source.location.get("stub"))})
-        context.state["source_offset"] = offset + len(payload)
         from knowledge.answer_media import selected_media, model_message
         media = selected_media(query, payload, asset_id=arguments.get('asset_id'))
         for item in media:
@@ -112,6 +113,9 @@ class RetrieveCourseTool(BaseTool):
             import json
             lines.append('关联候选（图谱描述，仅供查找联系；不得据此推断先修、重点或掌握，'
                          '只有所链接原文支持的事实可用原文编号引用）：\n' + json.dumps(relations, ensure_ascii=False))
+        context.check_cancelled()
+        context.state["seen_source_ids"] = seen | fresh_ids
+        context.state["source_offset"] = offset + len(payload)
         return ToolResult(content="\n\n".join(lines), sources=payload, model_message=visual_message,
                           metadata={"target_id": target.target_id, "query": query,
                                     "retrieval": list(getattr(context.navigation, 'calls', []))[-1:],

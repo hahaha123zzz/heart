@@ -98,6 +98,14 @@ class SpeedTests(unittest.TestCase):
         self.assertNotIn('seen_source_ids',ctx.state)
         self.assertNotIn('source_offset',ctx.state)
 
+    def test_media_timeout_does_not_reserve_citations(self):
+        ctx=ToolContext('s','tab',navigation=SimpleNamespace(search=lambda **kw:[SourceRef('s','doc','原文')]),
+            state={'learning_target':LearningTarget('target','概念')},deadline=time.monotonic()+.02)
+        with patch('knowledge.answer_media.selected_media',side_effect=lambda *_a,**_kw:(time.sleep(.04) or [])):
+            with self.assertRaises(TimeoutError):RetrieveCourseTool().run({'query':'概念'},ctx)
+        self.assertNotIn('seen_source_ids',ctx.state)
+        self.assertNotIn('source_offset',ctx.state)
+
     def test_candidate_wait_cancels_without_starting_query(self):
         async def scenario(root):
             cancellation=Cancellation()
@@ -155,6 +163,16 @@ class SpeedTests(unittest.TestCase):
         self.assertEqual(len(coverage.search(target=LearningTarget('t','比较'),query='比较',limit=4)),1)
         self.assertEqual(coverage.report['status'],'covered')
         self.assertEqual(decide.call_count,1)
+
+    def test_empty_grounded_object_is_gap_not_fabricated_or_global_failure(self):
+        from knowledge.grounded_citations import choose_evidence
+        from knowledge.lightrag.coverage import Requirement
+        llm=Mock()
+        with patch('knowledge.grounded_citations.documents',return_value=[]),patch('knowledge.grounded_citations.LiveCitationIndex'):
+            bundle=choose_evidence(llm,'缺失对象',[],'live',coverage=Requirement('missing','缺失对象',2))
+        self.assertEqual(bundle.sources,[])
+        self.assertIn('不能支持',bundle.coverage_reason)
+        llm.chat_json.assert_not_called()
 
     def test_query_checks_content_twice_and_rejects_inflight_same_stat_change(self):
         from contextlib import ExitStack
