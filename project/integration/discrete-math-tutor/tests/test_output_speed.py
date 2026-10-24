@@ -190,6 +190,34 @@ class SpeedTests(unittest.TestCase):
         self.assertIn('不能支持',bundle.coverage_reason)
         llm.chat_json.assert_not_called()
 
+    def test_pdf_page_metadata_reuse_preserves_every_glyph_and_rotation(self):
+        import fitz
+        from knowledge.citation_index import pdf_characters
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/'rotated.pdf'
+            with fitz.open() as doc:
+                for angle in (0,90,180,270):
+                    page=doc.new_page(width=200,height=120)
+                    page.insert_text((25,40),'Evidence text')
+                    page.set_rotation(angle)
+                doc.save(path)
+            text=[];glyphs=[];pages=[]
+            with fitz.open(path) as doc:
+                for number,page in enumerate(doc,1):
+                    pages.append({'page':number,'rotation':page.rotation,'width':page.rect.width,'height':page.rect.height})
+                    line_id=0
+                    for block in page.get_text('rawdict',sort=True)['blocks']:
+                        for line in block.get('lines',[]):
+                            line_id+=1
+                            for span in line['spans']:
+                                for char in span['chars']:
+                                    rect=fitz.Rect(char['bbox'])*page.rotation_matrix
+                                    for character in char['c']:
+                                        text.append(character)
+                                        glyphs.append([number,line_id,rect.x0/page.rect.width,rect.y0/page.rect.height,rect.x1/page.rect.width,rect.y1/page.rect.height])
+                            text.append('\n');glyphs.append(None)
+            self.assertEqual(pdf_characters(path),(''.join(text),glyphs,pages))
+
     def test_performance_summary_keeps_failures_out_of_success_latency(self):
         from scripts.benchmark_output_speed import summary
         rows=[{'case':'x','version':'before','passed':True,'seconds':10,'effective_first_answer':5},

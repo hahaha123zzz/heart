@@ -25,3 +25,12 @@
 - 固定规则/工具块前置，目标后置；记录可获取prompt_cache_hit_tokens，未返回则不推测缓存收益。沿用流式窗口唯一事件协议/活动预算；普通质检明确25秒、1200token、零JSON重试；keyword1200token，查询网络重试最多2次且占用同一预算。
 - 132项针对性测试通过：`python -B -m unittest tests.test_output_speed tests.test_lightrag_backend tests.test_lightrag_relocation tests.test_lightrag_coverage tests.test_lightrag_q3_adapter tests.test_course_search_bridge tests.test_stream_retraction tests.test_q3_agent_loop tests.test_answer_stream -q`。证据：`E:\项目\heart\.runtime\output-speed-20261024\offline-third.log`。
 - 首轮测试缺少未跟踪教材输入及旧fixture的注入SDK优先级，失败保留在offline-first.log。复制完整教材输入并修复显式注入兼容后，第二轮只剩新测试异常类型和Q5旧模型脚本不符合先取证契约，记录offline-second.log；修正契约测试后第三轮通过。未以隐藏测试或删除核验处理失败。
+
+
+## 补充定位：PDF 每字符重复页面元数据
+
+真实预热显示选证耗时明显超过模型调用后，暂停诊断测量，保留 `paired-45212b7` 和 `paired-70076b1` 全部已完成样本，不将不同时点/提交拼接成最终5对。
+
+局部 cProfile（无网络、真实教材6片段、4次PDF解析）证据：`.runtime/output-speed-20261024/selection-profile-before.log` / `selection-profile-after.log`。前后 `_live_document` 均16命中、4未命中，解析文档数相同。总时间64.531→13.125秒；函数调用22,846,316→6,775,916。原实现133,950次读取rotation_matrix、536,066次读取page.bound等；将旋转矩阵、页面宽高移至每页读取一次即可消除重复跨语言访问。**该数据只是局部剖析，不是端到端20%通过证据**。
+
+`pdf_characters` 的文本、glyph坐标与pages结构不变；新增0/90/180/270度PDF逐字符等值测试。未扩大跨请求缓存、未改变PDF哈希和来源版本检查、未建新索引。基准还发现16GB内存下旧8017副本额外占用约1GB，仅停止本窗口已被替代进程；其他服务不接管。

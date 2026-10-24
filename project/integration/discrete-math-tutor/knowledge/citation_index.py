@@ -31,7 +31,9 @@ def pdf_characters(path):
     text, glyphs, pages = [], [], []
     with fitz.open(path) as pdf:
         for number, page in enumerate(pdf, 1):
-            pages.append({'page': number, 'rotation': page.rotation, 'width': page.rect.width, 'height': page.rect.height})
+            matrix=page.rotation_matrix
+            width,height=page.rect.width,page.rect.height
+            pages.append({'page': number, 'rotation': page.rotation, 'width': width, 'height': height})
             line_id = 0
             for block in page.get_text('rawdict', sort=True)['blocks']:
                 for line in block.get('lines', []):
@@ -39,11 +41,11 @@ def pdf_characters(path):
                     for span in line['spans']:
                         for char in span['chars']:
                             # 原始坐标属于未旋转页面，先转到 PDF.js 展示的可见页面坐标。
-                            rect = fitz.Rect(char['bbox']) * page.rotation_matrix
+                            rect = fitz.Rect(char['bbox']) * matrix
                             for character in char['c']:
                                 text.append(character)
-                                glyphs.append([number, line_id, rect.x0/page.rect.width, rect.y0/page.rect.height,
-                                               rect.x1/page.rect.width, rect.y1/page.rect.height])
+                                glyphs.append([number, line_id, rect.x0/width, rect.y0/height,
+                                               rect.x1/width, rect.y1/height])
                     text.append('\n');glyphs.append(None)
     return ''.join(text), glyphs, pages
 
