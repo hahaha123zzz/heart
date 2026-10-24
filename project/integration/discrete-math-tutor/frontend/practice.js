@@ -158,7 +158,7 @@ window.ExercisePractice=(()=>{
      });
     });
    draft.answerSettled=true;if(frame)cancelAnimationFrame(frame);
-   if(seq!==P.seq)return;P.help[pid].guide=r.guided_visualization||null;P.help[pid].result=r;target.innerHTML='<strong>'+ ({task_cancelled:'已取消（未保存）',answer_interrupted:'输出中断（未保存）',incomplete_answer:'输出未完成（未保存）',active_timeout:'本轮已超时（未保存）',quality_rejected:'本轮未发布',model_unavailable:'模型暂时不可用'}[r.answer_status] || (action==='hint'?'提示 '+level+'/3':'AI 讲解'))+'</strong>'+window.renderTutorAnswer(r.reply)+window.TutorChatTransport.renderUnpublished(r.unpublished_draft)+window.renderPracticeReferences(r,pid)+'<small>'+esc(r.memory_summary)+'</small>';window.TextbookPDF?.renderMath(target);showPartHelp(pid);
+   if(seq!==P.seq)return;P.help[pid].guide=r.guided_visualization||null;P.help[pid].result=r;target.innerHTML='<strong>'+ (r.task_state==='cancelled'?'已取消（未保存）':{task_cancelled:'已取消（未保存）',answer_interrupted:'输出中断（未保存）',incomplete_answer:'输出未完成（未保存）',active_timeout:'本轮已超时（未保存）',quality_rejected:'本轮未发布',model_unavailable:'模型暂时不可用'}[r.answer_status] || (action==='hint'?'提示 '+level+'/3':'AI 讲解'))+'</strong>'+window.renderTutorAnswer(r.reply)+window.TutorChatTransport.renderUnpublished(r.unpublished_draft)+window.renderPracticeReferences(r,pid)+'<small>'+esc(r.memory_summary)+'</small>';window.TextbookPDF?.renderMath(target);showPartHelp(pid);
   }catch(e){if(seq===P.seq){target.textContent=e.message;showPartHelp(pid);}}finally{if(seq===P.seq)P.help[pid]={...P.help[pid],busy:false,level};}
  }
  function input(e){

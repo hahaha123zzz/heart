@@ -600,8 +600,8 @@ async function sendMessage(message, options={}) {
     if(finished)pending.styleSuggestion=styleControl().observe(result);
     renderStyleStatus();
     Object.assign(pending, {taskId:result.task_id, conversationId:result.conversation_id, pending:!finished, networkFailed:false,
-      answerSettled:true,answerState:result.answer_status==='answered'?'saved':result.answer_status==='awaiting_clarification'?'awaiting_clarification':({answer_interrupted:'interrupted',incomplete_answer:'incomplete',active_timeout:'timeout',task_cancelled:'cancelled'}[result.answer_status]||'rejected'),
-      failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable','q5_error','session_plan_changed','answer_interrupted','incomplete_answer','active_timeout','model_unavailable','task_cancelled','loop_failed'].includes(result.answer_status),
+      answerSettled:true,answerState:result.task_state==='cancelled'?'cancelled':result.answer_status==='answered'?'saved':result.answer_status==='awaiting_clarification'?'awaiting_clarification':({answer_interrupted:'interrupted',incomplete_answer:'incomplete',active_timeout:'timeout',task_cancelled:'cancelled'}[result.answer_status]||'rejected'),
+      failed:result.task_state==='cancelled'||['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable','q5_error','session_plan_changed','answer_interrupted','incomplete_answer','active_timeout','model_unavailable','task_cancelled','loop_failed'].includes(result.answer_status),
       content:result.reply || "助教暂时没有返回内容。", unpublishedDraft:result.unpublished_draft || '',
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
       selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,

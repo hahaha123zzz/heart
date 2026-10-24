@@ -13,6 +13,11 @@
       "path": "deeptutor/agents/loop/pipeline.py",
       "sha256": "8ec2ec26777c3bf5166dde992e4e093528d0961071a1d502f475663677752041",
       "reuse": "参考有界先取证语义，继续调用宿主 retrieve_course；不迁入上游 KB 管理。"
+    },
+    {
+      "path": "web/features/chat/trace/selectors.ts",
+      "sha256": "6d5899991cee64a33f695c923646183c4889cd4a500f4202e372a86bd1839caa",
+      "reuse": "参考call_id/answer_visible及撤回显示分离语义，适配宿主原生JS事件投影；未复制React selectors实现。"
     }
   ],
   "adaptations": [
@@ -20,5 +25,6 @@
     "探索文本不发送正文 token，已完成候选直接走既有事实门禁及最终快照，不为流式再生成",
     "共享进程内 monotonic 活动预算，线程边界 copy_context；不持久化 deadline",
     "教材证据、视觉核验、质量与存储协议保持宿主现有实现"
-  ]
+  ],
+  "license_sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4"
 }
