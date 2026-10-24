@@ -189,3 +189,22 @@ class RetractionTests(unittest.TestCase):
         self.assertEqual(caught.exception.partial_text,'片段')
         stream.close.assert_called_once()
         self.assertEqual(sdk.chat.completions.create.call_count,1)
+
+
+    def test_running_backend_diagnostics_survive_timeout_snapshot(self):
+        budget=ExecutionBudget(1)
+        record={'actual_backend':'lightrag','fallback':False,'status':'running','selected_source_ids':['a']}
+        budget.retrieval_calls.append(record)
+        snapshot=budget.snapshot()
+        record['status']='success';record['selected_source_ids'].append('late')
+        self.assertEqual(snapshot['retrieval_calls'][0]['status'],'running')
+        self.assertEqual(snapshot['retrieval_calls'][0]['selected_source_ids'],['a'])
+
+    def test_executor_setup_cannot_block_past_total_budget(self):
+        from threading import Event
+        gate=Event();budget=ExecutionBudget(.05);token=current_budget.set(budget)
+        try:
+            with self.assertRaises(BudgetExceeded):stage_call('execution',lambda:gate.wait(2))
+            self.assertFalse(gate.is_set())
+        finally:
+            gate.set();current_budget.reset(token)

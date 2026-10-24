@@ -10,7 +10,7 @@ from knowledge.course import get_section
 from knowledge.course_config import DEFAULT_GOAL
 from agents.intent_policy import IntentPolicy
 from visualization.service import VisualizationError
-from llm.execution_budget import BudgetExceeded
+from llm.execution_budget import BudgetExceeded, stage_call
 
 
 class TaskService:
@@ -447,13 +447,13 @@ class TaskService:
             execution_request = effective.model_copy(update={
                 'task_id': task['id'], 'task_revision': task['revision']})
             if q5_binding is not None:
-                result = executor(execution_request, context, resolved, intercept, guard,
+                result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard,
                                   progress, previous=previous,
-                                  q5_binding=q5_binding)
+                                  q5_binding=q5_binding))
             elif self._accepts_previous(executor):
-                result = executor(execution_request, context, resolved, intercept, guard, progress, previous=previous)
+                result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard, progress, previous=previous))
             else:
-                result = executor(execution_request, context, resolved, intercept, guard, progress)
+                result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard, progress))
             if result.get("loop_paused"):
                 # ask_user pauses the same task; persist the pending question and
                 # the complete loop protocol before returning to the page.
