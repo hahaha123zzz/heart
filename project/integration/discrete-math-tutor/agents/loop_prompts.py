@@ -41,8 +41,8 @@ def build_loop_system_prompt(*, target: LearningTarget | None,
     blocks = [
         PromptBlock("course_policy", base),
         PromptBlock("loop_protocol", protocol),
-        PromptBlock("learning_target", target_text),
         PromptBlock("tools", _tool_manifest(definitions)),
+        PromptBlock("learning_target", target_text),
     ]
     return render_blocks(blocks, language="zh")
 

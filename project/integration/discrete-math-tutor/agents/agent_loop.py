@@ -50,6 +50,7 @@ class LoopRequest:
     temperature: float = 0.2
     tool_choice: str | None = None
     requires_evidence: bool = False
+    prefetch_query: str | None = None
 
 
 @dataclass
@@ -140,6 +141,18 @@ class LocalAgentLoop:
                        "max_sources": int(request.tool_state.get("max_sources", 24))},
                 emit=collector,
             )
+            if request.prefetch_query and not resume_state and not result.sources:
+                collector('progress','先读取教材依据',{'detail':'复用本轮公共检索边界，不另起回答循环'})
+                call={'id':'prefetch-course','name':'retrieve_course','arguments':{'query':request.prefetch_query,'limit':6}}
+                messages.append({'role':'assistant','content':'','tool_calls':[{'id':call['id'],'type':'function',
+                    'function':{'name':call['name'],'arguments':json.dumps(call['arguments'],ensure_ascii=False)}}]})
+                dispatch=dispatch_tool_calls(tool_calls=[call],registry=request.tools,context=tool_context,
+                    max_calls=1,timeout_seconds=request.tool_timeout_seconds)
+                messages.extend(dispatch.tool_messages)
+                extend_transient_model_messages(result._transient,dispatch.model_messages)
+                result.sources.extend(dispatch.sources)
+                result.tool_steps+=1
+                if result.sources: collector('sources','',{'sources':result.sources})
             outcome = self._loop(request, messages, result, tool_context, collector)
             result.events = collector.to_dicts()
             return outcome
@@ -268,6 +281,7 @@ class LocalAgentLoop:
                 messages.extend(dispatch.tool_messages)
                 extend_transient_model_messages(result._transient, dispatch.model_messages)
                 result.sources.extend(dispatch.sources)
+                result.sources.sort(key=lambda source:source.get("index",0))
                 context.state["source_offset"] = len(result.sources)
                 if dispatch.sources:
                     collector("sources", "", {"sources": dispatch.sources})

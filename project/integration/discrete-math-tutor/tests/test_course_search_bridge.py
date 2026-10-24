@@ -148,7 +148,7 @@ class CourseSearchBridgeTests(unittest.TestCase):
         from models.task_context import TaskContext
         from models.chat_request import ChatRequest
         from tests.test_q3_agent_loop import ScriptedLLM, tool_round, final_round
-        llm=ScriptedLLM([tool_round(('retrieve_course', {'query':'当前点'})), final_round('学习路径：路径 · 当前目标：**当前点**\n\n讲解[1]')])
+        llm=ScriptedLLM([final_round('学习路径：路径 · 当前目标：**当前点**\n\n讲解[1]')])
         q5=SimpleNamespace(service=Mock(),scope=Mock(),search=Mock(),
             loop_binding=lambda:{'target':self.target},status_line=lambda:'学习路径：路径 · 当前目标：当前点')
         with patch('agents.q5_learning.Q5Navigator',return_value=self.base):
@@ -160,6 +160,8 @@ class CourseSearchBridgeTests(unittest.TestCase):
         self.base.resolve.assert_called_once();self.backend.search.assert_called_once()
         self.base.search.assert_not_called()
         self.assertTrue(result['retrieval_calls'])
+        self.assertEqual(len(llm.calls),1)
+        self.assertEqual(llm.calls[0]['tools'],[])
         self.assertEqual(result['reply'].count('学习路径：'),1)
 
     def test_cross_chapter_turn_has_no_q5_write_tools(self):

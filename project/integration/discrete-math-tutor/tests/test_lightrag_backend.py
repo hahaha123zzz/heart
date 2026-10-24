@@ -201,12 +201,12 @@ class ContractTests(unittest.TestCase):
                                  usage=SimpleNamespace(model_dump=lambda:{"total_tokens":8192}))
         class Client:
             def __init__(self,**kwargs):self.chat=SimpleNamespace(completions=self)
-            async def __aenter__(self):return self
-            async def __aexit__(self,*args):pass
-            async def create(self,**kwargs):sent.append(kwargs);return response
+            def close(self):pass
+            def with_options(self,**kwargs):return self
+            def create(self,**kwargs):sent.append(kwargs);return response
         host=HostModel(SimpleNamespace(model="deepseek-flash",base_url="https://proxy.example/v1",api_key="fixture",mock=False),metrics)
         self.assertEqual(host.identity["thinking"],"disabled")
-        with patch("openai.AsyncOpenAI",Client):
+        with patch("openai.OpenAI",Client):
             with self.assertRaisesRegex(RuntimeError,"截断"):
                 asyncio.run(build_llm_model_func(llm_config=host)("extract"))
         self.assertEqual(sent[0]["extra_body"],{"thinking":{"type":"disabled"}})

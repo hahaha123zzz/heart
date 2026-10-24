@@ -60,7 +60,8 @@ class ExecutionBudget:
         finally:
             with self.lock:
                 self.events.append({"stage": stage, "start_ms": round((started-self.started)*1000),
-                    "elapsed_ms": round((monotonic()-started)*1000), "outcome": outcome})
+                    "elapsed_ms": round((monotonic()-started)*1000), "outcome": outcome,
+                    "includes_children": True})
 
     def record(self, stage, **data):
         with self.lock:

@@ -206,7 +206,7 @@ class QualityChecker:
         def teaching_check():
             check_started=time.perf_counter()
             try:
-                bounded={"timeout":25,"retries":0,"max_tokens":1200} if proof_required else {}
+                bounded={"timeout":25,"retries":0,"max_tokens":1200}
                 data=self.llm.chat_json(messages,image_paths=figure_images,**bounded)
                 if (not isinstance(data,dict) or type(data.get("passed")) is not bool
                         or not isinstance(data.get("issues"),list)

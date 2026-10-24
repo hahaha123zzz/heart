@@ -10,7 +10,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 from contextvars import copy_context
 from llm.execution_budget import current_budget, check_budget
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import json
 from typing import Any
 
@@ -74,6 +74,9 @@ def _invoke(tool: BaseTool, call: dict[str, Any], context: ToolContext,
     budget = current_budget.get()
     if budget:
         timeout_seconds = min(timeout_seconds or budget.remaining(), budget.remaining())
+    if timeout_seconds is not None:
+        from time import monotonic
+        context=replace(context,deadline=monotonic()+timeout_seconds)
     context.check_cancelled()
     if tool is None:
         return ToolResult(content=f"{call['name']} 不在本轮工具列表中，未执行。", success=False)

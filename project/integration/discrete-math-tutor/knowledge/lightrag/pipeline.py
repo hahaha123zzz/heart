@@ -38,11 +38,14 @@ async def embedding_config(metrics=None, *, device=None):
         for key in ("_model_dir","model_dir","model_path","_model_path"):
             value=getattr(obj,key,None)
             if isinstance(value,(str,Path)) and Path(value).exists(): paths.append(Path(value))
-    files={}
-    for path in paths:
+    files={};hashed=set()
+    for path in dict.fromkeys(p.resolve() for p in paths):
         for item in (path.rglob("*") if path.is_dir() else [path]):
             if item.is_file() and item.suffix.lower() in (".onnx",".json",".txt"):
-                files[item.name]=digest(item)
+                real=item.resolve()
+                if real in hashed: continue
+                hashed.add(real)
+                files[item.name]=digest(real)
     if not files: raise RuntimeError("无法固定本地 embedding 权重签名")
     return HostEmbedding(metrics=metrics,weights_sha256=_fingerprint(files),device=device)
 

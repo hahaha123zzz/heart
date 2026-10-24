@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from threading import RLock
 from typing import Any
 
 from agents.ask_user_contract import AskUserPayload, build_ask_user_payload
@@ -11,9 +10,6 @@ from agents.tool_protocol import (
 )
 from agents.q3_navigation import LearningTarget
 
-# Retrieval calls may run in parallel inside one assistant tool batch. Reserve
-# citation numbers under one lock so [n] never means two different sources.
-_RETRIEVE_LOCK = RLock()
 
 
 class RetrieveCourseTool(BaseTool):
@@ -30,8 +26,7 @@ class RetrieveCourseTool(BaseTool):
     )
 
     def run(self, arguments: dict[str, Any], context: ToolContext) -> ToolResult:
-        with _RETRIEVE_LOCK:
-            return self._run(arguments, context)
+        return self._run(arguments, context)
 
     def _run(self, arguments: dict[str, Any], context: ToolContext) -> ToolResult:
         target = context.state.get("learning_target")
@@ -63,6 +58,13 @@ class RetrieveCourseTool(BaseTool):
         if not sources:
             return ToolResult(content="本轮问题没有返回可核验原文。请按检索记录区分指定图号缺失/歧义与证据不足；不能据此断言整本教材没有，也不要重复相同查询。", sources=[],
                               metadata={"target_id": target.target_id, "query": query})
+        with context.source_lock:
+            context.check_cancelled()
+            return self._commit(arguments, context, target, query, sources, max_sources)
+
+    def _commit(self, arguments, context, target, query, sources, max_sources):
+        offset = max(0, int(context.state.get("source_offset", 0) or 0))
+        sources=sources[:max(0,max_sources-offset)]
         seen = context.state.setdefault("seen_source_ids", set())
         fresh = []
         for source in sources:

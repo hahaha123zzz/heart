@@ -7,6 +7,8 @@ import logging
 import os
 import re
 import time
+import threading
+from functools import wraps
 
 from agents.q3_navigation import SourceRef, source_from_chunk
 
@@ -39,6 +41,25 @@ def question_interjection(message, target):
     return bool(topic and topic not in title and title not in topic)
 
 
+def _turn_search(method):
+    @wraps(method)
+    def run(self, *, target, query, limit, preferred_types=()):
+        key=json.dumps([target.__dict__,query,limit,preferred_types,self.message],ensure_ascii=False,sort_keys=True)
+        with self._search_lock:
+            if self.cancellation: self.cancellation.check()
+            from llm.execution_budget import check_budget
+            check_budget()
+            if key in self._search_results:
+                sources,record=self._search_results[key]
+                self.calls.append({**record, 'cached_query':True,'retrieval_count':0,'supplemental_count':0,'seconds':0})
+                return list(sources)
+            sources=method(self,target=target,query=query,limit=limit,preferred_types=preferred_types)
+            if len(self._search_results)<16:
+                self._search_results[key]=(tuple(sources),dict(self.calls[-1]))
+            return sources
+    return run
+
+
 class CourseSearch:
     def __init__(self, base, *, message, llm, backend=None, cancellation=None):
         self.base, self.message, self.llm = base, message, llm
@@ -48,10 +69,13 @@ class CourseSearch:
         self.last_result = None
         self.coverage = None
         self._covered_sources = None
+        self._search_lock=threading.RLock()
+        self._search_results={}
 
     def resolve(self, **kwargs):
         return self.base.resolve(**kwargs)
 
+    @_turn_search
     @bounded_stage('retrieval')
     def search(self, *, target, query, limit, preferred_types=()):
         chapters = explicit_chapters(self.message)
@@ -122,6 +146,7 @@ class CourseSearch:
                         self._covered_sources = sources
                 self.last_result = getattr(self.backend, 'last_result', None)
                 if self.last_result:
+                    record['usage'] = self.last_result.get('usage')
                     record['model_binding'] = self.last_result.get('model_binding')
                     record['source_binding'] = self.last_result.get('source_binding')
                     record['input_signature'] = self.last_result.get('input_signature')
@@ -156,14 +181,14 @@ class CourseSearch:
             log.info('course_search %s', json.dumps(record, ensure_ascii=False))
 
     @bounded_stage('source_mapping')
-    def select(self, question, sources, *, subproblem='single'):
+    def select(self, question, sources, *, subproblem='single', coverage=None):
         from knowledge.grounded_citations import choose_evidence, settings
         from knowledge.lightrag.retrieval import as_textbook_chunk
         index = settings()
         if index is None:
             raise ValueError('新检索发布要求启用原文核验')
         bundle = choose_evidence(self.llm, question,
-                                 [as_textbook_chunk(s.to_dict()) for s in sources], index)
+                                 [as_textbook_chunk(s.to_dict()) for s in sources], index, coverage=coverage)
         if self.coverage:
             from knowledge.lightrag.trace import stage
             stage(self.coverage.trace, 'q2_selection', sources,
@@ -180,6 +205,8 @@ class CourseSearch:
                     'block_start':evidence['source_block_id'], 'block_end':evidence['source_block_id'],
                     'block_char_start':evidence['block_start'], 'block_char_end':evidence['block_end'],
                     'retrieval_source_id':original.source_id, 'evidence':evidence}))
+        if coverage is not None:
+            return output,{"source_ids":[s.source_id for s in output],"reason":bundle.coverage_reason}
         return output
 
     @property
@@ -214,7 +241,8 @@ def shared_search(base, *, message, llm, navigator=None, cancellation=None):
         from knowledge.lightrag.coverage import CoverageNavigator, semantic_selection
         search.coverage = CoverageNavigator(backend, question=message,
             select=lambda requirement, refs: search.select(requirement.query, refs, subproblem=requirement.id),
-            judge=lambda requirement, refs: semantic_selection(llm, requirement, refs), cancellation=cancellation)
+            judge=lambda requirement, refs: semantic_selection(llm, requirement, refs), cancellation=cancellation,
+            decide=lambda requirement, refs: search.select(requirement.query,refs,subproblem=requirement.id,coverage=requirement))
     return search
 
 

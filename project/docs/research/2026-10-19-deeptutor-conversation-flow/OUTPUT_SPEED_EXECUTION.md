@@ -14,3 +14,14 @@
 ## 执行状态
 
 代码改造与针对性回归进行中。OS01—OS16 真实模型、页面和20%性能目标尚未验收，不据代码存在标记完成。
+
+
+## OS1—OS5 核心实现（待真实验收）
+
+- 查询完整校验由3次降为2次；重复宿主遍历一并去除。前后仍逐文件内容哈希，控制文件（manifest/progress/index_files/policy/source_map）前后身份相同才返回。未启用不安全的跨请求哈希缓存；模型文件重叠路径去重后仍逐请求哈希，保留热换载检测。
+- 传输池容量8，按端点、内存凭据和代理/TLS环境区分；只借用同步SDK传输，同步宿主和原生多角色共用。请求参数、metrics、取消和消息不共用；活跃引用结束才关闭淘汰资源，lifespan退出关闭池。
+- 默认原生/已解析教材目标先用同一retrieve_course工具取证，不额外生成取证答案；ask_user恢复不重取已有来源。跨章对象选证+覆盖合并成一次JSON决策，ID/原文范围本地检查，缺口仍最多补查一次；最终事实质检不删除。
+- 引用锁改为ToolContext私有，搜索在锁外；编号、source_offset和去重原子提交。超时工具持独立deadline，迟到结果不能写来源。相同候选保留跨进程锁，进程内每候选最多8个持有/等待、最多32个候选，等待默认最多180秒且服从活动剩余预算和取消。
+- 固定规则/工具块前置，目标后置；记录可获取prompt_cache_hit_tokens，未返回则不推测缓存收益。沿用流式窗口唯一事件协议/活动预算；普通质检明确25秒、1200token、零JSON重试；keyword1200token，查询网络重试最多2次且占用同一预算。
+- 132项针对性测试通过：`python -B -m unittest tests.test_output_speed tests.test_lightrag_backend tests.test_lightrag_relocation tests.test_lightrag_coverage tests.test_lightrag_q3_adapter tests.test_course_search_bridge tests.test_stream_retraction tests.test_q3_agent_loop tests.test_answer_stream -q`。证据：`E:\项目\heart\.runtime\output-speed-20261024\offline-third.log`。
+- 首轮测试缺少未跟踪教材输入及旧fixture的注入SDK优先级，失败保留在offline-first.log。复制完整教材输入并修复显式注入兼容后，第二轮只剩新测试异常类型和Q5旧模型脚本不符合先取证契约，记录offline-second.log；修正契约测试后第三轮通过。未以隐藏测试或删除核验处理失败。

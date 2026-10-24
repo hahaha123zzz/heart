@@ -53,3 +53,45 @@ def write_ownership(kb_dir: Path) -> Iterator[None]:
                 msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
             else:
                 fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+# 同进程只排同一候选；保留原跨进程非阻塞所有权，不引入引擎池。
+from contextlib import asynccontextmanager
+import asyncio
+import threading
+import time
+_query_guard = threading.Lock()
+_query_locks = {}
+
+@asynccontextmanager
+async def query_ownership(candidate, cancellation=None, *, wait_seconds=180):
+    from llm.execution_budget import check_budget, current_budget
+    key = str(Path(candidate).resolve())
+    with _query_guard:
+        if key not in _query_locks:
+            if len(_query_locks) >= 32:
+                raise IndexingPolicyError('候选查询队列容量已满，请稍后重试')
+            _query_locks[key] = {'lock':threading.Lock(),'users':0}
+        entry = _query_locks[key]
+        if entry['users'] >= 8:
+            raise IndexingPolicyError('当前候选等待队列已满，请稍后重试')
+        entry['users'] += 1
+    acquired = False
+    started = time.monotonic()
+    try:
+        while not acquired:
+            check_budget()
+            if cancellation is not None: cancellation.check()
+            if time.monotonic()-started >= wait_seconds:
+                raise TimeoutError('等待候选查询所有权超时，请稍后重试')
+            acquired = entry['lock'].acquire(False)
+            if not acquired: await asyncio.sleep(.05)
+        check_budget()
+        if cancellation is not None: cancellation.check()
+        with write_ownership(candidate):
+            yield time.monotonic()-started
+    finally:
+        if acquired: entry['lock'].release()
+        with _query_guard:
+            entry['users'] -= 1
+            if not entry['users']: _query_locks.pop(key,None)

@@ -108,7 +108,15 @@ class ToolContext:
     state: dict[str, Any] = field(default_factory=dict)
     emit: Callable[[str, str, dict[str, Any] | None], None] | None = None
 
+    source_lock: Any = field(default_factory=threading.RLock, repr=False)
+    deadline: float | None = None
+
     def check_cancelled(self) -> None:
+        from time import monotonic
+        from llm.execution_budget import check_budget
+        check_budget()
+        if self.deadline is not None and monotonic() >= self.deadline:
+            raise TimeoutError("工具本轮截止时间已到，拒绝迟到状态提交")
         if self.cancellation is not None:
             self.cancellation.check()
 

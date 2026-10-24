@@ -10,6 +10,7 @@ import base64
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
+from llm.transport import current as current_transport, pooled_call
 from llm.tool_call_stream import ToolCallAccumulator
 from llm.think_stream import InlineThinkFilter
 from llm.execution_budget import bounded_model, model_timeout, check_budget, current_budget
@@ -90,6 +91,11 @@ class LLMClient:
         self._client_lock = threading.Lock()
 
     def _client_lazy(self):
+        if self._client is not None:
+            return self._client
+        pooled = current_transport(self.api_key, self.base_url)
+        if pooled is not None:
+            return pooled
         with self._client_lock:
             if self._client is None:
                 if not self.api_key:
@@ -99,6 +105,7 @@ class LLMClient:
                 self._client = OpenAI(api_key=self.api_key, base_url=self.base_url)
         return self._client
 
+    @pooled_call
     def _one_call(
         self, messages: List[Dict[str, Any]], temperature: float, max_tokens: int,
         model: str | None = None, timeout: float | None = None,
@@ -130,6 +137,7 @@ class LLMClient:
         choice = response.choices[0]
         return choice.message.content or "", choice.finish_reason
 
+    @pooled_call
     def _stream_call(self, args: dict[str, Any], on_delta: Callable[[str], None],
                      *, timeout: float | None = None, guard: Callable[[], None] | None = None) -> ChatToolResult:
         """一次 SDK 真流；只转发正文，流开始后不重试或重播。"""
@@ -173,7 +181,7 @@ class LLMClient:
                     guard()
                 raw_usage = getattr(chunk, "usage", None)
                 if raw_usage:
-                    for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+                    for key in ("prompt_tokens", "completion_tokens", "total_tokens", "prompt_cache_hit_tokens", "prompt_cache_miss_tokens"):
                         value = getattr(raw_usage, key, None)
                         if isinstance(value, int):
                             result.usage[key] = value
@@ -305,6 +313,7 @@ class LLMClient:
             raise LLMError("模型调用失败：" + str(exc)) from exc
 
     @bounded_model
+    @pooled_call
     def chat_with_tools(
         self,
         messages: List[Dict[str, Any]],
@@ -369,7 +378,7 @@ class LLMClient:
             usage = {}
             raw_usage = getattr(response, "usage", None)
             if raw_usage is not None:
-                for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+                for key in ("prompt_tokens", "completion_tokens", "total_tokens", "prompt_cache_hit_tokens", "prompt_cache_miss_tokens"):
                     value = getattr(raw_usage, key, None)
                     if isinstance(value, int):
                         usage[key] = value

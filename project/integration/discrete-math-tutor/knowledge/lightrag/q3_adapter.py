@@ -59,15 +59,15 @@ class LightRagNavigator:
         return relationship_context((self.last_result or {}).get('graph_context',[]),sources)
 
 
-from agents.q3_tools import RetrieveCourseTool,_RETRIEVE_LOCK
+from agents.q3_tools import RetrieveCourseTool
 class ContextualRetrieveCourseTool(RetrieveCourseTool):
     """保留原工具授权/编号/去重；仅附加独立关联与缺口区块。"""
     def run(self,arguments,context):
         from .relationships import append_tool_context
         from .trace import stage
-        with _RETRIEVE_LOCK:
-            result=super().run(arguments,context)
-            stage(getattr(context.navigation,'trace',None),'tool_output',result.sources,result.sources,'')
-            if hasattr(context.navigation,'tool_context'):
-                return append_tool_context(result,context.navigation.tool_context(result.sources))
-            return result
+        result=super().run(arguments,context)
+        context.check_cancelled()
+        stage(getattr(context.navigation,'trace',None),'tool_output',result.sources,result.sources,'')
+        if hasattr(context.navigation,'tool_context'):
+            return append_tool_context(result,context.navigation.tool_context(result.sources))
+        return result

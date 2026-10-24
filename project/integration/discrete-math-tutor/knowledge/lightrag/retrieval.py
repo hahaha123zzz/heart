@@ -8,7 +8,7 @@ from .pipeline import embedding_config
 from .config import Metrics
 from .roles import resolve_query_roles, query_binding
 from .worker import run_in_worker_loop
-from .write_lock import write_ownership
+from .write_lock import query_ownership
 from .indexing_policy import _fingerprint
 from knowledge.source_mapping import source_spans,block_text
 from knowledge.grounding_text import normalized
@@ -141,7 +141,7 @@ class LightRagBackend:
         self.allow_candidate=bool(allow_candidate)
         self.source_root=Path(source_root) if source_root is not None else None
 
-    def validate(self, course_id):
+    def validate(self, course_id, *, snapshot=None):
         if course_id not in self.authorized_course_ids or course_id!=COURSE:
             raise PermissionError("当前请求未授权此教材")
         manifest=json.loads((self.candidate/"input_manifest.json").read_text(encoding="utf-8"))
@@ -162,41 +162,52 @@ class LightRagBackend:
         if self.source_root is None:
             verify(Path(manifest["source_root"]),manifest["files"])
         else:
-            verify_active(self.source_root,manifest["files"])
+            extras=verify_active(self.source_root,manifest["files"])
+            if snapshot is not None: snapshot["additional_host_files"]={"count":len(extras),"sha256":_fingerprint(extras),"evidence_eligible":False}
+        if snapshot is not None:
+            snapshot['control_hashes']={name:digest(self.candidate/name) for name in
+                ('input_manifest.json','progress.json','index_files.json','policy.json','source_map.json')}
         return manifest
 
     async def search(self, query, *, course_id, mode="hybrid", limit=6, chapter_id=None, section_id=None, cancellation=None):
-        trace=[];metrics=None;binding=None;source_binding=None;started=time.monotonic()
+        trace=[];metrics=Metrics();binding=None;source_binding=None;started=time.monotonic()
         try:
             if not isinstance(query,str) or not query.strip() or len(query)>4000: raise ValueError("检索问题无效或过长")
             if isinstance(limit,bool) or not isinstance(limit,int) or not 1<=limit<=40: raise ValueError("结果数必须为1到40")
             if mode not in ("naive","local","global","hybrid","mix"): raise ValueError("检索模式不支持")
             if cancellation is not None and cancellation.is_cancelled(): raise asyncio.CancelledError()
-            manifest=self.validate(course_id)
+            snapshot={}
+            with metrics.timed('validation.before'):
+                manifest=self.validate(course_id,snapshot=snapshot)
             source_binding={'indexed_source_root':manifest['source_root'],
                 'active_source_root':str(self.source_root if self.source_root is not None else Path(manifest['source_root']))}
-            if self.source_root is not None:
-                extras=verify_active(self.source_root,manifest['files'])
-                source_binding['additional_host_files']={'count':len(extras),'sha256':_fingerprint(extras),
-                    'evidence_eligible':False}
+            if 'additional_host_files' in snapshot:
+                source_binding['additional_host_files']=snapshot['additional_host_files']
             working=self.candidate/"index"
-            with write_ownership(self.candidate):
-                metrics=Metrics();embedding=await embedding_config(metrics)
+            async with query_ownership(self.candidate,cancellation) as waited:
+                metrics.stages.append({"stage":"ownership.wait","seconds":waited,"includes_children":False,"outcome":"ok"})
+                with metrics.timed("embedding.identity"):
+                    embedding=await embedding_config(metrics)
                 storage.require_compatible_embedding(working,embedding)
                 expected=json.loads((self.candidate/"policy.json").read_text(encoding="utf-8"))
                 calls=resolve_query_roles(metrics)
                 binding=query_binding(expected,calls)
                 async def job(bridge):
-                    rag=engine.build_rag(working,io_bridge=bridge,query_roles=calls,embedding_config=embedding,query_only=True)
+                    with metrics.timed("engine.build"):
+                        rag=engine.build_rag(working,io_bridge=bridge,query_roles=calls,embedding_config=embedding,query_only=True)
                     failed=True
                     try:
-                        await engine.initialize(rag)
+                        with metrics.timed("engine.initialize"):
+                            await engine.initialize(rag)
                         from .paths import bind_candidate_sidecars
                         source_binding['sidecars']=bind_candidate_sidecars(rag,working)
-                        _,records=await engine.query_with_sources(rag,query,mode)
+                        with metrics.timed("native.query",includes_children=True):
+                            _,records=await engine.query_with_sources(rag,query,mode)
                         records=await attach_provenance(rag,working,records)
                         failed=False;return records
-                    finally: await engine.finalize(rag,cancel_pending=failed)
+                    finally:
+                        with metrics.timed("engine.finalize"):
+                            await engine.finalize(rag,cancel_pending=failed)
                 operation=asyncio.create_task(run_in_worker_loop(job))
                 try:
                     while not operation.done():
@@ -206,7 +217,6 @@ class LightRagBackend:
                 finally:
                     if not operation.done():
                         operation.cancel();await asyncio.gather(operation,return_exceptions=True)
-                self.validate(course_id)
                 source_map=json.loads((self.candidate/"source_map.json").read_text(encoding="utf-8"))
                 registry=json.loads((self.candidate/"input/pdf_manifest.json").read_text(encoding="utf-8"))
                 for name,doc in source_map.items():
@@ -233,8 +243,8 @@ class LightRagBackend:
                         and (section_id is None or s['section_id']==section_id)]
                 stage(trace,'scope_filter',mapped,scoped,'outside_requested_scope',chapter_id=chapter_id,section_id=section_id)
                 mapped=scoped
-                selected=await asyncio.to_thread(rank_sources,query,mapped,trace)
-                self.validate(course_id)
+                with metrics.timed("original.rerank"):
+                    selected=await asyncio.to_thread(rank_sources,query,mapped,trace)
                 from .course_input import visual_inventory
                 visual_map,_,_=visual_inventory(self.candidate/"input")
                 selected_visuals={}
@@ -247,6 +257,12 @@ class LightRagBackend:
                             selected_visuals[visual.id]=visual.public()|{"document_id":doc["document_id"],"version":doc["version"],
                                 "sha256":visual.sha256,"sdk_chunk_id":record["chunk_id"],
                                 "evidence_status":"original_image_requires_q2_visual_verification"}
+                if cancellation is not None: cancellation.check()
+                after={}
+                with metrics.timed('validation.after'):
+                    self.validate(course_id,snapshot=after)
+                if snapshot!=after:
+                    raise engine.LightRagContractError('查询期间候选控制文件或宿主身份变化')
                 from knowledge.inference_runtime import runtime_status
                 stage(trace,'limit',selected,selected[:limit],'beyond_limit',limit=limit)
                 selected=selected[:limit]

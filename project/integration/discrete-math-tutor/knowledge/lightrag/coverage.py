@@ -60,13 +60,14 @@ def _identity(ref):
 
 class CoverageNavigator:
     """SourceExplorer分组均衡/有界调度适配；每对象首次1查，缺口最多补1查。"""
-    def __init__(self,navigator,*,question,select,judge,requirements=None,cancellation=None):
+    def __init__(self,navigator,*,question,select,judge,requirements=None,cancellation=None,decide=None):
         self.navigator=navigator;self.question=question;self.select=select;self.judge=judge
         self.requirements=requirements_for(question) if requirements is None else list(requirements)
         if len(self.requirements)>3 or len({r.id for r in self.requirements})!=len(self.requirements):raise ValueError('必要对象身份或预算无效')
         for r in self.requirements:
             if not isinstance(r.id,str) or not r.id or len(r.id)>80 or not isinstance(r.query,str) or not r.query.strip() or len(r.query)>300:raise ValueError('必要对象描述无效或过长')
             if r.chapter_id is not None and (type(r.chapter_id) is not int or not 1<=r.chapter_id<=11):raise ValueError('必要对象章节无效')
+        self.decide=decide
         self.cancellation=cancellation;self.trace=[];self.report={};self.graph_records=[]
     def resolve(self,**kwargs):return self.navigator.resolve(**kwargs)
     def _check(self):
@@ -108,9 +109,12 @@ class CoverageNavigator:
                 stage(self.trace,'object_scope',raw,scoped,'outside_required_object_scope',subproblem=req.id,query=q)
                 deduped=list({_identity(r):r for r in scoped}.values())
                 stage(self.trace,'object_dedupe',scoped,deduped,'duplicate_original_identity',subproblem=req.id)
-                selected=self.select(req,deduped) if deduped else []
-                self._check()
-                decision=self.judge(req,selected) if selected else {'source_ids':[],'reason':'没有可核验原文'}
+                if self.decide is not None and deduped:
+                    selected,decision=self.decide(req,deduped)
+                else:
+                    selected=self.select(req,deduped) if deduped else []
+                    self._check()
+                    decision=self.judge(req,selected) if selected else {'source_ids':[],'reason':'没有可核验原文'}
                 self._check()
                 if not isinstance(decision,dict) or not isinstance(decision.get('source_ids'),list) or not isinstance(decision.get('reason'),str) or len(decision['reason'])>1200:raise ValueError('语义覆盖核查响应无效')
                 ids=decision['source_ids'];allowed={r.source_id for r in selected}

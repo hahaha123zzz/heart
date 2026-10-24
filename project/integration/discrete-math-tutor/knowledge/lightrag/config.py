@@ -118,14 +118,17 @@ async def _run_adapter_with_retry(
     io_bridge: OwnerLoopBridge | None,
 ) -> _T:
     """Run one adapter request with bounded, non-multiplying retries."""
-    for attempt in range(1, _ADAPTER_MAX_ATTEMPTS + 1):
+    from llm.execution_budget import check_budget,current_budget
+    attempts=2 if current_budget.get() else _ADAPTER_MAX_ATTEMPTS
+    for attempt in range(1, attempts + 1):
+        check_budget()
         try:
             if io_bridge is not None:
                 return await io_bridge.run(request)
             return await request()
         except Exception as exc:
             should_retry, status = _retry_classification(exc)
-            if not should_retry or attempt == _ADAPTER_MAX_ATTEMPTS:
+            if not should_retry or attempt == attempts:
                 raise
             logger.warning(
                 "LightRAG adapter retry attempt=%d exception=%s status=%s",
@@ -134,6 +137,8 @@ async def _run_adapter_with_retry(
                 status,
             )
             delay = _retry_delay_seconds(exc, _ADAPTER_RETRY_DELAYS_SECONDS[attempt - 1])
+            budget=current_budget.get()
+            if budget and delay>=budget.remaining(): raise
             await asyncio.sleep(delay)
 
     raise AssertionError("unreachable")
@@ -164,6 +169,7 @@ import os
 import time
 import threading
 from dataclasses import dataclass, field
+from contextlib import contextmanager
 from pathlib import Path
 from llm.client import LLMClient
 from .file_io import atomic_write_json
@@ -173,9 +179,21 @@ class Metrics:
     path: Path | None = None
     calls: list = field(default_factory=list)
     limiter: Any = field(default=None, repr=False)
+    stages: list = field(default_factory=list)
     embedding_batches: int = 0
     embedding_texts: int = 0
     lock: Any = field(default_factory=threading.Lock, repr=False)
+
+    @contextmanager
+    def timed(self, name, *, includes_children=False):
+        started=time.monotonic();outcome='failed'
+        try:
+            yield
+            outcome='ok'
+        finally:
+            with self.lock:
+                self.stages.append({'stage':name,'seconds':time.monotonic()-started,
+                                    'includes_children':includes_children,'outcome':outcome})
 
     def record(self, item):
         with self.lock:
@@ -187,7 +205,8 @@ class Metrics:
             atomic_write_json(self.path, self.public())
 
     def public(self):
-        return {"calls": list(self.calls), "llm_calls": len(self.calls),
+        from llm.transport import stats
+        return {"transport_pool_cumulative":stats(),"calls": list(self.calls), "llm_calls": len(self.calls), "stages":list(self.stages),
                 "usage": {key: sum(c.get("usage", {}).get(key, 0) or 0 for c in self.calls)
                           for key in ("prompt_tokens", "completion_tokens", "total_tokens")},
                 "embedding_batches": self.embedding_batches, "embedding_texts": self.embedding_texts,
@@ -245,7 +264,6 @@ def build_llm_model_func(*, io_bridge=None, llm_config=None, owner=None):
     config = llm_config or HostModel(LLMClient(), Metrics())
     async def llm_model_func(prompt="", system_prompt=None, history_messages=None, messages=None,
                              response_format=None, enable_cot=False, **ignored):
-        from openai import AsyncOpenAI
         if config.client.mock or not config.client.api_key:
             raise LightRagNotConfiguredError("真实建图需要已配置的本项目模型，禁止 mock")
         if os.getenv("DEEPTUTOR_LLM_ENABLED", "0") == "1":
@@ -273,10 +291,25 @@ def build_llm_model_func(*, io_bridge=None, llm_config=None, owner=None):
             item={"role": config.role, "model": config.model, "status": "failed",
                   "endpoint":_endpoint_identity(config.client.base_url)}
             try:
-                async with AsyncOpenAI(api_key=config.client.api_key, base_url=config.client.base_url,
-                                       timeout=150, max_retries=0) as client:
-                    response=await client.chat.completions.create(model=config.model,
-                        messages=request_messages, temperature=0.1, max_tokens=8192, **kwargs)
+                from llm.transport import borrow
+                from llm.execution_budget import model_timeout,check_budget
+                cap=1200 if config.role=='keyword' else 8192
+                timeout=model_timeout(90)
+                item['max_output_tokens']=cap
+                def invoke():
+                    check_budget()
+                    actual_started=time.monotonic()
+                    try:
+                        with borrow(config.client.api_key,config.client.base_url) as client:
+                            response=client.with_options(timeout=timeout or 90,max_retries=0).chat.completions.create(
+                                model=config.model,messages=request_messages,temperature=0.1,max_tokens=cap,**kwargs)
+                            check_budget()
+                            return response
+                    finally:
+                        with config.metrics.lock:
+                            config.metrics.stages.append({'stage':'native.network.actual_end','seconds':time.monotonic()-actual_started,
+                                'ended_monotonic':time.monotonic(),'includes_children':False})
+                response=await asyncio.to_thread(invoke)
                 choice=response.choices[0]
                 item.update(response_model=getattr(response,"model",None),finish_reason=choice.finish_reason,
                             usage=response.usage.model_dump() if response.usage else {})

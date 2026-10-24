@@ -85,3 +85,5 @@ async def memory_lifespan(app):
     finally:
         if worker:
             await asyncio.to_thread(worker.stop)
+        from llm.transport import close_pool
+        await asyncio.to_thread(close_pool)
