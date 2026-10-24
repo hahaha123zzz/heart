@@ -144,6 +144,14 @@ class QualityChecker:
             content += "\n逐项核对本轮明确要求：遗漏任一比较对象、指定理由、例子或关键条件，应要求补齐；仅提示不应补最终结论。短但漏答不能判通过。"
         if rule_context.get('grounded_evidence'):
             content+='\n本轮引用只允许指向以下细粒度原文；逐条检查紧邻[n]的结论是否被第n条原文支持，不能因为检索背景或历史其他位置有类似内容就放行。特别核对否定、例外、条件、数量和因果方向；例子不得冒充原书。'+str(rule_context['grounded_evidence'])
+        if rule_context.get("adaptive_teaching"):
+            import json
+            content += ("\n本轮是适应性教学，以下状态仅用于当前教法，不是正式成绩："
+                        + json.dumps(rule_context["adaptive_teaching"], ensure_ascii=False)
+                        + "\n允许符合已核验概念、明确标为教学示例的假设情境，不要求原书有同一句例子。"
+                        "学生说没懂时应换讲法；若有练习反馈，要对照原问题和学生原话核验，不能盲从暂定判断。"
+                        "末尾的小步检查是等待学生作答，不要求本轮给出其答案；不得据此称讲解不完整。"
+                        "先讲不考时不强制出题。解释过或答对一次都不等于正式掌握整章。")
         if rule_context.get("feedback_target"):
             content += "\n理解检查只可围绕刚才这段讲解中的一个要点；若换成章节里的其他概念必须拒绝：" + rule_context["feedback_target"]
         if rule_context.get("followup_simplify"):

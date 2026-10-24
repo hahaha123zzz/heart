@@ -45,6 +45,7 @@ class TaskContext(BaseModel):
     truth_table_snapshot: dict | None = None
     relation_snapshot: dict | None = None
     course_navigation: dict | None = None
+    tutoring: dict = Field(default_factory=dict)
 
     def prompt_payload(self):
         # 识别无需知道学生ID，不把其作为模型生成引用的候选对象。
@@ -53,4 +54,9 @@ class TaskContext(BaseModel):
             payload['truth_table_snapshot'].pop('evaluation', None)
         if payload.get('relation_snapshot'):
             payload['relation_snapshot'].pop('evaluation',None)
+        # Persist the private engine snapshot, but never send its answer keys
+        # or cached evidence to intent/routing models.
+        if payload.get('tutoring'):
+            from agents.adaptive_tutoring import public_state
+            payload['tutoring'] = public_state(payload['tutoring'])
         return payload

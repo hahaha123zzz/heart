@@ -34,6 +34,7 @@ class LoopRequest:
     system_prompt: str
     tools: ToolRegistry
     seed_messages: list[dict[str, Any]] = field(default_factory=list)
+    initial_sources: list[dict[str, Any]] = field(default_factory=list)
     target: LearningTarget | None = None
     navigation: Any = None
     tool_state: dict[str, Any] = field(default_factory=dict)
@@ -101,7 +102,7 @@ class LocalAgentLoop:
     def run(self, request: LoopRequest, *, resume_state: dict[str, Any] | None = None,
             answer: str = "") -> LoopResult:
         collector = EventCollector(request.emit)
-        result = LoopResult()
+        result = LoopResult(sources=deepcopy(request.initial_sources))
         result._transient = []
         result._target = request.target
         try:
@@ -268,6 +269,14 @@ class LocalAgentLoop:
                 checking()
                 ok, reason = request.publish_gate(final_text, result)
                 if not ok:
+                    if not repair_used and reason.startswith(("教学闭环", "教学检查", "学生要求先讲不考")):
+                        repair_used = True
+                        messages.extend([
+                            {"role": "assistant", "content": final_text},
+                            {"role": "user", "content": reason +
+                             "\n只修正本轮教学动作，保留已有可靠依据，完成后给出完整回答。"}])
+                        collector("progress", "调整教学动作", {"detail": reason})
+                        continue
                     retrieved = any(call.get('function', {}).get('name') == 'retrieve_course'
                                     for row in messages if row.get('role') == 'assistant'
                                     for call in row.get('tool_calls', []))

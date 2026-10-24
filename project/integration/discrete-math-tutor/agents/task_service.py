@@ -158,6 +158,10 @@ class TaskService:
                 if obj.id not in origins and len(context.objects) < 4:
                     context.objects.append(obj)
                     origins[obj.id] = origin(old, obj)
+        from agents.adaptive_tutoring import enabled as tutoring_enabled, snapshot_from_recent
+        if tutoring_enabled():
+            context.tutoring = snapshot_from_recent(
+                recent, context, self.tutor.memory.repo, request.student_id)
         return context, resolved, origins
 
     def _resume(self, request, row):

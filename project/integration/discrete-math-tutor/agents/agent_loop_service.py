@@ -150,10 +150,14 @@ def _excerpts(sources: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navigation=None):
+def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navigation=None, teaching=None):
     def gate(text: str, result: LoopResult) -> tuple[bool, str]:
         if not text.strip():
             return False, "模型没有返回可发布回答。"
+        if teaching is not None:
+            passed, reason = teaching.gate(text)
+            if not passed:
+                return False, reason
         if not result.sources:
             return False, "本轮没有可核验的教材来源，暂不发布正式回答。"
         from agents.course_search import explicit_chapters
@@ -208,6 +212,7 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             quality = checker.check(text, state, plan, request.message,
                                     context={"loop_sources": result.sources,
                                              "agent_loop": True,
+                                             "adaptive_teaching": teaching.public() if teaching else None,
                                              "reply_maximum_override": max(600, maximum, reply_budget(request.message).maximum)},
                                     textbook_excerpts=excerpts,
                                     **({'figure_images': [f.path for _, f in checked_media]} if checked_media else {}))
@@ -412,6 +417,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                            "reason": decision.reason},
         }
     target = decision.target or current_target
+    from agents.adaptive_tutoring import enabled as tutoring_enabled, TeachingTurn, TeachingStepTool
+    if guard:
+        guard()
+    teaching = TeachingTurn(context, request, llm or orchestrator.llm) if tutoring_enabled() else None
+    if guard:
+        guard()
     from agents.course_search import explicit_chapters, question_interjection
     chapters = explicit_chapters(request.message)
     interjection = bool(len(chapters) > 1 or
@@ -434,11 +445,15 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         skills_root=skills_root,
         allow_workspace=allow_workspace,
         allow_skills=skills_root.is_dir(),
-        extra_tools=(*q5_tools, ContextualRetrieveCourseTool()),
+        extra_tools=(*q5_tools, ContextualRetrieveCourseTool(),
+                     *((TeachingStepTool(teaching),) if teaching else ())),
         extra_scopes=('learning:read',) if interjection else tuple((q5_binding or {}).get("scopes") or ()),
     )
     budget = reply_budget(request.message)
-    system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions()) + "\n" + budget.instructions()
+    system_prompt = build_loop_system_prompt(
+        target=target, definitions=registry.definitions(),
+        teaching_prompt=teaching.instructions() if teaching else "",
+        verified_sources=teaching.sources if teaching else None) + "\n" + budget.instructions()
     if interjection:
         system_prompt += '\n本轮是插问，只回答学生当前问题；保留原学习目标，不记录本目标已讲解、掌握或推进路径。'
     system_prompt += '\n页面当前学习目标仅作学习位置参考；具体提问优先，不要把旧小节主题擅自追加到检索词。指定图号先调用 retrieve_course 读取该图及登记原文，不能只检索旧主题便要求学生上传已有原图。'
@@ -464,28 +479,46 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         navigation.coverage.cancellation = cancellation
     if navigation.backend is not None and hasattr(navigation.backend, 'cancellation'):
         navigation.backend.cancellation = cancellation
-    result = loop.run(
-        LoopRequest(
-            student_id=request.student_id, session_id=request.session_id,
-            task_id=request.task_id or request.request_id,
-            request_id=request.request_id or "",
-            message=request.message, system_prompt=system_prompt, tools=registry,
-            round_max_tokens=round_tokens,
-            seed_messages=list(context.history or []), target=target,
-            navigation=navigation, cancellation=cancellation, guard=guard,
-            tool_state={"workspace_root": str(workspace_root),
-                        "skills_root": str(skills_root), "deferred_loader": None},
-            publish_gate=publish_gate or _publish_gate(orchestrator, request, target, navigation),
-            emit=emit, tool_timeout_seconds=tool_seconds, max_exploration_rounds=4,
-        ),
-        resume_state=resume_state,
-        answer=str((previous or {}).get("_resume_answer") or ""),
-    )
+    restored_reply = teaching.restore_reply() if teaching else None
+    if restored_reply is not None:
+        # Only the exact persisted, revalidated formative question is replayed.
+        # No new model text or textbook assertion bypasses the publish gate.
+        if guard:
+            guard()
+        result = LoopResult(final_text=restored_reply, completed=True,
+                            sources=teaching.sources)
+        result._target = target
+        emit("progress", "恢复原来的理解检查")
+    else:
+        result = loop.run(
+            LoopRequest(
+                student_id=request.student_id, session_id=request.session_id,
+                task_id=request.task_id or request.request_id,
+                request_id=request.request_id or "",
+                message=request.message, system_prompt=system_prompt, tools=registry,
+                round_max_tokens=round_tokens,
+                seed_messages=list(context.history or []), target=target,
+                initial_sources=teaching.sources if teaching else [],
+                navigation=navigation, cancellation=cancellation, guard=guard,
+                tool_state={"workspace_root": str(workspace_root),
+                            "skills_root": str(skills_root), "deferred_loader": None},
+                publish_gate=publish_gate or _publish_gate(orchestrator, request, target, navigation, teaching),
+                emit=emit, tool_timeout_seconds=tool_seconds, max_exploration_rounds=4,
+            ),
+            resume_state=resume_state,
+            answer=str((previous or {}).get("_resume_answer") or ""),
+        )
     if not result.paused:
         # 超时后可能仍有只读检索线程；回合结束即停止其后续补查，不取消等待学生的任务。
         cancellation.cancel()
     conversation_id = None
     mapped = _map_result(result, target)
+    if teaching and result.completed:
+        teaching.commit_sources(result.sources)
+        mapped["teaching"] = teaching.public()
+    if teaching and mapped.get("loop_state"):
+        from agents.adaptive_tutoring import redact_protocol
+        mapped["loop_state"] = redact_protocol(mapped["loop_state"])
     if result.completed:
         media = {}
         for source in result.sources:
@@ -511,7 +544,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     mapped['retrieval_coverage'] = navigation.coverage_report
     mapped['retrieval_trace'] = navigation.trace
     mapped['backend_calls'] = list(getattr(navigation.backend, 'calls', []) or []) if navigation.backend else []
-    mapped['learning_interjection'] = interjection
+    mapped['learning_interjection'] = interjection or restored_reply is not None
+    if restored_reply is not None:
+        mapped['publication_mode'] = 'saved_formative_question'
     if result.completed and navigation.coverage_report.get('status') == 'partial':
         gaps = '、'.join(row['query'] for row in navigation.coverage_report['missing'])
         mapped['reply'] = f'本次仅回答已有原文支持的部分；尚缺“{gaps}”的可靠教材证据，无法完整说明双方联系。\n\n' + mapped['reply']
@@ -545,7 +580,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                         "reply": "这个知识点的学习记忆已被删除，本次回答未保存，请重新提问。",
                         "answer_status": "memory_deleted",
                         "step_advanced": False,
-                        "loop_state": result.state(),
+                        "loop_state": mapped.get("loop_state"),
                     }
                 mapped["conversation_id"] = conversation_id
                 mapped["memory_commit"] = {"status": "committed",
@@ -557,7 +592,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     "answer_status": "loop_failed",
                     "loop_error": f"memory_save_failed: {type(exc).__name__}",
                     "step_advanced": False,
-                    "loop_state": result.state(),
+                    "loop_state": mapped.get("loop_state"),
                 }
     if not result.paused:
         release(request.task_id or request.request_id)
