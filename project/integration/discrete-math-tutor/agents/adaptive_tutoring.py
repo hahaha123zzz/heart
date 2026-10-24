@@ -412,6 +412,9 @@ class TeachingTurn:
         self.state["turn_move"] = "answer"
 
     def instructions(self):
+        no_questions = ("学生本轮只听讲解：正文不得出现任何问号（包括自问、引用中的疑问句和研究问题）。"
+                        "把疑问句改为陈述句，保留事实和引用；不要新增检查题或反问。\n"
+                        if not self.state["allow_check"] else "")
         evidence_note = ("教材没有本轮概念的可引用原文时，仍要尽力用常见心理学知识把概念讲清楚；"
                         "自然注明这是课堂补充，不是教材原话。不要用‘无法回答’结束，也不要伪造引用。\n"
                         if self.evidence_mode == "blended" and not self.sources else "")
@@ -423,7 +426,7 @@ class TeachingTurn:
                 "strategy": self.strategy_decision.strategy, "evidence_mode": self.evidence_mode,
                 "reuse_evidence": self.strategy_decision.reuse_evidence,
                 "invite_check": self.strategy_decision.invite_check}, ensure_ascii=False) + "\n"
-            + evidence_note
+            + no_questions + evidence_note
             + "engine_next由真实DeepTutor policy计算，只建议教学动作；正式推进仍由宿主Q5测评管控。"
             "检索是准备，最终要解释关键关系并给有用示例。每轮调用teaching_step记录实际教法与摘要，"
             "对应DeepTutor note_explained，只记已讲解，不给掌握分。"
@@ -458,7 +461,7 @@ class TeachingTurn:
             if _check_question_key(text, answer=True) != _check_question_key(pending.prompt):
                 return False, "教学检查未正确呈现：请将已登记的小检查放在正文最后，然后停止，不能同轮自问自答。"
         if not self.state["allow_check"] and re.search(r"[？?]", text):
-            return False, "学生要求先讲不考：去掉检查和反问，只保留讲解。"
+            return False, "学生要求先讲不考：正文不得出现任何问号，包括自问和引号内的问题；改为陈述句，保留事实和引用，不新增检查。"
         return True, ""
 
     def commit_sources(self, sources):

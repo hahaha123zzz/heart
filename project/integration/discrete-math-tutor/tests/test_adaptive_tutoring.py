@@ -87,6 +87,8 @@ class TeachingPolicyTests(unittest.TestCase):
         self.assertFalse(record(t, check_prompt="谁是自变量？", check_focus="自变量").success)
         self.assertTrue(record(t).success)
         self.assertFalse(t.gate("你觉得呢？")[0])
+        self.assertIn("正文不得出现任何问号", t.instructions())
+        self.assertFalse(t.gate("研究者问自己：该改变什么？")[0])
         new = turn("什么是因变量", t.state)
         self.assertFalse(new.state["allow_check"])
         again = turn("可以考考我了", new.state)

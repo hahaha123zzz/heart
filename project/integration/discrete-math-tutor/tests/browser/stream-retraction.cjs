@@ -29,11 +29,14 @@ let sharedContext,sharedPage;try{for(const [name,message,extra] of cases){const 
    assert.equal(row.error,undefined, row.name+': '+row.error);
    assert.equal(row.errors.length,0,row.name);
    assert.equal(row.posts,1,row.name+': 不得重复 POST');
-   if(!process.env.SR_SCENARIO&&['concept','figure14'].includes(row.name)){
+   if(!process.env.SR_SCENARIO&&['concept','figure14','figure52'].includes(row.name)){
      assert.equal(row.answer.answerState,'saved',row.name);
      assert.equal(row.historyEqual,true,row.name);
+     const deltas=row.events.filter(e=>e.event==='answer_delta'&&e.role==='answer'), checking=row.events.find(e=>e.event==='answer_state'&&e.state==='checking'&&e.role==='answer'&&e.round_id===deltas[0]?.round_id);
+     assert.ok(deltas.length&&checking&&deltas[0].at<checking.at,row.name+': 正文必须在核验前真实流出');
      assert.equal(row.events.filter(e=>e.event==='answer_replace'&&!e.text).length,0,row.name+': 普通取证不清正文');
    }
+   if(row.name==='figure52')assert.ok(row.answer.imageRefs.some(ref=>ref.id==='image-05-0004'&&ref.model_saw_pixels));
    if(row.name==='figure14')assert.ok(row.answer.imageRefs.some(ref=>ref.id==='image-01-0006'&&ref.model_saw_pixels));
    if(process.env.SR_SCENARIO==='partial'){
      assert.equal(row.answer.answerState,'interrupted');assert.equal(row.draftDetails,1);assert.equal(row.draftLinks,0);
