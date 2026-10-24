@@ -11,6 +11,7 @@ from knowledge.course_config import DEFAULT_GOAL
 from agents.intent_policy import IntentPolicy
 from visualization.service import VisualizationError
 from llm.execution_budget import BudgetExceeded, stage_call
+from llm.client import LLMError
 
 
 class TaskService:
@@ -580,6 +581,23 @@ class TaskService:
                         memory_repo=self.tutor.memory.repo, status='failed', result=result)
                 except TaskConflict as error:
                     return self.conflict_reply(error)
+            return result
+        except LLMError as error:
+            from llm.execution_budget import current_budget
+            from llm.answer_events import current_answer
+            publisher = current_answer.get()
+            draft = error.partial_text if publisher and publisher.role == 'answer' else ''
+            status = 'incomplete_answer' if error.finish_reason == 'length' else ('answer_interrupted' if draft else 'model_unavailable')
+            result = {'reply': '模型输出未完成，本轮回答未保存。', 'answer_status': status, 'step_advanced': False,
+                      'execution_metrics': current_budget.get().snapshot()}
+            if draft:
+                result['unpublished_draft'] = draft
+            if 'task' in locals():
+                try:
+                    task, result = self.repo.save(task=task, receipt_id=receipt,
+                        memory_repo=self.tutor.memory.repo, status='failed', result=result)
+                except TaskConflict as conflict:
+                    return self.conflict_reply(conflict)
             return result
         except VisualizationError as error:
             result = {'reply':str(error), 'answer_status':'visualization_changed' if error.status == 409 else 'visualization_unavailable', 'step_advanced':False}

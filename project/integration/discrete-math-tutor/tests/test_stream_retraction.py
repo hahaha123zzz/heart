@@ -216,3 +216,20 @@ class RetractionTests(unittest.TestCase):
         self.assertFalse(result.completed)
         self.assertEqual(result.error,'empty_answer')
         self.assertEqual(len(llm.calls),3)
+
+
+    def test_legacy_executor_partial_has_failed_receipt_without_retry(self):
+        from tests import test_clarification_tasks as fixture
+        from database.models import ConversationRow
+        case=fixture.ClarificationTests();case.setUp();self.addCleanup(case.tearDown)
+        calls=[]
+        def execute(*args):
+            calls.append(1)
+            current_answer.get().role='answer'
+            raise LLMError('stream interrupted',partial_text='未核验片段')
+        result=case.service.run(case.request(request_id='legacy-partial'),execute,answer_event=lambda *_:None)
+        self.assertEqual(result['answer_status'],'answer_interrupted')
+        self.assertEqual(result['unpublished_draft'],'未核验片段')
+        self.assertEqual(calls,[1]);self.assertEqual(case.count(ConversationRow),0)
+        receipt=case.repo.replay('s','tab-a','legacy-partial',case.request(request_id='legacy-partial').model_dump(),case.memory.repo)
+        self.assertEqual(receipt['answer_status'],'answer_interrupted')
