@@ -1,0 +1,19 @@
+{
+  "upstream_revision": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "license": "Apache-2.0",
+  "reuse": "adapted_patterns; no whole-file copy",
+  "files": [
+    {
+      "path": "runtime/agentic/client.py",
+      "sha256": "7e35cde05d017c7e386d022983ccff0c69007ae957ed6a12ac42fc2824feb004",
+      "functions": "build_openai_client / close_agentic_client_pool",
+      "adaptation": "同步借用、活跃引用计数、容量8、推迟淘汰关闭；未复制异步池"
+    },
+    {
+      "path": "agents/loop/pipeline.py",
+      "sha256": "8ec2ec26777c3bf5166dde992e4e093528d0961071a1d502f475663677752041",
+      "functions": "_retrieve_kb_seed_block / _seed_search_one_kb",
+      "adaptation": "同一工具协议内有界预取，替代首个模型选工具回合；不新建循环"
+    }
+  ]
+}
