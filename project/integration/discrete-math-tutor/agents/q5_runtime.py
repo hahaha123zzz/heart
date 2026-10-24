@@ -48,12 +48,18 @@ class Q5Runtime:
 
     def is_plan_request(self, message: str) -> bool:
         text = "".join(str(message or "").split())
-        return bool(re.search(r"(?:制定|生成|做一份|设计|规划|安排).{0,8}(?:学习|复习)?计划|"
+        return self.is_chapter_guide(text) or bool(re.search(r"(?:制定|生成|做一份|设计|规划|安排).{0,8}(?:学习|复习)?计划|"
                               r"(?:今天|这次|本次).{0,12}(?:怎么安排|先学什么)|"
                               r"(?:帮我|请|给我)?安排.{0,16}(?:分钟|小时|学习|复习)|"
                               r"(?:今天|这次|本次).{0,20}(?:分钟|小时).{0,20}(?:想学|学习|复习)", text))
 
+    @staticmethod
+    def is_chapter_guide(message):
+        return bool(re.search(r'章节导学|目录草稿|目录计划|按章导学',message))
+
     def propose_session(self, message, llm, memory, *, previous=None, guard=lambda: None):
+        if not self.sessions.ready():
+            raise ValueError('session_plan_schema_required')
         from agents.session_study_planner import extract_request, collect_materials, generate_session
         from models.interaction_preferences import style_instructions
         profile_values = memory.get_profile(self.scope.student_id).preferences
@@ -137,7 +143,7 @@ class Q5Runtime:
     @staticmethod
     def is_confirm(message: str) -> bool:
         text = "".join(str(message or "").split())
-        return bool(re.search(r"(?:确认|同意|认可|开始).{0,6}(?:计划|学习|安排)|确认开始", text)
+        return bool(re.search(r"(?:确认|同意|认可|开始).{0,6}(?:计划|学习|安排|导学)|确认开始", text)
                     or re.fullmatch(r'(?:确认|同意|就这样|开始吧)[。！!]*',text))
 
     @staticmethod
@@ -197,9 +203,10 @@ class Q5Runtime:
                 [objective],
             ))
         draft = PlanDraft(
-            goal=f"掌握实验心理学第{chapter_id}章",
-            name=f"实验心理学第{chapter_id}章学习计划",
+            goal=f"浏览第{chapter_id}章结构，从各节首个目标开始；不代表整章覆盖或掌握",
+            name=f"第{chapter_id}章章节导学（每节首点）",
             modules=modules,
+            source_scope={'coverage':'chapter_section_first_targets','chapter_id':chapter_id},
         )
         proposal = self.service.create_plan(self.scope, draft,
                                             command_id=f"{command_id}:plan")

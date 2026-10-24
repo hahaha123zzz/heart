@@ -31,6 +31,10 @@ class SessionStudyService:
         self.scope = scope
         self.source_validator = source_validator or validate_source
 
+    def ready(self):
+        with session_scope() as session:
+            return _schema(session)
+
     def current(self):
         with session_scope() as session:
             if not _schema(session):
