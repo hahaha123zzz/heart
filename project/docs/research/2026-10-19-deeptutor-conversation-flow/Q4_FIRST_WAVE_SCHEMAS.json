@@ -1,0 +1,315 @@
+{
+  "material_outline": {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "material_outline",
+        "description": "读取当前授权教材的真实目录；返回稳定目标ID、版本与续读位置，不改变学习计划。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "chapter_id": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    "scopes": [
+      "course:read"
+    ],
+    "implementation": "isolated_adapter"
+  },
+  "read_material": {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "read_material",
+        "description": "按目录目标ID或绑定文档的阅读版页码读取原文；最多一个目标或相邻三页。引用使用返回编号。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "unit_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "block_offset": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "char_offset": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "document_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "page": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "end_page": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [],
+          "additionalProperties": false,
+          "oneOf": [
+            {
+              "required": [
+                "unit_id"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "document_id"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "version"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "page"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "end_page"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "required": [
+                "document_id",
+                "version",
+                "page"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "unit_id"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "block_offset"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "char_offset"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "scopes": [
+      "course:read"
+    ],
+    "implementation": "isolated_adapter"
+  },
+  "read_source": {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "read_source",
+        "description": "读取本任务已经登记的来源；expand=true补读同小节相邻段落，新的范围重新核验。不要编造ID。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "source_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "expand": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "source_id"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "scopes": [
+      "course:read",
+      "sources:read"
+    ],
+    "implementation": "isolated_adapter"
+  },
+  "read_memory": {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "read_memory",
+        "description": "只读当前学生已记录画像及明确确认的偏好；缺失不推断，不更新记忆。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "section": {
+              "type": "string",
+              "enum": [
+                "profile",
+                "preferences"
+              ]
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    "scopes": [
+      "memory:read"
+    ],
+    "implementation": "isolated_adapter"
+  },
+  "kb_files": {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "kb_files",
+        "description": "按公开教材文档清单盘点，不用检索片段数代替文档数；支持名称子串或glob。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    "scopes": [
+      "course:read"
+    ],
+    "implementation": "isolated_adapter"
+  },
+  "reader_goto": {
+    "schema": {
+      "type": "function",
+      "function": {
+        "name": "reader_goto",
+        "description": "请求定位合法教材来源或阅读版页码；仅收到真实页面applied回执后才可声称到达。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "source_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "document_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "page": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "quote": {
+              "type": "string",
+              "maxLength": 500
+            }
+          },
+          "required": [],
+          "additionalProperties": false,
+          "oneOf": [
+            {
+              "required": [
+                "source_id"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "document_id"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "version"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "page"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "required": [
+                "document_id",
+                "version",
+                "page"
+              ],
+              "not": {
+                "required": [
+                  "source_id"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "scopes": [
+      "reader:navigate"
+    ],
+    "implementation": "contract_only"
+  }
+}

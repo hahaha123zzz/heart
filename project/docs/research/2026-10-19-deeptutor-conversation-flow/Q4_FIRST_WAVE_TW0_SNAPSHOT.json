@@ -1,0 +1,58 @@
+{
+  "base": "be7cc9c7b18530b2660d5df33cede4efbd76e10f",
+  "normal_with_skills": [
+    "read_skill",
+    "ask_user",
+    "retrieve_course"
+  ],
+  "q5_without_skills": [
+    "ask_user",
+    "mastery_build",
+    "mastery_leave",
+    "mastery_mode",
+    "mastery_note_explained",
+    "mastery_paths",
+    "mastery_revise",
+    "mastery_status",
+    "mastery_switch",
+    "mastery_understood",
+    "retrieve_course"
+  ],
+  "interjection_without_skills": [
+    "ask_user",
+    "mastery_paths",
+    "mastery_status",
+    "retrieve_course"
+  ],
+  "q5_scopes": {
+    "mastery_status": [
+      "learning:read"
+    ],
+    "mastery_build": [
+      "learning:plan:write"
+    ],
+    "mastery_note_explained": [
+      "learning:explain:write"
+    ],
+    "mastery_understood": [
+      "learning:position:write"
+    ],
+    "mastery_mode": [
+      "learning:mode:write"
+    ],
+    "mastery_paths": [
+      "learning:read"
+    ],
+    "mastery_switch": [
+      "learning:path:write"
+    ],
+    "mastery_leave": [
+      "learning:path:write"
+    ],
+    "mastery_revise": [
+      "learning:plan:write"
+    ]
+  },
+  "running_service": "8000 listener not observed; process source SHA not verified; no service started or stopped",
+  "new_tools_in_public_entry": false
+}
