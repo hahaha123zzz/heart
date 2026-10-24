@@ -192,3 +192,5 @@ class PlannerTests(unittest.TestCase):
         for message in ['今天有一小时，想学自变量和因变量，基础弱，先讲不要考试','今天怎么安排','帮我安排一小时']:
             self.assertTrue(runtime.is_plan_request(message),message)
         self.assertFalse(runtime.is_plan_request('什么是自变量'))
+        self.assertTrue(runtime.is_chapter_guide('生成第二章的章节导学计划'))
+        self.assertFalse(runtime.is_chapter_guide('今天怎么安排'))

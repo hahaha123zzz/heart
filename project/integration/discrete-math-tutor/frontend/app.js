@@ -76,7 +76,7 @@ function renderSessionPlan(plan) {
   const kinds={explain:'讲解',example:'例子',compare:'辨析',optional_check:'可选自测（不评分）',review:'回顾'};
   const labels={planned:'未开始',in_progress:'正在学习',explained:'已讲解',skipped:'已跳过',done:'已结束'};
   return '<section class="session-study-plan" aria-label="本次学习安排" data-session-plan="'+esc(plan.plan_id)+'">'+
-    '<strong>本次安排 · '+esc(plan.request.goal)+'</strong><p>预计 '+plan.items.reduce((sum,item)=>sum+item.estimated_minutes,0)+' 分钟'+
+    '<strong>本次安排 · '+esc(plan.request.goal)+'</strong>'+(state.sessionPlanSourceStatus==='stale'&&state.sessionPlan?.plan_id===plan.plan_id?'<p role="alert">教材来源或路径已变化，请重新安排；历史来源未升级。</p>':'')+'<p>预计 '+plan.items.reduce((sum,item)=>sum+item.estimated_minutes,0)+' 分钟'+
     (plan.request.time_budget_minutes?' / 预算 '+plan.request.time_budget_minutes+' 分钟':'（可调整的估算）')+' · '+esc({draft:'待确认',active:'进行中',paused:'已暂停',done:'本次已结束'}[plan.status]||'')+'</p><ol>'+
     plan.items.map(item=>'<li data-session-item="'+esc(item.item_id)+'" '+(item.item_id===plan.current_item_id?'aria-current="step"':'')+'><strong>'+esc(item.title)+'</strong> · '+item.estimated_minutes+' 分钟 · '+esc(labels[item.status])+
       '<p>'+esc(kinds[item.kind])+'；完成标准：'+esc(item.completion_criterion)+'</p><small>顺序理由：'+esc(item.order_reason)+'；教材：'+item.source_refs.map(ref=>esc(ref.title||'原文')+'（第'+ref.chapter_id+'章 · 第'+ref.section_id+'节）').join('、')+'</small></li>').join('')+
@@ -95,6 +95,7 @@ async function restoreClarification() {
     const sessionResult=await api('/api/course/session-plan?student_id='+encodeURIComponent(owner)+'&session_id='+encodeURIComponent(tabSessionId));
     if(owner!==studentId)return;
     state.sessionPlan=sessionResult.session_plan;
+    state.sessionPlanSourceStatus=sessionResult.source_status;
     if(state.clarification && !state.chat.some(m=>m.taskId===state.clarification.task_id))
       state.chat.push({role:'assistant',content:state.clarification.reply,taskId:state.clarification.task_id});
     $('#chat-error').textContent=result.notice || '';renderChat();
@@ -577,6 +578,7 @@ async function sendMessage(message, options={}) {
       relationContext:result.answer_status==='answered'?result.relation_context:undefined,
       guide:result.answer_status==='answered'||(!result.answer_status&&result.guided_visualization)?result.guided_visualization:undefined});
     state.sessionPlan=result.session_plan || result.q5_status?.session_plan || state.sessionPlan;
+    if(result.session_plan || result.q5_status?.session_plan)state.sessionPlanSourceStatus='current';
     if (finished) pending.finishedAt = Date.now();
     else pending.answerSaved = true;
     renderChat();

@@ -316,6 +316,22 @@ class TaskService:
                 try:
                     def planning_guard():
                         self.repo.guard(task['student_id'],task['session_id'],task['id'],task['revision'],self.tutor.memory.repo)
+                    if q5_propose and q5.is_chapter_guide(request.message):
+                        from agents.course_search import explicit_chapters
+                        chapters=explicit_chapters(request.message)
+                        if len(chapters)!=1:raise ValueError('章节导学需要明确一个教材章节，不会默认第一章')
+                        chapter_id=next(iter(chapters))
+                        if q5.has_path():
+                            from knowledge.course_navigation import outline
+                            sections=list(dict.fromkeys(u['section_title'] for u in outline() if u['chapter_id']==chapter_id))
+                            return save_q5({'reply':f'第{chapter_id}章章节导学目录：'+'、'.join(sections)+
+                                '。这是目录覆盖，保留当前长期路径；可用“今天怎么安排”选择其中的本次活动。',
+                                'answer_status':'answered','result_type':'chapter_guide','step_advanced':False})
+                        from database.database import session_scope
+                        with session_scope(immediate=True):
+                            planning_guard()
+                            proposal=q5.propose_chapter_plan(request.message,request_key,chapter_id=chapter_id)
+                            return save_q5(q5.plan_result(proposal,task))
                     if session_confirm:
                         q5.sessions.confirm(session_draft,command_id=request_key+':session-confirm',guard=planning_guard)
                     elif session_adjust_prompt:
@@ -365,8 +381,10 @@ class TaskService:
                             and status.get("current")):
                         q5_binding = q5
                 except (ValueError, RuntimeError) as exc:
+                    notice = ('本次学习安排尚未启用，请先使用普通问答；学习路径没有变化。'
+                              if str(exc).startswith('session_plan_schema_required') else f"学习计划暂时无法推进：{exc}")
                     result = {
-                        "reply": f"学习计划暂时无法推进：{exc}",
+                        "reply": notice,
                         "answer_status": "q5_error",
                         "step_advanced": False,
                         "task_id": task.get("id"), "task_revision": task.get("revision"),
