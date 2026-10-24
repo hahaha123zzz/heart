@@ -147,7 +147,7 @@ class QualityChecker:
                         "不要仅因缺少教材引文或原书没有同款教学例子而拒绝；"
                         "核对回答是否把补充说成教材原话、虚构具体研究结果，或明显违背实验心理学基本概念。"
                         "允许简明诚实地说明这是课堂补充。")
-        else:
+        elif not rule_context.get("agent_loop"):
             content += "\n逐项核对本轮明确要求：遗漏任一比较对象、指定理由、例子或关键条件，应要求补齐；仅提示不应补最终结论。短但漏答不能判通过。"
         if rule_context.get('grounded_evidence'):
             content+='\n本轮引用只允许指向以下细粒度原文；逐条检查紧邻[n]的结论是否被第n条原文支持，不能因为检索背景或历史其他位置有类似内容就放行。特别核对否定、例外、条件、数量和因果方向；例子不得冒充原书。'+str(rule_context['grounded_evidence'])

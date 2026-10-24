@@ -45,3 +45,6 @@
 合并首次85项测试1失败：新增 planning-failure fixture 的 Mock.is_chapter_guide 未显式设false，未进入被测 propose_session；与已记录插问fixture同类。只补齐两个fixture的真实boolean契约，不改Q5生产逻辑，重跑85项全过。另18项提速测试全过，含教学修订必须撤回且保留工具。原始日志 merge-main-focused.log / merge-main-focused-second.log / merge-final-speed.log 均保留。
 
 79460d3 的8类×5对完整性能队列已结束，仅作为合并前优化版本测量；不把它算成并行主线合入后的最终宿主验收。后续固定合并提交重新导出真实页面与故障验证。
+
+
+合并49cd0cc后固定导出跑256项：255通过，1失败（普通问答可发布性质检被新增blended分支的else附加结构化要求）。修复为elif not agent_loop，恢复原有普通问答与结构化计划的不同质检范围，blended补充知识说明仍独立保留。57项相关回归通过，日志offline-49cd0cc.log / merge-quality-scope.log；49cd0cc概念/图1-4/图5-2页面成功及刷新记录仅属修复前版本，后续最终提交重跑。
