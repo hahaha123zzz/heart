@@ -544,6 +544,9 @@ class TaskService:
                     result['execution_metrics'] = current_budget.get().snapshot()
                 task, result = self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo, status="completed", result=result,
                     context=context.model_dump() | {"document_versions": document_versions})
+            if current_budget.get():
+                current_budget.get().record('save.completed')
+                result['execution_metrics'] = current_budget.get().snapshot()
             return result
         except TaskConflict as error:
             if error.code in ('visualization_changed', 'document_changed') and 'task' in locals():

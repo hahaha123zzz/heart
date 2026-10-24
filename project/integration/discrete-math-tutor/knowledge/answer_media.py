@@ -1,10 +1,12 @@
 """复用 Q2 原图映射；模型图片是临时消息，记录只保存资源身份。"""
+from llm.execution_budget import bounded_stage
 import os
 import re
 
 from knowledge.figures import get_figure, retrieve_figures
 
 
+@bounded_stage('media_selection')
 def selected_media(query, sources, *, asset_id=None):
     from knowledge.lightrag.retrieval import as_textbook_chunk
     chunks = [as_textbook_chunk(s) for s in sources if s.get('location', {}).get('source')]
@@ -51,6 +53,7 @@ def current_media(refs):
     return output[:2]
 
 
+@bounded_stage('media_payload')
 def model_message(refs):
     if os.getenv('LLM_VISION_ENABLED', '1') == '0':
         return None
