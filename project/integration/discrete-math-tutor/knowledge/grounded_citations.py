@@ -1,4 +1,6 @@
 """本轮小证据选择、原文存在性、坐标与最终展示核验。"""
+from llm.execution_budget import bounded_stage
+
 import hashlib,json,os,re
 from dataclasses import dataclass,replace
 from pathlib import Path
@@ -191,6 +193,7 @@ def references_for_display(references):
     return output
 
 
+@bounded_stage('source_selection')
 def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=None,history=()):
     registry={r['chapter_id']:r for r in documents()}
     candidates=[];seen=set();index=LiveCitationIndex() if index_path=='live' else CitationIndex(index_path)

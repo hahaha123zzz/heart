@@ -1,0 +1,24 @@
+{
+  "upstream": "D:/deeptutor",
+  "revision": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "license": "Apache-2.0",
+  "license_local": "third_party/DeepTutor/LICENSE",
+  "files": [
+    {
+      "path": "deeptutor/agents/loop/agent_loop.py",
+      "sha256": "8d388f5772937ae72d6f39313fff2460e8d594e96f406c4acc96ca674c9c7a78",
+      "reuse": "适配 call_role/answer_visible、定点拒绝、partial_response 及部分输出后禁止重试的控制分支；同步 SDK 保留 finally close。未迁入 StreamBus。"
+    },
+    {
+      "path": "deeptutor/agents/loop/pipeline.py",
+      "sha256": "8ec2ec26777c3bf5166dde992e4e093528d0961071a1d502f475663677752041",
+      "reuse": "参考有界先取证语义，继续调用宿主 retrieve_course；不迁入上游 KB 管理。"
+    }
+  ],
+  "adaptations": [
+    "沿用 task/revision/answer_id/round_id/seq，增加 role 与 target_round_id",
+    "探索文本不发送正文 token，已完成候选直接走既有事实门禁及最终快照，不为流式再生成",
+    "共享进程内 monotonic 活动预算，线程边界 copy_context；不持久化 deadline",
+    "教材证据、视觉核验、质量与存储协议保持宿主现有实现"
+  ]
+}

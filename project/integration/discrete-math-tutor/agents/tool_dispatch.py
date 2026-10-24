@@ -8,6 +8,8 @@ settled. Every requested call receives exactly one role=tool message.
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
+from contextvars import copy_context
+from llm.execution_budget import current_budget, check_budget
 from dataclasses import dataclass, field
 import json
 from typing import Any
@@ -68,6 +70,10 @@ def _tool_message(call: dict[str, Any], result: ToolResult) -> dict[str, Any]:
 
 def _invoke(tool: BaseTool, call: dict[str, Any], context: ToolContext,
             timeout_seconds: float | None) -> ToolResult:
+    check_budget()
+    budget = current_budget.get()
+    if budget:
+        timeout_seconds = min(timeout_seconds or budget.remaining(), budget.remaining())
     context.check_cancelled()
     if tool is None:
         return ToolResult(content=f"{call['name']} 不在本轮工具列表中，未执行。", success=False)
@@ -83,7 +89,7 @@ def _invoke(tool: BaseTool, call: dict[str, Any], context: ToolContext,
             result = tool.run(dict(call["arguments"]), context)
         else:
             pool = ThreadPoolExecutor(max_workers=1)
-            future = pool.submit(tool.run, dict(call["arguments"]), context)
+            future = pool.submit(copy_context().run, tool.run, dict(call["arguments"]), context)
             try:
                 result = future.result(timeout=timeout_seconds)
             except FutureTimeout:
@@ -101,6 +107,7 @@ def _invoke(tool: BaseTool, call: dict[str, Any], context: ToolContext,
         result = ToolResult(content=f"{call['name']} 执行超时，未完成。", success=False)
     except Exception as exc:
         result = ToolResult(content=f"{call['name']} 执行失败：{type(exc).__name__}: {exc}", success=False)
+    check_budget()
     context.event("tool_result", call["name"], {"tool_call_id": call["id"],
         "success": result.success, "sources": len(result.sources),
         "pause": bool(result.pause_for_user),
@@ -142,7 +149,7 @@ def dispatch_tool_calls(*, tool_calls: list[Any], registry: ToolRegistry,
     resolved: dict[int, ToolResult] = {}
     if ordinary:
         with ThreadPoolExecutor(max_workers=min(8, len(ordinary))) as pool:
-            futures = {index: pool.submit(_invoke, registry.get(call["name"]), call, context,
+            futures = {index: pool.submit(copy_context().run, _invoke, registry.get(call["name"]), call, context,
                                           timeout_seconds) for index, call in ordinary}
             for index, future in futures.items():
                 resolved[index] = future.result()

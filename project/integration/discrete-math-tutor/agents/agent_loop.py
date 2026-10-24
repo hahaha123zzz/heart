@@ -20,6 +20,7 @@ from agents.tool_protocol import (
     Cancellation, CancelledError, ToolContext, ToolRegistry, ToolResult,
 )
 from llm.client import LLMClient, LLMError
+from llm.execution_budget import BudgetExceeded, check_budget, stage_call
 from llm.answer_events import answer_kwargs, checking, retract
 from agents.transient_messages import with_transient_model_messages, extend_transient_model_messages
 
@@ -48,6 +49,7 @@ class LoopRequest:
     round_max_tokens: int = 1200
     temperature: float = 0.2
     tool_choice: str | None = None
+    requires_evidence: bool = False
 
 
 @dataclass
@@ -65,12 +67,16 @@ class LoopResult:
     sources: list[dict[str, Any]] = field(default_factory=list)
     usage: dict[str, int] = field(default_factory=dict)
     error: str = ""
+    unpublished_draft: str = ""
     events: list[dict[str, Any]] = field(default_factory=list)
     protocol_version: int = 1
 
     def state(self) -> dict[str, Any]:
         """Serializable state for TaskService persistence."""
+        from llm.execution_budget import current_budget
+        budget = current_budget.get()
         return {
+            "execution_policy": {"active_limit_seconds": budget.seconds} if budget else {},
             "protocol_version": self.protocol_version,
             "messages": self.messages,
             "rounds": self.rounds,
@@ -137,6 +143,15 @@ class LocalAgentLoop:
             outcome = self._loop(request, messages, result, tool_context, collector)
             result.events = collector.to_dicts()
             return outcome
+        except BudgetExceeded:
+            from llm.answer_events import current_answer
+            publisher = current_answer.get()
+            result.unpublished_draft = publisher.text if publisher and publisher.role == 'answer' else ''
+            result.error = 'active_timeout'
+            result.final_text = '本轮活动总时限已到，未完成内容不发布。'
+            collector('error', result.final_text, {'code': result.error})
+            result.events = collector.to_dicts()
+            return result
         except CancelledError:
             result.events = collector.to_dicts()
             result.error = "cancelled"
@@ -175,7 +190,9 @@ class LocalAgentLoop:
         settlement_budget = max(0, request.max_settlement_rounds)
         repair_used = False
         no_tools_next = False
+        first_active_round = True
         while True:
+            check_budget()
             if request.cancellation is not None:
                 request.cancellation.check()
             if request.guard is not None:
@@ -185,22 +202,39 @@ class LocalAgentLoop:
                 return self._forced_finish(request, messages, result, context, collector)
             collector("stage_start", "收尾" if settling else "探索",
                       {"round": result.rounds + 1})
-            tools = [] if no_tools_next else request.tools.schemas()
+            evidence_ready = bool(result.sources)
+            tools = [] if no_tools_next or (request.requires_evidence and evidence_ready) else request.tools.schemas()
+            choice = request.tool_choice if result.rounds == 0 else None
+            if request.requires_evidence and not evidence_ready and first_active_round:
+                if any(tool.get('function', {}).get('name') == 'retrieve_course' for tool in tools):
+                    # 先取证或必要澄清；保留 ask_user/Q5 工具，避免强迫澄清轮读取教材。
+                    choice = 'required'
+            role = 'progress' if tools else 'answer'
             try:
                 round_result = self.llm.chat_with_tools(
                     with_transient_model_messages(messages, result._transient), tools or [], temperature=request.temperature,
                     timeout=90,
                     max_tokens=request.round_max_tokens,
-                    tool_choice=request.tool_choice if result.rounds == 0 else None,
-                    **answer_kwargs(),
+                    tool_choice=choice,
+                    **answer_kwargs(role),
                 )
             except LLMError as exc:
+                check_budget()
+                if exc.partial_response or exc.finish_reason == 'length':
+                    result.unpublished_draft = exc.partial_text if role == 'answer' else ''
+                    result.usage.update(exc.usage)
+                    return self._error_result(result, messages, collector,
+                        'incomplete_answer' if exc.finish_reason == 'length' else 'answer_interrupted',
+                        '模型输出达到长度上限，未完成内容不保存。' if exc.finish_reason == 'length' else
+                        '模型输出中断，片段未核验、未保存；请确认后重试。')
                 if result.rounds == 0:
-                    result.error = f"model_unavailable: {exc}"
-                    collector("error", "模型暂时不可用", {"code": "model_unavailable"})
-                    return result
+                    return self._error_result(result, messages, collector, 'model_unavailable',
+                        '模型连接或响应暂时不可用，本轮没有生成已保存回答。')
+                if not result.sources:
+                    return self._error_result(result, messages, collector, 'model_unavailable', '模型暂时不可用')
                 return self._forced_finish(request, messages, result, context, collector,
                                            reason=f"模型调用失败：{exc}")
+            first_active_round = False
             result.rounds += 1
             self._mark_pixels(result)
             if settling:
@@ -266,7 +300,8 @@ class LocalAgentLoop:
                                           "模型没有返回可发布回答")
             if request.publish_gate is not None:
                 checking()
-                ok, reason = request.publish_gate(final_text, result)
+                ok, reason = stage_call('quality', lambda: request.publish_gate(final_text, result))
+                check_budget()
                 if not ok:
                     retrieved = any(call.get('function', {}).get('name') == 'retrieve_course'
                                     for row in messages if row.get('role') == 'assistant'
@@ -279,6 +314,7 @@ class LocalAgentLoop:
                         continue
                     if not repair_used and any(token in (reason or "") for token in
                                                ("过长", "压缩", "字数", "超过", "引用格式", "格式无效", "尚未引用双方")):
+                        retract()
                         repair_used = True
                         no_tools_next = True
                         messages.append({"role": "assistant", "content": final_text})
@@ -318,6 +354,7 @@ class LocalAgentLoop:
     def _forced_finish(self, request: LoopRequest, messages: list[dict[str, Any]],
                        result: LoopResult, context: ToolContext,
                        collector: EventCollector, reason: str = "") -> LoopResult:
+        check_budget()
         if request.cancellation is not None:
             request.cancellation.check()
         if request.guard is not None:
@@ -333,6 +370,13 @@ class LocalAgentLoop:
                 timeout=90,
                 max_tokens=request.round_max_tokens, **answer_kwargs())
         except LLMError as exc:
+            if exc.partial_response:
+                result.unpublished_draft = exc.partial_text
+                result.usage.update(exc.usage)
+                return self._error_result(result, messages, collector,
+                    'incomplete_answer' if exc.finish_reason == 'length' else 'answer_interrupted',
+                    '模型输出达到长度上限，未完成内容不保存。' if exc.finish_reason == 'length' else
+                        '模型输出中断，片段未核验、未保存；请确认后重试。')
             return self._error_result(result, messages, collector, "forced_finish_failed",
                                       f"收尾回答失败：{exc}")
         result.rounds += 1
@@ -354,7 +398,8 @@ class LocalAgentLoop:
                                       "预算用尽后模型仍未给出回答")
         if request.publish_gate is not None:
             checking()
-            ok, gate_reason = request.publish_gate(text, result)
+            ok, gate_reason = stage_call('quality', lambda: request.publish_gate(text, result))
+            check_budget()
             if not ok:
                 result.final_text = gate_reason or "本次回答未通过课程核验，暂不发布。"
                 result.error = "quality_rejected"

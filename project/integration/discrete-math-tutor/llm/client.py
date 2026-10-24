@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 from llm.tool_call_stream import ToolCallAccumulator
 from llm.think_stream import InlineThinkFilter
+from llm.execution_budget import bounded_model, model_timeout, check_budget, current_budget
 
 try:
     from dotenv import load_dotenv
@@ -24,7 +25,14 @@ from llm.mock_discrete import mock_reply
 
 
 class LLMError(RuntimeError):
-    """The configured model could not produce a usable answer."""
+    """模型失败及已收到的未保存片段；不作为正式回答。"""
+
+    def __init__(self, message, *, partial_text="", finish_reason="", usage=None):
+        super().__init__(message)
+        self.partial_text = partial_text
+        self.partial_response = bool(partial_text)
+        self.finish_reason = finish_reason
+        self.usage = usage or {}
 
 
 class LLMJSONError(LLMError):
@@ -110,20 +118,30 @@ class LLMClient:
             args["reasoning_effort"] = reasoning_effort
         if "api.deepseek.com" in self.base_url:
             args["extra_body"] = {"thinking": {"type": "enabled" if reasoning_effort else "disabled"}}
+        timeout = model_timeout(timeout)
         client = self._client_lazy()
         if timeout is not None:
             client = client.with_options(timeout=timeout, max_retries=0)
         response = client.chat.completions.create(**args)
+        budget = current_budget.get()
+        if budget:
+            usage = getattr(response, 'usage', None)
+            budget.record('sdk.completed', model=args['model'], usage={key:getattr(usage,key,None) for key in ('prompt_tokens','completion_tokens','total_tokens')})
         choice = response.choices[0]
         return choice.message.content or "", choice.finish_reason
 
     def _stream_call(self, args: dict[str, Any], on_delta: Callable[[str], None],
                      *, timeout: float | None = None, guard: Callable[[], None] | None = None) -> ChatToolResult:
         """一次 SDK 真流；只转发正文，流开始后不重试或重播。"""
+        timeout = model_timeout(timeout)
         client = self._client_lazy().with_options(max_retries=0, **({"timeout": timeout} if timeout is not None else {}))
+        budget = current_budget.get()
+        if budget:
+            budget.record('sdk.connection_start', model=args.get('model'))
         request = dict(args, stream=True, stream_options={"include_usage": True})
         if "api.deepseek.com" in self.base_url:
             request.setdefault("extra_body", {"thinking": {"type": "disabled"}})
+        check_budget()
         if guard:
             guard()
         try:
@@ -136,6 +154,8 @@ class LLMClient:
             if guard:
                 guard()
             stream = client.chat.completions.create(**request)
+        if budget:
+            budget.record('sdk.connected')
         accumulator = ToolCallAccumulator()
         thinking = InlineThinkFilter()
         result = ChatToolResult()
@@ -148,6 +168,7 @@ class LLMClient:
                     on_delta(text)
         try:
             for chunk in stream:
+                check_budget()
                 if guard:
                     guard()
                 raw_usage = getattr(chunk, "usage", None)
@@ -178,8 +199,18 @@ class LLMClient:
             if result.finish_reason == "tool_calls" and not result.tool_calls:
                 raise LLMError("模型工具流缺少完整工具名称")
             return result
+        except Exception as exc:
+            raise LLMError(str(exc), partial_text=result.text,
+                           finish_reason=result.finish_reason, usage=result.usage) from exc
         finally:
-            stream.close()
+            try:
+                stream.close()
+            except Exception as exc:
+                raise LLMError(str(exc), partial_text=result.text,
+                               finish_reason=result.finish_reason, usage=result.usage) from exc
+            finally:
+                if budget:
+                    budget.record('sdk.closed', finish_reason=result.finish_reason, usage=result.usage, partial_characters=len(result.text))
 
     @staticmethod
     def _with_images(messages: List[Dict[str, Any]], image_paths: List[Path]) -> List[Dict[str, Any]]:
@@ -214,6 +245,7 @@ class LLMClient:
         result[-1]["content"] = parts
         return result
 
+    @bounded_model
     def chat(
         self,
         messages: List[Dict[str, Any]],
@@ -256,7 +288,7 @@ class LLMClient:
                 self._one_call(request_messages, temperature, max_tokens, self.vision_model, timeout=timeout, **reasoning)
                 if visual else self._one_call(request_messages, temperature, max_tokens, timeout=timeout, **reasoning)
             )
-            if not content and reason == "length" and timeout is None:
+            if not content and reason == "length" and timeout is None and current_budget.get() is None:
                 retry_tokens = max(max_tokens * 2, 1200)
                 content, reason = (
                     self._one_call(request_messages, temperature, retry_tokens, self.vision_model, timeout=timeout, **reasoning)
@@ -272,6 +304,7 @@ class LLMClient:
         except Exception as exc:
             raise LLMError("模型调用失败：" + str(exc)) from exc
 
+    @bounded_model
     def chat_with_tools(
         self,
         messages: List[Dict[str, Any]],
@@ -280,7 +313,7 @@ class LLMClient:
         temperature: float = 0.2,
         max_tokens: int = 1200,
         timeout: float | None = None,
-        tool_choice: str | None = None,
+        tool_choice: str | dict | None = None,
         model: str | None = None,
         on_delta: Callable[[str], None] | None = None,
         stream_guard: Callable[[], None] | None = None,
@@ -308,6 +341,7 @@ class LLMClient:
                 args["tool_choice"] = tool_choice or "auto"
             if on_delta is not None:
                 return self._stream_call(args, on_delta, timeout=timeout, guard=stream_guard)
+            timeout = model_timeout(timeout)
             client = self._client_lazy()
             if timeout is not None:
                 client = client.with_options(timeout=timeout, max_retries=0)
@@ -360,7 +394,8 @@ class LLMClient:
             result = mock_reply(messages, json_mode=True)
             return dict(result) if isinstance(result, dict) else {}
         last_error: Exception | None = None
-        for _ in range(retries + 1):
+        for _ in range((min(retries, 1) if current_budget.get() else retries) + 1):
+            check_budget()
             try:
                 return extract_json(self.chat(messages, temperature, max_tokens,
                                               image_paths=image_paths, timeout=timeout,
