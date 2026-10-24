@@ -254,7 +254,8 @@ class TaskService:
             replay = self.repo.replay(request.student_id, request.session_id, request_key, payload, self.tutor.memory.repo)
             if replay is not None:
                 from knowledge.grounded_citations import references_for_display
-                return dict(replay,pdf_references=references_for_display(replay['pdf_references'])) if replay.get('pdf_references') else replay
+                restored = dict(replay, reader_action_replay=True)
+                return dict(restored,pdf_references=references_for_display(replay['pdf_references'])) if replay.get('pdf_references') else restored
             pending = self.repo.pending(request.student_id, request.session_id)
             task_id, revision = request.task_id, request.task_revision
             if task_id is None and pending and not re.search(r"换到|换个|改学|想学|重新提问", request.message):
@@ -581,7 +582,8 @@ class TaskService:
             # 与最后一次保存使用相同工作单元检查，拒绝已删除/取消的迟到结果。
             with self.tutor.memory.repo.unit_of_work():
                 guard()
-                if (result.get('answer_status') == 'answered' and result.get('memory_commit', {}).get('status') == 'committed'):
+                if (result.get('answer_status') == 'answered' and not result.get('learning_interjection')
+                        and result.get('memory_commit', {}).get('status') == 'committed'):
                     navigation = context.course_navigation
                     if navigation and navigation.get('status') == 'ready' and result.get('knowledge_point') == navigation['title']:
                         result = dict(result, course_navigation=dict(navigation, explained=True))

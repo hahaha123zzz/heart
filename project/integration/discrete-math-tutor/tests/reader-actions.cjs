@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
+const context={window:{}};vm.runInNewContext(fs.readFileSync('frontend/reader-actions.js','utf8'),context);
+const apply=context.window.TutorReaderActions.apply;
+const action={action_id:'a',task_id:'t',status:'requested',document_id:'d',version:'v',page:2};
+const result={task_id:'t',task_revision:3,answer_status:'answered'};
+(async()=>{let moves=0,acks=[];const deps={current:()=>true,navigate:async()=>{moves++;return {document_id:'d',version:'v',page:2};},acknowledge:async a=>{acks.push(a);return a;}};
+assert.equal((await apply(action,result,deps)).status,'applied');
+assert.equal(await apply(action,result,deps),null);assert.equal(moves,1);
+assert.equal(await apply({...action,action_id:'replay'},{...result,reader_action_replay:true},deps),null);
+assert.equal(await apply({...action,action_id:'recovered'},{...result,_transportRecovered:true},deps),null);
+assert.equal((await apply({...action,action_id:'hidden'},result,{...deps,current:()=>false})).status,'rejected');
+assert.equal((await apply({...action,action_id:'wrong-page'},result,{...deps,navigate:async()=>({document_id:'d',version:'v',page:1})})).status,'rejected');
+assert.equal(moves,1);console.log('reader action guards: passed');})().catch(e=>{console.error(e);process.exitCode=1;});

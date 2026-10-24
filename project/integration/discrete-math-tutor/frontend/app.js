@@ -355,6 +355,37 @@ function syncPDFReader() {
 window.addEventListener("pdf-reader-ready",()=>{syncPDFReader();chatRenderer?.refreshMath();renderChat();});
 
 const streamChat = window.TutorChatTransport.streamChat;
+let actualReaderPosition = null;
+let readerPositionSeq = 0;
+window.addEventListener('pdf-position', event => {actualReaderPosition = event.detail;readerPositionSeq++;});
+
+async function applyReaderAction(action, result, pending, owner) {
+  let expectedSelection = pending.readerOrigin;
+  const current = () => owner === studentId && localStorage.getItem(studentKey) === owner &&
+    action.session_id === tabSessionId && document.visibilityState === 'visible' &&
+    state.view === 'course' && state.chat.filter(m=>m.role==='assistant').at(-1) === pending &&
+    (state.selection||0) === expectedSelection && !state.pdfDraft && !window.getSelection()?.toString();
+  return window.TutorReaderActions.apply(action, result, {current,
+    acknowledge: body => post(`/api/chat/tasks/${encodeURIComponent(result.task_id)}/reader-receipt`,
+      {...body, student_id:owner, session_id:tabSessionId}),
+    navigate: async (target, guard) => {
+      if (!guard()) throw new Error('当前页面不适合自动定位');
+      const previousPositionSeq = readerPositionSeq;
+      expectedSelection = (state.selection||0)+1;
+      const ok = await selectSection(target.chapter_id, target.section_id, {record:false});
+      if (!ok || !guard()) throw new Error('教材切换未完成');
+      state.pdfFocus = {...target, kind:'text', text:target.quote || ''};
+      showView('course');syncPDFReader();
+      const started = Date.now();
+      while (Date.now()-started<12000) {
+        if (!guard() || state.pdfFocus?.action_id !== target.action_id) throw new Error('教材或任务已切换');
+        if (readerPositionSeq>previousPositionSeq && actualReaderPosition?.document_id === target.document_id && actualReaderPosition.version === target.version &&
+            actualReaderPosition.page === target.page) return {document_id:target.document_id,version:target.version,page:target.page};
+        await new Promise(resolve=>setTimeout(resolve,100));
+      }
+      throw new Error('阅读器未确认到达目标页');
+    }});
+}
 
 function renderContent() {
   const original = state.sectionData;
@@ -614,6 +645,7 @@ async function sendMessage(message, options={}) {
     if(payload.visualization_target) pending.objectLabel='当前辅助图 · 版本 '+payload.visualization_target.expected_revision;
     pending.request.payload=payload;
     pending.request.styleOnceId=options.styleOnceId || (!options.payload?styleSnapshot.onceId:undefined);
+    pending.readerOrigin = state.selection||0;
     const result = await streamChat(payload, progress => {
         if (!isCurrent()) return;
         const index = pending.progress.findIndex(item => item.order === progress.order);
@@ -621,6 +653,7 @@ async function sendMessage(message, options={}) {
         else pending.progress.push(progress);
         renderChat();
       }, result => showAnswer(result, false), (event,data)=>{
+        if(event==='reader_action'){if(isCurrent())pending.readerAction=data;return;}
         if(!isCurrent()||!window.TutorChatTransport.applyDraft(pending,event,data))return;
         // 合并同一动画帧的 SDK 分片，保留稳定消息节点和滚动位置。
         if(!pending.draftFrame)pending.draftFrame=requestAnimationFrame(()=>{
@@ -631,6 +664,12 @@ async function sendMessage(message, options={}) {
     state.clarification=result.answer_status==='awaiting_clarification'?result:null;
     state.clarificationObject=state.clarification?objectKey:null;
     showAnswer(result, true); refreshStats();
+    const action = pending.readerAction || result.reader_actions?.[0];
+    if(action) {
+      try { const receipt = await applyReaderAction(action,result,pending,owner);
+        if(receipt?.status==='applied')toast('已到达教材目标页');
+      } catch(error) { toast('页面定位回执未保存：'+error.message); }
+    }
     if(['task_conflict','task_expired','task_not_found','task_busy','request_conflict','memory_deleted','invalid_option','task_disabled'].includes(result.answer_status)) await restoreClarification();
   } catch (error) {
     if (!isCurrent()) return;

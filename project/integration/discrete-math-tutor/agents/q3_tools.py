@@ -71,7 +71,8 @@ class RetrieveCourseTool(BaseTool):
                 source_id = f"{source.document_id}:{hash(source.text)}"
             if source_id in seen:
                 continue
-            seen.add(source_id)
+            if context.state.get('first_wave') is None:
+                seen.add(source_id)
             fresh.append(source)
         if not fresh:
             return ToolResult(
@@ -83,17 +84,25 @@ class RetrieveCourseTool(BaseTool):
             )
         lines = []
         payload = []
+        if context.state.get('first_wave') is not None:
+            from agents.tools.first_wave import register_sources
+            payload = register_sources(context, fresh)
         # Number citations across the whole turn, not per tool call: the model
         # may retrieve more than once, and [1] must keep the same meaning in
         # every tool result, the final answer and the quality gate.
         for position, source in enumerate(fresh, 1):
+            if context.state.get('first_wave') is not None:
+                item = payload[position - 1]
+                lines.append(f"[{item['index']}] {item['document_id']} 来源ID={item['source_id']}\n{item['text']}")
+                continue
             index = offset + position
             location = f"第{source.page}页" if source.page else ""
             lines.append(f"[{index}] {source.document_id} {location}\n{source.text}")
             payload.append(source.to_dict() | {"index": index,
                                                 "image_refs": [],
                                                 "stub": bool(source.location.get("stub"))})
-        context.state["source_offset"] = offset + len(payload)
+        if context.state.get('first_wave') is None:
+            context.state["source_offset"] = offset + len(payload)
         from knowledge.answer_media import selected_media, model_message
         media = selected_media(query, payload, asset_id=arguments.get('asset_id'))
         for item in media:
@@ -114,7 +123,7 @@ class RetrieveCourseTool(BaseTool):
                           metadata={"target_id": target.target_id, "query": query,
                                     "retrieval": list(getattr(context.navigation, 'calls', []))[-1:],
                                     "association_candidates": len(relations),
-                                    "stub": any(item["stub"] for item in payload)})
+                                    "stub": any(item.get("stub", False) for item in payload)})
 
 
 class AskUserTool(BaseTool):

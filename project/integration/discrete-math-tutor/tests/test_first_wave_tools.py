@@ -16,7 +16,7 @@ from agents.tools.first_wave_services import CourseReadService
 from agents.tool_protocol import ToolContext, Cancellation, CancelledError
 
 
-class TextbookFixture(unittest.TestCase):
+class TextbookResourceFixture(unittest.TestCase):
     def setUp(self):
         import fitz
         self.temp = tempfile.TemporaryDirectory()
@@ -66,6 +66,7 @@ class TextbookFixture(unittest.TestCase):
     def pages(self, **extra):
         return {'document_id': self.docid, 'version': self.version, 'page': 1, **extra}
 
+class TextbookFixture(TextbookResourceFixture):
     def test_outline_real_metadata_not_text_or_sources(self):
         result = MaterialOutlineTool().run({}, self.context)
         self.assertTrue(result.success, result.content)

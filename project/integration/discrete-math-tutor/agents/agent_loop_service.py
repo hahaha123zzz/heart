@@ -380,6 +380,14 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     revision/idempotency; this function only executes the turn.
     """
     resume_state = _resume_state(previous)
+    from agents.tools.first_wave_runtime import purpose, bind_resources, STRUCTURED_TOOL, structured_gate, skill_catalog
+    tool_purpose = purpose(request.message)
+    resources, first_tools = None, ()
+    try:
+        resources, first_tools = bind_resources(request, getattr(orchestrator, 'memory', None))
+    except (OSError, ValueError, KeyError):
+        # 未部署教材资源的隔离/旧课程环境不虚挂空工具。
+        pass
     current_target = _target_from_state(resume_state) or _target_from_context(context)
     q5_binding = None
     if q5 is not None:
@@ -403,7 +411,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         session_id=request.session_id, current_target=current_target,
         context=context,
     )
-    if decision.action == "clarify" and decision.missing:
+    if decision.action == "clarify" and decision.missing and tool_purpose == 'textbook':
         release(request.task_id or request.request_id)
         return {
             "reply": "需要先确定本轮学习目标：当前没有可用的课程路径或明确的下一目标，"
@@ -413,11 +421,11 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             "navigation": {"action": decision.action, "missing": list(decision.missing),
                            "reason": decision.reason},
         }
-    target = decision.target or current_target
+    target = decision.target or current_target or LearningTarget('course-context', context.knowledge_point or '教材')
     from agents.course_search import explicit_chapters, question_interjection
     chapters = explicit_chapters(request.message)
     interjection = bool(len(chapters) > 1 or
-        (q5_binding and question_interjection(request.message, target)))
+        (q5_binding and question_interjection(request.message, target)) or tool_purpose != 'textbook')
     root = Path(__file__).resolve().parents[1]
     skills_root = root / "visualization" / "skills"
     task_key = re.sub(r"[^A-Za-z0-9_.-]+", "_",
@@ -436,11 +444,30 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         skills_root=skills_root,
         allow_workspace=allow_workspace,
         allow_skills=skills_root.is_dir(),
-        extra_tools=(*q5_tools, ContextualRetrieveCourseTool()),
-        extra_scopes=('learning:read',) if interjection else tuple((q5_binding or {}).get("scopes") or ()),
+        extra_tools=(*q5_tools, ContextualRetrieveCourseTool(), *first_tools),
+        extra_scopes=tuple({'learning:read'} if interjection else set((q5_binding or {}).get("scopes") or ())) +
+                     tuple({scope for tool in first_tools for scope in tool.scopes}),
     )
     budget = reply_budget(request.message)
     system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions()) + "\n" + budget.instructions()
+    required_tools = ()
+    if resources:
+        import json
+        system_prompt += '\n授权教材文档（使用此处ID/版本和阅读版页码，不编造）：\n' + json.dumps(resources.course.files(resources.binding), ensure_ascii=False)
+        system_prompt += skill_catalog(skills_root, resources.binding.course_id) if skills_root.is_dir() else ''
+        if tool_purpose in STRUCTURED_TOOL:
+            required_tools = (STRUCTURED_TOOL[tool_purpose],)
+            system_prompt += '\n本轮只读取目录/盘点/画像或请求页面定位，不是教材知识讲解。先调用 ' + required_tools[0] + '，不添加教材事实或学习完成判断。'
+        else:
+            needed = []
+            if re.search(r'偏好|我的基础|记得我', request.message) and resources.memory:
+                needed.append('read_memory')
+                system_prompt += '\n先读取当前偏好，再结合本轮教材原文回答；偏好缺失不推断。'
+            if re.search(r'跳转|带我到|定位到', request.message):
+                needed.append('reader_goto')
+            if re.search(r'展开.{0,12}来源|补读|来源.{0,12}(完整|上下文)', request.message):
+                needed.append('read_source')
+            required_tools = tuple(needed)
     if interjection:
         system_prompt += '\n本轮是插问，只回答学生当前问题；保留原学习目标，不记录本目标已讲解、掌握或推进路径。'
     system_prompt += '\n页面当前学习目标仅作学习位置参考；具体提问优先，不要把旧小节主题擅自追加到检索词。指定图号先调用 retrieve_course 读取该图及登记原文，不能只检索旧主题便要求学生上传已有原图。'
@@ -478,19 +505,31 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         navigation.coverage.cancellation = cancellation
     if navigation.backend is not None and hasattr(navigation.backend, 'cancellation'):
         navigation.backend.cancellation = cancellation
+    base_gate = publish_gate or (structured_gate(tool_purpose) if resources and tool_purpose in STRUCTURED_TOOL
+                                 else _publish_gate(orchestrator, request, target, navigation))
+
+    def final_gate(text, outcome):
+        missing = set(required_tools) - {row.get('tool') for row in outcome.tool_outputs}
+        if missing:
+            return False, '所需读取或页面请求尚未成功：' + '、'.join(sorted(missing))
+        return base_gate(text, outcome)
+
     result = loop.run(
         LoopRequest(
             student_id=request.student_id, session_id=request.session_id,
             task_id=request.task_id or request.request_id,
             request_id=request.request_id or "",
             message=request.message, system_prompt=system_prompt, tools=registry,
-            round_max_tokens=round_tokens, requires_evidence=True,
+            round_max_tokens=round_tokens, requires_evidence=tool_purpose == 'textbook', required_tools=required_tools,
+            structured_response=bool(resources and tool_purpose in STRUCTURED_TOOL and publish_gate is None),
             seed_messages=list(context.history or []), target=target,
             navigation=navigation, cancellation=cancellation, guard=guard,
             tool_state={"workspace_root": str(workspace_root),
                         "skills_root": str(skills_root), "deferred_loader": None,
+                        'allowed_skills': ('reasoning-diagrams', 'experimental-design') if resources and resources.binding.course_id == 'experimental-psychology-3' else ('reasoning-diagrams', 'finite-structures'),
+                        **({'first_wave': resources} if resources else {}),
                         **((q5_binding or {}).get('tool_state') or {})},
-            publish_gate=publish_gate or _publish_gate(orchestrator, request, target, navigation),
+            publish_gate=final_gate,
             emit=emit, tool_timeout_seconds=tool_seconds, max_exploration_rounds=4,
         ),
         resume_state=resume_state,
@@ -501,6 +540,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         cancellation.cancel()
     conversation_id = None
     mapped = _map_result(result, target)
+    if result.completed:
+        actions = [row['data']['action'] for row in result.tool_outputs if row.get('result_kind') == 'reader_action']
+        mapped['reader_actions'] = actions[-1:]
     if result.completed:
         media = {}
         for source in result.sources:

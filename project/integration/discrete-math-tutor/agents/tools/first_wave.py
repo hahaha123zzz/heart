@@ -34,6 +34,7 @@ class ReadResources:
     course: object = None
     memory: object = None
     source_index: dict = field(default_factory=dict)
+    attached_sources: list = field(default_factory=list)
 
     def check(self, context):
         context.check_cancelled()
@@ -48,7 +49,8 @@ class ReadResources:
 def _identity(source):
     e = source.get('location', {}).get('evidence', {})
     return tuple(e.get(k) for k in ('document_id', 'document_version', 'source_block_id',
-        'block_start', 'block_end', 'page', 'media_kind')) + (source.get('text'),)
+        'block_start', 'block_end', 'media_kind')) + (
+        e.get('page') if e.get('source_block_id') is None else None, source.get('text'))
 
 
 def register_sources(context, sources):
@@ -98,6 +100,26 @@ def register_sources(context, sources):
         return output
 
 
+def restore_sources(context, sources):
+    """暂停恢复只接受重新核验的原范围和原编号，不升级任意历史字符串。"""
+    resources = context.state['first_wave']
+    if len(sources) > MAX_SOURCES:
+        raise ReadFailure('source_budget', '恢复来源超出预算。')
+    indices = [s.get('index') for s in sources]
+    if any(type(i) is not int or not 1 <= i <= MAX_SOURCES for i in indices) or len(set(indices)) != len(indices):
+        raise ReadFailure('source_conflict', '恢复来源编号无效。')
+    old_offset = context.state.get('source_offset', 0)
+    context.state['source_offset'] = 0
+    try:
+        register_sources(context, sources)
+        resources.source_index = {s['source_id']: deepcopy(s) for s in sources}
+        context.state['source_offset'] = max(indices, default=0)
+    except Exception:
+        resources.source_index = {}
+        context.state['source_offset'] = old_offset
+        raise
+
+
 class _ReadTool(BaseTool):
     read_only = True
 
@@ -133,7 +155,7 @@ class _ReadTool(BaseTool):
                 model_value['citations'] = [{k: s.get(k) for k in (
                     'index', 'source_id', 'document_id', 'version', 'page')} for s in sources]
             return ToolResult(content=json.dumps(model_value, ensure_ascii=False), sources=sources,
-                metadata={'result_kind': value['kind'], 'read_only': True, 'data': value})
+                metadata={'tool': self.definition.name, 'result_kind': value['kind'], 'read_only': True, 'data': value})
         except ReadFailure as exc:
             return ToolResult(content=str(exc), success=False, metadata={'error': exc.code})
         except (OSError, LookupError, ValueError):
@@ -180,7 +202,8 @@ class ReadMaterialTool(_ReadTool):
         value, sources = self.course(r).read_material(r.binding, args, context.check_cancelled)
         if len(value['text']) > TEXT_LIMIT:
             raise ReadFailure('read_budget', '服务返回超过原文预算，不能静默截断证据。')
-        return dict(value, kind='textbook', citation_ids=[s['source_id'] for s in sources]), register_sources(context, sources)
+        rows = register_sources(context, sources)
+        return dict(value, kind='textbook', citation_ids=[s['source_id'] for s in rows]), rows
 
 
 class ReadSourceTool(_ReadTool):
@@ -199,7 +222,8 @@ class ReadSourceTool(_ReadTool):
         value, sources = self.course(r).read_source(r.binding, deepcopy(source), context.check_cancelled)
         if len(value['text']) > TEXT_LIMIT:
             raise ReadFailure('read_budget', '来源展开超过预算。')
-        return dict(value, kind='textbook', citation_ids=[s['source_id'] for s in sources]), register_sources(context, sources)
+        rows = register_sources(context, sources)
+        return dict(value, kind='textbook', citation_ids=[s['source_id'] for s in rows]), rows
 
 
 class ReadMemoryTool(_ReadTool):

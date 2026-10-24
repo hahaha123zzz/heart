@@ -108,6 +108,9 @@ class ReadSkillTool(BaseTool):
     def run(self, arguments: dict[str, Any], context: ToolContext) -> ToolResult:
         context.check_cancelled()
         try:
+            allowed = context.state.get('allowed_skills')
+            if allowed is not None and str(arguments.get('name') or '') not in allowed:
+                raise SkillAccessError('该技能不适用于当前课程。')
             text, metadata = _read(
                 _root(context),
                 str(arguments.get("name") or ""),
