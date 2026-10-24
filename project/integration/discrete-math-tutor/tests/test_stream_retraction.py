@@ -178,3 +178,14 @@ class RetractionTests(unittest.TestCase):
         try:stage_call('source_selection',lambda:'原文')
         finally:current_budget.reset(token)
         budget.progress.assert_called_once_with('active-source_selection.start','核对原文位置','核对原文位置，尚未保存。')
+
+
+    def test_stream_close_failure_cannot_erase_partial_marker(self):
+        client,sdk,stream=sdk_fixture.AnswerStreamTests().client([sdk_fixture.chunk('片段'),RuntimeError('read failed')])
+        stream.close=Mock(side_effect=RuntimeError('close failed'))
+        with self.assertRaises(LLMError) as caught:
+            client.chat_with_tools([],[],on_delta=lambda _:None)
+        self.assertTrue(caught.exception.partial_response)
+        self.assertEqual(caught.exception.partial_text,'片段')
+        stream.close.assert_called_once()
+        self.assertEqual(sdk.chat.completions.create.call_count,1)

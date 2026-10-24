@@ -203,9 +203,14 @@ class LLMClient:
             raise LLMError(str(exc), partial_text=result.text,
                            finish_reason=result.finish_reason, usage=result.usage) from exc
         finally:
-            stream.close()
-            if budget:
-                budget.record('sdk.closed', finish_reason=result.finish_reason, usage=result.usage, partial_characters=len(result.text))
+            try:
+                stream.close()
+            except Exception as exc:
+                raise LLMError(str(exc), partial_text=result.text,
+                               finish_reason=result.finish_reason, usage=result.usage) from exc
+            finally:
+                if budget:
+                    budget.record('sdk.closed', finish_reason=result.finish_reason, usage=result.usage, partial_characters=len(result.text))
 
     @staticmethod
     def _with_images(messages: List[Dict[str, Any]], image_paths: List[Path]) -> List[Dict[str, Any]]:

@@ -68,7 +68,7 @@ class ExecutionBudget:
         labels = {'retrieval.start':'读取教材候选', 'source_mapping.start':'映射教材原文',
                   'source_selection.start':'核对原文位置', 'semantic_coverage.start':'核对问题覆盖',
                   'quality.start':'核验回答依据', 'answer.start':'生成教材讲解',
-                  'save.start':'保存已核验结果'}
+                  'save.start':'记录本轮处理状态'}
         if self.progress and stage in labels and not self.stopped.is_set():
             self.progress('active-' + stage, labels[stage], labels[stage] + '，尚未保存。')
 
