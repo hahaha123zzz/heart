@@ -122,3 +122,12 @@ test('探索不污染正文，定点撤回不清空其他轮，未保存草稿�
  applyDraft(m,'answer_replace',{...id,round_id:2,seq:6,role:'answer',target_round_id:2,text:''});
  assert.equal(m.content,'');
 });
+
+
+test('取消状态拒绝迟到正文，不冒称已保存',()=>{
+ const {applyDraft}=harness([]),message={content:''};const id={task_id:'t',task_revision:1,answer_id:'a',round_id:1};
+ assert.ok(applyDraft(message,'answer_state',{...id,seq:1,state:'cancelled'}));
+ assert.equal(message.answerState,'cancelled');
+ assert.equal(applyDraft(message,'answer_delta',{...id,seq:2,text:'迟到'}),false);
+ assert.equal(message.content,'');
+});

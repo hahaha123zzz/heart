@@ -20,7 +20,7 @@ def selected_media(query, sources, *, asset_id=None):
         figures = retrieve_figures(query, chunks)
     figures = [f for f in figures if f is not None and f.is_valid()]
     # 同号多来源需要澄清，不能无声选择其中一幅。
-    if re.search(r'(?:图|表)\s*\d+[.．-]\d+', query) and len({f.label for f in figures}) < len(figures):
+    if (asset_id or re.search(r'(?:图|表)\s*\d+[.．-]\d+', query)) and len({f.label for f in figures}) < len(figures):
         return []
     output = []
     for figure in figures[:2]:

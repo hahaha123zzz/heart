@@ -82,7 +82,7 @@ window.TutorChatTransport = (() => {
     if(data.seq<=(message.answerSeq||0)||data.round_id<(message.answerRound||0))return false;
     if(event==='answer_delta'&&(message.answerState!=='generating'||message.answerRound!==data.round_id||typeof data.text!=='string'))return false;
     if(event==='answer_replace'&&typeof data.text!=='string')return false;
-    if(event==='answer_state'&&!['generating','retrieving','checking','saved','rejected','interrupted','incomplete','timeout'].includes(data.state))return false;
+    if(event==='answer_state'&&!['generating','retrieving','checking','saved','rejected','interrupted','incomplete','timeout','cancelled'].includes(data.state))return false;
     if(data.role && !['progress','answer'].includes(data.role))return false;
     message.answerIdentity??={answer_id:data.answer_id,task_id:data.task_id,task_revision:data.task_revision};
     message.answerSeq=data.seq;message.answerRound=data.round_id;

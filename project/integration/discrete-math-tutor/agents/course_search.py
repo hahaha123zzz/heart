@@ -1,5 +1,5 @@
 """Q3/Q5 共用检索边界；不改变路径解析，不实现检索引擎。"""
-from llm.execution_budget import bounded_stage
+from llm.execution_budget import bounded_stage, current_budget
 
 from dataclasses import replace
 import json
@@ -66,9 +66,13 @@ class CourseSearch:
                 source_scope={**target.source_scope, 'allow_course_expansion': not bool(chapters)})
         record = {'requested_backend': os.getenv('Q3_RETRIEVAL_MODE', 'existing'),
                   'actual_backend': 'not_started', 'target_id': target.target_id,
-                  'side_question': side_question, 'fallback': False,
+                  'side_question': side_question, 'fallback': False, 'status': 'running',
                   'search_scope': {'chapter_id': search_target.chapter_id, 'section_id': search_target.section_id}}
         self.calls.append(record)
+        budget = current_budget.get()
+        if budget:
+            with budget.lock:
+                budget.retrieval_calls.append(record)
         self.last_result = None
         started = time.monotonic()
         try:
