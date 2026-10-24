@@ -75,7 +75,7 @@ class AnswerEvents:
             saved = result.get('answer_status') == 'answered'
             self.role = 'answer'
             self.send('answer_replace', text=str(result.get('reply') or '') if saved else '', authoritative=True)
-            state = {'answer_interrupted':'interrupted','incomplete_answer':'incomplete','active_timeout':'timeout'}.get(result.get('answer_status'), 'rejected')
+            state = {'answer_interrupted':'interrupted','incomplete_answer':'incomplete','active_timeout':'timeout','task_cancelled':'cancelled'}.get(result.get('answer_status'), 'rejected')
             self.send('answer_state', state='saved' if saved else state)
 
 

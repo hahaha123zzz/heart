@@ -51,6 +51,8 @@ class AnswerMediaTests(unittest.TestCase):
             media=selected_media('解释图1-4',sources,asset_id='图1-4')
             self.assertEqual(media[0]['id'],'image-01-0006')
             self.assertFalse(media[0]['model_saw_pixels'])
+            with patch('knowledge.answer_media.retrieve_figures',return_value=[figure,figure]):
+                self.assertEqual(selected_media('解释原图',sources,asset_id='图1-4'),[])
             with self.assertRaisesRegex(ValueError,'原图'):
                 selected_media('解释图1-4',sources,asset_id='凭空生成的资源')
 

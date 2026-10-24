@@ -66,7 +66,7 @@ class CourseSearch:
                 source_scope={**target.source_scope, 'allow_course_expansion': not bool(chapters)})
         record = {'requested_backend': os.getenv('Q3_RETRIEVAL_MODE', 'existing'),
                   'actual_backend': 'not_started', 'target_id': target.target_id,
-                  'side_question': side_question, 'fallback': False,
+                  'side_question': side_question, 'fallback': False, 'status': 'running',
                   'search_scope': {'chapter_id': search_target.chapter_id, 'section_id': search_target.section_id}}
         self.calls.append(record)
         budget = current_budget.get()
