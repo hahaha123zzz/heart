@@ -383,12 +383,14 @@ class Repository(MemoryIndexRepository, StrategyMemoryRepository, MemoryJobRepos
             ]
 
     # ---- conversations ----------------------------------------------------
-    def get_conversation(self, student_id: str, limit: int = 20) -> List[Dict[str, str]]:
+    def get_conversation(self, student_id: str, limit: int = 20, session_id: str | None = None) -> List[Dict[str, str]]:
         with session_scope() as session:
+            query = select(ConversationRow).where(ConversationRow.student_id == student_id)
+            if session_id is not None:
+                query = query.where(ConversationRow.session_id == session_id)
             rows = (
                 session.execute(
-                    select(ConversationRow)
-                    .where(ConversationRow.student_id == student_id)
+                    query
                     .order_by(ConversationRow.id.desc())
                     .limit(limit)
                 )
@@ -397,11 +399,13 @@ class Repository(MemoryIndexRepository, StrategyMemoryRepository, MemoryJobRepos
             )
             return [{"role": r.role, "content": r.content} for r in reversed(rows)]
 
-    def get_conversation_with_figures(self, student_id: str, limit: int = 40) -> list[dict]:
+    def get_conversation_with_figures(self, student_id: str, limit: int = 40, session_id: str | None = None) -> list[dict]:
         with session_scope() as session:
+            query = select(ConversationRow).where(ConversationRow.student_id == student_id)
+            if session_id is not None:
+                query = query.where(ConversationRow.session_id == session_id)
             rows = session.scalars(
-                select(ConversationRow)
-                .where(ConversationRow.student_id == student_id)
+                query
                 .order_by(ConversationRow.id.desc())
                 .limit(limit)
             ).all()
@@ -425,9 +429,10 @@ class Repository(MemoryIndexRepository, StrategyMemoryRepository, MemoryJobRepos
         self, student_id: str, role: str, content: str,
         figure_ids: list[str] | None = None,
         selection_ref: dict | None = None,
+        session_id: str | None = None,
     ) -> int:
         with session_scope() as session:
-            row = ConversationRow(student_id=student_id, role=role, content=content)
+            row = ConversationRow(student_id=student_id, session_id=session_id, role=role, content=content)
             session.add(row)
             session.flush()
             if selection_ref:

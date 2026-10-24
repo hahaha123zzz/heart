@@ -651,7 +651,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     selection_ref=stored_reference
                     if stored_reference["pdf_references"] or stored_reference["textbook_sources"]
                     else None,
-                    expected_epoch=epoch, expected_point=target.name, task_guard=guard)
+                    expected_epoch=epoch, expected_point=target.name, task_guard=guard,
+                    session_id=request.session_id)
                 if conversation_id is False:
                     release(request.task_id or request.request_id)
                     return {

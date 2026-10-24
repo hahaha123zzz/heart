@@ -19,6 +19,7 @@ const newRequestId = () => crypto.randomUUID();
 const tabSessionKey = course.id+'-task-session';
 let tabSessionId = sessionStorage.getItem(tabSessionKey) || newRequestId();
 sessionStorage.setItem(tabSessionKey, tabSessionId);
+const conversationHistoryUrl = (sessionId=tabSessionId) => `/api/students/${encodeURIComponent(studentId)}/conversation?session_id=${encodeURIComponent(sessionId)}`;
 // 新标签可能复制 sessionStorage；发现同编号的存活标签后，为新标签换编号。
 const sessionChannel = typeof BroadcastChannel === 'function' ? new BroadcastChannel(course.id+'-task-tabs') : null;
 const tabInstance = newRequestId();
@@ -111,6 +112,35 @@ async function cancelClarification() {
     student_id:studentId,session_id:tabSessionId,task_revision:task.task_revision})});
   if(result.answer_status!=='task_cancelled') { toast(result.reply || '问题状态已变化，请重新恢复');await restoreClarification();return false; }
   state.clarification=null;renderChat();toast('本次问题已取消');return true;
+}
+
+async function startNewConversation() {
+  if (state.sending) { toast('请等当前回答结束后再开启新对话。'); return; }
+  const hasDraft = Boolean($('#chat-input').value.trim() || state.pdfDraft || state.exerciseDraft);
+  const hasPendingTask = Boolean(state.clarification);
+  if ((hasDraft || hasPendingTask) && !window.confirm('开启新对话会清除尚未发送的文字或选区'+(hasPendingTask?'，并取消当前未完成的问题':'')+'；已保存的聊天记录和学习记忆不会删除。继续吗？')) return;
+  if (hasPendingTask && !await cancelClarification()) return;
+  tabSessionId = newRequestId();
+  sessionStorage.setItem(tabSessionKey, tabSessionId);
+  sessionChannel?.postMessage({type:'hello',session:tabSessionId,instance:tabInstance});
+  state.chat = [];
+  state.clarification = null;
+  state.clarificationObject = null;
+  state.sessionPlan = null;
+  state.taskRecoveryNeeded = true;
+  state.pdfDraft = null;
+  state.exerciseDraft = null;
+  $('#chat-input').value = '';
+  $('#chat-error').textContent = '';
+  Workspace.clearDraft();
+  Workspace.showHelp(null);
+  renderSelectionDraft();
+  renderChat();
+  renderStyleStatus();
+  showView('chat');
+  await restoreClarification();
+  $('#chat-input').focus();
+  toast('新对话已开启，之前的记录仍保留在“学习记录”中。');
 }
 
 async function api(path, options = {}) {
@@ -732,6 +762,14 @@ function applyCourseCollapse(){
 }
 
 function bindEvents() {
+  const layoutMenu = $('.workspace-header .layout-menu');
+  if (layoutMenu && !$('#new-chat')) {
+    const button = document.createElement('button');
+    button.type = 'button'; button.id = 'new-chat'; button.className = 'secondary-button';
+    button.title = '开始一段空白对话'; button.textContent = '＋ 新对话';
+    layoutMenu.before(button);
+  }
+  $('#new-chat')?.addEventListener('click', () => { startNewConversation().catch(error => toast(error.message)); });
   $("#course-collapse").addEventListener("click", () => {
     const collapsed = $("#course-panel-body").hidden;
     localStorage.setItem(course.id+'-course-collapsed', String(!collapsed));
@@ -886,7 +924,7 @@ async function init() {
     else if(state.chapters[0]?.sections[0])await selectSection(state.chapters[0].id,state.chapters[0].sections[0].id,{record:false});
   } catch (error) { $("#course-tree").textContent = `教材读取失败：${error.message}`; toast(error.message); }
   try {
-    const history = await api(`/api/students/${encodeURIComponent(studentId)}/conversation`);
+    const history = await api(conversationHistoryUrl());
     state.chat = messagesFromHistory(history); renderChat();
   } catch { /* New local demo student has no history. */ }
   await restoreClarification();
@@ -971,7 +1009,7 @@ $('#memory-forget-point').addEventListener('click', async (event) => {
     state.chat = []; state.clarification=null;state.taskRecoveryNeeded=true;graphArtifacts.clear();graphCreateRequest=null;tableArtifacts.clear();tableCreateRequest=null;relationArtifacts.clear();relationCreateRequest=null;renderChat();
     await refreshMemory();refreshStats();refreshLearning();
     try {
-      const history = await api('/api/students/' + encodeURIComponent(studentId) + '/conversation');
+      const history = await api(conversationHistoryUrl());
       // 等待期间若已开始新提问，保留当前流式回答。
       if (!state.sending) { state.chat = messagesFromHistory(history); renderChat();await restoreGraphs(); }
       toast('已删除该知识点的学习记忆');

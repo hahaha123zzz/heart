@@ -41,8 +41,9 @@ class AnswerEvents:
         self.send('answer_state', state='generating')
 
     def delta(self, text):
+        # 正文先留在模型调用结果中；教学/引用检查通过并持久化后，
+        # finish() 才会把权威最终稿分块发送到页面。
         self.guard()
-        self.send('answer_delta', text=text)
 
     def checking(self):
         if self.identity:
@@ -59,7 +60,14 @@ class AnswerEvents:
         # 调用方已通过收据/epoch 检查；完成态不再调用只接受执行态的 guard。
         if self.identity:
             saved = result.get('answer_status') == 'answered'
-            self.send('answer_replace', text=str(result.get('reply') or '') if saved else '')
+            self.send('answer_replace', text='')
+            if saved:
+                text = str(result.get('reply') or '')
+                self.send('answer_state', state='generating')
+                # 仅发布已落库的最终版本；分块保留页面的流式呈现体验。
+                for offset in range(0, len(text), 80):
+                    self.send('answer_delta', text=text[offset:offset + 80])
+                self.send('answer_replace', text=text)
             self.send('answer_state', state='saved' if saved else 'rejected')
 
 

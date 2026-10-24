@@ -114,7 +114,8 @@ class TutorOrchestrator:
 
         # 0) Conversation Router：判断学生这一轮在做什么 / 在聊什么
         metadata = getattr(task_context, "history_summary", "") if task_context is not None else ""
-        raw_history = task_context.history if task_context is not None else self.memory.get_history(student_id)
+        session_id = getattr(task_context, "session_id", None) if task_context is not None else None
+        raw_history = task_context.history if task_context is not None else self.memory.get_history(student_id, session_id=session_id)
         if task_context is not None:
             history = raw_history
             history_summary = metadata
@@ -158,8 +159,8 @@ class TutorOrchestrator:
             from database.database import session_scope
             with session_scope(immediate=True):
                 if task_guard is not None: task_guard()
-                self.memory.append(student_id, "user", message)
-                self.memory.append(student_id, "assistant", reply)
+                self.memory.append(student_id, "user", message, session_id=session_id)
+                self.memory.append(student_id, "assistant", reply, session_id=session_id)
 
         # 识别失败不进入检索/教学，不把用户问题写成能力观测。
         if routing.status != "ok":
@@ -769,6 +770,7 @@ class TutorOrchestrator:
                 "support_diagnosis": answer_feedback.get("support_diagnosis")},
             instructional_move=move.instructional_move, figure_ids=[figure.id for figure in figures],
             selection_ref=stored_reference, task_guard=task_guard, misconception_updates=getattr(update, "misconception_updates", []), tutor_error=(error.reason or "检测到教学错误") if rolled_back else None,
+            session_id=getattr(task_context, "session_id", None) if task_context is not None else None,
         )
         if memory_commit["status"] == "forgotten":
             return {"reply":"这个知识点的学习记忆已被删除，本次回答未保存，请重新提问。",

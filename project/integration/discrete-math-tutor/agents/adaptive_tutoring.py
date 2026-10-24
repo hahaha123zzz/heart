@@ -14,6 +14,7 @@ import os
 import re
 import threading
 import time
+import unicodedata
 from dataclasses import dataclass
 from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -29,6 +30,22 @@ from agents.tool_protocol import BaseTool, ToolContext, ToolDefinition, ToolPara
 SCHEMA = "deeptutor-teaching-v2"
 STRATEGIES = ("explain", "worked_example", "contrast", "break_down",
               "prerequisite", "guided_practice", "feedback", "transfer", "hint")
+
+
+def _check_question_key(value: str, *, answer: bool = False) -> str:
+    """Normalize presentation-only differences without changing the check's meaning."""
+    text = unicodedata.normalize("NFKC", str(value or "")).strip()
+    if answer:
+        text = text.rstrip("。！？?! \t\r\n")
+        markers = list(re.finditer(r"(?:一个)?(?:小问题|小检查|小测验)[：:,，]?", text))
+        if markers:
+            text = text[markers[-1].end():]
+        else:
+            text = re.split(r"[\n。！？?!]", text)[-1]
+    text = re.sub(r"^在这个.*?(?:例子|情境|情景|实验)(?:当中|里面|里|中)[，,:：]?", "", text)
+    return re.sub(r"[^\w]", "", text).casefold()
+
+
 DIFFICULTY = re.compile(
     r"没听懂|没弄懂|没学会|理解不了|看不懂|搞不清|分不清|还是不懂|仍然不懂|"
     r"我不懂|我不会(?!影响|改变|导致|造成)|不会(?:做|用|算|区分|理解|这|那个|这个)|"
@@ -420,7 +437,8 @@ class TeachingTurn:
             "默认先把知识点讲清楚，不在每次讲解末尾加生硬的检查题。只有学生明确要求练习，"
             "或本轮诊断确实需要时才提一个贴合刚才例子的轻量问题；允许用自然邀请代替提问。\n"
             "需要小检查，在teaching_step传check_prompt/check_focus，可选check_expected_answer；最多一题。"
-            "先讲解，问题逐字放正文最后，然后停止，不能同轮给答案。已有待答题不可覆盖；"
+            "先讲解，问题清楚地放在正文最后，然后停止，不能同轮给答案。优先沿用原题；"
+            "可以省略重复的情境背景，但检查的核心对象和所问内容必须一致。已有待答题不可覆盖；"
             "插问时省略check_prompt保留原题；恢复时传原题干以原样重现。"
             "只支持开放式辅助检查，不要登记选择题。内部工具、答案键、状态不显示给学生。"
             "语言像耐心的老师：可说‘没关系，我们换个例子’；先讲关键意思，再分步骤解释，"
@@ -432,9 +450,8 @@ class TeachingTurn:
             return False, "教学闭环未记录：请调用teaching_step记录实际讲法，再给出完整讲解。"
         pending = self.progress.pending_question
         if (self.new_question or self.show_pending) and pending:
-            normalize = lambda x: re.sub(r"[\s*_]", "", x).rstrip("。？！?!")
-            if not normalize(text).endswith(normalize(pending.prompt)):
-                return False, "教学检查未正确呈现：请将登记的检查题原样放正文最后，然后停止，不能同轮自问自答。"
+            if _check_question_key(text, answer=True) != _check_question_key(pending.prompt):
+                return False, "教学检查未正确呈现：请将已登记的小检查放在正文最后，然后停止，不能同轮自问自答。"
         if not self.state["allow_check"] and re.search(r"[？?]", text):
             return False, "学生要求先讲不考：去掉检查和反问，只保留讲解。"
         return True, ""
@@ -464,7 +481,7 @@ class TeachingStepTool(BaseTool):
         parameters=(
             ToolParameter("strategy", "string", "实际采用的方法", enum=list(STRATEGIES)),
             ToolParameter("summary", "string", "一句话说明本轮讲了什么及怎样帮助学生"),
-            ToolParameter("check_prompt", "string", "可选小问题题干，必须在最终正文最后逐字呈现", required=False),
+            ToolParameter("check_prompt", "string", "可选小问题题干，最终正文末尾应清楚表达同一检查点；可省略重复背景，不能改题或同轮作答", required=False),
             ToolParameter("check_focus", "string", "检查的一个具体理解点", required=False),
             ToolParameter("check_expected_answer", "string", "服务端参考答案，不能显示给学生", required=False, sensitive=True),
         ))
@@ -518,5 +535,5 @@ class TeachingStepTool(BaseTool):
         return ToolResult(content=json.dumps({
             "recorded": True, "mastery_credit": False,
             "pending_question": self.turn.public()["pending_check"],
-            "instruction": "完成讲解；新登记或恢复的问题逐字放最后，然后停止。插问不必重现旧题。"
+            "instruction": "完成讲解；新登记或恢复的问题清楚放在最后，允许省略重复背景但不能改变检查点，然后停止。插问不必重现旧题。"
         }, ensure_ascii=False), metadata={"teaching_strategy": strategy, "formative_check": bool(prompt)})

@@ -91,6 +91,8 @@ def home():
     import json
     from knowledge.course_config import public_course
     html=(FRONTEND_DIR/'index.html').read_text(encoding='utf-8')
+    # Force browsers holding the prior chat bundle to load the current client.
+    html=html.replace('app.js?v=20261019-markdown','app.js?v=20261024-new-chat')
     if PSYCHOLOGY:
         import re
         html=re.sub(r'<script src="/static/visualizations/(?:graph|truth-table|relation-closure|relation)\.js[^\"]*" defer></script>', '', html)

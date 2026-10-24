@@ -36,7 +36,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
     title=resolved['section']['title']
     from agents.task_context_builder import TaskContextBuilder
     context = task_context if task_context is not None else TaskContextBuilder().build(student_id=student_id, message=message, knowledge_point=title,
-        history=tutor.memory.get_history(student_id), known_points=tutor.memory.list_knowledge_points(student_id),
+        history=tutor.memory.get_history(student_id, session_id=session_id), known_points=tutor.memory.list_knowledge_points(student_id),
         reader_location=reader_location, selection=selection, resolved_selection=resolved,
         session_id=session_id, request_id=request_id)
     report('routing', '理解选区问题', '确认对象与本轮讲解需求')
@@ -77,7 +77,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
         [{'id':'1','text':excerpt}], topic=title, image_paths=resolved['images'],memory_context=memories)
     if not evidence_check.allowed:
         reply=evidence_check.reply()
-        if tutor.memory.append_exchange(student_id,message,reply,selection_ref=resolved['reference'], expected_epoch=expected_epoch, expected_point=title, task_guard=task_guard) is False:
+        if tutor.memory.append_exchange(student_id,message,reply,selection_ref=resolved['reference'], expected_epoch=expected_epoch, expected_point=title, task_guard=task_guard, session_id=session_id) is False:
             return deleted_reply()
         return {'reply':reply,'knowledge_point':title,'textbook_sources':[],
                 'image_refs':[],'pdf_image_refs':[], 'evidence_check':evidence_check.model_dump()}
@@ -93,7 +93,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
             except (ValueError,OSError,LLMError):
                 reply='本次未能确认支持选区解释的教材原文，请缩小选区或补充具体问题后重试。'
                 if tutor.memory.append_exchange(student_id,message,reply,expected_epoch=expected_epoch,
-                        expected_point=title,task_guard=task_guard) is False:
+                        expected_point=title,task_guard=task_guard,session_id=session_id) is False:
                     return deleted_reply()
                 return {'reply':reply,'answer_status':'quality_rejected','knowledge_point':title,'step_advanced':False,
                         'textbook_sources':[],'pdf_references':[],'image_refs':[],'pdf_image_refs':[],'selection_ref':None}
@@ -144,7 +144,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
                 turn_id=context.request_id or message,references=grounded_refs if grounded_bundle else [{'source_index':0,'selection_ref':reference}],progress=progress,deferred=visualization_jobs)
         except (ValueError,OSError,KeyError,RuntimeError):pass
     if guided_visualization:reference=reference | {'guided_visualization':guided_visualization}
-    conversation_id = tutor.memory.append_exchange(student_id,message,reply,selection_ref=reference, expected_epoch=expected_epoch, expected_point=title, task_guard=task_guard)
+    conversation_id = tutor.memory.append_exchange(student_id,message,reply,selection_ref=reference, expected_epoch=expected_epoch, expected_point=title, task_guard=task_guard, session_id=session_id)
     if conversation_id is False:
         return deleted_reply()
     return {'answer_status':'answered','conversation_id':conversation_id,'step_advanced':False,'reply':reply,'selection_ref':reference,'guided_visualization':guided_visualization,'memory_summary':memories['summary'],

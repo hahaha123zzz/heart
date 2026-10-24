@@ -70,16 +70,17 @@ class MemoryManager:
         return self.repo.list_learning_points(student_id)
 
     # ---- Conversation 记忆 -----------------------------------------
-    def get_history(self, student_id: str, limit: int = MAX_HISTORY) -> List[Dict[str, str]]:
-        return self.repo.get_conversation(student_id, limit)
+    def get_history(self, student_id: str, limit: int = MAX_HISTORY, *, session_id: str | None = None) -> List[Dict[str, str]]:
+        return self.repo.get_conversation(student_id, limit, session_id=session_id)
 
     def append(
         self, student_id: str, role: str, content: str,
         figure_ids: list[str] | None = None,
         selection_ref: dict | None = None,
+        session_id: str | None = None,
     ) -> int:
         with self.repo.unit_of_work():
-            conversation_id = self.repo.append_conversation(student_id, role, content, figure_ids, selection_ref)
+            conversation_id = self.repo.append_conversation(student_id, role, content, figure_ids, selection_ref, session_id)
             if role == "user":
                 self.repo.record_event(student_id, f"conversation:{conversation_id}",
                     (selection_ref or {}).get("section_title") or self.get_active_goal(student_id) or "",
@@ -87,15 +88,15 @@ class MemoryManager:
                     {"conversation_id": conversation_id, "content": content, "selection_ref": selection_ref})
             return conversation_id
 
-    def append_exchange(self, student_id, message, reply, selection_ref=None, *, expected_epoch=None, expected_point=None, task_guard=None):
+    def append_exchange(self, student_id, message, reply, selection_ref=None, *, expected_epoch=None, expected_point=None, task_guard=None, session_id=None):
         """圈选等不更新状态的问答，也将两条对话和行为事件一起提交。"""
         with self.repo.unit_of_work():
             if task_guard is not None: task_guard()
             point = expected_point or (selection_ref or {}).get("section_title") or self.get_active_goal(student_id) or ""
             if expected_epoch is not None and self.repo.memory_epoch(student_id, point) != expected_epoch:
                 return False
-            self.append(student_id, "user", message, selection_ref=selection_ref)
-            return self.append(student_id, "assistant", reply, selection_ref=selection_ref)
+            self.append(student_id, "user", message, selection_ref=selection_ref, session_id=session_id)
+            return self.append(student_id, "assistant", reply, selection_ref=selection_ref, session_id=session_id)
 
     # ---- Learning 记忆 ---------------------------------------------
     def get_state(self, student_id: str, knowledge_point: str) -> StudentState:
@@ -296,7 +297,8 @@ class MemoryManager:
     def commit_learning_turn(self, *, student_id, point, event_id, expected_token,
                              message, reply, state, lesson_plan, decision, evidence, hypotheses,
                              strategy, success, instructional_move, figure_ids=None, selection_ref=None,
-                             tutor_error=None, misconception_updates=None, teaching_context=None, expected_epoch=0, task_guard=None):
+                             tutor_error=None, misconception_updates=None, teaching_context=None, expected_epoch=0, task_guard=None,
+                             session_id=None):
         """借鉴 episode 来源链和版本化记忆；LLM 工作在此事务之前完成。"""
         with self.repo.unit_of_work():
             if task_guard is not None: task_guard()
@@ -315,8 +317,8 @@ class MemoryManager:
                  "verification": decision.verification, "reason": decision.reason,
                  "instructional_move": instructional_move, "selection_ref": selection_ref,
                  "tutor_error": tutor_error, "teaching_context": teaching_context or {}}, status, event_id)
-            user_id = self.repo.append_conversation(student_id, "user", message)
-            assistant_id = self.repo.append_conversation(student_id, "assistant", reply, figure_ids, selection_ref)
+            user_id = self.repo.append_conversation(student_id, "user", message, session_id=session_id)
+            assistant_id = self.repo.append_conversation(student_id, "assistant", reply, figure_ids, selection_ref, session_id)
             # 事件直接包含持久化的对话 ID，作为原始材料入口。
             self.repo.link_event_conversations(event["id"], [user_id, assistant_id])
             if conflict or tutor_error:
