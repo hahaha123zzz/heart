@@ -19,6 +19,7 @@ class ExecutionBudget:
         self.seconds = seconds
         self.stopped = Event()
         self.events = []
+        self.progress = None
         self.lock = Lock()
 
     def remaining(self):
@@ -31,6 +32,7 @@ class ExecutionBudget:
     def call(self, stage, callback):
         remaining = self.remaining()
         started = monotonic()
+        self.record(stage + '.start')
         queue = Queue(maxsize=1)
         context = copy_context()
         def run():
@@ -63,6 +65,12 @@ class ExecutionBudget:
     def record(self, stage, **data):
         with self.lock:
             self.events.append({'stage': stage, 'at_ms': round((monotonic()-self.started)*1000), **data})
+        labels = {'retrieval.start':'读取教材候选', 'source_mapping.start':'映射教材原文',
+                  'source_selection.start':'核对原文位置', 'semantic_coverage.start':'核对问题覆盖',
+                  'quality.start':'核验回答依据', 'answer.start':'生成教材讲解',
+                  'save.start':'保存已核验结果'}
+        if self.progress and stage in labels and not self.stopped.is_set():
+            self.progress('active-' + stage, labels[stage], labels[stage] + '，尚未保存。')
 
     def snapshot(self):
         with self.lock:

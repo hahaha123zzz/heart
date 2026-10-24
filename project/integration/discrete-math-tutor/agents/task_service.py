@@ -206,6 +206,7 @@ class TaskService:
         text = request.message or ''
         seconds = 180 if any(word in text for word in ('比较', '联系', '区别', '分别', '跨章')) else 120
         budget = ExecutionBudget(seconds)
+        budget.progress = progress
         budget_token = current_budget.set(budget)
         token = current_answer.set(answer)
         try:

@@ -225,7 +225,8 @@ class LocalAgentLoop:
                     result.usage.update(exc.usage)
                     return self._error_result(result, messages, collector,
                         'incomplete_answer' if exc.finish_reason == 'length' else 'answer_interrupted',
-                        '本轮输出未完成，片段未保存；请确认后重试。')
+                        '模型输出达到长度上限，未完成内容不保存。' if exc.finish_reason == 'length' else
+                        '模型输出中断，片段未核验、未保存；请确认后重试。')
                 if result.rounds == 0:
                     return self._error_result(result, messages, collector, 'model_unavailable',
                         '模型连接或响应暂时不可用，本轮没有生成已保存回答。')
@@ -374,7 +375,8 @@ class LocalAgentLoop:
                 result.usage.update(exc.usage)
                 return self._error_result(result, messages, collector,
                     'incomplete_answer' if exc.finish_reason == 'length' else 'answer_interrupted',
-                    '本轮输出未完成，片段未保存；请确认后重试。')
+                    '模型输出达到长度上限，未完成内容不保存。' if exc.finish_reason == 'length' else
+                        '模型输出中断，片段未核验、未保存；请确认后重试。')
             return self._error_result(result, messages, collector, "forced_finish_failed",
                                       f"收尾回答失败：{exc}")
         result.rounds += 1

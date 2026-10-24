@@ -43,6 +43,8 @@ class AnswerEvents:
         self.role = role
         if role == "answer":
             self.text = ""
+            if current_budget.get():
+                current_budget.get().record("answer.start")
         self.round_id += 1
         self.send('answer_state', state='generating' if role == 'answer' else 'retrieving')
 

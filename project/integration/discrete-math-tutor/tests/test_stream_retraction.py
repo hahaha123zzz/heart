@@ -80,7 +80,7 @@ class RetractionTests(unittest.TestCase):
         finally:
             current_budget.reset(token)
         self.assertEqual(emitted, [])
-        self.assertEqual(budget.snapshot()['stages'][0]['outcome'], 'failed')
+        self.assertEqual(next(e['outcome'] for e in budget.snapshot()['stages'] if e['stage']=='slow'), 'failed')
 
     def test_budget_propagates_to_tool_threads(self):
         from agents.tool_dispatch import dispatch_tool_calls
@@ -171,3 +171,10 @@ class RetractionTests(unittest.TestCase):
         self.assertEqual(clears[0]['target_round_id'],2)
         self.assertEqual(clears[0]['reason'],'candidate_rejected')
         self.assertEqual(len(llm.calls),3)
+
+
+    def test_stage_feedback_uses_existing_progress_without_answer_text(self):
+        budget=ExecutionBudget(1);budget.progress=Mock();token=current_budget.set(budget)
+        try:stage_call('source_selection',lambda:'原文')
+        finally:current_budget.reset(token)
+        budget.progress.assert_called_once_with('active-source_selection.start','核对原文位置','核对原文位置，尚未保存。')

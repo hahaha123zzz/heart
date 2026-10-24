@@ -454,7 +454,13 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             text = detail.get("detail") or message or ""
         else:
             text = detail or message or ""
-        progress("loop-" + event_type, event_type, str(text)[:300])
+        kind = event_type.removeprefix('loop-')
+        labels = {'stage_start':'准备本轮处理', 'tool_call':'读取所需资料', 'tool_result':'资料读取完成',
+                  'sources':'教材依据已就绪', 'wait_for_input':'等待补充信息', 'answer':'回答已核验',
+                  'done':'本轮完成', 'error':'本轮未完成', 'progress':'处理中'}
+        detail_text = {'retrieve_course':'读取教材原文', 'ask_user':'确认必要信息',
+                       '探索':'准备取证或确认问题', 'sources':'已取得本轮教材原文'}.get(str(text), str(text))
+        progress('loop-' + kind, labels.get(kind, '处理中'), detail_text[:300])
 
     round_tokens = max(1200, budget.max_tokens)
     tool_seconds = 120  # 共享活动预算还会取剩余时间的较小值。
