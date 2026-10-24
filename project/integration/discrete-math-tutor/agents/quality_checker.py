@@ -141,10 +141,30 @@ class QualityChecker:
                         "没有回答学生明确问题、编造教材未给出的数据/页码/结论。"
                         "措辞、风格、可补充但未被问到的细节、未按 worked_example 出题，"
                         "一律放入 suggestions，不得据此拒绝发布。")
+        if (rule_context.get("teaching_evidence_mode") == "blended"
+                and not textbook_excerpts.strip()):
+            content += ("\n本轮按一般心理学知识做课堂补充，当前没有可引用的教材摘录。"
+                        "不要仅因缺少教材引文或原书没有同款教学例子而拒绝；"
+                        "核对回答是否把补充说成教材原话、虚构具体研究结果，或明显违背实验心理学基本概念。"
+                        "允许简明诚实地说明这是课堂补充。")
         else:
             content += "\n逐项核对本轮明确要求：遗漏任一比较对象、指定理由、例子或关键条件，应要求补齐；仅提示不应补最终结论。短但漏答不能判通过。"
         if rule_context.get('grounded_evidence'):
             content+='\n本轮引用只允许指向以下细粒度原文；逐条检查紧邻[n]的结论是否被第n条原文支持，不能因为检索背景或历史其他位置有类似内容就放行。特别核对否定、例外、条件、数量和因果方向；例子不得冒充原书。'+str(rule_context['grounded_evidence'])
+        if rule_context.get("adaptive_teaching"):
+            import json
+            content += ("\n本轮是适应性教学，以下状态仅用于当前教法，不是正式成绩："
+                        + json.dumps(rule_context["adaptive_teaching"], ensure_ascii=False)
+                        + "\n允许符合已核验概念、明确标为教学示例的假设情境，不要求原书有同一句例子。"
+                        "学生说没懂时应换讲法；若有练习反馈，要对照原问题和学生原话核验，不能盲从暂定判断。"
+                        "末尾的小步检查是等待学生作答，不要求本轮给出其答案；不得据此称讲解不完整。"
+                        "先讲不考时不强制出题。解释过或答对一次都不等于正式掌握整章。")
+        if rule_context.get('selection_target'):
+            import json
+            content += ('\n本轮锁定的是PDF文字选区，不是小节标题或整节课程。必须回应选区中的具体对象；'
+                        '可以依据已核验的邻近原文补充必要含义，但不能改讲别的对象或虚称已读取图像。'
+                        '若当前是在反馈待答检查，则先反馈学生原题答案，不要求重新讲完整段落。选区资料：'
+                        + json.dumps(rule_context['selection_target'], ensure_ascii=False))
         if rule_context.get("feedback_target"):
             content += "\n理解检查只可围绕刚才这段讲解中的一个要点；若换成章节里的其他概念必须拒绝：" + rule_context["feedback_target"]
         if rule_context.get("followup_simplify"):

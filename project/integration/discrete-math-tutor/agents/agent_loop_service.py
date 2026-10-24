@@ -150,12 +150,22 @@ def _excerpts(sources: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navigation=None):
+def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navigation=None, teaching=None, selection_input=None):
     def gate(text: str, result: LoopResult) -> tuple[bool, str]:
         if not text.strip():
             return False, "模型没有返回可发布回答。"
-        if not result.sources:
+        if selection_input is not None:
+            passed, reason = selection_input.gate(text)
+            if not passed:
+                return False, reason
+        if teaching is not None:
+            passed, reason = teaching.gate(text)
+            if not passed:
+                return False, reason
+        if not result.sources and (teaching is None or teaching.evidence_mode == "textbook"):
             return False, "本轮没有可核验的教材来源，暂不发布正式回答。"
+        if not result.sources and re.search(r"\[\d+\]", text):
+            return False, "本轮没有教材引用来源；请移除虚构的引用编号，并明确这是课堂补充知识。"
         from agents.course_search import explicit_chapters
         required = explicit_chapters(request.message)
         missing = required - {source.get('chapter_id') for source in result.sources}
@@ -184,14 +194,15 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             except ValueError as exc:
                 return False, '本次原文发布核验失败：' + str(exc)
         excerpts = _excerpts(result.sources)
-        issues = citation_issues(text, excerpts)
-        if issues:
-            return False, "本次引用未通过核验：" + "；".join(issues)
-        format_issue = _citation_format_issues(text)
-        if format_issue:
-            return False, format_issue
-        if not re.search(r"\[\d+\]", text):
-            return False, "回答未标注本轮教材引用编号，暂不发布。"
+        if result.sources:
+            issues = citation_issues(text, excerpts)
+            if issues:
+                return False, "本次引用未通过核验：" + "；".join(issues)
+            format_issue = _citation_format_issues(text)
+            if format_issue:
+                return False, format_issue
+            if not re.search(r"\[\d+\]", text):
+                return False, "回答未标注本轮教材引用编号，暂不发布。"
         checker = getattr(orchestrator, "quality_checker", None)
         memory = getattr(orchestrator, "memory", None)
         if checker is None or memory is None:
@@ -200,6 +211,8 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             state = memory.get_state(request.student_id, target.name)
             plan = TeachingPlan(goal=f"回答{target.name}", strategy="scaffolding",
                                 action="explain", difficulty="medium")
+            if selection_input is not None:
+                selection_input.execution.align(plan)
             maximum = int(os.getenv("Q3_REPLY_MAXIMUM", "800"))
             from knowledge.answer_media import current_media
             refs = [image for source in result.sources for image in source.get('image_refs', [])
@@ -208,8 +221,13 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             quality = checker.check(text, state, plan, request.message,
                                     context={"loop_sources": result.sources,
                                              "agent_loop": True,
+                                             "adaptive_teaching": teaching.public() if teaching else None,
+                                             "teaching_evidence_mode": (teaching.evidence_mode if teaching else "textbook"),
+                                             "selection_target": ({"id": target.target_id,
+                                                  "text": selection_input.selected_text} if selection_input else None),
                                              "reply_maximum_override": max(600, maximum, reply_budget(request.message).maximum)},
                                     textbook_excerpts=excerpts,
+                                    **({'task_execution': selection_input.execution} if selection_input else {}),
                                     **({'figure_images': [f.path for _, f in checked_media]} if checked_media else {}))
             if not quality.passed or quality.issues:
                 return False, "本次回答未通过教材核对：" + "；".join(quality.issues or [])
@@ -373,21 +391,38 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                         previous: dict[str, Any] | None = None,
                         navigator: Any = None,
                         publish_gate: Callable[[str, LoopResult], tuple[bool, str]] | None = None,
-                        llm: Any = None, q5: Any = None) -> dict[str, Any]:
+                        llm: Any = None, q5: Any = None,
+                        visualization_jobs: list | None = None) -> dict[str, Any]:
     """Run one project task turn through the local loop.
 
     The caller (``TaskService``) already claimed the task and owns its
     revision/idempotency; this function only executes the turn.
     """
     resume_state = _resume_state(previous)
+    from agents.selection_loop import enabled as selection_loop_enabled, descriptor, SelectionLoopInput
+    selection_input = None
+    if selection_loop_enabled():
+        if context.selection_scope is None and request.selection is not None and request.selection.kind == 'text':
+            context.selection_scope = descriptor(request.selection)
+        if context.selection_scope is not None:
+            selection_input = SelectionLoopInput(context, resolved)
+            host_guard = guard
+            def selection_guard():
+                if host_guard:
+                    host_guard()
+                selection_input.guard()
+            guard = selection_guard
     current_target = _target_from_state(resume_state) or _target_from_context(context)
     q5_binding = None
-    if q5 is not None:
+    if q5 is not None and selection_input is None:
         try:
             q5_binding = q5.loop_binding()
         except (ValueError, RuntimeError):
             q5_binding = None
-    if q5_binding:
+    if selection_input is not None:
+        current_target = selection_input.target
+        navigation = selection_input
+    elif q5_binding:
         current_target = q5_binding["target"]
         from agents.q5_learning import Q5Navigator
         navigation = (CallbackNavigator(resolve_fn=lambda **_: NavigationDecision('teach',current_target))
@@ -396,8 +431,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         navigation = navigator or _default_navigator(
             current_target, getattr(context, "course_navigation", None))
     from agents.course_search import shared_search
-    navigation = shared_search(navigation, message=request.message,
-                              llm=llm or orchestrator.llm, navigator=navigator)
+    if selection_input is None:
+        navigation = shared_search(navigation, message=request.message,
+                                  llm=llm or orchestrator.llm, navigator=navigator)
     decision: NavigationDecision = navigation.resolve(
         message=request.message, student_id=request.student_id,
         session_id=request.session_id, current_target=current_target,
@@ -414,10 +450,24 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                            "reason": decision.reason},
         }
     target = decision.target or current_target
+    from agents.adaptive_tutoring import enabled as tutoring_enabled, TeachingTurn, TeachingStepTool
+    if guard:
+        guard()
+    teaching = TeachingTurn(context, request, llm or orchestrator.llm, target=target) if tutoring_enabled() else None
+    initial_sources = teaching.sources if teaching else []
+    if selection_input is not None:
+        initial_sources = initial_sources or selection_input.initial_sources()
+        if teaching and ('no_questions' in selection_input.execution.answer_constraints
+                         or selection_input.execution.hint_only):
+            teaching.state['allow_check'] = False
+            teaching._sync()
+    if guard:
+        guard()
     from agents.course_search import explicit_chapters, question_interjection
     chapters = explicit_chapters(request.message)
     interjection = bool(len(chapters) > 1 or
-        (q5_binding and question_interjection(request.message, target)))
+        (q5_binding and question_interjection(request.message, target))
+        or (teaching and teaching.interjection))
     root = Path(__file__).resolve().parents[1]
     skills_root = root / "visualization" / "skills"
     task_key = re.sub(r"[^A-Za-z0-9_.-]+", "_",
@@ -436,11 +486,17 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         skills_root=skills_root,
         allow_workspace=allow_workspace,
         allow_skills=skills_root.is_dir(),
-        extra_tools=(*q5_tools, ContextualRetrieveCourseTool()),
+        extra_tools=(*q5_tools, ContextualRetrieveCourseTool(),
+                     *((TeachingStepTool(teaching),) if teaching else ())),
         extra_scopes=('learning:read',) if interjection else tuple((q5_binding or {}).get("scopes") or ()),
     )
     budget = reply_budget(request.message)
-    system_prompt = build_loop_system_prompt(target=target, definitions=registry.definitions()) + "\n" + budget.instructions()
+    system_prompt = build_loop_system_prompt(
+        target=target, definitions=registry.definitions(),
+        teaching_prompt=teaching.instructions() if teaching else "",
+        verified_sources=initial_sources) + "\n" + budget.instructions()
+    if selection_input is not None:
+        system_prompt += '\n' + selection_input.instructions()
     if interjection:
         system_prompt += '\n本轮是插问，只回答学生当前问题；保留原学习目标，不记录本目标已讲解、掌握或推进路径。'
     system_prompt += '\n页面当前学习目标仅作学习位置参考；具体提问优先，不要把旧小节主题擅自追加到检索词。指定图号先调用 retrieve_course 读取该图及登记原文，不能只检索旧主题便要求学生上传已有原图。'
@@ -478,33 +534,56 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         navigation.coverage.cancellation = cancellation
     if navigation.backend is not None and hasattr(navigation.backend, 'cancellation'):
         navigation.backend.cancellation = cancellation
-    result = loop.run(
-        LoopRequest(
-            student_id=request.student_id, session_id=request.session_id,
-            task_id=request.task_id or request.request_id,
-            request_id=request.request_id or "",
-            message=request.message, system_prompt=system_prompt, tools=registry,
-            round_max_tokens=round_tokens, requires_evidence=True,
-            prefetch_query=(request.message if not resume_state and (
-                q5_binding or (context.course_navigation or {}).get('status')=='ready' or
-                (getattr(navigation.backend,'backend',None) is not None and target is not None and
-                 (question_interjection(request.message,target) or target.name in request.message))) else None),
-            seed_messages=list(context.history or []), target=target,
-            navigation=navigation, cancellation=cancellation, guard=guard,
-            tool_state={"workspace_root": str(workspace_root),
-                        "skills_root": str(skills_root), "deferred_loader": None,
-                        **((q5_binding or {}).get('tool_state') or {})},
-            publish_gate=publish_gate or _publish_gate(orchestrator, request, target, navigation),
-            emit=emit, tool_timeout_seconds=tool_seconds, max_exploration_rounds=4,
-        ),
-        resume_state=resume_state,
-        answer=str((previous or {}).get("_resume_answer") or ""),
-    )
+    restored_reply = teaching.restore_reply() if teaching else None
+    if restored_reply is not None:
+        # Only the exact persisted, revalidated formative question is replayed.
+        # No new model text or textbook assertion bypasses the publish gate.
+        if guard:
+            guard()
+        result = LoopResult(final_text=restored_reply, completed=True,
+                            sources=teaching.sources)
+        result._target = target
+        emit("progress", "恢复原来的理解检查")
+    else:
+        result = loop.run(
+            LoopRequest(
+                student_id=request.student_id, session_id=request.session_id,
+                task_id=request.task_id or request.request_id,
+                request_id=request.request_id or "",
+                message=request.message, system_prompt=system_prompt, tools=registry,
+                round_max_tokens=round_tokens, requires_evidence=teaching is None,
+                prefetch_query=(request.message if not resume_state and not initial_sources and (
+                    q5_binding or (context.course_navigation or {}).get("status")=="ready" or
+                    (getattr(navigation.backend,"backend",None) is not None and target is not None and
+                     (question_interjection(request.message,target) or target.name in request.message))) else None),
+                seed_messages=([] if selection_input and selection_input.scope_changed
+                               else list(context.history or [])), target=target,
+                initial_sources=initial_sources,
+                navigation=navigation, cancellation=cancellation, guard=guard,
+                tool_state={"workspace_root": str(workspace_root),
+                            "skills_root": str(skills_root), "deferred_loader": None,
+                            **((q5_binding or {}).get("tool_state") or {})},
+                publish_gate=publish_gate or _publish_gate(orchestrator, request, target, navigation, teaching, selection_input),
+                emit=emit, tool_timeout_seconds=tool_seconds, max_exploration_rounds=4,
+            ),
+            resume_state=resume_state,
+            answer=str((previous or {}).get("_resume_answer") or ""),
+        )
     if not result.paused:
         # 超时后可能仍有只读检索线程；回合结束即停止其后续补查，不取消等待学生的任务。
         cancellation.cancel()
     conversation_id = None
     mapped = _map_result(result, target)
+    if teaching and result.completed:
+        teaching.commit_sources(result.sources)
+        mapped["teaching"] = teaching.public()
+    if teaching and mapped.get("loop_state"):
+        from agents.adaptive_tutoring import redact_protocol
+        mapped["loop_state"] = redact_protocol(mapped["loop_state"])
+    if selection_input is not None:
+        mapped['entrypoint'] = 'pdf_text_selection'
+        mapped['selection_ref'] = selection_input.reference
+        mapped['pdf_image_refs'] = selection_input.reference.get('image_refs', [])
     if result.completed:
         media = {}
         for source in result.sources:
@@ -530,7 +609,28 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     mapped['retrieval_coverage'] = navigation.coverage_report
     mapped['retrieval_trace'] = navigation.trace
     mapped['backend_calls'] = list(getattr(navigation.backend, 'calls', []) or []) if navigation.backend else []
-    mapped['learning_interjection'] = interjection
+    mapped['learning_interjection'] = interjection or restored_reply is not None or selection_input is not None
+    if restored_reply is not None:
+        mapped['publication_mode'] = 'saved_formative_question'
+    if (selection_input is not None and result.completed and restored_reply is None
+            and not (teaching and teaching.progress.pending_question)):
+        # Preserve the selected-text pipeline's optional diagram integration.
+        # Never build an answer-revealing diagram while a check awaits an answer.
+        from knowledge.course_config import PSYCHOLOGY
+        if PSYCHOLOGY and os.getenv('VISUALIZATION_ON_DEMAND', '0') == '1':
+            from visualization.on_demand import build_guide, permitted
+            if permitted(request.message, selection_input.execution):
+                try:
+                    from knowledge.lightrag.retrieval import as_textbook_chunk
+                    guide = build_guide(orchestrator.llm, request.message, mapped['reply'],
+                        [as_textbook_chunk(s) for s in result.sources], selection_input.execution,
+                        student_id=request.student_id, turn_id=request.task_id or request.request_id,
+                        references=mapped.get('pdf_references', []), progress=progress,
+                        deferred=visualization_jobs)
+                    if guide:
+                        mapped['guided_visualization'] = guide
+                except (ValueError, OSError, KeyError, RuntimeError):
+                    pass
     if result.completed and navigation.coverage_report.get('status') == 'partial':
         gaps = '、'.join(row['query'] for row in navigation.coverage_report['missing'])
         mapped['reply'] = f'本次仅回答已有原文支持的部分；尚缺“{gaps}”的可靠教材证据，无法完整说明双方联系。\n\n' + mapped['reply']
@@ -553,19 +653,24 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     "image_refs": mapped.get('image_refs', []),
                     "session_study_plan": getattr(context,'session_study_plan',None),
                 }
+                if selection_input is not None:
+                    stored_reference = {**selection_input.reference, **stored_reference}
+                    if mapped.get('guided_visualization'):
+                        stored_reference['guided_visualization'] = mapped['guided_visualization']
                 conversation_id = memory.append_exchange(
                     request.student_id, user_message, result.final_text,
                     selection_ref=stored_reference
                     if stored_reference["pdf_references"] or stored_reference["textbook_sources"]
                     else None,
-                    expected_epoch=epoch, expected_point=target.name, task_guard=guard)
+                    expected_epoch=epoch, expected_point=target.name, task_guard=guard,
+                    session_id=request.session_id)
                 if conversation_id is False:
                     release(request.task_id or request.request_id)
                     return {
                         "reply": "这个知识点的学习记忆已被删除，本次回答未保存，请重新提问。",
                         "answer_status": "memory_deleted",
                         "step_advanced": False,
-                        "loop_state": result.state(),
+                        "loop_state": mapped.get("loop_state"),
                     }
                 mapped["conversation_id"] = conversation_id
                 mapped["memory_commit"] = {"status": "committed",
@@ -577,7 +682,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     "answer_status": "loop_failed",
                     "loop_error": f"memory_save_failed: {type(exc).__name__}",
                     "step_advanced": False,
-                    "loop_state": result.state(),
+                    "loop_state": mapped.get("loop_state"),
                 }
     if not result.paused:
         release(request.task_id or request.request_id)

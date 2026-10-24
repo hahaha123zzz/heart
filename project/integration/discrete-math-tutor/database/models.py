@@ -17,6 +17,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -154,6 +155,7 @@ class EvidenceRow(Base):
 
 class ConversationRow(Base):
     __tablename__ = "conversations"
+    __table_args__ = (Index("ix_conversations_student_session_id", "student_id", "session_id", "id"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     student_id: Mapped[str] = mapped_column(
@@ -161,6 +163,7 @@ class ConversationRow(Base):
         ForeignKey("students.student_id", ondelete="CASCADE"),
         index=True,
     )
+    session_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
     role: Mapped[str] = mapped_column(String(16), default="user")
     content: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now, index=True)

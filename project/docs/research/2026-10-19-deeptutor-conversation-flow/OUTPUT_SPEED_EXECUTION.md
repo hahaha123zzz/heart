@@ -34,3 +34,14 @@
 局部 cProfile（无网络、真实教材6片段、4次PDF解析）证据：`.runtime/output-speed-20261024/selection-profile-before.log` / `selection-profile-after.log`。前后 `_live_document` 均16命中、4未命中，解析文档数相同。总时间64.531→13.125秒；函数调用22,846,316→6,775,916。原实现133,950次读取rotation_matrix、536,066次读取page.bound等；将旋转矩阵、页面宽高移至每页读取一次即可消除重复跨语言访问。**该数据只是局部剖析，不是端到端20%通过证据**。
 
 `pdf_characters` 的文本、glyph坐标与pages结构不变；新增0/90/180/270度PDF逐字符等值测试。未扩大跨请求缓存、未改变PDF哈希和来源版本检查、未建新索引。基准还发现16GB内存下旧8017副本额外占用约1GB，仅停止本窗口已被替代进程；其他服务不接管。
+
+
+## 主线并行提交集成
+
+验收期间 main 从 be7cc9c 前进到 2803d8d，包含完整教学引擎、会话隔离和选区共享循环。仅合入已提交祖先，不复制其他 worktree 未提交内容。保留 TeachingTurn/SelectionLoopInput/initial_sources、teaching_step、会话历史隔离和 Q5 语义；预取不重复读取 initial_sources，启用教学工具时不使用“已有证据关闭全部工具”的快捷分支。
+
+发布策略存在实质冲突，已向用户说明，用户选择按 DeepTutor 处理。核对上游 pipeline.py:958—984、agent_loop.py:983—1031/1190—1210，普通教学实时流式，协议载荷缓冲，拒绝轮按身份撤回。保留本窗口已集成 SR 协议，并补齐教学修订分支撤回；主线 final-answer-publishing-design 追加此决策而不删除原记录。
+
+合并首次85项测试1失败：新增 planning-failure fixture 的 Mock.is_chapter_guide 未显式设false，未进入被测 propose_session；与已记录插问fixture同类。只补齐两个fixture的真实boolean契约，不改Q5生产逻辑，重跑85项全过。另18项提速测试全过，含教学修订必须撤回且保留工具。原始日志 merge-main-focused.log / merge-main-focused-second.log / merge-final-speed.log 均保留。
+
+79460d3 的8类×5对完整性能队列已结束，仅作为合并前优化版本测量；不把它算成并行主线合入后的最终宿主验收。后续固定合并提交重新导出真实页面与故障验证。

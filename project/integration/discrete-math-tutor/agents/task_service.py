@@ -93,7 +93,16 @@ class TaskService:
             item for row in recent for item in ({"role": "user", "content": row["payload"].get("message", "")},
                 {"role": "assistant", "content": row["result"].get("reply", "")})]
         point = request.learning_goal or (recent[-1]["knowledge_point"] if recent else None) or self.tutor.memory.get_active_goal(request.student_id) or DEFAULT_GOAL
-        resolved = resolve_selection(request.selection) if request.selection else None
+        from agents.selection_loop import enabled as selection_loop_enabled, descriptor, recover_selection
+        bound_selection = request.selection
+        if selection_loop_enabled() and bound_selection is None:
+            bound_selection = recover_selection(recent, request, self.tutor.memory.repo)
+        try:
+            resolved = resolve_selection(bound_selection) if bound_selection else None
+        except (ValueError, OSError) as exc:
+            if request.selection is None and bound_selection is not None:
+                raise TaskConflict('document_changed', str(exc)) from exc
+            raise
         if resolved: point = resolved["section"]["title"]
         elif request.reader_location:
             section = get_section(request.reader_location.chapter_id, request.reader_location.section_id)
@@ -114,18 +123,20 @@ class TaskService:
         builder = TaskContextBuilder()
         context = builder.build(student_id=request.student_id, message=request.message, knowledge_point=point,
             history=history, known_points=self.tutor.memory.list_knowledge_points(request.student_id),
-            reader_location=request.reader_location, selection=request.selection, exercise_target=request.exercise_target,
+            reader_location=request.reader_location, selection=bound_selection, exercise_target=request.exercise_target,
             resolved_selection=resolved, session_id=request.session_id, request_id=request.request_id,
             visualization_target=request.visualization_target,
             truth_table_target=request.truth_table_target,
             relation_target=request.relation_target,
             preferences={**self.tutor.memory.get_profile(request.student_id).preferences,
                 **(request.style_overrides.model_dump(exclude_none=True) if request.style_overrides else {})})
+        if selection_loop_enabled() and bound_selection is not None and bound_selection.kind == 'text':
+            context.selection_scope = descriptor(bound_selection)
         from knowledge.course_navigation import resolve, previous_cursor
         cursor = previous_cursor(recent, self.tutor.memory, request.student_id)
         if cursor is None and self._needs_navigation_fallback(request.message):
             cursor = self._last_navigation_cursor(recent)
-        if not any((request.selection, request.exercise_target, request.visualization_target,
+        if not any((bound_selection, request.exercise_target, request.visualization_target,
                     request.truth_table_target, request.relation_target)):
             context.course_navigation = resolve(request.message,
                                                 cursor=cursor, reader_location=request.reader_location)
@@ -139,6 +150,8 @@ class TaskService:
             values = {"reader_location": None, "selection": None, "exercise_target": None, "visualization_target": None, "truth_table_target": None, "relation_target":None}
             key = {"section": "reader_location", "pdf_selection": "selection", "exercise_part": "exercise_target", "visualization":"visualization_target", "truth_table":"truth_table_target", "relation":"relation_target"}[obj.kind]
             values[key] = source.model_dump()[key]
+            if key == 'selection' and source is request and bound_selection is not None:
+                values[key] = bound_selection.model_dump()
             if key in ('visualization_target', 'truth_table_target', 'relation_target'):
                 values[key] = dict(values[key], action=None)
             return values
@@ -159,6 +172,10 @@ class TaskService:
                 if obj.id not in origins and len(context.objects) < 4:
                     context.objects.append(obj)
                     origins[obj.id] = origin(old, obj)
+        from agents.adaptive_tutoring import enabled as tutoring_enabled, snapshot_from_recent
+        if tutoring_enabled():
+            context.tutoring = snapshot_from_recent(
+                recent, context, self.tutor.memory.repo, request.student_id)
         return context, resolved, origins
 
     def _resume(self, request, row):
@@ -316,7 +333,7 @@ class TaskService:
                 return dict(duplicate,pdf_references=references_for_display(duplicate['pdf_references'])) if duplicate.get('pdf_references') else duplicate
 
             q5_binding = None
-            if q5 is not None:
+            if q5 is not None and context.selection_scope is None:
                 def save_q5(result):
                     saved_context = context.model_dump() | {
                         "document_versions": document_versions,
@@ -644,7 +661,11 @@ class TaskService:
             if "task" in locals() and task["status"] in ("ready", "executing"):
                 try:
                     with self.tutor.memory.repo.unit_of_work():
-                        guard()
+                        # Planning can fail before the execution guard is
+                        # defined. Failure cleanup needs only task/epoch
+                        # ownership, not a successful resource/plan snapshot.
+                        self.repo.guard(task['student_id'], task['session_id'],
+                            task['id'], task['revision'], self.tutor.memory.repo)
                         self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo, status="failed",
                             result={"reply": "本次回答失败，请重新发送问题。", "answer_status": "task_failed", "step_advanced": False})
                 except TaskConflict:

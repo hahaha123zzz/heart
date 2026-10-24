@@ -83,7 +83,7 @@ class Q3EntrypointTests(unittest.TestCase):
                 version="a" * 64, kind="text",
                 rects=[{"page": 1, "x1": .1, "y1": .1, "x2": .2, "y2": .2}]))
         context = TaskContext(student_id="s", message=request.message)
-        with patch.dict(os.environ, LOCAL_AGENT_LOOP_ENABLED="1"), \
+        with patch.dict(os.environ, LOCAL_AGENT_LOOP_ENABLED="1", SELECTED_TEXT_AGENT_LOOP_ENABLED="0"), \
                 patch("agents.agent_loop_service.run_agent_loop_turn") as run, \
                 patch("agents.pdf_selection_tutor.explain_selection",
                       return_value={"reply": "选区"}) as selection:
@@ -92,6 +92,29 @@ class Q3EntrypointTests(unittest.TestCase):
         self.assertEqual(result["reply"], "选区")
         run.assert_not_called()
         selection.assert_called_once()
+
+    def test_text_selection_enters_shared_loop_when_adapter_enabled(self):
+        request = ChatRequest(student_id='s', message='解释选中内容', selection={
+            'document_id':'chapter-02','version':'a'*64,'kind':'text',
+            'rects':[{'page':1,'x1':.1,'y1':.1,'x2':.2,'y2':.2}]})
+        context = TaskContext(student_id='s', message=request.message)
+        with patch.dict(os.environ, LOCAL_AGENT_LOOP_ENABLED='1', SELECTED_TEXT_AGENT_LOOP_ENABLED='1'), \
+             patch('agents.agent_loop_service.run_agent_loop_turn',return_value={'reply':'shared'}) as run:
+            result = self.module._execute_task_turn(request,context,{'server':'resolved'},None,lambda:None,None)
+        self.assertEqual(result['reply'],'shared')
+        self.assertEqual(run.call_args.kwargs['resolved'],{'server':'resolved'})
+
+    def test_area_selection_stays_on_original_pipeline_even_when_text_flag_enabled(self):
+        request = ChatRequest(student_id='s', message='解释图片', selection={
+            'document_id':'chapter-02','version':'a'*64,'kind':'area',
+            'rects':[{'page':1,'x1':.1,'y1':.1,'x2':.2,'y2':.2}]})
+        context = TaskContext(student_id='s', message=request.message)
+        with patch.dict(os.environ, LOCAL_AGENT_LOOP_ENABLED='1', SELECTED_TEXT_AGENT_LOOP_ENABLED='1'), \
+             patch('agents.agent_loop_service.run_agent_loop_turn') as run, \
+             patch('agents.pdf_selection_tutor.explain_selection',return_value={'reply':'area'}):
+            result = self.module._execute_task_turn(request,context,{},None,lambda:None,None)
+        self.assertEqual(result['reply'],'area')
+        run.assert_not_called()
 
 
 if __name__ == "__main__":

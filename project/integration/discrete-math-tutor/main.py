@@ -91,6 +91,8 @@ def home():
     import json
     from knowledge.course_config import public_course
     html=(FRONTEND_DIR/'index.html').read_text(encoding='utf-8')
+    # Force browsers holding the prior chat bundle to load the current client.
+    html=html.replace('app.js?v=20261019-markdown','app.js?v=20261024-new-chat')
     if PSYCHOLOGY:
         import re
         html=re.sub(r'<script src="/static/visualizations/(?:graph|truth-table|relation-closure|relation)\.js[^\"]*" defer></script>', '', html)
@@ -197,6 +199,14 @@ def _run_turn(request: ChatRequest, progress=None, answer_ready=None, answer_eve
 
 def _execute_task_turn(request, context, resolved, intercept, guard, progress, *, visualization_jobs=None, previous=None, q5_binding=None):
     explicit_target=request.visualization_target or request.truth_table_target or request.relation_target
+    from agents.selection_loop import enabled as selection_loop_enabled
+    if (selection_loop_enabled() and not request.exercise_target and not explicit_target
+            and (context.selection_scope is not None
+                 or (request.selection is not None and request.selection.kind == 'text'))):
+        from agents.agent_loop_service import run_agent_loop_turn
+        return run_agent_loop_turn(orchestrator=orchestrator, request=request, context=context,
+            resolved=resolved, guard=guard, progress=progress, previous=previous,
+            visualization_jobs=visualization_jobs)
     if os.getenv("LOCAL_AGENT_LOOP_ENABLED", "0") == "1" and not any(
             (request.selection, request.exercise_target, explicit_target)):
         from agents.agent_loop_service import run_agent_loop_turn

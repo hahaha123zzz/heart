@@ -321,9 +321,11 @@ def parse_document(path: Path, source_txt: str, asset_root: Path, *, sections=No
 
     # 将紧邻图注和正文归到图片资产，供生成待审核目录与检索上下文使用。
     try:
-        from knowledge.course import get_chapter
-
-        course_sections = sections if sections is not None else get_chapter(chapter_id)["sections"]
+        if sections is not None:
+            course_sections = sections
+        else:
+            from knowledge.course import get_chapter
+            course_sections = get_chapter(chapter_id)["sections"]
     except (ImportError, TypeError, KeyError):
         course_sections = []
     section_lookup = {

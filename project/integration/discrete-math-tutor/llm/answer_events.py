@@ -49,6 +49,7 @@ class AnswerEvents:
         self.send('answer_state', state='generating' if role == 'answer' else 'retrieving')
 
     def delta(self, text):
+        # 沿用 DeepTutor 普通教学的实时正文；拒绝回合由 retract 移出答案，保存仍须核验。
         self.guard()
         if self.role == 'answer':
             if not self.text and current_budget.get():

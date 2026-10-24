@@ -79,6 +79,8 @@ def init_db() -> None:
     from database import q5_learning  # noqa: F401  Q5 首批路径表
 
     models.Base.metadata.create_all(engine)
+    from database.conversation_session_migration import migrate_conversation_sessions
+    migrate_conversation_sessions(engine)
 
 
 @contextmanager

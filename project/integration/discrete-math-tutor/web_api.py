@@ -287,10 +287,10 @@ def review_items(student_id: str):
 
 
 @router.get("/students/{student_id}/conversation")
-def conversation_history(student_id: str):
+def conversation_history(student_id: str, session_id: str | None = None):
     _student_id(student_id)
     from main import orchestrator
-    rows = orchestrator.memory.repo.get_conversation_with_figures(student_id, limit=40)
+    rows = orchestrator.memory.repo.get_conversation_with_figures(student_id, limit=40, session_id=session_id)
     from knowledge.grounded_citations import references_for_display
     grouped = [(row.get('selection_ref') or {}).get('pdf_references', []) for row in rows]
     # 一次请求核验一次发布身份及各PDF；不为每条旧消息重算全书哈希。

@@ -152,6 +152,19 @@ class SpeedTests(unittest.TestCase):
         self.assertEqual(result.sources[0]['index'],1)
         gate.assert_called_once()
 
+    def test_teaching_repair_retracts_rejected_round_and_keeps_tools(self):
+        from agents.agent_loop import LocalAgentLoop
+        from tests.test_q3_agent_loop import ScriptedLLM, final_round, request, EchoTool
+        llm=ScriptedLLM([final_round('旧讲解'),final_round('修正讲解')])
+        registry=ToolRegistry();registry.register(EchoTool())
+        gate=Mock(side_effect=[(False,'教学闭环未记录：需要实际教法'),(True,'')])
+        with patch('agents.agent_loop.retract') as retract:
+            result=LocalAgentLoop(llm).run(request(llm,registry,publish_gate=gate))
+        self.assertTrue(result.completed,result.error)
+        self.assertEqual(result.final_text,'修正讲解')
+        retract.assert_called_once()
+        self.assertTrue(llm.calls[1]['tools'],'修订教学动作仍需工具，不能被取证优化封闭')
+
     def test_ambiguous_intake_keeps_ask_user_without_prefetch(self):
         from agents.agent_loop_service import run_agent_loop_turn
         from knowledge.lightrag.q3_adapter import LightRagNavigator

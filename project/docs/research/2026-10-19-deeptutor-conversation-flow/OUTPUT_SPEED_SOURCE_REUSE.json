@@ -14,6 +14,12 @@
       "sha256": "8ec2ec26777c3bf5166dde992e4e093528d0961071a1d502f475663677752041",
       "functions": "_retrieve_kb_seed_block / _seed_search_one_kb",
       "adaptation": "同一工具协议内有界预取，替代首个模型选工具回合；不新建循环"
+    },
+    {
+      "path": "agents/loop/agent_loop.py",
+      "sha256": "8d388f5772937ae72d6f39313fff2460e8d594e96f406c4acc96ca674c9c7a78",
+      "functions": "_call_llm / _discard_deferred_output; pipeline._capability_buffers_visible_output",
+      "adaptation": "按用户本轮决定，普通教学实时输出，协议拒绝按回合撤回；保存仍经质检。仅参考行为，不复制完整循环。pipeline源码哈希见同表。"
     }
   ]
 }
