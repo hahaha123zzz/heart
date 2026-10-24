@@ -549,6 +549,14 @@ class TaskService:
                 result['execution_metrics'] = current_budget.get().snapshot()
             return result
         except TaskConflict as error:
+            if error.code == 'task_conflict' and 'task' in locals():
+                try:
+                    ended = self.repo.get(task['student_id'], task['session_id'], task['id'])
+                    if ended['status'] == 'cancelled':
+                        return {**self.conflict_reply(error), 'reply':'本次问题已取消，未保存本轮回答。',
+                                'task_state':'cancelled', 'task_id':ended['id'], 'task_revision':ended['revision']}
+                except TaskConflict:
+                    pass
             if error.code in ('visualization_changed', 'document_changed') and 'task' in locals():
                 try:
                     self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo,

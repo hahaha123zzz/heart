@@ -164,6 +164,8 @@ class ClarificationTests(unittest.TestCase):
             return {"reply": "迟到答案"}
         result = self.service.run(self.request(request_id="r1"), executor)
         self.assertEqual(result["answer_status"], "task_conflict"); self.assertEqual(self.count(ConversationRow), 0)
+        self.assertEqual(result['task_state'], 'cancelled')
+        self.assertFalse(result['step_advanced'])
 
     def test_forget_pending_only_point_deletes_task_and_receipts(self):
         first = self.clarify(request_id="r1")
