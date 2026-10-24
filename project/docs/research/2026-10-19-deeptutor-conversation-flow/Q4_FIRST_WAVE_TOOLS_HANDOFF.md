@@ -1,5 +1,7 @@
 # Q4 首批只读工具交付：TW0、TW1 与 kb_files 准备
 
+后续接线已在独立集成分支继续完成，当前状态见 `Q4_FIRST_WAVE_INTEGRATION_REPORT.md`。本文保留原工具提交的历史交付边界。
+
 日期：2026-10-24。分支：`codex/q4-first-wave-tools`。基线：`be7cc9c7b18530b2660d5df33cede4efbd76e10f`。
 
 ## 1. 范围与状态

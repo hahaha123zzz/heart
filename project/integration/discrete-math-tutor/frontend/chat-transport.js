@@ -69,7 +69,7 @@ window.TutorChatTransport = (() => {
       if (!restored.event_replay_enabled) return {...restored.result, _transportRecovered:true};
       params.set("task_revision", String(restored.task_revision));
       const response = await fetch("/api/chat/tasks/" + encodeURIComponent(restored.task_id) + "/events?" + params, {cache:"no-store"});
-      return await readEvents(response, onProgress, onAnswer);
+      return {...await readEvents(response, onProgress, onAnswer), _transportRecovered:true};
     }
   }
 

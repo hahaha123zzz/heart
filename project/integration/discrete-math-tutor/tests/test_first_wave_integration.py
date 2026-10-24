@@ -119,10 +119,39 @@ class FirstWaveIntegration(TextbookResourceFixture):
         self.assertEqual(len(references), 2)
         self.assertEqual([r['evidence']['page'] for r in references], [1, 2])
 
+    def test_publish_gate_maps_gapped_global_numbers_to_evidence_positions(self):
+        from agents.agent_loop_service import _publish_gate
+        from agents.agent_loop import LoopResult
+        source = self.service.read_material(self.binding, self.pages(), lambda: None)[1][0]
+        source['index'] = 4
+        result = LoopResult(sources=[source])
+        gate = _publish_gate(SimpleNamespace(memory=None, quality_checker=None),
+            SimpleNamespace(message='读取原文'), SimpleNamespace(name='变量'))
+        ok, reason = gate('第一页内容[4]', result)
+        self.assertTrue(ok, reason)
+        self.assertEqual(result._publication['reply'], '第一页内容[1]')
+
     def test_mixed_purpose_cannot_bypass_fact_gate(self):
         self.assertEqual(purpose('按我的偏好解释自变量'), 'textbook')
         self.assertEqual(purpose('我的偏好是什么'), 'personal_state')
         self.assertEqual(purpose('教材有几个文档'), 'catalog')
+
+    def test_course_skill_manifest_and_execution_share_allowlist(self):
+        from agents.tools.first_wave_runtime import skill_catalog
+        from agents.tools.skill_tools import ReadSkillTool
+        from dataclasses import replace
+        root = self.root / 'skills'
+        for name in ('reasoning-diagrams', 'experimental-design', 'finite-structures'):
+            directory = root / name
+            directory.mkdir(parents=True)
+            (directory / 'SKILL.md').write_text('# 技能\n使用步骤讲解。', encoding='utf-8')
+        catalog = skill_catalog(root, 'experimental-psychology-3')
+        self.assertIn('experimental-design', catalog)
+        self.assertNotIn('finite-structures', catalog)
+        ctx = replace(self.context, state={'skills_root': str(root),
+            'allowed_skills': ('reasoning-diagrams', 'experimental-design')})
+        self.assertFalse(ReadSkillTool().run({'name': 'finite-structures'}, ctx).success)
+        self.assertTrue(ReadSkillTool().run({'name': 'experimental-design'}, ctx).success)
 
     def test_public_entry_mounts_and_publishes_outline(self):
         from agents.agent_loop_service import run_agent_loop_turn
@@ -206,3 +235,11 @@ class ReaderReceiptTests(TextbookResourceFixture):
                 expires_at=now()+timedelta(minutes=20)))
         with self.assertRaises(TaskConflict):
             acknowledge('task', self.receipt(), self.memory_repo)
+
+    def test_missing_pdf_is_document_conflict(self):
+        from agents.reader_actions import acknowledge
+        from database.learning_tasks import TaskConflict
+        self.path.unlink()
+        with self.assertRaises(TaskConflict) as error:
+            acknowledge('task', self.receipt(), self.memory_repo)
+        self.assertEqual(error.exception.code, 'document_changed')

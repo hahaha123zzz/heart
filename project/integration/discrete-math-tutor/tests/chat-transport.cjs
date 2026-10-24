@@ -44,7 +44,9 @@ test('断线后通过请求编号定位回合并重放持久化事件，只提�
     json({task_id:'task', task_revision:3, result:{reply:'已保存'}, event_replay_enabled:true}),
     new Response(frame('sources', {sources:[]}) + frame('done', {reply:'恢复的回答'}, 'id: task:3:2\n')),
   ]);
-  assert.equal((await chat(payload)).reply, '恢复的回答');
+  const restored=await chat(payload);
+  assert.equal(restored.reply, '恢复的回答');
+  assert.equal(restored._transportRecovered,true);
   assert.equal(calls.filter(([,options])=>options.method==='POST').length, 1);
   assert.match(calls[1][0], /\/requests\/request\?/);
   assert.match(calls[2][0], /\/tasks\/task\/events\?.*task_revision=3/);
@@ -52,7 +54,9 @@ test('断线后通过请求编号定位回合并重放持久化事件，只提�
 
 test('未开启上游事件时仍可恢复宿主已保存收据', async () => {
   const {chat, calls} = harness([new TypeError('network'), json({result:{reply:'宿主收据'}, event_replay_enabled:false})]);
-  assert.equal((await chat(payload)).reply, '宿主收据');
+  const restored=await chat(payload);
+  assert.equal(restored.reply, '宿主收据');
+  assert.equal(restored._transportRecovered,true);
   assert.equal(calls.length, 2);
 });
 

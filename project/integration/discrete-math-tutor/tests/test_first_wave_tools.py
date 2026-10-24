@@ -51,6 +51,7 @@ class TextbookResourceFixture(unittest.TestCase):
             'chapter_title': '实验方法', 'section_title': '变量', 'version': 'unit-v1',
             'page': 1, 'source_valid': True, 'source_block_ids': [0, 1, 2]}
         self.stack.enter_context(patch.object(pdf_reader, 'documents', return_value=[self.record]))
+        self.stack.enter_context(patch('knowledge.grounded_citations.documents', return_value=[self.record]))
         self.stack.enter_context(patch.object(pdf_reader, 'PSYCHOLOGY_DIR', self.root))
         self.stack.enter_context(patch.object(citation_index, 'PSYCHOLOGY_DIR', self.root))
         self.stack.enter_context(patch('knowledge.course_navigation.outline', return_value=[self.unit]))

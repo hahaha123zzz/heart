@@ -44,9 +44,13 @@ def acknowledge(task_id, receipt, memory_repo):
             return action
         if receipt.status == 'applied':
             record = document(action['document_id'])
+            try:
+                valid_file = bool(record and record['version'] == action['version'] and
+                                  hashlib.sha256(pdf_path(record).read_bytes()).hexdigest() == action['version'])
+            except OSError:
+                valid_file = False
             if (receipt.document_id, receipt.version, receipt.page) != (
-                action['document_id'], action['version'], action['page']) or not record or (
-                record['version'] != action['version'] or hashlib.sha256(pdf_path(record).read_bytes()).hexdigest() != action['version']):
+                action['document_id'], action['version'], action['page']) or not valid_file:
                 raise TaskConflict('document_changed', '实际到达页或教材版本不匹配。')
         action.update(status=receipt.status, reason=receipt.reason)
         row.result = result

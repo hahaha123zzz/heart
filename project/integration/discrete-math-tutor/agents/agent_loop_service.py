@@ -178,7 +178,11 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
                 from knowledge.grounded_citations import EvidenceBundle
                 from knowledge.lightrag.retrieval import as_textbook_chunk
                 bundle = EvidenceBundle([as_textbook_chunk(s) for s in result.sources], evidence, [])
-                body, sources, references = bundle.publish(text)
+                positions = {int(s.get('index') or i): i for i, s in enumerate(result.sources, 1)}
+                if not {int(n) for n in re.findall(r'\[(\d+)\]', text)} <= positions.keys():
+                    return False, '引用编号不属于本轮已核验来源。'
+                grounded_text = re.sub(r'\[(\d+)\]', lambda m: f'[{positions[int(m[1])]}]', text)
+                body, sources, references = bundle.publish(grounded_text)
                 result._publication = {'reply': body, 'pdf_references': references,
                                        'textbook_sources': [f'{s.source} · {s.section}' for s in sources]}
             except ValueError as exc:

@@ -36,7 +36,8 @@ def main():
             return 0
         modules = ['tests.test_first_wave_tools', 'tests.test_first_wave_integration',
             'tests.test_q4_tool_foundation', 'tests.test_q3_agent_loop', 'tests.test_q3_q4_integration',
-            'tests.test_stream_retraction', 'tests.test_answer_stream', 'tests.test_session_study_plan']
+            'tests.test_stream_retraction', 'tests.test_answer_stream', 'tests.test_session_study_plan',
+            'tests.test_llm_tool_compatibility']
         result = unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(modules))
         (out / 'unit-report.json').write_text(json.dumps({'tests': result.testsRun,
             'failures': len(result.failures), 'errors': len(result.errors), 'real_model': False}), encoding='utf-8')
