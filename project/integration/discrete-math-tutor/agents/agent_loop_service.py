@@ -162,8 +162,10 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             passed, reason = teaching.gate(text)
             if not passed:
                 return False, reason
-        if not result.sources:
+        if not result.sources and (teaching is None or teaching.evidence_mode == "textbook"):
             return False, "本轮没有可核验的教材来源，暂不发布正式回答。"
+        if not result.sources and re.search(r"\[\d+\]", text):
+            return False, "本轮没有教材引用来源；请移除虚构的引用编号，并明确这是课堂补充知识。"
         from agents.course_search import explicit_chapters
         required = explicit_chapters(request.message)
         missing = required - {source.get('chapter_id') for source in result.sources}
@@ -192,14 +194,15 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             except ValueError as exc:
                 return False, '本次原文发布核验失败：' + str(exc)
         excerpts = _excerpts(result.sources)
-        issues = citation_issues(text, excerpts)
-        if issues:
-            return False, "本次引用未通过核验：" + "；".join(issues)
-        format_issue = _citation_format_issues(text)
-        if format_issue:
-            return False, format_issue
-        if not re.search(r"\[\d+\]", text):
-            return False, "回答未标注本轮教材引用编号，暂不发布。"
+        if result.sources:
+            issues = citation_issues(text, excerpts)
+            if issues:
+                return False, "本次引用未通过核验：" + "；".join(issues)
+            format_issue = _citation_format_issues(text)
+            if format_issue:
+                return False, format_issue
+            if not re.search(r"\[\d+\]", text):
+                return False, "回答未标注本轮教材引用编号，暂不发布。"
         checker = getattr(orchestrator, "quality_checker", None)
         memory = getattr(orchestrator, "memory", None)
         if checker is None or memory is None:
@@ -219,6 +222,7 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
                                     context={"loop_sources": result.sources,
                                              "agent_loop": True,
                                              "adaptive_teaching": teaching.public() if teaching else None,
+                                             "teaching_evidence_mode": (teaching.evidence_mode if teaching else "textbook"),
                                              "selection_target": ({"id": target.target_id,
                                                   "text": selection_input.selected_text} if selection_input else None),
                                              "reply_maximum_override": max(600, maximum, reply_budget(request.message).maximum)},

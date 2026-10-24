@@ -14,6 +14,7 @@ import os
 import re
 import threading
 import time
+from dataclasses import dataclass
 from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -47,7 +48,52 @@ def enabled() -> bool:
 
 
 def is_difficulty(message: str) -> bool:
-    return bool(DIFFICULTY.search(message.strip()))
+    return bool(DIFFICULTY.search(message.strip()) or re.search(
+        r"(?:没|不|还是|仍然)(?:太)?(?:搞懂|明白|理解|听懂)|"
+        r"看不太懂|不太理解|有点懵|有点迷糊|讲得.{0,5}(?:太快|太抽象)|"
+        r"能不能.{0,8}(?:举|换).{0,5}(?:例子|例)|(?:举|换)个例子", message.strip()))
+
+
+@dataclass(frozen=True)
+class TeachingDecision:
+    """Small, inspectable teaching analysis before generation."""
+    move: str
+    strategy: str
+    evidence_mode: str
+    reuse_evidence: bool
+    invite_check: bool
+
+
+def analyze_teaching_turn(message: str, *, previous_strategy: str = "",
+                          has_pending: bool = False, question_frequency: float = .5) -> TeachingDecision:
+    text = message.strip()
+    support = is_difficulty(text)
+    asks_example = bool(re.search(r"(?:举|换|给).{0,5}(?:个|一)?(?:例子|例)|比如|打个比方", text))
+    explicit_check = bool(ALLOW_QUIZ.search(text))
+    source_exact = bool(re.search(r"教材原文|原书怎么说|书上怎么写|按教材|引用原文|第\s*\d+页|原图|具体研究结果|数据结果", text))
+    if support:
+        move = "needs_support"
+        choices = ["worked_example", "break_down", "contrast", "prerequisite", "hint"]
+        strategy = next((item for item in choices if item != previous_strategy), "worked_example")
+    elif asks_example:
+        move, strategy = "teach_with_example", "worked_example"
+    elif re.search(r"(?:为什么|原因|区别|差异|怎么联系)", text):
+        move, strategy = "explain_relation", "conceptual_comparison"
+    elif re.search(r"(?:怎么做|步骤|如何操作|流程)", text):
+        move, strategy = "explain_procedure", "worked_example"
+    elif re.search(r"(?:总结|归纳|概括)", text):
+        move, strategy = "summarize", "self_explanation"
+    else:
+        move, strategy = "explain", "explain"
+    if strategy == previous_strategy and strategy in ("explain", "worked_example"):
+        strategy = "break_down" if strategy == "explain" else "contrast"
+    return TeachingDecision(
+        move=move, strategy=strategy,
+        evidence_mode="textbook" if source_exact else "blended",
+        reuse_evidence=bool(support or asks_example or has_pending and not re.search(
+            r"另外问|另一个问题|换个知识点|换个话题|不学这个|改学", text)),
+        invite_check=bool(explicit_check or question_frequency >= .85 and move == "explain" and not has_pending),
+    )
 
 
 def snapshot_from_recent(recent, context, memory_repo, student_id):
@@ -169,6 +215,12 @@ class TeachingTurn:
                 raise ValueError("incompatible_scope_or_schema")
         except (ValidationError, ValueError, TypeError):
             self.progress = self._fresh(topic, old.get("profile"))
+        self.strategy_decision = analyze_teaching_turn(
+            request.message, previous_strategy=old.get("last_strategy") or "",
+            has_pending=bool(self.progress.pending_question),
+            question_frequency=context.preferences.get("question_frequency", .5))
+        self.evidence_mode = self.strategy_decision.evidence_mode
+        self.interjection = self.strategy_decision.move == "needs_support"
         if self.progress.learner_profile is None:
             self.progress.learner_profile = LearnerProfile(teaching_strategy="teach_first")
         if CHANGE_TOPIC.search(request.message) or (
@@ -188,7 +240,7 @@ class TeachingTurn:
         }
         pending = self.progress.pending_question
         candidates = self.state["pending_sources"] if pending else old.get("source_candidates", [])
-        followup = bool(self.difficulty or pending or self.skip or NO_QUIZ.search(request.message)
+        followup = bool(self.difficulty or self.strategy_decision.reuse_evidence or pending or self.skip or NO_QUIZ.search(request.message)
                         or ACKNOWLEDGEMENT.fullmatch(request.message.strip()))
         if candidates and followup:
             try:
@@ -241,16 +293,16 @@ class TeachingTurn:
                 self._assess(llm)
             else:
                 self.state["turn_move"] = "feedback_unavailable"
-        if self.interjection or (not self.progress.pending_question and not followup):
+        if (self.interjection and not self.strategy_decision.reuse_evidence) or (not self.progress.pending_question and not followup):
             self.sources = []
         # The upstream policy chooses objective/stage. Pedagogy remains a model
         # choice among alternatives, not a fixed failure-count state machine.
-        self.strategy = "explain"
-        if self.difficulty:
-            self.strategy = next((s for s in ("worked_example", "contrast", "break_down", "prerequisite", "hint")
-                                  if s not in self.state["used_strategies"]), "guided_practice")
-        elif self.state["assessment"]:
+        self.strategy = self.strategy_decision.strategy
+        if self.state["assessment"]:
             self.strategy = "transfer" if self.state["assessment"]["verdict"] == "correct" else "contrast"
+        if not self.strategy_decision.invite_check and not ALLOW_QUIZ.search(request.message):
+            self.state["allow_check"] = False
+            self.state["requested_allow_check"] = False
         self._sync()
 
     def _fresh(self, topic, profile=None):
@@ -279,6 +331,11 @@ class TeachingTurn:
 
     def _assess(self, llm):
         pending = self.progress.pending_question
+        # A request for another explanation/example is help-seeking, not an answer.
+        if self.strategy_decision.move in ("needs_support", "teach_with_example"):
+            self.interjection = True
+            self.state["turn_move"] = "needs_support" if self.difficulty else "question"
+            return
         # Explicit questions are not committed answers. Do not let a flaky
         # classifier turn a request for help or an original figure into a miss.
         if re.search(r"先插问|另外问|什么是|是什么意思|为什么|请解释|图\s*\d|图片|原图|"
@@ -335,9 +392,19 @@ class TeachingTurn:
         self.state["turn_move"] = "answer"
 
     def instructions(self):
+        evidence_note = ("教材没有本轮概念的可引用原文时，仍要尽力用常见心理学知识把概念讲清楚；"
+                        "自然注明这是课堂补充，不是教材原话。不要用‘无法回答’结束，也不要伪造引用。\n"
+                        if self.evidence_mode == "blended" and not self.sources else "")
         return (
             "【DeepTutor 教学引擎当前快照，优先当前学生需求】\n"
-            "engine_next由真实DeepTutor policy计算，只建议教学动作；正式推进仍由宿主Q5测评管控。"
+            "你是温和、耐心、懂得变通的实验心理学老师。先回应学生卡住的地方，用自然口语和具体场景讲清楚；"
+            "不说教、不责备、不用空泛夸奖，不把工具、检索或状态讲给学生听。\n"
+            "本轮教学判断：" + json.dumps({"move": self.strategy_decision.move,
+                "strategy": self.strategy_decision.strategy, "evidence_mode": self.evidence_mode,
+                "reuse_evidence": self.strategy_decision.reuse_evidence,
+                "invite_check": self.strategy_decision.invite_check}, ensure_ascii=False) + "\n"
+            + evidence_note
+            + "engine_next由真实DeepTutor policy计算，只建议教学动作；正式推进仍由宿主Q5测评管控。"
             "检索是准备，最终要解释关键关系并给有用示例。每轮调用teaching_step记录实际教法与摘要，"
             "对应DeepTutor note_explained，只记已讲解，不给掌握分。"
             "本辅助检查不能调用Q5的mastery_grade/mastery_assess，不得据此推进正式路径。\n"
@@ -347,12 +414,17 @@ class TeachingTurn:
             "turn_move=question为插问：只回答当前问题，不批改不替换原题；需要新事实应检索。"
             "needs_support先讲，保留原检查但不强迫回答。懂了/继续不等于通过或答错。"
             "feedback_unavailable/unclear不能假称已批改，不能猜错。\n"
-            "允许类比和假设情境，标明‘教学示例’，不编造真实实验事实；优先复用已核验原文，"
-            "新事实、新主题、原图另取证。每轮并非必须出题。allow_check=false只讲，不反问变相考试。\n"
+            "允许类比和假设情境，标明‘教学示例（非原书例题）’，用它帮助学生理解已核验概念；"
+            "不要求教材逐字出现这个例子。若教材没有当前一般概念的原文，可给清楚标注的课堂补充，"
+            "不要把补充冒充教材结论；具体研究数据、原书表述、图像细节必须查证。\n"
+            "默认先把知识点讲清楚，不在每次讲解末尾加生硬的检查题。只有学生明确要求练习，"
+            "或本轮诊断确实需要时才提一个贴合刚才例子的轻量问题；允许用自然邀请代替提问。\n"
             "需要小检查，在teaching_step传check_prompt/check_focus，可选check_expected_answer；最多一题。"
             "先讲解，问题逐字放正文最后，然后停止，不能同轮给答案。已有待答题不可覆盖；"
             "插问时省略check_prompt保留原题；恢复时传原题干以原样重现。"
-            "只支持开放式辅助检查，不要登记选择题。内部工具、答案键、状态不显示给学生。\n"
+            "只支持开放式辅助检查，不要登记选择题。内部工具、答案键、状态不显示给学生。"
+            "语言像耐心的老师：可说‘没关系，我们换个例子’；先讲关键意思，再分步骤解释，"
+            "少用‘本轮、依据不足、暂不发布’等系统腔，不必每次寒暄或提问。\n"
             "当前状态：\n" + json.dumps(self.public(), ensure_ascii=False))
 
     def gate(self, text):

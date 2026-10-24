@@ -140,6 +140,12 @@ class QualityChecker:
                         "没有回答学生明确问题、编造教材未给出的数据/页码/结论。"
                         "措辞、风格、可补充但未被问到的细节、未按 worked_example 出题，"
                         "一律放入 suggestions，不得据此拒绝发布。")
+        if (rule_context.get("teaching_evidence_mode") == "blended"
+                and not textbook_excerpts.strip()):
+            content += ("\n本轮按一般心理学知识做课堂补充，当前没有可引用的教材摘录。"
+                        "不要仅因缺少教材引文或原书没有同款教学例子而拒绝；"
+                        "核对回答是否把补充说成教材原话、虚构具体研究结果，或明显违背实验心理学基本概念。"
+                        "允许简明诚实地说明这是课堂补充。")
         else:
             content += "\n逐项核对本轮明确要求：遗漏任一比较对象、指定理由、例子或关键条件，应要求补齐；仅提示不应补最终结论。短但漏答不能判通过。"
         if rule_context.get('grounded_evidence'):
