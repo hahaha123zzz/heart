@@ -1,0 +1,235 @@
+{
+  "deployed_revision": "e8edcf458fa1b76625952250671f35d5a78c1ccd",
+  "formal_textbook_cases": [
+    {
+      "case": "outline",
+      "tested_revision": "3479a85",
+      "completed": true,
+      "error": null,
+      "seconds": 10.149,
+      "actual_calls": [
+        {
+          "name": "material_outline",
+          "arguments": "{\"chapter_id\": 1}"
+        }
+      ],
+      "citation_count": 0,
+      "step_advanced": false,
+      "learning_interjection": true,
+      "visible_highlights": null,
+      "same_account_refresh_without_replay": null,
+      "applied_receipts": 0
+    },
+    {
+      "case": "catalog",
+      "tested_revision": "3479a85",
+      "completed": true,
+      "error": null,
+      "seconds": 4.831,
+      "actual_calls": [
+        {
+          "name": "kb_files",
+          "arguments": "{\"limit\": 100}"
+        }
+      ],
+      "citation_count": 0,
+      "step_advanced": false,
+      "learning_interjection": true,
+      "visible_highlights": null,
+      "same_account_refresh_without_replay": null,
+      "applied_receipts": 0
+    },
+    {
+      "case": "concept",
+      "tested_revision": "3479a85",
+      "completed": true,
+      "error": null,
+      "seconds": 46.185,
+      "actual_calls": [
+        {
+          "name": "retrieve_course",
+          "arguments": "{\"query\": \"自变量 因变量 区别 定义\"}"
+        }
+      ],
+      "citation_count": 4,
+      "step_advanced": false,
+      "learning_interjection": false,
+      "visible_highlights": null,
+      "same_account_refresh_without_replay": null,
+      "applied_receipts": 1
+    },
+    {
+      "case": "memory",
+      "tested_revision": "e3cea6f",
+      "completed": true,
+      "error": null,
+      "seconds": 5.351,
+      "actual_calls": [
+        {
+          "name": "read_memory",
+          "arguments": "{\"section\": \"preferences\"}"
+        }
+      ],
+      "citation_count": 0,
+      "step_advanced": false,
+      "learning_interjection": true,
+      "visible_highlights": null,
+      "same_account_refresh_without_replay": null,
+      "applied_receipts": 0
+    },
+    {
+      "case": "reader",
+      "tested_revision": "e8edcf4",
+      "completed": true,
+      "error": null,
+      "seconds": 18.846,
+      "actual_calls": [
+        {
+          "name": "reader_goto",
+          "arguments": "{\"document_id\": \"experimental-psychology-3:chapter-01\", \"version\": \"34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e\", \"page\": 2, \"quote\": \"表1-1 列出了在心理学研究中所使用的主要方法的特征、优点与缺点,从中可以看出,\"}"
+        }
+      ],
+      "citation_count": 0,
+      "step_advanced": false,
+      "learning_interjection": true,
+      "visible_highlights": 1,
+      "same_account_refresh_without_replay": true,
+      "applied_receipts": 1
+    }
+  ],
+  "local_textbook_preflight": {
+    "release": {
+      "release_id": "e051f817145b00ab08cf67b439df62d7660c38a1a381105ecaf1cbfe08280481",
+      "status": "staging",
+      "ready": false,
+      "gaps": [
+        "178 个原图资产待教师审核",
+        "教材发布清单状态为 staging"
+      ]
+    },
+    "documents": 11,
+    "targets": 461,
+    "chapters": [
+      {
+        "chapter_id": 1,
+        "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+        "page_chars": 1056,
+        "unit_id": "ch1:s1:b6",
+        "sources": 5,
+        "range_kind": "exact",
+        "unit_read_complete": true,
+        "passed": true
+      },
+      {
+        "chapter_id": 2,
+        "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+        "page_chars": 875,
+        "unit_id": "ch2:s1:b6",
+        "sources": 2,
+        "range_kind": "exact",
+        "unit_read_complete": true,
+        "passed": true
+      },
+      {
+        "chapter_id": 3,
+        "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+        "page_chars": 940,
+        "unit_id": "ch3:s1:b6",
+        "sources": 2,
+        "range_kind": "exact",
+        "unit_read_complete": true,
+        "passed": true
+      },
+      {
+        "chapter_id": 4,
+        "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+        "page_chars": 1015,
+        "unit_id": "ch4:s1:b7",
+        "sources": 4,
+        "range_kind": "exact",
+        "unit_read_complete": true,
+        "passed": true
+      },
+      {
+        "chapter_id": 5,
+        "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+        "page_chars": 960,
+        "unit_id": "ch5:s1:b7",
+        "sources": 3,
+        "range_kind": "exact",
+        "unit_read_complete": true,
+        "passed": true
+      },
+      {
+        "chapter_id": 6,
+        "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+        "page_chars": 1038,
+        "unit_id": "ch6:s1:b7",
+        "sources": 1,
+        "range_kind": "page_fallback",
+        "unit_read_complete": false,
+        "passed": true
+      },
+      {
+        "chapter_id": 7,
+        "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+        "page_chars": 1219,
+        "unit_id": "ch7:s1:b19",
+        "sources": 6,
+        "range_kind": "exact",
+        "unit_read_complete": true,
+        "passed": true
+      },
+      {
+        "chapter_id": 8,
+        "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+        "page_chars": 1097,
+        "unit_id": "ch8:s1:b8",
+        "sources": 4,
+        "range_kind": "exact",
+        "unit_read_complete": true,
+        "passed": true
+      },
+      {
+        "chapter_id": 9,
+        "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+        "page_chars": 1096,
+        "unit_id": "ch9:s1:b11",
+        "sources": 5,
+        "range_kind": "exact",
+        "unit_read_complete": true,
+        "passed": true
+      },
+      {
+        "chapter_id": 10,
+        "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+        "page_chars": 1197,
+        "unit_id": "ch10:s1:b11",
+        "sources": 9,
+        "range_kind": "exact",
+        "unit_read_complete": true,
+        "passed": true
+      },
+      {
+        "chapter_id": 11,
+        "version": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+        "page_chars": 1172,
+        "unit_id": "ch11:s1:b8",
+        "sources": 5,
+        "range_kind": "exact",
+        "unit_read_complete": true,
+        "passed": true
+      }
+    ]
+  },
+  "python_tests": 178,
+  "transport_tests": 11,
+  "all_previous_database_rows_preserved": true,
+  "deployed_to_8000": true,
+  "runtime_result_path": "E:\\项目\\heart\\.runtime\\q4-switch-20261024\\result.json",
+  "not_claimed": [
+    "全461目标逐项校验",
+    "T03/T08/T09/T10/T11/T12全部真实模型矩阵",
+    "跨浏览器或真实鼠标硬件验收"
+  ]
+}

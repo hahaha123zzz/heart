@@ -10,7 +10,8 @@ from knowledge.course import get_section
 from knowledge.course_config import DEFAULT_GOAL
 from agents.intent_policy import IntentPolicy
 from visualization.service import VisualizationError
-from llm.execution_budget import BudgetExceeded
+from llm.execution_budget import BudgetExceeded, stage_call
+from llm.client import LLMError
 
 
 class TaskService:
@@ -271,7 +272,8 @@ class TaskService:
             replay = self.repo.replay(request.student_id, request.session_id, request_key, payload, self.tutor.memory.repo)
             if replay is not None:
                 from knowledge.grounded_citations import references_for_display
-                return dict(replay,pdf_references=references_for_display(replay['pdf_references'])) if replay.get('pdf_references') else replay
+                restored = dict(replay, reader_action_replay=True)
+                return dict(restored,pdf_references=references_for_display(replay['pdf_references'])) if replay.get('pdf_references') else restored
             pending = self.repo.pending(request.student_id, request.session_id)
             task_id, revision = request.task_id, request.task_revision
             if task_id is None and pending and not re.search(r"换到|换个|改学|想学|重新提问", request.message):
@@ -522,13 +524,13 @@ class TaskService:
             execution_request = effective.model_copy(update={
                 'task_id': task['id'], 'task_revision': task['revision']})
             if q5_binding is not None:
-                result = executor(execution_request, context, resolved, intercept, guard,
+                result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard,
                                   progress, previous=previous,
-                                  q5_binding=q5_binding)
+                                  q5_binding=q5_binding))
             elif self._accepts_previous(executor):
-                result = executor(execution_request, context, resolved, intercept, guard, progress, previous=previous)
+                result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard, progress, previous=previous))
             else:
-                result = executor(execution_request, context, resolved, intercept, guard, progress)
+                result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard, progress))
             if result.get("loop_paused"):
                 # ask_user pauses the same task; persist the pending question and
                 # the complete loop protocol before returning to the page.
@@ -598,7 +600,8 @@ class TaskService:
             # 与最后一次保存使用相同工作单元检查，拒绝已删除/取消的迟到结果。
             with self.tutor.memory.repo.unit_of_work():
                 guard()
-                if (result.get('answer_status') == 'answered' and result.get('memory_commit', {}).get('status') == 'committed'):
+                if (result.get('answer_status') == 'answered' and not result.get('learning_interjection')
+                        and result.get('memory_commit', {}).get('status') == 'committed'):
                     navigation = context.course_navigation
                     if navigation and navigation.get('status') == 'ready' and result.get('knowledge_point') == navigation['title']:
                         result = dict(result, course_navigation=dict(navigation, explained=True))
@@ -624,6 +627,14 @@ class TaskService:
                 result['execution_metrics'] = current_budget.get().snapshot()
             return result
         except TaskConflict as error:
+            if error.code == 'task_conflict' and 'task' in locals():
+                try:
+                    ended = self.repo.get(task['student_id'], task['session_id'], task['id'])
+                    if ended['status'] == 'cancelled':
+                        return {**self.conflict_reply(error), 'reply':'本次问题已取消，未保存本轮回答。',
+                                'task_state':'cancelled', 'task_id':ended['id'], 'task_revision':ended['revision']}
+                except TaskConflict:
+                    pass
             if error.code in ('visualization_changed', 'document_changed','session_plan_changed') and 'task' in locals():
                 try:
                     self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo,
@@ -644,9 +655,28 @@ class TaskService:
                 try:
                     # 失败收据仍走仓库身份/epoch 校验，不用已过期的活动时钟阻止收尾。
                     task, result = self.repo.save(task=task, receipt_id=receipt,
-                        memory_repo=self.tutor.memory.repo, status='failed', result=result)
+                        memory_repo=self.tutor.memory.repo, status='failed', result=result,
+                        context=context.model_dump() | {'document_versions': document_versions})
                 except TaskConflict as error:
                     return self.conflict_reply(error)
+            return result
+        except LLMError as error:
+            from llm.execution_budget import current_budget
+            from llm.answer_events import current_answer
+            publisher = current_answer.get()
+            draft = error.partial_text if publisher and publisher.role == 'answer' else ''
+            status = 'incomplete_answer' if error.finish_reason == 'length' else ('answer_interrupted' if draft else 'model_unavailable')
+            result = {'reply': '模型输出未完成，本轮回答未保存。', 'answer_status': status, 'step_advanced': False,
+                      'execution_metrics': current_budget.get().snapshot()}
+            if draft:
+                result['unpublished_draft'] = draft
+            if 'task' in locals():
+                try:
+                    task, result = self.repo.save(task=task, receipt_id=receipt,
+                        memory_repo=self.tutor.memory.repo, status='failed', result=result,
+                        context=context.model_dump() | {'document_versions': document_versions})
+                except TaskConflict as conflict:
+                    return self.conflict_reply(conflict)
             return result
         except VisualizationError as error:
             result = {'reply':str(error), 'answer_status':'visualization_changed' if error.status == 409 else 'visualization_unavailable', 'step_advanced':False}

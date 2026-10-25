@@ -268,8 +268,8 @@ function renderProgress(message) {
   const stages = message.progress || [];
   const elapsed = Math.round(((message.finishedAt || Date.now()) - message.startedAt) / 1000);
   const current = stages.at(-1);
-  const answerLabel={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮未发布',interrupted:'输出中断（未保存）',incomplete:'输出未完成（未保存）',timeout:'本轮已超时（未保存）'}[message.answerState];
-  const title = message.pending ? (answerLabel || current?.label || "正在连接助教") : message.answerSaved && message.networkFailed ? "文字已保存，图解待恢复" : message.failed ? "处理未完成" : message.answerState==='awaiting_clarification' ? '等待补充或确认' : message.answerState==='saved' ? '已保存' : "已完成";
+  const answerLabel={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮未发布',interrupted:'输出中断（未保存）',incomplete:'输出未完成（未保存）',timeout:'本轮已超时（未保存）',cancelled:'已取消（未保存）'}[message.answerState];
+  const title = message.pending ? (answerLabel || current?.label || "正在连接助教") : message.answerSaved && message.networkFailed ? "文字已保存，图解待恢复" : ["interrupted","incomplete","timeout","cancelled"].includes(message.answerState) ? answerLabel : message.failed ? "处理未完成" : message.answerState==='awaiting_clarification' ? '等待补充或确认' : message.answerState==='saved' ? '已保存' : "已完成";
   return `<div class="turn-progress ${message.failed ? "failed" : ""}"><div class="progress-heading" role="status"><span class="${message.pending ? "progress-spinner" : "progress-check"}">${message.pending ? "" : message.failed ? "!" : "✓"}</span><strong>${esc(title)}</strong><span class="progress-elapsed" data-start="${message.startedAt}" data-finished="${message.finishedAt || ""}">${elapsed} 秒</span></div>${message.pending ? `<div class="progress-detail">${esc(current?.detail || "请求已发出，等待服务响应")}</div>` : ""}<details><summary>处理记录（点击展开）</summary><ol>${stages.map(p => `<li class="${p.status}"><span>${p.status === "completed" ? "✓" : message.failed ? "!" : "·"}</span><div><strong>${esc(p.label)}</strong><small>${esc(p.detail)}</small></div></li>`).join("")}</ol></details></div>`;
 }
 
@@ -385,6 +385,37 @@ function syncPDFReader() {
 window.addEventListener("pdf-reader-ready",()=>{syncPDFReader();chatRenderer?.refreshMath();renderChat();});
 
 const streamChat = window.TutorChatTransport.streamChat;
+let actualReaderPosition = null;
+let readerPositionSeq = 0;
+window.addEventListener('pdf-position', event => {actualReaderPosition = event.detail;readerPositionSeq++;});
+
+async function applyReaderAction(action, result, pending, owner) {
+  let expectedSelection = pending.readerOrigin;
+  const current = () => owner === studentId && localStorage.getItem(studentKey) === owner &&
+    action.session_id === tabSessionId && document.visibilityState === 'visible' &&
+    state.view === 'course' && state.chat.filter(m=>m.role==='assistant').at(-1) === pending &&
+    (state.selection||0) === expectedSelection && !state.pdfDraft && !window.getSelection()?.toString();
+  return window.TutorReaderActions.apply(action, result, {current,
+    acknowledge: body => post(`/api/chat/tasks/${encodeURIComponent(result.task_id)}/reader-receipt`,
+      {...body, student_id:owner, session_id:tabSessionId}),
+    navigate: async (target, guard) => {
+      if (!guard()) throw new Error('当前页面不适合自动定位');
+      const previousPositionSeq = readerPositionSeq;
+      expectedSelection = (state.selection||0)+1;
+      const ok = await selectSection(target.chapter_id, target.section_id, {record:false});
+      if (!ok || !guard()) throw new Error('教材切换未完成');
+      state.pdfFocus = {...target, kind:'text', text:target.quote || ''};
+      showView('course');syncPDFReader();
+      const started = Date.now();
+      while (Date.now()-started<12000) {
+        if (!guard() || state.pdfFocus?.action_id !== target.action_id) throw new Error('教材或任务已切换');
+        if (readerPositionSeq>previousPositionSeq && actualReaderPosition?.document_id === target.document_id && actualReaderPosition.version === target.version &&
+            actualReaderPosition.page === target.page) return {document_id:target.document_id,version:target.version,page:target.page};
+        await new Promise(resolve=>setTimeout(resolve,100));
+      }
+      throw new Error('阅读器未确认到达目标页');
+    }});
+}
 
 function renderContent() {
   const original = state.sectionData;
@@ -599,8 +630,8 @@ async function sendMessage(message, options={}) {
     if(finished)pending.styleSuggestion=styleControl().observe(result);
     renderStyleStatus();
     Object.assign(pending, {taskId:result.task_id, conversationId:result.conversation_id, pending:!finished, networkFailed:false,
-      answerSettled:true,answerState:result.answer_status==='answered'?'saved':result.answer_status==='awaiting_clarification'?'awaiting_clarification':({answer_interrupted:'interrupted',incomplete_answer:'incomplete',active_timeout:'timeout'}[result.answer_status]||'rejected'),
-      failed:['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable','q5_error','session_plan_changed','answer_interrupted','incomplete_answer','active_timeout','model_unavailable','loop_failed'].includes(result.answer_status),
+      answerSettled:true,answerState:result.task_state==='cancelled'?'cancelled':result.answer_status==='answered'?'saved':result.answer_status==='awaiting_clarification'?'awaiting_clarification':({answer_interrupted:'interrupted',incomplete_answer:'incomplete',active_timeout:'timeout',task_cancelled:'cancelled'}[result.answer_status]||'rejected'),
+      failed:result.task_state==='cancelled'||['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable','q5_error','session_plan_changed','answer_interrupted','incomplete_answer','active_timeout','model_unavailable','task_cancelled','loop_failed'].includes(result.answer_status),
       content:result.reply || "助教暂时没有返回内容。", unpublishedDraft:result.unpublished_draft || '',
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
       selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
@@ -644,6 +675,7 @@ async function sendMessage(message, options={}) {
     if(payload.visualization_target) pending.objectLabel='当前辅助图 · 版本 '+payload.visualization_target.expected_revision;
     pending.request.payload=payload;
     pending.request.styleOnceId=options.styleOnceId || (!options.payload?styleSnapshot.onceId:undefined);
+    pending.readerOrigin = state.selection||0;
     const result = await streamChat(payload, progress => {
         if (!isCurrent()) return;
         const index = pending.progress.findIndex(item => item.order === progress.order);
@@ -651,6 +683,7 @@ async function sendMessage(message, options={}) {
         else pending.progress.push(progress);
         renderChat();
       }, result => showAnswer(result, false), (event,data)=>{
+        if(event==='reader_action'){if(isCurrent())pending.readerAction=data;return;}
         if(!isCurrent()||!window.TutorChatTransport.applyDraft(pending,event,data))return;
         // 合并同一动画帧的 SDK 分片，保留稳定消息节点和滚动位置。
         if(!pending.draftFrame)pending.draftFrame=requestAnimationFrame(()=>{
@@ -661,6 +694,12 @@ async function sendMessage(message, options={}) {
     state.clarification=result.answer_status==='awaiting_clarification'?result:null;
     state.clarificationObject=state.clarification?objectKey:null;
     showAnswer(result, true); refreshStats();
+    const action = pending.readerAction || result.reader_actions?.[0];
+    if(action) {
+      try { const receipt = await applyReaderAction(action,result,pending,owner);
+        if(receipt?.status==='applied')toast('已到达教材目标页');
+      } catch(error) { toast('页面定位回执未保存：'+error.message); }
+    }
     if(['task_conflict','task_expired','task_not_found','task_busy','request_conflict','memory_deleted','invalid_option','task_disabled'].includes(result.answer_status)) await restoreClarification();
   } catch (error) {
     if (!isCurrent()) return;

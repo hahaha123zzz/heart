@@ -1,0 +1,33 @@
+{
+  "repository": "https://github.com/HKUDS/DeepTutor",
+  "revision": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "license": "Apache-2.0",
+  "reuse": "ideas_and_contracts_only_no_upstream_code_copied",
+  "files": [
+    {
+      "path": "deeptutor/capabilities/reading/tools.py",
+      "sha256": "1788f9e2b9329ea8068de7312bcce369c90f6c7f4ae34b75d6da6a8a633cd89d",
+      "vendor_matches_pinned": true
+    },
+    {
+      "path": "deeptutor/tools/builtin/__init__.py",
+      "sha256": "27f7598be52707c9d9171a26b824718b76381ab383cfb6a1aaffaa2857197fa3",
+      "vendor_matches_pinned": true
+    },
+    {
+      "path": "deeptutor/knowledge/manifest.py",
+      "sha256": "f1c43b63ce0b222b32e758a1f252f24dafe37ce5977e1c538f98d3fb4f9f51e3",
+      "vendor_matches_pinned": true
+    },
+    {
+      "path": "deeptutor/agents/_shared/tool_composition.py",
+      "sha256": "97f80cd0374f2661aca3e1785e0ce0274070c929090b012ba896304859f411de",
+      "vendor_matches_pinned": true
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4",
+      "vendor_matches_pinned": true
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-24",
+  "branch": "codex/q4-first-wave-integration",
+  "integrated_stream": "47a9c363ff154d354fe4257267490e62854a0819",
+  "integrated_q5_base": "be7cc9c7b18530b2660d5df33cede4efbd76e10f",
+  "unit": {
+    "tests": 174,
+    "failures": 0,
+    "errors": 0,
+    "real_model": false
+  },
+  "javascript_transport_tests": 11,
+  "reader_action_guards": "passed",
+  "browser": {
+    "kind": "isolated_browser_real_pdfjs_mock_api",
+    "actual_page": 2,
+    "receipt_count": 1,
+    "status": "applied",
+    "errors": [],
+    "refresh_replay": false
+  },
+  "model": {
+    "real_model": true,
+    "data": "synthetic_only",
+    "cases": [
+      {
+        "case": "outline",
+        "completed": true,
+        "error": "",
+        "provider_error": "",
+        "rounds": 1,
+        "source_count": 0,
+        "actual_tools": [
+          "material_outline"
+        ],
+        "reply": "教材目录（本次列出 1/1 个目标）：\n- 实验方法 · 变量 · 变量"
+      },
+      {
+        "case": "personal_state",
+        "completed": true,
+        "error": "",
+        "provider_error": "",
+        "rounds": 1,
+        "source_count": 0,
+        "actual_tools": [
+          "read_memory"
+        ],
+        "reply": "已确认的讲解偏好：\n- 回答长度：简短"
+      },
+      {
+        "case": "textbook",
+        "completed": true,
+        "error": "",
+        "provider_error": "",
+        "rounds": 2,
+        "source_count": 1,
+        "actual_tools": [
+          "read_material"
+        ],
+        "reply": "第2页原文如下：\n\n> Dependent variable is the measured outcome. [1]"
+      }
+    ]
+  },
+  "deployed_to_8000": false,
+  "production_textbook_model_browser_e2e": "not_run",
+  "source_sha256": {
+    "agents/agent_loop.py": "93b00f04563e7cc33b2838390942e62f166320e0e5fe914bc82e9654d54ea38a",
+    "agents/agent_loop_service.py": "5da17594e0b9dde836c0151f8e51a39d22dc0e832b07ba2866b3a5e2e14b0979",
+    "agents/reader_actions.py": "b0a68fe43086b67436ffe0fd0268ceda302304a1f6076682c14e94c8c03575ca",
+    "agents/q3_tools.py": "6dcd58ef0cee5b6c6523f46edb4bd03a7857765d608bc36b5da4bbf7b4e9cb35",
+    "agents/task_service.py": "d845abbc600971b53261efc5cce84d00504cebc9f56c406463d52b9e3fc72d22",
+    "agents/tools/first_wave.py": "380459eee0d1882f4721c60911dc58cb3f97c01ce20ae0e04053cb4f2b341098",
+    "agents/tools/first_wave_runtime.py": "599f0e23bfb85f5a5bd7aeef8b7082f02fe7399467b50a0fcec79813381d4ea4",
+    "agents/tools/first_wave_services.py": "c38762a89dc762969b02025da5ca6933ae1ee483891e40c317e5957f581f8571",
+    "frontend/app.js": "4b7012dabea247a7e22a6bd1410395483177627db9d364cb8b2dc0f5c90bb3d7",
+    "frontend/chat-transport.js": "b7878ca5dedbee3cc757641d09939de03fa9a5697fb5362115714da983a9d72d",
+    "frontend/reader-actions.js": "518864950b880942a3dca0b8863e8f966a2428b18b7df287cad0ea68d93b7047",
+    "frontend/index.html": "bcdd5d54721e19e313951ec01a8700997fde18523ca2938aadb38ac8c3dd9c96",
+    "knowledge/grounded_citations.py": "a4471ebc49ea21db71fc6c826a266930182e8f7a5fe501d274bebbdaf436402d",
+    "llm/client.py": "92bca9388f123aa33c439ce25c217a2ca7ace46fb36332e3a7866f6641ccb8ce"
+  }
+}

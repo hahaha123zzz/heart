@@ -23,7 +23,7 @@ window.TutorChatTransport = (() => {
       const payload = JSON.parse(raw);
       if (event === "progress") onProgress?.(payload);
       if (event === "answer") onAnswer?.(payload);
-      if (['answer_delta','answer_replace','answer_state'].includes(event)) onDraft?.(event,payload);
+      if (['answer_delta','answer_replace','answer_state','reader_action'].includes(event)) onDraft?.(event,payload);
       if (event === "done") result = payload;
       if (event === "error") throw new Error(payload.message || "本次回答失败");
     }
@@ -66,10 +66,10 @@ window.TutorChatTransport = (() => {
         throw original;
       }
       if (!restored.result) throw original;
-      if (!restored.event_replay_enabled) return restored.result;
+      if (!restored.event_replay_enabled) return {...restored.result, _transportRecovered:true};
       params.set("task_revision", String(restored.task_revision));
       const response = await fetch("/api/chat/tasks/" + encodeURIComponent(restored.task_id) + "/events?" + params, {cache:"no-store"});
-      return await readEvents(response, onProgress, onAnswer);
+      return {...await readEvents(response, onProgress, onAnswer), _transportRecovered:true};
     }
   }
 
@@ -82,7 +82,7 @@ window.TutorChatTransport = (() => {
     if(data.seq<=(message.answerSeq||0)||data.round_id<(message.answerRound||0))return false;
     if(event==='answer_delta'&&(message.answerState!=='generating'||message.answerRound!==data.round_id||typeof data.text!=='string'))return false;
     if(event==='answer_replace'&&typeof data.text!=='string')return false;
-    if(event==='answer_state'&&!['generating','retrieving','checking','saved','rejected','interrupted','incomplete','timeout'].includes(data.state))return false;
+    if(event==='answer_state'&&!['generating','retrieving','checking','saved','rejected','interrupted','incomplete','timeout','cancelled'].includes(data.state))return false;
     if(data.role && !['progress','answer'].includes(data.role))return false;
     message.answerIdentity??={answer_id:data.answer_id,task_id:data.task_id,task_revision:data.task_revision};
     message.answerSeq=data.seq;message.answerRound=data.round_id;

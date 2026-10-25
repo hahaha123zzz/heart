@@ -83,7 +83,8 @@ class EvidenceBundle:
             # 图像/页级证据没有文字范围，仍以证据ID区分不同原图或页级来源。
             identity = json.dumps([evidence.get(k) for k in ('document_id', 'document_version', 'source_block_id',
                 'block_start', 'block_end', 'media_kind')] +
-                ([evidence['evidence_id']] if evidence.get('media_kind') == 'image' else []), ensure_ascii=False)
+                ([evidence['evidence_id']] if evidence.get('media_kind') == 'image' else []) +
+                ([evidence.get('page'), evidence['evidence_id']] if evidence.get('source_block_id') is None else []), ensure_ascii=False)
             if identity not in unique:
                 unique[identity] = len(output)
                 sources.append(self.sources[reference['source_index']])

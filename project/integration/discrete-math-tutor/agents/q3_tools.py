@@ -85,42 +85,40 @@ class RetrieveCourseTool(BaseTool):
                 metadata={"target_id": target.target_id, "query": query,
                           "duplicate_retrieval": True},
             )
-        lines = []
-        payload = []
-        # Number citations across the whole turn, not per tool call: the model
-        # may retrieve more than once, and [1] must keep the same meaning in
-        # every tool result, the final answer and the quality gate.
-        for position, source in enumerate(fresh, 1):
-            index = offset + position
-            location = f"第{source.page}页" if source.page else ""
-            lines.append(f"[{index}] {source.document_id} {location}\n{source.text}")
-            payload.append(source.to_dict() | {"index": index,
-                                                "image_refs": [],
-                                                "stub": bool(source.location.get("stub"))})
+        payload = [source.to_dict() | {"index": offset + position,
+                    "image_refs": [], "stub": bool(source.location.get("stub"))}
+                   for position, source in enumerate(fresh, 1)]
         from knowledge.answer_media import selected_media, model_message
         media = selected_media(query, payload, asset_id=arguments.get('asset_id'))
+        visual_message = model_message(media)
+        from agents.course_search import association_context
+        relations = [] if hasattr(context.navigation, 'tool_context') else association_context(context.navigation, fresh)
+        context.check_cancelled()
+        if context.state.get('first_wave') is not None:
+            from agents.tools.first_wave import register_sources
+            payload = register_sources(context, fresh)
+        lines = []
+        for item in payload:
+            location = f"来源ID={item['source_id']}" if context.state.get('first_wave') is not None else (f"第{item['page']}页" if item.get('page') else '')
+            lines.append(f"[{item['index']}] {item['document_id']} {location}\n{item['text']}")
         for item in media:
             source = next(s for s in payload if (s['chapter_id'], s['section_id']) == (item['chapter_id'], item['section_id']))
             source.setdefault('image_refs', []).append(item)
-        visual_message = model_message(media)
         if media:
             import json
             lines.append('有效教材原图（身份已核对，审核状态仍按原记录；未收到像素时只依据文字）：\n'
                          + json.dumps(media, ensure_ascii=False))
-        from agents.course_search import association_context
-        relations = [] if hasattr(context.navigation, 'tool_context') else association_context(context.navigation, fresh)
         if relations:
             import json
             lines.append('关联候选（图谱描述，仅供查找联系；不得据此推断先修、重点或掌握，'
                          '只有所链接原文支持的事实可用原文编号引用）：\n' + json.dumps(relations, ensure_ascii=False))
-        context.check_cancelled()
-        context.state["seen_source_ids"] = seen | fresh_ids
-        context.state["source_offset"] = offset + len(payload)
+        context.state["seen_source_ids"] = context.state.get("seen_source_ids", set()) | seen | fresh_ids
+        context.state["source_offset"] = max((item["index"] for item in payload), default=offset)
         return ToolResult(content="\n\n".join(lines), sources=payload, model_message=visual_message,
                           metadata={"target_id": target.target_id, "query": query,
                                     "retrieval": list(getattr(context.navigation, 'calls', []))[-1:],
                                     "association_candidates": len(relations),
-                                    "stub": any(item["stub"] for item in payload)})
+                                    "stub": any(item.get("stub", False) for item in payload)})
 
 
 class AskUserTool(BaseTool):

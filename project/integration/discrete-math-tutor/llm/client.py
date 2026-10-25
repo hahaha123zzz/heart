@@ -348,6 +348,9 @@ class LLMClient:
             if tools:
                 args["tools"] = tools
                 args["tool_choice"] = tool_choice or "auto"
+            if 'api.deepseek.com' in self.base_url:
+                # 与_stream_call一致；思考模式拒绝required工具选择。
+                args['extra_body'] = {'thinking': {'type': 'disabled'}}
             if on_delta is not None:
                 return self._stream_call(args, on_delta, timeout=timeout, guard=stream_guard)
             timeout = model_timeout(timeout)

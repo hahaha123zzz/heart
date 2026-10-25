@@ -19,6 +19,7 @@ class ExecutionBudget:
         self.seconds = seconds
         self.stopped = Event()
         self.events = []
+        self.retrieval_calls = []
         self.progress = None
         self.lock = Lock()
 
@@ -66,7 +67,7 @@ class ExecutionBudget:
     def record(self, stage, **data):
         with self.lock:
             self.events.append({'stage': stage, 'at_ms': round((monotonic()-self.started)*1000), **data})
-        labels = {'retrieval.start':'读取教材候选', 'source_mapping.start':'映射教材原文',
+        labels = {'execution.start':'准备本轮取证或澄清', 'retrieval.start':'读取教材候选', 'source_mapping.start':'映射教材原文',
                   'source_selection.start':'核对原文位置', 'semantic_coverage.start':'核对问题覆盖',
                   'quality.start':'核验回答依据', 'answer.start':'生成教材讲解',
                   'save.start':'记录本轮处理状态'}
@@ -76,7 +77,12 @@ class ExecutionBudget:
     def snapshot(self):
         with self.lock:
             return {"active_limit_seconds": self.seconds,
-                    "elapsed_ms": round((monotonic()-self.started)*1000), "stages": list(self.events)}
+                    "elapsed_ms": round((monotonic()-self.started)*1000), "stages": list(self.events),
+                    "retrieval_calls": [{key: (list(value[:100]) if isinstance(value,list) else dict(value) if isinstance(value,dict) else value)
+                        for key,value in dict(row).items() if key in {
+                            'requested_backend','actual_backend','status','seconds','fallback','target_id',
+                            'search_scope','figure_status','figure_ids','retrieved_source_ids','selected_source_ids',
+                            'retrieval_count','supplemental_count','cached_coverage'}} for row in self.retrieval_calls]}
 
 
 def check_budget():

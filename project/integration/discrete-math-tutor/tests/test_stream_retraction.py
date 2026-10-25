@@ -138,6 +138,8 @@ class RetractionTests(unittest.TestCase):
         receipt=case.repo.replay('s','tab-a','timeout-test',case.request(request_id='timeout-test').model_dump(),case.memory.repo)
         self.assertEqual(receipt['answer_status'],'active_timeout')
         self.assertIsNone(case.repo.pending('s','tab-a'))
+        row=case.repo.get('s','tab-a',result['task_id'])
+        self.assertIn('document_versions',row['context'])
 
 
     def test_pause_serializes_policy_without_process_deadline(self):
@@ -189,3 +191,47 @@ class RetractionTests(unittest.TestCase):
         self.assertEqual(caught.exception.partial_text,'片段')
         stream.close.assert_called_once()
         self.assertEqual(sdk.chat.completions.create.call_count,1)
+
+
+    def test_running_backend_diagnostics_survive_timeout_snapshot(self):
+        budget=ExecutionBudget(1)
+        record={'actual_backend':'lightrag','fallback':False,'status':'running','selected_source_ids':['a']}
+        budget.retrieval_calls.append(record)
+        snapshot=budget.snapshot()
+        record['status']='success';record['selected_source_ids'].append('late')
+        self.assertEqual(snapshot['retrieval_calls'][0]['status'],'running')
+        self.assertEqual(snapshot['retrieval_calls'][0]['selected_source_ids'],['a'])
+
+    def test_executor_setup_cannot_block_past_total_budget(self):
+        from threading import Event
+        gate=Event();budget=ExecutionBudget(.05);token=current_budget.set(budget)
+        try:
+            with self.assertRaises(BudgetExceeded):stage_call('execution',lambda:gate.wait(2))
+            self.assertFalse(gate.is_set())
+        finally:
+            gate.set();current_budget.reset(token)
+
+
+    def test_empty_completed_response_gets_only_one_evidence_backed_recovery(self):
+        llm=ScriptedLLM([tool_round(('echo',{'text':'原文'})),final_round(''),final_round(''),final_round('不应调用')])
+        result=LocalAgentLoop(llm).run(request(llm,self.registry(),requires_evidence=True))
+        self.assertFalse(result.completed)
+        self.assertEqual(result.error,'empty_answer')
+        self.assertEqual(len(llm.calls),3)
+
+
+    def test_legacy_executor_partial_has_failed_receipt_without_retry(self):
+        from tests import test_clarification_tasks as fixture
+        from database.models import ConversationRow
+        case=fixture.ClarificationTests();case.setUp();self.addCleanup(case.tearDown)
+        calls=[]
+        def execute(*args):
+            calls.append(1)
+            current_answer.get().role='answer'
+            raise LLMError('stream interrupted',partial_text='未核验片段')
+        result=case.service.run(case.request(request_id='legacy-partial'),execute,answer_event=lambda *_:None)
+        self.assertEqual(result['answer_status'],'answer_interrupted')
+        self.assertEqual(result['unpublished_draft'],'未核验片段')
+        self.assertEqual(calls,[1]);self.assertEqual(case.count(ConversationRow),0)
+        receipt=case.repo.replay('s','tab-a','legacy-partial',case.request(request_id='legacy-partial').model_dump(),case.memory.repo)
+        self.assertEqual(receipt['answer_status'],'answer_interrupted')

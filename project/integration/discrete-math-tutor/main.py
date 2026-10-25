@@ -257,6 +257,9 @@ async def chat_stream(request: ChatRequest):
         def work():
             try:
                 result = _run_turn(request, progress, answer_ready=lambda result: emit("answer", result), answer_event=emit)
+                if result.get('answer_status') == 'answered':
+                    for action in result.get('reader_actions', [])[:1]:
+                        emit('reader_action', {**action, 'task_revision': result['task_revision']})
                 if current:
                     emit("progress", {**current, "status": "completed"})
                 emit("done", result)
@@ -366,6 +369,19 @@ def pending_task(student_id: str, session_id: str = "legacy"):
     pending.pop("loop_state", None)
     pending.pop("loop_events", None)
     return {"pending": pending}
+
+
+from agents.reader_actions import ReaderActionReceipt
+
+
+@app.post('/api/chat/tasks/{task_id}/reader-receipt')
+def reader_receipt(task_id: str, request: ReaderActionReceipt):
+    from agents.reader_actions import acknowledge
+    from database.learning_tasks import TaskConflict
+    try:
+        return acknowledge(task_id, request, orchestrator.memory.repo)
+    except TaskConflict as exc:
+        raise HTTPException(status_code=409, detail={'code': exc.code, 'message': str(exc)})
 
 
 @app.delete("/api/chat/tasks/{task_id}")
