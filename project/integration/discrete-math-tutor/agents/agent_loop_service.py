@@ -417,10 +417,11 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 selection_input.guard()
             guard = selection_guard
     from agents.tools.first_wave_runtime import purpose, bind_resources, STRUCTURED_TOOL, structured_gate, skill_catalog
-    tool_purpose = purpose(request.message)
+    tool_purpose = 'textbook' if selection_input is not None else purpose(request.message)
     resources, first_tools = None, ()
     try:
-        resources, first_tools = bind_resources(request, getattr(orchestrator, 'memory', None))
+        if selection_input is None:
+            resources, first_tools = bind_resources(request, getattr(orchestrator, 'memory', None))
     except (OSError, ValueError, KeyError):
         # 未部署教材资源的隔离/旧课程环境不虚挂空工具。
         pass

@@ -176,7 +176,9 @@ class SelectionLoopTests(unittest.TestCase):
                 "check_prompt": "What does the researcher manipulate?", "check_focus": "操纵",
                 "check_expected_answer": "PRIVATE-key"}),
             ChatToolResult(text="The independent variable is manipulated[2].\nWhat does the researcher manipulate?", finish_reason="stop")])
-        result = self.run_loop(ctx, model)
+        with patch('agents.tools.first_wave_runtime.bind_resources') as global_tools:
+            result = self.run_loop(ctx, model)
+        global_tools.assert_not_called()
         self.assertEqual(result["entrypoint"], "pdf_text_selection")
         self.assertEqual(result["answer_status"], "answered")
         self.assertEqual(result["retrieval_calls"], [])
