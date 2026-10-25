@@ -1,0 +1,104 @@
+[
+  {
+    "asset_id": "image-01-0004",
+    "asset_sha256": "b1341a85b7600beb23c829b4723cb5fac418403049fd60d06e605e8a84e7b384",
+    "document_id": "experimental-psychology-3:chapter-01",
+    "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+    "pdf_pixel_sha256": "996b1efbf62460beac25a26868d9d33a3c6aa6b83122c0409505ca6eaf05421f",
+    "rect": {
+      "page": 14,
+      "x1": 0.2414258571067575,
+      "y1": 0.2760105082994997,
+      "x2": 0.7943568227857919,
+      "y2": 0.48355643204816684
+    },
+    "location_review": "visual_pair_verified_by_codex",
+    "location_review_note": "核对原图与PDF提取图片完整内容对应；仅定位审核，原资产pending保持不变",
+    "review_evidence_sha256": "1c6a7a12f465046c830c2c1fd1003834d956f333b2b726c0c6b965ea9850ea26"
+  },
+  {
+    "asset_id": "image-08-0001",
+    "asset_sha256": "1b31ea239cfb721f0ce67a03e242be55bb95d877f4b312f66488798d3ba85f25",
+    "document_id": "experimental-psychology-3:chapter-08",
+    "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+    "pdf_pixel_sha256": "de27089031013ff55a154742923d8161a55bd61f091a68054472fdab0e481e20",
+    "rect": {
+      "page": 4,
+      "x1": 0.4006968879033045,
+      "y1": 0.24803147603833456,
+      "x2": 0.635119933231198,
+      "y2": 0.4678346328535105
+    },
+    "location_review": "visual_pair_verified_by_codex",
+    "location_review_note": "核对原图与PDF提取图片完整内容对应；仅定位审核，原资产pending保持不变",
+    "review_evidence_sha256": "1c6a7a12f465046c830c2c1fd1003834d956f333b2b726c0c6b965ea9850ea26"
+  },
+  {
+    "asset_id": "image-09-0001",
+    "asset_sha256": "cec5aff9bfaf3105df40e5b52becfe4e2e1da13ae22c833505de840362216fe7",
+    "document_id": "experimental-psychology-3:chapter-09",
+    "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+    "pdf_pixel_sha256": "f7b3ab33f26d7dfc4c28f05d4bc4b1f30ccc18b4c0c1d362072b8cf4f5bbfe07",
+    "rect": {
+      "page": 2,
+      "x1": 0.34168547128049154,
+      "y1": 0.4290682574895423,
+      "x2": 0.6940971825500412,
+      "y2": 0.5931102522401985
+    },
+    "location_review": "visual_pair_verified_by_codex",
+    "location_review_note": "核对原图与PDF提取图片完整内容对应；仅定位审核，原资产pending保持不变",
+    "review_evidence_sha256": "1c6a7a12f465046c830c2c1fd1003834d956f333b2b726c0c6b965ea9850ea26"
+  },
+  {
+    "asset_id": "image-01-0003",
+    "asset_sha256": "57487c15f15e292af0c8c30c12fed48f6215b9b55d91e9d500bd8520111c01c5",
+    "document_id": "experimental-psychology-3:chapter-01",
+    "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+    "pdf_pixel_sha256": "f6979827ff85b7b8df3dd3949cb0cf3e8f00a5711da0b681da4330d463b6ee0c",
+    "rect": {
+      "page": 7,
+      "x1": 0.27567124287881456,
+      "y1": 0.4660761074757013,
+      "x2": 0.760060146964755,
+      "y2": 0.5797244094488189
+    },
+    "location_review": "visual_pair_verified_by_codex",
+    "location_review_note": "核对原图与PDF提取图片完整内容对应；仅定位审核，原资产pending保持不变",
+    "review_evidence_sha256": "5d9b675cec377969a3bb452a690fd778b62e941f7610422c7d9534c985b2a657"
+  },
+  {
+    "asset_id": "image-01-0005",
+    "asset_sha256": "9a4569ed98594e95dad3a618364b71ce14a8d557553e64f52ee6863a7f663a65",
+    "document_id": "experimental-psychology-3:chapter-01",
+    "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+    "pdf_pixel_sha256": "8b59df46f2a4f68d629ad2b915b433184173aab18188a6e235f36d2bfe1d3862",
+    "rect": {
+      "page": 15,
+      "x1": 0.3781512626942871,
+      "y1": 0.6581365229889476,
+      "x2": 0.6576655063161819,
+      "y2": 0.8376378337229331
+    },
+    "location_review": "visual_pair_verified_by_codex",
+    "location_review_note": "核对原图与PDF提取图片完整内容对应；仅定位审核，原资产pending保持不变",
+    "review_evidence_sha256": "5d9b675cec377969a3bb452a690fd778b62e941f7610422c7d9534c985b2a657"
+  },
+  {
+    "asset_id": "image-07-0003",
+    "asset_sha256": "1b51833f004fb349461cc84fac19ec5a84cfbbac7ef3810b43c96bba0e505045",
+    "document_id": "experimental-psychology-3:chapter-07",
+    "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+    "pdf_pixel_sha256": "f888107de97181f7db348717b86ebb2ea09082ac6167436891c94bfbecd5eeec",
+    "rect": {
+      "page": 7,
+      "x1": 0.3572282586486281,
+      "y1": 0.09766401956713419,
+      "x2": 0.6785372724368944,
+      "y2": 0.31649604056450953
+    },
+    "location_review": "visual_pair_verified_by_codex",
+    "location_review_note": "核对原图与PDF提取图片完整内容对应；仅定位审核，原资产pending保持不变",
+    "review_evidence_sha256": "5d9b675cec377969a3bb452a690fd778b62e941f7610422c7d9534c985b2a657"
+  }
+]

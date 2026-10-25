@@ -49,7 +49,12 @@ function Reader({metadata,reference,onAsk}){
   if(!ready)return;
   const frame=requestAnimationFrame(()=>{
    if(!scrollTo.current||!surface.current?.offsetParent)return;
-   if(highlights.length)scrollTo.current(highlights[0]);
+   if(highlights.length){
+    scrollTo.current(highlights[0]);
+    // 页尾的小区域不顶到视口顶部，防止下一页占据多数视口后被PDF.js当作当前页。
+    const viewer=highlighter.current?.viewer,element=viewer?.getPageView(highlights[0].position.pageNumber-1)?.div;
+    if(element)viewer.container.scrollTop=Math.min(viewer.container.scrollTop,Math.max(element.offsetTop,element.offsetTop+element.clientHeight-viewer.container.clientHeight));
+   }
    else if(metadata.resume){const target=displayPage(metadata.resume.page);if(target>0){changeScale(metadata.resume.scale||'page-width');jump(target,metadata.resume.y||0);}else jump(metadata.section.page,metadata.section.y);}
    else jump(metadata.section.page,metadata.section.y);
   });
@@ -138,7 +143,7 @@ function Reader({metadata,reference,onAsk}){
 }
 window.TextbookPDF={
 renderMath(element){if(element.closest('.tutor-markdown'))return;renderMathInElement(element,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredClasses:['tutor-markdown'],throwOnError:false,trust:false,strict:'ignore'});},
-mount(element,metadata,reference,onAsk){let instance=mounted.get(element);if(!instance){instance=createRoot(element);mounted.set(element,instance);}instance.render(<Reader key={metadata.document_id} metadata={metadata} reference={reference} onAsk={onAsk}/>);},
+mount(element,metadata,reference,onAsk){let instance=mounted.get(element);if(!instance){instance=createRoot(element);mounted.set(element,instance);}instance.render(<Reader key={metadata.document_id+':'+metadata.version+':'+metadata.url} metadata={metadata} reference={reference} onAsk={onAsk}/>);},
 unmount(element){const instance=mounted.get(element);if(instance){instance.unmount();mounted.delete(element);}}
 };
 window.dispatchEvent(new Event('pdf-reader-ready'));
