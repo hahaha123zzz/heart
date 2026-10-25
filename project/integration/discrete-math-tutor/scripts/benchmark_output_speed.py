@@ -8,6 +8,18 @@ import uuid
 import httpx
 
 
+def effective_first_answer(events):
+    saved = next((e for e in reversed(events) if e['event'] == 'answer_state'
+                  and e['data'].get('state') == 'saved'), None)
+    if saved is None:
+        return None
+    accepted_round = saved['data'].get('round_id')
+    return next((e['seconds'] for e in events if e['event'] == 'answer_delta'
+                 and e['data'].get('round_id') == accepted_round
+                 and e['data'].get('role', 'answer') == 'answer'
+                 and e['data'].get('text')), None)
+
+
 def turn(url, payload, output, *, expected_status="answered"):
     started = time.monotonic()
     row = {'request': payload, 'events': [], 'first_progress': None,
@@ -36,7 +48,7 @@ def turn(url, payload, output, *, expected_status="answered"):
         row['expected_status']=expected_status
         row['passed'] = result.get('answer_status') == expected_status
         # 被拒绝的草稿不能作为成功回答首字；另保留原始事件时间。
-        row['effective_first_answer'] = row['first_answer_delta'] if row['passed'] and expected_status=='answered' else None
+        row['effective_first_answer'] = effective_first_answer(row['events']) if row['passed'] and expected_status=='answered' else None
     except Exception as exc:
         row.update(passed=False, error_type=type(exc).__name__, error=str(exc))
     finally:

@@ -272,6 +272,15 @@ class SpeedTests(unittest.TestCase):
         self.assertEqual(result['before']['complete_median'],10)
         self.assertAlmostEqual(result['complete_median_improvement'],.2)
 
+    def test_first_body_uses_saved_round_and_excludes_retracted_tool_narration(self):
+        from scripts.benchmark_output_speed import effective_first_answer
+        events=[{'event':'answer_delta','seconds':1,'data':{'round_id':1,'text':'先查询'}},
+                {'event':'answer_replace','seconds':2,'data':{'round_id':1,'text':''}},
+                {'event':'answer_delta','seconds':8,'data':{'round_id':2,'text':'实际回答'}},
+                {'event':'answer_state','seconds':10,'data':{'round_id':2,'state':'saved'}}]
+        self.assertEqual(effective_first_answer(events),8)
+        self.assertIsNone(effective_first_answer(events[:-1]))
+
     def test_query_checks_content_twice_and_rejects_inflight_same_stat_change(self):
         from contextlib import ExitStack
         from unittest.mock import AsyncMock

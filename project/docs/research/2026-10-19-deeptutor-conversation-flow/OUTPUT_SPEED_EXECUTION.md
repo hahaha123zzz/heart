@@ -13,7 +13,7 @@
 
 ## 执行状态
 
-代码改造与针对性回归进行中。OS01—OS16 真实模型、页面和20%性能目标尚未验收，不据代码存在标记完成。
+收尾更新2026-10-25：OS0—OS5代码已实现，业务冻结073f814已通过257项回归及真实页面流程；OS6性能20%目标和正式启用未全量通过。以OUTPUT_SPEED_ACCEPTANCE.md/JSON逐项矩阵为准，不按代码存在标完成。
 
 
 ## OS1—OS5 核心实现（待真实验收）
@@ -54,3 +54,17 @@
 
 
 3065d76的最终浏览器三入口已证实真实正文早于同一answer回合的质检（首轮探协议checking不能拿来比较另一正文round）。原浏览器断言未按role/round限定，figure14误报；保留browser-3065d76，修正后browser-3065d76-final三入口通过。Q5完整七步及刷新通过。PDF两次出现先讲不考拒绝，发现本地门禁禁止任何问号，而教学提示/修订提示只说不出题/反问，正文自问句仍触发；统一提示到现有严格规则：无检查时全部改用陈述句，保留事实/引用，不增加重试、不放松门禁。75项相关回归通过，最终新提交再完整复验。
+
+
+## 最终复核命令（073f814固定导出）
+
+```powershell
+Set-Location 'C:\Users\free\AppData\Local\Temp\heart-output-speed-20261024\candidate-073f814\code\project\integration\discrete-math-tutor'
+& 'E:\项目\heart\.runtime\response-release-20261022\.venv\Scripts\python.exe' -B -m unittest tests.test_output_speed tests.test_lightrag_backend tests.test_lightrag_relocation tests.test_lightrag_coverage tests.test_lightrag_q3_adapter tests.test_course_search_bridge tests.test_stream_retraction tests.test_q3_agent_loop tests.test_answer_stream tests.test_q3_task_loop tests.test_q3_q4_integration tests.test_quality_guard tests.test_session_study_plan tests.test_lightrag_deepseek_query tests.test_grounded_citations tests.test_selection_loop tests.test_adaptive_tutoring tests.deeptutor_learning.test_models tests.deeptutor_learning.test_policy -q
+```
+
+257项全部通过，offline-073f814.log，41.724秒。后续计时审计只修改benchmark_output_speed.py及其测试，补充按saved round选择有效正文首字；20项提速/计时测试通过，metrics-final-20.log。最初命令误用node --check检查.py返回未知扩展名，已用Python AST检查及Node检查app.js/浏览器.cjs纠正，非业务异常。
+
+真实页面按同一业务提交依次跑flows（选区/ask_user）、stream-retraction（概念/图1-4/图5-2）、session-plan（含原跨章题）、disconnect；四个退出码均0；随后同库进程重启计划恢复通过。环境变量显式URL=http://127.0.0.1:8018、独立OUTPUT目录，脚本/收据/截图哈希及详细时序在最终验收JSON和evidence-final。最终业务代码没有在这些流程之间变更。
+
+原生取消、短read故障和并发在最终073f814重跑；缓存后回答不计超时拒绝终态通过。仍未做最终教学版本每类5对，保留79460d3的完整80次历史性能及未达标类别。正式8000运行Q4 e8edcf4、旧库缺两项新列，依照OUTPUT_SPEED_SWITCH_PLAN.md准备，未自动切换/迁移。
