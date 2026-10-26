@@ -183,8 +183,9 @@ class TaskLoopPersistenceTests(unittest.TestCase):
         def execute(request,context,resolved,intercept,guard,progress):
             reply=client.chat([{'role':'user','content':request.message}],**answer_kwargs())
             self.fail('取消后的模型结果不得返回执行器')
-        with self.assertRaises(LLMError):self.service.run(
+        result = self.service.run(
             ChatRequest(student_id='s',request_id='cancel-stream',message='解释条件'),execute,answer_event=emit)
+        self.assertNotEqual(result.get('answer_status'), 'answered')
         self.assertTrue(stream.closed)
         self.assertEqual([d['text'] for e,d in events if e=='answer_delta'],['草稿'])
         self.assertEqual(self.memory.repo.get_conversation('s'),[])

@@ -84,6 +84,7 @@ class TaskAPITests(unittest.TestCase):
         self.assertEqual(restored.status_code, 200)
         self.assertEqual(restored.headers["cache-control"], "no-store")
         self.assertEqual(restored.json()["result"], saved)
+        self.assertTrue(any(s['stage'] == 'save.completed' for s in saved['execution_metrics']['stages']))
         self.assertEqual(self.client.get("/api/chat/requests/request", params={**params, "session_id": "other"}).status_code, 404)
         self.assertEqual(self.client.get("/api/chat/requests/request", params={**params, "student_id": "other"}).status_code, 404)
         self.tutor.handle_turn.assert_called_once()

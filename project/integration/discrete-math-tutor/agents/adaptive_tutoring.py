@@ -428,8 +428,8 @@ class TeachingTurn:
                 "invite_check": self.strategy_decision.invite_check}, ensure_ascii=False) + "\n"
             + no_questions + evidence_note
             + "engine_next由真实DeepTutor policy计算，只建议教学动作；正式推进仍由宿主Q5测评管控。"
-            "检索是准备，最终要解释关键关系并给有用示例。每轮调用teaching_step记录实际教法与摘要，"
-            "对应DeepTutor note_explained，只记已讲解，不给掌握分。"
+            "检索是准备，最终要解释关键关系并给有用示例。普通讲解直接回答；只有登记辅助检查或需要记录特殊教学动作时调用teaching_step。"
+            "已发布的回答会记录为已讲解，对应DeepTutor note_explained，不给掌握分。"
             "本辅助检查不能调用Q5的mastery_grade/mastery_assess，不得据此推进正式路径。\n"
             "没懂时参考last_summary和used_strategies，换具体示范/对比/拆分/必要前置帮助，不原样重抄定义，"
             "不按困难次数贴能力标签。可用建议：" + self.strategy + "。\n"
@@ -464,8 +464,19 @@ class TeachingTurn:
             return False, "学生要求先讲不考：正文不得出现任何问号，包括自问和引号内的问题；改为陈述句，保留事实和引用，不新增检查。"
         return True, ""
 
-    def commit_sources(self, sources):
+    def commit_sources(self, sources, answer_text=""):
         # Called only after publication passes, then persisted by TaskService.
+        if not self.recorded and not self.interjection and answer_text.strip():
+            strategy = self.strategy
+            summary = re.sub(r"\s+", " ", answer_text).strip()[:350]
+            self.state["last_strategy"] = strategy
+            self.state["last_summary"] = summary
+            self.state["used_strategies"] = (self.state["used_strategies"] + [strategy])[-6:]
+            self.progress.explained_objectives[self.objective.id] = {
+                "summary": summary, "timestamp": time.time(),
+                "session_id": self.request.session_id, "turn_id": self.request.task_id or self.request.request_id,
+            }
+            self.recorded = True
         if self.new_question:
             self.state["pending_sources"] = deepcopy(sources[:8])
         self._sync()

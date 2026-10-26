@@ -125,6 +125,48 @@ class CourseSearchBridgeTests(unittest.TestCase):
         self.assertFalse(passed);self.assertIn('第1章',reason)
         tutor.quality_checker.check.assert_not_called()
 
+    def test_publish_skips_answer_quality_and_teaching_gates(self):
+        from types import SimpleNamespace
+        from agents.agent_loop import LoopResult
+        from agents.agent_loop_service import _publish_gate
+        selection=SimpleNamespace(gate=Mock(return_value=(False,'选区范围错误')))
+        teaching=SimpleNamespace(gate=Mock(return_value=(False,'教学步骤未记录')),
+                                 evidence_mode='blended')
+        tutor=SimpleNamespace(quality_checker=Mock(),memory=Mock())
+        gate=_publish_gate(tutor,SimpleNamespace(message='解释变量',student_id='isolated'),
+                           self.target,teaching=teaching,selection_input=selection)
+        passed,reason=gate('自变量是研究者主动操纵的变量。',LoopResult())
+        self.assertTrue(passed,reason)
+        selection.gate.assert_not_called()
+        teaching.gate.assert_not_called()
+        tutor.quality_checker.check.assert_not_called()
+
+    @patch.dict("os.environ", {"ADAPTIVE_TUTORING_ENABLED": "1", "Q5_LEARNING_ENABLED": "0"})
+    def test_textbook_answer_does_not_wait_for_teaching_step(self):
+        from agents.agent_loop_service import run_agent_loop_turn
+        from agents.q3_navigation import StubLearningNavigator
+        from models.chat_request import ChatRequest
+        from models.task_context import TaskContext
+        from tests.test_q3_agent_loop import ScriptedLLM, tool_round, final_round
+        llm = ScriptedLLM([
+            tool_round(("retrieve_course", {"query": "因变量定义", "limit": 6})),
+            final_round("因变量是研究者测量的结果[1]。"),
+        ])
+        message = "因变量是什么？"
+        request = ChatRequest(student_id="isolated", session_id="ordinary", request_id="fast-teach",
+                              message=message)
+        context = TaskContext(student_id="isolated", session_id="ordinary", request_id="fast-teach",
+                              message=message, knowledge_point="因变量")
+        navigator = StubLearningNavigator(target=self.target, sources=[self.source])
+        with patch("agents.tools.first_wave_runtime.bind_resources", return_value=(None, ())):
+            result = run_agent_loop_turn(orchestrator=type("Tutor", (), {"llm": llm, "memory": None})(),
+                request=request, context=context, navigator=navigator)
+        self.assertEqual(result["answer_status"], "answered")
+        self.assertEqual(result["loop_summary"]["rounds"], 2)
+        self.assertEqual(result["loop_summary"]["tool_steps"], 1)
+        self.assertIn("因变量是研究者测量的结果", result["teaching"]["last_summary"])
+        self.assertEqual([name for row in navigator.calls for name in row[:1]].count("search"), 1)
+
     def setUp(self):
         self.target = LearningTarget('objective', '当前点', chapter_id=2, section_id=3)
         self.source = SourceRef('s1', 'doc', '教材原文', version='v1')

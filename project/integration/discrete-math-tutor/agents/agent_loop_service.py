@@ -17,7 +17,6 @@ from agents.q3_tools import build_registry
 from agents.task_cancellation import register, release
 from knowledge.citation_guard import citation_issues
 from models.task_context import TaskContext
-from agents.teaching_planner import TeachingPlan
 
 
 def _target_from_context(context: TaskContext) -> LearningTarget:
@@ -154,14 +153,6 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
     def gate(text: str, result: LoopResult) -> tuple[bool, str]:
         if not text.strip():
             return False, "模型没有返回可发布回答。"
-        if selection_input is not None:
-            passed, reason = selection_input.gate(text)
-            if not passed:
-                return False, reason
-        if teaching is not None:
-            passed, reason = teaching.gate(text)
-            if not passed:
-                return False, reason
         if not result.sources and (teaching is None or teaching.evidence_mode == "textbook"):
             return False, "本轮没有可核验的教材来源，暂不发布正式回答。"
         if not result.sources and re.search(r"\[\d+\]", text):
@@ -207,38 +198,6 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
                 return False, format_issue
             if not re.search(r"\[\d+\]", text):
                 return False, "回答未标注本轮教材引用编号，暂不发布。"
-        checker = getattr(orchestrator, "quality_checker", None)
-        memory = getattr(orchestrator, "memory", None)
-        if checker is None or memory is None:
-            return True, ""
-        try:
-            state = memory.get_state(request.student_id, target.name)
-            plan = TeachingPlan(goal=f"回答{target.name}", strategy="scaffolding",
-                                action="explain", difficulty="medium")
-            if selection_input is not None:
-                selection_input.execution.align(plan)
-            maximum = int(os.getenv("Q3_REPLY_MAXIMUM", "800"))
-            from knowledge.answer_media import current_media
-            refs = [image for source in result.sources for image in source.get('image_refs', [])
-                    if image.get('model_saw_pixels')]
-            checked_media = current_media(refs)
-            quality = checker.check(text, state, plan, request.message,
-                                    context={"loop_sources": result.sources,
-                                             "agent_loop": True,
-                                             "adaptive_teaching": teaching.public() if teaching else None,
-                                             "teaching_evidence_mode": (teaching.evidence_mode if teaching else "textbook"),
-                                             "selection_target": ({"id": target.target_id,
-                                                  "text": selection_input.selected_text} if selection_input else None),
-                                             "reply_maximum_override": max(600, maximum, reply_budget(request.message).maximum)},
-                                    textbook_excerpts=excerpts,
-                                    **({'task_execution': selection_input.execution} if selection_input else {}),
-                                    **({'figure_images': [f.path for _, f in checked_media]} if checked_media else {}))
-            if not quality.passed or quality.issues:
-                return False, "本次回答未通过教材核对：" + "；".join(quality.issues or [])
-            for image, _ in checked_media:
-                image['visual_quality_checked'] = True
-        except Exception as exc:
-            return False, f"教材核验未完成：{type(exc).__name__}"
         return True, ""
     return gate
 
@@ -592,11 +551,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 task_id=request.task_id or request.request_id,
                 request_id=request.request_id or "",
                 message=request.message, system_prompt=system_prompt, tools=registry,
-                round_max_tokens=round_tokens, requires_evidence=teaching is None and tool_purpose == 'textbook',
+                round_max_tokens=round_tokens, requires_evidence=(tool_purpose == 'textbook' and
+                    (teaching is None or teaching.evidence_mode != 'blended')),
                 required_tools=required_tools,
                 structured_response=bool(resources and tool_purpose in STRUCTURED_TOOL and publish_gate is None),
-                answer_ready=((lambda outcome: teaching.recorded and
-                    (bool(outcome.sources) or teaching.evidence_mode == 'blended')) if teaching else None),
+                answer_ready=((lambda outcome: bool(outcome.sources) or
+                    teaching.evidence_mode == 'blended') if teaching else None),
                 prefetch_query=(request.message if tool_purpose == 'textbook' and not resume_state and not initial_sources and (
                     q5_binding or (context.course_navigation or {}).get("status")=="ready" or
                     (getattr(navigation.backend,"backend",None) is not None and target is not None and
@@ -622,7 +582,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     conversation_id = None
     mapped = _map_result(result, target)
     if teaching and result.completed:
-        teaching.commit_sources(result.sources)
+        teaching.commit_sources(result.sources, answer_text=result.final_text)
         mapped["teaching"] = teaching.public()
     if teaching and mapped.get("loop_state"):
         from agents.adaptive_tutoring import redact_protocol

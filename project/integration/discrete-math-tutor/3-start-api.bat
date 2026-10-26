@@ -8,7 +8,8 @@ set RAG_EMBED_DEVICE=cpu
 if exist "%~dp0.venv-gpu\gpu-verified.json" if exist "%~dp0.venv-gpu\Scripts\python.exe" (
     set "PYTHON_EXE=%~dp0.venv-gpu\Scripts\python.exe"
     set RAG_RERANK_DEVICE=cuda
-    echo GPU reranker enabled.
+    set RAG_EMBED_DEVICE=cuda
+    echo GPU embedding and reranker enabled.
 )
 if not exist "%PYTHON_EXE%" (
     echo Demo virtual environment was not found at:

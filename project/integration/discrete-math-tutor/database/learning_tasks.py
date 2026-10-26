@@ -210,6 +210,18 @@ class LearningTaskRepository:
             session.flush()
             return snapshot(row), enriched
 
+    def record_metrics(self, task, receipt_id, metrics):
+        with session_scope(immediate=True) as session:
+            row = self._owned(session, task['student_id'], task['session_id'], task['id'])
+            if row.expires_at <= now() or row.revision != task['revision'] or row.status != 'completed':
+                raise TaskConflict('task_conflict', '任务已变化，不能补记旧执行统计')
+            receipt = session.get(TaskRequestRow, receipt_id)
+            if not receipt or receipt.task_id != row.id:
+                raise TaskConflict('task_conflict', '请求收据已变化')
+            result = dict(row.result, execution_metrics=metrics)
+            row.result = receipt.result = result
+            return result
+
     def cancel(self, student_id, session_id, task_id, revision):
         with session_scope(immediate=True) as session:
             row = self._owned(session, student_id, session_id, task_id)

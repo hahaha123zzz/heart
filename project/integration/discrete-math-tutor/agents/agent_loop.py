@@ -21,7 +21,7 @@ from agents.tool_protocol import (
 )
 from llm.client import LLMClient, LLMError
 from llm.execution_budget import BudgetExceeded, check_budget, stage_call
-from llm.answer_events import answer_kwargs, checking, retract
+from llm.answer_events import answer_kwargs, retract
 from agents.transient_messages import with_transient_model_messages, extend_transient_model_messages
 
 
@@ -359,8 +359,7 @@ class LocalAgentLoop:
                 return self._error_result(result, messages, collector, "empty_answer",
                                           "模型没有返回可发布回答")
             if request.publish_gate is not None:
-                checking()
-                ok, reason = stage_call('quality', lambda: request.publish_gate(final_text, result))
+                ok, reason = stage_call('publish_integrity', lambda: request.publish_gate(final_text, result))
                 check_budget()
                 if not ok:
                     retract()
@@ -465,8 +464,7 @@ class LocalAgentLoop:
             return self._error_result(result, messages, collector, "empty_answer",
                                       "预算用尽后模型仍未给出回答")
         if request.publish_gate is not None:
-            checking()
-            ok, gate_reason = stage_call('quality', lambda: request.publish_gate(text, result))
+            ok, gate_reason = stage_call('publish_integrity', lambda: request.publish_gate(text, result))
             check_budget()
             if not ok:
                 result.final_text = gate_reason or "本次回答未通过课程核验，暂不发布。"

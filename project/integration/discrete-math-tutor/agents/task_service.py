@@ -624,7 +624,7 @@ class TaskService:
                     context=context.model_dump() | {"document_versions": document_versions})
             if current_budget.get():
                 current_budget.get().record('save.completed')
-                result['execution_metrics'] = current_budget.get().snapshot()
+                result = self.repo.record_metrics(task, receipt, current_budget.get().snapshot())
             return result
         except TaskConflict as error:
             if error.code == 'task_conflict' and 'task' in locals():

@@ -269,6 +269,9 @@ class TeachingPolicyTests(unittest.TestCase):
 
 
 class TeachingLoopIntegrationTests(unittest.TestCase):
+    def setUp(self):
+        self.enterContext(patch('agents.tools.first_wave_runtime.bind_resources', return_value=(None, ())))
+
     @patch.dict("os.environ", {"ADAPTIVE_TUTORING_ENABLED": "1", "Q5_LEARNING_ENABLED": "0"})
     def test_restore_is_exact_saved_question_and_never_arbitrary_model_text(self):
         model = ScriptedLLM([])
