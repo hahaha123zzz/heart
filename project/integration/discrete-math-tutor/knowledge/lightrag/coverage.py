@@ -73,7 +73,7 @@ class CoverageNavigator:
     def _check(self):
         if self.cancellation is not None:self.cancellation.check()
     def search(self,*,target,query,limit,preferred_types=()):
-        started=time.monotonic();self._check();self.graph_records=[]
+        started=time.monotonic();self._check();self.graph_records=[];self._native_results=[]
         if not self.requirements:
             raw=self.navigator.search(target=target,query=query,limit=limit,preferred_types=preferred_types)
             self._capture_graph('single')
@@ -93,29 +93,28 @@ class CoverageNavigator:
         groups={r.id:[] for r in self.requirements};reasons={};calls=0;supplemental=0
         self.report={'status':'retrieving','required':[r.__dict__ for r in self.requirements],'covered':[],
                      'retrieval_calls':0,'supplemental_calls':0,'fallback':False}
-        # 复用上游query-major公平调度；同一SDK候选有独占锁，所以并发固定1。
+        from knowledge.fixed_book import active
+        parallel = bool(active() and hasattr(self.navigator, 'fork'))
         for depth in range(2):
-            for req in self.requirements:
-                if groups[req.id]:continue
+            pending = [req for req in self.requirements if not groups[req.id]]
+            if parallel:
+                from concurrent.futures import ThreadPoolExecutor
+                from contextvars import copy_context
+                # SDK 查询仍受共享存储所有权保护；下一对象查询与上一对象选证可重叠。
+                with ThreadPoolExecutor(max_workers=2, thread_name_prefix='coverage') as pool:
+                    futures = [pool.submit(copy_context().run, self._fetch_requirement,
+                        self.navigator.fork(), req, target, depth, limit, preferred_types) for req in pending]
+                    results = [future.result() for future in futures]
+            else:
+                results = [self._fetch_requirement(self.navigator, req, target, depth, limit, preferred_types)
+                           for req in pending]
+            for req, (selected, decision, raw_result, call_records, events) in zip(pending, results):
                 self._check();calls+=1;supplemental+=int(depth>0)
                 self.report.update(retrieval_calls=calls,supplemental_calls=supplemental)
-                specific=replace(target,target_id='retrieval:'+req.id,name=req.query,
-                    chapter_id=req.chapter_id,section_id=req.section_id,source_scope={})
-                q=req.query if depth==0 else req.query+' 定义 步骤 操作'
-                raw=self.navigator.search(target=specific,query=q,limit=min(8,limit),preferred_types=preferred_types)
-                self._capture_graph(req.id);self._check()
-                scoped=[r for r in raw if (req.chapter_id is None or r.chapter_id==req.chapter_id)
-                        and (req.section_id is None or r.section_id==req.section_id)]
-                stage(self.trace,'object_scope',raw,scoped,'outside_required_object_scope',subproblem=req.id,query=q)
-                deduped=list({_identity(r):r for r in scoped}.values())
-                stage(self.trace,'object_dedupe',scoped,deduped,'duplicate_original_identity',subproblem=req.id)
-                if self.decide is not None and deduped:
-                    selected,decision=self.decide(req,deduped)
-                else:
-                    selected=self.select(req,deduped) if deduped else []
-                    self._check()
-                    decision=self.judge(req,selected) if selected else {'source_ids':[],'reason':'没有可核验原文'}
-                self._check()
+                if parallel:
+                    self.navigator.calls.extend(call_records)
+                self._capture_result(req.id, raw_result)
+                self.trace.extend(events)
                 if not isinstance(decision,dict) or not isinstance(decision.get('source_ids'),list) or not isinstance(decision.get('reason'),str) or len(decision['reason'])>1200:raise ValueError('语义覆盖核查响应无效')
                 ids=decision['source_ids'];allowed={r.source_id for r in selected}
                 if any(not isinstance(i,str) for i in ids) or len(ids)!=len(set(ids)) or not set(ids)<=allowed:raise ValueError('语义覆盖核查返回未提供的来源ID')
@@ -145,10 +144,45 @@ class CoverageNavigator:
         self.report={'status':'partial' if missing else 'covered','required':[r.__dict__ for r in self.requirements],
           'covered':sorted(covered),'missing':missing,'retrieval_calls':calls,'supplemental_calls':supplemental,
           'fallback':False,'seconds':time.monotonic()-started,'warning':'仅支持已覆盖对象；具体缺口不得按常识补齐' if missing else ''}
+        if parallel and self._native_results:
+            result=deepcopy(self._native_results[-1])
+            usage=deepcopy(result.get('usage',{}))
+            for key in ('calls','stages'):
+                usage[key]=[row for item in self._native_results for row in item.get('usage',{}).get(key,[])]
+            for key in ('embedding_batches','embedding_texts','llm_calls'):
+                usage[key]=sum(item.get('usage',{}).get(key,0) for item in self._native_results)
+            usage['usage']={key:sum(item.get('usage',{}).get('usage',{}).get(key,0) or 0 for item in self._native_results)
+                            for key in ('prompt_tokens','completion_tokens','total_tokens')}
+            result['usage']=usage;result['graph_context']=list(self.graph_records)
+            self.navigator.last_result=result
         self._check();return selected
+    def _fetch_requirement(self, navigator, req, target, depth, limit, preferred_types):
+        self._check()
+        specific=replace(target,target_id='retrieval:'+req.id,name=req.query,
+            chapter_id=req.chapter_id,section_id=req.section_id,source_scope={})
+        q=req.query if depth==0 else req.query+' 定义 步骤 操作'
+        raw=navigator.search(target=specific,query=q,limit=min(8,limit),preferred_types=preferred_types)
+        self._check()
+        scoped=[r for r in raw if (req.chapter_id is None or r.chapter_id==req.chapter_id)
+                and (req.section_id is None or r.section_id==req.section_id)]
+        events=[]
+        stage(events,'object_scope',raw,scoped,'outside_required_object_scope',subproblem=req.id,query=q)
+        deduped=list({_identity(r):r for r in scoped}.values())
+        stage(events,'object_dedupe',scoped,deduped,'duplicate_original_identity',subproblem=req.id)
+        if self.decide is not None and deduped:
+            selected,decision=self.decide(req,deduped)
+        else:
+            selected=self.select(req,deduped) if deduped else []
+            self._check()
+            decision=self.judge(req,selected) if selected else {'source_ids':[],'reason':'没有可核验原文'}
+        self._check()
+        return selected,decision,deepcopy(getattr(navigator,'last_result',None)),list(getattr(navigator,'calls',[])),events
+
     def _capture_graph(self,subproblem):
-        result=getattr(self.navigator,'last_result',None)
+        self._capture_result(subproblem, getattr(self.navigator,'last_result',None))
+    def _capture_result(self,subproblem,result):
         if result:
+            self._native_results.append(result)
             self.graph_records.extend(result.get('graph_context',[]))
             for event in deepcopy(result.get('trace',[])):
                 event['subproblem']=subproblem

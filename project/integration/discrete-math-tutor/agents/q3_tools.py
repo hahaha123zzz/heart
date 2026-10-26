@@ -54,15 +54,27 @@ class RetrieveCourseTool(BaseTool):
         if context.navigation is None:
             return ToolResult(content="教材检索接口尚未接入（Q2 待完成）。", success=False,
                               metadata={"dependency": "Q2"})
-        sources = context.navigation.search(target=target, query=query, limit=limit)
+        from knowledge.fixed_book import active
+        from knowledge.figures import FIGURE_NUMBER
+        if active() and (arguments.get('asset_id') or FIGURE_NUMBER.search(query)):
+            from concurrent.futures import ThreadPoolExecutor
+            from contextvars import copy_context
+            from knowledge.answer_media import prepare_named_media
+            with ThreadPoolExecutor(max_workers=1, thread_name_prefix='named-media') as pool:
+                media_future = pool.submit(copy_context().run, prepare_named_media, query, arguments.get('asset_id'))
+                sources = context.navigation.search(target=target, query=query, limit=limit)
+                prepared_media = media_future.result()
+        else:
+            sources = context.navigation.search(target=target, query=query, limit=limit)
+            prepared_media = None
         if not sources:
             return ToolResult(content="本轮问题没有返回可核验原文。请按检索记录区分指定图号缺失/歧义与证据不足；不能据此断言整本教材没有，也不要重复相同查询。", sources=[],
                               metadata={"target_id": target.target_id, "query": query})
         with context.source_lock:
             context.check_cancelled()
-            return self._commit(arguments, context, target, query, sources, max_sources)
+            return self._commit(arguments, context, target, query, sources, max_sources, prepared_media)
 
-    def _commit(self, arguments, context, target, query, sources, max_sources):
+    def _commit(self, arguments, context, target, query, sources, max_sources, prepared_media=None):
         offset = max(0, int(context.state.get("source_offset", 0) or 0))
         sources=sources[:max(0,max_sources-offset)]
         seen = context.state.get("seen_source_ids", set())
@@ -89,8 +101,14 @@ class RetrieveCourseTool(BaseTool):
                     "image_refs": [], "stub": bool(source.location.get("stub"))}
                    for position, source in enumerate(fresh, 1)]
         from knowledge.answer_media import selected_media, model_message
-        media = selected_media(query, payload, asset_id=arguments.get('asset_id'))
-        visual_message = model_message(media)
+        if prepared_media is None:
+            media = selected_media(query, payload, asset_id=arguments.get('asset_id'))
+            visual_message = model_message(media)
+        else:
+            media, visual_message = prepared_media
+            if any(not any(s['document_id'] == m['document_id'] and s['version'] == m['version']
+                           and s['section_id'] == m['section_id'] for s in payload) for m in media):
+                raise ValueError('预读取原图与本轮原文身份不一致')
         from agents.course_search import association_context
         relations = [] if hasattr(context.navigation, 'tool_context') else association_context(context.navigation, fresh)
         context.check_cancelled()

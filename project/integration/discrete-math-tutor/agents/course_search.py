@@ -73,6 +73,7 @@ class CourseSearch:
         self._search_results={}
 
     def resolve(self, **kwargs):
+        self.reader_location = getattr(kwargs.get('context'), 'reader_location', None) or getattr(self, 'reader_location', None)
         return self.base.resolve(**kwargs)
 
     @_turn_search
@@ -137,6 +138,16 @@ class CourseSearch:
                 record['document_identity'] = exact_version
                 record['exact_target_id'] = exact_id
                 sources = [source_from_chunk(chunk, index) for index, chunk in enumerate(exact[:limit])]
+            elif self._use_fast_path(query):
+                sources = self._fast_sources(query, target, limit, preferred_types, record)
+                if sources is None:
+                    self._needs_model_selection = True
+                    record.update(actual_backend='lightrag', upgraded_from='local_llamaindex', upgrade_reason='low_confidence')
+                    sources = self.backend.search(target=search_target, query=query, limit=limit,
+                                                  preferred_types=preferred_types)
+                    self.last_result = getattr(self.backend, 'last_result', None)
+                    if self.last_result:
+                        record['usage'] = self.last_result.get('usage')
             elif self.backend is not None:
                 record['actual_backend'] = 'lightrag' if hasattr(self.backend, 'backend') else 'injected'
                 if self._covered_sources is not None:
@@ -169,7 +180,8 @@ class CourseSearch:
                     record['index_identity'] = {'path': str(INDEX), 'sha256': index_signature(INDEX)}
             record['retrieved_source_ids'] = [s.source_id for s in sources]
             # 先选择真实原文再分配本轮编号；发布时复用同一 evidence，而非重新检索。
-            if sources and all(s.location.get('source') for s in sources) and (figure_request or exact or not self.coverage):
+            if sources and all(s.location.get('source') for s in sources) and (figure_request or exact or not self.coverage
+                    or record['actual_backend'] == 'local_llamaindex' or record.get('upgraded_from')):
                 sources = self.select(self.message, sources)
             record.update(status='success' if sources else 'no_evidence',
                           selected_source_ids=[s.source_id for s in sources])
@@ -191,7 +203,9 @@ class CourseSearch:
         index = settings()
         if index is None:
             raise ValueError('新检索发布要求启用原文核验')
-        bundle = choose_evidence(self.llm, question,
+        from knowledge.fixed_book import active, rule_evidence
+        fixed = active()
+        bundle = rule_evidence(question, sources) if fixed and coverage is None and not getattr(self, '_needs_model_selection', False) else choose_evidence(self.llm, question,
                                  [as_textbook_chunk(s.to_dict()) for s in sources], index, coverage=coverage)
         if self.coverage:
             from knowledge.lightrag.trace import stage
@@ -212,6 +226,33 @@ class CourseSearch:
         if coverage is not None:
             return output,{"source_ids":[s.source_id for s in output],"reason":bundle.coverage_reason}
         return output
+
+    def _use_fast_path(self, query):
+        from knowledge.fixed_book import active
+        from knowledge.lightrag.coverage import requirements_for
+        return bool(active() and not requirements_for(self.message)
+                    and not re.search(r'全书|跨章|综合|先修|知识体系|关联|关系', self.message))
+
+    def _fast_sources(self, query, target, limit, preferred_types, record):
+        from knowledge.local_rag.course_retrieval import retrieve
+        explicit = explicit_chapters(self.message)
+        reader = getattr(self, 'reader_location', None)
+        chapter = next(iter(explicit)) if len(explicit) == 1 else (getattr(reader, 'chapter_id', None) or target.chapter_id)
+        section = getattr(reader, 'section_id', None) if not explicit else None
+        trace = {}
+        chunks = retrieve(query, limit=limit, preferred_types=preferred_types, trace=trace,
+                          chapter_id=chapter, section_id=section)
+        if explicit:
+            chunks = [c for c in chunks if c.chapter_id in explicit]
+        record.update(actual_backend='local_llamaindex', route='B', local_trace=trace,
+                      preferred_scope={'chapter_id':chapter,'section_id':section})
+        scores = trace.get('rerank_scores', {})
+        if trace.get('rerank_status') != 'applied' or not chunks or max((scores.get(c.chunk_id, 0) for c in chunks), default=0) < .6:
+            return None
+        chunks = [c for c in chunks if scores.get(c.chunk_id, 0) >= .6]
+        sources = [source_from_chunk(c, i) for i, c in enumerate(chunks[:limit])]
+        return [replace(source, location={**source.location, 'retrieval_backend':'local_llamaindex',
+            'retrieval_score':scores.get(chunk.chunk_id)}) for source,chunk in zip(sources,chunks)]
 
     @property
     def trace(self):
@@ -234,10 +275,14 @@ def shared_search(base, *, message, llm, navigator=None, cancellation=None):
         from knowledge.course_config import COURSE_ID, PSYCHOLOGY_DIR
         from knowledge.lightrag.retrieval import LightRagBackend
         from knowledge.lightrag.q3_adapter import LightRagNavigator
+        from knowledge.fixed_book import active, enabled
+        fixed = active()
+        if enabled() and fixed is None:
+            raise RuntimeError('retrieval_not_ready')
         path = os.environ.get('LIGHTRAG_CANDIDATE_PATH')
         if not path:
             raise ValueError('LightRAG 未提供索引路径，不能静默回退')
-        backend = LightRagNavigator(base, LightRagBackend(path, authorized_course_ids={COURSE_ID},
+        backend = LightRagNavigator(base, fixed.backend if fixed else LightRagBackend(path, authorized_course_ids={COURSE_ID},
             allow_candidate=os.getenv('LIGHTRAG_ALLOW_CANDIDATE') == '1', source_root=PSYCHOLOGY_DIR), cancellation=cancellation)
     search = CourseSearch(base, message=message, llm=llm, backend=backend, cancellation=cancellation)
     from knowledge.lightrag.q3_adapter import LightRagNavigator

@@ -1,4 +1,5 @@
 """当前 PDF 版本的字符位置与结构化原文对齐；只读访问已构建索引。"""
+from knowledge.fixed_book import digest as fixed_digest
 import hashlib
 import json
 import sqlite3
@@ -68,7 +69,7 @@ def build_index(target, course_dir=PSYCHOLOGY_DIR):
         for record in registry:
             directory = course_dir/'chapters'/f"chapter_{record['chapter_id']:02d}"
             path = directory/f"chapter_{record['chapter_id']:02d}.generated.pdf"
-            if hashlib.sha256(path.read_bytes()).hexdigest() != record['version']:
+            if fixed_digest(path) != record['version']:
                 raise ValueError('PDF 与清单版本不同，不能构建引用索引')
             text, glyphs, pages = pdf_characters(path)
             folded, mapping = normalized_with_map(text)
@@ -150,7 +151,7 @@ class CitationIndex:
 @lru_cache(maxsize=2)
 def _live_document(path, version):
     text, glyphs, pages = pdf_characters(path)
-    if hashlib.sha256(path.read_bytes()).hexdigest() != version:
+    if fixed_digest(path) != version:
         raise ValueError('教材在定位过程中发生变化')
     folded,mapping=normalized_with_map(text)
     return {'text': text, 'glyphs': glyphs, 'pages': pages, 'folded':folded, 'mapping':mapping}
@@ -171,7 +172,7 @@ class LiveCitationIndex:
         if not record or record['version'] != version:
             raise ValueError('引用教材版本已失效')
         path = pdf_path(record)
-        if hashlib.sha256(path.read_bytes()).hexdigest() != version:
+        if fixed_digest(path) != version:
             raise ValueError('引用教材文件已变化')
         return _live_document(path, version)
 

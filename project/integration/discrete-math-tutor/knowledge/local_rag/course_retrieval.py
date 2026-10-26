@@ -6,6 +6,7 @@ import hashlib
 import math
 from pathlib import Path
 import sqlite3
+import time
 from threading import RLock
 
 from llama_index.core import VectorStoreIndex
@@ -33,8 +34,8 @@ class StoredEmbedding(BaseEmbedding):
 
 def index_signature(path):
     if Path(str(path) + '-wal').exists(): raise ValueError('教材索引正在写入，拒绝混用版本')
-    with Path(path).open('rb') as stream:
-        return hashlib.file_digest(stream, 'sha256').hexdigest()
+    from knowledge.fixed_book import digest
+    return digest(path)
 
 
 @lru_cache(maxsize=2)
@@ -71,7 +72,14 @@ def _stack(path, signature, config, candidate_top_k):
     return retriever, rows, vectors, model, dimension
 
 
-def retrieve(query, *, limit=6, preferred_types=(), index_path=None, trace=None):
+def warm():
+    import os
+    os.environ.setdefault('RAG_RERANK_MODEL', 'BAAI/bge-reranker-base')
+    config = retrieval_config_from_settings()
+    _stack(str(INDEX.resolve()), index_signature(INDEX), config, config.rerank_candidate_top_k(6))
+
+
+def retrieve(query, *, limit=6, preferred_types=(), index_path=None, trace=None, chapter_id=None, section_id=None):
     if not isinstance(query, str) or len(query) > 4000: raise ValueError('检索问题无效或过长')
     if not 1 <= limit <= 40: raise ValueError('检索结果数量必须为1到40')
     if not query.strip(): return []
@@ -86,21 +94,42 @@ def retrieve(query, *, limit=6, preferred_types=(), index_path=None, trace=None)
         embedding_dimension=dimension, corpus_size=len(rows), configured_profile=config.profile,
         effective_profile='hybrid' if isinstance(retriever, QueryFusionRetriever) else 'vector',
         embedding_device=configured_device('EMBED'), rerank_status='disabled')
+    started = time.monotonic()
     vector = list(next(iter(_embedder(model).embed([query]))))
+    status.update(embedding_batches=1, embedding_texts=1, embedding_seconds=time.monotonic()-started)
     if len(vector) != dimension or not all(math.isfinite(float(value)) for value in vector) or not any(vector):
         raise ValueError('查询与教材向量维度/数值不一致')
     norm = math.sqrt(sum(float(value) ** 2 for value in vector))
+    started = time.monotonic()
     candidates = retriever.retrieve(QueryBundle(query_str=query, embedding=vector))
     unique = {}
     for node in candidates: unique.setdefault(node.node.node_id, node)
     candidates = list(unique.values())
+    if chapter_id is not None:
+        # 局部向量候选独立召回，不能等全书 Top-K 后再过滤当前小节。
+        import numpy as np
+        for section in dict.fromkeys((section_id, None)):
+            keys = [key for key, row in rows.items() if row['chapter_id'] == chapter_id
+                    and (section is None or row['section_id'] == section)]
+            if keys:
+                matrix = np.asarray([vectors[key] for key in keys], dtype=np.float32)
+                scores = (matrix @ np.asarray(vector, dtype=np.float32)) / np.linalg.norm(matrix, axis=1)
+                for position in np.argsort(scores)[-8:][::-1]:
+                    key = keys[int(position)]
+                    if key not in unique:
+                        from llama_index.core.schema import NodeWithScore
+                        node = NodeWithScore(node=_load_index(path, signature)[0].docstore.docs[key], score=float(scores[position]))
+                        unique[key] = node;candidates.append(node)
     if any(node.node.node_id not in rows for node in candidates): raise ValueError('检索返回非当前教材节点')
     dense = {node.node.node_id: sum(float(a) * b for a, b in zip(vector, vectors[node.node.node_id])) /
         (norm * math.sqrt(sum(value * value for value in vectors[node.node.node_id]))) for node in candidates}
     status['candidates'] = [node.node.node_id for node in candidates]
+    status['recall_seconds'] = time.monotonic()-started
     if config.reranker_model:
+        started = time.monotonic()
         candidates = rerank_nodes(query, candidates, top_k=len(candidates) or 1,
             model_name=config.reranker_model, trace=status)
+        status['rerank_seconds'] = time.monotonic()-started
     if status['rerank_status'] == 'applied':
         import os
         minimum = float(os.getenv('RAG_RERANK_MIN_PROBABILITY', '0.15'))
@@ -111,7 +140,13 @@ def retrieve(query, *, limit=6, preferred_types=(), index_path=None, trace=None)
         candidates = [node for node in candidates if dense[node.node.node_id] >= .58]
     if preferred_types:
         candidates.sort(key=lambda node: rows[node.node.node_id]['kind'] not in preferred_types)
+    if chapter_id is not None:
+        candidates.sort(key=lambda node: float(node.score or 0) +
+            (.025 if rows[node.node.node_id]['chapter_id'] == chapter_id else 0) +
+            (.015 if rows[node.node.node_id]['chapter_id'] == chapter_id and
+             rows[node.node.node_id]['section_id'] == section_id else 0), reverse=True)
     selected = candidates[:limit]
+    status['rerank_scores'] = {node.node.node_id: float(node.score) for node in candidates if node.score is not None}
     if index_signature(path) != signature: raise ValueError('检索期间教材索引已变化')
     status['selected'] = [node.node.node_id for node in selected]
     status['dense_scores'] = dense

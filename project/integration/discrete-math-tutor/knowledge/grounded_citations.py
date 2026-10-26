@@ -1,6 +1,7 @@
 """本轮小证据选择、原文存在性、坐标与最终展示核验。"""
 from llm.execution_budget import bounded_stage
 
+from knowledge.fixed_book import digest as fixed_digest
 import hashlib,json,os,re
 from dataclasses import dataclass,replace
 from pathlib import Path
@@ -26,6 +27,10 @@ class CoverageEvidenceSelection(BaseModel):
 
 
 def settings():
+    from knowledge.fixed_book import active
+    fixed = active()
+    if fixed:
+        return fixed.citation_path
     mode=os.getenv('CITATION_GROUNDING_MODE')
     if mode not in (None,'off','active'):raise ValueError('CITATION_GROUNDING_MODE无效')
     if mode=='off':return None
@@ -100,6 +105,8 @@ class EvidenceBundle:
         return response, sources, output
 
     def references(self,response,*,allow_uncited_question=False):
+        from knowledge.fixed_book import active
+        fixed = active()
         claims=claims_for(response)
         used={int(n)-1 for n in re.findall(r'\[(\d+)\]',response)}
         if not used and allow_uncited_question:return []
@@ -116,14 +123,18 @@ class EvidenceBundle:
             record=next((r for r in documents() if r['document_id']==evidence['document_id']),None)
             if not record or record['version']!=evidence['document_version']:
                 raise CitationGroundingError('引用教材版本已失效')
-            if hashlib.sha256(pdf_path(record).read_bytes()).hexdigest()!=record['version']:
+            if not fixed and fixed_digest(pdf_path(record))!=record['version']:
                 raise CitationGroundingError('引用教材文件已变化')
-            if evidence.get('quote') and normalized(evidence['quote']) not in _live_document(
+            if not fixed and evidence.get('quote') and normalized(evidence['quote']) not in _live_document(
                     pdf_path(record),record['version'])['folded']:
                 raise CitationGroundingError('引句不属于当前教材原件')
             evidence['verification']='source_verified'
             selections=[]
-            if evidence['location_status']=='exact':
+            if fixed and evidence['location_status']=='exact':
+                selections=[{'document_id':record['document_id'],'version':record['version'],
+                    'chapter_id':record['chapter_id'],'section_id':evidence['section_id'],
+                    'source':record['source'],'kind':'text','text':evidence['quote'],'rects':rects,'image_refs':[]}]
+            if not fixed and evidence['location_status']=='exact':
                 pages=sorted({r['page'] for r in rects})
                 # 跨页、超过80行的证据按页/行拆分，保持所有范围而不是裁掉后半段。
                 for page in pages:
@@ -191,7 +202,7 @@ def references_for_display(references):
             record=registry.get(key[0])
             try:
                 checked[key]=bool(record and record['version']==key[1] and
-                    hashlib.sha256(pdf_path(record).read_bytes()).hexdigest()==key[1])
+                    fixed_digest(pdf_path(record))==key[1])
             except OSError:
                 checked[key]=False
         if not checked[key] or (evidence.get('textbook_release') and evidence['textbook_release'] != release_id):
@@ -202,7 +213,7 @@ def references_for_display(references):
 
 
 @bounded_stage('source_selection')
-def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=None,history=(),coverage=None):
+def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=None,history=(),coverage=None,selection_fn=None):
     registry={r['chapter_id']:r for r in documents()}
     candidates=[];seen=set();index=LiveCitationIndex() if index_path=='live' else CitationIndex(index_path)
     try:
@@ -259,7 +270,7 @@ def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=Non
         instruction += ('\n本次同时核查指定对象覆盖：只选择直接给出该对象定义、步骤、操作或比较要点的原文。'
             '同章、顺带提词或另一对象的描述不算支持；缺少支持时 evidence_ids 返回空数组。'
             '只输出JSON：{"evidence_ids":["提供的ID"],"reason":"具体支持范围或缺口，不补充教材外事实"}。')
-    result=llm.chat_json([{'role':'system','content':instruction},
+    result=selection_fn(payload) if selection_fn else llm.chat_json([{'role':'system','content':instruction},
         {'role':'user','content':json.dumps(payload,ensure_ascii=False)}],temperature=0,max_tokens=1600 if coverage else 1300,retries=0)
     selected=(CoverageEvidenceSelection if coverage is not None else EvidenceSelection).model_validate(result)
     allowed={item['evidence_id']:(item,source) for item,source in candidates}
@@ -289,4 +300,6 @@ def selection_evidence(llm,message,resolved,index_path):
         return EvidenceBundle([source],[item],[])
     sources=[TextbookChunk(record['source'],section['title'],value,terms_for(value),chapter_id=record['chapter_id'],section_id=section['id'])
              for value in (text,resolved['context'])]
-    return choose_evidence(llm,message,sources,index_path,selection={'text':text})
+    from knowledge.fixed_book import active, select_evidence
+    return choose_evidence(llm,message,sources,index_path,selection={'text':text},
+                           selection_fn=select_evidence if active() else None)

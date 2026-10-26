@@ -1,0 +1,154 @@
+import asyncio
+import contextvars
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from types import SimpleNamespace
+import unittest
+from unittest.mock import patch
+
+from knowledge import fixed_book
+
+
+class FixedBookTests(unittest.TestCase):
+    def test_startup_accepts_absent_optional_modality(self):
+        from unittest.mock import AsyncMock
+        with TemporaryDirectory() as folder:
+            root=Path(folder);(root/'blocks.json').write_text('[]',encoding='utf8')
+            rag=SimpleNamespace(full_docs=SimpleNamespace(get_by_id=AsyncMock(return_value={})))
+            graph=fixed_book.ResidentGraph(SimpleNamespace(candidate=root,source_map={'chapter.pdf':{}}),
+                SimpleNamespace(dim=2,max_tokens=32),{})
+            with (patch('knowledge.lightrag.engine.build_rag',return_value=rag),
+                  patch('knowledge.lightrag.engine.initialize',new=AsyncMock()),
+                  patch('knowledge.lightrag.paths.bind_candidate_sidecars',return_value={}),
+                  patch('knowledge.lightrag.ingress.load_verified_bundle',return_value=({'blocks':{'path':'blocks.json'}},root)),
+                  patch('lightrag.utils_pipeline.sidecar_modality_path',return_value=str(root/'missing.json'))):
+                asyncio.run(graph.start())
+            self.assertEqual(graph.provenance['chapter.pdf']['modalities'],{})
+
+    def test_unmarked_explanation_keeps_evidence_without_rewriting(self):
+        from agents.agent_loop import LoopResult
+        from agents.agent_loop_service import _publish_gate
+        from agents.q3_navigation import LearningTarget
+        result=LoopResult(sources=[{'source_id':'verified','chapter_id':2}])
+        gate=_publish_gate(None,SimpleNamespace(message='再通俗一点'),LearningTarget('topic','因变量'))
+        with patch.object(fixed_book,'active',return_value=object()):
+            self.assertTrue(gate('因变量就是你要记录的反应。',result)[0])
+        self.assertEqual(result._publication['pdf_references'],[])
+        self.assertEqual(result.sources[0]['source_id'],'verified')
+
+    def test_query_provenance_uses_preverified_bundle_without_disk_recheck(self):
+        from unittest.mock import AsyncMock
+        from knowledge.lightrag.retrieval import attach_provenance
+        from knowledge.lightrag import engine
+        name='chapter_01.generated.pdf'
+        rag=SimpleNamespace(text_chunks=SimpleNamespace(get_by_id=AsyncMock(return_value={
+            'full_doc_id':engine._document_id(name),'sidecar':{'refs':[{'type':'table','id':'t1'}]}})))
+        prepared={name:{'raw':[{'heart_block_index':7,'heart_asset_id':'table-1'}],
+            'modalities':{'tables':{'t1':{'self_ref':'blocks.json#/0'}}}}}
+        records=[{'kind':'chunk','source':name,'chunk_id':'c1'}]
+        with patch('knowledge.lightrag.ingress.load_verified_bundle', side_effect=AssertionError('不能重复读盘校验')):
+            result=asyncio.run(attach_provenance(rag,Path('.'),records,prepared=prepared))
+        self.assertEqual(result[0]['original_blocks'][0]['block_index'],7)
+
+    def test_card_instructions_do_not_pollute_resumed_search(self):
+        text='请先用问题卡确认我要简短还是详细解释自变量，等我选择后再解释。\n补充说明：简短解释'
+        self.assertEqual(fixed_book.search_query(text),'自变量')
+
+    def test_old_citation_numbers_are_not_presented_as_current_evidence(self):
+        from agents.agent_loop import LocalAgentLoop, LoopRequest, LoopResult
+        from agents.tool_protocol import ToolRegistry
+        history=[{'role':'assistant','content':'旧回答[7]。'}]
+        request=LoopRequest(student_id='a',session_id='s',task_id='t',request_id='r',
+            message='继续',system_prompt='当前回合',tools=ToolRegistry(),seed_messages=history)
+        messages=LocalAgentLoop(None)._initial_messages(request,None,'',LoopResult())
+        self.assertNotIn('[7]',messages[1]['content'])
+        self.assertEqual(history[0]['content'],'旧回答[7]。')
+
+    def test_frozen_digest_is_startup_identity_and_missing_still_fails(self):
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'book';path.write_bytes(b'original')
+            original = fixed_book.digest(path)
+            state = SimpleNamespace(ready=True, hashes={str(path.resolve()):original})
+            with patch.dict('os.environ', FIXED_BOOK_RETRIEVAL_ENABLED='1'), patch.object(fixed_book, 'runtime', state):
+                path.write_bytes(b'changed-after-startup')
+                self.assertEqual(fixed_book.digest(path), original)
+                path.unlink()
+                with self.assertRaises(FileNotFoundError):fixed_book.digest(path)
+
+    def test_resident_callbacks_use_current_request_context(self):
+        async def run():
+            marker=contextvars.ContextVar('test-marker', default='none')
+            graph=fixed_book.ResidentGraph(None, None, {})
+            dispatch=graph.dispatch('query')
+            async def callback():return marker.get()
+            for name in ('student-a', 'student-b'):
+                token=marker.set(name)
+                graph.request={'callbacks':{'query':callback}, 'context':contextvars.copy_context()}
+                marker.reset(token)
+                self.assertEqual(await dispatch(), name)
+            graph.request=None
+            with self.assertRaises(RuntimeError):await dispatch()
+        asyncio.run(run())
+
+    def test_rule_selection_has_no_model_and_deduplicates(self):
+        captured={}
+        def choose(llm, question, sources, index, *, selection_fn):
+            self.assertIsNone(llm)
+            payload={'question':question,'candidates':[
+                {'evidence_id':'a','quote':'自变量由研究者操纵'},
+                {'evidence_id':'duplicate','quote':'自变量由研究者操纵'},
+                {'evidence_id':'b','quote':'因变量由研究者测量'}]}
+            captured.update(selection_fn(payload));return captured
+        with (patch.object(fixed_book, 'active', return_value=SimpleNamespace(citation_path='frozen.sqlite3')),
+              patch('knowledge.grounded_citations.choose_evidence', side_effect=choose)):
+            fixed_book.rule_evidence('自变量是什么', [])
+        self.assertEqual(captured['evidence_ids'][0], 'a')
+        self.assertNotIn('duplicate', captured['evidence_ids'])
+
+    def test_fast_router_respects_complex_questions(self):
+        from agents.course_search import CourseSearch
+        search=CourseSearch(None, message='自变量是什么', llm=None)
+        with patch.object(fixed_book, 'active', return_value=object()):
+            self.assertTrue(search._use_fast_path('自变量'))
+            search.message='自变量和因变量有什么区别'
+            self.assertFalse(search._use_fast_path(search.message))
+
+    def test_context_reads_overlap_without_sharing_sessions(self):
+        import threading
+        from agents.task_service import TaskService
+        barrier=threading.Barrier(2)
+        def read(student):
+            barrier.wait(timeout=3)
+            return student
+        service=TaskService.__new__(TaskService)
+        service.tutor=SimpleNamespace(memory=SimpleNamespace(get_profile=read, list_knowledge_points=read))
+        service._read_context=lambda request, profile, points: (profile.result(), points.result())
+        with patch.object(fixed_book, 'active', return_value=object()):
+            self.assertEqual(service._context(SimpleNamespace(student_id='student-a')), ('student-a','student-a'))
+
+    def test_crosschapter_subtasks_overlap_and_keep_separate_results(self):
+        import threading
+        from agents.q3_navigation import LearningTarget, SourceRef
+        from knowledge.lightrag.coverage import CoverageNavigator, Requirement
+        barrier=threading.Barrier(2)
+        class Navigator:
+            def __init__(self):self.last_result=None;self.calls=[]
+            def fork(self):return Navigator()
+            def search(self, *, target, **kwargs):
+                barrier.wait(timeout=3)
+                self.calls.append({'query':target.name})
+                self.last_result={'usage':{'embedding_batches':1,'embedding_texts':2,'llm_calls':0,'calls':[],'stages':[]}}
+                return [SourceRef(source_id=target.name, document_id=target.name, version='version',
+                    chapter_id=target.chapter_id, text=target.name, location={'source_spans':[{'block_id':1}]})]
+        nav=Navigator()
+        coverage=CoverageNavigator(nav, question='对比', requirements=[Requirement('a','甲',1),Requirement('b','乙',2)],
+            select=lambda req, refs:refs, judge=lambda req, refs:{'source_ids':[r.source_id for r in refs],'reason':'原文支持'})
+        with patch.object(fixed_book, 'active', return_value=object()):
+            result=coverage.search(target=LearningTarget('current','当前'), query='对比', limit=4)
+        self.assertEqual({r.source_id for r in result}, {'甲','乙'})
+        self.assertEqual(coverage.report['status'], 'covered')
+        self.assertEqual(nav.last_result['usage']['embedding_batches'], 2)
+        self.assertEqual(len(nav.calls), 2)
+
+
+if __name__ == '__main__':unittest.main()

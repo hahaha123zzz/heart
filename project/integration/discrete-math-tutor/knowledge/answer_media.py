@@ -23,7 +23,9 @@ def selected_media(query, sources, *, asset_id=None):
     if (asset_id or re.search(r'(?:图|表)\s*\d+[.．-]\d+', query)) and len({f.label for f in figures}) < len(figures):
         return []
     output = []
-    for figure in figures[:2]:
+    # 泛概念问题只附最相关一图；明确指定多图时才使用两张。
+    media_limit = 2 if asset_id or re.search(r'(?:图|表)\s*\d+[.．-]\d+', query) else 1
+    for figure in figures[:media_limit]:
         source = next((s for s in sources if (s.get('chapter_id'), s.get('section_id')) ==
                        (figure.chapter_id, figure.section_id)), None)
         if source is None:
@@ -54,11 +56,22 @@ def current_media(refs):
     output = []
     for ref in refs:
         figure = get_figure(str(ref.get('id') or ''))
+        public = figure.public() if figure else {}
         if (figure and figure.is_valid() and figure.sha256 == ref.get('sha256')
-                and figure.public().get('version') == ref.get('version')
-                and figure.public().get('document_id') == ref.get('document_id')):
+                and public.get('version') == ref.get('version')
+                and public.get('document_id') == ref.get('document_id')):
             output.append((ref, figure))
     return output[:2]
+
+
+def prepare_named_media(query, asset_id=None):
+    from knowledge.figure_reading import named_figures, read_figure
+    from agents.q3_navigation import source_from_chunk
+    figures = named_figures(query, asset_id)
+    chunks = [chunk for figure in figures for chunk in read_figure(figure)]
+    payload = [source_from_chunk(chunk, i).to_dict() for i, chunk in enumerate(chunks)]
+    refs = selected_media(query, payload, asset_id=asset_id) if payload else []
+    return refs, model_message(refs)
 
 
 @bounded_stage('media_payload')

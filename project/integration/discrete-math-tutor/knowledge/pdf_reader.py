@@ -6,6 +6,7 @@ from typing import Literal
 import hashlib, json, re, math
 import fitz
 from pydantic import BaseModel, Field, ConfigDict
+from knowledge.fixed_book import digest as fixed_digest
 from knowledge.course import get_section
 from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
 ROOT = Path(__file__).resolve().parent / 'pdf'
@@ -63,14 +64,14 @@ def crop_path(crop_id):
     data = json.loads(metadata.read_text(encoding='utf-8'))
     record = document(data['document_id'])
     if not record or record['version'] != data['version']: return None
-    if hashlib.sha256(pdf_path(record).read_bytes()).hexdigest()!=data['version']:return None
+    if fixed_digest(pdf_path(record))!=data['version']:return None
     if hashlib.sha256(path.read_bytes()).hexdigest() != data['image_sha256']: return None
     return path
 
 def resolve_selection(selection):
     record = validate_selection(selection)
     # 文件哈希校验阻止在未重建清单时使用已替换的 PDF。
-    if hashlib.sha256(pdf_path(record).read_bytes()).hexdigest() != record['version']:
+    if fixed_digest(pdf_path(record)) != record['version']:
         raise ValueError('教材文件已变化，请重新建立页码索引')
     selected, images, refs = [], [], []
     page_numbers = sorted({r.page for r in selection.rects})
@@ -126,7 +127,7 @@ def evidence_text(document_id,version,rects):
     """按可见字符中心读取证据范围；表格重复数值不能按字符串去重。"""
     selection=PDFSelection(document_id=document_id,version=version,kind='text',rects=rects)
     record=validate_selection(selection)
-    if hashlib.sha256(pdf_path(record).read_bytes()).hexdigest()!=version:
+    if fixed_digest(pdf_path(record))!=version:
         raise ValueError('教材文件已变化')
     result=[]
     with fitz.open(pdf_path(record)) as pdf:

@@ -213,7 +213,10 @@ def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -
                    and source.section_id == figure.section_id
                    for source in sources):
             continue
-        score = len(query_terms & terms_for(figure.caption + " " + figure.context))
+        from knowledge.fixed_book import active
+        fixed = active()
+        tags = fixed.image_terms.get(figure.id) if fixed and hasattr(fixed, 'image_terms') else None
+        score = len(query_terms & (tags if tags is not None else terms_for(figure.caption + " " + figure.context)))
         if score >= 2 and figure.is_valid():
             ranked.append((score, figure))
     ranked.sort(key=lambda pair: (-pair[0], pair[1].id))

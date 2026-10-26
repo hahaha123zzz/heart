@@ -6,6 +6,34 @@ from agents.q3_navigation import LearningTarget, SourceRef, NavigationDecision
 
 
 class CourseSearchBridgeTests(unittest.TestCase):
+    @patch.dict('os.environ', {'ADAPTIVE_TUTORING_ENABLED':'0','Q5_LEARNING_ENABLED':'0'})
+    def test_explicit_question_card_is_not_replaced_by_plain_answer(self):
+        from agents.agent_loop_service import run_agent_loop_turn
+        from agents.q3_navigation import StubLearningNavigator
+        from models.chat_request import ChatRequest
+        from models.task_context import TaskContext
+        from tests.test_q3_agent_loop import ScriptedLLM, tool_round
+        message='请先用问题卡确认如何讲解' + self.target.name
+        llm=ScriptedLLM([tool_round(('ask_user', {'questions':[{'prompt':'简短还是详细？',
+            'options':[{'label':'简短'},{'label':'详细'}]}]}))])
+        navigator=StubLearningNavigator(target=self.target, sources=[self.source])
+        with patch('agents.tools.first_wave_runtime.bind_resources',return_value=(None,())):
+            result=run_agent_loop_turn(orchestrator=type('Tutor',(),{'llm':llm,'memory':None})(),
+                request=ChatRequest(student_id='isolated',message=message),
+                context=TaskContext(student_id='isolated',message=message),navigator=navigator)
+        self.assertEqual(result['answer_status'],'awaiting_clarification')
+        self.assertIn('ask_user',[t['function']['name'] for t in llm.calls[0]['tools']])
+        from tests.test_q3_agent_loop import final_round
+        resumed_llm=ScriptedLLM([final_round('基于刚补读的教材解释[1]。')])
+        with patch('agents.tools.first_wave_runtime.bind_resources',return_value=(None,())):
+            resumed=run_agent_loop_turn(orchestrator=type('Tutor',(),{'llm':resumed_llm,'memory':None})(),
+                request=ChatRequest(student_id='isolated',message=message+'\n补充说明：简短解释'),
+                context=TaskContext(student_id='isolated',message=message),navigator=navigator,
+                previous={'context':{'loop_state':result['loop_state']},'_resume_answer':'简短解释'},
+                publish_gate=lambda *_:(True,''))
+        self.assertEqual(resumed['answer_status'],'answered')
+        self.assertEqual(len(resumed['sources']),1)
+
     def test_new_concept_question_does_not_inherit_reader_scope(self):
         target = LearningTarget('kp:history', '第二节 实验心理学的产生与发展', chapter_id=1, section_id=2)
         search = CourseSearch(self.base, message='给我解释一下被试反应', llm=Mock(), backend=self.backend)

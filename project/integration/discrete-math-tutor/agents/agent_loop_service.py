@@ -171,6 +171,11 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
                          for item in source.get('location', {}).get('retrieval_requirements', [])}
             if set(coverage.get('covered', [])) - supported:
                 return False, '回答尚未引用双方对象的相关原文；请保留每方实际支持结论的引用，不能只引用其中一方。'
+        from knowledge.fixed_book import active
+        if active() and result.sources and not re.search(r'\[\s*\d', text):
+            # 已有教材证据的改述不因缺少重复上标而撤回，也不自动编造引用。
+            result._publication = {'reply':text,'pdf_references':[],'textbook_sources':[]}
+            return True, ''
         evidence = [source.get('location', {}).get('evidence') for source in result.sources]
         if any(evidence):
             if not all(evidence):
@@ -406,6 +411,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     if selection_input is None:
         navigation = shared_search(navigation, message=request.message,
                                   llm=llm or orchestrator.llm, navigator=navigator)
+        navigation.reader_location = request.reader_location
     decision: NavigationDecision = navigation.resolve(
         message=request.message, student_id=request.student_id,
         session_id=request.session_id, current_target=current_target,
@@ -427,6 +433,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         guard()
     teaching = TeachingTurn(context, request, llm or orchestrator.llm, target=target) if tutoring_enabled() and tool_purpose == 'textbook' else None
     initial_sources = teaching.sources if teaching else []
+    resume_needs_evidence = bool(resume_state and not resume_state.get('sources') and tool_purpose == 'textbook')
+    from knowledge.fixed_book import search_query
+    prefetch_message = search_query(request.message) if resume_needs_evidence else request.message
     if selection_input is not None:
         initial_sources = initial_sources or selection_input.initial_sources()
         if teaching and ('no_questions' in selection_input.execution.answer_constraints
@@ -488,6 +497,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             if re.search(r'展开.{0,12}来源|补读|来源.{0,12}(完整|上下文)', request.message):
                 needed.append('read_source')
             required_tools = tuple(needed)
+    if not resume_state and re.search(r'(?:请先用|先用|请用)问题卡|先调用\s*ask_user', request.message):
+        required_tools = tuple(dict.fromkeys((*required_tools, 'ask_user')))
+        system_prompt += '\n用户明确要求先用问题卡：必须调用 ask_user 并暂停，不能用普通文字提问代替。'
     if interjection:
         system_prompt += '\n本轮是插问，只回答学生当前问题；保留原学习目标，不记录本目标已讲解、掌握或推进路径。'
     system_prompt += '\n页面当前学习目标仅作学习位置参考；具体提问优先，不要把旧小节主题擅自追加到检索词。指定图号先调用 retrieve_course 读取该图及登记原文，不能只检索旧主题便要求学生上传已有原图。'
@@ -552,15 +564,15 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 request_id=request.request_id or "",
                 message=request.message, system_prompt=system_prompt, tools=registry,
                 round_max_tokens=round_tokens, requires_evidence=(tool_purpose == 'textbook' and
-                    (teaching is None or teaching.evidence_mode != 'blended')),
+                    (resume_needs_evidence or teaching is None or teaching.evidence_mode != 'blended')),
                 required_tools=required_tools,
                 structured_response=bool(resources and tool_purpose in STRUCTURED_TOOL and publish_gate is None),
                 answer_ready=((lambda outcome: bool(outcome.sources) or
-                    teaching.evidence_mode == 'blended') if teaching else None),
-                prefetch_query=(request.message if tool_purpose == 'textbook' and not resume_state and not initial_sources and (
+                    (teaching.evidence_mode == 'blended' and not resume_needs_evidence)) if teaching else None),
+                prefetch_query=(prefetch_message if resume_needs_evidence or (tool_purpose == 'textbook' and 'ask_user' not in required_tools and not resume_state and not initial_sources and (
                     q5_binding or (context.course_navigation or {}).get("status")=="ready" or
                     (getattr(navigation.backend,"backend",None) is not None and target is not None and
-                     (question_interjection(request.message,target) or target.name in request.message))) else None),
+                     (question_interjection(request.message,target) or target.name in request.message)))) else None),
                 seed_messages=([] if selection_input and selection_input.scope_changed
                                else list(context.history or [])), target=target,
                 initial_sources=initial_sources,

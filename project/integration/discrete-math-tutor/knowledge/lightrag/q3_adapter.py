@@ -8,6 +8,8 @@ class LightRagNavigator:
         self.base=base_navigator;self.backend=backend;self.course_id=course_id
         self.cancellation=cancellation;self.calls=[];self.last_result=None
     def resolve(self, **kwargs):return self.base.resolve(**kwargs)
+    def fork(self):
+        return LightRagNavigator(self.base, self.backend, course_id=self.course_id, cancellation=self.cancellation)
     def search(self, *, target, query, limit, preferred_types=()):
         self.last_result=None
         started=time.monotonic()

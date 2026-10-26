@@ -14,7 +14,8 @@ REVIEWED = Path(__file__).with_name('visual_locations_reviewed.json')
 
 
 def digest(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    from knowledge.fixed_book import digest as fixed_digest
+    return fixed_digest(path)
 
 
 def pixels(data):

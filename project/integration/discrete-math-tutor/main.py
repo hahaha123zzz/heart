@@ -75,6 +75,8 @@ class TestAccountRequest(BaseModel):
 @app.get("/health")
 def health():
     from knowledge.inference_runtime import runtime_status
+    from knowledge.fixed_book import active, enabled
+    fixed = active()
     return {
         "status": "ok",
         "course_id":COURSE_ID,
@@ -82,6 +84,8 @@ def health():
         "mock_mode": orchestrator.llm.mock,
         "purged_expired_accounts": _PURGED,
         "rag_runtime": runtime_status(),
+        "fixed_book": {"enabled": enabled(), "ready": fixed is not None,
+                       "startup_seconds": getattr(fixed, 'start_seconds', None)},
         "memory_worker": app.state.memory_worker.status() if getattr(app.state, "memory_worker", None) else {"enabled": False, "running": False},
     }
 

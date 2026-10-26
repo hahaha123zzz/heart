@@ -27,7 +27,8 @@ from models.student_state import StudentState
 class NavigationTests(unittest.TestCase):
     def test_chapter_aliases_resolve_identically_and_override_reader(self):
         values = [resolve(q, reader_location=ReaderLocation(chapter_id=2, section_id=1)) for q in
-                  ('我想要学习教材第一章的内容', '学习第1章', '学习实验心理学概论')]
+                  ('我想要学习教材第一章的内容', '学习第1章', '学习实验心理学概论',
+                   '我想学习教材第一章的内容，只讲解，不出题')]
         self.assertEqual(len({v['id'] for v in values}), 1)
         self.assertEqual(values[0]['chapter_id'], 1)
         source = read_target(values[0])[0]
@@ -131,10 +132,13 @@ class NavigationTests(unittest.TestCase):
         self.assertEqual(resolve('学习第99章')['status'], 'clarify')
 
     def test_changed_pdf_is_rejected(self):
-        with patch('knowledge.course_navigation.pdf_path') as path:
-            path.return_value.read_bytes.return_value = b'changed'
-            with self.assertRaisesRegex(ValueError, '原件已变化'):
-                read_target(resolve('学习第一章'))
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / 'changed.pdf';path.write_bytes(b'changed')
+            with patch('knowledge.course_navigation.pdf_path', return_value=path):
+                with self.assertRaisesRegex(ValueError, '原件已变化'):
+                    read_target(resolve('学习第一章'))
 
     def test_navigation_budget_is_shared_and_does_not_expand_simplification(self):
         from agents.reply_budget import reply_budget

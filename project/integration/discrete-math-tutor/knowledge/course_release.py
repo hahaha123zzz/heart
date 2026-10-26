@@ -142,6 +142,10 @@ def validate(expected=None, *, refresh=True) -> dict:
 
 
 def binding() -> dict:
+    from knowledge.fixed_book import active
+    fixed = active()
+    if fixed:
+        return fixed.binding()
     state = validate()
     return {"release_id": state["release_id"], "status": state["status"],
             "ready": state["ready"], "gaps": state["gaps"]}

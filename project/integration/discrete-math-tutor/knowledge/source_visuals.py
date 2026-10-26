@@ -49,6 +49,14 @@ class SourceVisual:
     occurrences: tuple[int, ...] = ()
 
     def is_valid(self) -> bool:
+        from knowledge.fixed_book import active
+        fixed = active()
+        if fixed:
+            try:
+                from knowledge.fixed_book import digest
+                return fixed.visuals.get(self.id) == self and digest(self.path) == self.sha256
+            except (OSError, ValueError):
+                return False
         try:
             manifest = json.loads((PSYCHOLOGY_DIR / 'manifest.json').read_bytes())
             source = next(item for item in manifest['full_import']['chapters']

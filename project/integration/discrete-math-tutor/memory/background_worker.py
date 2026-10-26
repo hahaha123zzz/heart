@@ -81,8 +81,12 @@ async def memory_lifespan(app):
         worker.start()
     app.state.memory_worker=worker
     try:
+        from knowledge.fixed_book import start
+        await start()
         yield
     finally:
+        from knowledge.fixed_book import stop
+        await stop()
         if worker:
             await asyncio.to_thread(worker.stop)
         from llm.transport import close_pool

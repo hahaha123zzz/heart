@@ -227,6 +227,7 @@ def build_rag(
     query_roles: dict[str, Any] | None = None,
     embedding_config: EmbeddingConfig | None = None,
     query_only: bool = False,
+    adapters: dict[str, Any] | None = None,
 ) -> Any:
     """Construct one exact-version, version-isolated LightRAG instance."""
     if query_only and indexing_snapshot is not None:
@@ -252,9 +253,9 @@ def build_rag(
         calls = query_roles if query_roles is not None else resolve_query_roles()
         for role, call in calls.items():
             role_configs[role] = RoleLLMConfig(
-                func=_deny_query_extraction if query_only and role == 'extract' else build_llm_model_func(
+                func=_deny_query_extraction if query_only and role == 'extract' else (adapters[role] if adapters else build_llm_model_func(
                     **llm_adapter_kwargs, llm_config=call.config, owner=call.owner
-                ),
+                )),
                 metadata={
                     "binding": call.config.binding,
                     "model": cache_identity_for_config(call.config),
@@ -285,11 +286,11 @@ def build_rag(
     constructor = {
         "working_dir": str(Path(working_dir)),
         "workspace": workspace_for(working_dir),
-        "llm_model_func": build_llm_model_func(
+        "llm_model_func": adapters['query'] if adapters else build_llm_model_func(
             **llm_adapter_kwargs, llm_config=base_config, owner=base_owner
         ),
         "llm_model_name": base_identity,
-        "embedding_func": build_embedding_func(**embedding_adapter_kwargs),
+        "embedding_func": adapters['embedding'] if adapters else build_embedding_func(**embedding_adapter_kwargs),
         "auto_manage_storages_states": False,
         "vlm_process_enable": bool(enable_vlm),
         **indexing_kwargs_from_settings(),

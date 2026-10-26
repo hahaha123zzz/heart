@@ -22,6 +22,8 @@ if __name__ == "__main__":
     from knowledge.hybrid_retrieval import _embedder, _reranker, _vectors, INDEX
     from knowledge.inference_runtime import runtime_status
     from knowledge.course_config import PSYCHOLOGY
+    if PSYCHOLOGY and os.getenv('LIGHTRAG_CANDIDATE_PATH'):
+        os.environ.setdefault('FIXED_BOOK_RETRIEVAL_ENABLED', '1')
     warm_query='自变量和因变量' if PSYCHOLOGY else '逻辑合取'
     warm_text='自变量是研究者操纵的变量，因变量是观察或测量的变量。' if PSYCHOLOGY else '两个命题都为真时，合取为真。'
     if args.rerank_device:

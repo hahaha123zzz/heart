@@ -10,7 +10,7 @@ from knowledge.course import get_section
 from knowledge.course_config import DEFAULT_GOAL
 from agents.intent_policy import IntentPolicy
 from visualization.service import VisualizationError
-from llm.execution_budget import BudgetExceeded, stage_call
+from llm.execution_budget import BudgetExceeded, stage_call, bounded_stage
 from llm.client import LLMError
 
 
@@ -88,7 +88,20 @@ class TaskService:
             r"(?:我懂了|明白了|懂了|学会了|清楚了).{0,8}(?:下一部分|下一段|继续往下|往下学)|"
             r"(?:下一部分|下一段)|(?:继续|接着)(?:下一个?知识点|下一部分|往下)", message.strip()))
 
+    @bounded_stage('context')
     def _context(self, request):
+        from knowledge.fixed_book import active
+        if active():
+            from concurrent.futures import ThreadPoolExecutor
+            from contextvars import copy_context
+            # 两个仓储方法各自创建只读 session；游标/路径仍在 recent 后解析。
+            with ThreadPoolExecutor(max_workers=2, thread_name_prefix='context-read') as pool:
+                profile = pool.submit(copy_context().run, self.tutor.memory.get_profile, request.student_id)
+                points = pool.submit(copy_context().run, self.tutor.memory.list_knowledge_points, request.student_id)
+                return self._read_context(request, profile, points)
+        return self._read_context(request)
+
+    def _read_context(self, request, profile=None, points=None):
         recent = self.repo.recent(request.student_id, request.session_id, limit=12)
         history = self.tutor.memory.get_history(request.student_id) if request.session_id == "legacy" else [
             item for row in recent for item in ({"role": "user", "content": row["payload"].get("message", "")},
@@ -123,13 +136,13 @@ class TaskService:
             point=CLOSURE_POINT if request.relation_target.closure else POINT
         builder = TaskContextBuilder()
         context = builder.build(student_id=request.student_id, message=request.message, knowledge_point=point,
-            history=history, known_points=self.tutor.memory.list_knowledge_points(request.student_id),
+            history=history, known_points=points.result() if points is not None else self.tutor.memory.list_knowledge_points(request.student_id),
             reader_location=request.reader_location, selection=bound_selection, exercise_target=request.exercise_target,
             resolved_selection=resolved, session_id=request.session_id, request_id=request.request_id,
             visualization_target=request.visualization_target,
             truth_table_target=request.truth_table_target,
             relation_target=request.relation_target,
-            preferences={**self.tutor.memory.get_profile(request.student_id).preferences,
+            preferences={**(profile.result() if profile is not None else self.tutor.memory.get_profile(request.student_id)).preferences,
                 **(request.style_overrides.model_dump(exclude_none=True) if request.style_overrides else {})})
         if selection_loop_enabled() and bound_selection is not None and bound_selection.kind == 'text':
             context.selection_scope = descriptor(bound_selection)

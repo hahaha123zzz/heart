@@ -15,7 +15,7 @@ from knowledge.grounding_text import normalized
 from knowledge.textbook import TextbookChunk,terms_for
 
 
-async def attach_provenance(rag, working, records):
+async def attach_provenance(rag, working, records, prepared=None):
     from lightrag.utils_pipeline import sidecar_modality_path
     from .ingress import load_verified_bundle,_contained_regular_file
     for record in records:
@@ -26,18 +26,25 @@ async def attach_provenance(rag, working, records):
             raise engine.LightRagContractError("SDK 文本块所属文档不符")
         refs=(native.get("sidecar") or {}).get("refs") or []
         if not refs: continue
-        full=await rag.full_docs.get_by_id(native["full_doc_id"])
-        manifest,bundle=load_verified_bundle(working,name)
-        raw=__import__("json").loads((bundle/manifest["blocks"]["path"]).read_text(encoding="utf-8"))
+        if prepared is not None:
+            if name not in prepared: raise engine.LightRagContractError('来源不属于启动快照')
+            raw=prepared[name]['raw']
+        else:
+            full=await rag.full_docs.get_by_id(native["full_doc_id"])
+            manifest,bundle=load_verified_bundle(working,name)
+            raw=__import__("json").loads((bundle/manifest["blocks"]["path"]).read_text(encoding="utf-8"))
         original=[]
         for ref in refs:
             modality={"drawing":"drawings","table":"tables","equation":"equations"}.get(ref.get("type"))
             if modality is None: continue
-            sidecar=sidecar_modality_path(full.get("sidecar_location"),modality)
-            if not sidecar: raise engine.LightRagContractError("SDK sidecar 来源缺失")
-            path=_contained_regular_file(Path(working),Path(sidecar),label="sidecar provenance")
-            data=__import__("json").loads(path.read_text(encoding="utf-8"))
-            item=data.get(modality,{}).get(ref.get("id"))
+            if prepared is not None:
+                item=prepared[name]['modalities'].get(modality,{}).get(ref.get('id'))
+            else:
+                sidecar=sidecar_modality_path(full.get("sidecar_location"),modality)
+                if not sidecar: raise engine.LightRagContractError("SDK sidecar 来源缺失")
+                path=_contained_regular_file(Path(working),Path(sidecar),label="sidecar provenance")
+                data=__import__("json").loads(path.read_text(encoding="utf-8"))
+                item=data.get(modality,{}).get(ref.get("id"))
             if not isinstance(item,dict): raise engine.LightRagContractError("sidecar 素材ID不符")
             pointer=item.get("self_ref","")
             if not isinstance(pointer,str) or not pointer.startswith("blocks.json#/") or not pointer[13:].isdecimal():
@@ -169,6 +176,24 @@ class LightRagBackend:
                 ('input_manifest.json','progress.json','index_files.json','policy.json','source_map.json')}
         return manifest
 
+    def load_source_map(self):
+        source_map=json.loads((self.candidate/"source_map.json").read_text(encoding="utf-8"))
+        registry=json.loads((self.candidate/"input/pdf_manifest.json").read_text(encoding="utf-8"))
+        for name,doc in source_map.items():
+            chapter=doc["chapter_id"]
+            if not isinstance(chapter,int) or not 1<=chapter<=11 or name!=f"chapter_{chapter:02d}.generated.pdf":
+                raise engine.LightRagContractError("来源映射章节身份错误")
+            raw_path=self.candidate/"input/chapters"/f"chapter_{chapter:02d}"/"document.json"
+            original=json.loads(raw_path.read_text(encoding="utf-8"))
+            pdf=next(r for r in registry if r["chapter_id"]==chapter)
+            if digest(raw_path)!=doc["document_sha256"] or doc["source"]!=original["source"] or doc["document_id"]!=pdf["document_id"] or doc["version"]!=pdf["version"]:
+                raise engine.LightRagContractError("来源映射版本不符合冻结原文")
+            if len(original["blocks"])!=len(doc["blocks"]): raise engine.LightRagContractError("来源映射块数不符")
+            for block,raw in zip(doc["blocks"],original["blocks"]):
+                if any(block.get(k)!=raw.get(k) for k in ("block_index","text","rows","section_id","section","kind","image_ids","formula_ids")):
+                    raise engine.LightRagContractError("来源映射不是冻结原文")
+        return source_map
+
     async def search(self, query, *, course_id, mode="hybrid", limit=6, chapter_id=None, section_id=None, cancellation=None):
         trace=[];metrics=Metrics();binding=None;source_binding=None;started=time.monotonic()
         try:
@@ -177,8 +202,13 @@ class LightRagBackend:
             if mode not in ("naive","local","global","hybrid","mix"): raise ValueError("检索模式不支持")
             if cancellation is not None and cancellation.is_cancelled(): raise asyncio.CancelledError()
             snapshot={}
-            with metrics.timed('validation.before'):
-                manifest=self.validate(course_id,snapshot=snapshot)
+            if course_id not in self.authorized_course_ids or course_id != COURSE:
+                raise PermissionError("当前请求未授权此教材")
+            if hasattr(self, 'resident'):
+                manifest=self.manifest;snapshot=self.startup_snapshot
+            else:
+                with metrics.timed('validation.before'):
+                    manifest=self.validate(course_id,snapshot=snapshot)
             source_binding={'indexed_source_root':manifest['source_root'],
                 'active_source_root':str(self.source_root if self.source_root is not None else Path(manifest['source_root']))}
             if 'additional_host_files' in snapshot:
@@ -186,28 +216,38 @@ class LightRagBackend:
             working=self.candidate/"index"
             async with query_ownership(self.candidate,cancellation) as waited:
                 metrics.stages.append({"stage":"ownership.wait","seconds":waited,"includes_children":False,"outcome":"ok"})
-                with metrics.timed("embedding.identity"):
-                    embedding=await embedding_config(metrics)
-                storage.require_compatible_embedding(working,embedding)
-                expected=json.loads((self.candidate/"policy.json").read_text(encoding="utf-8"))
-                calls=resolve_query_roles(metrics)
-                binding=query_binding(expected,calls)
-                async def job(bridge):
-                    with metrics.timed("engine.build"):
-                        rag=engine.build_rag(working,io_bridge=bridge,query_roles=calls,embedding_config=embedding,query_only=True)
-                    failed=True
-                    try:
-                        with metrics.timed("engine.initialize"):
-                            await engine.initialize(rag)
-                        from .paths import bind_candidate_sidecars
-                        source_binding['sidecars']=bind_candidate_sidecars(rag,working)
-                        with metrics.timed("native.query",includes_children=True):
-                            _,records=await engine.query_with_sources(rag,query,mode)
-                        records=await attach_provenance(rag,working,records)
-                        failed=False;return records
-                    finally:
-                        with metrics.timed("engine.finalize"):
-                            await engine.finalize(rag,cancel_pending=failed)
+                if hasattr(self, 'resident'):
+                    from knowledge.fixed_book import active
+                    fixed=active()
+                    if fixed is None: raise RuntimeError('retrieval_not_ready')
+                    expected=fixed.policy;binding=fixed.model_binding
+                    source_binding['sidecars']=self.resident.sidecars
+                    metrics.stages.append({'stage':'engine.cache_hit','seconds':0,'outcome':'ok','includes_children':False})
+                    async def job(bridge):
+                        return await self.resident.query(query,mode,metrics,bridge)
+                else:
+                    with metrics.timed("embedding.identity"):
+                        embedding=await embedding_config(metrics)
+                    storage.require_compatible_embedding(working,embedding)
+                    expected=json.loads((self.candidate/"policy.json").read_text(encoding="utf-8"))
+                    calls=resolve_query_roles(metrics)
+                    binding=query_binding(expected,calls)
+                    async def job(bridge):
+                        with metrics.timed("engine.build"):
+                            rag=engine.build_rag(working,io_bridge=bridge,query_roles=calls,embedding_config=embedding,query_only=True)
+                        failed=True
+                        try:
+                            with metrics.timed("engine.initialize"):
+                                await engine.initialize(rag)
+                            from .paths import bind_candidate_sidecars
+                            source_binding['sidecars']=bind_candidate_sidecars(rag,working)
+                            with metrics.timed("native.query",includes_children=True):
+                                _,records=await engine.query_with_sources(rag,query,mode)
+                            records=await attach_provenance(rag,working,records)
+                            failed=False;return records
+                        finally:
+                            with metrics.timed("engine.finalize"):
+                                await engine.finalize(rag,cancel_pending=failed)
                 operation=asyncio.create_task(run_in_worker_loop(job))
                 try:
                     while not operation.done():
@@ -217,21 +257,7 @@ class LightRagBackend:
                 finally:
                     if not operation.done():
                         operation.cancel();await asyncio.gather(operation,return_exceptions=True)
-                source_map=json.loads((self.candidate/"source_map.json").read_text(encoding="utf-8"))
-                registry=json.loads((self.candidate/"input/pdf_manifest.json").read_text(encoding="utf-8"))
-                for name,doc in source_map.items():
-                    chapter=doc["chapter_id"]
-                    if not isinstance(chapter,int) or not 1<=chapter<=11 or name!=f"chapter_{chapter:02d}.generated.pdf":
-                        raise engine.LightRagContractError("来源映射章节身份错误")
-                    raw_path=self.candidate/"input/chapters"/f"chapter_{chapter:02d}"/"document.json"
-                    original=json.loads(raw_path.read_text(encoding="utf-8"))
-                    pdf=next(r for r in registry if r["chapter_id"]==chapter)
-                    if digest(raw_path)!=doc["document_sha256"] or doc["source"]!=original["source"] or doc["document_id"]!=pdf["document_id"] or doc["version"]!=pdf["version"]:
-                        raise engine.LightRagContractError("来源映射版本不符合冻结原文")
-                    if len(original["blocks"])!=len(doc["blocks"]): raise engine.LightRagContractError("来源映射块数不符")
-                    for block,raw in zip(doc["blocks"],original["blocks"]):
-                        if any(block.get(k)!=raw.get(k) for k in ("block_index","text","rows","section_id","section","kind","image_ids","formula_ids")):
-                            raise engine.LightRagContractError("来源映射不是冻结原文")
+                source_map=self.source_map if hasattr(self, "resident") else self.load_source_map()
                 native=[dict(r,chapter_id=source_map[Path(r['source']).name]['chapter_id']) for r in records if r.get('kind')=='chunk']
                 stage(trace,'native_recall',native,native,'',query=query)
                 mapped=map_chunks(records,source_map)
@@ -246,7 +272,7 @@ class LightRagBackend:
                 with metrics.timed("original.rerank"):
                     selected=await asyncio.to_thread(rank_sources,query,mapped,trace)
                 from .course_input import visual_inventory
-                visual_map,_,_=visual_inventory(self.candidate/"input")
+                visual_map=self.visual_map if hasattr(self, "resident") else visual_inventory(self.candidate/"input")[0]
                 selected_visuals={}
                 for record in records:
                     if record.get("kind")!="chunk": continue
@@ -258,11 +284,12 @@ class LightRagBackend:
                                 "sha256":visual.sha256,"sdk_chunk_id":record["chunk_id"],
                                 "evidence_status":"original_image_requires_q2_visual_verification"}
                 if cancellation is not None: cancellation.check()
-                after={}
-                with metrics.timed('validation.after'):
-                    self.validate(course_id,snapshot=after)
-                if snapshot!=after:
-                    raise engine.LightRagContractError('查询期间候选控制文件或宿主身份变化')
+                if not hasattr(self, 'resident'):
+                    after={}
+                    with metrics.timed('validation.after'):
+                        self.validate(course_id,snapshot=after)
+                    if snapshot!=after:
+                        raise engine.LightRagContractError('查询期间候选控制文件或宿主身份变化')
                 from knowledge.inference_runtime import runtime_status
                 stage(trace,'limit',selected,selected[:limit],'beyond_limit',limit=limit)
                 selected=selected[:limit]

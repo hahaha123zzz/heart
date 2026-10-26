@@ -16,6 +16,10 @@ from knowledge.textbook import TextbookChunk, terms_for
 
 
 def _record(chapter_id):
+    from knowledge.fixed_book import active
+    if active():
+        from knowledge.pdf_reader import document_for_chapter
+        return document_for_chapter(chapter_id)
     records = json.loads((PSYCHOLOGY_DIR / 'pdf_manifest.json').read_bytes())
     return next((record for record in records if record['chapter_id'] == chapter_id), None)
 
@@ -37,6 +41,10 @@ def _depth(text):
 
 def outline():
     """目录顺序只来自已发布章/节和正文标题，不生成隐式知识路径。"""
+    from knowledge.fixed_book import active
+    fixed = active()
+    if fixed:
+        return fixed.outline
     result = []
     manifest_raw = (PSYCHOLOGY_DIR / 'manifest.json').read_bytes()
     manifest = json.loads(manifest_raw)
@@ -97,6 +105,7 @@ def intent(message):
     named = next((chapter['title'] for chapter in chapters() if chapter['title'] in text), None) if PSYCHOLOGY else None
     if re.search(r'学|带我|从头|开始|讲解|介绍', text) and (chapter_match or named):
         suffix = text.split(named, 1)[1] if named else text[chapter_match.end():]
+        suffix = re.sub(r'(?:[，,。；;](?:只讲解|只讲|先讲解|不要出题|不出题|不要测试|不测试))+[。！？]*$', '', suffix)
         if re.fullmatch(r'(?:的|内容|全部|从头|开始|学习|讲解|吧|[，。！？])*', suffix):
             return 'start'
     return None
@@ -281,7 +290,8 @@ def validate(target):
     if not unit.get('source_valid'):
         raise ValueError('教材源文件已变化或缺失，请重新建立来源绑定')
     record = _record(unit['chapter_id'])
-    if hashlib.sha256(pdf_path(record).read_bytes()).hexdigest() != record['version']:
+    from knowledge.fixed_book import digest
+    if digest(pdf_path(record)) != record['version']:
         raise ValueError('教材原件已变化，请重新建立页码索引')
     return unit
 
