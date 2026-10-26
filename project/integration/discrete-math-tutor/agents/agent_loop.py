@@ -205,6 +205,12 @@ class LocalAgentLoop:
                           "不要只回复确认，也不要重新执行已回答的工具。]")
             if not pending_id or not substitute_answer(messages, pending_id, directive):
                 raise ValueError("恢复状态缺少待回答的工具消息")
+            # 恢复沿用工具协议和预算，教法/授权约束使用宿主本次重新核验的提示。
+            current_policy = {"role": "system", "content": request.system_prompt}
+            if messages and messages[0].get('role') == 'system':
+                messages[0] = current_policy
+            else:
+                messages.insert(0, current_policy)
             result.pending_question = pending
             result.pending_tool_call_id = pending_id
             return messages
@@ -367,7 +373,7 @@ class LocalAgentLoop:
                 check_budget()
                 if not ok:
                     retract()
-                    if not repair_used and reason.startswith(("教学闭环", "教学检查", "学生要求先讲不考", "选区目标")):
+                    if not repair_used and reason.startswith(("教学闭环", "教学检查", "教学卡片", "学生要求先讲不考", "选区目标")):
                         repair_used = True
                         messages.extend([
                             {"role": "assistant", "content": final_text},

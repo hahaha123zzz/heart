@@ -297,7 +297,12 @@ def review_items(student_id: str):
             weak=[p for p in row.result.get('parts',[]) if p.get('confirmed') and p['score']<100]
             pending=[p for p in row.result.get('parts',[]) if p.get('verdict')=='uncertain']
             if weak or pending:items.append({'point':q['knowledge_point']+' · 练习'+q['group_id']+' 第'+str(q['number'])+'题','reason':str(len(weak))+' 个小题需要订正' if weak else '本题反馈待核对，可重新作答或请 AI 解释','kind':'exercise_review','question_id':qid,'chapter_id':q['chapter_id']})
-        return items
+        from database.repository import Repository
+        from agents.review_followups import review_followups
+        from knowledge.course_config import COURSE_ID
+        followups = review_followups(student_id, Repository(), course_id=COURSE_ID)
+        existing_points = {item['point'] for item in items if not item.get('question_id')}
+        return items + [item for item in followups if item['point'] not in existing_points]
 
 
 @router.get("/students/{student_id}/conversation")

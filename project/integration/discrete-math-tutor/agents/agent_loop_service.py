@@ -153,6 +153,8 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
     def gate(text: str, result: LoopResult) -> tuple[bool, str]:
         if not text.strip():
             return False, "模型没有返回可发布回答。"
+        if re.search(r'<[｜|]DSML[｜|]|<tool_call(?:\s|>)', text, re.IGNORECASE):
+            return False, '模型返回了内部工具协议，不能作为教学回答发布。'
         if not result.sources and (teaching is None or teaching.evidence_mode == "textbook"):
             return False, "本轮没有可核验的教材来源，暂不发布正式回答。"
         if not result.sources and re.search(r"\[\d+\]", text):
@@ -477,6 +479,13 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         target=target, definitions=registry.definitions(),
         teaching_prompt=teaching.instructions() if teaching else "",
         verified_sources=initial_sources) + "\n" + budget.instructions()
+    if tool_purpose == 'textbook':
+        from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions
+        from models.interaction_preferences import style_instructions
+        # 当前有效偏好在普通问答中也生效，不依赖Q5本次安排或辅助教学开关。
+        system_prompt += '\n' + style_instructions(context.preferences)
+        if teaching is None:
+            system_prompt += '\n' + teaching_mode_instructions(resolve_teaching_mode(request.message))
     if selection_input is not None:
         system_prompt += '\n' + selection_input.instructions()
     required_tools = ()
@@ -500,14 +509,26 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     if not resume_state and re.search(r'(?:请先用|先用|请用)问题卡|先调用\s*ask_user', request.message):
         required_tools = tuple(dict.fromkeys((*required_tools, 'ask_user')))
         system_prompt += '\n用户明确要求先用问题卡：必须调用 ask_user 并暂停，不能用普通文字提问代替。'
+    needs_teaching_question = bool(teaching and teaching.teaching_mode in ('guided', 'practice')
+        and teaching.strategy_decision.invite_check and teaching.state['allow_check']
+        and not teaching.progress.pending_question and not teaching.interjection
+        and 'ask_user' not in required_tools)
+    if needs_teaching_question:
+        required_tools = tuple(dict.fromkeys((*required_tools, 'teaching_step')))
+        system_prompt += '\n本轮明确要求引导或练习：必须用teaching_step登记一个check_prompt/check_focus，再把同一问题放在正文最后并停止。不能只在正文提问而不登记待答题。'
+        if not initial_sources:
+            system_prompt += '\n本轮尚无核验来源，先检索教材再登记与原文相符的检查；不能生成没有可核验依据的待答题。'
+    needs_presentation = bool(teaching and not needs_teaching_question and 'ask_user' not in required_tools
+            and re.search(r'分步展开|逐步展示|对比卡|比较卡', request.message))
+    if needs_presentation:
+        required_tools = tuple(dict.fromkeys((*required_tools, 'teaching_step')))
+        system_prompt += '\n学生要求结构化回看：用teaching_step的card_kind生成step_reveal（explanation_steps）或concept_comparison（comparison_labels/comparison_rows）；source_indices只用本轮实际来源，正文由同一份数据生成并核验，无需再次改写。卡片不登记新检查题。'
     if interjection:
         system_prompt += '\n本轮是插问，只回答学生当前问题；保留原学习目标，不记录本目标已讲解、掌握或推进路径。'
     system_prompt += '\n页面当前学习目标仅作学习位置参考；具体提问优先，不要把旧小节主题擅自追加到检索词。指定图号先调用 retrieve_course 读取该图及登记原文，不能只检索旧主题便要求学生上传已有原图。'
     if q5_binding and q5_binding.get('session_study'):
         import json
         snapshot={k:v for k,v in q5_binding['session_plan'].items() if k not in ('student_id','session_id')}
-        from models.interaction_preferences import style_instructions
-        system_prompt += '\n当前仍有效的已确认风格（旧快照的画像文案不能覆盖这里；本次明确的学习约束仍保留）：\n'+style_instructions(context.preferences)
         system_prompt += '\n以下是本次已确认活动快照，只执行当前活动的kind和完成标准，估算时间不代表真实用时。学生本轮插问优先且不推进。不要一次教完整份安排，不改变长期路径，不把懂了当掌握。practice_preference=none时禁止检查题和考试。optional_check活动若生成自测，明确标注AI生成、非教材原题、未正式评分。\n' + json.dumps(snapshot,ensure_ascii=False)
 
     def emit(event_type: str, message: str,
@@ -544,7 +565,27 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         missing = set(required_tools) - {row.get('tool') for row in outcome.tool_outputs}
         if missing:
             return False, '所需读取或页面请求尚未成功：' + '、'.join(sorted(missing))
-        return base_gate(text, outcome)
+        if needs_presentation:
+            from agents.learning_cards import build_learning_cards, presentation_text
+            if not teaching.state.get('presentation'):
+                return False, '教学卡片未正确呈现：请用teaching_step登记所要求的卡片内容。'
+            text = presentation_text(teaching.state['presentation'])
+            if not any(card['kind'] != 'learning_progress' for card in build_learning_cards(teaching, outcome.sources, text)):
+                return False, '教学卡片未正确呈现：卡片内容必须也出现在完整正文，引用编号须已在正文使用；请修正卡片后再回答。'
+        if needs_teaching_question and not teaching.progress.pending_question:
+            return False, '教学检查未正确呈现：请用teaching_step登记一个待答步骤，再将问题放在正文最后。'
+        if needs_teaching_question and not outcome.sources:
+            return False, '本轮没有可核验的教材来源，暂不发布正式回答。'
+        if teaching and (teaching.new_question or teaching.show_pending):
+            accepted, reason = teaching.gate(text)
+            if not accepted:
+                return False, reason
+        accepted, reason = base_gate(text, outcome)
+        if accepted and needs_presentation:
+            publication = getattr(outcome, '_publication', None) or {}
+            publication.setdefault('reply', text)
+            outcome._publication = publication
+        return accepted, reason
 
     restored_reply = teaching.restore_reply() if teaching and not required_tools else None
     if restored_reply is not None:
@@ -564,11 +605,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 request_id=request.request_id or "",
                 message=request.message, system_prompt=system_prompt, tools=registry,
                 round_max_tokens=round_tokens, requires_evidence=(tool_purpose == 'textbook' and
-                    (resume_needs_evidence or teaching is None or teaching.evidence_mode != 'blended')),
+                    (resume_needs_evidence or needs_teaching_question or teaching is None or teaching.evidence_mode != 'blended')),
                 required_tools=required_tools,
-                structured_response=bool(resources and tool_purpose in STRUCTURED_TOOL and publish_gate is None),
+                structured_response=bool(needs_presentation or resources and tool_purpose in STRUCTURED_TOOL and publish_gate is None),
                 answer_ready=((lambda outcome: bool(outcome.sources) or
-                    (teaching.evidence_mode == 'blended' and not resume_needs_evidence)) if teaching else None),
+                    (teaching.evidence_mode == 'blended' and not resume_needs_evidence
+                     and not needs_teaching_question)) if teaching else None),
                 prefetch_query=(prefetch_message if resume_needs_evidence or (tool_purpose == 'textbook' and 'ask_user' not in required_tools and not resume_state and not initial_sources and (
                     q5_binding or (context.course_navigation or {}).get("status")=="ready" or
                     (getattr(navigation.backend,"backend",None) is not None and target is not None and
@@ -614,6 +656,11 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         mapped['image_refs'] = list(media.values())[:2]
     if result.completed and getattr(result, '_publication', None):
         mapped.update(result._publication)
+    if teaching and result.completed:
+        from agents.learning_cards import build_learning_cards, published_reference_map
+        reference_map = published_reference_map(result.sources, mapped['pdf_references'])
+        mapped['learning_cards'] = build_learning_cards(teaching, result.sources, result.final_text,
+                                                      reference_map=reference_map)
     if result.completed:
         # Q5 状态提示不参与来源编号，也不覆盖已核验正文。
         if q5_binding:
@@ -662,6 +709,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         if memory is not None:
             try:
                 _, epoch = memory.read_version(request.student_id, target.name)
+                for card in mapped.get('learning_cards', []):
+                    card['memory_epoch'] = epoch
                 user_message = (str((previous or {}).get("_resume_answer") or "")
                                 if resume_state else request.message)
                 # Persist the same citation cards the page just rendered, so a
@@ -679,10 +728,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     stored_reference = {**selection_input.reference, **stored_reference}
                     if mapped.get('guided_visualization'):
                         stored_reference['guided_visualization'] = mapped['guided_visualization']
+                if mapped.get('learning_cards'):
+                    stored_reference['learning_cards'] = mapped['learning_cards']
                 conversation_id = memory.append_exchange(
                     request.student_id, user_message, result.final_text,
                     selection_ref=stored_reference
-                    if stored_reference["pdf_references"] or stored_reference["textbook_sources"]
+                    if stored_reference["pdf_references"] or stored_reference["textbook_sources"] or stored_reference.get('learning_cards')
                     else None,
                     expected_epoch=epoch, expected_point=target.name, task_guard=guard,
                     session_id=request.session_id)

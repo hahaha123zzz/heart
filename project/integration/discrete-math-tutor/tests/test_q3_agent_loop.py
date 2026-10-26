@@ -170,6 +170,45 @@ class LLMToolProtocolTests(unittest.TestCase):
 
 
 class AgentLoopTests(unittest.TestCase):
+    def test_resume_refreshes_host_policy_without_losing_tool_protocol(self):
+        llm = ScriptedLLM([
+            tool_round(('ask_user', {'question': '选择讲解方式'})),
+            final_round('按最新要求直接解释。')])
+        loop = LocalAgentLoop(llm)
+        initial = request(llm, self.registry())
+        initial.system_prompt = 'OLD_POLICY: 必须引导，不直接解释。'
+        paused = loop.run(initial)
+        state = paused.state()
+        state['messages'].append({'role': 'system', 'content': 'EXISTING_VERIFIED_SOURCES'})
+        before = deepcopy(state)
+        resumed_request = request(llm, self.registry())
+        resumed_request.system_prompt = 'CURRENT_POLICY: 学生选择直接解释，不追加测试。'
+        resumed = loop.run(resumed_request, resume_state=state, answer='直接解释')
+        self.assertTrue(resumed.completed)
+        sent = llm.calls[-1]['messages']
+        self.assertEqual(sent[0], {'role': 'system', 'content': resumed_request.system_prompt})
+        self.assertNotIn('OLD_POLICY', json.dumps(sent))
+        self.assertIn('EXISTING_VERIFIED_SOURCES', json.dumps(sent))
+        self.assertEqual(sum(row['role'] == 'user' for row in sent), 1)
+        assistant = next(row for row in sent if row.get('tool_calls'))
+        tool = next(row for row in sent if row['role'] == 'tool')
+        self.assertEqual(tool['tool_call_id'], assistant['tool_calls'][0]['id'])
+        self.assertIn('直接解释', tool['content'])
+        self.assertEqual(state, before)
+        self.assertEqual(resumed.rounds, paused.rounds + 1)
+
+    def test_legacy_resume_without_system_message_gets_current_host_policy(self):
+        llm = ScriptedLLM([tool_round(('ask_user', {'question': '选哪种'})), final_round('解释')])
+        loop = LocalAgentLoop(llm)
+        paused = loop.run(request(llm, self.registry()))
+        state = paused.state()
+        state['messages'] = [row for row in state['messages'] if row['role'] != 'system']
+        current = request(llm, self.registry())
+        current.system_prompt = 'CURRENT_HOST_POLICY'
+        result = loop.run(current, resume_state=state, answer='直接讲')
+        self.assertTrue(result.completed)
+        self.assertEqual(llm.calls[-1]['messages'][0], {'role': 'system', 'content': current.system_prompt})
+
     def test_missing_retrieval_gets_one_bounded_repair_in_same_loop(self):
         llm=ScriptedLLM([final_round('仅作确认'),tool_round(('echo',{'text':'原文'})),final_round('解释[1]')])
         gate=lambda text,result:(bool(result.sources),'本轮没有可核验的教材来源，暂不发布正式回答。')

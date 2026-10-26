@@ -1,8 +1,10 @@
 """消费已校验任务；检索补充只引用服务端对象，不做模型自由改写。"""
 import json
 import re
+from typing import Literal
 from pydantic import BaseModel, Field
 from models.interaction_preferences import style_instructions
+from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions
 from agents.followup_context import (
     COMPARE_FOLLOWUP_PATTERN,
     FULL_EXPLANATION_PATTERN,
@@ -13,6 +15,7 @@ from agents.followup_context import (
 
 
 class TaskExecution(BaseModel):
+    teaching_mode: Literal['auto', 'direct', 'guided', 'practice', 'review'] = 'auto'
     learning_intents: list[str] = Field(default_factory=list)
     answer_constraints: list[str] = Field(default_factory=list)
     target_refs: list[str] = Field(default_factory=list)
@@ -30,7 +33,7 @@ class TaskExecution(BaseModel):
 
     @property
     def hint_only(self):
-        return not self.verdict_only and ("hint" in self.learning_intents or bool(set(self.answer_constraints) & {"hint_only", "no_full_answer"}))
+        return not self.verdict_only and (self.teaching_mode == 'guided' or "hint" in self.learning_intents or bool(set(self.answer_constraints) & {"hint_only", "no_full_answer"}))
 
     @property
     def proof_requested(self):
@@ -65,20 +68,22 @@ class TaskExecution(BaseModel):
 
     @property
     def explicit(self):
-        return bool(self.learning_intents or self.answer_constraints)
+        return bool(self.learning_intents or self.answer_constraints or self.teaching_mode != 'auto')
 
     def can_answer_directly(self, routing, message):
         # shortcut: 学习模式暂按明确措辞排除；有结构化学习模式后改用模式字段。
         return (
             routing.student_move == "question" and routing.confidence >= .7
-            and bool(self.learning_intents)
+            and bool(self.learning_intents or self.teaching_mode in ('direct', 'guided', 'review'))
             and set(self.learning_intents) <= {"explain", "proof", "example", "hint", "summary", "compare"}
             and not re.search(r"带我.*学|制定.*学习计划|从头学|系统学习|分步学习|一步步学", message)
         )
 
     def instructions(self):
-        if not self.explicit: return style_instructions(self.preferences) if self.preferences else ""
-        lines = [style_instructions(self.preferences), "本轮任务约束（优先于默认教学动作、字数偏好和节奏）："]
+        style = style_instructions(self.preferences) if self.preferences else ""
+        mode = teaching_mode_instructions(self.teaching_mode)
+        if not self.explicit: return '\n'.join(filter(None, (style, mode)))
+        lines = [style, mode, "本轮任务约束（优先于默认教学动作、字数偏好和节奏）："]
         if "check_answer" in self.learning_intents:
             lines.append("先核对本轮作答，按最终教学计划决定本轮提示或讲解的深度；意图列表不是段落标题，不要求在提示之后补出完整讲解。")
         else:
@@ -117,7 +122,7 @@ class TaskExecution(BaseModel):
             action, strategy, teaching_move = "give_example", "worked_example", "worked_example"
         elif self.learning_intents[:1] == ["summary"]:
             action, strategy, teaching_move = "summarize", "self_explanation", "direct_explanation"
-        elif self.learning_intents[:1] == ["practice"]:
+        elif self.teaching_mode == 'practice' or self.learning_intents[:1] == ["practice"]:
             action, strategy, teaching_move = "ask_question", "retrieval_practice", "retrieval_practice"
         elif "compare" in self.learning_intents:
             action, strategy, teaching_move = "explain", "conceptual_comparison", "direct_explanation"
@@ -204,6 +209,13 @@ def build_execution(message, routing, context=None):
         constraints.append("no_questions")
     intents = list(dict.fromkeys(intents))
     constraints = list(dict.fromkeys(constraints))
+    mode = resolve_teaching_mode(message)
+    if mode == 'direct':
+        # 旧路由可能继承上轮提示意图；本轮要求直接讲解时重新定范围。
+        intents = [intent for intent in intents if intent != 'hint']
+        constraints = [item for item in constraints if item not in ('hint_only', 'no_full_answer')]
+        if not intents:
+            intents.append('explain')
     if context is not None and context.graph_snapshot and context.graph_snapshot.get('answer_scope') == 'hint':
         constraints = list(dict.fromkeys([*constraints, 'hint_only', 'no_full_answer']))
     if context is not None and context.truth_table_snapshot and context.truth_table_snapshot.get('answer_scope') == 'hint':
@@ -213,6 +225,9 @@ def build_execution(message, routing, context=None):
     if context is not None and any((snapshot or {}).get("answer_scope") == "hint" for snapshot in
         (context.graph_snapshot, context.truth_table_snapshot, context.relation_snapshot)):
         constraints = [c for c in constraints if c != "verdict_only"]
-    return TaskExecution(learning_intents=intents,
+    # 服务端对象的仅提示范围优先，不能被语言模式切换扩大为完整解答。
+    if mode == 'direct' and not set(constraints) & {'hint_only', 'no_full_answer'}:
+        constraints.append('no_questions')
+    return TaskExecution(teaching_mode=mode, learning_intents=intents,
         answer_constraints=constraints, target_refs=refs,
         targets=targets, retrieval_query=query, preferences=dict(getattr(context, "preferences", {}) or {}))

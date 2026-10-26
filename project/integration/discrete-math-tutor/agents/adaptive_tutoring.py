@@ -26,22 +26,17 @@ from agents.deeptutor_learning.models import (
 from agents.deeptutor_learning.pending import public_pending_question
 from agents.deeptutor_learning.policy import is_mastered, learning_stage, next_objective
 from agents.tool_protocol import BaseTool, ToolContext, ToolDefinition, ToolParameter, ToolResult
+from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions
+from agents.learning_cards import CardText, ComparisonRow, presentation_arguments
 
 SCHEMA = "deeptutor-teaching-v2"
 STRATEGIES = ("explain", "worked_example", "contrast", "break_down",
               "prerequisite", "guided_practice", "feedback", "transfer", "hint")
 
 
-def _check_question_key(value: str, *, answer: bool = False) -> str:
+def _check_question_key(value: str) -> str:
     """Normalize presentation-only differences without changing the check's meaning."""
     text = unicodedata.normalize("NFKC", str(value or "")).strip()
-    if answer:
-        text = text.rstrip("。！？?! \t\r\n")
-        markers = list(re.finditer(r"(?:一个)?(?:小问题|小检查|小测验)[：:,，]?", text))
-        if markers:
-            text = text[markers[-1].end():]
-        else:
-            text = re.split(r"[\n。！？?!]", text)[-1]
     text = re.sub(r"^在这个.*?(?:例子|情境|情景|实验)(?:当中|里面|里|中)[，,:：]?", "", text)
     return re.sub(r"[^\w]", "", text).casefold()
 
@@ -84,13 +79,14 @@ class TeachingDecision:
 def analyze_teaching_turn(message: str, *, previous_strategy: str = "",
                           has_pending: bool = False, question_frequency: float = .5) -> TeachingDecision:
     text = message.strip()
+    mode = resolve_teaching_mode(text)
     support = is_difficulty(text)
     asks_example = bool(re.search(r"(?:举|换|给).{0,5}(?:个|一)?(?:例子|例)|比如|打个比方", text))
     explicit_check = bool(ALLOW_QUIZ.search(text))
     side_question = bool(re.search(
         r"先插问|另外问|什么是|是什么意思|为什么|请解释|图\s*\d|图片|原图|"
         r"(?:只|仅)(?:给|要)?提示|给.{0,3}提示|换.{0,4}(?:例子|说法)", text))
-    source_exact = bool(re.search(r"教材原文|原书怎么说|书上怎么写|按教材|引用原文|第\s*\d+页|原图|具体研究结果|数据结果", text))
+    source_exact = bool(re.search(r"教材原文|教材[中里上]|原书怎么说|书上怎么写|按教材|引用原文|第\s*\d+页|原图|具体研究结果|数据结果", text))
     if support:
         move = "needs_support"
         choices = ["worked_example", "contrast", "break_down", "prerequisite", "hint"]
@@ -108,12 +104,19 @@ def analyze_teaching_turn(message: str, *, previous_strategy: str = "",
         move, strategy = "explain", "explain"
     if strategy == previous_strategy and strategy in ("explain", "worked_example"):
         strategy = "break_down" if strategy == "explain" else "contrast"
+    if mode != 'auto':
+        move = 'teaching_request'
+        strategy = {'direct': 'explain', 'guided': 'hint',
+                    'practice': 'guided_practice', 'review': 'contrast'}[mode]
     return TeachingDecision(
         move=move, strategy=strategy,
         evidence_mode="textbook" if source_exact else "blended",
         reuse_evidence=bool(support or asks_example or has_pending and not side_question and not re.search(
             r"另一个问题|换个知识点|换个话题|不学这个|改学", text)),
-        invite_check=bool(explicit_check or question_frequency >= .85 and move == "explain" and not has_pending),
+        invite_check=bool(mode != 'direct' and not NO_QUIZ.search(text) and (
+            explicit_check or mode == 'practice'
+            or mode == 'guided' and not re.search(r'只(?:给|要)提示|级提示|再给.{0,4}提示|给我.{0,4}提示', text)
+            or question_frequency >= .85 and move == "explain" and not has_pending)),
     )
 
 
@@ -189,7 +192,7 @@ class PracticeAssessment(BaseModel):
 def public_state(state):
     """One projection for prompts/clients; private LearningProgress stays local."""
     output = {k: deepcopy(state.get(k)) for k in (
-        "schema", "topic", "last_strategy", "last_summary", "stage", "allow_check",
+        "schema", "topic", "teaching_mode", "last_strategy", "last_summary", "stage", "allow_check",
         "assessment", "turn_move", "engine_next", "formal_mastery")}
     try:
         progress = LearningProgress.model_validate(state.get("progress") or {})
@@ -229,6 +232,7 @@ class TeachingTurn:
         self.recorded = self.new_question = self.show_pending = self.interjection = False
         self.lock = threading.RLock()
         self.difficulty = is_difficulty(request.message)
+        self.teaching_mode = resolve_teaching_mode(request.message)
         self.skip = bool(SKIP_CHECK.fullmatch(request.message.strip()))
         try:
             self.progress = LearningProgress.model_validate(old.get("progress") or {})
@@ -256,16 +260,20 @@ class TeachingTurn:
             old = {"allow_check": old.get("requested_allow_check", old.get("allow_check", True))}
         self.state = {
             "schema": SCHEMA, "topic": topic, "target_id": target_id,
+            "teaching_mode": self.teaching_mode,
             "chapter_id": next((o.chapter_id for o in context.objects if o.kind == "section"), None),
             "allow_check": old.get("requested_allow_check", old.get("allow_check", True)),
             "last_strategy": old.get("last_strategy"), "last_summary": old.get("last_summary"),
             "used_strategies": list(old.get("used_strategies") or [])[-6:],
             "assessment": None, "turn_move": "teach",
+            "presentation": None,
             "pending_sources": deepcopy(old.get("pending_sources") or []),
         }
         pending = self.progress.pending_question
         candidates = self.state["pending_sources"] if pending else old.get("source_candidates", [])
-        followup = bool(self.difficulty or self.strategy_decision.reuse_evidence or pending or self.skip or NO_QUIZ.search(request.message)
+        followup = bool(self.difficulty or self.strategy_decision.reuse_evidence
+                        or self.teaching_mode in ('guided', 'practice')
+                        or pending or self.skip or NO_QUIZ.search(request.message)
                         or ACKNOWLEDGEMENT.fullmatch(request.message.strip()))
         if candidates and followup:
             try:
@@ -281,12 +289,13 @@ class TeachingTurn:
             self.progress.pending_question = None
             self.state["pending_sources"] = []
             self.state["turn_move"] = "explain_only"
-        elif ALLOW_QUIZ.search(request.message):
+        elif ALLOW_QUIZ.search(request.message) or self.teaching_mode == 'practice':
             self.state["allow_check"] = True
             self.progress.learner_profile.teaching_strategy = "probe_first"
         self.state["requested_allow_check"] = self.state["allow_check"]
         preferences = context.preferences
-        if "teaching_sequence" in preferences and not ALLOW_QUIZ.search(request.message):
+        if "teaching_sequence" in preferences and not (
+                ALLOW_QUIZ.search(request.message) or self.teaching_mode == 'practice'):
             self.progress.learner_profile.teaching_strategy = (
                 "teach_first" if preferences["teaching_sequence"] > .66 else
                 "probe_first" if preferences["teaching_sequence"] < .34 else
@@ -295,6 +304,7 @@ class TeachingTurn:
         plan_no_check = (session_plan.get("request") or {}).get("practice_preference") == "none"
         if plan_no_check or (preferences.get("question_frequency", .5) < .34
                              and not ALLOW_QUIZ.search(request.message)
+                             and self.teaching_mode != 'practice'
                              and not RESUME_CHECK.search(request.message)):
             self.state["allow_check"] = False
         if plan_no_check:
@@ -353,6 +363,11 @@ class TeachingTurn:
 
     def _assess(self, llm):
         pending = self.progress.pending_question
+        if self.teaching_mode != 'auto':
+            self.interjection = self.teaching_mode != 'practice'
+            self.show_pending = self.teaching_mode == 'practice'
+            self.state['turn_move'] = 'resume_check' if self.show_pending else 'question'
+            return
         # A request for another explanation/example is help-seeking, not an answer.
         if self.strategy_decision.move in ("needs_support", "teach_with_example"):
             self.interjection = True
@@ -396,18 +411,30 @@ class TeachingTurn:
         # assistance prevents this from becoming independent mastery evidence.
         self.state["assessment"] = assessment.model_dump() | {
             "question_id": pending.question_id, "verification": "ai_provisional", "formal_mastery": False}
+        assistance = deepcopy(pending.visual_context.get('host_formative_assistance') or {})
+        context = {
+            'assessment_scope': 'host_formative', 'provisional': True,
+            'verification': 'ai_provisional', 'independent': False,
+            'student_quote': assessment.student_quote, 'reason': assessment.reason,
+            'assistance': assistance,
+            'source_refs': [{
+                'document_id': source.get('document_id'), 'version': source.get('version'),
+                'evidence': deepcopy((source.get('location') or {}).get('evidence') or {}),
+            } for source in self.sources[:4]],
+        }
         event = LearningEvidence(
             evidence_id=str(self.request.request_id or pending.question_id),
             question_id=pending.question_id, knowledge_point_id=pending.knowledge_point_id,
             source="host_formative", assessment_type="qualitative", result=assessment.verdict,
-            hints_used=1, session_id=self.request.session_id, turn_id=str(self.request.request_id or ""))
+            hints_used=assistance.get('hints_used', 0), visual_context=context,
+            session_id=self.request.session_id, turn_id=str(self.request.request_id or ""))
         if not any(e.evidence_id == event.evidence_id for e in self.progress.learning_evidence):
             self.progress.learning_evidence = (self.progress.learning_evidence + [event])[-40:]
             self.progress.quiz_attempts = (self.progress.quiz_attempts + [QuizAttempt(
                 question_id=pending.question_id, knowledge_point_id=pending.knowledge_point_id,
                 module_id=pending.module_id, is_correct=assessment.verdict == "correct",
                 user_answer=self.request.message, independent=False,
-                visual_context={"assessment_scope": "host_formative", "provisional": True},
+                visual_context=deepcopy(context),
             )])[-40:]
         self.progress.pending_question = None
         self.state["pending_sources"] = []
@@ -422,7 +449,8 @@ class TeachingTurn:
                         if self.evidence_mode == "blended" and not self.sources else "")
         return (
             "【DeepTutor 教学引擎当前快照，优先当前学生需求】\n"
-            "你是温和、耐心、懂得变通的实验心理学老师。先回应学生卡住的地方，用自然口语和具体场景讲清楚；"
+            + teaching_mode_instructions(self.teaching_mode) + '\n'
+            + "你是温和、耐心、懂得变通的实验心理学老师。先回应学生卡住的地方，用自然口语和具体场景讲清楚；"
             "不说教、不责备、不用空泛夸奖，不把工具、检索或状态讲给学生听。\n"
             "本轮教学判断：" + json.dumps({"move": self.strategy_decision.move,
                 "strategy": self.strategy_decision.strategy, "evidence_mode": self.evidence_mode,
@@ -460,7 +488,8 @@ class TeachingTurn:
             return False, "教学闭环未记录：请调用teaching_step记录实际讲法，再给出完整讲解。"
         pending = self.progress.pending_question
         if (self.new_question or self.show_pending) and pending:
-            if _check_question_key(text, answer=True) != _check_question_key(pending.prompt):
+            # 整题可包含多个句号/问号，不能只拿正文最后一句与整题比较。
+            if not _check_question_key(text).endswith(_check_question_key(pending.prompt)):
                 return False, "教学检查未正确呈现：请将已登记的小检查放在正文最后，然后停止，不能同轮自问自答。"
         if not self.state["allow_check"] and re.search(r"[？?]", text):
             return False, "学生要求先讲不考：正文不得出现任何问号，包括自问和引号内的问题；改为陈述句，保留事实和引用，不新增检查。"
@@ -468,6 +497,27 @@ class TeachingTurn:
 
     def commit_sources(self, sources, answer_text=""):
         # Called only after publication passes, then persisted by TaskService.
+        pending = self.progress.pending_question
+        if (pending and not self.new_question and answer_text.strip()
+                and (self.difficulty or self.strategy_decision.move == 'teach_with_example'
+                     or self.teaching_mode == 'guided'
+                     or self.teaching_mode == 'direct' and self.strategy_decision.reuse_evidence)):
+            # 随原题保存已发布帮助；失败/取消没有发布回执，不增加辅助次数。
+            assistance = deepcopy(pending.visual_context.get('host_formative_assistance') or {
+                'hints_used': 0, 'explanations_used': 0, 'examples_used': 0, 'events': []})
+            turn_id = self.request.task_id or self.request.request_id
+            if turn_id and not any(event['turn_id'] == turn_id for event in assistance['events']):
+                strategy = self.state['last_strategy'] if self.recorded else self.strategy
+                kind = ('hint' if strategy == 'hint' else
+                        'example' if strategy == 'worked_example' else 'explanation')
+                counter = {'hint': 'hints_used', 'example': 'examples_used',
+                           'explanation': 'explanations_used'}[kind]
+                assistance[counter] += 1
+                assistance['events'] = (assistance['events'] + [{
+                    'turn_id': turn_id, 'kind': kind, 'strategy': strategy,
+                    'timestamp': time.time(),
+                }])[-40:]
+                pending.visual_context['host_formative_assistance'] = assistance
         if not self.recorded and not self.interjection and answer_text.strip():
             strategy = self.strategy
             summary = re.sub(r"\s+", " ", answer_text).strip()[:350]
@@ -505,6 +555,11 @@ class TeachingStepTool(BaseTool):
             ToolParameter("check_prompt", "string", "可选小问题题干，最终正文末尾应清楚表达同一检查点；可省略重复背景，不能改题或同轮作答", required=False),
             ToolParameter("check_focus", "string", "检查的一个具体理解点", required=False),
             ToolParameter("check_expected_answer", "string", "服务端参考答案，不能显示给学生", required=False, sensitive=True),
+            ToolParameter('card_kind', 'string', '仅要求卡片时使用；内容也须出现在最终正文，不与新检查题同轮使用', required=False, enum=['step_reveal', 'concept_comparison']),
+            ToolParameter('card_title', 'string', '卡片标题，不超过100字', required=False),
+            ToolParameter('explanation_steps', 'array', '分步展开的2—6个步骤', required=False, items=CardText.model_json_schema()),
+            ToolParameter('comparison_labels', 'array', '概念对比的两个对象名', required=False, items={'type': 'string'}),
+            ToolParameter('comparison_rows', 'array', '概念对比的1—6个维度', required=False, items=ComparisonRow.model_json_schema()),
         ))
 
     def __init__(self, turn: TeachingTurn):
@@ -521,6 +576,12 @@ class TeachingStepTool(BaseTool):
         prompt = str(arguments.get("check_prompt") or "").strip()
         focus = str(arguments.get("check_focus") or "").strip()
         expected = str(arguments.get("check_expected_answer") or "").strip()
+        try:
+            presentation = presentation_arguments(arguments)
+        except ValueError:
+            return ToolResult(success=False, content='卡片格式无效，请按指定类型提供有界内容。')
+        if presentation and prompt:
+            return ToolResult(success=False, content='新检查题与解释卡片分轮展示，避免同轮泄露答案。')
         if (context.student_id != self.turn.request.student_id
                 or context.session_id != self.turn.request.session_id):
             return ToolResult(success=False, content="教学状态不属于当前会话。")
@@ -529,7 +590,7 @@ class TeachingStepTool(BaseTool):
         if self.turn.difficulty and strategy == self.turn.state.get("last_strategy"):
             return ToolResult(success=False, content="学生仍未理解，请换一种实际讲法，不能重复上一轮教法。")
         pending = self.turn.progress.pending_question
-        if prompt and (not self.turn.state["allow_check"] or not focus or len(prompt) > 500 or len(focus) > 200):
+        if prompt and (self.turn.teaching_mode == 'direct' or not self.turn.state["allow_check"] or not focus or len(prompt) > 500 or len(focus) > 200):
             return ToolResult(success=False, content="学生要求先讲不考，或问题/目标不完整，请移除或缩小检查。")
         if prompt and self.turn.interjection:
             return ToolResult(success=False, content="本轮是插问，回答当前问题并保留原检查，不出新题。")
@@ -544,6 +605,8 @@ class TeachingStepTool(BaseTool):
         elif prompt and pending:
             self.turn.show_pending = True
         self.turn.state["last_strategy"] = strategy
+        if presentation:
+            self.turn.state['presentation'] = presentation
         self.turn.state["last_summary"] = summary
         self.turn.state["used_strategies"] = (self.turn.state["used_strategies"] + [strategy])[-6:]
         # Mirrors MasteryNoteExplained: coverage, never mastery.
@@ -557,4 +620,5 @@ class TeachingStepTool(BaseTool):
             "recorded": True, "mastery_credit": False,
             "pending_question": self.turn.public()["pending_check"],
             "instruction": "完成讲解；新登记或恢复的问题清楚放在最后，允许省略重复背景但不能改变检查点，然后停止。插问不必重现旧题。"
-        }, ensure_ascii=False), metadata={"teaching_strategy": strategy, "formative_check": bool(prompt)})
+        }, ensure_ascii=False), metadata={"tool": "teaching_step", "result_kind": "teaching_step",
+            "teaching_strategy": strategy, "formative_check": bool(prompt)})

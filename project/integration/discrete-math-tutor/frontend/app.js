@@ -283,6 +283,7 @@ function renderPDFReference(ref, index, referenceIndex = -1, label = "", selecti
   return `<button type="button" class="pdf-citation" data-pdf-citation="${index}" data-pdf-reference="${referenceIndex}" data-evidence-selection="${selectionIndex}">${label ? esc(label) + " · " : ""}教材第 ${esc(pages.join("、"))} 页 · ${esc(ref.section_title || "选中内容")} ↗</button>`;
 }
 function renderChatReferences(message, index) {
+  if(message.role==='user')return '';
   // 旧记录没有行内编号时仍可按需查看，不在正文下展开来源。
   const sources=message.sources || (message.source?[message.source]:[]);
   return sources.length && !/\[\d+\]/.test(message.content || '')
@@ -456,7 +457,7 @@ function renderContent() {
 }
 
 function messagesFromHistory(history) {
-  return history.map((m) => ({conversationId:m.id,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
+  return history.map((m) => ({conversationId:m.id,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,learningCards:m.role==="assistant"?m.selection_ref?.learning_cards:undefined,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
 }
 
 const graphArtifacts = new Map();
@@ -581,7 +582,7 @@ function renderChat() {
   chatRenderer.render(messages.map((m,index)=>({key:m.renderKey ??= newRequestId(),role:m.role,parts:{
     progress:m.startedAt?renderProgress(m):'',
     object:m.objectLabel?'<small>针对：'+esc(m.objectLabel)+'</small>':'',
-    content:renderAnswerContent(m),
+    content:renderAnswerContent(m)+(m.role==='assistant'&&!m.failed?window.LearningCards?.render(m.learningCards)||'':''),
     references:renderChatReferences(m,index),clarification:renderClarification(m),style:renderStyleSuggestion(m,index),
     memory:m.memorySummary?'<div class="memory-summary">'+esc(m.memorySummary)+'</div>':'',
     figures:(m.role==='assistant'?(m.imageRefs||[]):[]).filter(image=>!m.content?.includes('(media:'+image.id+')')).map(image=>
@@ -635,7 +636,7 @@ async function sendMessage(message, options={}) {
       failed:result.task_state==='cancelled'||['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable','q5_error','session_plan_changed','answer_interrupted','incomplete_answer','active_timeout','model_unavailable','task_cancelled','loop_failed'].includes(result.answer_status),
       content:result.reply || "助教暂时没有返回内容。", unpublishedDraft:result.unpublished_draft || '',
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
-      selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
+      learningCards:result.answer_status==='answered'?result.learning_cards:undefined,selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
       sessionPlan:result.q5_session_plan || result.session_plan || result.q5_status?.session_plan,
       relationContext:result.answer_status==='answered'?result.relation_context:undefined,
       guide:result.answer_status==='answered'||(!result.answer_status&&result.guided_visualization)?result.guided_visualization:undefined});
@@ -766,7 +767,7 @@ async function refreshLearning() {
       api(`/api/students/${encodeURIComponent(studentId)}/review`),
       api(`/api/students/${encodeURIComponent(studentId)}/conversation`),
     ]);
-    $("#review-list").innerHTML = review.length ? review.map((item) => `<div class="review-item"><div><strong>${esc(item.point)}</strong><p>${esc(item.reason)}</p></div>${item.question_id ? `<button data-exercise-review="${esc(item.question_id)}" data-review-chapter="${item.chapter_id}">回到这道题</button>` : `<button data-review="${esc(item.point)}">请助教带我复习</button>`}</div>`).join("") : '<div class="resource-note">暂时没有识别到需要复习的难点。继续学习或完成测验后再来看看。</div>';
+    $("#review-list").innerHTML = review.length ? review.map((item) => `<div class="review-item"><div><strong>${esc(item.point)}</strong><p>${esc(item.reason)}</p>${item.kind==='learning_followup'?'<small>回顾建议 · 非正式评分</small>':''}${item.location_label?'<small>'+esc(item.location_label)+'</small>':''}</div>${item.question_id ? `<button data-exercise-review="${esc(item.question_id)}" data-review-chapter="${item.chapter_id}">回到这道题</button>` : `<button data-review="${esc(item.point)}">${item.kind==='learning_followup'?'回顾这个知识点':'请助教带我复习'}</button>`}</div>`).join("") : '<div class="resource-note">暂时没有回顾建议或待订正记录。继续学习或完成练习后再来看看。</div>';
     $('#home-review-list').innerHTML=$('#review-list').innerHTML;
     $("#history-list").innerHTML = history.length ? history.slice(-16).reverse().map((m) => `<div class="history-item"><small>${m.role === "user" ? "我" : "助教"}</small><p>${esc(m.content)}</p>${(m.role==='assistant'?(m.image_refs || []):[]).map(renderFigure).join("")}</div>`).join("") : '<div class="resource-note">还没有对话记录。向助教提一个问题吧。</div>';
   } catch (error) { toast(`学习记录暂不可用：${error.message}`); }
@@ -929,7 +930,7 @@ function bindEvents() {
     const prompt = event.target.closest("[data-prompt]");
     if (prompt) { const input = $("#chat-input"); input.value = prompt.dataset.prompt; input.focus(); return; }
     const review = event.target.closest("[data-review]");
-    if (review) { showView("chat"); $("#chat-input").value = `请帮我复习${review.dataset.review}，先出一道简单的问题检查我`; $("#chat-input").focus(); return; }
+    if (review) { if(state.sending){toast("请等本次回答完成后再准备回顾问题。");return;} showView("course");showView("chat"); $("#chat-input").value = `请帮我复习教材中“${review.dataset.review}”的内容。先讲清关键概念，是否练习由我决定。`; $("#chat-input").focus(); return; }
     const courseTab = event.target.closest("[data-course-tab]");
     if (courseTab) {
       $$("[data-course-tab]").forEach((el) => el.classList.toggle("active", el === courseTab));

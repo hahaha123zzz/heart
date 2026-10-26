@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from typing import Dict, List, Optional
 
 from models.learner_profile import LearnerProfile
@@ -48,6 +49,34 @@ KNOWN_STRATEGIES = [
     "error_based_learning",
     "progressive_hinting",
 ]
+
+
+def resolve_teaching_mode(message: str) -> str:
+    """只解析本轮明确教法；不读写画像，也不增加模型调用。"""
+    matches = []
+    patterns = {
+        "direct": r"直接(?:告诉我|解释|讲解|讲|给我(?:完整)?答案)|完整(?:解释|讲解|解答)|查看完整(?:解释|解答)|只讲不考|(?:不要|不用|别)(?:再)?(?:引导|提示)",
+        "guided": r"引导我|带我(?:思考|推理)|一步步(?:引导|问我)|(?:不要|不用|别)(?:再)?直接(?:告诉我|给我(?:完整)?答案)|只给提示|只要提示|第?[123一二三]级提示|再给(?:一个|一点|一条)?提示|给我(?:一个|一点|一条)?提示",
+        "practice": r"考考我|分步练习|(?:给我|出)(?:一道|一套|几道|个)?(?:练习题|题)|(?:开始|现在|我想)(?:做题|练习)",
+        "review": r"备考复习|考前复习|考试复习|复习模式|(?:帮我|带我)复习",
+    }
+    for mode, pattern in patterns.items():
+        for match in re.finditer(pattern, message):
+            if re.search(r"(?:不要|不用|别|不想|不需要)(?:再)?$", message[:match.start()]):
+                continue
+            matches.append((match.start(), mode))
+    return max(matches)[1] if matches else "auto"
+
+
+def teaching_mode_instructions(mode: str) -> str:
+    """教学风格与outline/study/review路径生命周期分别管理。"""
+    return {
+        "auto": "",
+        "direct": "本轮直接讲解：完整回应当前问题，不先考学生，不以提示或反问代替答案，也不主动追加检查题；仅提示范围及来源核验仍须遵守。",
+        "guided": "本轮引导探索：先给一个必要提示或推理支架，再邀请学生完成一个步骤，不同轮给完整答案。仅要求提示时不追加作答任务；明确禁止提问时用陈述式提示。",
+        "practice": "本轮分步练习：围绕当前目标安排一个可作答步骤，题目放在最后并停止，不同轮公开答案；已有待答题优先复用，不能覆盖或重复登记。",
+        "review": "本轮备考复习：组织概念关系、易混点和必要方法；重点注明教材、考纲/教师标注或教学建议的依据，不从图谱中心性推断考试分值。未经要求不强制测试，不据此改变学习路径或正式掌握状态。",
+    }[mode]
 
 
 def _dedupe(items: List[str]) -> List[str]:

@@ -101,6 +101,16 @@ class MemoryManagementRepository:
             row=session.get(MisconceptionRow,item_id)
             if row is None or row.student_id!=student_id:
                 raise LookupError("误区不存在")
+            if row.status == 'dismissed':
+                previous = session.scalar(select(LearningEventRow).where(
+                    LearningEventRow.student_id == student_id,
+                    LearningEventRow.knowledge_point == row.knowledge_point,
+                    LearningEventRow.event_type == 'user_memory_correction',
+                    LearningEventRow.payload['misconception_id'].as_integer() == item_id,
+                ).order_by(LearningEventRow.created_at.desc(), LearningEventRow.id.desc()).limit(1))
+                # 同一已生效更正的重试不能再次写证据或清空后来产生的摘要。
+                if previous is not None and previous.payload.get('content') == note:
+                    return {"id":item_id,"status":"dismissed","event_id":previous.id,"verification":"student_statement"}
             row.status="dismissed"
             event=self.record_event(student_id,"correction:"+str(uuid4()),row.knowledge_point,"user_memory_correction",
                 {"content":note,"misconception_id":item_id,"source":"explicit_user"})

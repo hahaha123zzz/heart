@@ -1,0 +1,10 @@
+.learning-card{margin-block:14px;padding-block:12px;border-block-start:1px solid var(--border,#dfe4e4);font-size:.9rem;line-height:1.7;color:var(--text,#263c47)}
+.learning-card>summary{cursor:pointer;font-weight:600;padding-block:4px}
+.learning-card summary:focus-visible{outline:2px solid #426780;outline-offset:4px}
+.learning-card p{margin-block:8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.learning-card details{margin-block:10px;padding-inline-start:12px}
+.learning-card-table{overflow-x:auto;margin-block:10px}
+.learning-card table{width:100%;border-collapse:collapse;min-width:360px;table-layout:fixed}
+.learning-card th:first-child{width:26%}
+.learning-card th,.learning-card td{text-align:start;padding:10px 8px;border-block-end:1px solid var(--border,#dfe4e4);vertical-align:top;overflow-wrap:anywhere}
+.learning-card sup button{display:inline-block;border:0;background:none;color:#426780;cursor:pointer;padding:2px 3px;line-height:1.2}
