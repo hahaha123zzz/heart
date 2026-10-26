@@ -60,7 +60,7 @@ app.state.memory_llm = orchestrator.llm
 # 启动时建表 + 清理过期测试账户
 init_db()
 recover_interrupted_submissions()
-_PURGED = orchestrator.memory.cleanup_expired()
+_PURGED = orchestrator.memory.cleanup_expired() if os.getenv('CLEANUP_EXPIRED_ON_STARTUP', '1') == '1' else 0
 
 
 from models.chat_request import ChatRequest

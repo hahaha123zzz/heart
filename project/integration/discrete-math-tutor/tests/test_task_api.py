@@ -48,6 +48,21 @@ class TaskAPITests(unittest.TestCase):
         self.tutor.handle_turn.reset_mock()
         self.tutor.handle_turn.side_effect = None
 
+    def test_cutover_can_preserve_expired_accounts_without_changing_default_cleanup(self):
+        for enabled in ('0','1'):
+            previous=sys.modules.pop('main',None)
+            try:
+                with (patch.dict(os.environ,CLEANUP_EXPIRED_ON_STARTUP=enabled),
+                      patch('orchestrator.TutorOrchestrator',return_value=self.tutor),
+                      patch('database.database.init_db'),patch('practice_api.recover_interrupted_submissions'),
+                      patch.object(self.tutor.memory,'cleanup_expired',return_value=7) as cleanup):
+                    module=importlib.import_module('main')
+                    self.assertEqual(module._PURGED,7 if enabled=='1' else 0)
+                    self.assertEqual(cleanup.call_count,int(enabled))
+            finally:
+                sys.modules.pop('main',None)
+                if previous is not None:sys.modules['main']=previous
+
     def _recovery_turn(self, *, clarification=False):
         def answer(*args, **kwargs):
             routing = TaskUnderstanding(status="unknown", intent="clarify_task", missing_slots=["topic"]) if clarification else TaskUnderstanding()
