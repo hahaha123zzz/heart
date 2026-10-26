@@ -221,7 +221,8 @@ class CourseSearchBridgeTests(unittest.TestCase):
         llm=ScriptedLLM([final_round('学习路径：路径 · 当前目标：**当前点**\n\n讲解[1]')])
         q5=SimpleNamespace(service=Mock(),scope=Mock(),search=Mock(),
             loop_binding=lambda:{'target':self.target},status_line=lambda:'学习路径：路径 · 当前目标：当前点')
-        with patch('agents.q5_learning.Q5Navigator',return_value=self.base):
+        with (patch('agents.q5_learning.Q5Navigator',return_value=self.base),
+              patch('agents.tools.first_wave_runtime.bind_resources',return_value=(None,()))):
             result=run_agent_loop_turn(orchestrator=SimpleNamespace(llm=llm,memory=None),
                 request=ChatRequest(student_id='isolated',session_id='tab',request_id='q5-bridge',message='讲解当前点'),
                 context=TaskContext(student_id='isolated',message='讲解当前点',knowledge_point='当前点'),q5=q5,navigator=self.backend,

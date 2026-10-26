@@ -9,6 +9,7 @@ is reported as not ready even when all local files exist.
 from __future__ import annotations
 
 from functools import lru_cache
+from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
@@ -50,6 +51,9 @@ def chapter_source_identity(chapter_id, manifest, assets):
 
 @lru_cache(maxsize=1)
 def snapshot() -> dict:
+    from knowledge.fixed_book import active
+    if fixed := active():
+        return deepcopy(fixed.release)
     manifest = _manifest()
     course_id = manifest.get("course_id") or PSYCHOLOGY_DIR.name
     chapters = []
@@ -131,9 +135,13 @@ def clear_cache():
 
 def validate(expected=None, *, refresh=True) -> dict:
     """Return the current release, rejecting a changed release identity."""
-    if refresh:
-        clear_cache()
-    current = snapshot()
+    from knowledge.fixed_book import active
+    if fixed := active():
+        current = deepcopy(fixed.release)
+    else:
+        if refresh:
+            clear_cache()
+        current = snapshot()
     if expected is not None:
         expected_id = expected.get("release_id") if isinstance(expected, dict) else str(expected)
         if expected_id and current["release_id"] != expected_id:

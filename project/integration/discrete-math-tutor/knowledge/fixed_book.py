@@ -5,6 +5,7 @@ import asyncio
 import contextvars
 from copy import deepcopy
 from dataclasses import replace
+from functools import lru_cache
 import hashlib
 import os
 from pathlib import Path
@@ -42,6 +43,19 @@ class ResidentGraph:
         self.backend, self.embedding, self.roles = backend, embedding, roles
         self.rag = None
         self.request = None
+
+    @lru_cache(maxsize=256)
+    def keywords(self, query):
+        # 缓存属于该实例的教材/模型快照；只匹配图中已有实体，不猜新术语。
+        text = ' '.join(query.split()).casefold()
+        found = []
+        for entity in self.backend.entity_terms:
+            term = entity.casefold()
+            if term in text and not any(term in old.casefold() for old in found):
+                found.append(entity)
+                if len(found) == 8:
+                    break
+        return tuple(found)
 
     def dispatch(self, name):
         async def invoke(*args, **kwargs):
@@ -100,13 +114,19 @@ class ResidentGraph:
         callbacks['embedding'] = build_embedding_func(embedding_config=replace(self.embedding, metrics=metrics))
         self.request = {'callbacks': callbacks, 'context': contextvars.copy_context()}
         try:
+            before = self.keywords.cache_info().hits
+            with metrics.timed('keyword.rules'):
+                keywords = self.keywords(' '.join(query.split()))
+            metrics.stages.append({'stage':'keyword.policy', 'source':'graph_entities' if keywords else 'sdk_extraction',
+                'cache_hit':self.keywords.cache_info().hits > before, 'count':len(keywords)})
             with metrics.timed('native.query', includes_children=True):
-                _, records = await engine.query_with_sources(self.rag, query, mode)
+                _, records = await engine.query_with_sources(self.rag, query, mode, keywords=keywords)
             return await attach_provenance(self.rag, self.backend.candidate / 'index', records, prepared=self.provenance)
         finally:
             self.request = None
 
     async def close(self):
+        self.keywords.cache_clear()
         if self.rag is not None:
             from knowledge.lightrag import engine
             await engine.finalize(self.rag, cancel_pending=True)
@@ -169,6 +189,11 @@ class FixedBookRuntime:
         storage.require_compatible_embedding(self.backend.candidate / 'index', embedding)
         self.roles = resolve_query_roles()
         self.model_binding = query_binding(self.policy, self.roles)
+        from knowledge.lightrag import engine
+        entity_file = self.backend.candidate / 'index' / engine.workspace_for(self.backend.candidate / 'index') / 'vdb_entities.json'
+        entities = json.loads(entity_file.read_text(encoding='utf8'))['data']
+        self.backend.entity_terms = tuple(sorted({e['entity_name'] for e in entities
+            if isinstance(e.get('entity_name'), str) and 2 <= len(e['entity_name']) <= 80}, key=lambda s:(-len(s), s)))
         self.backend.resident = ResidentGraph(self.backend, embedding, self.roles)
         await run_in_worker_loop(lambda _: self.backend.resident.start())
         self.ready = True

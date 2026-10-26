@@ -23,7 +23,15 @@ class TaskService:
         self.max_clarifications = max_clarifications
         self.policy = policy if policy is not None else IntentPolicy.from_env()
 
-    def conflict_reply(self, error):
+    def conflict_reply(self, error, task=None):
+        if error.code == 'task_conflict' and task:
+            try:
+                ended = self.repo.get(task['student_id'], task['session_id'], task['id'])
+                if ended['status'] == 'cancelled':
+                    return {'reply':'本次问题已取消，未保存本轮回答。','answer_status':'task_cancelled',
+                        'step_advanced':False,'task_state':'cancelled','task_id':ended['id'],'task_revision':ended['revision']}
+            except TaskConflict:
+                pass
         return {"reply": str(error), "answer_status": error.code, "step_advanced": False}
 
     @staticmethod
@@ -640,21 +648,13 @@ class TaskService:
                 result = self.repo.record_metrics(task, receipt, current_budget.get().snapshot())
             return result
         except TaskConflict as error:
-            if error.code == 'task_conflict' and 'task' in locals():
-                try:
-                    ended = self.repo.get(task['student_id'], task['session_id'], task['id'])
-                    if ended['status'] == 'cancelled':
-                        return {**self.conflict_reply(error), 'reply':'本次问题已取消，未保存本轮回答。',
-                                'task_state':'cancelled', 'task_id':ended['id'], 'task_revision':ended['revision']}
-                except TaskConflict:
-                    pass
             if error.code in ('visualization_changed', 'document_changed','session_plan_changed') and 'task' in locals():
                 try:
                     self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo,
                         status='failed', result=self.conflict_reply(error))
                 except TaskConflict:
                     pass
-            return self.conflict_reply(error)
+            return self.conflict_reply(error, locals().get('task'))
         except BudgetExceeded:
             from llm.execution_budget import current_budget
             result = {'reply': '本轮活动总时限已到，未完成内容不发布。',
@@ -671,7 +671,7 @@ class TaskService:
                         memory_repo=self.tutor.memory.repo, status='failed', result=result,
                         context=context.model_dump() | {'document_versions': document_versions})
                 except TaskConflict as error:
-                    return self.conflict_reply(error)
+                    return self.conflict_reply(error, task)
             return result
         except LLMError as error:
             from llm.execution_budget import current_budget
@@ -689,7 +689,7 @@ class TaskService:
                         memory_repo=self.tutor.memory.repo, status='failed', result=result,
                         context=context.model_dump() | {'document_versions': document_versions})
                 except TaskConflict as conflict:
-                    return self.conflict_reply(conflict)
+                    return self.conflict_reply(conflict, task)
             return result
         except VisualizationError as error:
             result = {'reply':str(error), 'answer_status':'visualization_changed' if error.status == 409 else 'visualization_unavailable', 'step_advanced':False}

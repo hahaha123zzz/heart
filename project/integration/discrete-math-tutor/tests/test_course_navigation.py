@@ -225,6 +225,7 @@ class NavigationTaskTests(unittest.TestCase):
     def test_replay_does_not_advance_twice_and_service_recreation_resumes(self):
         first = self.run_turn('学习第一章', 'a')
         repeated = self.run_turn('学习第一章', 'a')
+        self.assertTrue(repeated.pop('reader_action_replay'))
         self.assertEqual(first, repeated)
         self.assertEqual(len(self.contexts), 1)
         self.service = TaskService(SimpleNamespace(memory=self.memory), LearningTaskRepository())
@@ -279,7 +280,7 @@ class NavigationTaskTests(unittest.TestCase):
                 task_id, revision = task.id, task.revision
             self.repo.cancel('nav', 'tab', task_id, revision)
         result = self.run_turn('学习第一章', 'a', after_start=cancel)
-        self.assertEqual(result['answer_status'], 'task_conflict')
+        self.assertEqual(result['answer_status'], 'task_cancelled')
         self.assertNotIn('course_navigation', result)
         self.run_turn('下一个知识点', 'b')
         self.assertEqual(self.contexts[-1].course_navigation['status'], 'clarify')

@@ -18,6 +18,21 @@ def plan_payload(scope, budget=20):
 
 
 class ContractTests(unittest.TestCase):
+    def test_empty_model_fields_keep_missing_semantics_and_nonempty_wrong_types_fail(self):
+        from agents.session_study_planner import extract_request
+        llm=Mock()
+        for empty in ('',None):
+            llm.chat_json.return_value={'goal':'理解自变量','scope':empty,'assumptions':empty,
+                'time_budget_minutes':'','practice_preference':''}
+            value=extract_request(llm,'安排学习',profile={},path={})
+            self.assertEqual(value.scope,[])
+            self.assertIsNone(value.time_budget_minutes)
+            self.assertEqual(value.practice_preference,'optional')
+            self.assertEqual(len(value.assumptions),1)
+            self.assertNotIn('scope',value.value_sources)
+        llm.chat_json.return_value={'goal':'理解自变量','scope':['自变量'],'assumptions':'没有假设'}
+        with self.assertRaises(ValueError):extract_request(llm,'安排学习',profile={},path={})
+
     def test_budget_and_no_exam_are_enforced(self):
         from agents.q5_learning import LearningScope
         payload=plan_payload(LearningScope('s','tab'))

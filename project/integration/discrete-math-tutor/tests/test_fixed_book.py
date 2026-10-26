@@ -10,6 +10,65 @@ from knowledge import fixed_book
 
 
 class FixedBookTests(unittest.TestCase):
+    def test_tool_release_validation_uses_startup_snapshot_and_rejects_wrong_id(self):
+        from knowledge.course_release import validate
+        state=SimpleNamespace(release={'release_id':'frozen','ready':False,'gaps':['pending']})
+        with (patch.object(fixed_book,'active',return_value=state),
+              patch('knowledge.course_release.clear_cache',side_effect=AssertionError('请求不清缓存')),
+              patch('knowledge.course_release.snapshot',side_effect=AssertionError('请求不扫描教材'))):
+            value=validate({'release_id':'frozen'})
+            value['gaps'].clear()
+            self.assertEqual(state.release['gaps'],['pending'])
+            with self.assertRaisesRegex(ValueError,'版本已变化'):validate({'release_id':'other'})
+
+    def test_failed_graph_initialization_releases_partial_storage(self):
+        from unittest.mock import AsyncMock
+        graph=fixed_book.ResidentGraph(SimpleNamespace(candidate=Path('.')),SimpleNamespace(dim=2,max_tokens=32),{})
+        rag=object()
+        with (patch('knowledge.lightrag.engine.build_rag',return_value=rag),
+              patch('knowledge.lightrag.engine.initialize',new=AsyncMock(side_effect=RuntimeError('启动失败'))),
+              patch('knowledge.lightrag.engine.finalize',new=AsyncMock()) as cleanup):
+            with self.assertRaisesRegex(RuntimeError,'启动失败'):asyncio.run(graph.start())
+        cleanup.assert_awaited_once_with(rag,cancel_pending=True)
+        self.assertIsNone(graph.rag)
+
+    def test_graph_close_error_does_not_skip_worker_and_pool_cleanup(self):
+        from unittest.mock import AsyncMock,Mock
+        from memory.background_worker import memory_lifespan
+        worker=Mock()
+        async def run():
+            async with memory_lifespan(SimpleNamespace(state=SimpleNamespace(memory=SimpleNamespace(repo=Mock())))):
+                pass
+        with (patch.dict('os.environ',MEMORY_WORKER_ENABLED='1',MEMORY_REFLECTION_LLM='0'),
+              patch('memory.background_worker.MemoryWorker',return_value=worker),
+              patch.object(fixed_book,'start',new=AsyncMock()),
+              patch.object(fixed_book,'stop',new=AsyncMock(side_effect=RuntimeError('关闭失败'))),
+              patch('llm.transport.close_pool') as close):
+            with self.assertRaisesRegex(RuntimeError,'关闭失败'):asyncio.run(run())
+        worker.stop.assert_called_once();close.assert_called_once()
+
+    def test_keywords_are_snapshot_local_specific_and_cached(self):
+        graph=fixed_book.ResidentGraph(SimpleNamespace(entity_terms=('科学方法','自变量','科学')),None,{})
+        self.assertEqual(graph.keywords('科学方法和自变量有什么联系'),('科学方法','自变量'))
+        graph.keywords('科学方法和自变量有什么联系')
+        self.assertEqual(graph.keywords.cache_info().hits,1)
+        other=fixed_book.ResidentGraph(SimpleNamespace(entity_terms=('因变量',)),None,{})
+        self.assertEqual(other.keywords('科学方法和自变量有什么联系'),())
+        self.assertEqual(other.keywords('未知问题'),())
+        asyncio.run(graph.close());asyncio.run(other.close())
+
+    def test_sdk_accepts_rule_keywords_without_model_extraction(self):
+        from knowledge.lightrag import engine
+        from lightrag.operate import get_keywords_from_query
+        class Rag:
+            async def aquery_data(self,query,param):
+                self.keywords=await get_keywords_from_query(query,param,{},None)
+                return {'status':'failure','metadata':{'failure_reason':'no_results'}}
+        rag=Rag()
+        with patch('lightrag.operate.extract_keywords_only',side_effect=AssertionError('不应调用提取模型')):
+            asyncio.run(engine.query_with_sources(rag,'关系问题',keywords=('科学方法','自变量')))
+        self.assertEqual(rag.keywords,(['科学方法','自变量'],['科学方法','自变量']))
+
     def test_startup_accepts_absent_optional_modality(self):
         from unittest.mock import AsyncMock
         with TemporaryDirectory() as folder:

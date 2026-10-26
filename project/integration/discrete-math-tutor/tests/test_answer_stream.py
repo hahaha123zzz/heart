@@ -49,7 +49,7 @@ class AnswerStreamTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '教材版本'):
             publisher.checking()
 
-    def test_q3_sdk_tool_round_retracted_then_checked_final(self):
+    def test_q3_sdk_tool_round_hidden_then_final_without_model_review(self):
         from agents.agent_loop import LocalAgentLoop, LoopRequest
         from agents.tool_protocol import ToolRegistry
         from tests.test_q3_agent_loop import EchoTool
@@ -68,8 +68,8 @@ class AnswerStreamTests(unittest.TestCase):
         self.assertTrue(first.closed and second.closed)
         self.assertFalse(any(e=='answer_replace' and d['text']=='' for e,d in events))
         self.assertFalse(any(e=='answer_delta' and '查询中' in d['text'] for e,d in events))
-        self.assertEqual(events[-1][1]['state'],'checking')
         states=[d['state'] for e,d in events if e=='answer_state']
+        self.assertNotIn('checking',states)
         self.assertIn('retrieving',states)
         self.assertNotIn('rejected',states)
         publisher.finish({'answer_status':'quality_rejected'})

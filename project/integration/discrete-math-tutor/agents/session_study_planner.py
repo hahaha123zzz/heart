@@ -11,7 +11,7 @@ def extract_request(llm, message, *, profile, path, previous=None):
         {'role':'system','content':'''[AGENT:study_request]
 从学生本次安排请求提取JSON，只允许goal,scope,time_budget_minutes,prior_knowledge,target_level,teaching_preference,practice_preference,assumptions。
 goal为具体目标，scope为主题/章名字符串数组；没有主题且无既有路径时scope=[]，不得默认第一章。分钟数必须正整数，未给用null；一小时=60。prior_knowledge只记学生明确说的基础，不从语气猜。
-practice_preference只允许none(只讲不要考试)、optional(未明确)、application(想练应用)。不明示的字段用空字符串；只缺时间可声明估算，不要求补问。teaching_preference只提取本次明示，不把confirmed_profile的文字混入明示字段；画像由服务端单独合并。
+practice_preference只允许none(只讲不要考试)、optional(未明确)、application(想练应用)。scope和assumptions必须为字符串数组，没有内容用[]；未明示的文本字段用空字符串，时间用null。只缺时间可声明估算，不要求补问。teaching_preference只提取本次明示，不把confirmed_profile的文字混入明示字段；画像由服务端单独合并。
 上一安排用于解释调整，最新明示优先：改成20分钟只学自变量要同步修改范围和预算；其余未变约束保留。这里只提取一次性需求，不修改长期画像。'''},
         {'role':'user','content':json.dumps({'message':message,'previous_request':previous,
             'confirmed_profile':profile,'confirmed_path_goal':path.get('goal','')},ensure_ascii=False)}],
@@ -19,6 +19,15 @@ practice_preference只允许none(只讲不要考试)、optional(未明确)、app
     if not isinstance(raw,dict):
         raise ValueError('study_request_not_object')
     values=dict(raw)
+    for key in ('scope','assumptions'):
+        if values.get(key) in ('',None):
+            values[key]=[]
+        elif not isinstance(values[key],list):
+            raise ValueError('study_request_'+key+'_not_array')
+    if values.get('time_budget_minutes')=='':
+        values['time_budget_minutes']=None
+    if values.get('practice_preference') in ('',None):
+        values['practice_preference']='optional'
     values['value_sources']={k:'explicit' for k,v in values.items() if v not in ('',None,[],{}) and k!='assumptions'}
     for key,source in (previous or {}).get('value_sources',{}).items():
         if values.get(key)==previous.get(key):values['value_sources'][key]=source

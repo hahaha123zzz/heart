@@ -186,6 +186,7 @@ class TaskLoopPersistenceTests(unittest.TestCase):
         result = self.service.run(
             ChatRequest(student_id='s',request_id='cancel-stream',message='解释条件'),execute,answer_event=emit)
         self.assertNotEqual(result.get('answer_status'), 'answered')
+        self.assertEqual(result['answer_status'], 'task_cancelled')
         self.assertTrue(stream.closed)
         self.assertEqual([d['text'] for e,d in events if e=='answer_delta'],['草稿'])
         self.assertEqual(self.memory.repo.get_conversation('s'),[])

@@ -499,12 +499,15 @@ def _query_sources(data: dict[str, Any], metadata: dict[str, Any]) -> list[dict[
     return sources
 
 
-async def query_with_sources(rag: Any, question: str, mode: str | None = None):
+async def query_with_sources(rag: Any, question: str, mode: str | None = None, *, keywords=()):
     from lightrag import QueryParam
     if mode is not None and mode not in ("naive","local","global","hybrid","mix"):
         raise ValueError("不支持的 LightRAG 检索模式")
     param=QueryParam(mode=mode or DEFAULT_MODE,stream=False,include_references=True,
                      **query_kwargs_from_settings())
+    if keywords:
+        param.hl_keywords = list(keywords)
+        param.ll_keywords = list(keywords)
     result=await rag.aquery_data(question,param=param)
     if not isinstance(result,dict): raise LightRagContractError("LightRAG query response must be an object")
     if result.get("status") != "success":

@@ -6,6 +6,7 @@
 
 # 虚拟环境、依赖和缓存
 .venv/
+.venv-runtime/
 venv/
 node_modules/
 __pycache__/
