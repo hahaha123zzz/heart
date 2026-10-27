@@ -1,0 +1,113 @@
+{
+  "schema": "native-full-source-notice/v1",
+  "scope": "TA0固定源码与静态身份，不代表原生正式执行通过",
+  "upstream_repository": "https://github.com/HKUDS/DeepTutor",
+  "upstream_commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "license": "Apache-2.0",
+  "host_base_main": "3b212250f774d2f461fb1676fd4bf2acd23bc475",
+  "candidate_code_commit": "22530b6593bb9c5f03da8f8304b77fed991570d9",
+  "native_import_verified_with": ".venv-deeptutor",
+  "native_import_path_relative": "project/vendor/DeepTutor/deeptutor/__init__.py",
+  "native_runtime_activated": false,
+  "vendor_files": [
+    {
+      "path": "deeptutor/app/service.py",
+      "sha256": "94f879b27a4e9951977aa364c8a65104fa80a8163035d645540cb4e50ae226b1",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/app/facade.py",
+      "sha256": "c1b0551635fe9f85228d4242418d4916815ac25a4a004b919551358f60071d70",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/core/context.py",
+      "sha256": "131c41f1f7eacd98acf02d2b95d7d28ab21aa720d14a8067aa06f3aafd90bcfd",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/agents/loop/pipeline.py",
+      "sha256": "8ec2ec26777c3bf5166dde992e4e093528d0961071a1d502f475663677752041",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/runtime/agentic/loop.py",
+      "sha256": "ac481e6c782b4f92e39230a943a68fd963c37b8173a2eb711e04f85cd96d59ca",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/runtime/agentic/tool_dispatch.py",
+      "sha256": "d7e8ab2a8e8020ef621c41bda33c3b67eea11304fc4b24e3519034bb5b2437d5",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/services/rag/service.py",
+      "sha256": "4505bc111306414456019ca6c7c0464503e8a07dcffd110ef37247ac7c1b9f1f",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/services/rag/factory.py",
+      "sha256": "bf53b02ca33908f7614fbd5637e4b2eaecfdaeb29d90a90d955112fea1cfde3b",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/services/rag/pipelines/lightrag/pipeline.py",
+      "sha256": "d798339208cdc92f3c965e56583e2b89c3e3a313c83cff22a140e86caf16211c",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/learning/models.py",
+      "sha256": "66e8188c601cee457a0bc17d66b3a20e0181a2b2a0c51355b2ef9225ca5e3f4a",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/learning/policy.py",
+      "sha256": "07f4f8cf5911c1c383a674844c84adfd7355a2b28cfd1620742272514138e91c",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/learning/service.py",
+      "sha256": "db80368e5fdbae06228193a09d65edf25375dd6f79fc2e75d92af6d18ea6e35b",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/learning/storage.py",
+      "sha256": "1f07c18ac1f59b621b5c565984f7f6876e0e7c42eb2efc538e02a577ef04a94b",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/capabilities/mastery/tools.py",
+      "sha256": "b6be3c50425472056c4744f7d80917a6a2e3ccd8226f752e1d9e4092608c3872",
+      "matches_snapshot": true
+    },
+    {
+      "path": "deeptutor/capabilities/mastery/binding.py",
+      "sha256": "c1dd420b33e386b80026d694385da4911eafef38d979e9170672867ee572b4ad",
+      "matches_snapshot": true
+    }
+  ],
+  "host_pure_learning_files": [
+    {
+      "path": "agents/deeptutor_learning/models.py",
+      "sha256": "7abcb5a69c8a2fc310a6aedacc4b5f480701be0737fde91934ebd7ded0a7a385"
+    },
+    {
+      "path": "agents/deeptutor_learning/pending.py",
+      "sha256": "be77c8004896b83d59d3def4334fa9a78d57eebaa4118976763928ac4ffdee2e"
+    },
+    {
+      "path": "agents/deeptutor_learning/policy.py",
+      "sha256": "dcc84b1bb528c005c288c89776d7a2eefa344366a701b8a5783dbda52a0f70b1"
+    },
+    {
+      "path": "agents/deeptutor_learning/scheduler.py",
+      "sha256": "aa9330b9b823fc3530e73dd4fdaad339305b550c736fe7c87a4b99bd12d963d5"
+    },
+    {
+      "path": "agents/deeptutor_learning/grading.py",
+      "sha256": "4227e8268b4ea0051cc7c94942b6313ed061c616ed76be26b4460e8df5f187ee"
+    }
+  ],
+  "local_patch_manifest": "project/vendor/DeepTutor/LOCAL_PATCHES/llm-config-adapter.patch",
+  "host_pure_notice": "project/integration/discrete-math-tutor/agents/deeptutor_learning/SOURCE_NOTICE.json"
+}

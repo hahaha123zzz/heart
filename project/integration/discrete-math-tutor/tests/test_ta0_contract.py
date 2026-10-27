@@ -38,7 +38,10 @@ class TA0ContractTests(unittest.TestCase):
 
     def test_model_attempt_counter_covers_installed_sync_and_async_clients(self):
         import httpx
-        import httpx2
+        try:
+            import httpx2
+        except ImportError:
+            self.skipTest('当前环境没有可选的httpx2客户端')
         spec = importlib.util.spec_from_file_location('ta0_baseline_counter', ROOT / 'scripts/check_ta0_baseline.py')
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

@@ -1,0 +1,262 @@
+{
+  "schema": "ta0-public-baseline/v1",
+  "code_commit": "22530b6593bb9c5f03da8f8304b77fed991570d9",
+  "original_remote_main": "3b212250f774d2f461fb1676fd4bf2acd23bc475",
+  "observed_at": "2026-10-27T13:52:15.064839+00:00",
+  "sample_run": "20261027T135214Z-571dc3",
+  "isolated_test_only": true,
+  "source_paths_clean_against_code_commit": true,
+  "native_import_in_host_environment": false,
+  "ports_listening_at_observation": {
+    "8000": false,
+    "18001": false
+  },
+  "native_enabled": false,
+  "flags": {
+    "LOCAL_AGENT_LOOP_ENABLED": "1",
+    "Q5_LEARNING_ENABLED": "1",
+    "ADAPTIVE_TUTORING_ENABLED": "1",
+    "SELECTED_TEXT_AGENT_LOOP_ENABLED": "1",
+    "DEEPTUTOR_NATIVE_ENABLED": "0",
+    "LLM_MOCK": "0",
+    "Q3_RETRIEVAL_MODE": "lightrag",
+    "FIXED_BOOK_RETRIEVAL_ENABLED": "1",
+    "DEEPTUTOR_LLM_ENABLED": "0",
+    "DEEPTUTOR_AGENTIC_ENABLED": "0"
+  },
+  "textbook_release": {
+    "release_id": "e051f817145b00ab08cf67b439df62d7660c38a1a381105ecaf1cbfe08280481",
+    "status": "staging",
+    "ready": false
+  },
+  "rag_runtime": {
+    "configured": {
+      "reranker": "cuda",
+      "embedding": "cuda"
+    },
+    "sessions": {
+      "embedding": {
+        "device": "cuda",
+        "providers": [
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ]
+      },
+      "reranker": {
+        "device": "cuda",
+        "providers": [
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ]
+      }
+    }
+  },
+  "model_request_counter_clients": [
+    "httpx",
+    "httpx2"
+  ],
+  "case_results": [
+    {
+      "id": "chat",
+      "status": "answered",
+      "http_status": null,
+      "model_http_attempts": 2,
+      "embedding_http_attempts": 0,
+      "first_draft_ms": 2688.0,
+      "first_authoritative_ms": 3891.0,
+      "complete_ms": 3891.0,
+      "sources": 3,
+      "retrieval_backends": [
+        "local_llamaindex"
+      ],
+      "before_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 0,
+        "conversations": 0,
+        "exercise_submissions": 0
+      },
+      "after_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 1,
+        "conversations": 2,
+        "exercise_submissions": 0,
+        "q5_explained": 0,
+        "q5_self_reported_understood": 0,
+        "formative_pending": false,
+        "formal_mastery_level_entries": 0
+      },
+      "formal_mastery": false,
+      "pdf_reference_count": 3
+    },
+    {
+      "id": "learning",
+      "status": "awaiting_clarification",
+      "http_status": null,
+      "model_http_attempts": 0,
+      "embedding_http_attempts": 0,
+      "first_draft_ms": null,
+      "first_authoritative_ms": null,
+      "complete_ms": 31.0,
+      "sources": 0,
+      "retrieval_backends": [],
+      "before_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 0,
+        "conversations": 0,
+        "exercise_submissions": 0
+      },
+      "after_counts": {
+        "paths": 1,
+        "bindings": 1,
+        "tasks": 1,
+        "conversations": 0,
+        "exercise_submissions": 0,
+        "q5_explained": 0,
+        "q5_self_reported_understood": 0,
+        "formative_pending": false,
+        "formal_mastery_level_entries": 0
+      },
+      "formal_mastery": null,
+      "pdf_reference_count": 0
+    },
+    {
+      "id": "selection",
+      "status": "answered",
+      "http_status": null,
+      "model_http_attempts": 1,
+      "embedding_http_attempts": 0,
+      "first_draft_ms": 828.0,
+      "first_authoritative_ms": 2687.0,
+      "complete_ms": 2687.0,
+      "sources": 4,
+      "retrieval_backends": [],
+      "before_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 0,
+        "conversations": 0,
+        "exercise_submissions": 0
+      },
+      "after_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 1,
+        "conversations": 2,
+        "exercise_submissions": 0,
+        "q5_explained": 0,
+        "q5_self_reported_understood": 0,
+        "formative_pending": false,
+        "formal_mastery_level_entries": 0
+      },
+      "formal_mastery": false,
+      "pdf_reference_count": 1
+    },
+    {
+      "id": "practice_unavailable",
+      "status": "error",
+      "http_status": 422,
+      "model_http_attempts": 0,
+      "embedding_http_attempts": 0,
+      "first_draft_ms": null,
+      "first_authoritative_ms": null,
+      "complete_ms": 0.0,
+      "sources": 0,
+      "retrieval_backends": [],
+      "before_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 0,
+        "conversations": 0,
+        "exercise_submissions": 0
+      },
+      "after_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 0,
+        "conversations": 0,
+        "exercise_submissions": 0,
+        "q5_explained": 0,
+        "q5_self_reported_understood": 0,
+        "formative_pending": false,
+        "formal_mastery_level_entries": 0
+      },
+      "formal_mastery": null,
+      "pdf_reference_count": 0
+    },
+    {
+      "id": "ask",
+      "status": "awaiting_clarification",
+      "http_status": null,
+      "model_http_attempts": 1,
+      "embedding_http_attempts": 0,
+      "first_draft_ms": null,
+      "first_authoritative_ms": null,
+      "complete_ms": 2110.0,
+      "sources": 0,
+      "retrieval_backends": [],
+      "before_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 0,
+        "conversations": 0,
+        "exercise_submissions": 0
+      },
+      "after_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 1,
+        "conversations": 0,
+        "exercise_submissions": 0,
+        "q5_explained": 0,
+        "q5_self_reported_understood": 0,
+        "formative_pending": null,
+        "formal_mastery_level_entries": null
+      },
+      "formal_mastery": null,
+      "pdf_reference_count": 0,
+      "learning_state_note": "同一任务之后已恢复；未从最终数据库反推暂停瞬间的教学上下文"
+    },
+    {
+      "id": "ask_resume",
+      "status": "answered",
+      "http_status": null,
+      "model_http_attempts": 1,
+      "embedding_http_attempts": 0,
+      "first_draft_ms": 1453.0,
+      "first_authoritative_ms": 4093.0,
+      "complete_ms": 4093.0,
+      "sources": 3,
+      "retrieval_backends": [
+        "local_llamaindex"
+      ],
+      "before_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 1,
+        "conversations": 0,
+        "exercise_submissions": 0
+      },
+      "after_counts": {
+        "paths": 0,
+        "bindings": 0,
+        "tasks": 1,
+        "conversations": 2,
+        "exercise_submissions": 0,
+        "q5_explained": 0,
+        "q5_self_reported_understood": 0,
+        "formative_pending": false,
+        "formal_mastery_level_entries": 0
+      },
+      "formal_mastery": false,
+      "pdf_reference_count": 1
+    }
+  ],
+  "ask_resume_same_task": true,
+  "ask_revision_before": 2,
+  "ask_revision_after": 4,
+  "learning_plan_confirmed": false,
+  "overall_scope": "单次隔离宿主实测；不是页面、正式启用或多次性能对照"
+}
