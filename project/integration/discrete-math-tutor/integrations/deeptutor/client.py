@@ -81,6 +81,11 @@ class DeepTutorBackend:
             raise BackendUnavailable("DeepTutor 回合响应无效")
         return {key: result[key] for key in ("turn_id", "last_seq", "task_id", "task_revision")}
 
+    def authorize_native_task(self, expected: dict) -> None:
+        result = self._post('/internal/heart/native/authorize', expected)
+        if result != {'authorized': True, **expected}:
+            raise BackendUnavailable('宿主任务核验响应无效')
+
     def turn_events(self, cursor: dict) -> dict:
         result = self._post("/internal/heart/turn/events", cursor)
         if not isinstance(result.get("events"), list) or len(result["events"]) > 2:

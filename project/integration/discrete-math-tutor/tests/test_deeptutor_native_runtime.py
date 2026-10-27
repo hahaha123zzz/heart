@@ -115,9 +115,13 @@ class NativeRuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.network_patch = patch('deeptutor.services.llm.provider_factory.build_isolated_provider', side_effect=AssertionError('本测试禁止联网模型'))
         self.network_patch.start()
         self.sessions = SessionBridge(self.home)
+        # 本套只测原生应用协议；宿主真实数据库授权另由专项覆盖。
+        self.authority_patch = patch.object(NativeTurnBridge, 'authorize_host', new_callable=AsyncMock)
+        self.authority_patch.start()
         self.bridge = NativeTurnBridge(self.sessions)
 
     async def asyncTearDown(self):
+        self.authority_patch.stop()
         await self.container.runtime_registry.close(drain_timeout_seconds=1)
         await self.container.close()
         for guard in (self.network_patch, self.title_patch, self.app_patch, self.path_patch, self.env): guard.stop()

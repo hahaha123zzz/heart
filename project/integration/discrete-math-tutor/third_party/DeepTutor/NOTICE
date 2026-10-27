@@ -30,3 +30,12 @@ session, LearningStore JSON, path service, question grading, mastery gate,
 spaced review, teacher review or application container. Source hashes and the
 implemented boundary are recorded in
 project/docs/research/2026-10-19-deeptutor-conversation-flow/Q5_IMPLEMENTATION_LOG.md.
+
+The 2026-10-27 native integration additionally adapts the lease and session-binding
+SQL from deeptutor/learning/storage.py and the preference update semantics from
+deeptutor/services/session/sqlite_store.py and capabilities/mastery/binding.py
+at commit 6cf793bd868ba5ecbe64722936d4be8fab5a01df (Apache-2.0).
+integrations/deeptutor/learning_binding_adapter.py uses the original tables but
+coordinates a host-managed handoff in one attached SQLite transaction. It adds
+host task authorization and keeps unmanaged native bindings on the original code.
+The fixed vendor source is unmodified; this does not enable production scoring.

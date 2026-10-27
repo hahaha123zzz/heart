@@ -15,6 +15,10 @@
    if(card.kind==='learning_progress'){
     if(typeof card.explained!=='boolean'||typeof card.pending!=='boolean'||!Number.isInteger(card.formative_attempts)||card.formative_attempts<0)return '';
     body='<p>'+(card.explained?'已讲解':'正在学习')+(card.pending?' · 有一道待答检查':'')+'</p><p>'+(card.formative_attempts?'已记录 '+card.formative_attempts+' 次辅助反馈，待独立验证。':'暂无作答证据。')+'</p>';
+    const help=card.assistance,notes=[];
+    if(help&&Number.isInteger(help.max_hint_level)&&help.max_hint_level>0&&help.max_hint_level<=3)notes.push('提示已用至第 '+help.max_hint_level+' 级');
+    if(help?.full_explanation_seen===true)notes.push('已查看完整解释');
+    if(notes.length)body+='<p>'+notes.join(' · ')+'。后续作答仍为辅助记录。</p>';
    }else if(card.kind==='step_reveal'){
     if(!Array.isArray(card.steps)||card.steps.length<2||card.steps.length>6||!card.steps.every(step=>text(step.title)&&text(step.body)))return '';
     body=card.steps.map((step,i)=>'<details'+open(i+1)+'><summary>第 '+(i+1)+' 步 · '+esc(step.title)+'</summary><p>'+prose(step.body)+refs(step.source_indices)+'</p></details>').join('');

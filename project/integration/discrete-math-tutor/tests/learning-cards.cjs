@@ -16,4 +16,9 @@ assert.ok(comparison.includes('<table>')&&comparison.includes('scope="col"')&&co
 const progress=render([{...base,kind:'learning_progress',explained:true,pending:true,formative_attempts:2,mastered:true}]);
 assert.ok(progress.includes('待独立验证')&&!progress.includes('已掌握')&&!progress.includes('%'));
 assert.equal(render([{...base,kind:'learning_progress',explained:true,pending:false,formative_attempts:-1}]),'');
+const helped={...base,kind:'learning_progress',explained:true,pending:true,formative_attempts:0,assistance:{max_hint_level:3,full_explanation_seen:true}};
+assert.ok(render([helped]).includes('提示已用至第 3 级'));
+assert.ok(render([helped]).includes('已查看完整解释'));
+assert.ok(!render([{...helped,assistance:{max_hint_level:'<script>',full_explanation_seen:'true'}}]).includes('<script>'));
+assert.ok(!render([{...helped,assistance:{max_hint_level:99}}]).includes('第 99'));
 console.log('学习卡片：类型白名单、转义、来源、展开恢复、对比及证据语义通过');

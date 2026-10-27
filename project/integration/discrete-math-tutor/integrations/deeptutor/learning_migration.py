@@ -144,3 +144,101 @@ def import_candidate(snapshot, store):
     return {'status': outcome, 'native_path_id': progress.book_id, 'snapshot_digest': digest,
             'modules': len(progress.modules), 'objectives': sum(len(m.knowledge_points) for m in progress.modules),
             'ready_for_cutover': False, 'activated': False}
+
+
+def _candidate_session_state(snapshot, row, native_path_id):
+    from deeptutor.capabilities.mastery.mode import MODES
+    from models.session_study_plan import SessionStudyPlan
+
+    path = snapshot['path']
+    if row.get('mode') not in MODES or row.get('teaching_strategy') not in ('probe_first', 'teach_first'):
+        raise ValueError('旧会话模式或教学顺序无效，禁止静默改成默认值')
+    plan = _json(row.get('session_plan'))
+    if plan is not None:
+        plan = SessionStudyPlan.model_validate(plan)
+        if ((plan.student_id, plan.course_id, plan.session_id) !=
+                (path['student_id'], path['course_id'], row['session_id']) or
+                plan.path_id not in (None, path['path_id'])):
+            raise ValueError('本次安排不属于当前学生、课程、会话或路径')
+        known = {item['objective_id'] for item in snapshot['objectives']}
+        if any(item.objective_id and item.objective_id not in known for item in plan.items):
+            raise ValueError('本次安排含当前路径之外的目标')
+        # 完整旧安排已在LearningStore迁移收据中，公开会话偏好只保留恢复位置。
+        plan = plan.model_dump(include={'plan_id', 'revision', 'path_revision', 'status', 'current_item_id'})
+    return {'schema': 'host-q5-session-migration/v1', 'snapshot_digest': fingerprint(snapshot),
+            'native_path_id': native_path_id, 'legacy_path_id': path['path_id'],
+            'mode': row['mode'], 'teaching_strategy': row['teaching_strategy'],
+            'legacy_session_plan': plan, 'session_plan_requires_revalidation': plan is not None,
+            'self_reported_understood': [{'objective_id': item['objective_id'],
+                'understood_at': item.get('understood_at')} for item in snapshot['progress'] if item.get('understood')],
+            'assessed_mastery': False, 'activated': False}
+
+
+async def _restore_candidate_session(session_id, state):
+    from deeptutor.services.session import get_session_store
+
+    store = get_session_store()
+    session = await store.get_session(session_id)
+    if session is None:
+        raise ValueError('原生会话不存在，不能恢复模式')
+    preferences = session.get('preferences') or {}
+    receipt = preferences.get('heart_q5_session_migration')
+    if receipt is not None:
+        if receipt != state:
+            raise ValueError('原生会话迁移收据与快照冲突')
+        return 'already_restored'
+    if await store.list_active_turns(session_id):
+        raise ValueError('原生会话仍有活动回合，停止迁移会话状态')
+    for key, expected in (('mastery_path_id', state['native_path_id']), ('mastery_session_mode', state['mode'])):
+        if preferences.get(key) not in (None, '', expected):
+            raise ValueError('原生会话已有不同路径或模式，禁止覆盖')
+    # 同用原生偏好更新接口；不使用吞掉错误的best-effort模式助手。
+    if not await store.update_session_preferences(session_id, {
+            'mastery_path_id': state['native_path_id'], 'mastery_session_mode': state['mode'],
+            'heart_q5_session_migration': state}):
+        raise ValueError('原生会话状态恢复失败')
+    saved = await store.get_session(session_id)
+    if not saved or (saved.get('preferences') or {}).get('heart_q5_session_migration') != state:
+        raise ValueError('原生会话状态恢复复核失败')
+    return 'restored'
+
+
+async def bind_candidate_sessions(snapshot, bridge):
+    """在隔离原生home内复用真实用户/工作区映射；不激活候选或覆盖其他路径。"""
+    from deeptutor.learning.storage import LearningStore
+    from deeptutor.learning.service import LearningService
+    from deeptutor.services.workspace import get_content_workspace_service
+    from deeptutor.services.workspace.context import workspace_context
+    from .session_bridge import SessionBindingRequest
+
+    progress, _ = build_candidate(snapshot)
+    path = snapshot['path']
+    if not snapshot['bindings']:
+        raise ValueError('没有可核验的活动会话绑定，不新造宿主会话')
+    states = [_candidate_session_state(snapshot, row, progress.book_id) for row in snapshot['bindings']]
+    requests = [SessionBindingRequest(student_id=path['student_id'], course_id=path['course_id'],
+        course_title=path['name'][:60] or '学习迁移候选', session_id=row['session_id'])
+        for row in snapshot['bindings']]
+    bindings = []
+    restored = []
+    for request, state in zip(requests, states):
+        mapped = await bridge.bind_scope(request)
+        with bridge.user_scope(mapped['user_id']), workspace_context(mapped['workspace_id']):
+            store = LearningStore()
+            workspace = get_content_workspace_service().binding_by_id(mapped['workspace_id'])
+            if not store.db_path.resolve().is_relative_to(workspace.root.resolve()):
+                raise ValueError('学习库不属于当前原生工作区，停止绑定')
+            current = store.path_id_for_session(mapped['native_session_id'])
+            if current and current != progress.book_id:
+                raise ValueError('原生会话已绑定其他路径，迁移不能静默切换')
+            migration = import_candidate(snapshot, store)
+            store.bind_session(progress.book_id, mapped['native_session_id'], owns_path=False)
+            if store.path_id_for_session(mapped['native_session_id']) != progress.book_id:
+                raise ValueError('原生会话路径绑定复核失败')
+            restored.append(await _restore_candidate_session(mapped['native_session_id'], state))
+            migration['native_service_loaded'] = LearningService(store).get_or_create(progress.book_id).book_id == progress.book_id
+            migration['mastery_evidence_count'] = store.count_learning_evidence(progress.book_id)
+            migration['workspace_store_verified'] = True
+        bindings.append(mapped)
+    migration['session_state_statuses'] = restored
+    return {'migration': migration, 'bindings': bindings, 'activated': False, 'ready_for_cutover': False}

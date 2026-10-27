@@ -188,7 +188,7 @@ class Q5Runtime:
                 "release_id": str(release.get("release_id") or ""),
                 "source_version": str(first.get("source_version") or ""),
                 "source_title": str(first.get("source_title") or ""),
-                "target_schema": "q2.teaching_targets.v1",
+                "target_schema": str(first.get("target_schema") or ""),
                 "source_block_ids": [str(first["id"])],
                 "source_valid": bool(first.get("source_valid", True)),
             }

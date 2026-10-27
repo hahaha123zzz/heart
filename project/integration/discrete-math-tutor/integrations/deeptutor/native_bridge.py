@@ -1,5 +1,6 @@
 """接原生应用层与持久化回合；不调用旧教学链，不将原生草稿当正式答案。"""
-from contextlib import contextmanager
+from contextlib import aclosing, contextmanager
+import asyncio
 import hashlib
 import json
 import os
@@ -10,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette.responses import StreamingResponse
 
 from .generation_bridge import GenerationRequest, model_config
-from .native_contract import NativeTurnKey, NativeTurnStart, NativeTurnCursor, NativeTurnCommand, NativeTurnReply
+from .native_contract import NativeTurnKey, NativeTurnStart, NativeTurnCursor, NativeTurnCommand, NativeTurnReply, NativeTaskCheck
 from .session_bridge import require_bridge_token
 
 
@@ -36,6 +37,9 @@ class NativeTurnBridge:
                     memory_epoch INTEGER NOT NULL, material_versions TEXT NOT NULL,
                     PRIMARY KEY(student_id, course_id, session_id, request_id));
             ''')
+            if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '0') == '1':
+                from .learning_tool_adapter import install_learning_tool_factory
+                install_learning_tool_factory(row[0] for row in db.execute('SELECT DISTINCT user_id FROM native_courses'))
 
     @staticmethod
     def _key(request):
@@ -69,17 +73,16 @@ class NativeTurnBridge:
         from deeptutor.app import DeepTutorApp
         from deeptutor.services.workspace.context import workspace_context
         from deeptutor.services.workspace.models import WorkspaceError
+        from .learning_tool_adapter import learning_tool_scope
 
         try:
-            with self.user_scope(entry['user_id']), workspace_context(entry['workspace_id']):
+            with self.user_scope(entry['user_id']), workspace_context(entry['workspace_id']), learning_tool_scope(entry):
                 yield DeepTutorApp(workspace_id=entry['workspace_id'])
         except WorkspaceError as exc:
             raise HTTPException(409, '原生工作区已不可用') from exc
 
-    def account(self, request, config):
+    def account_identity(self, request):
         from deeptutor.multi_user.identity import get_user, save_user, set_role
-        from deeptutor.multi_user.grants import empty_grant, load_grant, save_grant
-        from deeptutor.multi_user.model_access import admin_catalog_service
         from deeptutor.multi_user.paths import ensure_user_workspace
         from deeptutor.services.auth import hash_password
 
@@ -92,6 +95,14 @@ class NativeTurnBridge:
         if record.get('disabled'): raise HTTPException(409, '原生账户已停用')
         user_id = record['id']
         ensure_user_workspace(user_id)
+        return {'user_id': user_id}
+
+    def account(self, request, config):
+        from deeptutor.multi_user.grants import empty_grant, load_grant, save_grant
+        from deeptutor.multi_user.model_access import admin_catalog_service
+
+        binding = self.account_identity(request)
+        user_id = binding['user_id']
         profile_id = 'heart-host-' + digest([config.model, config.base_url])[:24]
         profile = {'id': profile_id, 'name': 'Heart 宿主模型', 'binding': config.binding,
             'base_url': config.base_url, 'api_key': config.api_key, 'wire_api': config.wire_api,
@@ -106,6 +117,15 @@ class NativeTurnBridge:
         grant['models']['llm'] = [{'profile_id': profile_id, 'model_ids': ['host-model']}]
         if load_grant(user_id) != grant: save_grant(user_id, grant)
         return {'user_id': user_id}, {'profile_id': profile_id, 'model_id': 'host-model'}
+
+    async def bind_scope(self, request):
+        """仅初始化服务端账户/工作区/会话，不读取模型配置或启动回合。"""
+        async with self.sessions.lock:
+            with self.sessions._connect() as db:
+                db.execute('BEGIN IMMEDIATE')
+                # 同一候选home的初始化连同账户登记一起串行，不只保护课程映射。
+                binding = self.account_identity(request)
+                return await self._bind(request, binding, db)
 
     async def _bind(self, request, binding, db):
         from deeptutor.services.courses import CourseService
@@ -147,6 +167,7 @@ class NativeTurnBridge:
         from deeptutor.services.llm.config import reset_scoped_llm_config, set_scoped_llm_config
         from deeptutor.services.session.protocol import ActiveTurnConflict
 
+        await self.authorize_host(request)
         request_digest = digest(request.model_dump())
         try:
             previous = self.entry(request)
@@ -201,8 +222,35 @@ class NativeTurnBridge:
                             (turn['id'], *self._key(request)))
         return await self.status(request)
 
+    async def authorize_host(self, request, entry=None):
+        from .client import BackendUnavailable, DeepTutorBackend
+
+        expected = NativeTaskCheck(**{
+            **request.model_dump(include=set(NativeTurnKey.model_fields)),
+            'memory_epoch': entry['memory_epoch'] if entry else request.memory_epoch,
+            'material_versions': json.loads(entry['material_versions']) if entry else request.material_versions,
+        }).model_dump()
+        try:
+            backend = DeepTutorBackend(base_url=os.getenv('DEEPTUTOR_HOST_URL', 'http://127.0.0.1:8000'))
+            await asyncio.to_thread(backend.authorize_native_task, expected)
+        except (BackendUnavailable, ValueError) as exc:
+            raise HTTPException(503, '宿主任务核验未通过，原生回合不可继续') from exc
+
+    @contextmanager
+    def learning_service(self, request):
+        """宿主受控学习命令入口；mastery服务工厂使用同一授权存储。"""
+        from deeptutor.learning.service import LearningService
+        from .learning_write_guard import HostAuthorizedLearningStore
+
+        entry = self.entry(request)
+        check = NativeTaskCheck(**{**request.model_dump(include=set(NativeTurnKey.model_fields)),
+            'memory_epoch': entry['memory_epoch'], 'material_versions': json.loads(entry['material_versions'])})
+        with self.scope(entry):
+            yield LearningService(HostAuthorizedLearningStore(check))
+
     async def status(self, request: NativeTurnKey):
         entry = self.entry(request)
+        await self.authorize_host(request, entry)
         if not entry['turn_id']:
             return {'engine': 'deeptutor_app', 'status': 'admitting', 'publication_state': 'pending_verification'}
         with self.scope(entry) as app:
@@ -216,13 +264,20 @@ class NativeTurnBridge:
 
     async def events(self, request):
         entry = self.entry(request)
+        await self.authorize_host(request, entry)
         if not entry['turn_id']: raise HTTPException(409, '原生回合尚未登记完成')
         with self.scope(entry) as app:
-            async for event in app.stream_turn(entry['turn_id'], after_seq=request.after_seq):
-                yield {'engine': 'deeptutor_app', 'publication_state': 'pending_verification', 'event': event}
+            async with aclosing(app.stream_turn(entry['turn_id'], after_seq=request.after_seq)) as stream:
+                async for event in stream:
+                    if event.get('type') == 'done':
+                        await self.authorize_host(request, entry)
+                    yield {'engine': 'deeptutor_app', 'publication_state': 'pending_verification', 'event': event}
+        await self.authorize_host(request, entry)
 
     async def command(self, request):
         entry = self.entry(request)
+        if isinstance(request, NativeTurnReply):
+            await self.authorize_host(request, entry)
         if not entry['turn_id']: raise HTTPException(409, '原生回合尚未登记完成')
         with self.scope(entry) as app:
             await app.container.start()
@@ -249,8 +304,9 @@ def install_native_bridge(app, sessions):
         if not (await bridge.status(payload)).get('turn_id'):
             raise HTTPException(409, '原生回合尚未登记完成')
         async def frames():
-            async for item in bridge.events(payload):
-                yield json.dumps(item, ensure_ascii=False) + '\n'
+            async with aclosing(bridge.events(payload)) as stream:
+                async for item in stream:
+                    yield json.dumps(item, ensure_ascii=False) + '\n'
         return StreamingResponse(frames(), media_type='application/x-ndjson')
 
     @router.post('/cancel')

@@ -253,6 +253,10 @@ class LocalAgentLoop:
                 if any(tool.get('function', {}).get('name') == 'retrieve_course' for tool in tools):
                     # 先取证或必要澄清；保留 ask_user/Q5 工具，避免强迫澄清轮读取教材。
                     choice = 'required'
+            if tools and evidence_ready and set(request.required_tools) - called == {'teaching_step'}:
+                # 教材已就绪时只补登记教学动作，避免反复检索耗尽预算。
+                tools = request.tools.schemas(names=['teaching_step'])
+                choice = 'required'
             role = 'progress' if tools else 'answer'
             try:
                 round_result = self.llm.chat_with_tools(

@@ -9,6 +9,21 @@ import re
 STUCK_PHRASES = ("不知道", "不懂", "没懂", "不会", "没思路", "看不懂", "不清楚")
 UNDERSTOOD_PHRASES = ("懂了", "明白了", "理解了")
 
+
+def public_assistance(pending):
+    """只投影原题的已发布帮助计数，不公开答案键和内部事件。"""
+    if pending is None:
+        return None
+    private = pending.visual_context.get('host_formative_assistance') or {}
+    private = private if isinstance(private, dict) else {}
+    output = {'question_id': pending.question_id}
+    for key in ('hints_used', 'examples_used', 'explanations_used', 'max_hint_level'):
+        value = private.get(key, 0)
+        output[key] = value if type(value) is int and value >= 0 else 0
+    output['max_hint_level'] = min(3, output['max_hint_level'])
+    output['full_explanation_seen'] = private.get('full_explanation_seen') is True
+    return output
+
 HINT_FEEDBACK_RULES = """提示以一个学习目标为单位，允许圈词后比较等连续操作，不要求机械地只有一个动词。
 第1级指出疑点或教材位置；第2级给出方法或相似情境；第3级用简化情境示范一个中间步骤，再留一步让学生完成。后两级不能只重复上一轮的读定义/圈词。
 允许引用学生错误原句、概念对象名称和定义位置，例如‘每名被试后面的数量词’。这些定位本身不是答案泄露；不得因出现对象名称或指出位置判错。

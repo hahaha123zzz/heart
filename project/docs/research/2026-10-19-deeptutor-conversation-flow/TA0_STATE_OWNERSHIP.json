@@ -1,0 +1,56 @@
+{
+  "schema": "teaching-state-ownership/v1",
+  "stage": "TA0",
+  "scope": "固定基线与契约；不是NT3上线或TA1—TA5完成",
+  "native_cutover_allowed": false,
+  "candidate_policy": "只允许隔离候选写入；不得连接正式学习库或双写Q5与原生进度",
+  "owners": {
+    "host_account": "宿主AccountManager/MemoryManagementRepository，账户与删除控制",
+    "host_task": "TaskService/LearningTaskRepository，现有任务与提交收据",
+    "host_memory": "MemoryManager/Repository，宿主记忆与账户级偏好",
+    "host_q5": "Q5LearningService，现有目标路径与讲解位置",
+    "host_session_plan": "SessionStudyService，现有本次安排",
+    "host_practice": "practice_api，独立练习提交和评分",
+    "host_publication": "宿主发布事务/Repository，正式页面正文与引用投影",
+    "q2": "教材导航、来源与发布服务",
+    "native_turn": "未来的原生TurnApplicationService/SessionStore，尚未切换",
+    "native_learning": "未来的原生LearningService/LearningStore，尚未切换",
+    "none": "当前未启用或只读派生，不存在活动写入方"
+  },
+  "objects": {
+    "account_and_deletion_control": {"current": "host_account", "after_cutover": "host_account"},
+    "request_receipt_revision_epoch": {"current": "host_task", "after_cutover": "host_task"},
+    "active_turn_execution": {"current": "host_task", "after_cutover": "native_turn"},
+    "textbook_navigation": {"current": "q2", "after_cutover": "q2"},
+    "textbook_release_and_sources": {"current": "q2", "after_cutover": "q2"},
+    "goal_path_position": {"current": "host_q5", "after_cutover": "native_learning"},
+    "session_study_plan": {"current": "host_session_plan", "after_cutover": "native_learning"},
+    "formative_pending_question": {"current": "host_task", "after_cutover": "none"},
+    "formative_observation": {"current": "host_memory", "after_cutover": "none"},
+    "formal_question_interaction": {"current": "none", "after_cutover": "native_learning"},
+    "formal_mastery_evidence": {"current": "none", "after_cutover": "native_learning"},
+    "formal_review_state": {"current": "none", "after_cutover": "native_learning"},
+    "account_preferences": {"current": "host_memory", "after_cutover": "host_memory"},
+    "goal_learner_profile": {"current": "none", "after_cutover": "native_learning"},
+    "exercise_submission_and_grade": {"current": "host_practice", "after_cutover": "host_practice"},
+    "published_conversation_and_citation": {"current": "host_publication", "after_cutover": "host_publication"},
+    "review_followup_suggestions": {"current": "none", "after_cutover": "none"}
+  },
+  "entries": [
+    {"id": "chat", "current_engine": "TaskService -> run_agent_loop_turn", "state_objects": ["active_turn_execution", "formative_pending_question", "formative_observation", "published_conversation_and_citation"], "future_capability": "原生chat；单一结果投影"},
+    {"id": "learning", "current_engine": "TaskService -> Q5Runtime/SessionStudyService -> Q3", "state_objects": ["goal_path_position", "session_study_plan", "textbook_navigation", "published_conversation_and_citation"], "future_capability": "原生mastery；Q2仍决定教材下一目标"},
+    {"id": "selection", "current_engine": "TaskService -> selection_loop；区域/关闭开关走explain_selection", "state_objects": ["textbook_release_and_sources", "formative_pending_question", "published_conversation_and_citation"], "future_capability": "原生chat/mastery的受控选区工具"},
+    {"id": "practice", "current_engine": "practice_api独立服务；聊天帮助走explain_exercise", "state_objects": ["exercise_submission_and_grade", "formative_observation", "published_conversation_and_citation"], "future_capability": "原生调用原练习业务；不自动升级掌握"},
+    {"id": "ask_user", "current_engine": "TaskService -> 保存的Q3 loop_state恢复", "state_objects": ["active_turn_execution", "request_receipt_revision_epoch", "formative_pending_question"], "future_capability": "NativeTurnReply继续同turn；结构化多问题契约仍待NT1"}
+  ],
+  "migration_rules": {
+    "legacy_q5": "确认过的目标路径候选按student/course/path命名，保留目标ID/位置/来源；正式切换前Q5仍为唯一活动路径写入方",
+    "legacy_formative": "host_formative/ai_provisional仅历史辅助观察；待答题与答案键不能无条件升级原生正式评分题",
+    "understood": "自报理解不写mastery_levels、qualitative_mastery或learner_mastery_overrides",
+    "source_failure": "不可核验来源不得产生负面掌握或遗忘记录",
+    "deletion": "宿主账户/epoch为授权事实；原生全部派生数据的物理删除及跨库提交协调未完成",
+    "schema": "TA0不新增业务表；旧缺省读为未知，不补造成绩/复习到期时间",
+    "rollback": "当前仅关闭未启用候选；未来启用后只能保留新原生数据并转只读/兼容投影，不整库覆盖旧备份",
+    "activation": "后续NT3须逐对象交接写入权；任何时候同一对象不能同时由host_q5和native_learning活动写入"
+  }
+}

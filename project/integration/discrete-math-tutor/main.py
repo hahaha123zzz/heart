@@ -35,6 +35,8 @@ from integrations.deeptutor.router import router as deeptutor_router
 app.include_router(deeptutor_router)
 from integrations.deeptutor.recovery_router import router as turn_recovery_router
 app.include_router(turn_recovery_router)
+from integrations.deeptutor.native_authorization import router as native_authorization_router
+app.include_router(native_authorization_router)
 from practice_api import router as practice_router, recover_interrupted_submissions
 app.include_router(practice_router)
 from memory_api import router as memory_router

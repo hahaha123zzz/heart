@@ -170,6 +170,8 @@ class TeachingModeHostTests(unittest.TestCase):
         self.assertEqual(result['answer_status'], 'answered')
         self.assertEqual(model.calls[0]['tool_choice'], 'required')
         self.assertTrue(model.calls[1]['tools'])
+        self.assertEqual([tool['function']['name'] for tool in model.calls[1]['tools']], ['teaching_step'])
+        self.assertEqual(model.calls[1]['tool_choice'], 'required')
         self.assertFalse(model.calls[2]['tools'])
         self.assertTrue(context.tutoring['pending_sources'])
 

@@ -5,6 +5,7 @@ import re
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+from agents.learning_feedback import public_assistance
 
 
 class CardText(BaseModel):
@@ -137,6 +138,7 @@ def build_learning_cards(teaching, sources, answer, *, reference_map=None):
         'title': teaching.objective.name,
         'explained': teaching.objective.id in teaching.progress.explained_objectives,
         'pending': teaching.progress.pending_question is not None,
+        'assistance': public_assistance(teaching.progress.pending_question),
         'formative_attempts': len(evidence),
         'evidence_label': '辅助反馈，待独立验证' if evidence else '暂无作答证据',
         'mastered': False,

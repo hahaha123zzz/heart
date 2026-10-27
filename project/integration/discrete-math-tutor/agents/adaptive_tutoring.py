@@ -27,6 +27,7 @@ from agents.deeptutor_learning.pending import public_pending_question
 from agents.deeptutor_learning.policy import is_mastered, learning_stage, next_objective
 from agents.tool_protocol import BaseTool, ToolContext, ToolDefinition, ToolParameter, ToolResult
 from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions
+from agents.learning_feedback import HINT_FEEDBACK_RULES, public_assistance
 from agents.learning_cards import CardText, ComparisonRow, presentation_arguments
 
 SCHEMA = "deeptutor-teaching-v2"
@@ -193,14 +194,15 @@ def public_state(state):
     """One projection for prompts/clients; private LearningProgress stays local."""
     output = {k: deepcopy(state.get(k)) for k in (
         "schema", "topic", "teaching_mode", "last_strategy", "last_summary", "stage", "allow_check",
-        "assessment", "turn_move", "engine_next", "formal_mastery")}
+        "assessment", "turn_move", "engine_next", "formal_mastery", "hint_level")}
     try:
         progress = LearningProgress.model_validate(state.get("progress") or {})
         output["pending_check"] = (public_pending_question(progress.pending_question).to_dict()
                                    if progress.pending_question else None)
+        output['assistance'] = public_assistance(progress.pending_question)
         output["profile"] = progress.learner_profile.model_dump() if progress.learner_profile else {}
     except (ValidationError, TypeError):
-        output["pending_check"], output["profile"] = None, {}
+        output["pending_check"], output["profile"], output['assistance'] = None, {}, None
     return output
 
 
@@ -335,6 +337,15 @@ class TeachingTurn:
         self.strategy = self.strategy_decision.strategy
         if self.state["assessment"]:
             self.strategy = "transfer" if self.state["assessment"]["verdict"] == "correct" else "contrast"
+        assistance = public_assistance(self.progress.pending_question) or {}
+        self.hint_level = 0
+        if self.teaching_mode == 'guided' or self.strategy == 'hint':
+            explicit = re.search(r'第?([123一二三])级提示', unicodedata.normalize('NFKC', request.message))
+            self.hint_level = ({'1': 1, '2': 2, '3': 3, '一': 1, '二': 2, '三': 3}[explicit[1]]
+                               if explicit else min(3, assistance.get('max_hint_level', 0) + 1))
+        self.state['hint_level'] = self.hint_level
+        self.full_explanation_requested = self.teaching_mode == 'direct' and bool(re.search(
+            r'查看完整(?:解释|解答)|完整(?:解释|讲解|解答)|直接(?:告诉我|给我).{0,4}答案', request.message))
         self._sync()
 
     def _fresh(self, topic, profile=None):
@@ -441,6 +452,14 @@ class TeachingTurn:
         self.state["turn_move"] = "answer"
 
     def instructions(self):
+        levels = {1: '指出疑点或教材位置，保留学生自己判断的步骤。',
+                  2: '给方法或相似情境的关键步骤，不能重复第1级的定位。',
+                  3: '用简化情境示范一个中间步骤，再留一步；不自动给完整答案。'}
+        hint_note = ('本轮提示级别：第' + str(self.hint_level) + '级。' + levels[self.hint_level]
+                     + '\n' + HINT_FEEDBACK_RULES + '\n') if self.hint_level else ''
+        full_note = ('学生明确选择查看完整解释：围绕原待答题完整说明步骤和答案，不以提示代替；'
+                     '保留原题供其自愿返回，不强制再作答、不登记新题。\n'
+                     if self.full_explanation_requested and self.progress.pending_question else '')
         no_questions = ("学生本轮只听讲解：正文不得出现任何问号（包括自问、引用中的疑问句和研究问题）。"
                         "把疑问句改为陈述句，保留事实和引用；不要新增检查题或反问。\n"
                         if not self.state["allow_check"] else "")
@@ -456,7 +475,7 @@ class TeachingTurn:
                 "strategy": self.strategy_decision.strategy, "evidence_mode": self.evidence_mode,
                 "reuse_evidence": self.strategy_decision.reuse_evidence,
                 "invite_check": self.strategy_decision.invite_check}, ensure_ascii=False) + "\n"
-            + no_questions + evidence_note
+            + no_questions + evidence_note + hint_note + full_note
             + "engine_next由真实DeepTutor policy计算，只建议教学动作；正式推进仍由宿主Q5测评管控。"
             "检索是准备，最终要解释关键关系并给有用示例。普通讲解直接回答；只有登记辅助检查或需要记录特殊教学动作时调用teaching_step。"
             "已发布的回答会记录为已讲解，对应DeepTutor note_explained，不给掌握分。"
@@ -505,6 +524,8 @@ class TeachingTurn:
             # 随原题保存已发布帮助；失败/取消没有发布回执，不增加辅助次数。
             assistance = deepcopy(pending.visual_context.get('host_formative_assistance') or {
                 'hints_used': 0, 'explanations_used': 0, 'examples_used': 0, 'events': []})
+            assistance.setdefault('max_hint_level', 0)
+            assistance.setdefault('full_explanation_seen', False)
             turn_id = self.request.task_id or self.request.request_id
             if turn_id and not any(event['turn_id'] == turn_id for event in assistance['events']):
                 strategy = self.state['last_strategy'] if self.recorded else self.strategy
@@ -513,9 +534,13 @@ class TeachingTurn:
                 counter = {'hint': 'hints_used', 'example': 'examples_used',
                            'explanation': 'explanations_used'}[kind]
                 assistance[counter] += 1
+                delivered_level = (self.hint_level or 1) if kind == 'hint' else 0
+                assistance['max_hint_level'] = max(assistance['max_hint_level'], delivered_level)
+                full_explanation = bool(self.full_explanation_requested and kind == 'explanation')
+                assistance['full_explanation_seen'] = assistance['full_explanation_seen'] or full_explanation
                 assistance['events'] = (assistance['events'] + [{
                     'turn_id': turn_id, 'kind': kind, 'strategy': strategy,
-                    'timestamp': time.time(),
+                    'hint_level': delivered_level, 'full_explanation': full_explanation, 'timestamp': time.time(),
                 }])[-40:]
                 pending.visual_context['host_formative_assistance'] = assistance
         if not self.recorded and not self.interjection and answer_text.strip():
