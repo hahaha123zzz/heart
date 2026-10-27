@@ -2,9 +2,11 @@
 import argparse
 import asyncio
 from collections import Counter
+from contextlib import ExitStack, contextmanager
 from datetime import datetime, timezone
 import hashlib
 import importlib.metadata
+import importlib
 import importlib.util
 import json
 import os
@@ -37,6 +39,41 @@ FLAGS = ('LOCAL_AGENT_LOOP_ENABLED', 'Q5_LEARNING_ENABLED', 'ADAPTIVE_TUTORING_E
 
 def git(*args):
     return subprocess.check_output(['git', '-C', str(REPO), *args], text=True).strip()
+
+
+@contextmanager
+def count_model_requests():
+    """只记录两种实际客户端的请求次数，不保存URL、请求内容或凭据。"""
+    counts, lock, classes, carriers = Counter(), threading.Lock(), set(), []
+    def record(request):
+        path = request.url.path.rstrip('/')
+        name = 'model' if path.endswith(('/chat/completions', '/responses', '/messages')) else 'embedding' if path.endswith('/embeddings') else None
+        if name:
+            with lock:
+                counts[name] += 1
+    with ExitStack() as stack:
+        for name in ('httpx', 'httpx2'):
+            try:
+                module = importlib.import_module(name)
+            except ImportError:
+                continue
+            carriers.append(name)
+            for cls in (module.Client, module.AsyncClient):
+                if cls in classes:
+                    continue
+                classes.add(cls)
+                original = cls.send
+                if asyncio.iscoroutinefunction(original):
+                    async def asend(client, request, *args, _original=original, **kwargs):
+                        record(request)
+                        return await _original(client, request, *args, **kwargs)
+                    stack.enter_context(patch.object(cls, 'send', new=asend))
+                else:
+                    def send(client, request, *args, _original=original, **kwargs):
+                        record(request)
+                        return _original(client, request, *args, **kwargs)
+                    stack.enter_context(patch.object(cls, 'send', new=send))
+        yield counts, carriers
 
 
 def audit(remote_main):
@@ -81,26 +118,10 @@ def snapshot(student):
 
 
 async def live(report, output):
-    import httpx
     from main import app, orchestrator, _run_turn, _validate_pdf_request, health
     from models.chat_request import ChatRequest
     from knowledge.pdf_reader import document_for_chapter
     from practice_api import catalog
-
-    counts, lock = Counter(), threading.Lock()
-    sync_send, async_send = httpx.Client.send, httpx.AsyncClient.send
-    def count(request):
-        path = request.url.path.rstrip('/')
-        name = 'model' if path.endswith(('/chat/completions', '/responses', '/messages')) else 'embedding' if path.endswith('/embeddings') else None
-        if name:
-            with lock:
-                counts[name] += 1
-    def send(client, request, *args, **kwargs):
-        count(request)
-        return sync_send(client, request, *args, **kwargs)
-    async def asend(client, request, *args, **kwargs):
-        count(request)
-        return await async_send(client, request, *args, **kwargs)
 
     def turn(case_id, message, **extra):
         session = 'ask' if case_id.startswith('ask') else case_id
@@ -125,7 +146,8 @@ async def live(report, output):
             row.update(status='error', error_type=type(exc).__name__, http_status=getattr(exc, 'status_code', None))
         row.update(complete_ms=round((time.monotonic()-started)*1000, 3),
             first_draft_ms=next((event['ms'] for event in events if event['event']=='answer_delta'), None),
-            first_authoritative_ms=next((event['ms'] for event in events if event['authoritative']), None),
+            first_authoritative_ms=next((event['ms'] for event in events if event['authoritative']), None)
+                if result.get('answer_status') == 'answered' else None,
             model_http_attempts=counts['model']-calls.get('model', 0),
             embedding_http_attempts=counts['embedding']-calls.get('embedding', 0), after=snapshot(student))
         report['cases'].append(row)
@@ -141,7 +163,8 @@ async def live(report, output):
         report['textbook_release'] = {key: release[key] for key in ('release_id', 'status', 'ready')}
         if report['isolated_health']['mock_mode']:
             raise ValueError('真实基线不能使用mock模型')
-        with patch.object(httpx.Client, 'send', new=send), patch.object(httpx.AsyncClient, 'send', new=asend):
+        with count_model_requests() as (counts, carriers):
+            report['counted_http_clients'] = carriers
             await asyncio.to_thread(turn, 'chat', '直接解释教材中自变量的含义，不要出题。', reader_location={'chapter_id': 2, 'section_id': 2})
             await asyncio.to_thread(turn, 'learning', '按章导学第一章')
             record = document_for_chapter(2)
@@ -157,7 +180,7 @@ async def live(report, output):
             paused = await asyncio.to_thread(turn, 'ask', '请先调用ask_user询问我想先学习自变量还是因变量，等我回答后再讲解。')
             if paused.get('loop_paused') and paused.get('task_id'):
                 await asyncio.to_thread(turn, 'ask_resume', '自变量', task_id=paused['task_id'], task_revision=paused['task_revision'])
-            report['baseline_complete'] = len(report['cases']) >= 5
+            report['baseline_complete'] = len(report['cases']) == 6 and report['cases'][-1]['id'] == 'ask_resume'
 
 
 def main():
