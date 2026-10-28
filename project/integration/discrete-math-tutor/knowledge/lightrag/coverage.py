@@ -24,6 +24,8 @@ def _chapter(value):
 
 def requirements_for(question):
     """显式章/比较句法零模型拆分；复杂指代由调用者传明确requirements。"""
+    # 来源标注要求属于表达约束，不能拆成要去教材补查的知识对象。
+    question=re.sub(r'(?:^|[，,。；;])\s*(?:请)?(?:区分|注明|标注)(?:教材(?:依据|原文|明确关系|明确内容)|考纲依据)[^，,。；;]*', '', question)
     matches=list(_CHAPTER.finditer(question))
     if len(matches)<2 and not re.search(r'联系|关系|区别|比较|不同|异同|对比',question):return []
     pieces=[]
@@ -39,8 +41,9 @@ def requirements_for(question):
         pieces=[(chapter,text) for text in parts]
     output=[]
     for chapter,text in pieces:
+        text=re.sub(r'^(?:请|比较|对比)+','',text)
         text=re.sub(r'(?:有哪些|有什么|有何|的)?(?:联系|关系|区别|不同|异同|比较|对比).*$', '',text)
-        text=re.sub(r'^(?:请|比较|对比)+','',text).strip(' 的和与，,。？?：:；;')
+        text=text.strip(' 的和与，,。？?：:；;')
         if not text:return []
         output.append(Requirement('object-'+str(len(output)+1),text,chapter))
     if len(output)>3:raise ValueError('单轮最多3个必要对象，请拆小问题')

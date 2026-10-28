@@ -13,12 +13,37 @@ from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instruct
 from models.chat_request import ChatRequest
 from models.task_context import TaskContext, TaskObject
 from models.task_understanding import TaskUnderstanding
+from agents.task_context_builder import TaskContextBuilder
 from tests.test_adaptive_tutoring import prior, record, turn
 from tests.test_q3_q4_integration import FakeMemory, ScriptedLLM, tool_round
 from llm.client import ChatToolResult
 
 
 class TeachingModeTests(unittest.TestCase):
+    def test_natural_style_is_turn_local_and_overrides_saved_style(self):
+        builder = TaskContextBuilder()
+        saved = {'question_frequency': 1., 'example_density': 0.}
+        context = builder.build(student_id='s', message='这次少提问，多举例', preferences=saved)
+        self.assertEqual(context.preferences, {'question_frequency': 0., 'example_density': 1.})
+        self.assertEqual(saved, {'question_frequency': 1., 'example_density': 0.})
+        self.assertEqual(builder.build(student_id='s', message='继续', preferences=saved).preferences, saved)
+        self.assertEqual(builder.build(student_id='s', message='不要少提问', preferences=saved).preferences, saved)
+        self.assertEqual(builder.build(student_id='s', message='不只举例', preferences=saved).preferences, saved)
+
+    def test_only_example_preserves_pending_without_new_check_or_grading(self):
+        old = prior(pending=True)
+        for message in ('只给我举例', '只要例子', '只想看例子', '只讲例子', '只讲一个例子'):
+            with self.subTest(message=message):
+                model = Mock()
+                context = TaskContextBuilder().build(student_id='s', message=message,
+                                                     preferences={'question_frequency': 1.})
+                t = turn(message, old, model, preferences=context.preferences)
+                model.chat_json.assert_not_called()
+                self.assertEqual(t.progress.pending_question.model_dump(), old['progress']['pending_question'])
+                self.assertFalse(t.strategy_decision.invite_check)
+                self.assertFalse(record(t, check_prompt='再考一题？', check_focus='操纵').success)
+                self.assertTrue(turn('继续', t.state).state['allow_check'])
+
     def test_explicit_modes_and_negations(self):
         cases = {
             '直接解释自变量': 'direct',
@@ -93,6 +118,16 @@ class TeachingModeTests(unittest.TestCase):
     def test_explicit_textbook_request_requires_original_evidence(self):
         self.assertEqual(analyze_teaching_turn('直接解释教材中变量的区别').evidence_mode, 'textbook')
 
+    def test_question_revision_supplies_public_canonical_prompt_without_answer_key(self):
+        t = turn('回到刚才的题', prior(pending=True))
+        prompt = t.progress.pending_question.prompt
+        record(t, check_prompt=prompt, check_focus='操纵')
+        accepted, reason = t.gate('换个问法：哪一个是自变量？')
+        self.assertFalse(accepted)
+        self.assertIn(prompt, reason)
+        self.assertNotIn('PRIVATE-', reason)
+        self.assertTrue(t.gate('先看研究者操纵的条件。\n\n' + prompt)[0])
+
     def test_tool_protocol_cannot_be_published_as_a_lesson(self):
         gate = _publish_gate(None, None, None, teaching=SimpleNamespace(evidence_mode='blended'))
         accepted, reason = gate('<｜DSML｜function_calls>retrieve_course</｜DSML｜function_calls>', LoopResult())
@@ -119,6 +154,13 @@ class TeachingModeTests(unittest.TestCase):
         instructions = teaching_mode_instructions('review')
         self.assertIn('不从图谱中心性推断考试分值', instructions)
         self.assertIn('不强制测试', instructions)
+
+    def test_importance_and_relationship_provenance_in_both_answer_paths(self):
+        from agents.course_prompts import RESPONSE
+        from agents.loop_prompts import build_loop_system_prompt
+        for prompt in (RESPONSE, build_loop_system_prompt(target=None, definitions=[])):
+            self.assertIn('没有考纲或教师依据不得声称考试重点或分值', prompt)
+            self.assertIn('推断的联系注明是教学分析', prompt)
 
     def test_direct_mode_can_skip_legacy_planner_even_when_router_omits_intent(self):
         execution = build_execution('直接解释', TaskUnderstanding())

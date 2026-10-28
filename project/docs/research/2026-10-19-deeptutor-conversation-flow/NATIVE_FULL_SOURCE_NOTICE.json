@@ -109,5 +109,17 @@
     }
   ],
   "local_patch_manifest": "project/vendor/DeepTutor/LOCAL_PATCHES/llm-config-adapter.patch",
-  "host_pure_notice": "project/integration/discrete-math-tutor/agents/deeptutor_learning/SOURCE_NOTICE.json"
+  "host_pure_notice": "project/integration/discrete-math-tutor/agents/deeptutor_learning/SOURCE_NOTICE.json",
+  "ta1_prompt_adapter": {
+    "date": "2026-10-28",
+    "host_file": "project/integration/discrete-math-tutor/integrations/deeptutor/teaching_prompt_adapter.py",
+    "reuse": "调用固定上游LoopPromptAssembler.blocks，运行时按请求上下文追加提示块；MasteryPromptAssembler继承同一组装入口。没有复制或修改上游文件，不新增AgentLoop。此包装是本项目适配，不是上游现成插件。",
+    "verified_files": {
+      "deeptutor/agents/loop/prompt_blocks.py": "70c0cabeb6a230c58eff438beef1cbb352c96832a7c6708eb72cf45ccdd27ace",
+      "deeptutor/capabilities/mastery/pipeline.py": "8f52ee9a8b519c3e340f3d07ec3f5c1122f1f6af777727670f8a3f8b0feeda81"
+    },
+    "verification": "两个文件均与UPSTREAM_SNAPSHOT.json一致；安装时校验组装器来源路径和固定SHA256。",
+    "acceptance": "TA1_COMPLETION_20261028.md",
+    "formal_cutover": false
+  }
 }

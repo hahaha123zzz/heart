@@ -65,7 +65,10 @@ class StyleServiceTests(unittest.TestCase):
         self.assertIn('先讲解',style_instructions(self.memory.get_profile('s').preferences))
         self.memory.forget_preference('s','teaching_sequence')
         self.assertNotIn('teaching_sequence',self.memory.get_profile('s').preferences)
-    setUp=fixtures.ClarificationTests.setUp
+    def setUp(self):
+        fixtures.ClarificationTests.setUp(self)
+        from database.q5_learning import ensure_q5_schema
+        ensure_q5_schema(self.engine)
     tearDown=fixtures.ClarificationTests.tearDown
     request=fixtures.ClarificationTests.request
     execute=fixtures.ClarificationTests.execute
@@ -77,7 +80,9 @@ class StyleServiceTests(unittest.TestCase):
         self.assertEqual(result["answer_status"],"answered")
         self.assertEqual(self.calls[-1][1].preferences,{"answer_length":0.,"example_density":.5,"question_frequency":0.})
         self.assertEqual(self.memory.get_profile("s").preferences,{"answer_length":1.,"example_density":.5})
-        self.assertEqual(self.service.run(request,self.execute(TaskUnderstanding())),result)
+        replay=self.service.run(request,self.execute(TaskUnderstanding()))
+        self.assertTrue(replay.pop('reader_action_replay'))
+        self.assertEqual(replay,result)
         self.assertEqual(len(self.calls),1)
         self.service.run(self.request("解释定义",session_id="other",request_id="style-2"),self.execute(TaskUnderstanding()))
         self.assertEqual(self.calls[-1][1].preferences,{"answer_length":1.,"example_density":.5})
@@ -113,7 +118,9 @@ class StyleServiceTests(unittest.TestCase):
         result=self.service.run(request,execute)
         self.assertEqual(result["style_suggestion"]["values"]["learning_pace"],0)
         self.assertEqual(self.memory.get_profile("s").preferences,{})
-        self.assertEqual(self.service.run(request,execute),result)
+        replay=self.service.run(request,execute)
+        self.assertTrue(replay.pop('reader_action_replay'))
+        self.assertEqual(replay,result)
 
 
 if __name__=="__main__":unittest.main()

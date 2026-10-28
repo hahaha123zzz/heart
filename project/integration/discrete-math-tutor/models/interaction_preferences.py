@@ -1,5 +1,8 @@
 """用户确认的风格参数；临时覆盖不写入学习画像。"""
 from pydantic import BaseModel, ConfigDict, Field
+import re
+
+EXAMPLE_ONLY_PATTERN = r"(?:只|仅)(?:想|要|给我?|看|讲|举){0,3}(?:个|一个|一些)?例子?"
 
 
 class InteractionPreferences(BaseModel):
@@ -11,6 +14,24 @@ class InteractionPreferences(BaseModel):
     question_frequency: float | None = Field(None, ge=0, le=1, strict=True)
     teaching_sequence: float | None = Field(None, ge=0, le=1, strict=True)
     style_suggestions: float | None = Field(None, ge=0, le=1, strict=True)
+
+
+def turn_style_overrides(message):
+    """只识别明确的本轮表述；长期偏好仍走现有确认流程。"""
+    patterns = {
+        "question_frequency": [(r"少(?:一点|点|一些)?(?:提问|问问题|追问)", 0.0),
+                               (r"多(?:一点|点|一些)?(?:提问|问问题|追问)", 1.0),
+                               (EXAMPLE_ONLY_PATTERN, 0.0)],
+        "example_density": [(r"多(?:举|用|给)(?:一些|一点|几个|个)?例子?", 1.0),
+                            (r"少(?:举|用|给)(?:一些|一点|几个|个)?例子?", 0.0)],
+    }
+    values = {}
+    for key, options in patterns.items():
+        matches = [(m.start(), value) for pattern, value in options for m in re.finditer(pattern, message)
+                   if not re.search(r"(?:不要|不用|别|不必|并非|不)$", message[max(0, m.start()-4):m.start()])]
+        if matches:
+            values[key] = max(matches)[1]
+    return values
 
 
 def style_instructions(values):

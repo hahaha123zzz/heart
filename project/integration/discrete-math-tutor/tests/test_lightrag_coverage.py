@@ -15,6 +15,21 @@ from agents.tool_protocol import Cancellation,CancelledError,ToolResult
 from knowledge.lightrag.coverage import CoverageNavigator,requirements_for
 from knowledge.lightrag.relationships import relationship_context,append_tool_context
 
+
+class TeachingSourceRequirementsTests(unittest.TestCase):
+ def test_source_labels_do_not_become_extra_textbook_objects(self):
+  question='直接讲解教材中自变量与因变量的联系，并说明学习重点。没有提供任何考纲或教师重点标注，请区分教材依据与教学建议，不要出题。'
+  requirements=requirements_for(question)
+  self.assertEqual(len(requirements),2)
+  self.assertTrue(any('自变量' in r.query for r in requirements))
+  self.assertTrue(any('因变量' in r.query for r in requirements))
+  self.assertFalse(any('教学建议' in r.query for r in requirements))
+
+ def test_real_third_object_is_preserved_with_source_label_request(self):
+  requirements=requirements_for('比较自变量与因变量以及额外变量的区别，请注明教材原文与教学建议。')
+  self.assertEqual(len(requirements),3)
+  self.assertIn('额外变量',requirements[2].query)
+
 def ref(id,chapter,text='有效对象原文内容'):
  return SourceRef(id,'doc'+str(chapter),text,'v'+str(chapter),chapter,1,quote=text,
   location={'block_start':1,'block_char_start':0,'block_char_end':len(text),

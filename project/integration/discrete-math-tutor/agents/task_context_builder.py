@@ -5,7 +5,7 @@ import math
 from knowledge.course import get_section
 from knowledge.pdf_reader import resolve_selection, document, document_for_chapter
 from models.task_context import TaskContext, TaskObject
-from models.interaction_preferences import InteractionPreferences
+from models.interaction_preferences import InteractionPreferences, turn_style_overrides
 from agents.conversation_context import build_history
 
 
@@ -93,6 +93,7 @@ class TaskContextBuilder:
         safe_preferences = {k: float(v) for k, v in (preferences or {}).items()
             if k in InteractionPreferences.model_fields and type(v) in (int, float)
             and math.isfinite(v) and 0 <= v <= 1}
+        safe_preferences.update(turn_style_overrides(message))
         history_pack = build_history(
             [row for row in history if row.get("role") in ("user", "assistant") and isinstance(row.get("content"), str)],
             budget_tokens=history_budget_tokens,

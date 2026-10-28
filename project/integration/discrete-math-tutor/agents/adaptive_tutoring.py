@@ -29,6 +29,7 @@ from agents.tool_protocol import BaseTool, ToolContext, ToolDefinition, ToolPara
 from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions
 from agents.learning_feedback import HINT_FEEDBACK_RULES, public_assistance
 from agents.learning_cards import CardText, ComparisonRow, presentation_arguments
+from models.interaction_preferences import EXAMPLE_ONLY_PATTERN
 
 SCHEMA = "deeptutor-teaching-v2"
 STRATEGIES = ("explain", "worked_example", "contrast", "break_down",
@@ -46,7 +47,7 @@ DIFFICULTY = re.compile(
     r"没听懂|没弄懂|没学会|理解不了|看不懂|搞不清|分不清|还是不懂|仍然不懂|"
     r"我不懂|我不会(?!影响|改变|导致|造成)|不会(?:做|用|算|区分|理解|这|那个|这个)|"
     r"^(?:还是|仍然|完全|真的|都)?(?:不会|不懂|没懂)[，。！？!?]*$")
-NO_QUIZ = re.compile(r"别(?:再)?(?:考|问|出题)|不要(?:再)?(?:考|问|出题)|先讲不考|只(?:讲|听)|不(?:要|想|用)(?:做题|练习|检查|测试)")
+NO_QUIZ = re.compile(r"别(?:再)?(?:考|问|出题)|不要(?:再)?(?:考|问|出题)|先讲不考|只(?:讲|听)(?!(?:个|一个|一些)?例)|不(?:要|想|用)(?:做题|练习|检查|测试)")
 ALLOW_QUIZ = re.compile(r"可以(?:考|问)|考考我|(?:现在|开始|来)(?:做题|练习|检查)|先测|先考")
 TEACH_FIRST = re.compile(r"先(?:讲|教).{0,5}(?:再|后)(?:考|测)")
 NEW_QUESTION = re.compile(r"什么是|是什么|有什么区别|介绍一下|换个知识点|换个话题|另外问|另一个问题")
@@ -82,7 +83,8 @@ def analyze_teaching_turn(message: str, *, previous_strategy: str = "",
     text = message.strip()
     mode = resolve_teaching_mode(text)
     support = is_difficulty(text)
-    asks_example = bool(re.search(r"(?:举|换|给).{0,5}(?:个|一)?(?:例子|例)|比如|打个比方", text))
+    asks_example = bool(re.search(r"(?:举|换|给).{0,5}(?:个|一)?(?:例子|例)|比如|打个比方", text)
+                        or re.search(EXAMPLE_ONLY_PATTERN, text))
     explicit_check = bool(ALLOW_QUIZ.search(text))
     side_question = bool(re.search(
         r"先插问|另外问|什么是|是什么意思|为什么|请解释|图\s*\d|图片|原图|"
@@ -494,8 +496,8 @@ class TeachingTurn:
             "教学策略分析器的invite_check=true表示本轮建议检查；为false时讲解后自然收束，不要主动追问。"
             "它不是长期偏好或会话禁令，学生明确要求练习时仍按其要求安排。"
             "需要小检查，在teaching_step传check_prompt/check_focus，可选check_expected_answer；最多一题。"
-            "先讲解，问题清楚地放在正文最后，然后停止，不能同轮给答案。优先沿用原题；"
-            "可以省略重复的情境背景，但检查的核心对象和所问内容必须一致。已有待答题不可覆盖；"
+            "先讲解，将工具返回的pending_check.prompt原样放在正文最后，然后停止，不能同轮给答案。"
+            "不要自行改写已登记问题或追加另一问题。已有待答题不可覆盖；"
             "插问时省略check_prompt保留原题；恢复时传原题干以原样重现。"
             "只支持开放式辅助检查，不要登记选择题。内部工具、答案键、状态不显示给学生。"
             "语言像耐心的老师：可说‘没关系，我们换个例子’；先讲关键意思，再分步骤解释，"
@@ -509,7 +511,8 @@ class TeachingTurn:
         if (self.new_question or self.show_pending) and pending:
             # 整题可包含多个句号/问号，不能只拿正文最后一句与整题比较。
             if not _check_question_key(text).endswith(_check_question_key(pending.prompt)):
-                return False, "教学检查未正确呈现：请将已登记的小检查放在正文最后，然后停止，不能同轮自问自答。"
+                return False, ("教学检查未正确呈现：将以下已登记题干原样放在正文末尾，不改写、不追加问题、不作答：\n"
+                               + pending.prompt)
         if not self.state["allow_check"] and re.search(r"[？?]", text):
             return False, "学生要求先讲不考：正文不得出现任何问号，包括自问和引号内的问题；改为陈述句，保留事实和引用，不新增检查。"
         return True, ""
@@ -577,7 +580,7 @@ class TeachingStepTool(BaseTool):
         parameters=(
             ToolParameter("strategy", "string", "实际采用的方法", enum=list(STRATEGIES)),
             ToolParameter("summary", "string", "一句话说明本轮讲了什么及怎样帮助学生"),
-            ToolParameter("check_prompt", "string", "可选小问题题干，最终正文末尾应清楚表达同一检查点；可省略重复背景，不能改题或同轮作答", required=False),
+            ToolParameter("check_prompt", "string", "可选小问题题干，最终正文末尾必须原样呈现；不能改题、追加问题或同轮作答", required=False),
             ToolParameter("check_focus", "string", "检查的一个具体理解点", required=False),
             ToolParameter("check_expected_answer", "string", "服务端参考答案，不能显示给学生", required=False, sensitive=True),
             ToolParameter('card_kind', 'string', '仅要求卡片时使用；内容也须出现在最终正文，不与新检查题同轮使用', required=False, enum=['step_reveal', 'concept_comparison']),

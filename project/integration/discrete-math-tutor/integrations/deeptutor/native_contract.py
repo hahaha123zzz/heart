@@ -2,6 +2,7 @@
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from models.interaction_preferences import InteractionPreferences
 
 Identifier = Annotated[str, Field(min_length=1, max_length=100)]
 
@@ -25,6 +26,7 @@ class NativeTurnStart(NativeTaskCheck):
     course_title: str = Field(min_length=1, max_length=60)
     content: str = Field(min_length=1, max_length=4000)
     capability: Literal['chat', 'ask_questions'] = 'chat'
+    teaching_preferences: InteractionPreferences | None = None
 
     @field_validator('content')
     @classmethod

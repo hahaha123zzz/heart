@@ -37,6 +37,9 @@ class NativeTurnBridge:
                     memory_epoch INTEGER NOT NULL, material_versions TEXT NOT NULL,
                     PRIMARY KEY(student_id, course_id, session_id, request_id));
             ''')
+            db.execute('BEGIN IMMEDIATE')
+            if 'teaching_style' not in {row[1] for row in db.execute('PRAGMA table_info(native_requests)')}:
+                db.execute("ALTER TABLE native_requests ADD COLUMN teaching_style TEXT NOT NULL DEFAULT '{}'")
             if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '0') == '1':
                 from .learning_tool_adapter import install_learning_tool_factory
                 install_learning_tool_factory(row[0] for row in db.execute('SELECT DISTINCT user_id FROM native_courses'))
@@ -74,9 +77,11 @@ class NativeTurnBridge:
         from deeptutor.services.workspace.context import workspace_context
         from deeptutor.services.workspace.models import WorkspaceError
         from .learning_tool_adapter import learning_tool_scope
+        from .teaching_prompt_adapter import teaching_prompt_scope
 
         try:
-            with self.user_scope(entry['user_id']), workspace_context(entry['workspace_id']), learning_tool_scope(entry):
+            with (self.user_scope(entry['user_id']), workspace_context(entry['workspace_id']),
+                  learning_tool_scope(entry), teaching_prompt_scope(entry)):
                 yield DeepTutorApp(workspace_id=entry['workspace_id'])
         except WorkspaceError as exc:
             raise HTTPException(409, '原生工作区已不可用') from exc
@@ -168,7 +173,8 @@ class NativeTurnBridge:
         from deeptutor.services.session.protocol import ActiveTurnConflict
 
         await self.authorize_host(request)
-        request_digest = digest(request.model_dump())
+        # 缺省新字段不改变旧回合的幂等收据。
+        request_digest = digest(request.model_dump(exclude={'teaching_preferences'} if request.teaching_preferences is None else set()))
         try:
             previous = self.entry(request)
         except HTTPException as exc:
@@ -186,11 +192,18 @@ class NativeTurnBridge:
                 db.execute('BEGIN IMMEDIATE')
                 mapped = await self._bind(request, binding, db)
                 submission_id = 'heart_submission_' + digest([*self._key(request), request.task_id, request.task_revision])
-                db.execute('''INSERT OR IGNORE INTO native_requests VALUES
-                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)''',
+                from .teaching_prompt_adapter import teaching_snapshot
+                style = teaching_snapshot(request.content, request.teaching_preferences.model_dump(exclude_none=True)
+                                          if request.teaching_preferences else None)
+                db.execute('''INSERT OR IGNORE INTO native_requests
+                    (student_id, course_id, session_id, request_id, task_id, task_revision, digest,
+                     user_id, workspace_id, native_course_id, native_session_id, submission_id,
+                     turn_id, memory_epoch, material_versions, teaching_style) VALUES
+                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)''',
                     (*self._key(request), request.task_id, request.task_revision, request_digest,
                      mapped['user_id'], mapped['workspace_id'], mapped['native_course_id'], mapped['native_session_id'],
-                     submission_id, request.memory_epoch, json.dumps(request.material_versions, sort_keys=True)))
+                     submission_id, request.memory_epoch, json.dumps(request.material_versions, sort_keys=True),
+                     json.dumps(style, ensure_ascii=False, sort_keys=True)))
             entry = self.entry(request)
             if entry['digest'] != request_digest: raise HTTPException(409, '请求收据发生冲突')
             if not entry['turn_id']:
