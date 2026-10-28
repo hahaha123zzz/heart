@@ -252,14 +252,13 @@ class NativeTurnBridge:
     @contextmanager
     def learning_service(self, request):
         """宿主受控学习命令入口；mastery服务工厂使用同一授权存储。"""
-        from deeptutor.learning.service import LearningService
-        from .learning_write_guard import HostAuthorizedLearningStore
+        from .assessment_store import HostAssessmentStore, HostAssessmentService
 
         entry = self.entry(request)
         check = NativeTaskCheck(**{**request.model_dump(include=set(NativeTurnKey.model_fields)),
             'memory_epoch': entry['memory_epoch'], 'material_versions': json.loads(entry['material_versions'])})
         with self.scope(entry):
-            yield LearningService(HostAuthorizedLearningStore(check))
+            yield HostAssessmentService(HostAssessmentStore(check))
 
     async def status(self, request: NativeTurnKey):
         entry = self.entry(request)
@@ -311,6 +310,8 @@ def install_native_bridge(app, sessions):
     router = APIRouter(prefix='/internal/heart/native', dependencies=[Depends(require_bridge_token), Depends(require_native_enabled)])
     router.add_api_route('/start', bridge.start, methods=['POST'], response_model=None)
     router.add_api_route('/status', bridge.status, methods=['POST'], response_model=None)
+    from .assessment_api import install_assessment_api
+    install_assessment_api(router, bridge)
 
     @router.post('/events')
     async def events(payload: NativeTurnCursor):

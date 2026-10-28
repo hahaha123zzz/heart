@@ -43,6 +43,7 @@ def install_learning_tool_factory(managed_users=()):
     _managed_users.update(managed_users)
     from .learning_binding_adapter import install_learning_binding_adapter
     install_learning_binding_adapter()
+    install_learning_answer_adapter()
     original = tools._new_service
     if getattr(original, '_heart_scoped_factory', False):
         return
@@ -55,16 +56,48 @@ def install_learning_tool_factory(managed_users=()):
         raise BackendUnavailable('原生学习工具与固定上游源码不一致')
 
     def new_service():
-        from deeptutor.learning.service import LearningService
-        from .learning_write_guard import HostAuthorizedLearningStore
+        from .assessment_store import HostAssessmentStore, HostAssessmentService
 
         current = current_learning_context()
         if current is None:
             return original()
-        return LearningService(HostAuthorizedLearningStore(current.check))
+        return HostAssessmentService(HostAssessmentStore(current.check))
 
     new_service._heart_scoped_factory = True
     tools._new_service = new_service
+
+
+def install_learning_answer_adapter():
+    """上游下一轮题卡提交也使用同一门禁；不替换全局LearningService。"""
+    from deeptutor.services.session.turns.learning_adapter import LearningTurnAdapter
+    original = LearningTurnAdapter._commit_mastery_card_answer
+    if getattr(original, '_heart_scoped_answer', False):
+        return
+    from .worker import VENDOR_ROOT
+    source = VENDOR_ROOT / 'deeptutor/services/session/turns/learning_adapter.py'
+    pin = json.loads((VENDOR_ROOT / 'UPSTREAM_SNAPSHOT.json').read_text(encoding='utf-8'))
+    if (Path(original.__code__.co_filename).resolve() != source.resolve()
+            or hashlib.sha256(source.read_bytes()).hexdigest() != pin['files']['deeptutor/services/session/turns/learning_adapter.py']):
+        raise BackendUnavailable('原生题卡提交与固定上游源码不一致')
+
+    async def commit(self, *, path_id, session_id, turn_id, question_id, answer):
+        current = current_learning_context()
+        if current is None:
+            return await original(self, path_id=path_id, session_id=session_id,
+                                  turn_id=turn_id, question_id=question_id, answer=answer)
+        if current.session_id != session_id:
+            raise BackendUnavailable('题卡提交会话与宿主授权不匹配')
+        import asyncio
+        from .assessment_store import HostAssessmentStore, HostAssessmentService
+        from .assessment_commands import AssessmentCommands
+        def record():
+            commands = AssessmentCommands(HostAssessmentService(HostAssessmentStore(current.check)))
+            command_id = hashlib.sha256(json.dumps([session_id, turn_id, question_id]).encode()).hexdigest()
+            return commands.run(path_id, question_id, command_id=command_id, action='message', text=answer)
+        await asyncio.to_thread(record)
+
+    commit._heart_scoped_answer = True
+    LearningTurnAdapter._commit_mastery_card_answer = commit
 
 
 @contextmanager

@@ -22,6 +22,9 @@ MISCONCEPTION_STATUSES = [
 
 # 规范误解类型（去重基准）：LLM 应优先从这里选择 type
 CANONICAL_TYPES = {
+    "reliability_validity_confusion": "混淆信度与效度",
+    "correlation_causation_confusion": "把相关关系当作因果关系",
+    "independent_extraneous_confusion": "混淆自变量与额外变量",
     "vertex_edge_confusion": "混淆图的顶点与边",
     "directed_undirected_confusion": "混淆有向边与无向边",
     "path_cycle_confusion": "混淆路径、闭路径与回路",
@@ -32,6 +35,10 @@ CANONICAL_TYPES = {
 
 # 常见同义/中外文别名 -> 规范类型
 _TYPE_ALIASES = {
+    "信度效度混淆": "reliability_validity_confusion",
+    "信度与效度混淆": "reliability_validity_confusion",
+    "相关因果混淆": "correlation_causation_confusion",
+    "自变量额外变量混淆": "independent_extraneous_confusion",
     "顶点和边混淆": "vertex_edge_confusion",
     "有向无向混淆": "directed_undirected_confusion",
     "路径回路混淆": "path_cycle_confusion",
