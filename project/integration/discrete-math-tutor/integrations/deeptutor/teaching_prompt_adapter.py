@@ -45,6 +45,7 @@ def install_teaching_prompt_adapter():
             teaching_mode_instructions(snapshot['mode']),
             style_instructions(snapshot['preferences']),
             '学生询问重点或知识关系时，区分教材明确内容、已提供的考纲或教师标注和教学建议；没有考纲或教师依据不得声称考试重点或分值。教材明确关系应附来源，推断的联系注明是教学分析，不冒充原文或先修事实。',
+            '复习到期仅提供选择，不强制切换当前讲解；只有可靠的近期证据或学生明确选择才调整讲法。调度器排序/回忆估计是启发式，不是校准的掌握概率；历史策略效果只是观察线索，不声称因果最优。',
         ))
         return [*result, PromptBlock('host_teaching_style', text)]
 

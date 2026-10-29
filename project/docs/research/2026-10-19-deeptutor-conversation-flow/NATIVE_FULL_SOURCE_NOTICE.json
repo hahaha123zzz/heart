@@ -150,5 +150,18 @@
     "local_adaptation": "schema/动作白名单、来源/epoch/版本、服务端收据、宿主代理和展开状态均为项目适配；不是上游现成插件。",
     "acceptance": "TA3_COMPLETION_20261028.md",
     "formal_cutover": false
+  },
+  "ta4_review_adapter": {
+    "date": "2026-10-29",
+    "verified_files": {
+      "deeptutor/learning/scheduler.py": "07146a2075a9230a5be7cea8b23f38d227c2390b2636cfa82c9d238f46303864",
+      "deeptutor/learning/models.py": "66e8188c601cee457a0bc17d66b3a20e0181a2b2a0c51355b2ef9225ca5e3f4a",
+      "deeptutor/learning/service.py": "db80368e5fdbae06228193a09d65edf25375dd6f79fc2e75d92af6d18ea6e35b",
+      "deeptutor/learning/storage.py": "1f07c18ac1f59b621b5c565984f7f6876e0e7c42eb2efc538e02a577ef04a94b"
+    },
+    "reuse": "直接调用固定上游RetentionScheduler/SpacedRepetitionScheduler的replay/build_review_queue，及原生题目/作答/评分/SQLite事务。不另写间隔算法，不增加学习库或AgentLoop。",
+    "local_adaptation": "生产天级时钟、有效证据过滤、复习周期/延后/完成收据、持久题卡授权及宿主原页面投影为项目适配。策略线索非因果结论，调度值非校准掌握概率。",
+    "acceptance": "TA4_COMPLETION_20261029.md",
+    "formal_cutover": false
   }
 }

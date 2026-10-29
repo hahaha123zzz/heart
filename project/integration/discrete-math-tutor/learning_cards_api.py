@@ -67,9 +67,8 @@ def view(request: CardViewKey):
     return {'learning_cards': cards}
 
 
-def _native(request, reference, cards, action):
+def native_identity(request, reference):
     from integrations.deeptutor.native_contract import NativeTurnKey
-    from integrations.deeptutor.client import DeepTutorBackend, BackendUnavailable
     from knowledge.course_config import COURSE_ID
     if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '0') != '1':
         raise HTTPException(503, '原生测评入口尚未启用')
@@ -84,6 +83,12 @@ def _native(request, reference, cards, action):
             raise ValueError('invalid binding')
     except (ValueError, KeyError) as exc:
         raise HTTPException(409, '题卡服务端绑定无效') from exc
+    return binding, key | target
+
+
+def _native(request, reference, cards, action):
+    from integrations.deeptutor.client import DeepTutorBackend, BackendUnavailable
+    binding, key = native_identity(request, reference)
     if action:
         card = next((c for c in cards if c['card_id'] == request.card_id and c.get('schema') == 'learning-cards/v2'), None)
         if card is None:
@@ -93,7 +98,7 @@ def _native(request, reference, cards, action):
         values = {}
     try:
         result = DeepTutorBackend(timeout=25)._post('/internal/heart/native/assessment/cards/action' if action else
-            '/internal/heart/native/assessment/cards', values | key | target)
+            '/internal/heart/native/assessment/cards', values | key)
     except (BackendUnavailable, ValueError) as exc:
         if getattr(exc.__cause__, 'code', None) == 409:
             raise HTTPException(409, '题卡状态已变化，请恢复后再操作') from exc
@@ -107,7 +112,7 @@ def _native(request, reference, cards, action):
         epoch = (reference['learning_cards'][0]['memory_epoch'] if reference.get('learning_cards') else binding.get('memory_epoch'))
         if epoch is None:
             raise HTTPException(410, '题卡记忆身份已失效')
-        latest['_native_assessment'] = dict(binding, memory_epoch=epoch)
+        latest['_native_assessment'] = {**latest.get('_native_assessment', {}), **binding, 'memory_epoch': epoch}
         latest['learning_cards'] = [dict(c, memory_epoch=epoch) for c in result['learning_cards']]
         row.reference = latest
     return result

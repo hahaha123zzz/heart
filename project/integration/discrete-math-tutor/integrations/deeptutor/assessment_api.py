@@ -83,17 +83,26 @@ class CardAction(AssessmentKey):
     expanded: list[Annotated[int, Field(ge=0, le=6, strict=True)]] = Field(default_factory=list, max_length=7)
 
 
+class ReviewAction(AssessmentKey):
+    review_id: Identifier
+    command_id: Identifier
+    base_revision: int = Field(ge=0, strict=True)
+    action: Literal['start', 'defer', 'finish', 'return']
+    delay_hours: Literal[1, 24, 72] = 24
+
+
 def install_assessment_api(router, bridge):
     from .learning_cards import NativeLearningCards
+    from .review import NativeReviewService
     async def checked(payload, operation):
         entry = bridge.entry(payload)
-        await bridge.authorize_host(payload, entry)
+        await bridge.authorize_assessment(payload, entry)
         try:
             def run():
                 with bridge.learning_service(payload) as service:
                     return operation(AssessmentCommands(service))
             result = await asyncio.to_thread(run)
-            await bridge.authorize_host(payload, entry)
+            await bridge.authorize_assessment(payload, entry)
             return result
         except (MasteryInteractionError, ValueError, KeyError) as exc:
             raise HTTPException(409, detail={'code': str(exc)[:200]}) from exc
@@ -133,3 +142,12 @@ def install_assessment_api(router, bridge):
     async def card_action(payload: CardAction):
         values = payload.model_dump(exclude=set(AssessmentKey.model_fields))
         return await checked(payload, lambda commands: NativeLearningCards(commands).act(payload.path_id, payload.question_id, **values))
+
+    @router.post('/assessment/reviews')
+    async def reviews(payload: AssessmentKey):
+        return await checked(payload, lambda commands: NativeReviewService(commands).queue(payload.path_id))
+
+    @router.post('/assessment/reviews/action')
+    async def review_action_endpoint(payload: ReviewAction):
+        values = payload.model_dump(exclude=set(AssessmentKey.model_fields))
+        return await checked(payload, lambda commands: NativeReviewService(commands).act(payload.path_id, **values))

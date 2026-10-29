@@ -148,8 +148,6 @@ class NativeLearningCards:
                 current.result['card_explanation_requested'] = True
             if action in ('defer', 'skip'):
                 current.result['card_disposition'] = action
-            if action in ('defer', 'skip'):
-                current.result['card_disposition'] = action
             if action == 'return_path':
                 current.result['card_return_path'] = {'path_id': path_id, 'objective_id': current.question.knowledge_point_id}
             current.result.setdefault('card_commands', {})[command_id] = deepcopy(payload)

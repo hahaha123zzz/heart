@@ -270,7 +270,7 @@ def dashboard(student_id: str):
 
 
 @router.get("/students/{student_id}/review")
-def review_items(student_id: str):
+def review_items(student_id: str, session_id: str | None = None):
     _student_id(student_id)
     with session_scope() as session:
         misconceptions = session.scalars(select(MisconceptionRow).where(
@@ -302,7 +302,11 @@ def review_items(student_id: str):
         from knowledge.course_config import COURSE_ID
         followups = review_followups(student_id, Repository(), course_id=COURSE_ID)
         existing_points = {item['point'] for item in items if not item.get('question_id')}
-        return items + [item for item in followups if item['point'] not in existing_points]
+        legacy = items + [item for item in followups if item['point'] not in existing_points]
+    from review_api import scheduled_reviews
+    scheduled = scheduled_reviews(student_id, session_id)
+    scheduled_points = {row['point'].strip().casefold() for row in scheduled if row['kind'] == 'scheduled_review'}
+    return scheduled + [item for item in legacy if item.get('question_id') or item['point'].strip().casefold() not in scheduled_points]
 
 
 @router.get("/students/{student_id}/conversation")

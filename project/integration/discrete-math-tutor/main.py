@@ -43,6 +43,8 @@ from memory_api import router as memory_router
 app.include_router(memory_router)
 from learning_cards_api import router as learning_cards_router
 app.include_router(learning_cards_router)
+from review_api import router as review_router
+app.include_router(review_router)
 if not PSYCHOLOGY:
     from visualization_api import router as visualization_router
     app.include_router(visualization_router)

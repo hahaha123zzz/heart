@@ -39,3 +39,12 @@ integrations/deeptutor/learning_binding_adapter.py uses the original tables but
 coordinates a host-managed handoff in one attached SQLite transaction. It adds
 host task authorization and keeps unmanaged native bindings on the original code.
 The fixed vendor source is unmodified; this does not enable production scoring.
+
+The 2026-10-29 TA4 adapter directly invokes RetentionScheduler and
+SpacedRepetitionScheduler.replay/build_review_queue from the fixed upstream
+deeptutor/learning/scheduler.py, together with native LearningService and SQLite
+transactions. Review episodes, user deferral, persistent-card host authorization,
+HTTP projection and vanilla-JS rendering are local adaptations. No second
+scheduler, learning database or AgentLoop was introduced. Verified source hashes
+and acceptance boundaries are recorded in NATIVE_FULL_SOURCE_NOTICE.json and
+TA4_COMPLETION_20261029.md; production cutover remains disabled.

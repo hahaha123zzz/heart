@@ -260,6 +260,16 @@ class NativeTurnBridge:
         with self.scope(entry):
             yield HostAssessmentService(HostAssessmentStore(check))
 
+    async def authorize_assessment(self, request, entry):
+        from .client import DeepTutorBackend, BackendUnavailable
+        check = NativeTaskCheck(**{**request.model_dump(include=set(NativeTurnKey.model_fields)),
+            'memory_epoch': entry['memory_epoch'], 'material_versions': json.loads(entry['material_versions'])})
+        try:
+            backend = DeepTutorBackend(base_url=os.getenv('DEEPTUTOR_HOST_URL', 'http://127.0.0.1:8000'))
+            await asyncio.to_thread(backend.authorize_native_assessment, check.model_dump())
+        except (BackendUnavailable, ValueError) as exc:
+            raise HTTPException(409, '已保存测评身份核验未通过') from exc
+
     async def status(self, request: NativeTurnKey):
         entry = self.entry(request)
         await self.authorize_host(request, entry)

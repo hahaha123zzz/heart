@@ -145,7 +145,7 @@ class NativeAuthorizationBoundaryTests(unittest.IsolatedAsyncioTestCase):
         host = HostNativeAuthorizationTests(methodName='test_authorizes_real_task_without_sending_student_content')
         host.setUp()
         def post(path, payload):
-            self.assertEqual(path, '/internal/heart/native/authorize')
+            self.assertIn(path, ('/internal/heart/native/authorize', '/internal/heart/native/authorize-assessment'))
             response = host.client.post(path, json=payload, headers={'X-Heart-Bridge-Token': 't' * 32})
             if response.status_code != 200:
                 raise BackendUnavailable('host rejected')

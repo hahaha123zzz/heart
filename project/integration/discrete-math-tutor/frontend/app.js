@@ -152,6 +152,25 @@ async function api(path, options = {}) {
   return body;
 }
 const post = (path, data) => api(path, {method:"POST", body:JSON.stringify(data)});
+window.LearningReview?.bind({
+  onConflict:()=>refreshLearning(),
+  act:async payload=>{
+    if(state.sending)throw new Error('请先完成当前回答，再选择复习动作');
+    const owner=studentId,session=tabSessionId;
+    const result=await post('/api/learning/reviews/action',{...payload,student_id:owner,session_id:session});
+    if(owner!==studentId||session!==tabSessionId)throw new Error('账户或会话已切换');
+    return result;
+  },
+  onUpdate:async result=>{
+    if(result.conversation_id&&result.learning_cards){
+      let message=state.chat.find(m=>m.conversationId===result.conversation_id);
+      if(!message){message={role:'assistant',conversationId:result.conversation_id,renderKey:'conversation:'+studentId+':'+result.conversation_id,content:result.reply||'复习题'};state.chat.push(message);}
+      Object.assign(message,{learningCards:result.learning_cards,cardsVerified:true,pdfReferences:result.pdf_references||[],sources:result.textbook_sources||[]});renderChat();
+    }
+    if(result.action==='start'||result.action==='return'){showView('course');showView('chat');}
+    await refreshLearning();
+  }
+});
 window.LearningCards?.bind({
   onAction:async ({card,context,command_id,base_revision,action,text='',expanded=[]})=>{
     const owner=studentId,session=tabSessionId;
@@ -167,6 +186,7 @@ window.LearningCards?.bind({
     const message=state.chat.find(m=>m.conversationId===context.conversationId);
     if(message){message.learningCards=result.learning_cards;renderChat();}
     if(result.navigation)toast('已定位原学习路径；可以继续当前目标');
+    refreshLearning();
   },
   onExpand:async ({card,context,command_id,base_revision,expanded})=>{
     const owner=studentId,session=tabSessionId;
@@ -805,15 +825,19 @@ async function refreshStats() {
 }
 
 async function refreshLearning() {
+  const refresh=(refreshLearning.sequence||0)+1;refreshLearning.sequence=refresh;
+  const owner=studentId,session=tabSessionId;
+  document.querySelectorAll('[data-review-action]').forEach(button=>button.disabled=true);
   try {
     const [review, history] = await Promise.all([
-      api(`/api/students/${encodeURIComponent(studentId)}/review`),
+      api(`/api/students/${encodeURIComponent(studentId)}/review?session_id=${encodeURIComponent(tabSessionId)}`),
       api(`/api/students/${encodeURIComponent(studentId)}/conversation`),
     ]);
-    $("#review-list").innerHTML = review.length ? review.map((item) => `<div class="review-item"><div><strong>${esc(item.point)}</strong><p>${esc(item.reason)}</p>${item.kind==='learning_followup'?'<small>回顾建议 · 非正式评分</small>':''}${item.location_label?'<small>'+esc(item.location_label)+'</small>':''}</div>${item.question_id ? `<button data-exercise-review="${esc(item.question_id)}" data-review-chapter="${item.chapter_id}">回到这道题</button>` : `<button data-review="${esc(item.point)}">${item.kind==='learning_followup'?'回顾这个知识点':'请助教带我复习'}</button>`}</div>`).join("") : '<div class="resource-note">暂时没有回顾建议或待订正记录。继续学习或完成练习后再来看看。</div>';
+    if(refresh!==refreshLearning.sequence||owner!==studentId||session!==tabSessionId)return;
+    $("#review-list").innerHTML = window.LearningReview.render(review);
     $('#home-review-list').innerHTML=$('#review-list').innerHTML;
     $("#history-list").innerHTML = history.length ? history.slice(-16).reverse().map((m) => `<div class="history-item"><small>${m.role === "user" ? "我" : "助教"}</small><p>${esc(m.content)}</p>${(m.role==='assistant'?(m.image_refs || []):[]).map(renderFigure).join("")}</div>`).join("") : '<div class="resource-note">还没有对话记录。向助教提一个问题吧。</div>';
-  } catch (error) { toast(`学习记录暂不可用：${error.message}`); }
+  } catch (error) { if(refresh===refreshLearning.sequence&&owner===studentId&&session===tabSessionId)toast(`学习记录暂不可用：${error.message}`); }
 }
 
 async function refreshPreferences() {

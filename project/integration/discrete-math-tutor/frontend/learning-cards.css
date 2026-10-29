@@ -16,3 +16,6 @@
 .learning-card-actions button:disabled{opacity:.6;cursor:wait}
 .learning-card button:focus-visible,.learning-card input:focus-visible,.learning-card textarea:focus-visible{outline:2px solid #426780;outline-offset:3px}
 .learning-card [data-card-notice]{font-size:.85em;color:var(--muted,#526971)}
+.review-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;max-width:100%}
+.review-actions button{min-height:40px;padding:8px 12px}
+.review-actions [role=status]{flex-basis:100%}

@@ -14,6 +14,16 @@ _review = ContextVar('heart_reviewed_question', default=None)
 _decision = ContextVar('heart_assessment_decision', default=None)
 _repair = ContextVar('heart_assessment_repair', default=None)
 _command = ContextVar('heart_assessment_command', default=None)
+_review_action = ContextVar('heart_review_action', default=None)
+
+
+@contextmanager
+def review_action(value):
+    token = _review_action.set(deepcopy(value))
+    try:
+        yield
+    finally:
+        _review_action.reset(token)
 
 
 @contextmanager
@@ -50,7 +60,8 @@ def assessment_command(path_id, question_id, command_id, action, payload):
         sort_keys=True, separators=(',', ':')).encode(), hashlib.sha256).hexdigest()
     token = _command.set({'path_id': path_id, 'question_id': question_id,
                           'command_id': command_id, 'action': action, 'signature': signature,
-                          'confidence': payload.get('confidence'), 'base_revision': payload.get('base_revision')})
+                          'confidence': payload.get('confidence'), 'base_revision': payload.get('base_revision'),
+                          'payload': deepcopy(payload)})
     try:
         yield
     finally:
@@ -68,6 +79,9 @@ def assistance(interaction):
 
 
 class HostAssessmentStore(HostAuthorizedLearningStore):
+    def _authorize(self):
+        self._host_backend.authorize_native_assessment(self._host_check)
+
     def _seal(self, path_id, question, proof):
         secret = os.getenv('DEEPTUTOR_BRIDGE_TOKEN', '')
         if len(secret) < 32:
@@ -107,6 +121,8 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
     def mutate(self, book_id, fn, **kwargs):
         def guarded(tx):
             before = tx.active_interaction()
+            initial_active = before
+            review = _review_action.get()
             command = _command.get()
             if command and command['path_id'] == book_id:
                 before = tx.get_interaction(command['question_id'])
@@ -117,6 +133,8 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                     if receipt != command['signature']:
                         raise MasteryInteractionError('assessment_command_conflict')
                     action = command['action']
+                    if action == 'review_start':
+                        return (tx.get_interaction(command['payload']['question_id']), False)
                     return ((before, True) if action == 'grade' else False if action == 'skip'
                             else {} if action in ('defer', 'void', 'correct') else None if action == 'review' else before)
                 if command.get('base_revision') is not None and tx.progress.version != command['base_revision']:
@@ -125,6 +143,9 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                     active = tx.active_interaction()
                     if active is None or active.interaction_id != before.interaction_id:
                         raise MasteryInteractionError('stale_question')
+            if review:
+                from .review import validate_review_action
+                validate_review_action(self, tx, review)
             repair = _repair.get()
             if repair and repair['path_id'] == book_id:
                 before = tx.get_interaction(repair['question_id'])
@@ -133,8 +154,17 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
             reviewed_at = max((e.timestamp for e in tx.progress.learning_evidence
                                if before is not None and e.question_id == before.interaction_id
                                and e.assessment_type == 'qualitative'), default=0)
+            from .review import evidence_identity
+            for event in tx.progress.learning_evidence:
+                if not event.evidence_id and event.question_id:
+                    event.evidence_id = evidence_identity(self._host_check, book_id, event)
+                    tx.touch()
             old_evidence = {e.evidence_id for e in tx.progress.learning_evidence}
             result = fn(tx)
+            for event in tx.progress.learning_evidence:
+                if not event.evidence_id and event.question_id:
+                    event.evidence_id = evidence_identity(self._host_check, book_id, event)
+                    tx.touch()
             if (isinstance(result, tuple) and result and getattr(result[0], 'result', {}).get('review_invalidated')):
                 raise MasteryInteractionError('assessment_voided')
             qualitative_changed = any(k not in qualitative or qualitative[k] != value
@@ -176,7 +206,7 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                 tx.put_interaction(before)
                 tx.emit('interaction.graded', {'interaction_id': before.interaction_id, 'verification': 'reviewed_rubric'})
             active = tx.active_interaction()
-            if before is None and active is not None:
+            if initial_active is None and active is not None:
                 approval = _review.get()
                 question = active.question
                 if (not approval or approval['path_id'] != book_id
@@ -198,8 +228,18 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                     raise MasteryInteractionError('assessment_type_requires_review')
                 self._sources(approval['sources'])
                 proof = {k: deepcopy(approval[k]) for k in ('reviewer_id', 'key_version', 'sources', 'rubric')}
+                if review and review['action'] == 'start':
+                    origin = tx.get_interaction(review['origin'])
+                    support = origin.result['host_assessment'].get('card_support')
+                    if support:
+                        proof['card_support'] = deepcopy(support)
                 proof['seal'] = self._seal(book_id, question, proof)
                 active.result['host_assessment'] = proof
+                if review and review['action'] == 'start':
+                    active.result['host_review'] = {k: review[k] for k in ('origin', 'review_id')}
+                    if review.get('previous_question'):
+                        previous = tx.get_interaction(review['previous_question'])
+                        active.result['assistance_events'] = deepcopy(previous.result.get('assistance_events', []))
                 tx.put_interaction(active)
             if before is not None:
                 after = tx.get_interaction(before.interaction_id)
@@ -222,7 +262,7 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                     after.result['misconception_hypotheses'] = [dict(h, status='dismissed')
                         for h in before.result.get('misconception_hypotheses', [])]
                     after.result.update({k: deepcopy(v) for k, v in before.result.items()
-                                         if k in ('assistance_events', 'self_confidence', 'host_commands', 'published_help', 'card_requests', 'card_commands', 'card_view', 'card_explanation_requested', 'card_return_path')})
+                                         if k in ('assistance_events', 'self_confidence', 'host_commands', 'published_help', 'card_requests', 'card_commands', 'card_view', 'card_explanation_requested', 'card_return_path', 'host_review')})
                     # 修订答案键后旧讲解不再作为可发布帮助，等待新的审核内容。
                     after.result.pop('published_help', None)
                     after.result.pop('card_explanation_requested', None)
@@ -274,7 +314,7 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                     after.result['host_assessment'] = proof
                     after.result['assessment_version'] = 'native-choice-reviewed-v1'
                     after.result.update({k: deepcopy(v) for k, v in before.result.items()
-                                         if k in ('assistance_events', 'self_confidence', 'host_commands', 'published_help', 'card_requests', 'card_commands', 'card_view', 'card_explanation_requested', 'card_return_path')})
+                                         if k in ('assistance_events', 'self_confidence', 'host_commands', 'published_help', 'card_requests', 'card_commands', 'card_view', 'card_explanation_requested', 'card_return_path', 'host_review')})
                     tx.put_interaction(after)
                     for event in tx.progress.learning_evidence:
                         if event.question_id == before.interaction_id:
@@ -293,6 +333,15 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                     tx.touch()
                     if isinstance(result, tuple) and result and getattr(result[0], 'interaction_id', None) == after.interaction_id:
                         result = (after, *result[1:])
+            if review:
+                from .review import commit_review_action
+                commit_review_action(tx, review)
+            changed = {e.knowledge_point_id for e in tx.progress.learning_evidence if e.evidence_id not in old_evidence}
+            if repair and before is not None:
+                changed.add(before.question.knowledge_point_id)
+            if changed:
+                from .review import sync_schedule
+                sync_schedule(self, tx, changed)
             if command and command['path_id'] == book_id:
                 current = tx.get_interaction(command['question_id'])
                 receipts = current.result.setdefault('host_commands', {})
@@ -322,6 +371,15 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
 
 
 class HostAssessmentService(LearningService):
+    def grade_interaction(self, *args, **kwargs):
+        # 辅助/核验标记落定后，同一事务内由原生调度器重放。
+        kwargs['scheduler'] = None
+        return super().grade_interaction(*args, **kwargs)
+
+    def record_qualitative_for_path(self, *args, **kwargs):
+        kwargs['scheduler'] = None
+        return super().record_qualitative_for_path(*args, **kwargs)
+
     def repair_question(self, book_id, question_id='', **kwargs):
         if not question_id:
             raise MasteryInteractionError('question_id_required')
@@ -329,6 +387,7 @@ class HostAssessmentService(LearningService):
             raise MasteryInteractionError('question_review_required')
         token = _repair.set({'path_id': book_id, 'question_id': question_id, 'action': kwargs.get('action')})
         try:
+            kwargs['scheduler'] = None
             return super().repair_question(book_id, question_id, **kwargs)
         finally:
             _repair.reset(token)
