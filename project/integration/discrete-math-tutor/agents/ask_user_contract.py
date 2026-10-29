@@ -139,6 +139,25 @@ def format_user_reply(payload: dict[str, Any] | None, reply_text: str,
     return "\n".join(lines)
 
 
+def validate_answers(payload: dict[str, Any], answers: list[dict[str, Any]]) -> str:
+    """问题身份必须完整匹配；闭集选择不接受浏览器注入的选项。"""
+    questions = payload.get('questions') or []
+    ids = [item.get('questionId') for item in answers]
+    if len(set(ids)) != len(ids) or set(ids) != {q['id'] for q in questions}:
+        raise ValueError('请完整回答当前问题；问题编号不存在、重复或已失效')
+    by_id = {item['questionId']: _text(item.get('text')) for item in answers}
+    for question in questions:
+        text = by_id[question['id']]
+        if not text:
+            raise ValueError('每个问题都需要答案')
+        if not question.get('allow_free_text', True):
+            labels = {o['label'] for o in question.get('options', [])}
+            values = text.split('；') if question.get('multi_select') else [text]
+            if not values or any(value not in labels for value in values):
+                raise ValueError('请选择当前问题提供的选项')
+    return format_user_reply(payload, '', answers)
+
+
 def substitute_answer(tool_messages: list[dict[str, Any]], tool_call_id: str,
                       directive: str) -> bool:
     """Replace the paused tool result in-place; return whether it matched."""

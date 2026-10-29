@@ -24,6 +24,8 @@ def with_transient_model_messages(
             if index + 1 == len(messages) or messages[index + 1].get("role") != "tool":
                 request_messages.extend(pending)
                 pending.clear()
+    # 宿主预检索只写入可信上下文，没有 assistant/tool 消息；像素仍需送入本轮模型。
+    request_messages.extend(anchored.pop('prefetch-course', []))
     return request_messages
 
 def _transient_image_count(message: dict[str, Any]) -> int:

@@ -61,6 +61,27 @@ async function applyStyle(values,scope) {
 }
 window.addEventListener('storage', event => { if(event.key === studentKey) location.reload(); });
 
+function askDraft(task) {
+  const key=course.id+':ask:'+studentId+':'+tabSessionId+':'+task.task_id+':'+task.task_revision;
+  let value={};try { value=JSON.parse(sessionStorage.getItem(key)||'{}'); } catch (_) {}
+  if(!value || Array.isArray(value) || typeof value!=='object')value={};
+  return {key,value};
+}
+document.addEventListener('input', event => {
+  const field=event.target.closest('[data-ask-question]'),task=state.clarification;
+  if(!field || !task || state.sending)return;
+  const questions=window.TutorAskUser.questions(task.clarification),q=questions[Number(field.dataset.askQuestion)];
+  if(!q)return;
+  const draft=askDraft(task),value=draft.value[q.id] || {selected:[],text:''};
+  if(field.hasAttribute('data-ask-text'))value.text=field.value;
+  else {
+    const index=Number(field.dataset.askOption);
+    value.selected=q.multi_select?[...new Set([...(value.selected||[]).filter(i=>i!==index),...(field.checked?[index]:[])])]:[index];
+  }
+  draft.value[q.id]=value;
+  sessionStorage.setItem(draft.key,JSON.stringify(draft.value));
+});
+
 function renderClarification(message) {
   const task=state.clarification;
   const snapshot=message.sessionPlan || (message.taskId===task?.task_id?task?.q5_session_plan:null);
@@ -68,8 +89,10 @@ function renderClarification(message) {
   const plan=latest && state.sessionPlan?.plan_id===snapshot.plan_id && snapshot.status!=='draft'?state.sessionPlan:snapshot;
   const card=renderSessionPlan(plan);
   if(!task || message.taskId !== task.task_id || state.chat.findLast(m=>m.taskId===task.task_id)!==message) return card;
+  const questions=window.TutorAskUser.questions(task.clarification);
+  const questionForm=questions.length?window.TutorAskUser.render(questions,askDraft(task).value,state.sending):null;
   return card+'<div class="task-clarification"><p>'+ (task.q5_session_plan?'可以确认这份安排，或直接输入时间、范围与教法的调整。':'正在补充上一个问题；也可以取消后重新提问。')+'</p>' +
-    (task.clarification?.options || []).map((option,index)=>'<button type="button" class="secondary-button" data-task-option="'+index+'" '+(state.sending?'disabled':'')+'>'+esc(option.label)+'</button>').join(' ') +
+    (questionForm || (task.clarification?.options || []).map((option,index)=>'<button type="button" class="secondary-button" data-task-option="'+index+'" '+(state.sending?'disabled':'')+'>'+esc(option.label)+'</button>').join(' ')) +
     ' <button type="button" class="secondary-button" data-task-cancel '+(state.sending?'disabled':'')+'>取消本次问题</button></div>';
 }
 
@@ -110,9 +133,11 @@ async function restoreClarification() {
 async function cancelClarification() {
   const task=state.clarification;
   if(!task) return true;
+  const draft=askDraft(task);
   const result=await api('/api/chat/tasks/'+encodeURIComponent(task.task_id),{method:'DELETE',body:JSON.stringify({
     student_id:studentId,session_id:tabSessionId,task_revision:task.task_revision})});
   if(result.answer_status!=='task_cancelled') { toast(result.reply || '问题状态已变化，请重新恢复');await restoreClarification();return false; }
+  sessionStorage.removeItem(draft.key);
   state.clarification=null;renderChat();toast('本次问题已取消');return true;
 }
 
@@ -153,6 +178,7 @@ async function api(path, options = {}) {
 }
 const post = (path, data) => api(path, {method:"POST", body:JSON.stringify(data)});
 window.LearningReview?.bind({
+  storageKey:()=>course.id+':review-command:'+studentId+':'+tabSessionId,
   onConflict:()=>refreshLearning(),
   act:async payload=>{
     if(state.sending)throw new Error('请先完成当前回答，再选择复习动作');
@@ -730,6 +756,7 @@ async function sendMessage(message, options={}) {
       style_overrides:styleSnapshot.values,
       ...(task?{task_id:task.task_id,task_revision:task.task_revision}:{}),
       ...(options.selectedOption?{selected_option:options.selectedOption}:{}),
+      ...(options.answers?{answers:options.answers}:{}),
       learning_goal:exercise?.knowledgePoint || selection?.section_title || state.sectionData?.title || course.title,
       // 补充旧任务时使用服务端原对象；当前阅读位置不能覆盖已选澄清选项。
       reader_location:task || selection || exercise || visualization || truthTable || relation ? undefined : (state.sectionData ? {chapter_id:state.chapter, section_id:state.section} : undefined),
@@ -756,6 +783,7 @@ async function sendMessage(message, options={}) {
         });
       });
     if (!isCurrent()) return;
+    if(task && result.answer_status==='answered')sessionStorage.removeItem(askDraft(task).key);
     state.clarification=result.answer_status==='awaiting_clarification'?result:null;
     state.clarificationObject=state.clarification?objectKey:null;
     showAnswer(result, true); refreshStats();
@@ -986,6 +1014,15 @@ function bindEvents() {
     if(event.target.closest('[data-clear-exercise]')) {if(!state.sending){state.sending=true;cancelClarification().then(ok=>{if(ok){state.exerciseDraft=null;renderSelectionDraft();}}).catch(error=>toast(error.message)).finally(()=>{state.sending=false;renderChat();});}return;}
     if(event.target.closest('[data-task-restore]')) {restoreClarification();return;}
     if(event.target.closest('[data-task-cancel]')) {if(!state.sending){state.sending=true;renderChat();cancelClarification().catch(error=>toast(error.message)).finally(()=>{state.sending=false;renderChat();});}return;}
+    if(event.target.closest('[data-ask-submit]')) {
+      if(state.sending || !state.clarification)return;
+      try {
+        const questions=window.TutorAskUser.questions(state.clarification.clarification);
+        const answers=window.TutorAskUser.answers(questions,askDraft(state.clarification).value);
+        sendMessage(questions.map((q,i)=>q.prompt+'：'+answers[i].text).join('\n'),{answers});
+      } catch(error) {toast(error.message);}
+      return;
+    }
     const taskOption=event.target.closest('[data-task-option]');
     if(taskOption) {const option=state.clarification?.clarification?.options?.[Number(taskOption.dataset.taskOption)];if(option&&!state.sending)sendMessage(option.label,{selectedOption:option.id});return;}
     const nav = event.target.closest("[data-view]");

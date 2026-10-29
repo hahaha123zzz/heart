@@ -77,6 +77,29 @@ class PausedExecutor:
 
 
 class TaskLoopPersistenceTests(unittest.TestCase):
+    def test_structured_multi_question_answers_resume_same_loop_and_replay(self):
+        llm = ScriptedLLM([
+            tool_round(('ask_user', {'questions':[
+                {'id':'goal','prompt':'学习目标？','options':['概念','计算'],'allow_free_text':False},
+                {'id':'style','prompt':'哪些方式？','options':['例子','对比'],'multi_select':True,'allow_free_text':False}]})),
+            final_round('使用例子和对比讲解概念。')])
+        executor = LiveLoopExecutor(llm, self.memory)
+        first = self.service.run(ChatRequest(student_id='s',request_id='multi-first',message='请先提问'),executor)
+        self.assertEqual(first['answer_status'],'awaiting_clarification')
+        base = dict(student_id='s',task_id=first['task_id'],task_revision=first['task_revision'],message='已回答全部问题')
+        invalid = self.service.run(ChatRequest(**base,request_id='bad-answer',answers=[{'questionId':'goal','text':'概念'}]),executor)
+        self.assertEqual(invalid['answer_status'],'invalid_option')
+        request = ChatRequest(**base,request_id='multi-reply',answers=[
+            {'questionId':'style','text':'例子；对比'},{'questionId':'goal','text':'概念'}])
+        second = self.service.run(request,executor)
+        self.assertEqual(second['answer_status'],'answered')
+        answer = executor.calls[-1]['_resume_answer']
+        self.assertIn('学习目标？ -> 概念',answer)
+        self.assertIn('哪些方式？ -> 例子；对比',answer)
+        count=len(llm.calls)
+        self.assertEqual(self.service.run(request,executor)['reply'],second['reply'])
+        self.assertEqual(len(llm.calls),count)
+
     def test_fresh_executor_cancellation_uses_claimed_task_identity(self):
         from sqlalchemy import select
         from database.database import session_scope
@@ -215,6 +238,7 @@ class TaskLoopPersistenceTests(unittest.TestCase):
         self.assertEqual(len(events),before);sdk.chat.completions.create.assert_called_once()
 
     def setUp(self):
+        import database.q5_learning  # 与正式 init_db 一致，先登记完整 schema。
         self.temp = tempfile.TemporaryDirectory()
         self.engine = create_engine(
             "sqlite:///" + self.temp.name.replace("\\", "/") + "/q3.db",

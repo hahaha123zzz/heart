@@ -268,7 +268,10 @@ class NativeTurnBridge:
             backend = DeepTutorBackend(base_url=os.getenv('DEEPTUTOR_HOST_URL', 'http://127.0.0.1:8000'))
             await asyncio.to_thread(backend.authorize_native_assessment, check.model_dump())
         except (BackendUnavailable, ValueError) as exc:
-            raise HTTPException(409, '已保存测评身份核验未通过') from exc
+            if isinstance(exc, ValueError) or getattr(exc.__cause__, 'code', None) in (400, 401, 403, 404, 409, 410, 422):
+                raise HTTPException(409, '已保存测评身份核验未通过') from exc
+            # 超时不能证明身份失效；保留原命令 ID，允许丢响应后的幂等恢复。
+            raise HTTPException(503, '测评身份暂未确认，请使用原命令重试') from exc
 
     async def status(self, request: NativeTurnKey):
         entry = self.entry(request)

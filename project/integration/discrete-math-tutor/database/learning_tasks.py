@@ -129,6 +129,15 @@ class LearningTaskRepository:
                 LearningTaskRow.session_id == session_id, LearningTaskRow.status == "completed", LearningTaskRow.expires_at > now()).order_by(LearningTaskRow.created_at.desc()).limit(limit)).all()
             return [snapshot(row) for row in reversed(rows)]
 
+    def navigation_recent(self, student_id, session_id, limit=12):
+        """失败目标只供位置恢复，不混入已完成聊天或学习证据。"""
+        with session_scope() as session:
+            rows = session.scalars(select(LearningTaskRow).where(
+                LearningTaskRow.student_id == student_id, LearningTaskRow.session_id == session_id,
+                LearningTaskRow.status.in_(("completed", "failed")), LearningTaskRow.expires_at > now()
+            ).order_by(LearningTaskRow.created_at.desc()).limit(limit)).all()
+            return [snapshot(row) for row in reversed(rows)]
+
     def claim(self, *, student_id, session_id, request_id, payload, point, epoch, memory_repo,
               task_id=None, revision=None, ttl_seconds=1800):
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True, ensure_ascii=False).encode()).hexdigest()

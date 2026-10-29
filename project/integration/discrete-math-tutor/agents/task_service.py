@@ -45,6 +45,15 @@ class TaskService:
     def _selected_label(request, previous):
         """Return the clickable label for an ask_user answer, else raw text."""
         clarification = (previous or {}).get("result", {}).get("clarification") or {}
+        if request.answers is not None:
+            from agents.ask_user_contract import validate_answers
+            if clarification.get('mode') != 'ask_user':
+                raise TaskConflict('invalid_option', '当前任务不接受多问题答复')
+            try:
+                return validate_answers(clarification.get('ask_user') or clarification,
+                                        [item.model_dump() for item in request.answers])
+            except ValueError as exc:
+                raise TaskConflict('invalid_option', str(exc)) from exc
         options = clarification.get("options") or []
         chosen = request.selected_option
         if chosen is None:
@@ -155,7 +164,8 @@ class TaskService:
         if selection_loop_enabled() and bound_selection is not None and bound_selection.kind == 'text':
             context.selection_scope = descriptor(bound_selection)
         from knowledge.course_navigation import resolve, previous_cursor
-        cursor = previous_cursor(recent, self.tutor.memory, request.student_id)
+        cursor = previous_cursor(self.repo.navigation_recent(request.student_id, request.session_id),
+                                 self.tutor.memory, request.student_id)
         if cursor is None and self._needs_navigation_fallback(request.message):
             cursor = self._last_navigation_cursor(recent)
         if not any((bound_selection, request.exercise_target, request.visualization_target,
@@ -234,7 +244,7 @@ class TaskService:
                 payload[field] = request.model_dump()[field]
         merged = payload["message"] + suffix
         if len(merged) > 4000: raise TaskConflict("task_too_long", "补充后的问题过长，请重新提问")
-        payload.update(message=merged, request_id=request.request_id, task_id=None, task_revision=None, selected_option=None,
+        payload.update(message=merged, request_id=request.request_id, task_id=None, task_revision=None, selected_option=None, answers=None,
             style_overrides=request.model_dump()["style_overrides"])
         return ChatRequest.model_validate(payload)
 

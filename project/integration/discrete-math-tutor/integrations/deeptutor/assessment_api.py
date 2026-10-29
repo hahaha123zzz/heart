@@ -107,7 +107,9 @@ def install_assessment_api(router, bridge):
         except (MasteryInteractionError, ValueError, KeyError) as exc:
             raise HTTPException(409, detail={'code': str(exc)[:200]}) from exc
         except BackendUnavailable as exc:
-            raise HTTPException(409, detail={'code': 'assessment_authorization_changed'}) from exc
+            permanent = getattr(exc.__cause__, 'code', None) in (400, 401, 403, 404, 409, 410, 422)
+            raise HTTPException(409 if permanent else 503, detail={
+                'code': 'assessment_authorization_changed' if permanent else 'assessment_authorization_unavailable'}) from exc
 
     @router.post('/assessment/register')
     async def register(payload: AssessmentRegistration):

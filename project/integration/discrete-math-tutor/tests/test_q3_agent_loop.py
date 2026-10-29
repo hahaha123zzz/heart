@@ -170,6 +170,24 @@ class LLMToolProtocolTests(unittest.TestCase):
 
 
 class AgentLoopTests(unittest.TestCase):
+    def test_host_prefetch_is_context_not_fabricated_assistant_tool_call(self):
+        class Retrieve(EchoTool):
+            definition = ToolDefinition('retrieve_course', '教材',
+                (ToolParameter('query', 'string', '问题'), ToolParameter('limit', 'integer', '数量')))
+            def run(self, arguments, context):
+                return ToolResult(content='检索原文', sources=[{'source_id':'prefetch-source', 'text':'教材原文'}],
+                    model_message={'role':'user','content':[{'type':'image_url','image_url':{'url':'data:image/png;base64,eA=='}}]})
+        registry = ToolRegistry();registry.register(Retrieve())
+        llm = ScriptedLLM([final_round('有依据的讲解[1]')])
+        result = LocalAgentLoop(llm).run(request(llm, registry, prefetch_query='学习第一章'))
+        self.assertTrue(result.completed)
+        sent = llm.calls[0]['messages']
+        self.assertFalse(any(m.get('tool_calls') or m['role']=='tool' for m in sent))
+        self.assertTrue(any(m['role']=='system' and '检索原文' in m['content'] for m in sent))
+        self.assertEqual(result.sources[0]['source_id'], 'prefetch-source')
+        self.assertTrue(any(isinstance(m.get('content'),list) and m['content'][0].get('type')=='image_url' for m in sent))
+        self.assertNotIn('base64', json.dumps(result.state()))
+
     def test_resume_refreshes_host_policy_without_losing_tool_protocol(self):
         llm = ScriptedLLM([
             tool_round(('ask_user', {'question': '选择讲解方式'})),

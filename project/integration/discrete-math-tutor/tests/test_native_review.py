@@ -13,6 +13,21 @@ from tests import test_native_learning_cards as fixtures
 
 
 class NativeReviewTests(unittest.IsolatedAsyncioTestCase):
+    async def test_authorization_timeout_is_retryable_but_deleted_owner_is_conflict(self):
+        from urllib.error import HTTPError
+        from fastapi import HTTPException
+        from integrations.deeptutor.client import BackendUnavailable
+        entry = self.bridge.entry(self.request)
+        timeout = BackendUnavailable('暂时无法回查')
+        timeout.__cause__ = TimeoutError('受控响应丢失')
+        denied = BackendUnavailable('账户已失效')
+        denied.__cause__ = HTTPError('http://127.0.0.1/internal',409,'deleted',{},None)
+        for error, expected in ((timeout,503),(denied,409)):
+            with patch('integrations.deeptutor.client.DeepTutorBackend.authorize_native_assessment',side_effect=error):
+                with self.assertRaises(HTTPException) as caught:
+                    await self.bridge.authorize_assessment(self.request,entry)
+                self.assertEqual(caught.exception.status_code,expected)
+
     asyncSetUp = fixtures.NativeLearningCardTests.asyncSetUp
     asyncTearDown = fixtures.NativeLearningCardTests.asyncTearDown
     finished = fixtures.NativeLearningCardTests.finished

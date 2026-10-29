@@ -105,7 +105,8 @@ def intent(message):
     named = next((chapter['title'] for chapter in chapters() if chapter['title'] in text), None) if PSYCHOLOGY else None
     if re.search(r'学|带我|从头|开始|讲解|介绍', text) and (chapter_match or named):
         suffix = text.split(named, 1)[1] if named else text[chapter_match.end():]
-        suffix = re.sub(r'(?:[，,。；;](?:只讲解|只讲|先讲解|不要出题|不出题|不要测试|不测试))+[。！？]*$', '', suffix)
+        suffix = re.sub(r'(?:[，,。；;](?:只讲解|只讲|先讲解|直接讲解|直接讲|直接解释|'
+                        r'从第一个知识点开始|不要出题|不出题|不要测试|不测试))+[。！？]*$', '', suffix)
         if re.fullmatch(r'(?:的|内容|全部|从头|开始|学习|讲解|吧|[，。！？])*', suffix):
             return 'start'
     return None
@@ -115,6 +116,13 @@ def previous_cursor(recent, memory, student_id):
     for row in reversed(recent):
         result = row['result']
         if result.get('answer_status') != 'answered':
+            selected = (row.get('context') or {}).get('course_navigation')
+            if (row.get('status') not in ('cancelled', 'executing', 'awaiting_clarification')
+                    and result.get('answer_status') in ('quality_rejected', 'evidence_rejected',
+                        'loop_failed', 'model_unavailable', 'active_timeout', 'answer_interrupted', 'incomplete_answer')
+                    and selected and selected.get('status') == 'ready'
+                    and row.get('epoch') == memory.repo.memory_epoch(student_id, row['knowledge_point'])):
+                return dict(selected, explained=False, covered=False, delivery_pending=True)
             continue
         cursor = result.get('course_navigation')
         if cursor and row.get('epoch') == memory.repo.memory_epoch(student_id, row['knowledge_point']):
@@ -122,7 +130,7 @@ def previous_cursor(recent, memory, student_id):
             move = move if isinstance(move, dict) else {}
             question = result.get('question_spec') or {}
             progress = result.get('lesson_progress') or {}
-            return dict(cursor, activity={
+            return dict(cursor, delivery_pending=False, activity={
                 'goal': row['knowledge_point'],
                 'awaiting_answer': bool(question and move.get('action') == 'ask_question'),
                 'within_point': bool(result.get('response_path') == 'tutoring'
@@ -259,6 +267,10 @@ def resolve(message, *, cursor=None, reader_location=None, activity=None):
                             and u['section_id'] == reader_location.section_id), None)
         if current is None:
             return {'status': 'clarify', 'reply': '还没有可确认的学习路径和当前位置。请先说明章节或选择要学习的小节。'}
+        if (cursor or {}).get('delivery_pending'):
+            return _cursor(current, mode='repeat', explained=False) | {
+                'continuation_action': 'retry_current',
+                'delivery_pending': True}
         activity = activity or (cursor or {}).get('activity') or {}
         if mode == 'next' and activity.get('awaiting_answer'):
             return {'status': 'clarify', 'continuation_action': 'await_answer',

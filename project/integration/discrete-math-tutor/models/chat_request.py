@@ -9,6 +9,11 @@ from models.relation import RelationTarget
 from models.interaction_preferences import InteractionPreferences
 
 
+class ClarificationAnswer(BaseModel):
+    questionId: str = Field(min_length=1, max_length=180)
+    text: str = Field(min_length=1, max_length=2000)
+
+
 class ChatRequest(BaseModel):
     student_id: str = Field(default="default", min_length=1, max_length=64)
     message: str = Field(min_length=1, max_length=4000)
@@ -29,6 +34,7 @@ class ChatRequest(BaseModel):
     task_id: str | None = Field(default=None, min_length=1, max_length=64)
     task_revision: int | None = Field(default=None, ge=1)
     selected_option: str | None = Field(default=None, min_length=1, max_length=180)
+    answers: list[ClarificationAnswer] | None = Field(default=None, min_length=1, max_length=4)
 
     @model_validator(mode="after")
     def one_explicit_object(self):
@@ -40,4 +46,6 @@ class ChatRequest(BaseModel):
             raise ValueError("task_id和task_revision必须一起提供")
         if self.selected_option is not None and self.task_id is None:
             raise ValueError("选择澄清选项必须提供task_id")
+        if self.answers is not None and (self.task_id is None or self.selected_option is not None):
+            raise ValueError("多问题答复必须绑定任务，且不能同时提交旧选项")
         return self

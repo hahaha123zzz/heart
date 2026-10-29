@@ -28,7 +28,9 @@ class NavigationTests(unittest.TestCase):
     def test_chapter_aliases_resolve_identically_and_override_reader(self):
         values = [resolve(q, reader_location=ReaderLocation(chapter_id=2, section_id=1)) for q in
                   ('我想要学习教材第一章的内容', '学习第1章', '学习实验心理学概论',
-                   '我想学习教材第一章的内容，只讲解，不出题')]
+                   '我想学习教材第一章的内容，只讲解，不出题',
+                   '我想要学习教材第一章的内容，直接讲解，不出题',
+                   '我想学习教材第一章，从第一个知识点开始，直接讲，不出题。')]
         self.assertEqual(len({v['id'] for v in values}), 1)
         self.assertEqual(values[0]['chapter_id'], 1)
         source = read_target(values[0])[0]
@@ -173,6 +175,7 @@ class NavigationTests(unittest.TestCase):
 
 class NavigationTaskTests(unittest.TestCase):
     def setUp(self):
+        import database.q5_learning
         self.temp = tempfile.TemporaryDirectory()
         self.engine = create_engine('sqlite:///' + self.temp.name.replace('\\', '/') + '/test.db')
         @event.listens_for(self.engine, 'connect')
@@ -242,6 +245,29 @@ class NavigationTaskTests(unittest.TestCase):
         retry = self.run_turn('下一个知识点', 'c')
         self.assertEqual(self.contexts[-1].course_navigation['id'], self.contexts[-2].course_navigation['id'])
         self.assertNotEqual(first['course_navigation']['id'], retry['course_navigation']['id'])
+
+    def test_first_failed_delivery_retries_selected_target_then_can_advance(self):
+        failed = self.run_turn('学习第一章', 'first-failed', status='quality_rejected')
+        selected = self.contexts[-1].course_navigation['id']
+        self.assertNotIn('course_navigation', failed)
+        retry = self.run_turn('继续下一个知识点', 'retry-first')
+        self.assertEqual(retry['course_navigation']['id'], selected)
+        self.assertEqual(self.contexts[-1].course_navigation['continuation_action'], 'retry_current')
+        self.assertFalse(retry['course_navigation']['covered'])
+        next_turn = self.run_turn('继续下一个知识点', 'after-delivery')
+        self.assertNotEqual(next_turn['course_navigation']['id'], selected)
+
+    def test_model_exception_keeps_target_without_exposing_failed_history(self):
+        from llm.client import LLMError
+        def failure(context):
+            raise LLMError('受控模型断线')
+        failed = self.run_turn('学习第一章', 'model-disconnected', after_start=failure)
+        self.assertEqual(failed['answer_status'], 'model_unavailable')
+        self.assertEqual(self.repo.recent('nav', 'tab'), [])
+        result = self.run_turn('下一步', 'resume-disconnected')
+        self.assertEqual(result['course_navigation']['id'], self.contexts[-2].course_navigation['id'])
+        self.assertEqual(self.contexts[-1].course_navigation['continuation_action'], 'retry_current')
+
 
     def test_explicit_chapter_wins_over_reader(self):
         self.run_turn('学习第一章', 'a', reader_location={'chapter_id': 2, 'section_id': 1})

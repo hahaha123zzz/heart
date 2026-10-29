@@ -48,3 +48,11 @@ HTTP projection and vanilla-JS rendering are local adaptations. No second
 scheduler, learning database or AgentLoop was introduced. Verified source hashes
 and acceptance boundaries are recorded in NATIVE_FULL_SOURCE_NOTICE.json and
 TA4_COMPLETION_20261029.md; production cutover remains disabled.
+
+The 2026-10-29 conversation-recovery changes adapt DeepTutor's
+web/components/chat/home/AskUserOptions.tsx question-ID/answers contract and
+web/hooks/use-card-submission.ts failure-preserving interaction semantics to
+the existing vanilla-JS host. No React component was copied. The host keeps
+its own task revisions, cancellation, source checks and receipt persistence.
+OpenMAIC command recovery and OpenTutor explicit teaching state were reviewed
+as design references; no source from those two repositories was copied.
