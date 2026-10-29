@@ -420,7 +420,8 @@ class Repository(MemoryIndexRepository, StrategyMemoryRepository, MemoryJobRepos
                 select(PDFCitationRow).where(PDFCitationRow.conversation_id.in_(ids))).all()} if ids else {}
             return [
                 {"id": row.id, "role": row.role, "content": row.content,
-                 "selection_ref": pdf_citations.get(row.id),
+                 "selection_ref": {key: value for key, value in pdf_citations[row.id].items() if not key.startswith('_')}
+                    if row.id in pdf_citations else None,
                  "image_ref_ids": citations.get(row.id, [])}
                 for row in reversed(rows)
             ]

@@ -135,5 +135,20 @@
     },
     "acceptance": "TA2_COMPLETION_20261028.md",
     "formal_cutover": false
+  },
+  "ta3_card_adapter": {
+    "date": "2026-10-28",
+    "upstream_commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "verified_files": {
+      "web/hooks/use-card-submission.ts": "aeb22eb0dd46799bd27cf2c341d2642966ebaaff7f4988eb7cb43e1d88444c30",
+      "web/lib/mastery-question.ts": "67c718f48091428b3d0d167516fd0463fa3b5d529a052fb72adf1c65922991fe",
+      "web/components/chat/home/MasteryQuestionCard.tsx": "50217228508bdbe7b56477860558af920ebbb05e536507ee15549731ef2f9933",
+      "deeptutor/learning/service.py": "db80368e5fdbae06228193a09d65edf25375dd6f79fc2e75d92af6d18ea6e35b",
+      "deeptutor/learning/storage.py": "1f07c18ac1f59b621b5c565984f7f6876e0e7c42eb2efc538e02a577ef04a94b"
+    },
+    "reuse": "正式题卡动作调用TA2的原生LearningService/SQLite，不新增学习或评分库。阅读上游MasteryQuestionCard、useCardSubmission、mastery-question，参考sending/failed/retry和按question_id恢复的思路；宿主为原有vanilla JS页面，未复制React组件或增加React构建。",
+    "local_adaptation": "schema/动作白名单、来源/epoch/版本、服务端收据、宿主代理和展开状态均为项目适配；不是上游现成插件。",
+    "acceptance": "TA3_COMPLETION_20261028.md",
+    "formal_cutover": false
   }
 }

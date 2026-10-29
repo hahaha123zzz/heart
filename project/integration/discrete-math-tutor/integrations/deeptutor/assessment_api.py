@@ -1,5 +1,6 @@
 """只供持有宿主凭据的服务调用；注册/复核不对学生或LLM暴露。"""
 from typing import Literal
+from typing import Annotated
 import asyncio
 
 from fastapi import HTTPException
@@ -61,7 +62,29 @@ class AssessmentCorrection(AssessmentKey):
     reason: str = Field(min_length=1, max_length=500)
 
 
+class CardSupport(AssessmentKey):
+    hints: list[Annotated[str, Field(min_length=1, max_length=1200)]] = Field(default_factory=list, max_length=3)
+    full_explanation: str = Field(default='', max_length=4000)
+    presentations: list[dict] = Field(default_factory=list, max_length=2)
+
+    @model_validator(mode='after')
+    def complete_hints(self):
+        if self.hints and (len(self.hints) != 3 or any(not hint.strip() for hint in self.hints)):
+            raise ValueError('提示须提供完整的三级内容')
+        return self
+
+
+class CardAction(AssessmentKey):
+    card_id: Identifier
+    command_id: Identifier
+    base_revision: int = Field(ge=0, strict=True)
+    action: Literal['set_expanded', 'submit_answer', 'grade', 'request_hint', 'view_explanation', 'defer', 'skip', 'return_path']
+    text: str = Field(default='', max_length=4000)
+    expanded: list[Annotated[int, Field(ge=0, le=6, strict=True)]] = Field(default_factory=list, max_length=7)
+
+
 def install_assessment_api(router, bridge):
+    from .learning_cards import NativeLearningCards
     async def checked(payload, operation):
         entry = bridge.entry(payload)
         await bridge.authorize_host(payload, entry)
@@ -96,3 +119,17 @@ def install_assessment_api(router, bridge):
     async def correct(payload: AssessmentCorrection):
         values = payload.model_dump(exclude=set(AssessmentKey.model_fields))
         return await checked(payload, lambda commands: commands.correct(payload.path_id, payload.question_id, **values))
+
+    @router.post('/assessment/cards')
+    async def cards(payload: AssessmentKey):
+        return await checked(payload, lambda commands: NativeLearningCards(commands).deck(payload.path_id, payload.question_id))
+
+    @router.post('/assessment/cards/configure')
+    async def configure_cards(payload: CardSupport):
+        values = payload.model_dump(exclude=set(AssessmentKey.model_fields))
+        return await checked(payload, lambda commands: NativeLearningCards(commands).configure(payload.path_id, payload.question_id, **values))
+
+    @router.post('/assessment/cards/action')
+    async def card_action(payload: CardAction):
+        values = payload.model_dump(exclude=set(AssessmentKey.model_fields))
+        return await checked(payload, lambda commands: NativeLearningCards(commands).act(payload.path_id, payload.question_id, **values))

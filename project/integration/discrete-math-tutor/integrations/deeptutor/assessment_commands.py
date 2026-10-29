@@ -54,6 +54,7 @@ class AssessmentCommands:
         reviewed = [e for e in events if e.visual_context.get('verification') in ('reviewed_key', 'reviewed_rubric')]
         help_used = assistance(item)
         output = {'interaction_id': item.interaction_id, 'path_id': path_id, 'revision': progress.version,
+                  'explained': item.question.knowledge_point_id in progress.explained_objectives,
                   'status': item.status.value, 'question': public_pending_question(item.question).to_dict(),
                   'review_status': item.result.get('review_status', 'graded' if item.status.value == 'graded' else 'not_reviewed'),
                   'source_status': source_status,
@@ -74,7 +75,7 @@ class AssessmentCommands:
 
     def run(self, path_id, question_id, *, command_id, action, text='', confidence=None,
             kind='hint', level=0, full_explanation=False, published=False, reviewer_id='', criteria=None,
-            misconception_type='', source_quote=''):
+            misconception_type='', source_quote='', base_revision=None):
         if not command_id or len(command_id) > 100 or len(text) > 4000:
             raise MasteryInteractionError('invalid_assessment_command')
         if confidence is not None and (type(confidence) not in (int, float) or not math.isfinite(confidence) or not 0 <= confidence <= 1):
@@ -94,6 +95,8 @@ class AssessmentCommands:
         payload = {'text': text, 'confidence': confidence, 'kind': kind, 'level': level,
             'full_explanation': full_explanation, 'published': published, 'reviewer_id': reviewer_id,
             'criteria': criteria, 'misconception_type': misconception_type, 'source_quote': source_quote}
+        if base_revision is not None:
+            payload['base_revision'] = base_revision
         with assessment_command(path_id, question_id, command_id, action, payload):
             if action == 'present':
                 self.service.mark_question_awaiting(path_id, interaction_id=question_id)
@@ -119,6 +122,8 @@ class AssessmentCommands:
                     self.store._proof(path_id, item)
                     item.result.setdefault('assistance_events', []).append({'command_id': command_id,
                         'kind': kind, 'level': level, 'full_explanation': full_explanation, 'published_at': time.time()})
+                    if text:
+                        item.result['published_help'] = {'kind': kind, 'level': level, 'text': text}
                     tx.put_interaction(item)
                     tx.emit('assessment.help_published', {'interaction_id': question_id, 'kind': kind, 'level': level})
                 self.store.mutate(path_id, help_record)

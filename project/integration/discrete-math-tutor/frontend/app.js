@@ -152,6 +152,37 @@ async function api(path, options = {}) {
   return body;
 }
 const post = (path, data) => api(path, {method:"POST", body:JSON.stringify(data)});
+window.LearningCards?.bind({
+  onAction:async ({card,context,command_id,base_revision,action,text='',expanded=[]})=>{
+    const owner=studentId,session=tabSessionId;
+    if(!context.conversationId)throw new Error('题卡尚未绑定已保存回答');
+    const key={student_id:owner,session_id:session,conversation_id:context.conversationId};
+    let result;
+    try{result=await post('/api/learning/cards/action',{...key,card_id:card.card_id,command_id,base_revision,action,text,expanded});}
+    catch(error){if(error.status===409){error.cardState=await post('/api/learning/cards/view',key).catch(()=>null)}throw error;}
+    if(owner!==studentId||session!==tabSessionId)throw new Error('账户或会话已切换');
+    return result;
+  },
+  onUpdate:(result,{context})=>{
+    const message=state.chat.find(m=>m.conversationId===context.conversationId);
+    if(message){message.learningCards=result.learning_cards;renderChat();}
+    if(result.navigation)toast('已定位原学习路径；可以继续当前目标');
+  },
+  onExpand:async ({card,context,command_id,base_revision,expanded})=>{
+    const owner=studentId,session=tabSessionId;
+    if(!context.conversationId)throw new Error('回答尚未保存，暂不能保存展开状态');
+    const key={student_id:owner,session_id:session,conversation_id:context.conversationId};
+    let result;
+    try{result=await post('/api/learning/cards/expand',{...key,card_id:card.card_id,command_id,base_revision,expanded});}
+    catch(error){if(error.status!==409)throw error;result=await post('/api/learning/cards/view',key);toast('卡片状态已变化，已恢复服务端记录');}
+    if(owner!==studentId||session!==tabSessionId)throw new Error('账户或会话已切换');
+    return result;
+  },
+  onPersist:(card,context)=>{
+    const message=state.chat.find(m=>m.conversationId===context.conversationId);
+    if(message)message.learningCards=message.learningCards.map(old=>old.card_id===card.card_id?card:old);
+  }
+});
 
 function toast(message) {
   const el = $("#toast");
@@ -457,9 +488,21 @@ function renderContent() {
 }
 
 function messagesFromHistory(history) {
-  return history.map((m) => ({conversationId:m.id,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,learningCards:m.role==="assistant"?m.selection_ref?.learning_cards:undefined,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
+  return history.map((m) => ({conversationId:m.id,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,cardsVerified:!(m.selection_ref?.learning_cards||[]).some(c=>c.schema==='learning-cards/v2'),learningCards:m.role==="assistant"?m.selection_ref?.learning_cards:undefined,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
 }
 
+async function restoreLearningCards(){
+  const owner=studentId,session=tabSessionId;
+  await Promise.all(state.chat.filter(m=>m.learningCards?.some(c=>c.schema==='learning-cards/v2')).map(async message=>{
+    try{
+      const result=await post('/api/learning/cards/view',{student_id:owner,session_id:session,conversation_id:message.conversationId});
+      if(owner===studentId&&session===tabSessionId){message.learningCards=result.learning_cards;message.cardsVerified=true;message.cardNotice='';}
+    }catch{
+      if(owner===studentId&&session===tabSessionId){message.learningCards=[];message.cardNotice='测评状态暂不可核验，请稍后恢复；未重新生成回答。';}
+    }
+  }));
+  if(owner===studentId&&session===tabSessionId)renderChat();
+}
 const graphArtifacts = new Map();
 const tableArtifacts = new Map();
 const relationArtifacts = new Map();
@@ -582,7 +625,7 @@ function renderChat() {
   chatRenderer.render(messages.map((m,index)=>({key:m.renderKey ??= newRequestId(),role:m.role,parts:{
     progress:m.startedAt?renderProgress(m):'',
     object:m.objectLabel?'<small>针对：'+esc(m.objectLabel)+'</small>':'',
-    content:renderAnswerContent(m)+(m.role==='assistant'&&!m.failed?window.LearningCards?.render(m.learningCards)||'':''),
+    content:renderAnswerContent(m)+(m.role==='assistant'&&!m.failed?window.LearningCards?.render(m.cardsVerified===false?[]:m.learningCards,{conversationId:m.conversationId})||'':'')+(m.cardNotice?'<p role="status">'+esc(m.cardNotice)+'</p>':''),
     references:renderChatReferences(m,index),clarification:renderClarification(m),style:renderStyleSuggestion(m,index),
     memory:m.memorySummary?'<div class="memory-summary">'+esc(m.memorySummary)+'</div>':'',
     figures:(m.role==='assistant'?(m.imageRefs||[]):[]).filter(image=>!m.content?.includes('(media:'+image.id+')')).map(image=>
@@ -636,7 +679,7 @@ async function sendMessage(message, options={}) {
       failed:result.task_state==='cancelled'||['quality_rejected','task_failed','evidence_rejected','visualization_changed','visualization_unavailable','q5_error','session_plan_changed','answer_interrupted','incomplete_answer','active_timeout','model_unavailable','task_cancelled','loop_failed'].includes(result.answer_status),
       content:result.reply || "助教暂时没有返回内容。", unpublishedDraft:result.unpublished_draft || '',
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
-      learningCards:result.answer_status==='answered'?result.learning_cards:undefined,selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
+      cardsVerified:true,learningCards:result.answer_status==='answered'?result.learning_cards:undefined,selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
       sessionPlan:result.q5_session_plan || result.session_plan || result.q5_status?.session_plan,
       relationContext:result.answer_status==='answered'?result.relation_context:undefined,
       guide:result.answer_status==='answered'||(!result.answer_status&&result.guided_visualization)?result.guided_visualization:undefined});
@@ -972,7 +1015,7 @@ async function init() {
   } catch (error) { $("#course-tree").textContent = `教材读取失败：${error.message}`; toast(error.message); }
   try {
     const history = await api(conversationHistoryUrl());
-    state.chat = messagesFromHistory(history); renderChat();
+    state.chat = messagesFromHistory(history); renderChat();await restoreLearningCards();
   } catch { /* New local demo student has no history. */ }
   await restoreClarification();
   await restoreGraphs();
@@ -1058,7 +1101,7 @@ $('#memory-forget-point').addEventListener('click', async (event) => {
     try {
       const history = await api(conversationHistoryUrl());
       // 等待期间若已开始新提问，保留当前流式回答。
-      if (!state.sending) { state.chat = messagesFromHistory(history); renderChat();await restoreGraphs(); }
+      if (!state.sending) { state.chat = messagesFromHistory(history); renderChat();await restoreLearningCards();await restoreGraphs(); }
       toast('已删除该知识点的学习记忆');
     } catch {
       toast('记忆已删除；剩余对话读取失败，请刷新页面查看');

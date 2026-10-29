@@ -8,3 +8,11 @@
 .learning-card th:first-child{width:26%}
 .learning-card th,.learning-card td{text-align:start;padding:10px 8px;border-block-end:1px solid var(--border,#dfe4e4);vertical-align:top;overflow-wrap:anywhere}
 .learning-card sup button{display:inline-block;border:0;background:none;color:#426780;cursor:pointer;padding:2px 3px;line-height:1.2}
+.learning-card fieldset{border:0;margin:0;padding:0;min-inline-size:0}
+.learning-card fieldset label{display:block;padding:8px 0;overflow-wrap:anywhere}
+.learning-card textarea{box-sizing:border-box;width:100%;font:inherit;padding:8px}
+.learning-card-actions{display:flex;flex-wrap:wrap;gap:8px;margin-block:12px}
+.learning-card-actions button{font:inherit;padding:8px 12px;min-height:40px;cursor:pointer;border:1px solid var(--border,#dfe4e4);border-radius:6px;background:var(--surface,#fff);color:inherit}
+.learning-card-actions button:disabled{opacity:.6;cursor:wait}
+.learning-card button:focus-visible,.learning-card input:focus-visible,.learning-card textarea:focus-visible{outline:2px solid #426780;outline-offset:3px}
+.learning-card [data-card-notice]{font-size:.85em;color:var(--muted,#526971)}

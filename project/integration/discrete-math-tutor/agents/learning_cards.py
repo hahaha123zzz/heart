@@ -105,7 +105,10 @@ def build_learning_cards(teaching, sources, answer, *, reference_map=None):
     if not identity:
         return []
     base = {'schema': 'learning-cards/v1', 'revision': request.task_revision or 1,
-            'objective_id': teaching.objective.id}
+            'objective_id': teaching.objective.id, 'interaction_id': identity,
+            'allowed_actions': ['set_expanded'], 'view_revision': 0,
+            'source_refs': [{'document_id': s['document_id'], 'version': s['version']}
+                            for s in sources if s.get('document_id') and s.get('version')]}
 
     def card(kind, data):
         key = hashlib.sha256(':'.join((request.student_id, request.session_id, identity, kind)).encode()).hexdigest()[:24]

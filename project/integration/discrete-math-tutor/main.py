@@ -41,6 +41,8 @@ from practice_api import router as practice_router, recover_interrupted_submissi
 app.include_router(practice_router)
 from memory_api import router as memory_router
 app.include_router(memory_router)
+from learning_cards_api import router as learning_cards_router
+app.include_router(learning_cards_router)
 if not PSYCHOLOGY:
     from visualization_api import router as visualization_router
     app.include_router(visualization_router)

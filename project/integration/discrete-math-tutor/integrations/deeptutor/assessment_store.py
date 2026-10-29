@@ -50,7 +50,7 @@ def assessment_command(path_id, question_id, command_id, action, payload):
         sort_keys=True, separators=(',', ':')).encode(), hashlib.sha256).hexdigest()
     token = _command.set({'path_id': path_id, 'question_id': question_id,
                           'command_id': command_id, 'action': action, 'signature': signature,
-                          'confidence': payload.get('confidence')})
+                          'confidence': payload.get('confidence'), 'base_revision': payload.get('base_revision')})
     try:
         yield
     finally:
@@ -77,6 +77,8 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                    'question': question.model_dump(mode='json'),
                    'reviewer_id': proof['reviewer_id'], 'key_version': proof['key_version'],
                    'sources': proof['sources'], 'rubric': proof.get('rubric', [])}
+        if 'card_support' in proof:
+            payload['card_support'] = proof['card_support']
         return hmac.new(secret.encode(), json.dumps(payload, sort_keys=True, ensure_ascii=False,
                         separators=(',', ':')).encode(), hashlib.sha256).hexdigest()
 
@@ -117,6 +119,8 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                     action = command['action']
                     return ((before, True) if action == 'grade' else False if action == 'skip'
                             else {} if action in ('defer', 'void', 'correct') else None if action == 'review' else before)
+                if command.get('base_revision') is not None and tx.progress.version != command['base_revision']:
+                    raise MasteryInteractionError('card_revision_conflict')
                 if command['action'] in ('skip', 'defer', 'answer', 'help', 'present'):
                     active = tx.active_interaction()
                     if active is None or active.interaction_id != before.interaction_id:
@@ -218,7 +222,13 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                     after.result['misconception_hypotheses'] = [dict(h, status='dismissed')
                         for h in before.result.get('misconception_hypotheses', [])]
                     after.result.update({k: deepcopy(v) for k, v in before.result.items()
-                                         if k in ('assistance_events', 'self_confidence', 'host_commands')})
+                                         if k in ('assistance_events', 'self_confidence', 'host_commands', 'published_help', 'card_requests', 'card_commands', 'card_view', 'card_explanation_requested', 'card_return_path')})
+                    # 修订答案键后旧讲解不再作为可发布帮助，等待新的审核内容。
+                    after.result.pop('published_help', None)
+                    after.result.pop('card_explanation_requested', None)
+                    # 修订答案键后旧讲解不再作为可发布帮助，等待新的审核内容。
+                    after.result.pop('published_help', None)
+                    after.result.pop('card_explanation_requested', None)
                     for event in tx.progress.learning_evidence:
                         if event.question_id == before.interaction_id:
                             event.visual_context['host_assessment'] = deepcopy(proof)
@@ -264,7 +274,7 @@ class HostAssessmentStore(HostAuthorizedLearningStore):
                     after.result['host_assessment'] = proof
                     after.result['assessment_version'] = 'native-choice-reviewed-v1'
                     after.result.update({k: deepcopy(v) for k, v in before.result.items()
-                                         if k in ('assistance_events', 'self_confidence', 'host_commands')})
+                                         if k in ('assistance_events', 'self_confidence', 'host_commands', 'published_help', 'card_requests', 'card_commands', 'card_view', 'card_explanation_requested', 'card_return_path')})
                     tx.put_interaction(after)
                     for event in tx.progress.learning_evidence:
                         if event.question_id == before.interaction_id:
