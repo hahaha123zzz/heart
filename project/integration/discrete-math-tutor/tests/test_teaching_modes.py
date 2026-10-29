@@ -110,6 +110,18 @@ class TeachingModeTests(unittest.TestCase):
         self.assertEqual(t.progress.learner_profile.teaching_strategy, 'probe_first')
         self.assertTrue(record(t, check_prompt='谁是自变量？', check_focus='操纵').success)
 
+    def test_short_no_quiz_request_cannot_turn_review_into_mandatory_practice(self):
+        message = '请复习自变量和因变量的关系，说明重点依据，不出题。'
+        self.assertEqual(resolve_teaching_mode(message), 'review')
+        self.assertFalse(analyze_teaching_turn(message, question_frequency=1.).invite_check)
+        state = turn(message, preferences={'question_frequency': 1.})
+        self.assertFalse(state.state['allow_check'])
+        self.assertFalse(state.progress.learning_evidence)
+        for negative in ('不出题', '不再出题', '不必出题', '无需出题', '不得出题'):
+            with self.subTest(negative=negative):
+                self.assertNotEqual(resolve_teaching_mode(negative), 'practice')
+                self.assertFalse(analyze_teaching_turn(negative, question_frequency=1.).invite_check)
+
     def test_guidance_invites_one_step_but_hint_only_does_not_require_answer(self):
         self.assertTrue(analyze_teaching_turn('带我思考如何区分变量', question_frequency=0.).invite_check)
         for message in ('只给提示', '第2级提示', '再给一个提示', '给我一点提示'):
@@ -129,10 +141,13 @@ class TeachingModeTests(unittest.TestCase):
         self.assertTrue(t.gate('先看研究者操纵的条件。\n\n' + prompt)[0])
 
     def test_tool_protocol_cannot_be_published_as_a_lesson(self):
-        gate = _publish_gate(None, None, None, teaching=SimpleNamespace(evidence_mode='blended'))
-        accepted, reason = gate('<｜DSML｜function_calls>retrieve_course</｜DSML｜function_calls>', LoopResult())
-        self.assertFalse(accepted)
-        self.assertIn('内部工具协议', reason)
+        gate = _publish_gate(None, SimpleNamespace(message='关系说明'), None, teaching=SimpleNamespace(evidence_mode='blended'))
+        for protocol in ('<｜DSML｜function_calls>', '<｜｜DSML｜｜ calls>',
+                         '<||DSML|| calls>', '</｜｜DSML｜｜ invoke>', '<tool_call name="retrieve_course">'):
+            with self.subTest(protocol=protocol):
+                accepted, reason = gate('我先查教材。\n'+protocol, LoopResult())
+                self.assertFalse(accepted)
+                self.assertIn('内部工具协议', reason)
 
     def test_legacy_plan_consumes_same_mode_when_router_omits_intent(self):
         for message, mode, action in (
@@ -193,6 +208,24 @@ class TeachingModeTests(unittest.TestCase):
 
 
 class TeachingModeHostTests(unittest.TestCase):
+    @patch.dict('os.environ', {'ADAPTIVE_TUTORING_ENABLED': '1', 'Q5_LEARNING_ENABLED': '0'})
+    def test_course_review_requires_retrieval_without_a_new_question(self):
+        model = ScriptedLLM([tool_round('retrieve_course', {'query': '自变量 因变量 关系', 'limit': 1}),
+            ChatToolResult(text='教材区分操纵的条件与测量的反应。[1]', finish_reason='stop')])
+        message = '请复习自变量和因变量的关系，不出题。'
+        context = TaskContext(student_id='s', session_id='x', message=message, knowledge_point='自变量')
+        navigator = StubLearningNavigator(target=LearningTarget(target_id='p', name='自变量'),
+            sources=[SourceRef('e1', 'd', '自变量是研究者操纵的变量。', version='v')])
+        with patch('agents.tools.first_wave_runtime.bind_resources', return_value=(None, ())):
+            result = run_agent_loop_turn(orchestrator=SimpleNamespace(llm=model, memory=FakeMemory(), quality_checker=None),
+                request=ChatRequest(student_id='s', session_id='x', request_id='review', message=message),
+                context=context, navigator=navigator, publish_gate=lambda *_: (True, ''))
+        self.assertEqual(result['answer_status'], 'answered')
+        self.assertEqual(model.calls[0]['tool_choice'], 'required')
+        self.assertIn('retrieve_course', [t['function']['name'] for t in model.calls[0]['tools']])
+        self.assertIsNone(result['teaching']['pending_check'])
+        self.assertFalse(result['teaching']['formal_mastery'])
+
     @patch.dict('os.environ', {'ADAPTIVE_TUTORING_ENABLED': '1', 'Q5_LEARNING_ENABLED': '0'})
     def test_first_guided_question_reads_evidence_before_it_can_finish(self):
         model = ScriptedLLM([

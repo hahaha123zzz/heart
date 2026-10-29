@@ -226,6 +226,27 @@ class AgentLoopTests(unittest.TestCase):
         self.assertTrue(result.completed);self.assertEqual(result.rounds,3)
         self.assertEqual(llm.calls[-1]['tools'],[])
 
+    def test_raw_tool_markup_gets_one_real_dispatch_retry_without_executing_text(self):
+        reason='模型返回了内部工具协议，不能作为教学回答发布。'
+        gate=lambda text,result:(bool(result.sources),reason)
+        llm=ScriptedLLM([final_round('<｜｜DSML｜｜ calls>'),tool_round(('echo',{'text':'原文'})),final_round('解释[1]')])
+        result=LocalAgentLoop(llm).run(request(llm,self.registry(),publish_gate=gate))
+        self.assertTrue(result.completed);self.assertEqual(result.tool_steps,1)
+        self.assertIn('结构化工具调用',llm.calls[1]['messages'][-1]['content'])
+        llm=ScriptedLLM([final_round('<｜｜DSML｜｜ calls>'),final_round('<｜｜DSML｜｜ calls>')])
+        result=LocalAgentLoop(llm).run(request(llm,self.registry(),publish_gate=gate))
+        self.assertEqual(result.error,'quality_rejected');self.assertEqual(result.rounds,2)
+        self.assertEqual(result.tool_steps,0)
+
+    def test_tool_markup_after_evidence_only_repairs_text_once(self):
+        reason='模型返回了内部工具协议，不能作为教学回答发布。'
+        gate=lambda text,result:('DSML' not in text,reason)
+        llm=ScriptedLLM([tool_round(('echo',{'text':'原文'})),final_round('<｜｜DSML｜｜ calls>'),final_round('解释[1]')])
+        result=LocalAgentLoop(llm).run(request(llm,self.registry(),publish_gate=gate))
+        self.assertTrue(result.completed);self.assertEqual(result.tool_steps,1)
+        self.assertEqual(llm.calls[-1]['tools'],[])
+        self.assertIn('已有教材原文',llm.calls[-1]['messages'][-1]['content'])
+
     def test_ask_user_counts_do_not_prevent_missing_retrieval_repair(self):
         llm=ScriptedLLM([tool_round(('ask_user',{'question':'要哪种解释？'})),
             final_round('仅作确认'),tool_round(('echo',{'text':'教材原文'})),final_round('解释[1]')])

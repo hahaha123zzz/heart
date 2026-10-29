@@ -124,11 +124,13 @@ class RetractionTests(unittest.TestCase):
         from unittest.mock import patch
         from tests import test_clarification_tasks as fixture
         from database.models import ConversationRow
+        from database import q5_learning  # 与实际init_db一致，临时库在建表前登记全部Q5模型。
         case=fixture.ClarificationTests();case.setUp()
         self.addCleanup(case.tearDown)
-        budget=ExecutionBudget(.03)
+        budget=ExecutionBudget(30)
         def execute(request,context,resolved,intercept,guard,progress):
-            time.sleep(.05)
+            # 定位执行中的超时，不让繁忙机器在任务登记前耗尽30毫秒。
+            budget.deadline=budget.started-1
             guard()
             return {'reply':'晚到回答','answer_status':'answered'}
         with patch('llm.execution_budget.ExecutionBudget',return_value=budget):

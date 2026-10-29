@@ -153,7 +153,7 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
     def gate(text: str, result: LoopResult) -> tuple[bool, str]:
         if not text.strip():
             return False, "模型没有返回可发布回答。"
-        if re.search(r'<[｜|]DSML[｜|]|<tool_call(?:\s|>)', text, re.IGNORECASE):
+        if re.search(r'<\s*/?\s*[｜|]+\s*DSML\s*[｜|]+|<tool_call(?:\s|>)', text, re.IGNORECASE):
             return False, '模型返回了内部工具协议，不能作为教学回答发布。'
         if not result.sources and (teaching is None or teaching.evidence_mode == "textbook"):
             return False, "本轮没有可核验的教材来源，暂不发布正式回答。"
@@ -509,6 +509,10 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     if not resume_state and re.search(r'(?:请先用|先用|请用)问题卡|先调用\s*ask_user', request.message):
         required_tools = tuple(dict.fromkeys((*required_tools, 'ask_user')))
         system_prompt += '\n用户明确要求先用问题卡：必须调用 ask_user 并暂停，不能用普通文字提问代替。'
+    needs_review_evidence = bool(teaching and teaching.teaching_mode == 'review'
+        and tool_purpose == 'textbook' and 'ask_user' not in required_tools)
+    if needs_review_evidence and not initial_sources:
+        system_prompt += '\n本轮回顾当前课程知识：先实际调用retrieve_course读取原文，再整理关系与重点依据；工具协议文本不能代替检索，不另行出题。'
     needs_teaching_question = bool(teaching and teaching.teaching_mode in ('guided', 'practice')
         and teaching.strategy_decision.invite_check and teaching.state['allow_check']
         and not teaching.progress.pending_question and not teaching.interjection
@@ -605,12 +609,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 request_id=request.request_id or "",
                 message=request.message, system_prompt=system_prompt, tools=registry,
                 round_max_tokens=round_tokens, requires_evidence=(tool_purpose == 'textbook' and
-                    (resume_needs_evidence or needs_teaching_question or teaching is None or teaching.evidence_mode != 'blended')),
+                    (resume_needs_evidence or needs_teaching_question or needs_review_evidence or teaching is None or teaching.evidence_mode != 'blended')),
                 required_tools=required_tools,
                 structured_response=bool(needs_presentation or resources and tool_purpose in STRUCTURED_TOOL and publish_gate is None),
                 answer_ready=((lambda outcome: bool(outcome.sources) or
                     (teaching.evidence_mode == 'blended' and not resume_needs_evidence
-                     and not needs_teaching_question)) if teaching else None),
+                     and not needs_teaching_question and not needs_review_evidence)) if teaching else None),
                 prefetch_query=(prefetch_message if resume_needs_evidence or (tool_purpose == 'textbook' and 'ask_user' not in required_tools and not resume_state and not initial_sources and (
                     q5_binding or (context.course_navigation or {}).get("status")=="ready" or
                     (getattr(navigation.backend,"backend",None) is not None and target is not None and

@@ -388,14 +388,16 @@ class LocalAgentLoop:
                     retrieved = any(call.get('function', {}).get('name') == 'retrieve_course'
                                     for row in messages if row.get('role') == 'assistant'
                                     for call in row.get('tool_calls', []))
-                    if not repair_used and not retrieved and reason == '本轮没有可核验的教材来源，暂不发布正式回答。':
+                    if not repair_used and not retrieved and not result.sources and reason in (
+                            '本轮没有可核验的教材来源，暂不发布正式回答。',
+                            '模型返回了内部工具协议，不能作为教学回答发布。'):
                         repair_used = True
                         messages.extend([{'role':'assistant','content':final_text},
-                            {'role':'user','content':'本轮还未调用 retrieve_course。请先读取当前问题的教材原文，再完成讲解；历史不是本轮引用依据。'}])
+                            {'role':'user','content':'本轮还未调用 retrieve_course。请通过API的结构化工具调用读取当前问题的教材原文，再完成讲解；不要把DSML或tool_call协议写进正文，历史不是本轮引用依据。'}])
                         collector('progress','补取教材依据',{'detail':reason})
                         continue
                     if not repair_used and any(token in (reason or "") for token in
-                                               ("过长", "压缩", "字数", "超过", "引用格式", "格式无效", "尚未引用双方")):
+                                               ("过长", "压缩", "字数", "超过", "引用格式", "格式无效", "尚未引用双方", "内部工具协议")):
                         repair_used = True
                         no_tools_next = True
                         messages.append({"role": "assistant", "content": final_text})
@@ -403,6 +405,9 @@ class LocalAgentLoop:
                             instruction = ("\n请在不新增事实、不改变引用编号和范围的前提下压缩重写，"
                                            "不要调用工具，直接给出修订后的完整回答。")
                             label = "压缩修订"
+                        elif '内部工具协议' in reason:
+                            instruction = '\n已有教材原文，请只用自然语言给出完整讲解，保留实际引用；不要调用工具或输出DSML/tool_call协议。'
+                            label = '修正正文格式'
                         elif '尚未引用双方' in reason:
                             instruction = ('\n只使用已有原文重新组织回答，分别解释双方对象并在支持的结论旁标注各自引用；'
                                            '不能为了补编号硬贴不支持结论的引文，不新增事实或调用工具。')

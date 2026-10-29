@@ -58,11 +58,11 @@ def resolve_teaching_mode(message: str) -> str:
         "direct": r"直接(?:告诉我|解释|讲解|讲|给我(?:完整)?答案)|完整(?:解释|讲解|解答)|查看完整(?:解释|解答)|只讲不考|(?:不要|不用|别)(?:再)?(?:引导|提示)",
         "guided": r"引导我|带我(?:思考|推理)|一步步(?:引导|问我)|(?:不要|不用|别)(?:再)?直接(?:告诉我|给我(?:完整)?答案)|只给提示|只要提示|第?[123一二三]级提示|再给(?:一个|一点|一条)?提示|给我(?:一个|一点|一条)?提示",
         "practice": r"考考我|分步练习|(?:给我|出)(?:一道|一套|几道|个)?(?:练习题|题)|(?:开始|现在|我想)(?:做题|练习)",
-        "review": r"备考复习|考前复习|考试复习|复习模式|(?:帮我|带我)复习",
+        "review": r"备考复习|考前复习|考试复习|复习模式|(?:帮我|带我|请)复习",
     }
     for mode, pattern in patterns.items():
         for match in re.finditer(pattern, message):
-            if re.search(r"(?:不要|不用|别|不想|不需要)(?:再)?$", message[:match.start()]):
+            if re.search(r"(?:不要|不用|别|不想|不需要|不必|无需|不得|不)(?:再)?$", message[:match.start()]):
                 continue
             matches.append((match.start(), mode))
     return max(matches)[1] if matches else "auto"

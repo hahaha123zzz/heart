@@ -1,0 +1,527 @@
+{
+  "cases": [
+    {
+      "id": "TE01",
+      "title": "直接讲与引导",
+      "status": "incomplete",
+      "missing": [
+        "manual"
+      ],
+      "unit_modules": [
+        "test_teaching_modes",
+        "test_native_teaching_prompt"
+      ]
+    },
+    {
+      "id": "TE02",
+      "title": "查询不出题",
+      "status": "incomplete",
+      "missing": [
+        "live"
+      ],
+      "unit_modules": [
+        "test_teaching_modes",
+        "test_adaptive_tutoring"
+      ]
+    },
+    {
+      "id": "TE03",
+      "title": "三级提示与恢复",
+      "status": "incomplete",
+      "missing": [
+        "live",
+        "browser"
+      ],
+      "unit_modules": [
+        "test_teaching_hint_lifecycle",
+        "test_native_learning_cards"
+      ]
+    },
+    {
+      "id": "TE04",
+      "title": "求例子与看图",
+      "status": "incomplete",
+      "missing": [
+        "live",
+        "manual"
+      ],
+      "unit_modules": [
+        "test_teaching_modes",
+        "test_selection_loop"
+      ]
+    },
+    {
+      "id": "TE05",
+      "title": "辅助与独立证据",
+      "status": "passed",
+      "missing": [],
+      "unit_modules": [
+        "test_teaching_evidence",
+        "test_native_assessment_commands"
+      ]
+    },
+    {
+      "id": "TE06",
+      "title": "理解后路径推进",
+      "status": "incomplete",
+      "missing": [
+        "live"
+      ],
+      "unit_modules": [
+        "test_q5_learning"
+      ]
+    },
+    {
+      "id": "TE07",
+      "title": "误解假设更正",
+      "status": "incomplete",
+      "missing": [
+        "live",
+        "manual"
+      ],
+      "unit_modules": [
+        "test_teaching_memory_corrections",
+        "test_native_assessment_commands"
+      ]
+    },
+    {
+      "id": "TE08",
+      "title": "偏好作用域",
+      "status": "incomplete",
+      "missing": [
+        "live"
+      ],
+      "unit_modules": [
+        "test_teaching_modes",
+        "test_native_teaching_prompt"
+      ]
+    },
+    {
+      "id": "TE09",
+      "title": "待答中插问与返回",
+      "status": "incomplete",
+      "missing": [
+        "live",
+        "browser"
+      ],
+      "unit_modules": [
+        "test_native_assessment_commands",
+        "test_native_learning_cards"
+      ]
+    },
+    {
+      "id": "TE10",
+      "title": "幂等并发取消",
+      "status": "incomplete",
+      "missing": [
+        "live",
+        "browser"
+      ],
+      "unit_modules": [
+        "test_q3_agent_loop",
+        "test_native_review",
+        "test_native_learning_authorization"
+      ]
+    },
+    {
+      "id": "TE11",
+      "title": "题卡手机键盘",
+      "status": "incomplete",
+      "missing": [
+        "live",
+        "browser"
+      ],
+      "unit_modules": [
+        "test_learning_cards",
+        "test_learning_card_actions",
+        "test_native_learning_cards"
+      ]
+    },
+    {
+      "id": "TE12",
+      "title": "到期延后完成",
+      "status": "incomplete",
+      "missing": [
+        "live",
+        "browser"
+      ],
+      "unit_modules": [
+        "test_native_review",
+        "test_review_authorization"
+      ]
+    },
+    {
+      "id": "TE13",
+      "title": "版本图像和答案门禁",
+      "status": "incomplete",
+      "missing": [
+        "live"
+      ],
+      "unit_modules": [
+        "test_native_assessment_commands",
+        "test_native_learning_sources"
+      ]
+    },
+    {
+      "id": "TE14",
+      "title": "删除与派生失效",
+      "status": "incomplete",
+      "missing": [
+        "live",
+        "deletion_contract"
+      ],
+      "unit_modules": [
+        "test_teaching_memory_corrections",
+        "test_native_learning_authorization",
+        "test_review_authorization"
+      ]
+    },
+    {
+      "id": "TE15",
+      "title": "信心不混作概率",
+      "status": "incomplete",
+      "missing": [
+        "live"
+      ],
+      "unit_modules": [
+        "test_native_assessment",
+        "test_teaching_evidence"
+      ]
+    },
+    {
+      "id": "TE16",
+      "title": "重点关系有依据",
+      "status": "incomplete",
+      "missing": [
+        "manual"
+      ],
+      "unit_modules": [
+        "test_teaching_modes"
+      ]
+    },
+    {
+      "id": "TE17",
+      "title": "多入口统一原生",
+      "status": "incomplete",
+      "missing": [
+        "live",
+        "browser",
+        "native_unified"
+      ],
+      "unit_modules": [
+        "test_q3_entrypoint",
+        "test_selection_loop",
+        "test_native_learning_session_state"
+      ]
+    },
+    {
+      "id": "TE18",
+      "title": "同配置性能",
+      "status": "incomplete",
+      "missing": [
+        "performance"
+      ],
+      "unit_modules": [
+        "test_teaching_modes",
+        "test_answer_stream",
+        "test_stream_retraction"
+      ]
+    }
+  ],
+  "release_ready": false,
+  "schema": "ta5-acceptance-delivery/v1",
+  "source_digest": "e3cb3b11a7404039eeb0202e683283948118c51548a84a4e1e8dd5a825b31b40",
+  "base_commit": "c701670db775e4b12dde2ca761b126b964bd5a16",
+  "unit_reports": {
+    "host": {
+      "schema": "ta5-acceptance/v1",
+      "source_digest": "e3cb3b11a7404039eeb0202e683283948118c51548a84a4e1e8dd5a825b31b40",
+      "base_commit": "c701670db775e4b12dde2ca761b126b964bd5a16",
+      "created_at": "2026-10-29T13:42:29.278926+00:00",
+      "layer": "host",
+      "modules": {
+        "test_teaching_modes": {
+          "tests_run": 23,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_teaching_hint_lifecycle": {
+          "tests_run": 9,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_teaching_evidence": {
+          "tests_run": 9,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_teaching_memory_corrections": {
+          "tests_run": 4,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_learning_cards": {
+          "tests_run": 8,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_learning_card_actions": {
+          "tests_run": 4,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_review_followups": {
+          "tests_run": 13,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_q3_agent_loop": {
+          "tests_run": 27,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_q3_task_loop": {
+          "tests_run": 12,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_q3_entrypoint": {
+          "tests_run": 5,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_q5_learning": {
+          "tests_run": 31,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_selection_loop": {
+          "tests_run": 12,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_answer_stream": {
+          "tests_run": 9,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_stream_retraction": {
+          "tests_run": 18,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_adaptive_tutoring": {
+          "tests_run": 21,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_ta5_acceptance": {
+          "tests_run": 4,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        }
+      }
+    },
+    "native": {
+      "schema": "ta5-acceptance/v1",
+      "source_digest": "e3cb3b11a7404039eeb0202e683283948118c51548a84a4e1e8dd5a825b31b40",
+      "base_commit": "c701670db775e4b12dde2ca761b126b964bd5a16",
+      "created_at": "2026-10-29T13:42:29.232887+00:00",
+      "layer": "native",
+      "modules": {
+        "test_native_assessment": {
+          "tests_run": 7,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_assessment_commands": {
+          "tests_run": 10,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_learning_cards": {
+          "tests_run": 5,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_review": {
+          "tests_run": 9,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_review_authorization": {
+          "tests_run": 9,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_learning_authorization": {
+          "tests_run": 10,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_learning_sources": {
+          "tests_run": 8,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_learning_write_guard": {
+          "tests_run": 7,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_teaching_prompt": {
+          "tests_run": 6,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_learning_tool_adapter": {
+          "tests_run": 8,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_learning_session_state": {
+          "tests_run": 7,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_learning_binding_adapter": {
+          "tests_run": 8,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        },
+        "test_native_learning_migration": {
+          "tests_run": 11,
+          "passed": true,
+          "failures": [],
+          "errors": [],
+          "skipped": []
+        }
+      }
+    }
+  },
+  "unit_totals": {
+    "host": 209,
+    "native": 105
+  },
+  "evidence": [
+    {
+      "case_id": "TE01",
+      "layer": "live",
+      "status": "passed",
+      "source_digest": "e3cb3b11a7404039eeb0202e683283948118c51548a84a4e1e8dd5a825b31b40",
+      "artifacts": [
+        {
+          "path": ".runtime/ta5/modes-live.json",
+          "sha256": "a77106e6952bd977814be57f0bf4d38accabf2e918325de15d927c9c2cbc34f4"
+        }
+      ]
+    },
+    {
+      "case_id": "TE16",
+      "layer": "live",
+      "status": "passed",
+      "source_digest": "e3cb3b11a7404039eeb0202e683283948118c51548a84a4e1e8dd5a825b31b40",
+      "artifacts": [
+        {
+          "path": ".runtime/ta5/modes-live.json",
+          "sha256": "a77106e6952bd977814be57f0bf4d38accabf2e918325de15d927c9c2cbc34f4"
+        }
+      ]
+    },
+    {
+      "case_id": "TE05",
+      "layer": "live",
+      "status": "passed",
+      "source_digest": "e3cb3b11a7404039eeb0202e683283948118c51548a84a4e1e8dd5a825b31b40",
+      "artifacts": [
+        {
+          "path": ".runtime/ta5/finish-replay-probe.json",
+          "sha256": "0dcb1949821aa2d8aaf2e80bf0a579bff76d544323b680f443b8b16ad893d066"
+        }
+      ]
+    }
+  ],
+  "observed_failures": [
+    {
+      "case_id": "TE06",
+      "artifact": ".runtime/ta5/navigation-live.json",
+      "result": "章节首问因内部协议拒绝，随后navigation_required"
+    },
+    {
+      "case_id": "TE10/TE12",
+      "artifact": ".runtime/ta5/browser-report.json",
+      "result": "完成立即重放一次失败，后续同请求200；首个失败响应细节未完整采集，尚未稳定通过"
+    },
+    {
+      "case_id": "TE17",
+      "artifact": ".runtime/ta5/live/mvtllcd0-entrypoints-browser.json",
+      "result": "多问题ask_user返回questions且顶层options为空；页面只读取顶层options，未显示多问题选项"
+    }
+  ],
+  "release_blockers": [
+    "TE06章节连续学习仍失败",
+    "TE10/TE12完成重放不稳定",
+    "多问题ask_user选项页面尚未接通",
+    "NT3公共/api/chat尚未统一原生",
+    "NT8删除传播与竞争未闭环",
+    "内容人工抽查与同配置性能对照未齐"
+  ],
+  "formal_service_changed": false,
+  "formal_database_changed": false
+}
