@@ -88,6 +88,33 @@ class ReferenceFlowTests(unittest.TestCase):
         self.assertEqual(LearningTaskRepository().get(self.student,'tab',paused['task_id'])['status'],'awaiting_clarification')
         self.assertEqual(self.post('第二个',paused)['answer_status'],'answered')
 
+    def test_shadow_and_off_use_the_same_snapshot_and_business_actions(self):
+        import sqlite3
+        self.post('请给两个例子')
+        snapshot=sqlite3.connect(':memory:')
+        raw=self.engine.raw_connection()
+        try:
+            raw.driver_connection.backup(snapshot)
+            raw.close()
+            for message in ('刚才那个例子，请解释', '我不选B', '以后详细一点，先解释这个概念', '不要出题'):
+                with self.subTest(message=message):
+                    raw=self.engine.raw_connection(); snapshot.backup(raw.driver_connection); raw.close()
+                    self.contexts.clear()
+                    off=self.post(message,mode='off',request_id='same-shadow-check')
+                    off_history=[(r['role'],r['content']) for r in self.tutor.memory.get_history(self.student,session_id='tab')]
+                    self.assertIsNone(self.contexts[-1].input_understanding)
+                    raw=self.engine.raw_connection(); snapshot.backup(raw.driver_connection); raw.close()
+                    self.contexts.clear()
+                    shadow=self.post(message,mode='shadow',request_id='same-shadow-check')
+                    shadow_history=[(r['role'],r['content']) for r in self.tutor.memory.get_history(self.student,session_id='tab')]
+                    self.assertEqual(off['answer_status'],shadow['answer_status'])
+                    self.assertEqual(off['reply'],shadow['reply'])
+                    self.assertEqual(off_history,shadow_history)
+                    self.assertIsNotNone(self.contexts[-1].input_understanding)
+                    self.assertIsNone(self.contexts[-1].input_decision)
+        finally:
+            snapshot.close()
+
     def test_missing_reference_uses_details_as_query_without_fabricating_id(self):
         paused=self.post('刚才那个例子，请解释')
         self.reply='就你补充的光照情境解释。'

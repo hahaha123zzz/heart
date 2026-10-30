@@ -193,8 +193,12 @@ class MemoryManagementTests(unittest.TestCase):
         reference={"document_id":"book","version":"v1","chapter_id":1,"section_id":1,"section_title":self.point,"source":"教材PDF","image_refs":[],"rects":[{"page":4}]}
         selection=SimpleNamespace(document_id="book",rects=[SimpleNamespace(page=4)])
         resolved={"section":{"title":self.point},"text":"集合定义","context":"教材上下文","images":[],"reference":reference}
-        with patch("agents.pdf_selection_tutor.resolve_selection",return_value=resolved),patch("memory.retrieval._model",return_value=(None,None)):
+        # 本测试关注删除竞态；旧离散数学选区夹具没有心理学引用索引所需的 record。
+        with patch("agents.pdf_selection_tutor.resolve_selection",return_value=resolved), \
+             patch("knowledge.grounded_citations.settings",return_value=None), \
+             patch("memory.retrieval._model",return_value=(None,None)):
             result=explain_selection(tutor,"s","解释选区",selection,"production")
+        tutor.llm.chat.assert_called_once()
         self.assertEqual(result["answer_status"],"memory_deleted")
         self.assertEqual(self.count(ConversationRow),0)
 
@@ -204,7 +208,12 @@ class MemoryManagementTests(unittest.TestCase):
             self.memory.forget_point("s",self.point)
             return "基于已删除记忆的旧回答"
         tutor.response_generator.generate.side_effect=generating
-        result=self.turn(tutor)
+        from knowledge.textbook import TextbookChunk
+        source=TextbookChunk(source="教材.txt",section=self.point,text="集合的元素",terms=frozenset())
+        with patch('orchestrator.retrieve_course',return_value=[source]), \
+             patch('knowledge.grounded_citations.settings',return_value=None):
+            result=self.turn(tutor)
+        tutor.response_generator.generate.assert_called_once()
         self.assertEqual(result["answer_status"],"memory_deleted")
         self.assertNotIn("旧回答",result["reply"])
         self.assertEqual(self.count(ConversationRow),0)
@@ -217,7 +226,12 @@ class MemoryManagementTests(unittest.TestCase):
             self.memory.forget_point('s',self.point)
             return decision
         tutor.context_sufficiency.check.side_effect=checking
-        result=self.turn(tutor)
+        from knowledge.textbook import TextbookChunk
+        source=TextbookChunk(source="教材.txt",section=self.point,text="集合的元素",terms=frozenset())
+        with patch('orchestrator.retrieve_course',return_value=[source]), \
+             patch('knowledge.grounded_citations.settings',return_value=None):
+            result=self.turn(tutor)
+        tutor.context_sufficiency.check.assert_called()
         self.assertEqual(result['answer_status'],'memory_deleted')
         self.assertEqual(self.count(ConversationRow),0)
         self.assertEqual(self.count(MemoryJobRow),0)
