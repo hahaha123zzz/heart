@@ -34,3 +34,9 @@ build/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# 嵌套 Git 工作区与本地工具产物
+.worktrees/
+.playwright-mcp/
+.codex-remote-attachments/
+project/integration/discrete-math-tutor/data/user/settings/
