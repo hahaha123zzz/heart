@@ -39,7 +39,7 @@
 - 离线相关回归 `protocol-repair-final.log`：124 项通过；之后补充的图像临时消息调整及回归 `protocol-repair-final2.log`：54 项通过，两组有重叠。覆盖伪造工具参数、没有来源、必需工具、图像传入和非持久化。
 - 真实模型定向测试注入一条模拟内部工具协议，随后的教材检索与回答调用真实系统和模型；自变量、因变量两条均 answered，均有 3 条来源。证据 `protocol-repair-live/forced-final-ready.json` 和 `deep-trace.jsonl`。这是受控故障注入，不是模型自然复现频率测试。启动尚未完成时两次连接失败保留在 `forced-final.json`、`forced-final-retry.json`。
 - 隔离服务实际重启两次：先用真实模型生成两个例子并产生待澄清，关闭输入理解层后返回 `input_mode_disabled`；重新启用后在同一隔离数据库恢复原 task_id，选择第二个例子并得到对应解释。证据 `protocol-repair-live/restart-pending.json`、`restart-off.json`、`restart-on.json`。此项为真实 HTTP/模型验证，并未覆盖浏览器重启交互或所有待办类型。
-- 修复后的 10 条普通问题真实模型自然运行均 answered，记录在 `protocol-repair-live/natural-10.json`；样本量有限，尚未人工评判回答语义。仍需完成独立语义评分、完整页面/原生入口、同快照影子对照、并发取消与状态幂等验收；原 `test_memory_management` 整组失败仍未消除。开关默认关闭，本轮没有更新正式服务或 main。
+- 修复后的 10 条普通问题真实模型自然运行均 answered，记录在 `protocol-repair-live/natural-10.json`；样本量有限，尚未人工评判回答语义。仍需完成独立语义评分、完整页面/原生入口、同快照影子对照、并发取消与状态幂等验收；原 `test_memory_management` 整组失败后续已定位并修复测试夹具，见下节。开关默认关闭，本轮没有更新正式服务或 main。
 
 ## 后续补验：记忆、shadow 和重启页面
 
@@ -49,3 +49,4 @@
 - 原生复习及来源授权 `tests.test_native_review`、`tests.test_review_authorization` 共 19 项通过，日志 `native-review-input.log`，运行于隔离环境与受控夹具；不代表输入理解层已经覆盖正式题卡或复习页面入口。
 - Q5 真实模型与浏览器：生成 20 分钟、只讲解的计划 → 点击确认 → 插问信度 → 返回原活动，四步状态符合预期；插问前后 SQLite `session_plan` 完全一致，返回后 `current_item_id` 未改变，页面无错误。日志和截图 `protocol-repair-live/q5-browser.json`、`q5-browser.png`。此项未覆盖显式下一步、路径切换和复习评分页面。
 - 最新联合回归 `recovery-shadow-final.log`：90 项通过，覆盖记忆管理、对象恢复、shadow、多轮、Q3 循环及任务；题卡/复习前端 `learning-cards.cjs`、`learning-card-actions.cjs`、`learning-review.cjs`、`learning-review-recovery.cjs` 共 4 个测试文件通过。这些是受控回归，不替代正式页面的实际题卡/复习操作。
+- 鼠标框选真实浏览器和真实模型：在第二章第二节通过鼠标拖动选中 PDF 区域并点击“向 AI 提问”，以 80 字内解释及 60 字内追问，两轮 answered，传入的 document_id 和 rects 相同，页面无异常。证据 `protocol-repair-live/pdf-mouse.json` 和截图。首次未限制回答长度时，模型两次生成 267 字触发现有 260 字限制，最终 model_unavailable；失败保留在 `pdf-mouse-generation-failed.json`，不能据此声称任意长度的选区提问已稳定。前几次脚本还遇到折叠章节和选到不可见文字层，调试记录保留。
