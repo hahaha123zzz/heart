@@ -129,6 +129,9 @@ class TutorOrchestrator:
         )
         from knowledge.course_navigation import resolve as resolve_navigation
         navigation = task_context.course_navigation if task_context is not None else resolve_navigation(message)
+        if precomputed_routing is None and task_context is not None:
+            from agents.input_understanding.adapters import legacy_routing
+            precomputed_routing = legacy_routing(task_context)
         if navigation and navigation['status'] != 'ready':
             return {'reply': navigation['reply'], 'answer_status': 'navigation_complete' if navigation['status'] == 'complete'
                     else 'awaiting_clarification', 'step_advanced': False, 'textbook_sources': [],

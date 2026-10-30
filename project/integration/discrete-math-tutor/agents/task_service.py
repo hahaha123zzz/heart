@@ -208,6 +208,10 @@ class TaskService:
         if tutoring_enabled():
             context.tutoring = snapshot_from_recent(
                 recent, context, self.tutor.memory.repo, request.student_id)
+        from agents.input_understanding.service import mode
+        from agents.input_understanding.adapters import preserve_activity
+        context.input_mode = mode()
+        preserve_activity(context, request)
         return context, resolved, origins
 
     def _resume(self, request, row):
@@ -364,10 +368,27 @@ class TaskService:
             if duplicate is not None:
                 from knowledge.grounded_citations import references_for_display
                 return dict(duplicate,pdf_references=references_for_display(duplicate['pdf_references'])) if duplicate.get('pdf_references') else duplicate
+            if context.input_mode != 'off':
+                from agents.input_understanding.service import understand
+                from agents.input_understanding.adapters import resume_understanding
+                self.repo.guard(task['student_id'],task['session_id'],task['id'],task['revision'],self.tutor.memory.repo)
+                context.input_understanding = stage_call('input_understanding',lambda:
+                    resume_understanding(previous,request,request_key) or understand(context,
+                        request.model_copy(update={'request_id': request_key}),llm=self.tutor.llm))
+                self.repo.guard(task['student_id'],task['session_id'],task['id'],task['revision'],self.tutor.memory.repo)
+            if context.input_understanding is not None:
+                from models.input_understanding import GroundedTurn
+                snapshot = context.input_understanding.model_dump()
+                snapshot['context'].update(task_id=task['id'],task_revision=task['revision'],memory_epoch=epoch)
+                context.input_understanding = GroundedTurn.model_validate(snapshot)
 
             q5_binding = None
             if q5 is not None and context.selection_scope is None:
                 def save_q5(result):
+                    from agents.input_understanding.adapters import final_summary
+                    summary = final_summary(context,result)
+                    if summary:
+                        result = dict(result,input_understanding=summary)
                     saved_context = context.model_dump() | {
                         "document_versions": document_versions,
                         "q5_status": result.get("q5_status"),
@@ -563,6 +584,10 @@ class TaskService:
             else:
                 result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard, progress))
             if result.get("loop_paused"):
+                from agents.input_understanding.adapters import final_summary
+                summary = final_summary(context,result)
+                if summary:
+                    result = dict(result,input_understanding=summary)
                 # ask_user pauses the same task; persist the pending question and
                 # the complete loop protocol before returning to the page.
                 guard()
@@ -592,9 +617,14 @@ class TaskService:
                 result['relation_context']={k:v for k,v in context.relation_snapshot.items() if k!='evaluation'}
             if task["status"] in ("awaiting_clarification", "failed"): return result
             from agents.style_suggestions import suggest_style
-            suggestion = suggest_style(result, context, self.repo.recent(request.student_id, request.session_id))
+            from agents.input_understanding.adapters import preference_proposal, final_summary
+            suggestion = (preference_proposal(context) if result.get('answer_status') == 'answered' else None) or suggest_style(
+                result, context, self.repo.recent(request.student_id, request.session_id))
             if suggestion:
                 result = dict(result, style_suggestion=suggestion)
+            summary = final_summary(context, result)
+            if summary:
+                result = dict(result, input_understanding=summary)
             if visualization_jobs and result.get("answer_status") == "answered" and result.get("conversation_id"):
                 guard()
                 result = dict(result, visualization_status="pending")

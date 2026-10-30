@@ -62,7 +62,7 @@ def resolve_teaching_mode(message: str) -> str:
     }
     for mode, pattern in patterns.items():
         for match in re.finditer(pattern, message):
-            if re.search(r"(?:不要|不用|别|不想|不需要|不必|无需|不得|不)(?:再)?$", message[:match.start()]):
+            if re.search(r"(?:不要|不用|别|不想|不需要|不必|无需|不得|不给|不)(?:再)?$", message[:match.start()]):
                 continue
             matches.append((match.start(), mode))
     return max(matches)[1] if matches else "auto"

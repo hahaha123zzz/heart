@@ -24,12 +24,18 @@ class InteractionStyle {
   consume(onceId) {
     if(onceId && this.data.once?.id===onceId){this.data.once=null;this.save();}
   }
-  clear() { this.data.session={};this.data.once=null;this.save(); }
-  dismiss() { this.data.nextOffer=this.data.turns+6;this.save(); }
+  clear() { this.data.session={};this.data.once=null;delete this.data.explicitProposal;this.save(); }
+  dismiss() { this.data.nextOffer=this.data.turns+6;delete this.data.explicitProposal;this.save(); }
+  restore(conversationId) {
+    const saved=this.data.explicitProposal;
+    return saved?.conversationId===conversationId?saved.offer:null;
+  }
   observe(result) {
     if(result.answer_status!=='answered' || !result.task_id || this.data.seen.includes(result.task_id))return null;
     this.data.seen.push(result.task_id);this.data.seen=this.data.seen.slice(-32);this.data.turns++;
-    const offer=this.data.turns>=this.data.nextOffer?result.style_suggestion:null;
+    const explicit=result.style_suggestion?.origin==='explicit_request';
+    const offer=explicit || this.data.turns>=this.data.nextOffer?result.style_suggestion:null;
+    if(explicit && offer)this.data.explicitProposal={conversationId:result.conversation_id,offer};
     if(offer)this.data.nextOffer=this.data.turns+6;
     this.save();return offer;
   }

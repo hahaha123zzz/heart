@@ -25,6 +25,13 @@ assert.equal(style.snapshot().onceId,'once3'); // 关闭建议不清除其他已
 style.apply({learning_pace:1},'long');
 assert.deepEqual(style.snapshot().values,{question_frequency:0,answer_length:1});
 assert.deepEqual(new Style(storage,'student:a:tab2').snapshot().values,{});
+const explicit={origin:'explicit_request',values:{answer_length:1},default_scope:'long'};
+style.dismiss();
+assert.equal(style.observe({task_id:'explicit',conversation_id:99,answer_status:'answered',style_suggestion:explicit}),explicit);
+assert.deepEqual(new Style(storage,'student:a:tab1').restore(99),explicit);
+assert.equal(style.restore(100),null);
+assert.equal(new Style(storage,'student:a:tab2').restore(99),null);
+style.dismiss();assert.equal(style.restore(99),null);
 assert.deepEqual(new Style(storage,'student:b:tab1').snapshot().values,{});
 style.clear();assert.deepEqual(style.snapshot().values,{});
 console.log('交互风格确认、单轮消费、冷却、刷新与学生/会话隔离检查通过');

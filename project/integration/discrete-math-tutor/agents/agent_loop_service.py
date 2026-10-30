@@ -20,6 +20,8 @@ from models.task_context import TaskContext
 
 
 def _target_from_context(context: TaskContext) -> LearningTarget:
+    if context.input_mode == 'active' and context.activity_target:
+        return LearningTarget(**context.activity_target, reason='有效待答任务绑定；阅读位置仅作背景')
     # Q2's TaskService resolves chapter/next-topic requests before the model
     # runs.  Use that authoritative target instead of re-parsing the message
     # or falling back to the reader's current chapter.
@@ -434,6 +436,11 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     if guard:
         guard()
     teaching = TeachingTurn(context, request, llm or orchestrator.llm, target=target) if tutoring_enabled() and tool_purpose == 'textbook' else None
+    if (teaching and teaching.input_turn and teaching.input_turn.context.pending_question_id
+            and teaching.sources_invalidated):
+        release(request.task_id or request.request_id)
+        return {'reply':'原待答题的教材来源已失效，不能恢复或评分。请重新选择教材内容后出题。',
+                'answer_status':'reference_stale','step_advanced':False}
     initial_sources = teaching.sources if teaching else []
     resume_needs_evidence = bool(resume_state and not resume_state.get('sources') and tool_purpose == 'textbook')
     from knowledge.fixed_book import search_query
@@ -479,6 +486,10 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         target=target, definitions=registry.definitions(),
         teaching_prompt=teaching.instructions() if teaching else "",
         verified_sources=initial_sources) + "\n" + budget.instructions()
+    from agents.input_understanding.adapters import active_turn
+    input_turn = active_turn(context)
+    if input_turn:
+        system_prompt += '\n' + input_turn.instructions()
     if tool_purpose == 'textbook':
         from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions
         from models.interaction_preferences import style_instructions
@@ -660,6 +671,17 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         mapped['image_refs'] = list(media.values())[:2]
     if result.completed and getattr(result, '_publication', None):
         mapped.update(result._publication)
+    if (input_turn and input_turn.explain_then_resume and teaching and result.completed
+            and teaching.progress.pending_question):
+        question = teaching.progress.pending_question.prompt
+        suffix = '\n\n回到原来的题（尚未提交答案）：\n\n' + question
+        if not mapped['reply'].rstrip().endswith(question.rstrip()):
+            mapped['reply'] += suffix
+            from llm.answer_events import current_answer
+            answer = current_answer.get()
+            if answer:
+                answer.delta(suffix)
+        mapped['input_resume_question_id'] = teaching.progress.pending_question.question_id
     if teaching and result.completed:
         from agents.learning_cards import build_learning_cards, published_reference_map
         reference_map = published_reference_map(result.sources, mapped['pdf_references'])

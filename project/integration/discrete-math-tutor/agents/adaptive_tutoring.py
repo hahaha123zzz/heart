@@ -142,7 +142,8 @@ def snapshot_from_recent(recent, context, memory_repo, student_id):
     result = row.get("result") or {}
     old = deepcopy((row.get("context") or {}).get("tutoring") or {})
     chapter = next((o.chapter_id for o in context.objects if o.kind == "section"), None)
-    if old.get("chapter_id") and chapter and old["chapter_id"] != chapter:
+    from agents.input_understanding.service import mode
+    if old.get("chapter_id") and chapter and old["chapter_id"] != chapter and mode() != 'active':
         return {"allow_check": old.get("requested_allow_check", old.get("allow_check", True)),
                 "profile": old.get("profile") or {}}
     old["source_candidates"] = deepcopy((result.get("sources") or [])[:8])
@@ -228,11 +229,14 @@ def redact_protocol(state):
 class TeachingTurn:
     def __init__(self, context, request, llm, *, validate_sources=None, target=None):
         self.context, self.request = context, request
+        from agents.input_understanding.adapters import active_turn
+        self.input_turn = active_turn(context)
         topic = target.name if target is not None else context.knowledge_point
         target_id = target.target_id if target is not None else None
         validate_sources = validate_sources or verified_sources
         old = deepcopy(context.tutoring or {})
         self.sources = []
+        self.sources_invalidated = False
         self.recorded = self.new_question = self.show_pending = self.interjection = False
         self.lock = threading.RLock()
         self.difficulty = is_difficulty(request.message)
@@ -265,7 +269,8 @@ class TeachingTurn:
         self.state = {
             "schema": SCHEMA, "topic": topic, "target_id": target_id,
             "teaching_mode": self.teaching_mode,
-            "chapter_id": next((o.chapter_id for o in context.objects if o.kind == "section"), None),
+            "chapter_id": ((context.activity_target or {}).get('chapter_id') or
+                           next((o.chapter_id for o in context.objects if o.kind == "section"), None)),
             "allow_check": old.get("requested_allow_check", old.get("allow_check", True)),
             "last_strategy": old.get("last_strategy"), "last_summary": old.get("last_summary"),
             "used_strategies": list(old.get("used_strategies") or [])[-6:],
@@ -285,18 +290,23 @@ class TeachingTurn:
             except (OSError, ValueError, KeyError, TypeError):
                 self.sources = []
             if not self.sources:
+                self.sources_invalidated = True
                 self.progress.pending_question = None
                 self.state["pending_sources"] = []
                 self.state["turn_move"] = "source_invalidated"
-        if NO_QUIZ.search(request.message):
+        turn_no_check = bool(self.input_turn and any(d.key == 'no_questions' and d.value is True
+            and d.scope == 'turn' for d in self.input_turn.directives))
+        if NO_QUIZ.search(request.message) or turn_no_check:
             self.state["allow_check"] = False
-            self.progress.pending_question = None
-            self.state["pending_sources"] = []
+            if not self.input_turn:
+                self.progress.pending_question = None
+                self.state["pending_sources"] = []
             self.state["turn_move"] = "explain_only"
         elif ALLOW_QUIZ.search(request.message) or self.teaching_mode == 'practice':
             self.state["allow_check"] = True
             self.progress.learner_profile.teaching_strategy = "probe_first"
-        self.state["requested_allow_check"] = self.state["allow_check"]
+        self.state["requested_allow_check"] = (old.get("requested_allow_check", old.get("allow_check", True))
+            if self.input_turn else self.state["allow_check"])
         preferences = context.preferences
         if "teaching_sequence" in preferences and not (
                 ALLOW_QUIZ.search(request.message) or self.teaching_mode == 'practice'):
@@ -323,7 +333,10 @@ class TeachingTurn:
         elif self.difficulty:
             self.state["turn_move"] = "needs_support"
         elif self.progress.pending_question:
-            if RESUME_CHECK.search(request.message):
+            if self.input_turn and self.input_turn.explain_then_resume:
+                self.interjection = True
+                self.state['turn_move'] = 'question'
+            elif (self.input_turn.only_resume_question if self.input_turn else RESUME_CHECK.search(request.message)):
                 self.show_pending = True
                 self.state["turn_move"] = "resume_check"
             elif ACKNOWLEDGEMENT.fullmatch(request.message.strip()):
@@ -332,7 +345,7 @@ class TeachingTurn:
                 self._assess(llm)
             else:
                 self.state["turn_move"] = "feedback_unavailable"
-        if (self.interjection and not self.strategy_decision.reuse_evidence) or (not self.progress.pending_question and not followup):
+        if (self.input_turn and self.input_turn.explain_then_resume) or (self.interjection and not self.strategy_decision.reuse_evidence) or (not self.progress.pending_question and not followup):
             self.sources = []
         # The upstream policy chooses objective/stage. Pedagogy remains a model
         # choice among alternatives, not a fixed failure-count state machine.
@@ -376,6 +389,12 @@ class TeachingTurn:
 
     def _assess(self, llm):
         pending = self.progress.pending_question
+        if self.input_turn:
+            from agents.input_understanding.rules import non_submission
+            if non_submission(self.request.message):
+                self.interjection = True
+                self.state['turn_move'] = 'question'
+                return
         if self.teaching_mode != 'auto':
             self.interjection = self.teaching_mode != 'practice'
             self.show_pending = self.teaching_mode == 'practice'
@@ -563,7 +582,7 @@ class TeachingTurn:
 
     def restore_reply(self):
         """A constrained server action, not an arbitrary model gate bypass."""
-        if (self.state["turn_move"] == "resume_check" and self.state["allow_check"] and self.sources
+        if (self.state["turn_move"] == "resume_check" and (self.state["allow_check"] or self.input_turn and self.input_turn.only_resume_question) and self.sources
                 and self.progress.pending_question):
             self.recorded = True
             return "原来的小检查是：\n\n" + self.progress.pending_question.prompt

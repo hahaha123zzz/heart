@@ -102,7 +102,7 @@ class TaskContextBuilder:
             message=message, knowledge_point=knowledge_point[:200], history=history_pack.history,
             history_summary=history_pack.summary,
             known_points=[p[:128] for p in list(known_points)[-20:] if isinstance(p, str)],
-            objects=objects, preferences=safe_preferences, graph_snapshot=graph_snapshot, truth_table_snapshot=truth_table_snapshot,relation_snapshot=relation_snapshot)
+            objects=objects, current_object_ids=[obj.id for obj in objects], preferences=safe_preferences, graph_snapshot=graph_snapshot, truth_table_snapshot=truth_table_snapshot,relation_snapshot=relation_snapshot)
 
     @staticmethod
     def button_task(context, action):

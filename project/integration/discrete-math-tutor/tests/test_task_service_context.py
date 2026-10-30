@@ -16,6 +16,10 @@ class RecentRepository:
         self.limit = limit
         return self.rows[-limit:]
 
+    def navigation_recent(self, student_id, session_id, limit=12):
+        # 跟随现有仓储拆分的导航读取接口，不改变历史预算测试的limit记录。
+        return self.rows[-limit:]
+
 
 class TaskServiceContextTests(unittest.TestCase):
     def test_regular_session_uses_more_than_two_task_turns(self):
