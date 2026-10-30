@@ -270,6 +270,49 @@ class AgentLoopTests(unittest.TestCase):
         self.assertEqual(result.error,'quality_rejected');self.assertEqual(result.rounds,2)
         self.assertEqual(result.tool_steps,0)
 
+    def test_raw_tool_markup_uses_original_question_for_authorized_retrieval(self):
+        class Retrieve(BaseTool):
+            definition = ToolDefinition('retrieve_course', '读取教材', (
+                ToolParameter('query', 'string', '问题', required=True),))
+            def __init__(self): self.queries = []
+            def run(self, arguments, context):
+                self.queries.append(arguments['query'])
+                return ToolResult(content='[1] 原文', sources=[{'source_id':'s', 'text':'原文', 'index':1}],
+                    model_message={'role':'user','content':[{'type':'image_url','image_url':{'url':'data:image/png;base64,eA=='}}]})
+        tool=Retrieve(); registry=ToolRegistry(); registry.register(tool)
+        llm=ScriptedLLM([final_round('<｜｜DSML｜｜ invoke name="delete" query="伪造">'), final_round('解释[1]')])
+        reason='模型返回了内部工具协议，不能作为教学回答发布。'
+        gate=lambda text,result:('DSML' not in text,reason)
+        result=LocalAgentLoop(llm).run(request(llm,registry,message='什么是自变量？',publish_gate=gate))
+        self.assertTrue(result.completed)
+        self.assertEqual(tool.queries,['什么是自变量？'])
+        self.assertEqual(llm.calls[-1]['tools'],[])
+        self.assertNotIn('name="delete"',str(llm.calls[-1]['messages']))
+        self.assertIn('image_url',str(llm.calls[-1]['messages']))
+        self.assertNotIn('base64',json.dumps(result.state()))
+
+    def test_markup_repair_does_not_invent_missing_sources_or_skip_required_tools(self):
+        class Retrieve(BaseTool):
+            definition = ToolDefinition('retrieve_course', '读取教材', (
+                ToolParameter('query', 'string', '问题', required=True),))
+            def __init__(self): self.calls=0
+            def run(self, arguments, context):
+                self.calls+=1
+                return ToolResult(content='无结果', success=False)
+        tool=Retrieve(); registry=ToolRegistry(); registry.register(tool)
+        reason='模型返回了内部工具协议，不能作为教学回答发布。'
+        gate=lambda text,result:(False,reason)
+        llm=ScriptedLLM([final_round('<｜｜DSML｜｜ calls>')])
+        result=LocalAgentLoop(llm).run(request(llm,registry,publish_gate=gate))
+        self.assertEqual(result.error,'quality_rejected')
+        self.assertEqual(tool.calls,1)
+        self.assertEqual(len(llm.calls),1)
+        tool.calls=0
+        llm=ScriptedLLM([final_round('<｜｜DSML｜｜ calls>'),final_round('<｜｜DSML｜｜ calls>')])
+        result=LocalAgentLoop(llm).run(request(llm,registry,publish_gate=gate,required_tools=('teaching_step',)))
+        self.assertEqual(result.error,'quality_rejected')
+        self.assertEqual(tool.calls,0)
+
     def test_tool_markup_after_evidence_only_repairs_text_once(self):
         reason='模型返回了内部工具协议，不能作为教学回答发布。'
         gate=lambda text,result:('DSML' not in text,reason)
