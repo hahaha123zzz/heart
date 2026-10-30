@@ -116,6 +116,54 @@ class ReplyBudgetTests(unittest.TestCase):
         self.assertEqual(result['reply'],revised)
         self.assertEqual(tutor.memory.append_exchange.call_args.args[2],revised)
 
+    def _selection(self, replies, qualities, message='解释选中内容'):
+        tutor=SimpleNamespace(memory=Mock(),llm=Mock(),conversation_router=Mock(),context_sufficiency=Mock(),quality_checker=Mock())
+        tutor.memory.read_version.return_value=('v',0);tutor.memory.append_exchange.return_value='conversation'
+        tutor.conversation_router.route.return_value=TaskUnderstanding(student_move='question',learning_intents=['explain'])
+        tutor.context_sufficiency.check.return_value=SimpleNamespace(allowed=True,model_dump=lambda:{})
+        tutor.llm.chat.side_effect=list(replies)
+        tutor.quality_checker.check.side_effect=list(qualities)
+        context=TaskContext(student_id='s',message=message,knowledge_point='实验设计')
+        reference={'source':'教材','image_refs':[],'chapter_id':2,'section_id':4,'section_title':'实验设计'}
+        resolved={'section':{'title':'实验设计'},'text':'教材定义','context':'教材条件','images':[],'reference':reference,
+                  'record':{'document_id':'doc','version':'v','chapter_id':2,'source':'教材'}}
+        selection=SimpleNamespace(document_id='book',rects=[SimpleNamespace(page=1)])
+        return tutor,context,resolved,selection
+
+    def test_pdf_selection_publishes_small_length_overrun_when_facts_pass(self):
+        over='回复过长（超过 260 字）压缩重复表达，保留第二个对象、关键理由与引用，不得截断草稿'
+        reply='说明。'*66
+        tutor,context,resolved,selection=self._selection([reply],[QualityResult(passed=False,issues=[over])])
+        from agents.reply_budget import ReplyBudget
+        with patch('knowledge.grounded_citations.settings',return_value=None),\
+             patch('agents.pdf_selection_tutor.reply_budget',return_value=ReplyBudget(200,260)),\
+             patch('agents.pdf_selection_tutor.selection_memory',return_value={'preferences':{},'summary':''}),\
+             patch.dict('os.environ',{'VISUALIZATION_ON_DEMAND':'0'}):
+            result=explain_selection(tutor,'s',context.message,selection,'production',task_context=context,resolved_selection=resolved)
+        self.assertEqual(result['answer_status'],'answered')
+        self.assertTrue(result['reply'].startswith(reply))
+        self.assertTrue(result['reply'].endswith('[1]'))
+        self.assertEqual(result['length_overrun_chars'],len(reply)-260)
+        self.assertEqual(tutor.llm.chat.call_count,1)
+        self.assertEqual(tutor.quality_checker.check.call_args.kwargs['context']['reply_maximum'],260)
+        self.assertEqual(tutor.memory.append_exchange.call_args.args[2],result['reply'])
+
+    def test_pdf_selection_still_rejects_large_overrun_or_factual_issue(self):
+        over='回复过长（超过 260 字）压缩重复表达'
+        cases=[(['说明。'*160]*2,[QualityResult(passed=False,issues=[over])]*2,'回复过长'),
+               (['说明。'*66]*2,[QualityResult(passed=False,issues=[over,'引用编号不支持结论'])]*2,'引用编号不支持结论')]
+        from agents.reply_budget import ReplyBudget
+        for replies,qualities,expected in cases:
+            with self.subTest(expected=expected):
+                tutor,context,resolved,selection=self._selection(replies,qualities)
+                with patch('knowledge.grounded_citations.settings',return_value=None),\
+                     patch('agents.pdf_selection_tutor.reply_budget',return_value=ReplyBudget(200,260)),\
+                     patch('agents.pdf_selection_tutor.selection_memory',return_value={'preferences':{},'summary':''}),\
+                     patch.dict('os.environ',{'VISUALIZATION_ON_DEMAND':'0'}):
+                    with self.assertRaisesRegex(LLMError,expected):
+                        explain_selection(tutor,'s',context.message,selection,'production',task_context=context,resolved_selection=resolved)
+                tutor.memory.append_exchange.assert_not_called()
+
     def test_gateway_rejects_nonempty_text_cut_short_by_provider(self):
         client=LLMClient(api_key='test-placeholder',mock=False)
         client._one_call=Mock(return_value=('第一部分。第二部分尚未', 'length'))

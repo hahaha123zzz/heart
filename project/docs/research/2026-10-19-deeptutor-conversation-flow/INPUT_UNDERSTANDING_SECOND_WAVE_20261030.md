@@ -50,3 +50,14 @@
 - Q5 真实模型与浏览器：生成 20 分钟、只讲解的计划 → 点击确认 → 插问信度 → 返回原活动，四步状态符合预期；插问前后 SQLite `session_plan` 完全一致，返回后 `current_item_id` 未改变，页面无错误。日志和截图 `protocol-repair-live/q5-browser.json`、`q5-browser.png`。此项未覆盖显式下一步、路径切换和复习评分页面。
 - 最新联合回归 `recovery-shadow-final.log`：90 项通过，覆盖记忆管理、对象恢复、shadow、多轮、Q3 循环及任务；题卡/复习前端 `learning-cards.cjs`、`learning-card-actions.cjs`、`learning-review.cjs`、`learning-review-recovery.cjs` 共 4 个测试文件通过。这些是受控回归，不替代正式页面的实际题卡/复习操作。
 - 鼠标框选真实浏览器和真实模型：在第二章第二节通过鼠标拖动选中 PDF 区域并点击“向 AI 提问”，以 80 字内解释及 60 字内追问，两轮 answered，传入的 document_id 和 rects 相同，页面无异常。证据 `protocol-repair-live/pdf-mouse.json` 和截图。首次未限制回答长度时，模型两次生成 267 字触发现有 260 字限制，最终 model_unavailable；失败保留在 `pdf-mouse-generation-failed.json`，不能据此声称任意长度的选区提问已稳定。前几次脚本还遇到折叠章节和选到不可见文字层，调试记录保留。
+
+## 选区回答篇幅门禁修复与取消验收（2026-10-30 续）
+
+- 问题：真实选区提问曾有两次生成 267 字，仅因超过 260 字预算被判不通过，最终以 `model_unavailable` 结束，用户拿不到本已通过事实核验的回答。
+- 原因：`pdf_selection_tutor` 生成用 `reply_budget(...)`，但核验时未把同一 `reply_maximum` 传入 `QualityChecker`，检查器自行按默认偏好重算（详细选区请求时生成可到 500 字、核验却仍按 260 字，必然失败）；同时“仅篇幅超限”被当作硬失败，两轮后整轮丢弃。
+- 修复：核验沿用生成预算（`context['reply_maximum']` 单一来源）；仅当全部 issue 都是“回复过长”、且超出幅度不超过预算 10% 时，在事实与引用已通过的前提下仍发布，并在结果中记录 `length_overrun_chars`；超过放宽上限或含任何事实/引用问题仍拒绝，错误消息改为带具体原因。
+- 回归：`tests.test_reply_budget` 16 项通过，新增“小幅超限仍发布”“大幅超限仍拒绝”“含引用问题仍拒绝”三个用例，并校验检查器收到与生成一致的 `reply_maximum`（`selection-budget-tests.log`）。
+- 真实模型/真实 PDF 坐标：以第二章第 3 页“操作性自变量”区域选区复测此前失败的同一句“解释我框选的这段教材，不要出题。”及一次追问，两轮均 answered（218、211 字，各 1 条教材来源，`length_overrun_chars` 为空）；记录 `protocol-repair-live/selection-live.json`。本轮未再触发超限分支，超限分支由上述单元测试覆盖。
+- 取消验收补充：`tests.test_input_understanding_task_api.test_cancel_during_generation_cannot_publish_or_save` 通过——理解完成后、生成中被取消时，返回 `task_cancelled`，不写对话、任务保持 cancelled 且释放活动槽；与此前“理解阶段取消”用例共同覆盖取消的两个时间点（`cancel-generation.log`）。
+- 联合回归：上述相关 16 个测试模块 209 项全部通过（`final-with-selection-budget.log`）。
+- 观察到的遗留现象（未在本轮修复）：该选区回答中出现 `==不可操纵…==` 形式的高亮标记，页面可能原样显示；是否需要清洗属于渲染层排版问题，另行处理。

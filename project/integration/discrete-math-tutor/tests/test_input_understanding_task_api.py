@@ -19,8 +19,8 @@ class InputTaskAPITests(unittest.TestCase):
         cid=self.tutor.memory.append_exchange(args[0],args[1],'解释已完成',task_guard=kwargs['task_guard'])
         return {'answer_status':'answered','reply':'解释已完成','conversation_id':cid,'step_advanced':False}
 
-    def post(self,text='解释自变量',mode='active'):
-        self.tutor.handle_turn.side_effect=self.answer
+    def post(self,text='解释自变量',mode='active',side_effect=None):
+        self.tutor.handle_turn.side_effect=side_effect or self.answer
         payload={'student_id':'input-'+uuid4().hex,'session_id':'tab','request_id':'request','message':text}
         with patch.dict(os.environ,INPUT_UNDERSTANDING_MODE=mode,LOCAL_AGENT_LOOP_ENABLED='0',
                         Q5_LEARNING_ENABLED='0',ADAPTIVE_TUTORING_ENABLED='0',DEEPTUTOR_SESSION_SYNC='0',DEEPTUTOR_TURN_SYNC='0'):
@@ -70,6 +70,31 @@ class InputTaskAPITests(unittest.TestCase):
         self.assertEqual(result['answer_status'],'task_cancelled')
         self.tutor.handle_turn.assert_not_called()
         self.assertFalse(self.tutor.memory.get_history(payload['student_id']))
+
+
+    def test_cancel_during_generation_cannot_publish_or_save(self):
+        from sqlalchemy import select
+        from database.database import session_scope
+        from database.models import LearningTaskRow
+        from database.learning_tasks import TaskConflict
+        def cancelled(*args,**kwargs):
+            with session_scope() as db:
+                row=db.scalar(select(LearningTaskRow).where(LearningTaskRow.student_id==args[0]))
+                task_id,revision=row.id,row.revision
+            LearningTaskRepository().cancel(args[0],'tab',task_id,revision)
+            # 真实执行器通过同一 guard 抛出取消/版本冲突，旧正文与收据不得落库。
+            raise TaskConflict('task_cancelled','任务已取消，旧结果不会保存')
+        with patch.object(self.tutor,'handle_turn',side_effect=cancelled):
+            payload,result=self.post(side_effect=cancelled)
+        self.assertEqual(result['answer_status'],'task_cancelled')
+        self.assertFalse(self.tutor.memory.get_history(payload['student_id']))
+        from sqlalchemy import select
+        from database.database import session_scope
+        from database.models import LearningTaskRow
+        with session_scope() as db:
+            row=db.scalar(select(LearningTaskRow).where(LearningTaskRow.student_id==payload['student_id']))
+            self.assertEqual(row.status,'cancelled')
+            self.assertIsNone(row.scope_key)
 
 
 if __name__=='__main__':unittest.main()
