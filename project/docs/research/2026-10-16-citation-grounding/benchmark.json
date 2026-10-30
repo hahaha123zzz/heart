@@ -1,0 +1,3043 @@
+{
+  "schema": "citation-benchmark-v1",
+  "seed": 20261016,
+  "documents": {
+    "experimental-psychology-3:chapter-01": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+    "experimental-psychology-3:chapter-02": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+    "experimental-psychology-3:chapter-03": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+    "experimental-psychology-3:chapter-04": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+    "experimental-psychology-3:chapter-05": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+    "experimental-psychology-3:chapter-06": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+    "experimental-psychology-3:chapter-07": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+    "experimental-psychology-3:chapter-08": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+    "experimental-psychology-3:chapter-09": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+    "experimental-psychology-3:chapter-10": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+    "experimental-psychology-3:chapter-11": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34"
+  },
+  "annotation_policy": "真值为教材原文及独立PDF文字位置；生成模型不参与标注；最终应分开报告机器核验、Codex复核与教师审核。",
+  "cases": [
+    {
+      "category": "definition",
+      "question": "请解释第1章“第二节 实验心理学的产生与发展”里“行为主义心理学用刺激-反应来揭示人的心理活动,缺少中间过”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 1,
+          "section_id": 2,
+          "section": "第二节 实验心理学的产生与发展",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 198,
+          "quote": "行为主义心理学用刺激-反应来揭示人的心理活动,缺少中间过程,认为大脑是一个黑箱子,人类无法认识其功能。随着科学技术的进步和新研究方法引入心理学研究中,人们迫切想了解人类心理活动的规律,即想把产生心理活动的大脑从黑箱子变为灰箱子,进一步来了解其内部机制。",
+          "pages": [
+            17
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG001",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第2章“第四节 额外变量及控制”里“前面我们介绍了在药物研究中运用安慰剂的单盲实验程序。单盲”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 237,
+          "quote": "前面我们介绍了在药物研究中运用安慰剂的单盲实验程序。单盲实验程序通过使被试意识不到自己所处的条件来控制研究中的任务要求特征,但是,单盲实验程序无法控制实验者偏差。当实验者意识到被试接受是药物条件时,他们的无意识行为很可能会影响实验结果。因此,如果有可能,在研究中最好使用双盲实验。",
+          "pages": [
+            20
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG002",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第3章“第二节 准实验设计”里“由于严格的实验室实验的局限性逐渐显露出来,研究者越来越重”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 2,
+          "section": "第二节 准实验设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 235,
+          "quote": "由于严格的实验室实验的局限性逐渐显露出来,研究者越来越重视外部效度较高的现场实验,而现场实验由于取样和变量控制等方面的原因,难以采用真实验设计。在这种情况下,准实验设计就越来越受到重视并被完善,应用范围也在扩大。",
+          "pages": [
+            18
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG003",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第4章“第一节 被试间设计概述”里“在真实验设计中,研究者既要操纵自变量,又要观察和记录因变”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 4,
+          "section_id": 1,
+          "section": "第一节 被试间设计概述",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 8,
+          "quote": "在真实验设计中,研究者既要操纵自变量,又要观察和记录因变量。为了操纵自变量,研究者需要给自变量设置至少两种不同的水平(level),并且在每种水平下观察被试的行为表现(performance),然后再对它们进行比较。如果结果显示行为表现的差异是由自变量的不同水平所引起的,那么研究者就可以得出自变量水平的变化确实引起了因变量数值变化的结论。",
+          "pages": [
+            1
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG004",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第5章“第四节 被试内设计的控制”里“第二种,练习效应(practiceeffect),指随着”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 5,
+          "section_id": 4,
+          "section": "第四节 被试内设计的控制",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 173,
+          "quote": "第二种,练习效应(practice effect),指随着实验的进行,被试因完成实验任务的经验越来越多而引起的行为改变。例如,被试在对无意义音节进行记忆时,随着对无意义音节越来越熟悉,他们可能找到某种策略来提高自己的记忆成绩。需要指出的是,练习效应也可能是消极的,即被试的表现越来越差。",
+          "pages": [
+            16
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG005",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第6章“第一节 单被试设计概述”里“要想获得关于因果关系的结论,研究者必须在研究的过程中对变”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 1,
+          "section": "第一节 单被试设计概述",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 13,
+          "quote": "要想获得关于因果关系的结论,研究者必须在研究的过程中对变量进行操纵和控制。在单被试设计中,研究者需要像对待一般实验研究那样,对变量进行操纵和控制。与一般实验设计相比,唯一的不同就是单被试设计中只有一名或几名被试;而且与其他实验设计一样,研究者在处理单被试设计的内部效度时也需要小心。",
+          "pages": [
+            2
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG006",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第7章“第一节 感觉阈限的测量”里“一般来讲,感受性包括绝对感受性(absolutesens”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 7,
+          "section_id": 1,
+          "section": "第一节 感觉阈限的测量",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 7,
+          "quote": "一般来讲,感受性包括绝对感受性(absolute sensitivity)和差别感受性(difference sensitivity),与此对应的感觉阈限包括绝对感觉阈限(absolute limen,AL)和差别感觉阈限(difference limen,DL)。绝对感觉阈限是指刚刚能引发某种感觉的刺激量;而人体感官对这种最小刺激量的感觉能力,称为绝对感受性。差别感觉阈限是指刚刚能够感觉到两个刺激之间的差别的刺激量差值;而对这种最小刺激量差值的感觉能力,称为差别感受性。由于个体感受性的分布基本遵循正态分布,因此,通常把有50%的实验次数能引起个体反应的刺激量设定为绝对感觉阈限的操作性定义;相似地,把有50%的实验次数能引起个体察觉差别感觉的刺激量之差设定为差别感觉阈限的操作性定义。需要说明的是,当被试的反应类型为二类反应时,通常以75%作为上限、25%作为下限计算差别感觉阈限值。",
+          "pages": [
+            1
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG007",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第8章“第二节 反应时的影响因素”里“在对反应时数据的分析中,研究者发现识记项目数量的主效应显”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 2,
+          "section": "第二节 反应时的影响因素",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 159,
+          "quote": "在对反应时数据的分析中,研究者发现识记项目数量的主效应显著。在项目数量为3个的条件下,被试的反应时显著短于项目数量为4个、5个的条件下的反应时,而且,项目数量为4个的条件下的反应时也显著短于项目数量为5个的条件下的反应时。研究者因此认为,随着识记项目数量的增加,被试主观认知负荷的心理努力也会随之增加。基于此,研究者结合已有研究结论提出建议:在虚拟学习环境中,视觉加工的客体数量不要超过4个,否则会造成认知负荷超载。",
+          "pages": [
+            17
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG008",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第9章“第二节 注意的研究范式”里“同一任务不同刺激间也存在上述现象。布罗德本特在一项研究中”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 9,
+          "section_id": 2,
+          "section": "第二节 注意的研究范式",
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "block_id": 154,
+          "quote": "同一任务不同刺激间也存在上述现象。布罗德本特在一项研究中给被试连续序列呈现多个单词,并要求他们辨认。结果发现,在被试对前一个目标词准确辨认后,他们就很难辨认出该单词后约500毫秒内呈现的另一个单词,这表明注意加工在时间维度上的有限性。后来,雷蒙特(J.E.Raymond)等采用快速序列视觉呈现(rapid serial visual presentation,RSVP)的方法,将由字母、数字、单词、图形等组成的刺激序列在同一空间位置上以每秒6~20个刺激的速度连续呈现给被试,要求他们辨别刺激序列中的目标刺激(T1)和探测刺激(T2,一般在T1后的1~8个位置上呈现)。T1是在实验前规定好的刺激,T2一般是一个固定刺激,刺激序列呈现完后要求被试报告T1和T2。结果发现,如果T2在T1之后200~600毫秒的时间段内呈现,T2的报告正确率就会大大降低;大约在T1呈现之后300毫秒时,T2的报告正确率最低。这种现象被称为注意瞬脱(引自Luck & Vecera,2002)。注意瞬脱流程见图9-18。",
+          "pages": [
+            17
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG009",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第10章“第一节 记忆的类型”里“当代著名记忆心理学家图尔文(A.E.Tulving,19”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 10,
+          "section_id": 1,
+          "section": "第一节 记忆的类型",
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "block_id": 7,
+          "quote": "当代著名记忆心理学家图尔文(A.E.Tulving,1927—　)将科学的记忆研究划分为三个阶段。第一阶段开始于艾宾浩斯的研究,约至1960年。这一阶段主要以系列的和对偶联合的语词项目为材料,以正常成人为被试,强调实验设计,强调对学习与遗忘的基本现象的精确测量。第二阶段始于1960年前后认知心理学兴起之时。这个阶段,信息加工范式逐渐取代对偶语词学习的实验框架,研究者开始更多地采用自由回忆、线索回忆、再认以及各种记忆判断的实验程序。记忆心理学家们将记忆区分为不同的形式,即感觉记忆、短时记忆和长时记忆,注重研究记忆的编码、储存和提取过程。第三阶段则始于1980年前后,为记忆研究的认知神经科学阶段。这一阶段的研究方法与技术、研究问题的选择都进一步拓展,记忆的领域在纵横方向都极大地扩展了。这一阶段,心理学家将短时记忆扩展为工作记忆(working memory),将长时记忆区分为情景记忆 (episodic memory)和语义记忆 (semantic memory)(引自朱滢,2009)。",
+          "pages": [
+            1
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG010",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第11章“第三节 阅读中的眼动和知觉过程”里“第一,单词的词频对注视时间的影响。与高频词相比,读者对低”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 11,
+          "section_id": 3,
+          "section": "第三节 阅读中的眼动和知觉过程",
+          "document_id": "experimental-psychology-3:chapter-11",
+          "version": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+          "block_id": 146,
+          "quote": "第一,单词的词频对注视时间的影响。与高频词相比,读者对低频词的注视时间更长。与该发现相关的研究成果有:(1)与当前注视的低频词有关的溢出效应(spillover effect),也就是说,如果当前注视词是低频词,那么对下一个单词的注视时间会增加。(2)高频词条件比低频词条件更容易导致跳读,特别是当单词为短词,并且读者的注视点接近于单词的开头时。",
+          "pages": [
+            17
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG011",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第1章“第四节 心理学实验中的伦理问题”里“第三,研究者在研究工作中有责任自始至终地遵守并贯彻伦理准”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 1,
+          "section_id": 4,
+          "section": "第四节 心理学实验中的伦理问题",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 416,
+          "quote": "第三,研究者在研究工作中有责任自始至终地遵守并贯彻伦理准则。研究者也有责任使项目合作者、助手、学生和雇员接受道德教育,因为他们也应尽相应的义务和责任。",
+          "pages": [
+            33
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG012",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第2章“第五节 实验的效度与信度”里“如果在实验中,两位观察者对同一被试行为的评分的相关度很低”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 5,
+          "section": "第五节 实验的效度与信度",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 369,
+          "quote": "如果在实验中,两位观察者对同一被试行为的评分的相关度很低,接近于0,表明评分者对观察结果的评分存在很大差异。如果发生了这种情况,解决的办法是:首先,要求评分者认真学习评分标准,并确保其准确理解了评分标准;其次,要求评分者试评几分;最后,计算两位评分者评分结果的相关值,要求评分的相关值达到0.9以上。否则就需要继续学习评分标准,直到评分的相关值达到0.9以上。",
+          "pages": [
+            31
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG013",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第3章“第一节 相关设计”里“相关系数r的取值范围是-1.00~1.00,一般要取小数”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 1,
+          "section": "第一节 相关设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 54,
+          "quote": "相关系数r的取值范围是-1.00~1.00,一般要取小数点后两位数字。r的正负号表示相关的方向。r>0表示正相关,r<0表示负相关,r=0表示零相关。r的绝对值越接近于1,相关程度越高,它们之间的关系越密切。具体如图3-5所示。",
+          "pages": [
+            5
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG014",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第4章“第二节 单自变量被试间设计”里“从表4-5中可以看出,在实验中只有一个自变量(A),且自”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 4,
+          "section_id": 2,
+          "section": "第二节 单自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 97,
+          "quote": "从表4-5中可以看出,在实验中只有一个自变量(A),且自变量(A)有4种水平,即a1,a2,a3,a4。实验中还有一个额外变量(被试),20名被试在这一额外变量上进行了匹配,分为5个区组,每个区组内有4名同质的被试,每名被试随机接受一种处理水平。",
+          "pages": [
+            7
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG015",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第5章“第三节 多因素被试内设计”里“从表5-9中可以看出,三个因素分别是A因素、B因素和C因”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 5,
+          "section_id": 3,
+          "section": "第三节 多因素被试内设计",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 135,
+          "quote": "从表5-9中可以看出,三个因素分别是A因素、B因素和C因素,每个因素有两种处理水平。6名被试接受三个自变量所有处理水平的结合。",
+          "pages": [
+            12
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG016",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第6章“第二节 A-B-A设计”里“第三个阶段:撤去实验处理(A)。与第一个阶段一样,在老鼠”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 2,
+          "section": "第二节 A-B-A设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 134,
+          "quote": "第三个阶段:撤去实验处理(A)。与第一个阶段一样,在老鼠吃饱食物后,再把它放入斯金纳箱5分钟,记录其按杆的行为频率。具体的实验结果如图6-5所示。",
+          "pages": [
+            13
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG017",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第7章“第一节 感觉阈限的测量”里“采用该方法测定感受性时,一般只使用少数几个刺激,并且在测”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 7,
+          "section_id": 1,
+          "section": "第一节 感觉阈限的测量",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 180,
+          "quote": "采用该方法测定感受性时,一般只使用少数几个刺激,并且在测定过程中这几个刺激是恒定不变的。用恒定刺激法测定感觉阈限时,每呈现一个刺激只要求被试回答“有”“无”或“轻”“重”等,然后根据被试对不同刺激的回答计算阈限值。",
+          "pages": [
+            13
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG018",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第8章“第一节 反应时概述”里“因为反应时是从刺激呈现到被试的反应开始之间的时距,所以,”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 1,
+          "section": "第一节 反应时概述",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 23,
+          "quote": "因为反应时是从刺激呈现到被试的反应开始之间的时距,所以,要测量反应时,就必须有刺激信号。刺激呈现设备就是用于呈现刺激信号的装置。为了能够精确地测量个体对刺激信号的反应,人们总是希望刺激呈现设备在发出刺激信号的同时,能够激活计时设备,而且刺激呈现设备本身又不得对个体的反应造成任何额外干扰。",
+          "pages": [
+            3
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG019",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "definition",
+      "question": "请解释第9章“第二节 注意的研究范式”里“在搜索范式(searchparadigm)中,被试需要寻”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 9,
+          "section_id": 2,
+          "section": "第二节 注意的研究范式",
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "block_id": 97,
+          "quote": "在搜索范式(search paradigm)中,被试需要寻找一个或多个混杂在干扰刺激序列中的目标刺激,实验时这些刺激可以同时呈现,也可以相继呈现。该范式主要用于考察注意过程中个体如何排除无关刺激的干扰。在大多数视觉搜索实验中,研究者关注的是反应时与序列大小(搜索序列中的项目数)的函数关系,即搜索函数。其中,搜索函数的斜率可以反映搜索过程中搜索效率的高低。",
+          "pages": [
+            11
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG020",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第1章“第四节 心理学实验中的伦理问题”，分别解释“有时,研究者遇到的难题是不能将实验的真实目的提前告诉被试”和“第三,如果作者基本上运用的是自己的语言,但观点和论据来自”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 1,
+          "section_id": 4,
+          "section": "第四节 心理学实验中的伦理问题",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 484,
+          "quote": "有时,研究者遇到的难题是不能将实验的真实目的提前告诉被试,因为如果被试知道了实验的目的,实验的结果可能会受到影响。在这种情况下,研究者就需要非常谨慎地处理这个问题。如果实验程序可能会给被试带来心理或生理上的伤害,在这种情况下仍进行自己的实验,这就是不道德的。当然,如果实验所获得的结果对整个人类有非常重大的意义,而且对被试的伤害可控制在较低限度,这时可使用欺骗的手段来进行实验,但是实验结束后应该采取措施消除对被试的不良影响。",
+          "pages": [
+            39
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 1,
+          "section_id": 4,
+          "section": "第四节 心理学实验中的伦理问题",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 512,
+          "quote": "第三,如果作者基本上运用的是自己的语言,但观点和论据来自其他作者,那么可省略引号,但需要在括号里标明,例如,“××××××(白××,1999)”。",
+          "pages": [
+            40
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG021",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第2章“第四节 额外变量及控制”，分别解释“从图2-1中可以看出,综合全校的情况来看,那些被教师认为”和“例如,研究者为了完成某项研究,能做到为了保证实验效果而改”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 220,
+          "quote": "从图2-1中可以看出,综合全校的情况来看,那些被教师认为学业上会有显著进步的学生,其智商提高幅度显著高于控制组的学生(分别为12.2分和8.2分)。对图2-1再进行仔细观察发现,这种差异主要是由一、二年级组之间的巨大差异引起的。为了提高说服力,罗森塔尔和雅各布森还对提高的情况做了进一步分析,结果见图2-2。图2-2向我们展示了一、二年级学生中智商分别提高了10分、20分、30分的人数比例。",
+          "pages": [
+            18
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 148,
+          "quote": "例如,研究者为了完成某项研究,能做到为了保证实验效果而改变实验室墙面的颜色,即将实验室墙面重新粉刷。但是,如果进行系列实验,这样做就不符合实际情况,也影响其他实验的进行。这时,研究者可以不重新粉刷实验室墙面,但能做到的是所有被试都在同一实验室中完成实验任务,这样就能保证所有的被试在相同颜色的实验室内完成实验任务。同时也要保证实验室光线,以及被试完成实验任务时所坐的椅子、地毯等都保持相同。恒定额外变量还包括实验程序相同。例如,在实验之前,研究者要将指导语完整地写出来,按照缩写的指导语读给被试听。通过这样做,确保被试在统一要求条件下完成实验任务。",
+          "pages": [
+            11
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG022",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第3章“第一节 相关设计”，分别解释“交叉滞后组设计(cross-laggedpaneldes”和“此外,还需要指出的是,两个变量之间呈高相关,并不意味着二”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 1,
+          "section": "第一节 相关设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 217,
+          "quote": "交叉滞后组设计(cross-lagged panel design)是间隔一段时间后对各种关系进行重测来提出因素路径的方法(迈尔斯,汉森,2001/2006)。在这种设计中,首先要求被试在两个不同的时间点接受同样的行为测量,然后用一种特殊的方式对测量所得的分数进行相关分析,产生的相关模型就可用来推测因果关系。",
+          "pages": [
+            16
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 3,
+          "section_id": 1,
+          "section": "第一节 相关设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 186,
+          "quote": "此外,还需要指出的是,两个变量之间呈高相关,并不意味着二者之间存在着因果关系。对于两个变量A和B来说,相关结果不能够说明到底是A引起B、B引起A,还是二者共同受某些其他因素的影响。",
+          "pages": [
+            14
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG023",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第4章“第二节 单自变量被试间设计”，分别解释“假设还存在一种变异来源,而且这一变异来源本来也是要从实验”和“两个实验组设计(twoexperimentalgroup”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 4,
+          "section_id": 2,
+          "section": "第二节 单自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 131,
+          "quote": "假设还存在一种变异来源,而且这一变异来源本来也是要从实验误差估计中剔除的。例如,假设每天5名被试接受测试的时间分别是8点、9点、10点、11点和12点。测试时间之间的变异也可能很重要,在这种情况下研究者可通过以下方式来加以控制,即自变量的各种处理水平在每个测试时间点(即8点、9点、10点、11点和12点)均只出现一次。按这种限定的随机化,可得到表4-10中的排列方式。",
+          "pages": [
+            9
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 4,
+          "section_id": 2,
+          "section": "第二节 单自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 81,
+          "quote": "两个实验组设计(two experimental groups design)是单因素完全随机设计的变式之一。与单因素完全随机设计的不同之处在于,两个实验组设计中还设有一个控制组。因此,两个实验组其实一个是实验组,一个是控制组。两个实验组设计的基本模式如表4-4所示。",
+          "pages": [
+            6
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG024",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第5章“第四节 被试内设计的控制”，分别解释“在拉丁方平衡中,顺序方阵必须满足每种实验处理水平在任何一”和“除了上述例子中的顺序效应外,如果被试接受多种实验处理水平”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 5,
+          "section_id": 4,
+          "section": "第四节 被试内设计的控制",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 216,
+          "quote": "在拉丁方平衡中,顺序方阵必须满足每种实验处理水平在任何一种顺序下只出现一次。以下是具有4种实验处理水平时的拉丁方平衡设计方式:",
+          "pages": [
+            19
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 5,
+          "section_id": 4,
+          "section": "第四节 被试内设计的控制",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 171,
+          "quote": "除了上述例子中的顺序效应外,如果被试接受多种实验处理水平,尤其是每种处理水平又包含很多试次,通常还会产生以下两种顺序效应(Myers & Hansen,2005):",
+          "pages": [
+            16
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG025",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第6章“第三节 A-B设计”，分别解释“变化标准设计也需要建立基线。根据基线期观察的资料,为被试”和“11月15日至11月23日对三个刺激源对于被试的影响程度”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 3,
+          "section": "第三节 A-B设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 357,
+          "quote": "变化标准设计也需要建立基线。根据基线期观察的资料,为被试设置第一项行为标准。需要指出的是,这种行为标准是一种量化的、操作化的标准。具体的过程如下:在基线期(A),观察被试的行为。根据观察结果,与被试签订协议:如果被试的行为反应达到了标准,则被试得到奖励;如果被试的行为反应没有达到标准,则被试受到惩罚。一旦被试的行为反应达到一定的标准并稳定下来,标准就需要改变,即要求被试的行为达到更高标准。根据需要,这一过程不断循环,直至达到最终目标为止。",
+          "pages": [
+            33
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 6,
+          "section_id": 3,
+          "section": "第三节 A-B设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 297,
+          "quote": "11月15日至11月23日对三个刺激源对于被试的影响程度进行回访记录。被试表示这段时间睡得很好,中途也不醒了。干预后6个月再回访被试,她表示睡眠状况良好。",
+          "pages": [
+            27
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG026",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第7章“第一节 感觉阈限的测量”，分别解释“阶梯法是极限法的变式之一。极限法是按一定的梯级增加或减少”和“但是,在用极限法测量绝对感觉阈限时,被试由于预先知道刺激”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 7,
+          "section_id": 1,
+          "section": "第一节 感觉阈限的测量",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 64,
+          "quote": "阶梯法是极限法的变式之一。极限法是按一定的梯级增加或减少刺激量来测定感觉阈限的,且递增系列和递减系列是完全分开的。阶梯法与极限法之间最大的区别在于,阶梯法把增加和减少刺激量的程序合在一起。在测量绝对感觉阈限时,当被试报告感觉不到开始呈现的刺激时,主试可按照一定的梯级来增加刺激量;而当增加到被试感觉到时,又按一定的梯级来减少刺激量。实验按这样的顺序继续下去,直到达到预定的标准或预实验次数为止。最后,求出各转折点的均值,该均值即阈限值。",
+          "pages": [
+            6
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 7,
+          "section_id": 1,
+          "section": "第一节 感觉阈限的测量",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 39,
+          "quote": "但是,在用极限法测量绝对感觉阈限时,被试由于预先知道刺激的两个系列,因而会对递增系列和递减系列刺激产生习惯误差和期望误差。所谓习惯误差,是指被试因习惯于由原先的刺激所引起的感觉或感觉状态,而对新的刺激量做出错误的判断。具体来分析,即在递增系列中,虽然刺激强度早已超出阈限,但被试仍报告感觉不到,导致得到的阈限值高于实际阈限值;相反,在递减系列中,虽然刺激强度早已低于阈限,但被试仍报告有感觉,导致得到的阈限值低于实际阈限值。期望误差则表现为被试在较长的序列中给出相反判断的倾向,即期望快点出现转折点。当用递增系列测量感觉阈限时,这会导致所测得的阈限值低于实际阈限值;相反,在递减系列中,由于被试期待转折点的出现,所测得的阈限值则会高于实际阈限值。",
+          "pages": [
+            4
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG027",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第8章“第一节 反应时概述”，分别解释“随着电子技术的发展,电子计时设备的设计越来越精细,比如,”和“式中,n代表两摆的振动周期有一个微小的差别,根据这个微小”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 1,
+          "section": "第一节 反应时概述",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 50,
+          "quote": "随着电子技术的发展,电子计时设备的设计越来越精细,比如,在刺激信息的感知、反应的感知方面与声音捕捉、图像捕捉等相结合,实现计时触发的自动化和多功能化。另外,电子计时设备的设计也逐渐模块化,换言之,研究者可以结合自己的研究目的选择符合要求的集成电子计时设备,也可以通过编程实现特定的计时功能。",
+          "pages": [
+            5
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 8,
+          "section_id": 1,
+          "section": "第一节 反应时概述",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 35,
+          "quote": "式中,n代表两摆的振动周期有一个微小的差别,根据这个微小的差别,便可求得主试与被试的反应时间差。在观察两摆的重合时,常常有三次不易分辨谁先谁后,那么以中间的一次为准。微差计时器实际上仍然是一种“手动”的仪器。其基本原理如图8-1所示。",
+          "pages": [
+            4
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG028",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第9章“第二节 注意的研究范式”，分别解释“负启动效应最早是在20世纪60年代被发现的,但负启动范式”和“在经典的双任务范式中,要求被试同时执行两项任务,而且规定”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 9,
+          "section_id": 2,
+          "section": "第二节 注意的研究范式",
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "block_id": 136,
+          "quote": "负启动效应最早是在20世纪60年代被发现的,但负启动范式(negative priming paradigm)则是由蒂博和克兰斯顿(Tipper & Cranston,1985)首次使用的。负启动效应是指当前一个刺激中的干扰项作为后一个刺激中的目标呈现时出现的抑制作用,表现为当之前显示(启动试次)要求忽略的干扰项成为之后显示(探测试次)中的目标项时,被试对该目标项的反应时变长。在负启动范式中,屏幕上每次呈现两个刺激,一个是需要注意的刺激(目标项目),一个是不需要注意的刺激(干扰项目),要求被试注意其中一个刺激,并对该刺激做出反应。比如,在图9-15中,黑色字母和白色字母重叠呈现,其中白色字母是目标项目,黑色字母是干扰项目,要求被试报告白色字母的名称。当前一个试次中的干扰项目在下一个试次中变成目标项目时,被试的反应时就会变长。这说明干扰字母被识别并记住了。该范式常用来评估在有意忽略一个刺激的情况下,注意能够在多大程度上被自动分配到该刺激上,并影响随后的加工。",
+          "pages": [
+            15
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 9,
+          "section_id": 2,
+          "section": "第二节 注意的研究范式",
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "block_id": 142,
+          "quote": "在经典的双任务范式中,要求被试同时执行两项任务,而且规定了他们对每项任务的投入程度。例如,在第一种条件下,要求被试对任务一投入10%的注意而对任务二投入90%的注意;在第二种条件下,要求被试对任务一投入30%的注意而对任务二投入70%的注意;在第三种条件下,要求被试对两项任务各投入50%的注意;在第四种条件下,要求被试对任务一投入70%的注意而对任务二投入30%的注意;在第五种条件下,要求被试对任务一投入90%的注意而对任务二投入10%的注意。最后用作业操作特性函数(把一项任务的成绩定义成另一项任务成绩的函数)描述实验结果,一般会出现三类可能的结果:第一,如果两项任务的认知加工过程相同,那么投入注意多的那项任务的成绩会更好[见图9-16(A)];第二,如果两项任务的认知加工过程相对独立,那么同时执行两项任务时的成绩与单独执行每项任务时的成绩会一样好[见图9-16(B)];第三,如果两项任务的加工过程存在部分相同,那么一项任务的成绩只会部分地受到另一项任务的影响[见图9-16(C)]。",
+          "pages": [
+            15
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG029",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第10章“第二节 记忆实验中的变量”，分别解释“记忆实验对额外变量的控制要求是非常严格的,因为某一方面一”和“一般认为,当被试的正确率相对恒定时,反应时可反映其记忆水”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 10,
+          "section_id": 2,
+          "section": "第二节 记忆实验中的变量",
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "block_id": 107,
+          "quote": "记忆实验对额外变量的控制要求是非常严格的,因为某一方面一旦未控制好,就可能成为影响实验结果的干扰变量。常见的需要在各种实验条件间保持恒定的变量有:学习材料的数量、刺激呈现的速率、学习的通道(听或看)。当然,在某些研究条件下,它们也可以是研究者感兴趣的变量。记忆实验设计者应时刻注意的是,当考察材料的某一方面对记忆的影响时,一定要严格控制材料的其他方面。例如,如果想考察具体词和抽象词的记忆效果,在编制材料时就应当注意控制好除了词的具体或抽象之外的其他因素,如词的长度、词频等。",
+          "pages": [
+            15
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 10,
+          "section_id": 2,
+          "section": "第二节 记忆实验中的变量",
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "block_id": 94,
+          "quote": "一般认为,当被试的正确率相对恒定时,反应时可反映其记忆水平:反应越快,记忆程度越高。但也不是绝对,因为有时仅凭猜测也可做出快速反应,而仅根据反应速度判定被试对所学材料的熟悉度会导致得出错误的结论。",
+          "pages": [
+            14
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG030",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第11章“第三节 阅读中的眼动和知觉过程”，分别解释“(4)Xxxxxxxxxxxxxxxxxxxxxxxxx”和“沈德立.(1984).关于儿童心理实验中控制因素的问题/”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 11,
+          "section_id": 3,
+          "section": "第三节 阅读中的眼动和知觉过程",
+          "document_id": "experimental-psychology-3:chapter-11",
+          "version": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+          "block_id": 166,
+          "quote": "(4) Xxxxxxxxxx xxxxx xxxxxxxxxxx xxxxxxxxx from hand writinx.Xxxx xx x",
+          "pages": [
+            18
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 11,
+          "section_id": 3,
+          "section": "第三节 阅读中的眼动和知觉过程",
+          "document_id": "experimental-psychology-3:chapter-11",
+          "version": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+          "block_id": 557,
+          "quote": "沈德立.(1984).关于儿童心理实验中控制因素的问题//全国高校儿童心理学教学研究会.当前儿童心理学的进展.北京:北京师范大学出版社.",
+          "pages": [
+            41
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG031",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第1章“第三节 心理学实验的程序”，分别解释“第三,简练而具体。摘要中的每一个句子都要能最大限度地提供”和“实验程序部分说明研究过程中实验实施的步骤,也就是研究者是”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 1,
+          "section_id": 3,
+          "section": "第三节 心理学实验的程序",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 370,
+          "quote": "第三,简练而具体。摘要中的每一个句子都要能最大限度地提供信息,且尽可能做到简练。中文摘要的长度一般不超过300字。摘要的开头要提供最重要的信息(但不要重复题名)。它可以是目的或论题,也可以是结果或结论。摘要里只需包括4个或5个重要的观点、结果或含义即可。需要指出的是,为了促进中国心理学界取得的研究成果与国际同行进行交流,中国心理学会主办的《心理学报》和《心理科学》开始要求作者撰写长的英文摘要。",
+          "pages": [
+            31
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 1,
+          "section_id": 3,
+          "section": "第三节 心理学实验的程序",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 392,
+          "quote": "实验程序部分说明研究过程中实验实施的步骤,也就是研究者是如何做实验的;一般需要包括指导语、分组情况、具体的实验操作,还应对实验设计中的随机化、平衡抵消和其他实验控制特点进行描述。如果指导语非同寻常或者指导语本身是实验操作的变量,那么在这种情况下需要逐字逐句地把指导语全部写出来,否则只需对指导语做简要说明即可。",
+          "pages": [
+            32
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG032",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第2章“第五节 实验的效度与信度”，分别解释“其次,操作性定义的测量应该是可信的。如果研究者采用几种因”和“米勒观点的重要性在于:虽然我们常常强调实验的独特性,但也”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 5,
+          "section": "第五节 实验的效度与信度",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 364,
+          "quote": "其次,操作性定义的测量应该是可信的。如果研究者采用几种因变量的定义对其进行测量,那么每次获得的结果应该是相同的。当研究者选择标准化的测量工具(如标准化测验)时,研究者应该确保测量程序是相同的。",
+          "pages": [
+            31
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 2,
+          "section_id": 5,
+          "section": "第五节 实验的效度与信度",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 357,
+          "quote": "米勒观点的重要性在于:虽然我们常常强调实验的独特性,但也不能将其与其他方法割裂开来。最好的做法应该是将实验法与其他方法结合起来。心理学家研究的目的之一是揭示心理现象的本质。人不可能永远生活在实验室中,所以不能因为强调实验结果的准确性而牺牲实验结果的适用性。",
+          "pages": [
+            30
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG033",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第3章“第二节 准实验设计”，分别解释“不过,在该研究中,还有许多地方没有进行控制,所以得出结论”和“其次,由经过训练的观察者采用周期性的取样方法,分别观察并”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 2,
+          "section": "第二节 准实验设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 286,
+          "quote": "不过,在该研究中,还有许多地方没有进行控制,所以得出结论时要谨慎。例如,如果对两组被试中男女生人数比例没有加以控制,男女比例相差很大,那么上述结果很可能是由性别差异引起的;或者,实验班的教师因认为学生参与课堂管理有助于教师管理课堂,会表现出更大的热情和期待,热情和期待可能与实验处理产生交互作用而影响实验结果。",
+          "pages": [
+            23
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 3,
+          "section_id": 2,
+          "section": "第二节 准实验设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 284,
+          "quote": "其次,由经过训练的观察者采用周期性的取样方法,分别观察并记录两组被试中每一名学生在课堂上的行为,包括适宜的行为和不适宜的行为(这相当于前测)。经过一周的观察记录,研究者把对两组学生的适宜和不适宜行为的观测结果,转换为百分数(前测因变量),作为估计两组是否为等组的主要依据之一,也作为与处理后观察结果相比较的一种基线。之后,研究者对实验组实施为期两周的实验处理,即给予实验组学生管理课堂活动的机会;对控制组则不给予这种机会,且控制组学生也不知道实验组学生能得到管理课堂活动的机会。",
+          "pages": [
+            22
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG034",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第4章“第三节 多自变量被试间设计”，分别解释“其次,看第二个因素的作用。第二个因素是同伴的性别,即是同”和“(5)只有交互作用显著的情况。图4-10和图4-11均表”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 4,
+          "section_id": 3,
+          "section": "第三节 多自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 309,
+          "quote": "其次,看第二个因素的作用。第二个因素是同伴的性别,即是同性同伴还是异性同伴,该因素会对被试的进食行为产生什么样的影响呢?经过统计分析,结果发现在这个因素上没有出现显著的主效应。平均而言,与同性同伴进食和与异性同伴进食,被试吃掉的薄脆饼干数是一样的。",
+          "pages": [
+            23
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 4,
+          "section_id": 3,
+          "section": "第三节 多自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 325,
+          "quote": "(5)只有交互作用显著的情况。图4-10和图4-11均表明,实验中被试性别和同伴性别两个自变量都没有表现出显著的主效应,但是它们之间却表现出显著的交互作用。",
+          "pages": [
+            25
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG035",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第5章“第二节 单因素被试内设计”，分别解释“对反应时进行方差分析,结果发现,学习状况的主效应显著,F”和“(1)平均注视时间。呈现条件的主效应显著,F1(3,33”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 5,
+          "section_id": 2,
+          "section": "第二节 单因素被试内设计",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 52,
+          "quote": "对反应时进行方差分析,结果发现,学习状况的主效应显著,F1(1,22)=25.81,p<0.001,η2=0.54,F2(1,47)=10.70,p=0.002,η2=0.16。即被试对汉语对等词呈现过的印尼语单词判断的反应时显著快于对未呈现过的印尼语单词判断的反应时。对正确率进行方差分析,结果发现,被试对用汉语对等词呈现过的印尼语单词和未呈现过的印尼语单词的判断在正确率上不存在显著差异,F1(1,22)=1.23, p=0.280, F2(1,47)=0.25, p=0.620。实验结果证实了跨语言重复启动效应,即相较于汉语对等词未呈现过的印尼语单词,被试对汉语对等词呈现过的印尼语单词的判断更快。这一结果充分说明,当三语者在学习阶段阅读理解三语词从而通达语义的时候,相应的一语对等词得到了明显的、大量的激活。",
+          "pages": [
+            4
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 5,
+          "section_id": 2,
+          "section": "第二节 单因素被试内设计",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 86,
+          "quote": "(1)平均注视时间。呈现条件的主效应显著,F1(3,33)=10.970,p1<0.001,F2(3,297)=9.370,p2<0.001。进一步检验表明,词间条件下平均注视时间显著短于正常条件下、非词间条件下和字间条件下的,p<0.05。这说明词间切分有助于被试进行汉语阅读。",
+          "pages": [
+            7
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG036",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第6章“第二节 A-B-A设计”，分别解释“第一个阶段:建立基线(A)。每天在老鼠吃饱后把它放进斯金”和“在第二个阶段(B),研究者要求教师对小强的哭泣行为不予理”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 2,
+          "section": "第二节 A-B-A设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 132,
+          "quote": "第一个阶段:建立基线(A)。每天在老鼠吃饱后把它放进斯金纳箱5分钟,让老鼠自由按杆来获得食物。在基线水平达到稳定后,实验进入下一个阶段。",
+          "pages": [
+            13
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 6,
+          "section_id": 2,
+          "section": "第二节 A-B-A设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 173,
+          "quote": "在第二个阶段(B),研究者要求教师对小强的哭泣行为不予理睬。如果小强的表现适度,教师就关注他,以此作为奖赏,来消除过度反应的哭声。结果发现,小强哭泣的次数明显减少了。",
+          "pages": [
+            16
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG037",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第7章“第二节 心理量表法”，分别解释“对偶比较法对数据的处理,首先是对比较数据的整理。例如,首”和“一个较好的心理量表必须有一种已经建立的测量理论。测量理论”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 7,
+          "section_id": 2,
+          "section": "第二节 心理量表法",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 384,
+          "quote": "对偶比较法对数据的处理,首先是对比较数据的整理。例如,首先以先A后B的次序相继呈现,然后以先B后A的次序相继呈现。若A与B比较,被试认为A更好,则在相应空格中填上A,以此类推,如表7-18所示。",
+          "pages": [
+            26
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 7,
+          "section_id": 2,
+          "section": "第二节 心理量表法",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 312,
+          "quote": "一个较好的心理量表必须有一种已经建立的测量理论。测量理论涉及如何把事物特征系统与数学关系联系起来,即当赋予事物特征系统中每一个成分一个数值时,这些数值之间的关系仍然能反映事物本来的特征关系。建立测量理论须解决好以下几个问题。",
+          "pages": [
+            22
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG038",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第8章“第二节 反应时的影响因素”，分别解释“黄敏(1996)做了一项有关简单反应时测量方法的研究,以”和“泰奥斯(J.Theios,1973)对刺激呈现的概率与反”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 2,
+          "section": "第二节 反应时的影响因素",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 104,
+          "quote": "黄敏(1996)做了一项有关简单反应时测量方法的研究,以120名运动员为被试,将他们分为A,B,C三个组,其中C组被试在同一个上午进行了20次的听-动简单反应时实验。在实验中,第一种条件为将耳机音量电位器置于最大音量的1/3处,第二种条件为将耳机音量电位器置于最大音量的2/3处。结果发现,在40名被试中,仅有1名被试在两种刺激强度条件下的反应时不存在显著性差异,而其他39名被试(占总人数的97.5%)在不同刺激强度条件下的测试结果具有非常显著的差异,这表明刺激强度对反应时存在显著的影响。",
+          "pages": [
+            11
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 8,
+          "section_id": 2,
+          "section": "第二节 反应时的影响因素",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 82,
+          "quote": "泰奥斯(J.Theios,1973)对刺激呈现的概率与反应时之间的关系进行了探索。在实验中,他给被试呈现的是视觉刺激,即每次出现一个数字,要求被试只需对某一特定的数字(例如8)做出反应,对其他数字则不需要做出反应。研究者操纵的自变量是数字出现的概率,其变化范围在0.20~0.80。也就是说,要求被试做出反应的特定数字在一系列刺激呈现中出现的概率为20%~80%。实验结果见图8-6。",
+          "pages": [
+            9
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG039",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "comparison",
+      "question": "请结合第9章“第三节 注意研究中的经典实验”，分别解释“●FAWCETTJ,RISKOE,KINGSTONEA.”和“线索范式又叫作提示范式。其基本原理是,用刺激或指导语引导”，并说明二者的联系。不要出题。",
+      "support": [
+        {
+          "chapter": 9,
+          "section_id": 3,
+          "section": "第三节 注意研究中的经典实验",
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "block_id": 247,
+          "quote": "● FAWCETT J,RISKO E,KINGSTONE A.The handbook of attention. The MIT Press, 2015.",
+          "pages": [
+            25
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 9,
+          "section_id": 3,
+          "section": "第三节 注意研究中的经典实验",
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "block_id": 234,
+          "quote": "线索范式又叫作提示范式。其基本原理是,用刺激或指导语引导被试去注意一个明确的刺激,然后比较被试对这一刺激的加工和对其他刺激的加工,找出两者之间的差异。从本质上看,线索就是对注意指向的引导。",
+          "pages": [
+            24
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG040",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第1章“第四节 心理学实验中的伦理问题”里“(一)指导思想。全面贯彻党的十九大和十九届二中、三中全会”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 1,
+          "section_id": 4,
+          "section": "第四节 心理学实验中的伦理问题",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 428,
+          "quote": "(一)指导思想。全面贯彻党的十九大和十九届二中、三中全会精神,以习近平新时代中国特色社会主义思想为指导,落实党中央、国务院关于社会信用体系建设的总体要求,以优化科技创新环境为目标,以推进科研诚信建设制度化为重点,以健全完善科研诚信工作机制为保障,坚持预防与惩治并举,坚持自律与监督并重,坚持无禁区、全覆盖、零容忍,严肃查处违背科研诚信要求的行为,着力打造共建共享共治的科研诚信建设新格局,营造诚实守信、追求真理、崇尚创新、鼓励探索、勇攀高峰的良好氛围,为建设世界科技强国奠定坚实的社会文化基础。",
+          "pages": [
+            34,
+            35
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG041",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第2章“第二节 自变量及控制”里“操作性定义是由美国物理学家布里奇曼(P.W.Bridgm”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 2,
+          "section": "第二节 自变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 68,
+          "quote": "操作性定义是由美国物理学家布里奇曼(P.W.Bridgman)于1932年提出来的,其目的是让研究者之间能进行更清晰、更准确的交流,确保研究者在实验方法上标准化和保持一致性。如果研究者用这种方式来定义自变量,那么其他研究者在重复其研究时,只要沿用其界定的自变量就行。布里奇曼主张,操作性定义指一个概念应该由测量它的程序来定义。操作性定义由于能使研究者之间进行清晰且有效的交流,一经提出就得到了学术界的认同。1935年,美国实验心理学家史蒂文斯(S. S. Stevens)在《心理学概念的操作性定义》一文中,首次将“操作性定义”这一概念从物理学引入心理学。这一思想很快被当时占主导地位的新行为主义心理学流派的学者接受。之后,操作性定义就成为心理学研究的基本原则;特别是在《实验心理学》这类最能代表心理学“科学性”的教材中,操作性定义构成了不可或缺的部分(舒育跃,等,2019)。",
+          "pages": [
+            4,
+            5
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG042",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第3章“第二节 准实验设计”里“潜伏性,是指引入实验处理后的变化是即时发生的还是潜伏一段”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 2,
+          "section": "第二节 准实验设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 333,
+          "quote": "潜伏性,是指引入实验处理后的变化是即时发生的还是潜伏一段时间后才发生的。如果是即时发生的,则表明引入实验处理后,成绩水平或斜率很快就会发生变化,即在引入实验处理后,首次后测的成绩水平或斜率就会表现出非连续性,如图3-9中D线、E线、G线对应的O5。如果是潜伏一段时间后才发生,则表明引入实验处理后,成绩水平要过一段时间才会表现出非连续性,如F线对应的O6。在这种情况下,由于在处理效果的潜伏期间,可能会有其他无关因素影响基线(即前测)成绩水平或斜率的变化,所以研究者难以判断引入处理后所发生的非连续性变化是否只是由实验处理引起的。在一般情况下,只有当引入处理后的变化是即时发生之时,才能比较明确地说明它是实验处理的效果。",
+          "pages": [
+            26,
+            27
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG043",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第4章“第一节 被试间设计概述”里“多自变量被试间设计(multipleindependen”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 4,
+          "section_id": 1,
+          "section": "第一节 被试间设计概述",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 15,
+          "quote": "多自变量被试间设计(multiple independent variable between-subject design)也称多因素被试间设计。在研究中,有两个或两个以上的自变量,且每个自变量有两种或两种以上的水平。被试被分配给各种实验处理水平的结合,每名被试只接受一种实验处理水平的结合。",
+          "pages": [
+            1,
+            2
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG044",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第5章“第一节 被试内设计概述”里“有这样一项关于购车偏好的实验研究:研究者假设人们第一次学”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 5,
+          "section_id": 1,
+          "section": "第一节 被试内设计概述",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 29,
+          "quote": "有这样一项关于购车偏好的实验研究:研究者假设人们第一次学车时所使用的车型会影响随后他们购车的选择行为。具体而言,在学车时,如果学开的车型是小型车,那么相比学开的车型是大型车,人们就会更倾向于买小型车。由于还有其他的因素会影响被试的购车偏好,如经济实力、父母对车的选择、广告宣传力度、个人的品牌偏好等,个体在购车时会存在很大的个体差异。为了克服这些无关因素的干扰,研究者认为实验采用被试内设计比较好。但事实上,在这个实验中,选择被试内设计会产生这样一个无法解决的问题:在学开车时,如果被试学车时用的是小型车,那么他们不大可能有机会再用大型车来学习一遍。即使研究者给被试开设了同样的学车课程,被试也不可能再有他们开始学车时的相同反应,特别是因为他们已不再是对汽车一无所知的新手了。也就是说,第一项实验处理对后面的实验处理造成了不可逆转的干扰。在这种情况下,研究者只能选择被试间设计。",
+          "pages": [
+            2,
+            3
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG045",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第6章“第二节 A-B-A设计”里“单被试设计的实验最后能否取得成功,关键取决于建立基线阶段”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 2,
+          "section": "第二节 A-B-A设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 90,
+          "quote": "单被试设计的实验最后能否取得成功,关键取决于建立基线阶段。所谓基线,是指在不接受任何实验处理时测量到的被试的行为表现或者在控制条件下测量到的被试的行为表现。建立基线阶段所收集的数据主要是用来作为评估被试接受实验处理后其所产生的影响的对比标准。在收集基线数据时,研究者希望找到行为的稳定模式,这样便可以更容易地发现在施加实验处理后被试行为变化的一般性趋势。",
+          "pages": [
+            9,
+            10
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG046",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第7章“第二节 心理量表法”里“比例量表又称等比量表、比率量表,既有绝对零点又有相等单位”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 7,
+          "section_id": 2,
+          "section": "第二节 心理量表法",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 304,
+          "quote": "比例量表又称等比量表、比率量表,既有绝对零点又有相等单位。所谓绝对零点,是指某事物不具备被测量的属性或特征的状态(孟庆茂,常建华,1999)。用这种量表进行测量,不仅可以知道测量对象之间有差距,以及差距是多少,还可以知道它们之间确切的数量关系。也就是说,由这种量表测查的数据既可以用加减法处理,也可以用乘除法处理。因此,这是一种比较理想的量表。",
+          "pages": [
+            21,
+            22
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG047",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第8章“第二节 反应时的影响因素”里“随着云计算、大数据、深度学习等新的信息技术的发展,虚拟现”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 2,
+          "section": "第二节 反应时的影响因素",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 157,
+          "quote": "随着云计算、大数据、深度学习等新的信息技术的发展,虚拟现实技术(virtual reality,VR)被广泛运用于教育领域,已经成为最具应用前景的技术之一。由于虚拟现实技术具有多感知性、沉浸性、交互性与构想性等特点,所以,它的应用可以为学习者提供更“真实”、更丰富的学习资源。但与此同时,也可能会因为信息呈现形式不当、冗余感知刺激过多等问题,人们在学习的过程中认知负荷过载,从而降低学习效率。因此,如何有效利用虚拟现实技术,创设更合理、更高效的学习环境,成为教育领域的研究者和实践者普遍关心的问题。",
+          "pages": [
+            16,
+            17
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG048",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第9章“第一节 注意研究中的基本问题”里“还是以上述幼儿进行颜色判断的实验为例。大多数孩子可以完成”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 9,
+          "section_id": 1,
+          "section": "第一节 注意研究中的基本问题",
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "block_id": 19,
+          "quote": "还是以上述幼儿进行颜色判断的实验为例。大多数孩子可以完成连续性的实验任务,但有些孩子会在一两分钟后开始犯错误或完全停止反应,很少有孩子可以执行这样的任务超过20~30分钟。如果一个孩子在一分钟后就开始在这项任务上经常犯错误,那么就很容易判断出这个孩子可能存在注意力缺陷障碍。也就是说,即使这个孩子暂时将注意力集中在红色上,这个孩子也很难长时间保持对任务的注意。这个孩子的持续性注意能力低。",
+          "pages": [
+            2,
+            3
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG049",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第10章“第二节 记忆实验中的变量”里“罗迪格和卡匹克(Roediger&Karpicke,20”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 10,
+          "section_id": 2,
+          "section": "第二节 记忆实验中的变量",
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "block_id": 80,
+          "quote": "罗迪格和卡匹克(Roediger & Karpicke,2006)也注意到了这一变量对记忆保持的影响,并发现了提取练习对记忆内容长期保持的促进作用,即所谓测试效应 (testing effect)。而在此之前,图尔文(1967)也对此问题进行了研究。在实验中,被试被要求在三种条件下学习词表,学习的方式分别为:STST[学词表(study),回忆(test),再学(study),再回忆(test)], SSST(学习,学习,学习,回忆), STTT(学习,回忆,回忆,回忆)。结果发现,三种学习条件下的被试在最终测试上的成绩几乎是相同的。研究者因此认为,一次测试可相当于一次学习。在图尔文之后的很长一段时间,大多数研究者都仿照图尔文的设计或仅改变一些变量,这些研究在方法上有一个共同之处,即学习时间和测试时间是均等的,且在学习阶段呈现单词的速度都较快,最终测试的时间也都较短:在学习阶段单词呈现速度为每秒1个,在测试阶段回忆单词的时间也仅为36秒。罗迪格等人认为过短的测试时间可能低估了被试所习得的知识量,从而可能低估了提取练习对记忆的促进作用。因此, 卡匹克和罗迪格(Karpicke & Roediger,2008)模仿了图尔文的三种实验条件,但以3秒1个的速度呈现单词,同时将学习阶段与最终测试的时间间隔分为5分钟和一周两种情况。结果发现,当学习与测试之间的间隔为5分钟时,研究结果与图尔文(1967)的结果相符。但更重要的是,研究发现,在一周后的测试中,SSST组的回忆率显著低于STST组和STTT组,且后两者无显著差异,这就证明了提取对于长时记忆保持的作用。",
+          "pages": [
+            11,
+            12
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG050",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第11章“第三节 阅读中的眼动和知觉过程”里“杨和马考柯(Yang&McConkie,1999)通过操”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 11,
+          "section_id": 3,
+          "section": "第三节 阅读中的眼动和知觉过程",
+          "document_id": "experimental-psychology-3:chapter-11",
+          "version": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+          "block_id": 252,
+          "quote": "杨和马考柯(Yang & McConkie,1999)通过操纵首字和尾字的复杂性和词频考察了双字词的复杂性和词频对阅读的影响(复杂性以笔画数为指标)。在研究中,被试为13名中国学生。共20套材料,每一套材料由5个双字词组成,这5个双字词可以替换同一个句子中的同一个位置上的词,替换以后,句法和语法规则没有被破坏;而这些词的词频(高-低)和复杂性(结构简单-结构复杂)不同。每组中的5个双字词具有如下特征:",
+          "pages": [
+            23,
+            24
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG051",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第1章“第二节 实验心理学的产生与发展”里“(1)对记忆的量化研究。记忆的好坏,既有质的区别,也有量”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 1,
+          "section_id": 2,
+          "section": "第二节 实验心理学的产生与发展",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 166,
+          "quote": "(1)对记忆的量化研究。记忆的好坏,既有质的区别,也有量的差异。严格的、科学的实验研究要求对记忆进行数量化的分析。那么,怎样才能对记忆进行量化研究呢?艾宾浩斯发现,识记材料的长短,与学习所用时间、学习后到开始回忆所间隔的时间有密切关系。对于学习的材料,人们不仅有是否记住的差别,还有记住多少的差别。艾宾浩斯用节省法或重学法,对个体记住多少进行了测定,从而促进了记忆量化研究的进程。",
+          "pages": [
+            13,
+            14
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG052",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第2章“第四节 额外变量及控制”里“梅奥等人在这个实验中选择了14名男工在单独的房间里从事绕”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 190,
+          "quote": "梅奥等人在这个实验中选择了14名男工在单独的房间里从事绕线、焊接和检验工作,对这个班组实行特殊的计件工资制度。实验者设想,实行这种奖励办法会使工人更加努力工作,以便得到更多的报酬。但是,实际获得的结果却与设想的不同:产量只保持在中等水平,每个工人的日工作量都差不多,而且工人并不如实报告自己的工作量,存在隐瞒前一天的超产用以弥补后一天的减产,使自己的工作量与别人保持一致的现象。深入调查还发现,这个班组为了维护他们的群体利益,自发形成了一些规范。他们约定:谁也不能干得太多,突岀自己﹔谁也不能干得太少,影响全组的产量。此外,他们还约定:不准向管理者告密。如果违反这些规定,轻则挖苦谩骂,重则拳打脚踢。",
+          "pages": [
+            14,
+            15
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG053",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第3章“第一节 相关设计”里“为了研究遗传和养育环境对成人人格的影响,研究者常把双生子”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 1,
+          "section": "第一节 相关设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 15,
+          "quote": "为了研究遗传和养育环境对成人人格的影响,研究者常把双生子作为研究对象。双生子有两种类型:异卵和同卵。异卵双生子(DZ)是由两个不同的精子同时使两个卵细胞受精发育而成的(“异”是指两个,“卵”是指受精卵)。这种双生子的亲缘关系并不比其他非双生同胞的亲缘关系更近,换言之,他们平均也仅有一半的基因相同,他们只是碰巧同时受孕。同卵双生子(MZ)是由一个受精卵分裂成两个受精卵发育而成的(“同”是指同一个,“卵”是指受精卵)。因为他们来自同一个受精卵,所以他们的基因是相同的。因此,同卵双生子有时也被称为“全等双生子”。研究同卵双生子是很有趣的,这是因为他们之间的差异不可能是由基因引起的(因为他们的基因是完全相同的)。同卵双生子之间的相似性肯定可以用基因来解释,不过这些相似性也可能与他们相同的经历和环境有关,这种经历和环境上的共享对同卵双生子来说是很常见的。",
+          "pages": [
+            1,
+            2
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG054",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第4章“第三节 多自变量被试间设计”里“最后,看一下两个因素的交互作用。交互作用描述的是一个因素”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 4,
+          "section_id": 3,
+          "section": "第三节 多自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 310,
+          "quote": "最后,看一下两个因素的交互作用。交互作用描述的是一个因素是否会受到其他因素不同水平的影响。在这个实验中,交互作用可说明男性或女性被试进食量是否会随着其同伴性别的改变而发生变化。经过统计分析,结果发现被试性别和同伴性别之间存在着显著的交互作用。无论同伴是同性还是异性,男性吃掉的薄脆饼干数都没有差异。而女性吃掉的薄脆饼干数则取决于其同伴的性别:相比与同性同伴进食时,与异性同伴进食时她们吃得更少。",
+          "pages": [
+            23,
+            24
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG055",
+      "split": "holdout",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第5章“第二节 单因素被试内设计”里“(6)总句子阅读时间。空格呈现条件的主效应显著,F1(3”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 5,
+          "section_id": 2,
+          "section": "第二节 单因素被试内设计",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 76,
+          "quote": "(6)总句子阅读时间。空格呈现条件的主效应显著,F1(3,33)=10.630,p1<0.001,F2(3,297)=9.248,p2<0.001。进一步检验表明,词间空格条件下的总句子阅读时间最短,与正常条件差异不显著,p>0.05。非词间空格条件下的总句子阅读时间最长,并显著长于其他三种条件下的,p<0.05。正常条件和字间空格条件下的差异不显著,p>0.05。词间空格条件下的总句子阅读时间显著短于字间空格条件下的,p<0.05。这些结果表明,被试在词间空格和字间空格条件下的阅读与正常条件下的阅读一样容易,词间空格条件优于字间空格条件,非词间空格条件下的加工难度增加。",
+          "pages": [
+            6,
+            7
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG056",
+      "split": "holdout",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第6章“第三节 A-B设计”里“在惊恐障碍治疗中,情绪是可控核心因素。同时,元认知策略能”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 3,
+          "section": "第三节 A-B设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 316,
+          "quote": "在惊恐障碍治疗中,情绪是可控核心因素。同时,元认知策略能激活大脑对有关惊恐障碍的原理分析与行为方面的程序性知识的自动提取和运行。吴晓丹(2008)采用A-B多基线设计,运用观察法、访谈法、认知疗法及行为疗法中的放松训练,结合元认知行为干预技术中的暗示性学习技术、情感组织者技术,再配以学科辅导,来治疗被试的惊恐障碍。",
+          "pages": [
+            29,
+            30
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG057",
+      "split": "holdout",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第7章“第三节 信号检测论”里“对信号检测起干扰作用的背景称为噪声,这种噪声是相对于信号”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 7,
+          "section_id": 3,
+          "section": "第三节 信号检测论",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 413,
+          "quote": "对信号检测起干扰作用的背景称为噪声,这种噪声是相对于信号而言的。例如,在视觉实验中,亮点信号出现时的照度均匀的背景即为噪声。总之,对信号起干扰作用的因素都可称为噪声。一般的心理物理学的辨别实验包含刺激A和刺激B,在这种情况下,可将其中一个刺激视为噪声,另一个刺激视为信号。主试在呈现刺激时,有时只呈现噪声刺激(用N表示),有时同时呈现信号刺激与噪声刺激(用SN表示),让被试对信号刺激做出反应。在刺激呈现之前,主试要先告诉被试N和SN各自出现的概率,这个概率称为先定概率(或先验概率);同时向被试说明判定结果的奖惩办法,因为先定概率和奖惩办法都将影响被试的判断标准,因此每次实验呈现的N和SN都是随机安排的,主试在呈现刺激之前先要给被试一个预备信号。",
+          "pages": [
+            29,
+            30
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG058",
+      "split": "holdout",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第8章“第二节 反应时的影响因素”里“为了了解反应效价对熊蜂觅食行为的影响,研究者改变了第一个”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 2,
+          "section": "第二节 反应时的影响因素",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 78,
+          "quote": "为了了解反应效价对熊蜂觅食行为的影响,研究者改变了第一个实验中的条件,将4个小孔中的普通水换成了10毫升含奎宁的、有苦味的水。经过一天的训练之后重新进行实验,结果发现熊蜂反应的正确率有了明显提高,达到83.0%;同时,它们所花费的时间也明显增加,反应时与正确率之间的相关仍然显著(r=0.723,n=10,p<0.05)。这说明反应的低效价会增加熊蜂在觅食过程中的正确反应次数。在实验二中,改变对反应的惩罚,即把含奎宁的、有苦味的水重新换成普通水之后,熊蜂做出正确选择的概率又出现了回落(61.4%)。因此,可以认为熊蜂的正确反应在很大程度上受到了反应效价的影响。更重要的是,熊蜂在觅食过程中同样存在着速度与反应准确率之间的权衡。",
+          "pages": [
+            8,
+            9
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG059",
+      "split": "holdout",
+      "high_risk": true
+    },
+    {
+      "category": "cross_page",
+      "question": "请解释第9章“第二节 注意的研究范式”里“另外还有一种较为常用的划分,就是根据整个实验中有效试次和”这段内容的含义和关键条件。不要出题。",
+      "support": [
+        {
+          "chapter": 9,
+          "section_id": 2,
+          "section": "第二节 注意的研究范式",
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "block_id": 93,
+          "quote": "另外还有一种较为常用的划分,就是根据整个实验中有效试次和无效试次的比例把线索分为预测性线索(predictive cue)和非预测性线索(non-predictive cue)。预测性线索指在整个实验中有效试次的数量多于无效试次的数量的线索。也就是说,目标出现在线索化位置的概率大于出现在非线索化位置的概率。对整个实验来说,这种线索具有预测性,并鼓励被试有意地注意线索化位置。非预测性线索指在整个实验中有效试次的数量与无效试次的数量接近的线索。也就是说,目标出现在线索化位置的概率与出现在非线索化位置的概率相当。这样的线索不具有预测性。",
+          "pages": [
+            10,
+            11
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG060",
+      "split": "holdout",
+      "high_risk": true
+    },
+    {
+      "category": "summary",
+      "question": "请概括第1章“第三节 心理学实验的程序”中“(3)对原始数据(rawdata)进行分类。对原始数据进”与“在日常生活中,人们经常会遇到一些心理学现象或心理学问题。”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 1,
+          "section_id": 3,
+          "section": "第三节 心理学实验的程序",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 351,
+          "quote": "(3)对原始数据(raw data)进行分类。对原始数据进行分类是指将在性质上相同的数据归到一起,形成一类,如按人的年龄、性别、智力水平等进行分类。此外,也可根据实验自变量的不同水平进行分类,如在研究个体短时记忆容量时,识记材料分为文字的和非文字的。其中,文字的材料还可以分为有意义联系的材料和无意义联系的材料,非文字的材料也可以分为有意义的非文字材料和无意义的非文字材料。",
+          "pages": [
+            29
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 1,
+          "section_id": 3,
+          "section": "第三节 心理学实验的程序",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 235,
+          "quote": "在日常生活中,人们经常会遇到一些心理学现象或心理学问题。例如,人们似乎不愿意在集体活动中倾尽全力。民间俗语“一个和尚挑水吃,两个和尚抬水吃,三个和尚没水吃”,就是对这一现象的形象概括。",
+          "pages": [
+            21
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG061",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第2章“第四节 额外变量及控制”中“当然,为了避免取样的偏差,实验者可能会告诉被试一个中性的”与“罗森塔尔假设:如果小学教师得到学生的某种信息(例如智商分”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 277,
+          "quote": "当然,为了避免取样的偏差,实验者可能会告诉被试一个中性的实验名称,例如,用“印象形成实验”或“亲密关系实验”来替代“性经验研究”,因为取样的偏差会极大地降低实验的外部效度。",
+          "pages": [
+            23
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 214,
+          "quote": "罗森塔尔假设:如果小学教师得到学生的某种信息(例如智商分数),他们或多或少地会对学生的潜能发展产生某种期望,这种期望会使他们无意识地对那些可能会成功的学生的行为表现给予更多的鼓励和鞭策。为了检验这一理论假设,罗森塔尔和他的助手雅各布森一起,到橡树小学开展了实验研究。橡树小学坐落在美国某个州的一座大城市的中低收入阶层的社区。",
+          "pages": [
+            17
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG062",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第3章“第二节 准实验设计”中“之后,研究者还对此项研究进行了深化,具体来说,就是将条件”与“此外,不等两组设计和随机相等两组设计也是不一样的:前者实”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 2,
+          "section": "第二节 准实验设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 345,
+          "quote": "之后,研究者还对此项研究进行了深化,具体来说,就是将条件相近的其他四个州的交通事故死亡数据与康涅狄格州的数据进行比较,结果如图3-12所示(引自索尔索,麦克林,2001/2004)。",
+          "pages": [
+            28
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 3,
+          "section_id": 2,
+          "section": "第二节 准实验设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 271,
+          "quote": "此外,不等两组设计和随机相等两组设计也是不一样的:前者实施前测的目的是弥补不能对被试进行随机选择和分配的缺陷,即通过前测来获得非随机等组差异程度的具体根据,以便作为对两组后测进行比较的基础;而对于后者来说,前测并不是必需的,仅是作为进一步控制选择偏差或验证实验组与控制组的确为等组的一种辅助措施,是用来与后测相比较,评价实验处理效果的。",
+          "pages": [
+            21
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG063",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第4章“第二节 单自变量被试间设计”中“拉丁方可能的组合会随着P的增大而迅速增多。一个3×3的拉”与“上述设计与随机区组设计基本相同,只是一天对应于一个区组。”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 4,
+          "section_id": 2,
+          "section": "第二节 单自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 155,
+          "quote": "拉丁方可能的组合会随着P的增大而迅速增多。一个3×3的拉丁方可能的组合数是12,而一个4×4的拉丁方可能的组合数是576个……一个7×7的拉丁方可能的组合数高达16 942 080个。从理论上讲,使用拉丁方设计时应该从可能的拉丁方总体中随机选择一个,但当拉丁方大于5×5时,很难操作。下面仅以4×4拉丁方为例,介绍其随机化的方法。",
+          "pages": [
+            11
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 4,
+          "section_id": 2,
+          "section": "第二节 单自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 130,
+          "quote": "上述设计与随机区组设计基本相同,只是一天对应于一个区组。如果每一天之间的变异具有一定的重要性,那么这种设计将从实验误差估计中把这一变异来源剔除。",
+          "pages": [
+            9
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG064",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第5章“第五节 混合设计”中“常用两种方法控制顺序效应:反向平衡和区组平衡。区组平衡分”与“有研究者采用一种混合设计,考察了蜘蛛恐惧症患者和正常人之”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 5,
+          "section_id": 5,
+          "section": "第五节 混合设计",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 364,
+          "quote": "常用两种方法控制顺序效应:反向平衡和区组平衡。区组平衡分为完全平衡和不完全平衡。完全平衡是通过在实验中让所有可能的处理顺序都出现来控制累积误差的方法。不完全平衡则只出现一部分可能的处理顺序,常用的不完全平衡包括随机区组平衡和拉丁方平衡。",
+          "pages": [
+            32
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 5,
+          "section_id": 5,
+          "section": "第五节 混合设计",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 312,
+          "quote": "有研究者采用一种混合设计,考察了蜘蛛恐惧症患者和正常人之间的情绪反应差异(引自Myers & Hansen,2005)。被试间变量是个体对蜘蛛恐惧的程度。恐惧症组被试由那些报告对蜘蛛的害怕等级最高的人组成,控制组被试由那些报告对蜘蛛的害怕等级最低的人组成。被试内变量是可能被蜘蛛咬的场景,包含蜘蛛的照片、真实蜘蛛或蜘蛛标本、空的玻璃缸。",
+          "pages": [
+            27
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG065",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第6章“第三节 A-B设计”中“实验结果表明,实验处理产生了预期的效果,即新教师的课堂管”与“第三,指导预后训练。放松训练结束后,为巩固训练结果,治疗”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 3,
+          "section": "第三节 A-B设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 246,
+          "quote": "实验结果表明,实验处理产生了预期的效果,即新教师的课堂管理行为得到了改善并处于一种稳定的状态。然而,这一结果还有一种可能的解释,即新教师在课堂教学过程中逐渐成熟。不过,由于整个实验持续的时间较短,这样的解释可能性较小。",
+          "pages": [
+            22
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 6,
+          "section_id": 3,
+          "section": "第三节 A-B设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 294,
+          "quote": "第三,指导预后训练。放松训练结束后,为巩固训练结果,治疗师教会被试分析症状的方法,以使其遇到类似刺激时可以马上做出正确的分析,同时教会被试正确的深呼吸方法和简化的放松训练,让被试再遇到刺激场景时,能够及时调整情绪,防止症状复发。",
+          "pages": [
+            27
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG066",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第7章“第一节 感觉阈限的测量”中“在表7-12中,X代表刺激量,Y代表回答“两点”的比例(”与“为了控制地图背景的复杂度,将复杂度已经确定的汉字转换成空”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 7,
+          "section_id": 1,
+          "section": "第一节 感觉阈限的测量",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 226,
+          "quote": "在表7-12中,X代表刺激量,Y代表回答“两点”的比例(P值)对应的Z分数,N=5。将表7-12中的数据代入上述公式,则有",
+          "pages": [
+            16
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 7,
+          "section_id": 1,
+          "section": "第一节 感觉阈限的测量",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 280,
+          "quote": "为了控制地图背景的复杂度,将复杂度已经确定的汉字转换成空心字,笔画间相互连通,使之与地图上的道路相似。由于可辨认的字作为背景可能会干扰被试对目标汉字的辨认,故将背景字倒置呈现作为道路背景。有两种不同复杂度的背景字(F1:“月”“占”“以”“任”;F2:“数”“想”“率”“群”)。道路背景在屏幕上的面积为1 000像素×1 000像素, 待辨认的目标汉字的面积为50像素×50像素。",
+          "pages": [
+            19
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG067",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第8章“第三节 反应时研究方法的发展”中“无论是减法技术还是加法技术,都不能直接得到某个特定心理加”与“减数法又称唐德斯反应时ABC(A、B、C是指三种不同的反”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 3,
+          "section": "第三节 反应时研究方法的发展",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 197,
+          "quote": "无论是减法技术还是加法技术,都不能直接得到某个特定心理加工阶段所需的时间,而要间接地通过两种任务的比较才能得到,并且相应的加工阶段或认知操作也要通过严密的推理才能被确认。研究者试图探索一种实验技术,能够比较直接地测量每个加工阶段的时间,而且能比较明显地看出这些加工阶段。汉米尔顿(Hamilton)等人于1977年提出的开窗技术就是这样一种实验技术,它是反应时实验的一种新形式。与减法技术和加法技术相比,开窗技术可以把每一项认知加工所需要的时间比较直接地估计出来。例如,在字母转换实验中,不仅能获知字母的编码、转换以及储存的时间,还可以分离出更细致的加工过程,比如,可能在后一个加工阶段存在着对前一个阶段的复查,储存阶段有可能还包含对前面字母转换结果的提取和整合。",
+          "pages": [
+            21
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 8,
+          "section_id": 3,
+          "section": "第三节 反应时研究方法的发展",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 166,
+          "quote": "减数法又称唐德斯反应时ABC(A、B、C是指三种不同的反应时任务,具体如下), 是一种用相减的方法将反应时分解成各个成分,然后分析内在心理加工过程的方法。它是由唐德斯首先提出的,又称为唐德斯减法。减数法的逻辑是,安排两项反应时任务,其中一项任务包含另一项任务所没有的一个因素,而其他方面均相同。从这两项任务的反应时之差,可以判定该因素所对应的加工阶段花费的时间(王甦,汪安圣,2007)。",
+          "pages": [
+            17
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG068",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第9章“第一节 注意研究中的基本问题”中“被试变量是指在某一维度标准上存在个体差异的变量,如年龄、”与“在眼动追踪的注意研究中,不同类型的眼动指标都可以作为因变”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 9,
+          "section_id": 1,
+          "section": "第一节 注意研究中的基本问题",
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "block_id": 49,
+          "quote": "被试变量是指在某一维度标准上存在个体差异的变量,如年龄、性别、智力水平等。例如,在萨托等人(Soto,Humphreys,& Heinke,2006)探讨工作记忆对注意控制影响的研究中,被试类型为自变量,被试分为正常被试和脑损伤患者。又如,弗莱克等人(Fleck et al.,2004)以精神分裂症患者和正常健康群体为被试,探讨了他们选择性注意的特点。这两项注意研究采用的自变量都是被试变量。",
+          "pages": [
+            6
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 9,
+          "section_id": 1,
+          "section": "第一节 注意研究中的基本问题",
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "block_id": 59,
+          "quote": "在眼动追踪的注意研究中,不同类型的眼动指标都可以作为因变量。例如,在注意捕获研究中,首次眼跳概率就可以作为注意捕获的指标。首次眼跳概率是指被试的首次注视点落在某个客体上的概率。其值越大,表明这个客体捕获的注意资源越多。再如,注视百分比可以作为注意分配的指标。注视百分比是指在规定时间内,被试对视野中不同客体进行注视的比例。其值越大,表明该被试在该客体上分配的注意资源越多。",
+          "pages": [
+            7
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG069",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第10章“第一节 记忆的类型”中“(3)情境模拟法。该方法在一定程度上既能保证良好的生态学”与“借助神经影像技术,图尔文等还提出了记忆的左右脑编码/提取”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 10,
+          "section_id": 1,
+          "section": "第一节 记忆的类型",
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "block_id": 74,
+          "quote": "(3)情境模拟法。该方法在一定程度上既能保证良好的生态学效度,又可对额外变量进行严格控制。例如,要求被试想象自己正在一个房间里,任务是整理房间中的家具和日用品。任务可分为三大类:一类与事件有关,即要记得给5件玻璃制品贴上“易碎”标签;一类与时间有关,即每5分钟按一下电铃让外面的人进来;一类与活动有关,即要关上厨房的门以防止猫进入。最后,对比被试在三项任务上的执行情况,以及其对自己前瞻记忆水平的评估。",
+          "pages": [
+            11
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 10,
+          "section_id": 1,
+          "section": "第一节 记忆的类型",
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "block_id": 38,
+          "quote": "借助神经影像技术,图尔文等还提出了记忆的左右脑编码/提取不对称模型(hemispheric encoding/retrieval asymmetry, HERA),即右脑主要负责情景记忆的提取,而左脑主要负责语义记忆的提取。",
+          "pages": [
+            5
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG070",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第11章“第三节 阅读中的眼动和知觉过程”中“Kantowitz,B.H.,Roediger,H.L.”与“欢迎您随时反馈教材使用过程中的疑问、修订建议,并提供您个”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 11,
+          "section_id": 3,
+          "section": "第三节 阅读中的眼动和知觉过程",
+          "document_id": "experimental-psychology-3:chapter-11",
+          "version": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+          "block_id": 398,
+          "quote": "Kantowitz,B.H., Roediger,H.L.,& Elmes,D.G.(2009).Experimental psychology.9th ed.Belmont,CA:Wadsworth.",
+          "pages": [
+            34
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 11,
+          "section_id": 3,
+          "section": "第三节 阅读中的眼动和知觉过程",
+          "document_id": "experimental-psychology-3:chapter-11",
+          "version": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+          "block_id": 638,
+          "quote": "欢迎您随时反馈教材使用过程中的疑问、修订建议,并提供您个人制作的课件。您的课件一经入选,我们将有偿使用。让我们与教材共成长!",
+          "pages": [
+            43
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG071",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第1章“第二节 实验心理学的产生与发展”中“与华生的旧行为主义主张不同,新行为主义者认为在刺激与反应”与“美国心理学史专家波林认为,实验心理学是从实验生理学中发展”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 1,
+          "section_id": 2,
+          "section": "第二节 实验心理学的产生与发展",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 190,
+          "quote": "与华生的旧行为主义主张不同,新行为主义者认为在刺激与反应之间还存在着中介变量,即有机体的内部过程是由观察到的行为反应间接推断出来的。",
+          "pages": [
+            16
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 1,
+          "section_id": 2,
+          "section": "第二节 实验心理学的产生与发展",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": 128,
+          "quote": "美国心理学史专家波林认为,实验心理学是从实验生理学中发展出来。这主要是因为在1800—1879年间,实验生理学在以下九个方面的研究取得了重大进展。",
+          "pages": [
+            10
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG072",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第2章“第四节 额外变量及控制”中“如果实验的对象是人,研究者可能会从众多心理学系学生中招募”与“为了回答此问题,研究者让一些被试在刺激呈现后点头,让另一”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 274,
+          "quote": "如果实验的对象是人,研究者可能会从众多心理学系学生中招募一些人作为被试。在绝大多数大学中,从事心理学研究的人选择的被试主要是自己所教的学生。除此之外,学生被试有时是通过互联网招募来的,有时是通过在校园内张贴相关信息招募来的。通常,学生会留下自己的联系方式,或者与实验者联系了解实验情况,然后确定自己感兴趣的实验,在约定好的时间参加实验。",
+          "pages": [
+            23
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 203,
+          "quote": "为了回答此问题,研究者让一些被试在刺激呈现后点头,让另一些被试在刺激呈现后摇头。然后,他们要求被试给出自己对刺激的同意程度。他们预期点头的被试对刺激的同意程度高,摇头的被试对刺激的同意程度低(引自迈尔斯,汉森,2001/2006)。",
+          "pages": [
+            16
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG073",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第3章“第二节 准实验设计”中“时间系列设计有两种变式:一种是间时系列设计(interr”与“准实验设计的使用条件:第一,有许多变量无法进行随机分配。”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 2,
+          "section": "第二节 准实验设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 304,
+          "quote": "时间系列设计有两种变式:一种是间时系列设计(interrupt time series design),另一种是等时样本设计(equivalent time sample design)。",
+          "pages": [
+            24
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 3,
+          "section_id": 2,
+          "section": "第二节 准实验设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 505,
+          "quote": "准实验设计的使用条件:第一,有许多变量无法进行随机分配。第二,当研究者需要对研究内容或干预的效果进行评估,特别是进行回溯性研究时,准实验设计就是一种极佳的选择。第三,特定条件下的研究需要使用准实验设计。第四,当在经费、时间、控制因素上存在很大困难时,研究者不可能实现随机分配被试,在此情况下必须选择准实验设计。第五,在一些心理学实验研究中,因实验的伦理的要求,研究者必须采用准实验设计。",
+          "pages": [
+            37
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG074",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "summary",
+      "question": "请概括第4章“第二节 单自变量被试间设计”中“虽然单因素拉丁方设计被广泛地应用于心理学和教育学实验研究”与“从表4-10中可以看出,每种处理水平即表中的字母在每一行”的要点，给出各自依据。不要出题。",
+      "support": [
+        {
+          "chapter": 4,
+          "section_id": 2,
+          "section": "第二节 单自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 139,
+          "quote": "虽然单因素拉丁方设计被广泛地应用于心理学和教育学实验研究之中,但是要使用这种实验设计,必须满足以下条件(舒华,1994):",
+          "pages": [
+            10
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        },
+        {
+          "chapter": 4,
+          "section_id": 2,
+          "section": "第二节 单自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 137,
+          "quote": "从表4-10中可以看出,每种处理水平即表中的字母在每一行和每一列都仅出现了一次。像这样的一个方阵,就被称为拉丁方。要构成一个拉丁方,必须保证行数与列数相等,并且两者都要等于处理水平数。",
+          "pages": [
+            9
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG075",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第2章“第四节 额外变量及控制”的表格或公式，解释“第一组第二组处理A处理B额外变量1额外变量1额外变量2额”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 157,
+          "quote": "第一组 第二组\n处理A 处理B\n额外变量1 额外变量1\n额外变量2 额外变量2\n额外变量3 额外变量3\n额外变量4 额外变量4\n额外变量5 额外变量5",
+          "pages": [
+            12
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG076",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第3章“第一节 相关设计”的表格或公式，解释“123456781学业成就—2智商分数-0.68*—3自”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 1,
+          "section": "第一节 相关设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 203,
+          "quote": " 1 2 3 4 5 6 7 8\n1学业成就 —       \n2智商分数 -0.68* —      \n3自我效能 0.56* -0.33* —     \n4学习策略 0.55* 0.32* -0.61* —    \n5内在动机 0.45* 0.30* 0.43* -0.42* —   \n6外在动机 -0.26* -0.28* -0.18* -0.25* -0.33* —  \n7掌握目标 0.47* 0.33* 0.29* 0.30* 0.43* 0.22* — \n8业绩目标 -0.29* -0.22* -0.11* -0.16* -0.20* 0.29* -0.09* —",
+          "pages": [
+            15
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG077",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第4章“第二节 单自变量被试间设计”的表格或公式，解释“变异来源平方和df均方F组间(生字密度)190.1253”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 4,
+          "section_id": 2,
+          "section": "第二节 单自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 76,
+          "quote": "变异来源 平方和 df 均方 F\n组间(生字密度) 190.125 3 63.375 22.53*\n组内 78.750 28 2.813 \n合计 268.875 31  ",
+          "pages": [
+            5
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG078",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第5章“第二节 单因素被试内设计”的表格或公式，解释“学习状况反应时(毫秒)正确率(%)学习过563.10±8”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 5,
+          "section_id": 2,
+          "section": "第二节 单因素被试内设计",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 51,
+          "quote": "学习状况 反应时(毫秒) 正确率(%)\n学习过 563.10±87.03 93.66±5.16\n未学习过 601.13±89.50 91.85±6.70\n启动 38.03 1.81",
+          "pages": [
+            4
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG079",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第6章“第一节 单被试设计概述”的表格或公式，解释“呈现的刺激观察到的反应1.积木像平常一样玩积木2.白鼠害”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 1,
+          "section": "第一节 单被试设计概述",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 44,
+          "quote": "呈现的刺激 观察到的反应\n1.积木 像平常一样玩积木\n2.白鼠 害怕、后退(没有哭)\n3.白鼠+噪声 害怕并哭泣\n4.白鼠 害怕并哭泣\n5.白鼠 害怕、哭泣并离开\n6.小白兔 害怕,但不像前面表现得那么强烈\n7.积木 像平常一样玩积木\n8.小白兔 与6相同\n9.小白兔 与6相同\n10.小白兔 有点儿害怕,但还想触摸它\n11.狗 害怕,回避\n12.狗+噪声 害怕并离开\n13.积木 像平常一样玩积木",
+          "pages": [
+            4,
+            5
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG080",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第7章“第一节 感觉阈限的测量”的表格或公式，解释“比较刺激系列呈现顺序↑↓↓↑标准刺激呈现位置左右右左右左”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 7,
+          "section_id": 1,
+          "section": "第一节 感觉阈限的测量",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 52,
+          "quote": "比较刺激系列呈现顺序 ↑ ↓ ↓ ↑\n标准刺激呈现位置 左右 右左 右左 左右\n刺激相继呈现的先后顺序 前后 后前 后前 前后",
+          "pages": [
+            5
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG081",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第8章“第二节 反应时的影响因素”的表格或公式，解释“lgI00.20.40.60.812345678910R”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 2,
+          "section": "第二节 反应时的影响因素",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 102,
+          "quote": "lgI 0 0.2 0.4 0.6 0.8 1 2 3 4 5 6 7 8 9 10\nRT 402 316 281 249 218 193 161 148 139 130 124 118 112 111 110",
+          "pages": [
+            11
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG082",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第11章“第二节 阅读的研究方法及实验范式”的表格或公式，解释“学生应该严格遵守各项课堂纪律(正常句子)学生应该严格遵守”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 11,
+          "section_id": 2,
+          "section": "第二节 阅读的研究方法及实验范式",
+          "document_id": "experimental-psychology-3:chapter-11",
+          "version": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+          "block_id": 88,
+          "quote": "学生应该严格遵守各项课堂纪律(正常句子)\n学生应该严格遵守各项课堂纪律(当前注视开始)\n*\n学生应该　遵守各项课堂纪律(20毫秒/40毫秒/60毫秒/80毫秒注视以后)\n*\n学生应该严格遵守各项课堂纪律(下一个注视开始)\n*\n学生应该严格　各项课堂纪律(20毫秒/40毫秒/60毫秒/80毫秒注视以后)\n*",
+          "pages": [
+            10
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG083",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第2章“第四节 额外变量及控制”的表格或公式，解释“在绿色房间参加测试的被试在红色房间参加测试的被试S1(A”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "block_id": 161,
+          "quote": "在绿色房间参加测试的被试 在红色房间参加测试的被试\nS1(A) S7(A)\nS2(A) S8(A)\nS3(A) S9(A)\nS4(B) S10(B)\nS5(B) S11(B)\nS6(B) S12(B)",
+          "pages": [
+            12
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG084",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第3章“第一节 相关设计”的表格或公式，解释“内在动机学习策略学业成就βpβpβp自我效能0.3380”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 1,
+          "section": "第一节 相关设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": 208,
+          "quote": " 内在动机 学习策略 学业成就\n β p β p β p\n自我效能 0.338 0.000 1 0.536 0.000 0 0.207 0.005 2\n掌握目标 0.330 0.000 1   0.185 0.002 8\n内在动机   0.184 0.023 0  \n学习策略     0.220 0.002 8\n智商分数     0.476 0.000 0",
+          "pages": [
+            15,
+            16
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG085",
+      "split": "development",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第4章“第二节 单自变量被试间设计”的表格或公式，解释“变异来源平方和df均方F自变量(A)20.845.201”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 4,
+          "section_id": 2,
+          "section": "第二节 单自变量被试间设计",
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "block_id": 121,
+          "quote": "变异来源 平方和 df 均方 F\n自变量(A) 20.8 4 5.20 11.56*\n区组(B) 50.0 4 12.50 \nB×A 7.2 16 0.45 \n合计 78.0 24  ",
+          "pages": [
+            8,
+            9
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG086",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第5章“第二节 单因素被试内设计”的表格或公式，解释“被试因素AS1a1a2S2a1a2S3a1a2S4a2a”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 5,
+          "section_id": 2,
+          "section": "第二节 单因素被试内设计",
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "block_id": 36,
+          "quote": "被试 因素A\nS1 a1 a2\nS2 a1 a2\nS3 a1 a2\nS4 a2 a1\nS5 a2 a1\nS6 a2 a1",
+          "pages": [
+            3
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG087",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第6章“第三节 A-B设计”的表格或公式，解释“阶段A阶段B阶段C阶段DF值p值两两比较(p<0.001”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 3,
+          "section": "第三节 A-B设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 307,
+          "quote": " 阶段A 阶段B 阶段C 阶段D F值 p值 两两比较(p<0.001)\n被试1 09.8±2.5 05.4±1.1 03.4±1.3 1.8±0.8 23.97 <0.001 GB,GC,GD<GA\n被试2 13.2±1.8 10.2±1.9 06.0±2.2 3.0±1.6 28.17 <0.001 GC,GD<GA,GB\n被试3 12.4±1.5 10.0±1.2 11.0±1.6 2.8±0.8 52.37 <0.001 GD<GA,GB,GC",
+          "pages": [
+            29
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG088",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第7章“第二节 心理量表法”的表格或公式，解释“刺激ABCDEFGHIJA—B1—C102—D18113”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 7,
+          "section_id": 2,
+          "section": "第二节 心理量表法",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": 380,
+          "quote": "刺激 A B C D E F G H I J\nA —         \nB 1 —        \nC 10 2 —       \nD 18 11 3 —      \nE 25 19 12 4 —     \nF 31 26 20 13 5 —    \nG 36 32 27 21 14 6 —   \nH 40 37 33 28 22 15 7 —  \nI 43 41 38 34 29 23 16 8 — \nJ 45 44 42 39 35 30 24 17 9 —",
+          "pages": [
+            26
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG089",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "assets",
+      "question": "请结合第8章“第二节 反应时的影响因素”的表格或公式，解释“性别人数测试次数最慢反应时(毫秒)最快反应时(毫秒)平均”所表达的内容与条件。不要出题。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 2,
+          "section": "第二节 反应时的影响因素",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 146,
+          "quote": "性别 人数 测试次数 最慢反应时(毫秒) 最快反应时(毫秒) 平均反应时(毫秒) 标准差\n男 34 30±5 217 183 198 ±15.5\n女 62 34±7 244 183 207 ±10.5",
+          "pages": [
+            15
+          ],
+          "kind": "table",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "exact",
+      "annotation": "教材原文+独立PDF纯文本全引文唯一匹配；尚未教师审核",
+      "id": "CG090",
+      "split": "holdout",
+      "high_risk": false
+    },
+    {
+      "category": "negative",
+      "mutation": "wrong_version",
+      "question": "请核对“前面我们介绍了在药物研究中运用安慰剂的单盲实验程序。单盲实验程序通过使”的教材出处。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 4,
+          "section": "第四节 额外变量及控制",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "0000000000000000000000000000000000000000000000000000000000000000",
+          "block_id": 237,
+          "quote": "前面我们介绍了在药物研究中运用安慰剂的单盲实验程序。单盲实验程序通过使被试意识不到自己所处的条件来控制研究中的任务要求特征,但是,单盲实验程序无法控制实验者偏差。当实验者意识到被试接受是药物条件时,他们的无意识行为很可能会影响实验结果。因此,如果有可能,在研究中最好使用双盲实验。",
+          "pages": [
+            20
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "stale",
+      "annotation": "人工设定的错误版本/虚构引文/未消歧重复短语，不得给精确坐标",
+      "id": "CG091",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "negative",
+      "mutation": "wrong_version",
+      "question": "请核对“如果在实验中,两位观察者对同一被试行为的评分的相关度很低,接近于0,表”的教材出处。",
+      "support": [
+        {
+          "chapter": 2,
+          "section_id": 5,
+          "section": "第五节 实验的效度与信度",
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "0000000000000000000000000000000000000000000000000000000000000000",
+          "block_id": 369,
+          "quote": "如果在实验中,两位观察者对同一被试行为的评分的相关度很低,接近于0,表明评分者对观察结果的评分存在很大差异。如果发生了这种情况,解决的办法是:首先,要求评分者认真学习评分标准,并确保其准确理解了评分标准;其次,要求评分者试评几分;最后,计算两位评分者评分结果的相关值,要求评分的相关值达到0.9以上。否则就需要继续学习评分标准,直到评分的相关值达到0.9以上。",
+          "pages": [
+            31
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "stale",
+      "annotation": "人工设定的错误版本/虚构引文/未消歧重复短语，不得给精确坐标",
+      "id": "CG092",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "negative",
+      "mutation": "wrong_version",
+      "question": "请核对“在对反应时数据的分析中,研究者发现识记项目数量的主效应显著。在项目数量”的教材出处。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 2,
+          "section": "第二节 反应时的影响因素",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "0000000000000000000000000000000000000000000000000000000000000000",
+          "block_id": 159,
+          "quote": "在对反应时数据的分析中,研究者发现识记项目数量的主效应显著。在项目数量为3个的条件下,被试的反应时显著短于项目数量为4个、5个的条件下的反应时,而且,项目数量为4个的条件下的反应时也显著短于项目数量为5个的条件下的反应时。研究者因此认为,随着识记项目数量的增加,被试主观认知负荷的心理努力也会随之增加。基于此,研究者结合已有研究结论提出建议:在虚拟学习环境中,视觉加工的客体数量不要超过4个,否则会造成认知负荷超载。",
+          "pages": [
+            17
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "stale",
+      "annotation": "人工设定的错误版本/虚构引文/未消歧重复短语，不得给精确坐标",
+      "id": "CG093",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "negative",
+      "mutation": "invented_quote",
+      "question": "请核对“本教材没有这句引文，结果为负99999。”的教材出处。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 1,
+          "section": "第一节 单被试设计概述",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": 13,
+          "quote": "本教材没有这句引文，结果为负99999。",
+          "pages": [
+            2
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "unlocated",
+      "annotation": "人工设定的错误版本/虚构引文/未消歧重复短语，不得给精确坐标",
+      "id": "CG094",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "negative",
+      "mutation": "invented_quote",
+      "question": "请核对“本教材没有这句引文，结果为负99999。”的教材出处。",
+      "support": [
+        {
+          "chapter": 10,
+          "section_id": 1,
+          "section": "第一节 记忆的类型",
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "block_id": 7,
+          "quote": "本教材没有这句引文，结果为负99999。",
+          "pages": [
+            1
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "unlocated",
+      "annotation": "人工设定的错误版本/虚构引文/未消歧重复短语，不得给精确坐标",
+      "id": "CG095",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "negative",
+      "mutation": "invented_quote",
+      "question": "请核对“本教材没有这句引文，结果为负99999。”的教材出处。",
+      "support": [
+        {
+          "chapter": 8,
+          "section_id": 1,
+          "section": "第一节 反应时概述",
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "block_id": 23,
+          "quote": "本教材没有这句引文，结果为负99999。",
+          "pages": [
+            3
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "unlocated",
+      "annotation": "人工设定的错误版本/虚构引文/未消歧重复短语，不得给精确坐标",
+      "id": "CG096",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "negative",
+      "mutation": "ambiguous",
+      "question": "请核对“实验”的教材出处。",
+      "support": [
+        {
+          "chapter": 1,
+          "section_id": 2,
+          "section": "第二节 实验心理学的产生与发展",
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "block_id": null,
+          "quote": "实验",
+          "pages": [
+            17
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "ambiguous",
+      "annotation": "人工设定的错误版本/虚构引文/未消歧重复短语，不得给精确坐标",
+      "id": "CG097",
+      "split": "development",
+      "high_risk": true
+    },
+    {
+      "category": "negative",
+      "mutation": "ambiguous",
+      "question": "请核对“实验”的教材出处。",
+      "support": [
+        {
+          "chapter": 7,
+          "section_id": 1,
+          "section": "第一节 感觉阈限的测量",
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "block_id": null,
+          "quote": "实验",
+          "pages": [
+            1
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "ambiguous",
+      "annotation": "人工设定的错误版本/虚构引文/未消歧重复短语，不得给精确坐标",
+      "id": "CG098",
+      "split": "holdout",
+      "high_risk": true
+    },
+    {
+      "category": "negative",
+      "mutation": "ambiguous",
+      "question": "请核对“实验”的教材出处。",
+      "support": [
+        {
+          "chapter": 3,
+          "section_id": 2,
+          "section": "第二节 准实验设计",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "block_id": null,
+          "quote": "实验",
+          "pages": [
+            18
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "ambiguous",
+      "annotation": "人工设定的错误版本/虚构引文/未消歧重复短语，不得给精确坐标",
+      "id": "CG099",
+      "split": "holdout",
+      "high_risk": true
+    },
+    {
+      "category": "negative",
+      "mutation": "ambiguous",
+      "question": "请核对“实验”的教材出处。",
+      "support": [
+        {
+          "chapter": 6,
+          "section_id": 2,
+          "section": "第二节 A-B-A设计",
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "block_id": null,
+          "quote": "实验",
+          "pages": [
+            13
+          ],
+          "kind": "paragraph",
+          "formula_ids": []
+        }
+      ],
+      "expected_status": "ambiguous",
+      "annotation": "人工设定的错误版本/虚构引文/未消歧重复短语，不得给精确坐标",
+      "id": "CG100",
+      "split": "holdout",
+      "high_risk": true
+    }
+  ]
+}

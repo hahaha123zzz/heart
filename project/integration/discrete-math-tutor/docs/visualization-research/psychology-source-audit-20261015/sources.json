@@ -1,0 +1,212 @@
+[
+  {
+    "requested_repo": "HKUDS/DeepTutor",
+    "repository": "HKUDS/DeepTutor",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "license_api": "Apache-2.0",
+    "files": [
+      {
+        "path": "LICENSE",
+        "saved_as": "HKUDS--DeepTutor--LICENSE",
+        "sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4",
+        "url": "https://github.com/HKUDS/DeepTutor/blob/6cf793bd868ba5ecbe64722936d4be8fab5a01df/LICENSE"
+      },
+      {
+        "path": "deeptutor/visualizers/README.md",
+        "saved_as": "HKUDS--DeepTutor--deeptutor__visualizers__README.md",
+        "sha256": "bff6c89328fe0c60f35dcdd0e489e0bd9beec2e463a738f70a73de624f7b192d",
+        "url": "https://github.com/HKUDS/DeepTutor/blob/6cf793bd868ba5ecbe64722936d4be8fab5a01df/deeptutor/visualizers/README.md"
+      },
+      {
+        "path": "deeptutor/visualizers/protocol.py",
+        "saved_as": "HKUDS--DeepTutor--deeptutor__visualizers__protocol.py",
+        "sha256": "3992d7d372577c778c0d7880e26a7cda6e64db3cb5f94d57d1a4194d1b3b9621",
+        "url": "https://github.com/HKUDS/DeepTutor/blob/6cf793bd868ba5ecbe64722936d4be8fab5a01df/deeptutor/visualizers/protocol.py"
+      },
+      {
+        "path": "deeptutor/visualizers/tool.py",
+        "saved_as": "HKUDS--DeepTutor--deeptutor__visualizers__tool.py",
+        "sha256": "6326980fae3e83b7df6467ca3485e1e0a9c5d613a720ed576a57f5055cdb801d",
+        "url": "https://github.com/HKUDS/DeepTutor/blob/6cf793bd868ba5ecbe64722936d4be8fab5a01df/deeptutor/visualizers/tool.py"
+      },
+      {
+        "path": "deeptutor/agents/visualize/prompts/en/analysis_agent.yaml",
+        "saved_as": "HKUDS--DeepTutor--deeptutor__agents__visualize__prompts__en__analysis_agent.yaml",
+        "sha256": "e1d244097bbc3a7a2467b1a2f7471aac93cec07ee2971fea069d0d4da1dfa282",
+        "url": "https://github.com/HKUDS/DeepTutor/blob/6cf793bd868ba5ecbe64722936d4be8fab5a01df/deeptutor/agents/visualize/prompts/en/analysis_agent.yaml"
+      },
+      {
+        "path": "web/components/visualize/VisualizationViewer.tsx",
+        "saved_as": "HKUDS--DeepTutor--web__components__visualize__VisualizationViewer.tsx",
+        "sha256": "db039deb92ff468912d818ae1640acc40efc30131655ed78b0614be6ef24686f",
+        "url": "https://github.com/HKUDS/DeepTutor/blob/6cf793bd868ba5ecbe64722936d4be8fab5a01df/web/components/visualize/VisualizationViewer.tsx"
+      }
+    ]
+  },
+  {
+    "requested_repo": "THU-MAIC/OpenMAIC",
+    "repository": "THU-MAIC/OpenMAIC",
+    "commit": "ecb940c136cc5b4ea56dc81b2505e64eff1dea29",
+    "license_api": "MIT",
+    "files": [
+      {
+        "path": "LICENSE",
+        "saved_as": "THU-MAIC--OpenMAIC--LICENSE",
+        "sha256": "ba252563743227138231604c9138dd400faca5a10c3cf206b466e5466c565a19",
+        "url": "https://github.com/THU-MAIC/OpenMAIC/blob/ecb940c136cc5b4ea56dc81b2505e64eff1dea29/LICENSE"
+      },
+      {
+        "path": "components/scene-renderers/interactive-renderer.tsx",
+        "saved_as": "THU-MAIC--OpenMAIC--components__scene-renderers__interactive-renderer.tsx",
+        "sha256": "59a045241f80852703233f59dc104e2ad2507ad510311f9606b53ce9b7ccd0f0",
+        "url": "https://github.com/THU-MAIC/OpenMAIC/blob/ecb940c136cc5b4ea56dc81b2505e64eff1dea29/components/scene-renderers/interactive-renderer.tsx"
+      },
+      {
+        "path": "components/scene-renderers/InteractiveIframeHost.tsx",
+        "saved_as": "THU-MAIC--OpenMAIC--components__scene-renderers__InteractiveIframeHost.tsx",
+        "sha256": "8778fdc03025be16057cf84cc18df8e88bd2b2c138d2a291b58583e5eef2e351",
+        "url": "https://github.com/THU-MAIC/OpenMAIC/blob/ecb940c136cc5b4ea56dc81b2505e64eff1dea29/components/scene-renderers/InteractiveIframeHost.tsx"
+      },
+      {
+        "path": "lib/prompts/templates/interactive-outlines/system.md",
+        "saved_as": "THU-MAIC--OpenMAIC--lib__prompts__templates__interactive-outlines__system.md",
+        "url": "https://github.com/THU-MAIC/OpenMAIC/blob/ecb940c136cc5b4ea56dc81b2505e64eff1dea29/lib/prompts/templates/interactive-outlines/system.md",
+        "sha256": "ca99b9dd10282794126f95dd0e3735a0b13f35a6afdb8cd9e61517cc44c7d938"
+      },
+      {
+        "path": "lib/prompts/templates/interactive-outlines/user.md",
+        "saved_as": "THU-MAIC--OpenMAIC--lib__prompts__templates__interactive-outlines__user.md",
+        "url": "https://github.com/THU-MAIC/OpenMAIC/blob/ecb940c136cc5b4ea56dc81b2505e64eff1dea29/lib/prompts/templates/interactive-outlines/user.md",
+        "sha256": "3970a0539adffe8e7d78407bc6b67798aa20394452d5d4703b0f0e3723edfa07"
+      }
+    ]
+  },
+  {
+    "requested_repo": "jspsych/jsPsych",
+    "repository": "jspsych/jsPsych",
+    "commit": "5887b4a50f71fe4b93254754956ea488b0a0c16e",
+    "license_api": "MIT",
+    "files": [
+      {
+        "path": "license.txt",
+        "saved_as": "jspsych--jsPsych--license.txt",
+        "sha256": "412c203cb08996fa95525ad0a98a79985f844a7d23b9bef31a6eb2b864600fc9",
+        "url": "https://github.com/jspsych/jsPsych/blob/5887b4a50f71fe4b93254754956ea488b0a0c16e/license.txt"
+      },
+      {
+        "path": "packages/plugin-html-keyboard-response/src/index.ts",
+        "saved_as": "jspsych--jsPsych--packages__plugin-html-keyboard-response__src__index.ts",
+        "sha256": "fa9fa564baf6b0053fbb36920bade35fef49ac6d7925c4fe3c8dc9c0c49e167b",
+        "url": "https://github.com/jspsych/jsPsych/blob/5887b4a50f71fe4b93254754956ea488b0a0c16e/packages/plugin-html-keyboard-response/src/index.ts"
+      },
+      {
+        "path": "examples/demo-flanker.html",
+        "saved_as": "jspsych--jsPsych--examples__demo-flanker.html",
+        "sha256": "45d85d7ee8e8e5d8e781c70c241ce9fa35ce38e5caf896822840fc349cfbfa5f",
+        "url": "https://github.com/jspsych/jsPsych/blob/5887b4a50f71fe4b93254754956ea488b0a0c16e/examples/demo-flanker.html"
+      },
+      {
+        "path": "docs/overview/timing-accuracy.md",
+        "saved_as": "jspsych--jsPsych--docs__overview__timing-accuracy.md",
+        "sha256": "29df04be4055b5539d3b34a9e616e01046fe6d01a98d94c2feb0075eac1adb74",
+        "url": "https://github.com/jspsych/jsPsych/blob/5887b4a50f71fe4b93254754956ea488b0a0c16e/docs/overview/timing-accuracy.md"
+      }
+    ]
+  },
+  {
+    "requested_repo": "FelixHenninger/lab.js",
+    "repository": "FelixHenninger/lab.js",
+    "commit": "b8206ad7e558476a7222adc91c0bc184329832d9",
+    "license_api": "NOASSERTION",
+    "files": [
+      {
+        "path": "license.md",
+        "saved_as": "FelixHenninger--lab.js--license.md",
+        "sha256": "77a550781cf849092fe6e0c91cf994457c390673fc2d838e2b1281e97cbe9477",
+        "url": "https://github.com/FelixHenninger/lab.js/blob/b8206ad7e558476a7222adc91c0bc184329832d9/license.md"
+      },
+      {
+        "path": "packages/library/license",
+        "saved_as": "FelixHenninger--lab.js--packages__library__license",
+        "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+        "url": "https://github.com/FelixHenninger/lab.js/blob/b8206ad7e558476a7222adc91c0bc184329832d9/packages/library/license"
+      },
+      {
+        "path": "packages/builder/license",
+        "saved_as": "FelixHenninger--lab.js--packages__builder__license",
+        "sha256": "fb9ce8b6dfc4f65ccb572b54cc4b7b0bc2cc1189f62fd1357ee3b044b2c77fd8",
+        "url": "https://github.com/FelixHenninger/lab.js/blob/b8206ad7e558476a7222adc91c0bc184329832d9/packages/builder/license"
+      },
+      {
+        "path": "packages/library/src/flow/sequence.ts",
+        "saved_as": "FelixHenninger--lab.js--packages__library__src__flow__sequence.ts",
+        "sha256": "05e690afdc3c6507a5ff6969eea4beff4cd350584ef4a81c36dc841f8a41f3b4",
+        "url": "https://github.com/FelixHenninger/lab.js/blob/b8206ad7e558476a7222adc91c0bc184329832d9/packages/library/src/flow/sequence.ts"
+      },
+      {
+        "path": "packages/library/src/flow/loop.ts",
+        "saved_as": "FelixHenninger--lab.js--packages__library__src__flow__loop.ts",
+        "sha256": "492d71e932b47f1ac32f334f35de04ad2c2c7ddd5b207c844deba2898c4d7c83",
+        "url": "https://github.com/FelixHenninger/lab.js/blob/b8206ad7e558476a7222adc91c0bc184329832d9/packages/library/src/flow/loop.ts"
+      },
+      {
+        "path": "tasks/Stroop (code-based)/experiment.js",
+        "saved_as": "FelixHenninger--lab.js--tasks__Stroop (code-based)__experiment.js",
+        "sha256": "d11e5600331302d03df21cc896850922dfbe078b44189cd7fdf5cdcf1df85972",
+        "url": "https://github.com/FelixHenninger/lab.js/blob/b8206ad7e558476a7222adc91c0bc184329832d9/tasks/Stroop%20%28code-based%29/experiment.js"
+      }
+    ]
+  },
+  {
+    "requested_repo": "CopilotKit/OpenGenerativeUI",
+    "repository": "CopilotKit/OpenIntelligentUI",
+    "commit": "8391a94c1c3939c679e40ddd7bfc08a9ef690e70",
+    "license_api": "MIT",
+    "files": [
+      {
+        "path": "LICENSE",
+        "saved_as": "CopilotKit--OpenGenerativeUI--LICENSE",
+        "sha256": "15a0e5343aea872c0573ad72feb6044b336f162d724cc1673c608e6b37ea071b",
+        "url": "https://github.com/CopilotKit/OpenIntelligentUI/blob/8391a94c1c3939c679e40ddd7bfc08a9ef690e70/LICENSE"
+      },
+      {
+        "path": "docs/architecture.md",
+        "saved_as": "CopilotKit--OpenGenerativeUI--docs__architecture.md",
+        "sha256": "66d5c3592c18852b18df3e0c9053ec1f5e281f300e01091251e2b02cd3578f95",
+        "url": "https://github.com/CopilotKit/OpenIntelligentUI/blob/8391a94c1c3939c679e40ddd7bfc08a9ef690e70/docs/architecture.md"
+      },
+      {
+        "path": "apps/app/src/lib/sandbox/sandbox-functions.ts",
+        "saved_as": "CopilotKit--OpenGenerativeUI--apps__app__src__lib__sandbox__sandbox-functions.ts",
+        "sha256": "751f8c7cd1c66bdf24995e2bea9e249f115fd3db570dd4ae8924eb9995d65446",
+        "url": "https://github.com/CopilotKit/OpenIntelligentUI/blob/8391a94c1c3939c679e40ddd7bfc08a9ef690e70/apps/app/src/lib/sandbox/sandbox-functions.ts"
+      }
+    ]
+  },
+  {
+    "requested_repo": "google/A2UI",
+    "repository": "a2ui-project/a2ui",
+    "commit": "1657e70119eaa3b76c2a106ac60c7c4dcfe206e0",
+    "license_api": "Apache-2.0",
+    "files": [
+      {
+        "path": "LICENSE",
+        "saved_as": "google--A2UI--LICENSE",
+        "sha256": "8c8b5b632d56c4c1658296963c693db5396772a33caaddb9a22593c4155c437a",
+        "url": "https://github.com/a2ui-project/a2ui/blob/1657e70119eaa3b76c2a106ac60c7c4dcfe206e0/LICENSE"
+      },
+      {
+        "path": "README.md",
+        "saved_as": "google--A2UI--README.md",
+        "sha256": "cc9d9e4889650eff107c7882395bda1564957367ffb5436a6c6633510e9c5007",
+        "url": "https://github.com/a2ui-project/a2ui/blob/1657e70119eaa3b76c2a106ac60c7c4dcfe206e0/README.md"
+      },
+      {
+        "path": "catalogs/basic/v1/basic_catalog_implementation_guide.md",
+        "saved_as": "google--A2UI--catalogs__basic__v1__basic_catalog_implementation_guide.md",
+        "sha256": "ac7d821d83b1fcf153df100759616f306916f853f0e9f978650aef19e86178b6",
+        "url": "https://github.com/a2ui-project/a2ui/blob/1657e70119eaa3b76c2a106ac60c7c4dcfe206e0/catalogs/basic/v1/basic_catalog_implementation_guide.md"
+      }
+    ]
+  }
+]

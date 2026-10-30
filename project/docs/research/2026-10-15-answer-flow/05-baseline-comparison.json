@@ -1,0 +1,68 @@
+[
+  {
+    "id": "definition",
+    "before_calls": 9,
+    "after_calls": 4,
+    "before_seconds": 22.985,
+    "after_seconds": 31.344,
+    "before_status": "answered",
+    "after_status": "answered",
+    "path": "direct_answer",
+    "regenerated": 0
+  },
+  {
+    "id": "comparison",
+    "before_calls": 9,
+    "after_calls": 4,
+    "before_seconds": 18.453,
+    "after_seconds": 7.485,
+    "before_status": "answered",
+    "after_status": "answered",
+    "path": "direct_answer",
+    "regenerated": 0
+  },
+  {
+    "id": "example",
+    "before_calls": 9,
+    "after_calls": 4,
+    "before_seconds": 19.219,
+    "after_seconds": 6.797,
+    "before_status": "answered",
+    "after_status": "answered",
+    "path": "direct_answer",
+    "regenerated": 0
+  },
+  {
+    "id": "check_answer",
+    "before_calls": 9,
+    "after_calls": 9,
+    "before_seconds": 17.235,
+    "after_seconds": 18.75,
+    "before_status": "answered",
+    "after_status": "answered",
+    "path": "tutoring",
+    "regenerated": 0
+  },
+  {
+    "id": "hint",
+    "before_calls": 9,
+    "after_calls": 4,
+    "before_seconds": 16.844,
+    "after_seconds": 6.328,
+    "before_status": "answered",
+    "after_status": "answered",
+    "path": "direct_answer",
+    "regenerated": 0
+  },
+  {
+    "id": "follow_up",
+    "before_calls": 10,
+    "after_calls": 6,
+    "before_seconds": 21.297,
+    "after_seconds": 14.125,
+    "before_status": "quality_rejected",
+    "after_status": "answered",
+    "path": "direct_answer",
+    "regenerated": 1
+  }
+]

@@ -1,0 +1,3490 @@
+{
+  "date": "2026-10-21",
+  "method": "local source and retained acceptance artifacts; no new model calls",
+  "repositories": [
+    {
+      "repository": "deeptutor",
+      "root": "D:\\deeptutor",
+      "head": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+      "files": [
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/engine.py",
+          "sha256": "97a3f6d42380280932977b6cb2cb234db95c7842141f8e6c6c5cd95e9ad2d46c",
+          "symbols": [
+            {
+              "name": "LightRagContractError",
+              "line": 39
+            },
+            {
+              "name": "installed_version",
+              "line": 43
+            },
+            {
+              "name": "_require_exact_version",
+              "line": 52
+            },
+            {
+              "name": "_validate_component",
+              "line": 60
+            },
+            {
+              "name": "_safe_candidate",
+              "line": 69
+            },
+            {
+              "name": "_controlled_class",
+              "line": 83
+            },
+            {
+              "name": "_register_parser",
+              "line": 175
+            },
+            {
+              "name": "workspace_for",
+              "line": 188
+            },
+            {
+              "name": "build_rag",
+              "line": 217
+            },
+            {
+              "name": "initialize",
+              "line": 295
+            },
+            {
+              "name": "enqueue",
+              "line": 301
+            },
+            {
+              "name": "_document_id",
+              "line": 314
+            },
+            {
+              "name": "confirmed_unaccepted",
+              "line": 329
+            },
+            {
+              "name": "_managed_queue_funcs",
+              "line": 341
+            },
+            {
+              "name": "_shutdown_queues",
+              "line": 354
+            },
+            {
+              "name": "finalize",
+              "line": 371
+            },
+            {
+              "name": "_string",
+              "line": 378
+            },
+            {
+              "name": "_records",
+              "line": 384
+            },
+            {
+              "name": "_query_sources",
+              "line": 391
+            },
+            {
+              "name": "query_with_sources",
+              "line": 487
+            },
+            {
+              "name": "DeepTutorLightRAG",
+              "line": 86
+            },
+            {
+              "name": "add",
+              "line": 400
+            },
+            {
+              "name": "_resolve_source_file_for_parser",
+              "line": 87
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/pipeline.py",
+          "sha256": "d798339208cdc92f3c965e56583e2b89c3e3a313c83cff22a140e86caf16211c",
+          "symbols": [
+            {
+              "name": "BatchOutcome",
+              "line": 39
+            },
+            {
+              "name": "LightRagBatchError",
+              "line": 63
+            },
+            {
+              "name": "LightRagNeedsReindexError",
+              "line": 76
+            },
+            {
+              "name": "_status_text",
+              "line": 80
+            },
+            {
+              "name": "_row_name",
+              "line": 86
+            },
+            {
+              "name": "_row_error",
+              "line": 90
+            },
+            {
+              "name": "LightRagPipeline",
+              "line": 98
+            },
+            {
+              "name": "complete",
+              "line": 52
+            },
+            {
+              "name": "__init__",
+              "line": 64
+            },
+            {
+              "name": "__init__",
+              "line": 99
+            },
+            {
+              "name": "_ensure_available",
+              "line": 105
+            },
+            {
+              "name": "_resolve_mode",
+              "line": 112
+            },
+            {
+              "name": "_stage_documents",
+              "line": 124
+            },
+            {
+              "name": "_reconcile",
+              "line": 154
+            },
+            {
+              "name": "_run_indexing",
+              "line": 280
+            },
+            {
+              "name": "_remove_zero_accepted_candidate",
+              "line": 374
+            },
+            {
+              "name": "initialize",
+              "line": 382
+            },
+            {
+              "name": "_publish_new_version",
+              "line": 401
+            },
+            {
+              "name": "_initialize_owned",
+              "line": 420
+            },
+            {
+              "name": "add_documents",
+              "line": 479
+            },
+            {
+              "name": "_add_documents_owned",
+              "line": 505
+            },
+            {
+              "name": "_clear_pending_policy",
+              "line": 592
+            },
+            {
+              "name": "search",
+              "line": 609
+            },
+            {
+              "name": "_error_result",
+              "line": 669
+            },
+            {
+              "name": "delete",
+              "line": 679
+            },
+            {
+              "name": "job",
+              "line": 296
+            },
+            {
+              "name": "job",
+              "line": 635
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/storage.py",
+          "sha256": "7495fef90309ef25b8bbacc2f28aeee0544be10c4158436876450f420e72137c",
+          "symbols": [
+            {
+              "name": "working_dir",
+              "line": 50
+            },
+            {
+              "name": "_store_root",
+              "line": 55
+            },
+            {
+              "name": "has_output",
+              "line": 70
+            },
+            {
+              "name": "_doc_status_has_success",
+              "line": 92
+            },
+            {
+              "name": "failure_summary",
+              "line": 113
+            },
+            {
+              "name": "document_error",
+              "line": 136
+            },
+            {
+              "name": "_read_doc_status",
+              "line": 153
+            },
+            {
+              "name": "has_any_doc_status",
+              "line": 166
+            },
+            {
+              "name": "_read_meta",
+              "line": 173
+            },
+            {
+              "name": "meta_is_native_published",
+              "line": 182
+            },
+            {
+              "name": "_parser_inputs",
+              "line": 197
+            },
+            {
+              "name": "read_published_policy",
+              "line": 218
+            },
+            {
+              "name": "latest_published_root",
+              "line": 228
+            },
+            {
+              "name": "published_root_for_embedding",
+              "line": 239
+            },
+            {
+              "name": "embedding_matches",
+              "line": 252
+            },
+            {
+              "name": "require_compatible_embedding",
+              "line": 258
+            },
+            {
+              "name": "write_meta",
+              "line": 272
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/roles.py",
+          "sha256": "1a02a48083091e08ded87cd5eb8cd3f679edd8233a7e7f0fb4a01b9268ab2114",
+          "symbols": [
+            {
+              "name": "model_options",
+              "line": 21
+            },
+            {
+              "name": "resolve_selection",
+              "line": 43
+            },
+            {
+              "name": "settings_models",
+              "line": 71
+            },
+            {
+              "name": "validate_models",
+              "line": 77
+            },
+            {
+              "name": "RoleCall",
+              "line": 87
+            },
+            {
+              "name": "runtime_limits",
+              "line": 96
+            },
+            {
+              "name": "resolve_query_roles",
+              "line": 110
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/config.py",
+          "sha256": "f719bdc1b42f8cac4d4494aba9ae839e82ddd18a3d2ed96b4b46ab195fd944b6",
+          "symbols": [
+            {
+              "name": "LightRagNotAvailableError",
+              "line": 61
+            },
+            {
+              "name": "LightRagNotConfiguredError",
+              "line": 65
+            },
+            {
+              "name": "_http_status_code",
+              "line": 69
+            },
+            {
+              "name": "_retry_classification",
+              "line": 91
+            },
+            {
+              "name": "_retry_delay_seconds",
+              "line": 103
+            },
+            {
+              "name": "_run_adapter_with_retry",
+              "line": 113
+            },
+            {
+              "name": "is_lightrag_available",
+              "line": 140
+            },
+            {
+              "name": "normalize_mode",
+              "line": 149
+            },
+            {
+              "name": "query_kwargs_from_settings",
+              "line": 159
+            },
+            {
+              "name": "indexing_kwargs_from_settings",
+              "line": 173
+            },
+            {
+              "name": "constructor_kwargs_from_settings",
+              "line": 184
+            },
+            {
+              "name": "_lightrag_llm_selection_from_settings",
+              "line": 199
+            },
+            {
+              "name": "lightrag_llm_selection_from_settings",
+              "line": 224
+            },
+            {
+              "name": "lightrag_indexing_selection_from_settings",
+              "line": 229
+            },
+            {
+              "name": "resolve_lightrag_query_llm_config",
+              "line": 234
+            },
+            {
+              "name": "build_llm_model_func",
+              "line": 255
+            },
+            {
+              "name": "build_vision_model_func",
+              "line": 318
+            },
+            {
+              "name": "vision_model_available",
+              "line": 380
+            },
+            {
+              "name": "build_embedding_func",
+              "line": 390
+            },
+            {
+              "name": "llm_model_func",
+              "line": 280
+            },
+            {
+              "name": "vision_model_func",
+              "line": 334
+            },
+            {
+              "name": "embedding_func",
+              "line": 411
+            },
+            {
+              "name": "request",
+              "line": 291
+            },
+            {
+              "name": "request",
+              "line": 352
+            },
+            {
+              "name": "request",
+              "line": 421
+            },
+            {
+              "name": "complete",
+              "line": 292
+            },
+            {
+              "name": "complete",
+              "line": 353
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/worker.py",
+          "sha256": "0d111d3985d8abfc22b4b6d809144130f58c39b1675851ccc131e9de2b5f929b",
+          "symbols": [
+            {
+              "name": "_worker_loop",
+              "line": 34
+            },
+            {
+              "name": "_WorkerLoopController",
+              "line": 60
+            },
+            {
+              "name": "OwnerLoopBridge",
+              "line": 105
+            },
+            {
+              "name": "run_in_worker_loop",
+              "line": 173
+            },
+            {
+              "name": "__init__",
+              "line": 63
+            },
+            {
+              "name": "bind_current_task",
+              "line": 69
+            },
+            {
+              "name": "clear",
+              "line": 82
+            },
+            {
+              "name": "cancel",
+              "line": 88
+            },
+            {
+              "name": "__init__",
+              "line": 113
+            },
+            {
+              "name": "cancel",
+              "line": 119
+            },
+            {
+              "name": "raise_if_cancelled",
+              "line": 127
+            },
+            {
+              "name": "run",
+              "line": 132
+            },
+            {
+              "name": "call",
+              "line": 161
+            },
+            {
+              "name": "run_bound_job",
+              "line": 191
+            },
+            {
+              "name": "submit",
+              "line": 204
+            },
+            {
+              "name": "invoke",
+              "line": 138
+            },
+            {
+              "name": "invoke",
+              "line": 164
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/service.py",
+          "sha256": "4505bc111306414456019ca6c7c0464503e8a07dcffd110ef37247ac7c1b9f1f",
+          "symbols": [
+            {
+              "name": "RAGService",
+              "line": 22
+            },
+            {
+              "name": "__init__",
+              "line": 30
+            },
+            {
+              "name": "_resolve_provider",
+              "line": 56
+            },
+            {
+              "name": "_get_pipeline",
+              "line": 62
+            },
+            {
+              "name": "initialize",
+              "line": 68
+            },
+            {
+              "name": "add_documents",
+              "line": 72
+            },
+            {
+              "name": "_index",
+              "line": 75
+            },
+            {
+              "name": "search",
+              "line": 127
+            },
+            {
+              "name": "_emit_tool_event",
+              "line": 229
+            },
+            {
+              "name": "_capture_raw_logs",
+              "line": 240
+            },
+            {
+              "name": "delete",
+              "line": 312
+            },
+            {
+              "name": "smart_retrieve",
+              "line": 327
+            },
+            {
+              "name": "list_providers",
+              "line": 344
+            },
+            {
+              "name": "get_current_provider",
+              "line": 348
+            },
+            {
+              "name": "has_provider",
+              "line": 353
+            },
+            {
+              "name": "should_skip_noisy_retrieve_log",
+              "line": 247
+            },
+            {
+              "name": "emit",
+              "line": 267
+            },
+            {
+              "name": "capture_non_propagating_logs",
+              "line": 284
+            },
+            {
+              "name": "capture_all_raw_logs",
+              "line": 305
+            },
+            {
+              "name": "indexed",
+              "line": 96
+            },
+            {
+              "name": "progress",
+              "line": 105
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/factory.py",
+          "sha256": "bf53b02ca33908f7614fbd5637e4b2eaecfdaeb29d90a90d955112fea1cfde3b",
+          "symbols": [
+            {
+              "name": "normalize_provider_name",
+              "line": 67
+            },
+            {
+              "name": "provider_uses_embedding_versions",
+              "line": 77
+            },
+            {
+              "name": "version_matches_provider",
+              "line": 89
+            },
+            {
+              "name": "has_ready_provider_index",
+              "line": 110
+            },
+            {
+              "name": "version_has_provider_output",
+              "line": 117
+            },
+            {
+              "name": "provider_failure_summary",
+              "line": 124
+            },
+            {
+              "name": "_build_pipeline",
+              "line": 136
+            },
+            {
+              "name": "get_pipeline",
+              "line": 193
+            },
+            {
+              "name": "list_pipelines",
+              "line": 212
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/smart_retriever.py",
+          "sha256": "9f494004b97284d3d1cdb0e6d4d9fe4c055addd9fb7d8888a238bb3209492b60",
+          "symbols": [
+            {
+              "name": "SmartRetriever",
+              "line": 12
+            },
+            {
+              "name": "__init__",
+              "line": 15
+            },
+            {
+              "name": "retrieve",
+              "line": 18
+            },
+            {
+              "name": "_generate_queries",
+              "line": 49
+            },
+            {
+              "name": "_aggregate",
+              "line": 68
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/index_versioning.py",
+          "sha256": "5d5ecd07716b7ea81f5483a3fa62f1024aed3f01fd707f7d0b99d40aff829eeb",
+          "symbols": [
+            {
+              "name": "EmbeddingSignature",
+              "line": 47
+            },
+            {
+              "name": "kb_versions_dir",
+              "line": 67
+            },
+            {
+              "name": "legacy_storage_dir",
+              "line": 72
+            },
+            {
+              "name": "_legacy_version_dir_for_signature",
+              "line": 76
+            },
+            {
+              "name": "_legacy_storage_dir_for_signature",
+              "line": 80
+            },
+            {
+              "name": "_is_storage_ready",
+              "line": 84
+            },
+            {
+              "name": "_read_json",
+              "line": 90
+            },
+            {
+              "name": "_flat_version_number",
+              "line": 102
+            },
+            {
+              "name": "_flat_version_dirs",
+              "line": 107
+            },
+            {
+              "name": "_next_flat_version_dir",
+              "line": 116
+            },
+            {
+              "name": "_native_lightrag_output_ready",
+              "line": 121
+            },
+            {
+              "name": "_entry_from_flat_version",
+              "line": 141
+            },
+            {
+              "name": "_entry_from_legacy_nested",
+              "line": 173
+            },
+            {
+              "name": "_entry_from_root_legacy",
+              "line": 188
+            },
+            {
+              "name": "_sort_versions",
+              "line": 201
+            },
+            {
+              "name": "list_kb_versions",
+              "line": 214
+            },
+            {
+              "name": "_find_flat_version_by_signature",
+              "line": 239
+            },
+            {
+              "name": "_latest_ready_flat_version",
+              "line": 253
+            },
+            {
+              "name": "read_version_meta",
+              "line": 260
+            },
+            {
+              "name": "find_matching_version",
+              "line": 268
+            },
+            {
+              "name": "version_dir_for_signature",
+              "line": 286
+            },
+            {
+              "name": "storage_dir_for_signature",
+              "line": 294
+            },
+            {
+              "name": "write_version_meta",
+              "line": 309
+            },
+            {
+              "name": "resolve_storage_dir_for_read",
+              "line": 329
+            },
+            {
+              "name": "resolve_storage_dir_for_write",
+              "line": 349
+            },
+            {
+              "name": "resolve_storage_dir_for_rebuild",
+              "line": 364
+            },
+            {
+              "name": "hash",
+              "line": 57
+            },
+            {
+              "name": "key",
+              "line": 202
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/source_visuals.py",
+          "sha256": "a1eb8aa12557f034079e9a37991bdc4611c33513cd9595568794e905d48174ec",
+          "symbols": [
+            {
+              "name": "figure_labels",
+              "line": 28
+            },
+            {
+              "name": "figure_references",
+              "line": 32
+            },
+            {
+              "name": "source_file",
+              "line": 42
+            },
+            {
+              "name": "source_state",
+              "line": 60
+            },
+            {
+              "name": "page_image",
+              "line": 70
+            },
+            {
+              "name": "source_url",
+              "line": 155
+            },
+            {
+              "name": "VisualEvidence",
+              "line": 176
+            },
+            {
+              "name": "retrieve_visual",
+              "line": 202
+            },
+            {
+              "name": "model_message",
+              "line": 182
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/agents/loop/pipeline.py",
+          "sha256": "8ec2ec26777c3bf5166dde992e4e093528d0961071a1d502f475663677752041",
+          "symbols": [
+            {
+              "name": "_read_int",
+              "line": 114
+            },
+            {
+              "name": "_normalise_user_reply",
+              "line": 125
+            },
+            {
+              "name": "_format_user_reply_body",
+              "line": 144
+            },
+            {
+              "name": "_merge_prompt_packs",
+              "line": 173
+            },
+            {
+              "name": "_flatten_ask_user_summary",
+              "line": 190
+            },
+            {
+              "name": "AgenticLoopPipeline",
+              "line": 200
+            },
+            {
+              "name": "__init__",
+              "line": 230
+            },
+            {
+              "name": "_load_prompt_pack",
+              "line": 319
+            },
+            {
+              "name": "_read_prompt_pack",
+              "line": 327
+            },
+            {
+              "name": "usage",
+              "line": 342
+            },
+            {
+              "name": "tool_lookup",
+              "line": 346
+            },
+            {
+              "name": "max_rounds",
+              "line": 360
+            },
+            {
+              "name": "effective_max_rounds",
+              "line": 363
+            },
+            {
+              "name": "exploring_max_tokens",
+              "line": 379
+            },
+            {
+              "name": "respond_max_tokens",
+              "line": 383
+            },
+            {
+              "name": "loop_max_tokens",
+              "line": 387
+            },
+            {
+              "name": "run",
+              "line": 397
+            },
+            {
+              "name": "_build_system_prompt",
+              "line": 436
+            },
+            {
+              "name": "_build_loop_messages",
+              "line": 466
+            },
+            {
+              "name": "_finish_exhausted_instruction",
+              "line": 531
+            },
+            {
+              "name": "_settle_exhausted_instruction",
+              "line": 534
+            },
+            {
+              "name": "_tool_manifest",
+              "line": 537
+            },
+            {
+              "name": "_tool_result_snip_marker",
+              "line": 555
+            },
+            {
+              "name": "_prepare_messages_with_attachments",
+              "line": 564
+            },
+            {
+              "name": "_is_partner_turn",
+              "line": 579
+            },
+            {
+              "name": "_prepare_deferred_tools",
+              "line": 590
+            },
+            {
+              "name": "_tool_scope",
+              "line": 639
+            },
+            {
+              "name": "_pageindex_sdk_tool_bundles",
+              "line": 658
+            },
+            {
+              "name": "_deferred_tools_manifest",
+              "line": 689
+            },
+            {
+              "name": "_exec_allowed",
+              "line": 693
+            },
+            {
+              "name": "_compose_enabled_tools",
+              "line": 726
+            },
+            {
+              "name": "_mastery_nav_available",
+              "line": 789
+            },
+            {
+              "name": "_active_loop_capabilities",
+              "line": 803
+            },
+            {
+              "name": "_exclusive_capability_active",
+              "line": 807
+            },
+            {
+              "name": "_capability_owned_tools",
+              "line": 816
+            },
+            {
+              "name": "_capability_rebinding_tools",
+              "line": 823
+            },
+            {
+              "name": "_capability_system_blocks",
+              "line": 836
+            },
+            {
+              "name": "_capability_pre_loop_seed",
+              "line": 848
+            },
+            {
+              "name": "_capability_skips_kb_seed",
+              "line": 856
+            },
+            {
+              "name": "_capability_finish_instruction",
+              "line": 879
+            },
+            {
+              "name": "_capability_tool_round_output_policy",
+              "line": 904
+            },
+            {
+              "name": "_capability_final_text_override",
+              "line": 928
+            },
+            {
+              "name": "_has_capability_finish_guard",
+              "line": 951
+            },
+            {
+              "name": "_capability_buffers_visible_output",
+              "line": 958
+            },
+            {
+              "name": "_capability_pre_loop_briefings",
+              "line": 986
+            },
+            {
+              "name": "_build_llm_tool_schemas",
+              "line": 1019
+            },
+            {
+              "name": "_build_notebook_manifest",
+              "line": 1046
+            },
+            {
+              "name": "_notebook_choices_full",
+              "line": 1064
+            },
+            {
+              "name": "_notebook_choices",
+              "line": 1085
+            },
+            {
+              "name": "_execute_tool_call",
+              "line": 1093
+            },
+            {
+              "name": "_dispatch_tool_calls",
+              "line": 1120
+            },
+            {
+              "name": "_notify_pause_hooks",
+              "line": 1160
+            },
+            {
+              "name": "_await_user_reply_and_resolve",
+              "line": 1189
+            },
+            {
+              "name": "_resolve_workspace_export",
+              "line": 1275
+            },
+            {
+              "name": "_augment_tool_kwargs",
+              "line": 1328
+            },
+            {
+              "name": "_retrieve_trace_metadata",
+              "line": 1438
+            },
+            {
+              "name": "_retrieve_kb_seed_block",
+              "line": 1481
+            },
+            {
+              "name": "_seed_search_one_kb",
+              "line": 1523
+            },
+            {
+              "name": "_emit_final_text",
+              "line": 1560
+            },
+            {
+              "name": "_emit_protocol_fallback_final_response",
+              "line": 1575
+            },
+            {
+              "name": "_emit_terminator_final_response",
+              "line": 1592
+            },
+            {
+              "name": "_guard_context_window",
+              "line": 1623
+            },
+            {
+              "name": "measure_context_budget",
+              "line": 1660
+            },
+            {
+              "name": "_unloaded_deferred_tool_count",
+              "line": 1677
+            },
+            {
+              "name": "_estimate_messages_tokens",
+              "line": 1691
+            },
+            {
+              "name": "_build_openai_client",
+              "line": 1709
+            },
+            {
+              "name": "_completion_kwargs",
+              "line": 1712
+            },
+            {
+              "name": "_can_use_native_tool_calling",
+              "line": 1721
+            },
+            {
+              "name": "_current_user_id",
+              "line": 1727
+            },
+            {
+              "name": "_current_owner_id",
+              "line": 1736
+            },
+            {
+              "name": "_selected_kbs",
+              "line": 1754
+            },
+            {
+              "name": "_rag_kbs",
+              "line": 1757
+            },
+            {
+              "name": "_capability_owned_kbs",
+              "line": 1763
+            },
+            {
+              "name": "_coexisting_rag_kbs",
+              "line": 1777
+            },
+            {
+              "name": "_workspace_key",
+              "line": 1789
+            },
+            {
+              "name": "_kb_system_note",
+              "line": 1799
+            },
+            {
+              "name": "_prepare_kb_manifests",
+              "line": 1820
+            },
+            {
+              "name": "_collect_kb_manifests",
+              "line": 1845
+            },
+            {
+              "name": "_kb_manifest_system_note",
+              "line": 1859
+            },
+            {
+              "name": "_pageindex_system_note",
+              "line": 1866
+            },
+            {
+              "name": "_workspace_system_note",
+              "line": 1913
+            },
+            {
+              "name": "_t",
+              "line": 1929
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/agents/loop/agent_loop.py",
+          "sha256": "8d388f5772937ae72d6f39313fff2460e8d594e96f406c4acc96ca674c9c7a78",
+          "symbols": [
+            {
+              "name": "_bounded_stream_chunks",
+              "line": 114
+            },
+            {
+              "name": "_reasoning_budget_exhausted",
+              "line": 126
+            },
+            {
+              "name": "_join_answer_parts",
+              "line": 153
+            },
+            {
+              "name": "AgentLoopState",
+              "line": 159
+            },
+            {
+              "name": "LLMCallResult",
+              "line": 171
+            },
+            {
+              "name": "LoopOutcome",
+              "line": 195
+            },
+            {
+              "name": "_provider_response_state",
+              "line": 209
+            },
+            {
+              "name": "_assistant_round_message",
+              "line": 224
+            },
+            {
+              "name": "_has_replayable_assistant_state",
+              "line": 246
+            },
+            {
+              "name": "_reasoning_item_text",
+              "line": 256
+            },
+            {
+              "name": "AgentLoop",
+              "line": 274
+            },
+            {
+              "name": "_single_chunk_stream",
+              "line": 1808
+            },
+            {
+              "name": "_last_context_checkpoint_summary",
+              "line": 1841
+            },
+            {
+              "name": "__init__",
+              "line": 277
+            },
+            {
+              "name": "run",
+              "line": 309
+            },
+            {
+              "name": "_clean",
+              "line": 398
+            },
+            {
+              "name": "_run_loop",
+              "line": 403
+            },
+            {
+              "name": "_begin_settlement",
+              "line": 773
+            },
+            {
+              "name": "_append_loop_instruction",
+              "line": 793
+            },
+            {
+              "name": "_fold_context_checkpoint",
+              "line": 801
+            },
+            {
+              "name": "_reject_capability_finish",
+              "line": 821
+            },
+            {
+              "name": "_forced_finish",
+              "line": 837
+            },
+            {
+              "name": "_finalize_finish",
+              "line": 939
+            },
+            {
+              "name": "_release_deferred_output",
+              "line": 983
+            },
+            {
+              "name": "_discard_deferred_output",
+              "line": 1002
+            },
+            {
+              "name": "_call_llm",
+              "line": 1037
+            },
+            {
+              "name": "_single_shot_stream",
+              "line": 1712
+            },
+            {
+              "name": "_create_response_stream",
+              "line": 1726
+            },
+            {
+              "name": "_emit_segments",
+              "line": 1178
+            },
+            {
+              "name": "_maybe_emit_reasoning_progress",
+              "line": 1210
+            },
+            {
+              "name": "_reasoning_progress_loop",
+              "line": 1238
+            },
+            {
+              "name": "_ensure_reasoning_progress_task",
+              "line": 1246
+            },
+            {
+              "name": "_stop_reasoning_progress_task",
+              "line": 1251
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/agents/_shared/tool_composition.py",
+          "sha256": "97f80cd0374f2661aca3e1785e0ce0274070c929090b012ba896304859f411de",
+          "symbols": [
+            {
+              "name": "default_optional_tools",
+              "line": 84
+            },
+            {
+              "name": "admin_enabled_optional_tools",
+              "line": 101
+            },
+            {
+              "name": "ToolMountFlags",
+              "line": 146
+            },
+            {
+              "name": "compose_enabled_tools",
+              "line": 174
+            },
+            {
+              "name": "_finalize",
+              "line": 280
+            },
+            {
+              "name": "_ordered_unique",
+              "line": 288
+            },
+            {
+              "name": "user_has_memory",
+              "line": 299
+            },
+            {
+              "name": "user_has_notebooks",
+              "line": 319
+            },
+            {
+              "name": "user_has_mastery_topics",
+              "line": 336
+            },
+            {
+              "name": "user_has_question_bank",
+              "line": 352
+            },
+            {
+              "name": "partner_can_record_questions",
+              "line": 368
+            },
+            {
+              "name": "_builtin_allowed",
+              "line": 254
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/pipeline.py",
+          "sha256": "8f52ee9a8b519c3e340f3d07ec3f5c1122f1f6af777727670f8a3f8b0feeda81",
+          "symbols": [
+            {
+              "name": "MasteryPromptAssembler",
+              "line": 35
+            },
+            {
+              "name": "MasteryLoopPipeline",
+              "line": 57
+            },
+            {
+              "name": "foundation_blocks",
+              "line": 45
+            },
+            {
+              "name": "run",
+              "line": 72
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/loop.py",
+          "sha256": "c5bbacd13e2b40d8c59da236e67fa2bbda003f318ed462ba837b52e7b2806dd7",
+          "symbols": [
+            {
+              "name": "_claims_card_delivery",
+              "line": 118
+            },
+            {
+              "name": "_looks_like_plain_choice_quiz",
+              "line": 130
+            },
+            {
+              "name": "_turn_has_graded",
+              "line": 150
+            },
+            {
+              "name": "_announces_an_unposed_question",
+              "line": 165
+            },
+            {
+              "name": "MasteryLoopCapability",
+              "line": 175
+            },
+            {
+              "name": "_card_end_marker",
+              "line": 546
+            },
+            {
+              "name": "_path_binder",
+              "line": 555
+            },
+            {
+              "name": "_mode_binder",
+              "line": 564
+            },
+            {
+              "name": "_load_playbook",
+              "line": 581
+            },
+            {
+              "name": "is_active",
+              "line": 214
+            },
+            {
+              "name": "system_block",
+              "line": 217
+            },
+            {
+              "name": "augment_kwargs",
+              "line": 240
+            },
+            {
+              "name": "finish_instruction",
+              "line": 304
+            },
+            {
+              "name": "final_text_override",
+              "line": 381
+            },
+            {
+              "name": "pre_loop",
+              "line": 414
+            },
+            {
+              "name": "pre_loop_seed",
+              "line": 456
+            },
+            {
+              "name": "skip_kb_seed",
+              "line": 475
+            },
+            {
+              "name": "_skip_seed",
+              "line": 494
+            },
+            {
+              "name": "_grade_seed",
+              "line": 515
+            },
+            {
+              "name": "mark",
+              "line": 549
+            },
+            {
+              "name": "bind",
+              "line": 558
+            },
+            {
+              "name": "bind",
+              "line": 572
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/book/agents/source_explorer.py",
+          "sha256": "c86a8d16da236450603db42e47d39502290d59b110ae9b4a5ef7dd1e7d827817",
+          "symbols": [
+            {
+              "name": "_balanced_slice",
+              "line": 58
+            },
+            {
+              "name": "_clip",
+              "line": 100
+            },
+            {
+              "name": "SourceExplorer",
+              "line": 148
+            },
+            {
+              "name": "_coerce_str_list",
+              "line": 741
+            },
+            {
+              "name": "__init__",
+              "line": 151
+            },
+            {
+              "name": "process",
+              "line": 183
+            },
+            {
+              "name": "explore",
+              "line": 187
+            },
+            {
+              "name": "_design_queries",
+              "line": 253
+            },
+            {
+              "name": "partition_knowledge_bases",
+              "line": 351
+            },
+            {
+              "name": "_retrieve_kb_chunks",
+              "line": 382
+            },
+            {
+              "name": "_retrieve_pageindex_chunks",
+              "line": 524
+            },
+            {
+              "name": "_collect_non_kb_chunks",
+              "line": 581
+            },
+            {
+              "name": "_dedupe_and_clip",
+              "line": 656
+            },
+            {
+              "name": "_summarise",
+              "line": 671
+            },
+            {
+              "name": "_run",
+              "line": 301
+            },
+            {
+              "name": "_one_query",
+              "line": 433
+            },
+            {
+              "name": "_guarded",
+              "line": 512
+            },
+            {
+              "name": "read_one",
+              "line": 539
+            },
+            {
+              "name": "_run",
+              "line": 707
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/book/engine.py",
+          "sha256": "f8dfcfb6900d34347c01337426c4e3a46b42563b7d4877f89a116a42f8047173",
+          "symbols": [
+            {
+              "name": "_body_key",
+              "line": 131
+            },
+            {
+              "name": "_prune_concept_graph",
+              "line": 143
+            },
+            {
+              "name": "_source_quality_summary",
+              "line": 171
+            },
+            {
+              "name": "_generation_error_category",
+              "line": 219
+            },
+            {
+              "name": "_is_auto_overview",
+              "line": 250
+            },
+            {
+              "name": "_coerce_depth",
+              "line": 263
+            },
+            {
+              "name": "_BookRuntime",
+              "line": 274
+            },
+            {
+              "name": "_with_book_sources",
+              "line": 299
+            },
+            {
+              "name": "BookEngine",
+              "line": 317
+            },
+            {
+              "name": "get_book_engine",
+              "line": 2173
+            },
+            {
+              "name": "guarded",
+              "line": 304
+            },
+            {
+              "name": "__init__",
+              "line": 320
+            },
+            {
+              "name": "list_books",
+              "line": 336
+            },
+            {
+              "name": "load_book",
+              "line": 345
+            },
+            {
+              "name": "_require_generation_allowed",
+              "line": 348
+            },
+            {
+              "name": "reading_summary",
+              "line": 358
+            },
+            {
+              "name": "load_spine",
+              "line": 381
+            },
+            {
+              "name": "list_pages",
+              "line": 384
+            },
+            {
+              "name": "load_page",
+              "line": 387
+            },
+            {
+              "name": "load_progress",
+              "line": 390
+            },
+            {
+              "name": "delete_book",
+              "line": 397
+            },
+            {
+              "name": "set_page_chat_session",
+              "line": 410
+            },
+            {
+              "name": "_reset_page_for_force_compile",
+              "line": 435
+            },
+            {
+              "name": "create_book",
+              "line": 467
+            },
+            {
+              "name": "_run_ideation",
+              "line": 552
+            },
+            {
+              "name": "confirm_proposal",
+              "line": 560
+            },
+            {
+              "name": "_ensure_overview_chapter",
+              "line": 705
+            },
+            {
+              "name": "_materialize_overview_page",
+              "line": 753
+            },
+            {
+              "name": "confirm_spine",
+              "line": 894
+            },
+            {
+              "name": "_halt_compilation",
+              "line": 996
+            },
+            {
+              "name": "pause_book",
+              "line": 1030
+            },
+            {
+              "name": "resume_book",
+              "line": 1076
+            },
+            {
+              "name": "maybe_resume_on_open",
+              "line": 1132
+            },
+            {
+              "name": "rebuild_book",
+              "line": 1172
+            },
+            {
+              "name": "compile_page",
+              "line": 1213
+            },
+            {
+              "name": "_release_in_flight",
+              "line": 1269
+            },
+            {
+              "name": "_compile_page_now",
+              "line": 1280
+            },
+            {
+              "name": "_enqueue_pending_pages",
+              "line": 1356
+            },
+            {
+              "name": "_get_or_create_runtime",
+              "line": 1379
+            },
+            {
+              "name": "_mark_page_error",
+              "line": 1387
+            },
+            {
+              "name": "_ensure_worker",
+              "line": 1409
+            },
+            {
+              "name": "_worker_loop",
+              "line": 1425
+            },
+            {
+              "name": "_worker_loop_active",
+              "line": 1431
+            },
+            {
+              "name": "_record_page_outcome",
+              "line": 1517
+            },
+            {
+              "name": "_record_page_failure",
+              "line": 1529
+            },
+            {
+              "name": "_pause_compilation",
+              "line": 1536
+            },
+            {
+              "name": "_maybe_finalize_book",
+              "line": 1566
+            },
+            {
+              "name": "regenerate_block",
+              "line": 1596
+            },
+            {
+              "name": "kb_drift_report",
+              "line": 1671
+            },
+            {
+              "name": "refresh_kb_fingerprints",
+              "line": 1680
+            },
+            {
+              "name": "log_health",
+              "line": 1694
+            },
+            {
+              "name": "is_worker_live",
+              "line": 1699
+            },
+            {
+              "name": "generation_overview",
+              "line": 1720
+            },
+            {
+              "name": "generation_summary",
+              "line": 1740
+            },
+            {
+              "name": "insert_block",
+              "line": 1800
+            },
+            {
+              "name": "update_block",
+              "line": 1870
+            },
+            {
+              "name": "delete_block",
+              "line": 1916
+            },
+            {
+              "name": "move_block",
+              "line": 1931
+            },
+            {
+              "name": "change_block_type",
+              "line": 1951
+            },
+            {
+              "name": "create_deep_dive_subpage",
+              "line": 1986
+            },
+            {
+              "name": "_page_to_chapter",
+              "line": 2068
+            },
+            {
+              "name": "record_quiz_attempt",
+              "line": 2071
+            },
+            {
+              "name": "mark_page_visited",
+              "line": 2095
+            },
+            {
+              "name": "toggle_page_bookmark",
+              "line": 2102
+            },
+            {
+              "name": "supplement_for_weakness",
+              "line": 2108
+            },
+            {
+              "name": "_keep",
+              "line": 864
+            },
+            {
+              "name": "_on_round",
+              "line": 653
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/book/models.py",
+          "sha256": "6726eea4664514a36fda7936adbfef7ac5081603f37695cb860b25a97c194bc3",
+          "symbols": [
+            {
+              "name": "BookStatus",
+              "line": 29
+            },
+            {
+              "name": "PageStatus",
+              "line": 42
+            },
+            {
+              "name": "BlockStatus",
+              "line": 51
+            },
+            {
+              "name": "BlockType",
+              "line": 59
+            },
+            {
+              "name": "BookDepth",
+              "line": 86
+            },
+            {
+              "name": "depth_scale",
+              "line": 107
+            },
+            {
+              "name": "ContentType",
+              "line": 115
+            },
+            {
+              "name": "_new_id",
+              "line": 131
+            },
+            {
+              "name": "_now",
+              "line": 135
+            },
+            {
+              "name": "NotebookRef",
+              "line": 144
+            },
+            {
+              "name": "ChatSelection",
+              "line": 153
+            },
+            {
+              "name": "ChatMessageSnapshot",
+              "line": 165
+            },
+            {
+              "name": "BookInputs",
+              "line": 176
+            },
+            {
+              "name": "BookProposal",
+              "line": 200
+            },
+            {
+              "name": "SourceAnchor",
+              "line": 218
+            },
+            {
+              "name": "Chapter",
+              "line": 229
+            },
+            {
+              "name": "ConceptNode",
+              "line": 250
+            },
+            {
+              "name": "ConceptEdge",
+              "line": 262
+            },
+            {
+              "name": "ConceptGraph",
+              "line": 273
+            },
+            {
+              "name": "LearningCaptureStatus",
+              "line": 296
+            },
+            {
+              "name": "LearningCapture",
+              "line": 317
+            },
+            {
+              "name": "Spine",
+              "line": 342
+            },
+            {
+              "name": "SourceChunk",
+              "line": 367
+            },
+            {
+              "name": "ExplorationReport",
+              "line": 386
+            },
+            {
+              "name": "Block",
+              "line": 413
+            },
+            {
+              "name": "PageLink",
+              "line": 440
+            },
+            {
+              "name": "Page",
+              "line": 450
+            },
+            {
+              "name": "QuizAttempt",
+              "line": 482
+            },
+            {
+              "name": "Progress",
+              "line": 497
+            },
+            {
+              "name": "Book",
+              "line": 517
+            },
+            {
+              "name": "node_by_id",
+              "line": 281
+            },
+            {
+              "name": "has_edge",
+              "line": 287
+            },
+            {
+              "name": "chapter_by_id",
+              "line": 355
+            },
+            {
+              "name": "block_by_id",
+              "line": 470
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/agents/research/pipeline.py",
+          "sha256": "458b1a872d6ac5a4dc7a8f5ff20e3eeca1c9722f30b3f468acd8bc9560e3c3f3",
+          "symbols": [
+            {
+              "name": "_is_citable_tool",
+              "line": 245
+            },
+            {
+              "name": "SubTopicItem",
+              "line": 278
+            },
+            {
+              "name": "ResearchedBlock",
+              "line": 286
+            },
+            {
+              "name": "ReportSectionPlan",
+              "line": 294
+            },
+            {
+              "name": "ReportOutline",
+              "line": 304
+            },
+            {
+              "name": "IncompleteReportError",
+              "line": 309
+            },
+            {
+              "name": "_outline_payload_is_usable",
+              "line": 318
+            },
+            {
+              "name": "_report_outline_payload_is_usable",
+              "line": 332
+            },
+            {
+              "name": "ResearchPipeline",
+              "line": 341
+            },
+            {
+              "name": "_report_heading_number",
+              "line": 2375
+            },
+            {
+              "name": "_recover_report_step_reply",
+              "line": 2382
+            },
+            {
+              "name": "_report_step_incomplete_reason",
+              "line": 2411
+            },
+            {
+              "name": "_clean_report_heading_text",
+              "line": 2467
+            },
+            {
+              "name": "_normalise_markdown_headings",
+              "line": 2473
+            },
+            {
+              "name": "_citation_ids_in_first_appearance",
+              "line": 2486
+            },
+            {
+              "name": "_citation_source_preview",
+              "line": 2502
+            },
+            {
+              "name": "_section_with_block_ids",
+              "line": 2547
+            },
+            {
+              "name": "_report_tokens",
+              "line": 2559
+            },
+            {
+              "name": "_report_overlap_score",
+              "line": 2573
+            },
+            {
+              "name": "_best_block_for_section",
+              "line": 2584
+            },
+            {
+              "name": "_best_section_for_block",
+              "line": 2601
+            },
+            {
+              "name": "_citation_anchor_id",
+              "line": 2617
+            },
+            {
+              "name": "_citation_markdown_link",
+              "line": 2621
+            },
+            {
+              "name": "_sorted_citation_ids",
+              "line": 2625
+            },
+            {
+              "name": "_citation_number_map",
+              "line": 2629
+            },
+            {
+              "name": "_citation_sort_key",
+              "line": 2636
+            },
+            {
+              "name": "_topic_index_from_block_id",
+              "line": 2649
+            },
+            {
+              "name": "_research_topic_status_meta",
+              "line": 2659
+            },
+            {
+              "name": "_read_int",
+              "line": 2667
+            },
+            {
+              "name": "_BlockLoopHost",
+              "line": 2683
+            },
+            {
+              "name": "_RephraseLoopHost",
+              "line": 3050
+            },
+            {
+              "name": "__init__",
+              "line": 350
+            },
+            {
+              "name": "run",
+              "line": 527
+            },
+            {
+              "name": "_run_inner",
+              "line": 565
+            },
+            {
+              "name": "_emit_visible_failure",
+              "line": 723
+            },
+            {
+              "name": "_rephrase",
+              "line": 766
+            },
+            {
+              "name": "_decompose",
+              "line": 852
+            },
+            {
+              "name": "_parse_outline",
+              "line": 912
+            },
+            {
+              "name": "_research_block",
+              "line": 941
+            },
+            {
+              "name": "_force_finish_block",
+              "line": 1047
+            },
+            {
+              "name": "_render_sibling_topics",
+              "line": 1106
+            },
+            {
+              "name": "_kb_system_note",
+              "line": 1118
+            },
+            {
+              "name": "_fallback_empty_tool_list",
+              "line": 1158
+            },
+            {
+              "name": "_drive_queue",
+              "line": 1168
+            },
+            {
+              "name": "_summarise_tool_result",
+              "line": 1235
+            },
+            {
+              "name": "_write_report",
+              "line": 1286
+            },
+            {
+              "name": "_render_reference_list",
+              "line": 1422
+            },
+            {
+              "name": "_linkify_report_citations",
+              "line": 1460
+            },
+            {
+              "name": "_normalise_report_markdown",
+              "line": 1487
+            },
+            {
+              "name": "_format_reference_entry",
+              "line": 1517
+            },
+            {
+              "name": "_stream_report_separator",
+              "line": 1545
+            },
+            {
+              "name": "_render_report_title_block",
+              "line": 1548
+            },
+            {
+              "name": "_gen_report_outline",
+              "line": 1559
+            },
+            {
+              "name": "_parse_report_outline",
+              "line": 1619
+            },
+            {
+              "name": "_repair_report_section_coverage",
+              "line": 1678
+            },
+            {
+              "name": "_write_intro",
+              "line": 1741
+            },
+            {
+              "name": "_write_section",
+              "line": 1775
+            },
+            {
+              "name": "_write_conclusion",
+              "line": 1822
+            },
+            {
+              "name": "_stream_report_step",
+              "line": 1864
+            },
+            {
+              "name": "_render_section_evidence",
+              "line": 2008
+            },
+            {
+              "name": "_prepare_pageindex_tools",
+              "line": 2067
+            },
+            {
+              "name": "_prepare_research_providers",
+              "line": 2079
+            },
+            {
+              "name": "_pageindex_tool_names",
+              "line": 2104
+            },
+            {
+              "name": "_block_tool_names",
+              "line": 2108
+            },
+            {
+              "name": "_build_block_tool_schemas",
+              "line": 2157
+            },
+            {
+              "name": "_augment_tool_kwargs",
+              "line": 2181
+            },
+            {
+              "name": "_retrieve_trace_metadata",
+              "line": 2219
+            },
+            {
+              "name": "_use_native_block_tools",
+              "line": 2237
+            },
+            {
+              "name": "_tool_in_registry",
+              "line": 2241
+            },
+            {
+              "name": "_build_client",
+              "line": 2250
+            },
+            {
+              "name": "_completion_kwargs",
+              "line": 2253
+            },
+            {
+              "name": "_run_labeled_step",
+              "line": 2267
+            },
+            {
+              "name": "_build_system_user_messages",
+              "line": 2307
+            },
+            {
+              "name": "_build_simple_trace_meta",
+              "line": 2325
+            },
+            {
+              "name": "_t",
+              "line": 2351
+            },
+            {
+              "name": "__init__",
+              "line": 2704
+            },
+            {
+              "name": "guard_context_window",
+              "line": 2726
+            },
+            {
+              "name": "build_iteration_trace_meta",
+              "line": 2730
+            },
+            {
+              "name": "dispatch_tools",
+              "line": 2761
+            },
+            {
+              "name": "validate_terminal",
+              "line": 2808
+            },
+            {
+              "name": "_summarise_and_record",
+              "line": 2823
+            },
+            {
+              "name": "resolve_pause",
+              "line": 2894
+            },
+            {
+              "name": "emit_terminator",
+              "line": 2899
+            },
+            {
+              "name": "emit_final",
+              "line": 2902
+            },
+            {
+              "name": "protocol_retry_notice",
+              "line": 2909
+            },
+            {
+              "name": "protocol_repair_message",
+              "line": 2915
+            },
+            {
+              "name": "force_finalize",
+              "line": 2921
+            },
+            {
+              "name": "on_intermediate",
+              "line": 2935
+            },
+            {
+              "name": "__init__",
+              "line": 3057
+            },
+            {
+              "name": "guard_context_window",
+              "line": 3079
+            },
+            {
+              "name": "build_iteration_trace_meta",
+              "line": 3082
+            },
+            {
+              "name": "dispatch_tools",
+              "line": 3104
+            },
+            {
+              "name": "resolve_pause",
+              "line": 3187
+            },
+            {
+              "name": "emit_terminator",
+              "line": 3221
+            },
+            {
+              "name": "emit_final",
+              "line": 3224
+            },
+            {
+              "name": "protocol_retry_notice",
+              "line": 3228
+            },
+            {
+              "name": "protocol_repair_message",
+              "line": 3234
+            },
+            {
+              "name": "force_finalize",
+              "line": 3240
+            },
+            {
+              "name": "_attempt",
+              "line": 888
+            },
+            {
+              "name": "incomplete_error",
+              "line": 1319
+            },
+            {
+              "name": "_replace",
+              "line": 1478
+            },
+            {
+              "name": "_replace_link",
+              "line": 1504
+            },
+            {
+              "name": "_replace_bare",
+              "line": 1510
+            },
+            {
+              "name": "_attempt",
+              "line": 1597
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/runtime/agentic/messages.py",
+          "sha256": "a8e881eb82f8f74d797912eafc5bda90a17ac2aeb11c0784920414e538c9c6df",
+          "symbols": [
+            {
+              "name": "image_content_hashes",
+              "line": 8
+            },
+            {
+              "name": "assistant_message_with_tool_calls",
+              "line": 44
+            },
+            {
+              "name": "assistant_message",
+              "line": 94
+            },
+            {
+              "name": "with_transient_model_messages",
+              "line": 115
+            },
+            {
+              "name": "_transient_image_count",
+              "line": 141
+            },
+            {
+              "name": "extend_transient_model_messages",
+              "line": 148
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/runtime/agentic/tool_dispatch.py",
+          "sha256": "d7e8ab2a8e8020ef621c41bda33c3b67eea11304fc4b24e3519034bb5b2437d5",
+          "symbols": [
+            {
+              "name": "tool_error_message_factory",
+              "line": 76
+            },
+            {
+              "name": "DispatchOutcome",
+              "line": 99
+            },
+            {
+              "name": "dispatch_tool_calls",
+              "line": 122
+            },
+            {
+              "name": "_detect_duplicate_calls",
+              "line": 357
+            },
+            {
+              "name": "_duplicate_stub_result",
+              "line": 392
+            },
+            {
+              "name": "_reject_if_args_missing",
+              "line": 424
+            },
+            {
+              "name": "_prepare_tool_args",
+              "line": 507
+            },
+            {
+              "name": "_resolve_tool_request",
+              "line": 542
+            },
+            {
+              "name": "_build_per_tool_trace_meta",
+              "line": 568
+            },
+            {
+              "name": "_provider_of",
+              "line": 618
+            },
+            {
+              "name": "_sensitive_arg_names",
+              "line": 633
+            },
+            {
+              "name": "execute_tool_call",
+              "line": 647
+            },
+            {
+              "name": "_collect_outcome",
+              "line": 829
+            },
+            {
+              "name": "_message",
+              "line": 87
+            },
+            {
+              "name": "_run_one",
+              "line": 212
+            },
+            {
+              "name": "_rebind",
+              "line": 264
+            },
+            {
+              "name": "_event_sink",
+              "line": 682
+            },
+            {
+              "name": "_execute_with_policy",
+              "line": 721
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/tools/builtin/__init__.py",
+          "sha256": "27f7598be52707c9d9171a26b824718b76381ab383cfb6a1aaffaa2857197fa3",
+          "symbols": [
+            {
+              "name": "_PromptHintsMixin",
+              "line": 26
+            },
+            {
+              "name": "BrainstormTool",
+              "line": 33
+            },
+            {
+              "name": "_rag_sources",
+              "line": 68
+            },
+            {
+              "name": "RAGTool",
+              "line": 105
+            },
+            {
+              "name": "_rag_visual_model_message",
+              "line": 256
+            },
+            {
+              "name": "KbFilesTool",
+              "line": 304
+            },
+            {
+              "name": "_kb_files_limit",
+              "line": 389
+            },
+            {
+              "name": "KnowledgeFrontierTool",
+              "line": 400
+            },
+            {
+              "name": "WebSearchTool",
+              "line": 483
+            },
+            {
+              "name": "ReasonTool",
+              "line": 523
+            },
+            {
+              "name": "PaperSearchToolWrapper",
+              "line": 561
+            },
+            {
+              "name": "ZoteroSearchToolWrapper",
+              "line": 641
+            },
+            {
+              "name": "GeoGebraAnalysisTool",
+              "line": 764
+            },
+            {
+              "name": "ReadSourceTool",
+              "line": 898
+            },
+            {
+              "name": "ReadMemoryTool",
+              "line": 965
+            },
+            {
+              "name": "WriteMemoryTool",
+              "line": 995
+            },
+            {
+              "name": "WebFetchTool",
+              "line": 1100
+            },
+            {
+              "name": "ListNotebookTool",
+              "line": 1164
+            },
+            {
+              "name": "QuestionBankTool",
+              "line": 1214
+            },
+            {
+              "name": "WriteNoteTool",
+              "line": 1381
+            },
+            {
+              "name": "GithubTool",
+              "line": 1507
+            },
+            {
+              "name": "AskUserTool",
+              "line": 1570
+            },
+            {
+              "name": "ReadSkillTool",
+              "line": 1714
+            },
+            {
+              "name": "LoadToolsTool",
+              "line": 1808
+            },
+            {
+              "name": "CronTool",
+              "line": 1866
+            },
+            {
+              "name": "__getattr__",
+              "line": 2048
+            },
+            {
+              "name": "get_prompt_hints",
+              "line": 29
+            },
+            {
+              "name": "get_definition",
+              "line": 34
+            },
+            {
+              "name": "execute",
+              "line": 53
+            },
+            {
+              "name": "get_definition",
+              "line": 106
+            },
+            {
+              "name": "execute",
+              "line": 161
+            },
+            {
+              "name": "get_definition",
+              "line": 313
+            },
+            {
+              "name": "execute",
+              "line": 349
+            },
+            {
+              "name": "get_definition",
+              "line": 403
+            },
+            {
+              "name": "execute",
+              "line": 444
+            },
+            {
+              "name": "get_definition",
+              "line": 484
+            },
+            {
+              "name": "execute",
+              "line": 493
+            },
+            {
+              "name": "get_definition",
+              "line": 524
+            },
+            {
+              "name": "execute",
+              "line": 546
+            },
+            {
+              "name": "get_definition",
+              "line": 562
+            },
+            {
+              "name": "execute",
+              "line": 593
+            },
+            {
+              "name": "get_definition",
+              "line": 652
+            },
+            {
+              "name": "execute",
+              "line": 684
+            },
+            {
+              "name": "get_definition",
+              "line": 772
+            },
+            {
+              "name": "execute",
+              "line": 796
+            },
+            {
+              "name": "get_definition",
+              "line": 909
+            },
+            {
+              "name": "execute",
+              "line": 933
+            },
+            {
+              "name": "get_definition",
+              "line": 973
+            },
+            {
+              "name": "execute",
+              "line": 985
+            },
+            {
+              "name": "get_definition",
+              "line": 1004
+            },
+            {
+              "name": "execute",
+              "line": 1041
+            },
+            {
+              "name": "get_definition",
+              "line": 1109
+            },
+            {
+              "name": "execute",
+              "line": 1132
+            },
+            {
+              "name": "get_definition",
+              "line": 1173
+            },
+            {
+              "name": "execute",
+              "line": 1200
+            },
+            {
+              "name": "get_definition",
+              "line": 1228
+            },
+            {
+              "name": "execute",
+              "line": 1354
+            },
+            {
+              "name": "get_definition",
+              "line": 1398
+            },
+            {
+              "name": "execute",
+              "line": 1477
+            },
+            {
+              "name": "get_definition",
+              "line": 1514
+            },
+            {
+              "name": "execute",
+              "line": 1541
+            },
+            {
+              "name": "get_definition",
+              "line": 1584
+            },
+            {
+              "name": "execute",
+              "line": 1688
+            },
+            {
+              "name": "get_definition",
+              "line": 1724
+            },
+            {
+              "name": "execute",
+              "line": 1751
+            },
+            {
+              "name": "get_definition",
+              "line": 1816
+            },
+            {
+              "name": "execute",
+              "line": 1837
+            },
+            {
+              "name": "get_definition",
+              "line": 1876
+            },
+            {
+              "name": "execute",
+              "line": 1956
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/agents/chat/prompts/zh/agentic_chat.yaml",
+          "sha256": "6dbc1b23dcb0242da144afc7bcde225eee4691254473a88cc9f28ab9e5f08984",
+          "symbols": []
+        },
+        {
+          "path": "deeptutor/tools/prompting/hints/zh/rag.yaml",
+          "sha256": "4657659215f01090928705146263dbc5aac718bfeea8aaf315e0a2b605c5e336",
+          "symbols": []
+        }
+      ]
+    },
+    {
+      "repository": "main",
+      "root": "E:\\项目\\heart",
+      "head": "78fb20f3ec73b24da45dbea814908ec1d4d8935b",
+      "files": [
+        {
+          "path": "project/integration/discrete-math-tutor/agents/agent_loop_service.py",
+          "sha256": "22b8c305c4212803662e1776574c69c2fc92e4acc0951f717060f6d17d848ae7",
+          "symbols": [
+            {
+              "name": "_target_from_context",
+              "line": 23
+            },
+            {
+              "name": "_target_from_state",
+              "line": 49
+            },
+            {
+              "name": "_resume_state",
+              "line": 63
+            },
+            {
+              "name": "_default_navigator",
+              "line": 70
+            },
+            {
+              "name": "_citation_format_issues",
+              "line": 132
+            },
+            {
+              "name": "_excerpts",
+              "line": 147
+            },
+            {
+              "name": "_publish_gate",
+              "line": 158
+            },
+            {
+              "name": "_release_binding",
+              "line": 195
+            },
+            {
+              "name": "_map_result",
+              "line": 203
+            },
+            {
+              "name": "run_agent_loop_turn",
+              "line": 339
+            },
+            {
+              "name": "gate",
+              "line": 159
+            },
+            {
+              "name": "emit",
+              "line": 403
+            },
+            {
+              "name": "resolve_host",
+              "line": 81
+            },
+            {
+              "name": "search_host",
+              "line": 84
+            },
+            {
+              "name": "search",
+              "line": 118
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/agent_loop.py",
+          "sha256": "33a5672e5ea59a679b30afa1f07858429c02821fe57a71311e7478583ac5e5a3",
+          "symbols": [
+            {
+              "name": "LoopRequest",
+              "line": 27
+            },
+            {
+              "name": "LoopResult",
+              "line": 53
+            },
+            {
+              "name": "LocalAgentLoop",
+              "line": 94
+            },
+            {
+              "name": "state",
+              "line": 70
+            },
+            {
+              "name": "_target_dict",
+              "line": 85
+            },
+            {
+              "name": "__init__",
+              "line": 95
+            },
+            {
+              "name": "run",
+              "line": 99
+            },
+            {
+              "name": "_initial_messages",
+              "line": 142
+            },
+            {
+              "name": "_loop",
+              "line": 162
+            },
+            {
+              "name": "_forced_finish",
+              "line": 293
+            },
+            {
+              "name": "_error_result",
+              "line": 345
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/q3_tools.py",
+          "sha256": "0ba8596b9ece23e45a3b84272be8335427bde44fe1725a3fde3347593e0c9f6d",
+          "symbols": [
+            {
+              "name": "RetrieveCourseTool",
+              "line": 19
+            },
+            {
+              "name": "AskUserTool",
+              "line": 100
+            },
+            {
+              "name": "build_registry",
+              "line": 155
+            },
+            {
+              "name": "build_default_registry",
+              "line": 198
+            },
+            {
+              "name": "run",
+              "line": 31
+            },
+            {
+              "name": "_run",
+              "line": 35
+            },
+            {
+              "name": "run",
+              "line": 138
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/q5_learning.py",
+          "sha256": "bd17c89df6c991229f776a93ca703893efd61aac9a3dc5a6319ff1a16031d361",
+          "symbols": [
+            {
+              "name": "intake_gaps",
+              "line": 39
+            },
+            {
+              "name": "LearningScope",
+              "line": 58
+            },
+            {
+              "name": "ObjectiveDraft",
+              "line": 66
+            },
+            {
+              "name": "PlanDraft",
+              "line": 75
+            },
+            {
+              "name": "Q5LearningService",
+              "line": 127
+            },
+            {
+              "name": "selection_source_ref",
+              "line": 1170
+            },
+            {
+              "name": "_selection_matches_refs",
+              "line": 1210
+            },
+            {
+              "name": "Q5Navigator",
+              "line": 1233
+            },
+            {
+              "name": "_default_source_valid",
+              "line": 1261
+            },
+            {
+              "name": "_no_path",
+              "line": 1274
+            },
+            {
+              "name": "_now",
+              "line": 1288
+            },
+            {
+              "name": "from_mapping",
+              "line": 82
+            },
+            {
+              "name": "__init__",
+              "line": 128
+            },
+            {
+              "name": "generate_plan",
+              "line": 138
+            },
+            {
+              "name": "create_plan",
+              "line": 168
+            },
+            {
+              "name": "bind_textbook_target",
+              "line": 176
+            },
+            {
+              "name": "bind_selection",
+              "line": 331
+            },
+            {
+              "name": "confirm_plan",
+              "line": 406
+            },
+            {
+              "name": "set_mode",
+              "line": 448
+            },
+            {
+              "name": "record_explained",
+              "line": 483
+            },
+            {
+              "name": "mark_understood",
+              "line": 525
+            },
+            {
+              "name": "switch_path",
+              "line": 639
+            },
+            {
+              "name": "leave_path",
+              "line": 664
+            },
+            {
+              "name": "revise_objective",
+              "line": 681
+            },
+            {
+              "name": "status",
+              "line": 725
+            },
+            {
+              "name": "list_paths",
+              "line": 788
+            },
+            {
+              "name": "current_target",
+              "line": 823
+            },
+            {
+              "name": "tool_state",
+              "line": 850
+            },
+            {
+              "name": "_persist_draft",
+              "line": 861
+            },
+            {
+              "name": "_validate_draft",
+              "line": 947
+            },
+            {
+              "name": "_replay",
+              "line": 977
+            },
+            {
+              "name": "_command",
+              "line": 981
+            },
+            {
+              "name": "_save_command",
+              "line": 996
+            },
+            {
+              "name": "_ensure_binding",
+              "line": 1013
+            },
+            {
+              "name": "_binding_path",
+              "line": 1026
+            },
+            {
+              "name": "_owned_path",
+              "line": 1047
+            },
+            {
+              "name": "_objective",
+              "line": 1068
+            },
+            {
+              "name": "_progress",
+              "line": 1074
+            },
+            {
+              "name": "_ordered_objectives",
+              "line": 1089
+            },
+            {
+              "name": "_path_payload",
+              "line": 1106
+            },
+            {
+              "name": "_objective_payload",
+              "line": 1137
+            },
+            {
+              "name": "_objective_sources_valid",
+              "line": 1161
+            },
+            {
+              "name": "_objective_sources_valid_by_refs",
+              "line": 1164
+            },
+            {
+              "name": "__init__",
+              "line": 1236
+            },
+            {
+              "name": "resolve",
+              "line": 1241
+            },
+            {
+              "name": "search",
+              "line": 1252
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/q5_turn_adapter.py",
+          "sha256": "8a46e0490c6867e2d83f6e81aa6d99ed787f9e811a5bb56c5b3050590856d26d",
+          "symbols": [
+            {
+              "name": "Q5TurnAdapter",
+              "line": 19
+            },
+            {
+              "name": "__init__",
+              "line": 20
+            },
+            {
+              "name": "status",
+              "line": 24
+            },
+            {
+              "name": "intake_questions",
+              "line": 27
+            },
+            {
+              "name": "generate_plan",
+              "line": 31
+            },
+            {
+              "name": "confirm_and_start",
+              "line": 51
+            },
+            {
+              "name": "bind_textbook_cursor",
+              "line": 65
+            },
+            {
+              "name": "bind_selection",
+              "line": 72
+            },
+            {
+              "name": "loop_binding",
+              "line": 88
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/reply_budget.py",
+          "sha256": "3561a3a495fba6788ff64f75af259bd880bcffcc6d1ea2de5042f685aa84009b",
+          "symbols": [
+            {
+              "name": "requests_proof_overview",
+              "line": 6
+            },
+            {
+              "name": "requests_supplementary_proof",
+              "line": 10
+            },
+            {
+              "name": "ReplyBudget",
+              "line": 15
+            },
+            {
+              "name": "reply_budget",
+              "line": 32
+            },
+            {
+              "name": "max_tokens",
+              "line": 20
+            },
+            {
+              "name": "instructions",
+              "line": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "repository": "lightrag",
+      "root": "E:\\项目\\heart-worktrees\\lightrag-integration",
+      "head": "d3d6a76b3677a6e7898dde8fb66cb6c2ecdd64e1",
+      "files": [
+        {
+          "path": "project/integration/discrete-math-tutor/knowledge/lightrag/q3_adapter.py",
+          "sha256": "899452d9e97f25556cbb4dabc2227dd1f89ace6e67443328a9e6eb0e61639e6f",
+          "symbols": [
+            {
+              "name": "LightRagNavigator",
+              "line": 6
+            },
+            {
+              "name": "__init__",
+              "line": 7
+            },
+            {
+              "name": "resolve",
+              "line": 10
+            },
+            {
+              "name": "search",
+              "line": 11
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/knowledge/lightrag/retrieval.py",
+          "sha256": "aecbcd2674a8ffe90dec2236fcc23beda82e53e8f1222210cde6026e2350e980",
+          "symbols": [
+            {
+              "name": "attach_provenance",
+              "line": 17
+            },
+            {
+              "name": "map_chunks",
+              "line": 54
+            },
+            {
+              "name": "as_textbook_chunk",
+              "line": 97
+            },
+            {
+              "name": "rank_sources",
+              "line": 105
+            },
+            {
+              "name": "_graph_context",
+              "line": 120
+            },
+            {
+              "name": "LightRagBackend",
+              "line": 130
+            },
+            {
+              "name": "__init__",
+              "line": 131
+            },
+            {
+              "name": "validate",
+              "line": 139
+            },
+            {
+              "name": "search",
+              "line": 160
+            },
+            {
+              "name": "retrieve",
+              "line": 236
+            },
+            {
+              "name": "prepare_evidence",
+              "line": 241
+            },
+            {
+              "name": "job",
+              "line": 174
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/knowledge/lightrag/engine.py",
+          "sha256": "627adf36e8a59545176eddb0695871a0e5816e912947f94f6b883c121f8bb728",
+          "symbols": [
+            {
+              "name": "LightRagContractError",
+              "line": 39
+            },
+            {
+              "name": "installed_version",
+              "line": 43
+            },
+            {
+              "name": "_require_exact_version",
+              "line": 52
+            },
+            {
+              "name": "_validate_component",
+              "line": 60
+            },
+            {
+              "name": "_safe_candidate",
+              "line": 69
+            },
+            {
+              "name": "_controlled_class",
+              "line": 83
+            },
+            {
+              "name": "_register_parser",
+              "line": 175
+            },
+            {
+              "name": "workspace_for",
+              "line": 188
+            },
+            {
+              "name": "build_rag",
+              "line": 217
+            },
+            {
+              "name": "initialize",
+              "line": 295
+            },
+            {
+              "name": "enqueue",
+              "line": 301
+            },
+            {
+              "name": "_document_id",
+              "line": 314
+            },
+            {
+              "name": "confirmed_unaccepted",
+              "line": 329
+            },
+            {
+              "name": "_managed_queue_funcs",
+              "line": 341
+            },
+            {
+              "name": "_shutdown_queues",
+              "line": 354
+            },
+            {
+              "name": "finalize",
+              "line": 371
+            },
+            {
+              "name": "_string",
+              "line": 385
+            },
+            {
+              "name": "_records",
+              "line": 391
+            },
+            {
+              "name": "_query_sources",
+              "line": 398
+            },
+            {
+              "name": "query_with_sources",
+              "line": 494
+            },
+            {
+              "name": "request_retry_failed",
+              "line": 528
+            },
+            {
+              "name": "document_records",
+              "line": 542
+            },
+            {
+              "name": "DeepTutorLightRAG",
+              "line": 86
+            },
+            {
+              "name": "add",
+              "line": 407
+            },
+            {
+              "name": "_resolve_source_file_for_parser",
+              "line": 87
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/knowledge/lightrag/UPSTREAM.json",
+          "sha256": "0b92ef3090488b069d3fd5cdf94a5c275ad06f5e297c2e8b8a7fad24c823650e",
+          "symbols": []
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/scripts/serve_lightrag_acceptance.py",
+          "sha256": "b5e21d5df86a9bfdb15fda80ac9513c61c67260102a89d8fa3603261fa2219bf",
+          "symbols": [
+            {
+              "name": "main",
+              "line": 6
+            },
+            {
+              "name": "MeasuredClient",
+              "line": 47
+            },
+            {
+              "name": "load",
+              "line": 68
+            },
+            {
+              "name": "health",
+              "line": 93
+            },
+            {
+              "name": "turn",
+              "line": 98
+            },
+            {
+              "name": "__init__",
+              "line": 48
+            },
+            {
+              "name": "_client_lazy",
+              "line": 49
+            },
+            {
+              "name": "job",
+              "line": 73
+            },
+            {
+              "name": "measured",
+              "line": 54
+            },
+            {
+              "name": "base_search",
+              "line": 115
+            },
+            {
+              "name": "UnavailableBackend",
+              "line": 132
+            },
+            {
+              "name": "EvidenceNavigator",
+              "line": 139
+            },
+            {
+              "name": "gate",
+              "line": 152
+            },
+            {
+              "name": "search",
+              "line": 133
+            },
+            {
+              "name": "search",
+              "line": 140
+            }
+          ]
+        },
+        {
+          "path": "project/docs/research/2026-10-19-deeptutor-conversation-flow/LIGHTRAG_ISOLATED_ACCEPTANCE.md",
+          "sha256": "363116f8ba1bd29503f1ac3897176830d74ddeb5b8a861d70b1daa983deffc14",
+          "symbols": []
+        },
+        {
+          "path": "project/docs/research/2026-10-19-deeptutor-conversation-flow/LIGHTRAG_SWITCH_RUNBOOK.md",
+          "sha256": "9b8a6863dad625833c5df14572c2035920e2451952505bebf579829edfcd3af3",
+          "symbols": []
+        }
+      ]
+    }
+  ]
+}

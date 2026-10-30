@@ -1,0 +1,3227 @@
+{
+  "date": "2026-10-25",
+  "upstream_commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "scope": "static absolute imports include optional modules; relative/dynamic imports unresolved; not runtime proof",
+  "files": [
+    {
+      "path": "deeptutor/app/service.py",
+      "sha256": "94f879b27a4e9951977aa364c8a65104fa80a8163035d645540cb4e50ae226b1",
+      "lines": 539,
+      "vendor_sha256": "94f879b27a4e9951977aa364c8a65104fa80a8163035d645540cb4e50ae226b1",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.runtime.coordination",
+        "deeptutor.services.session.protocol",
+        "deeptutor.services.session.turn_runtime",
+        "deeptutor.services.workspace.activity",
+        "deeptutor.services.workspace.context"
+      ],
+      "declarations": [
+        {
+          "name": "TurnApplicationService",
+          "line": 21,
+          "end_line": 536
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/app/container.py",
+      "sha256": "95d4f1e021cf0557423bc333c9353024f9d8a609a8282d46c5ea93407d779e25",
+      "lines": 357,
+      "vendor_sha256": "95d4f1e021cf0557423bc333c9353024f9d8a609a8282d46c5ea93407d779e25",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.multi_user.identity",
+        "deeptutor.multi_user.models",
+        "deeptutor.multi_user.paths",
+        "deeptutor.runtime.capability_catalog",
+        "deeptutor.runtime.coordination",
+        "deeptutor.runtime.registry.capability_registry",
+        "deeptutor.runtime.turn_engine",
+        "deeptutor.services.config",
+        "deeptutor.services.path_service",
+        "deeptutor.services.session",
+        "deeptutor.services.session.legacy_migration",
+        "deeptutor.services.session.protocol",
+        "deeptutor.services.session.scope",
+        "deeptutor.services.session.turn_runtime",
+        "deeptutor.services.workspace",
+        "deeptutor.services.workspace.activity",
+        "deeptutor.services.workspace.context",
+        "deeptutor.services.workspace.models",
+        "deeptutor.services.workspace.session_move"
+      ],
+      "declarations": [
+        {
+          "name": "StoreProvider",
+          "line": 32,
+          "end_line": 34
+        },
+        {
+          "name": "RuntimeRegistry",
+          "line": 37,
+          "end_line": 75
+        },
+        {
+          "name": "ApplicationContainer",
+          "line": 78,
+          "end_line": 333
+        },
+        {
+          "name": "get_application_container",
+          "line": 339,
+          "end_line": 343
+        },
+        {
+          "name": "set_application_container",
+          "line": 346,
+          "end_line": 348
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/app/facade.py",
+      "sha256": "c1b0551635fe9f85228d4242418d4916815ac25a4a004b919551358f60071d70",
+      "lines": 281,
+      "vendor_sha256": "c1b0551635fe9f85228d4242418d4916815ac25a4a004b919551358f60071d70",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.services.notebook",
+        "deeptutor.services.workspace.activity",
+        "deeptutor.services.workspace.context",
+        "deeptutor.services.workspace.models"
+      ],
+      "declarations": [
+        {
+          "name": "_in_app_workspace",
+          "line": 18,
+          "end_line": 48
+        },
+        {
+          "name": "CapabilityAvailability",
+          "line": 52,
+          "end_line": 57
+        },
+        {
+          "name": "DeepTutorApp",
+          "line": 60,
+          "end_line": 277
+        },
+        {
+          "name": "dumps_json",
+          "line": 280,
+          "end_line": 281
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/app/contracts.py",
+      "sha256": "c2a587660cb6af090aa389f220a9ce6b3f4f779d5bfe946193dd92a459510347",
+      "lines": 25,
+      "vendor_sha256": "c2a587660cb6af090aa389f220a9ce6b3f4f779d5bfe946193dd92a459510347",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.core.turn_request"
+      ],
+      "declarations": [],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/runtime/turn_engine.py",
+      "sha256": "727037834dd040a3bfdfea0118d4f431f99b2517d5cc6f66cdc581c571339c9f",
+      "lines": 41,
+      "vendor_sha256": "727037834dd040a3bfdfea0118d4f431f99b2517d5cc6f66cdc581c571339c9f",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.core.context",
+        "deeptutor.core.stream",
+        "deeptutor.runtime.orchestrator"
+      ],
+      "declarations": [
+        {
+          "name": "TurnEngine",
+          "line": 11,
+          "end_line": 28
+        },
+        {
+          "name": "get_turn_engine",
+          "line": 34,
+          "end_line": 38
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/runtime/orchestrator.py",
+      "sha256": "3a45b4c699634000b6462213f6e9421c0d97eee58288bab1319190dfabbb982d",
+      "lines": 231,
+      "vendor_sha256": "3a45b4c699634000b6462213f6e9421c0d97eee58288bab1319190dfabbb982d",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.capabilities.protocol",
+        "deeptutor.core.context",
+        "deeptutor.core.stream",
+        "deeptutor.events.event_bus",
+        "deeptutor.runtime.registry.capability_registry",
+        "deeptutor.runtime.registry.tool_registry",
+        "deeptutor.runtime.stream_bus",
+        "deeptutor.services.llm.metrics",
+        "deeptutor.services.rag.pipelines.pageindex"
+      ],
+      "declarations": [
+        {
+          "name": "completion_event_fields",
+          "line": 28,
+          "end_line": 48
+        },
+        {
+          "name": "ChatOrchestrator",
+          "line": 51,
+          "end_line": 231
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/runtime/stream_bus.py",
+      "sha256": "e1f13b28e974db722a59c18cd0cee1b347c120d74f05b8357bcf64f4c782d456",
+      "lines": 375,
+      "vendor_sha256": "e1f13b28e974db722a59c18cd0cee1b347c120d74f05b8357bcf64f4c782d456",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.core.stream",
+        "deeptutor.core.trace"
+      ],
+      "declarations": [
+        {
+          "name": "StreamBus",
+          "line": 31,
+          "end_line": 355
+        },
+        {
+          "name": "register_bus",
+          "line": 363,
+          "end_line": 365
+        },
+        {
+          "name": "unregister_bus",
+          "line": 368,
+          "end_line": 370
+        },
+        {
+          "name": "get_bus",
+          "line": 373,
+          "end_line": 375
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/runtime/capability_routing.py",
+      "sha256": "5e1ea3e44bd432666b175f468f8ec3214d4ca436340aef216cf6bb500e38ea9e",
+      "lines": 88,
+      "vendor_sha256": "5e1ea3e44bd432666b175f468f8ec3214d4ca436340aef216cf6bb500e38ea9e",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [],
+      "declarations": [
+        {
+          "name": "CapabilityRoute",
+          "line": 11,
+          "end_line": 30
+        },
+        {
+          "name": "route_explicit_quiz_request",
+          "line": 49,
+          "end_line": 85
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/runtime/coordination/memory.py",
+      "sha256": "c8979e2ecf2461328d866c80489b9613d7a406464bbabe7bde842cdb357221b1",
+      "lines": 255,
+      "vendor_sha256": "c8979e2ecf2461328d866c80489b9613d7a406464bbabe7bde842cdb357221b1",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [],
+      "declarations": [
+        {
+          "name": "MemoryCoordinator",
+          "line": 13,
+          "end_line": 252
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/runtime/coordination/recovery.py",
+      "sha256": "221d0e5b067341c9ac50d2927164a774a17aa8a6e7c85d1b85b2a52c299f532d",
+      "lines": 104,
+      "vendor_sha256": "221d0e5b067341c9ac50d2927164a774a17aa8a6e7c85d1b85b2a52c299f532d",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.services.session.protocol"
+      ],
+      "declarations": [
+        {
+          "name": "TurnRecoveryService",
+          "line": 15,
+          "end_line": 101
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/core/context.py",
+      "sha256": "131c41f1f7eacd98acf02d2b95d7d28ab21aa720d14a8067aa06f3aafd90bcfd",
+      "lines": 168,
+      "vendor_sha256": "131c41f1f7eacd98acf02d2b95d7d28ab21aa720d14a8067aa06f3aafd90bcfd",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [],
+      "declarations": [
+        {
+          "name": "Attachment",
+          "line": 17,
+          "end_line": 31
+        },
+        {
+          "name": "WorkspaceRuntimeContext",
+          "line": 35,
+          "end_line": 46
+        },
+        {
+          "name": "TurnRuntimeContext",
+          "line": 50,
+          "end_line": 65
+        },
+        {
+          "name": "InteractionState",
+          "line": 69,
+          "end_line": 73
+        },
+        {
+          "name": "CapabilityOutput",
+          "line": 77,
+          "end_line": 82
+        },
+        {
+          "name": "UnifiedContext",
+          "line": 86,
+          "end_line": 158
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/core/tool_protocol.py",
+      "sha256": "6a456e2db36e816b5dfb8ce0f94ee5137756088d6e2565f6dd9ff080cce9dd54",
+      "lines": 288,
+      "vendor_sha256": "6a456e2db36e816b5dfb8ce0f94ee5137756088d6e2565f6dd9ff080cce9dd54",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [],
+      "declarations": [
+        {
+          "name": "ToolParameter",
+          "line": 17,
+          "end_line": 52
+        },
+        {
+          "name": "ToolDefinition",
+          "line": 56,
+          "end_line": 102
+        },
+        {
+          "name": "ToolAlias",
+          "line": 106,
+          "end_line": 113
+        },
+        {
+          "name": "ToolPromptHints",
+          "line": 117,
+          "end_line": 126
+        },
+        {
+          "name": "ToolResult",
+          "line": 130,
+          "end_line": 170
+        },
+        {
+          "name": "ToolEventSink",
+          "line": 173,
+          "end_line": 181
+        },
+        {
+          "name": "ToolLookup",
+          "line": 184,
+          "end_line": 217
+        },
+        {
+          "name": "BaseTool",
+          "line": 220,
+          "end_line": 267
+        },
+        {
+          "name": "provider_identity",
+          "line": 270,
+          "end_line": 288
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/core/stream.py",
+      "sha256": "1c896c97e59cd0f32d0e5296a7f67edeea81c729e8ed02d099d088c723b1b1f8",
+      "lines": 72,
+      "vendor_sha256": "1c896c97e59cd0f32d0e5296a7f67edeea81c729e8ed02d099d088c723b1b1f8",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [],
+      "declarations": [
+        {
+          "name": "StreamEventType",
+          "line": 17,
+          "end_line": 34
+        },
+        {
+          "name": "StreamEvent",
+          "line": 38,
+          "end_line": 72
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/agents/loop/pipeline.py",
+      "sha256": "8ec2ec26777c3bf5166dde992e4e093528d0961071a1d502f475663677752041",
+      "lines": 1953,
+      "vendor_sha256": "8ec2ec26777c3bf5166dde992e4e093528d0961071a1d502f475663677752041",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.agents._shared.tool_composition",
+        "deeptutor.agents._shared.tool_runtime",
+        "deeptutor.agents._shared.workspace_prompt",
+        "deeptutor.agents.loop.agent_loop",
+        "deeptutor.agents.loop.context_budget",
+        "deeptutor.agents.loop.prompt_blocks",
+        "deeptutor.capabilities",
+        "deeptutor.capabilities.protocol",
+        "deeptutor.core.context",
+        "deeptutor.core.tool_protocol",
+        "deeptutor.core.trace",
+        "deeptutor.knowledge.manifest",
+        "deeptutor.multi_user.context",
+        "deeptutor.multi_user.knowledge_access",
+        "deeptutor.multi_user.paths",
+        "deeptutor.multi_user.tool_access",
+        "deeptutor.runtime.agentic",
+        "deeptutor.runtime.agentic.tool_dispatch",
+        "deeptutor.runtime.providers",
+        "deeptutor.runtime.providers.view",
+        "deeptutor.runtime.registry.deferred_tools",
+        "deeptutor.runtime.registry.tool_registry",
+        "deeptutor.runtime.stream_bus",
+        "deeptutor.services.config",
+        "deeptutor.services.llm",
+        "deeptutor.services.llm.capabilities",
+        "deeptutor.services.llm.context_window",
+        "deeptutor.services.notebook",
+        "deeptutor.services.path_service",
+        "deeptutor.services.prompt",
+        "deeptutor.services.prompt.lookup",
+        "deeptutor.services.rag.factory",
+        "deeptutor.services.rag.pipelines.pageindex",
+        "deeptutor.services.rag.pipelines.pageindex.tools",
+        "deeptutor.services.rag.provider_binding",
+        "deeptutor.services.sandbox",
+        "deeptutor.services.session.context_builder",
+        "deeptutor.services.workspace",
+        "deeptutor.services.workspace.resources",
+        "deeptutor.tools.builtin",
+        "deeptutor.tools.research_tools"
+      ],
+      "declarations": [
+        {
+          "name": "_read_int",
+          "line": 114,
+          "end_line": 122
+        },
+        {
+          "name": "_normalise_user_reply",
+          "line": 125,
+          "end_line": 141
+        },
+        {
+          "name": "_format_user_reply_body",
+          "line": 144,
+          "end_line": 170
+        },
+        {
+          "name": "_merge_prompt_packs",
+          "line": 173,
+          "end_line": 187
+        },
+        {
+          "name": "_flatten_ask_user_summary",
+          "line": 190,
+          "end_line": 197
+        },
+        {
+          "name": "AgenticLoopPipeline",
+          "line": 200,
+          "end_line": 1943
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/agents/loop/agent_loop.py",
+      "sha256": "8d388f5772937ae72d6f39313fff2460e8d594e96f406c4acc96ca674c9c7a78",
+      "lines": 1862,
+      "vendor_sha256": "8d388f5772937ae72d6f39313fff2460e8d594e96f406c4acc96ca674c9c7a78",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.agents._shared.capability_result",
+        "deeptutor.agents.loop.ask_user_drafts",
+        "deeptutor.agents.loop.context_budget",
+        "deeptutor.agents.loop.dsml_tool_calls",
+        "deeptutor.agents.loop.pipeline",
+        "deeptutor.core.context",
+        "deeptutor.core.trace",
+        "deeptutor.runtime.agentic.messages",
+        "deeptutor.runtime.agentic.think_stream",
+        "deeptutor.runtime.agentic.tool_call_stream",
+        "deeptutor.runtime.agentic.tool_dispatch",
+        "deeptutor.runtime.agentic.usage",
+        "deeptutor.runtime.stream_bus",
+        "deeptutor.services.llm",
+        "deeptutor.services.llm.capabilities",
+        "deeptutor.services.llm.image_replay",
+        "deeptutor.services.llm.multimodal",
+        "deeptutor.services.llm.request_cache",
+        "deeptutor.services.llm.request_compat",
+        "deeptutor.services.llm.usage_frame",
+        "deeptutor.services.llm.utils",
+        "deeptutor.services.session.model_history",
+        "deeptutor.services.session.provider_response_state"
+      ],
+      "declarations": [
+        {
+          "name": "_bounded_stream_chunks",
+          "line": 114,
+          "end_line": 123
+        },
+        {
+          "name": "_reasoning_budget_exhausted",
+          "line": 126,
+          "end_line": 150
+        },
+        {
+          "name": "_join_answer_parts",
+          "line": 153,
+          "end_line": 155
+        },
+        {
+          "name": "AgentLoopState",
+          "line": 159,
+          "end_line": 167
+        },
+        {
+          "name": "LLMCallResult",
+          "line": 171,
+          "end_line": 191
+        },
+        {
+          "name": "LoopOutcome",
+          "line": 195,
+          "end_line": 206
+        },
+        {
+          "name": "_provider_response_state",
+          "line": 209,
+          "end_line": 221
+        },
+        {
+          "name": "_assistant_round_message",
+          "line": 224,
+          "end_line": 243
+        },
+        {
+          "name": "_has_replayable_assistant_state",
+          "line": 246,
+          "end_line": 253
+        },
+        {
+          "name": "_reasoning_item_text",
+          "line": 256,
+          "end_line": 271
+        },
+        {
+          "name": "AgentLoop",
+          "line": 274,
+          "end_line": 1805
+        },
+        {
+          "name": "_single_chunk_stream",
+          "line": 1808,
+          "end_line": 1838
+        },
+        {
+          "name": "_last_context_checkpoint_summary",
+          "line": 1841,
+          "end_line": 1852
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/agents/loop/context_budget.py",
+      "sha256": "a7dfad51187f1ba5f90506dea55864129661a98acdaa2de2180c0c5db2c86451",
+      "lines": 347,
+      "vendor_sha256": "a7dfad51187f1ba5f90506dea55864129661a98acdaa2de2180c0c5db2c86451",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.capabilities.protocol",
+        "deeptutor.services.llm.context_window",
+        "deeptutor.services.session.context_builder"
+      ],
+      "declarations": [
+        {
+          "name": "LLMRequestSnapshot",
+          "line": 58,
+          "end_line": 66
+        },
+        {
+          "name": "ContextWindowInfo",
+          "line": 70,
+          "end_line": 74
+        },
+        {
+          "name": "resolve_window_info",
+          "line": 77,
+          "end_line": 105
+        },
+        {
+          "name": "detect_counter_name",
+          "line": 108,
+          "end_line": 121
+        },
+        {
+          "name": "count_conversation_tokens",
+          "line": 124,
+          "end_line": 138
+        },
+        {
+          "name": "build_context_budget",
+          "line": 141,
+          "end_line": 170
+        },
+        {
+          "name": "_build",
+          "line": 173,
+          "end_line": 238
+        },
+        {
+          "name": "_prompt_block_tokens",
+          "line": 241,
+          "end_line": 253
+        },
+        {
+          "name": "_render_overhead",
+          "line": 256,
+          "end_line": 278
+        },
+        {
+          "name": "_tool_schema_tokens",
+          "line": 281,
+          "end_line": 293
+        },
+        {
+          "name": "_message_tokens",
+          "line": 296,
+          "end_line": 312
+        },
+        {
+          "name": "_schema_name",
+          "line": 315,
+          "end_line": 319
+        },
+        {
+          "name": "_merge",
+          "line": 322,
+          "end_line": 324
+        },
+        {
+          "name": "_dumps",
+          "line": 327,
+          "end_line": 328
+        },
+        {
+          "name": "_default_counter",
+          "line": 331,
+          "end_line": 336
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/agents/loop/prompt_blocks.py",
+      "sha256": "70c0cabeb6a230c58eff438beef1cbb352c96832a7c6708eb72cf45ccdd27ace",
+      "lines": 325,
+      "vendor_sha256": "70c0cabeb6a230c58eff438beef1cbb352c96832a7c6708eb72cf45ccdd27ace",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.capabilities.protocol",
+        "deeptutor.core.context",
+        "deeptutor.runtime.agentic.tool_dispatch",
+        "deeptutor.services.prompt.language"
+      ],
+      "declarations": [
+        {
+          "name": "LoopPromptAssembler",
+          "line": 43,
+          "end_line": 319
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/runtime/agentic/client.py",
+      "sha256": "7e35cde05d017c7e386d022983ccff0c69007ae957ed6a12ac42fc2824feb004",
+      "lines": 787,
+      "vendor_sha256": "7e35cde05d017c7e386d022983ccff0c69007ae957ed6a12ac42fc2824feb004",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.services.codex_auth.constants",
+        "deeptutor.services.config",
+        "deeptutor.services.keypool",
+        "deeptutor.services.llm",
+        "deeptutor.services.llm.capabilities",
+        "deeptutor.services.llm.exceptions",
+        "deeptutor.services.llm.metrics",
+        "deeptutor.services.llm.openai_http_client",
+        "deeptutor.services.llm.provider_core",
+        "deeptutor.services.llm.provider_core.base",
+        "deeptutor.services.llm.provider_core.codebuddy_http_provider",
+        "deeptutor.services.llm.reasoning_params",
+        "deeptutor.services.provider_registry"
+      ],
+      "declarations": [
+        {
+          "name": "LLMClientConfig",
+          "line": 70,
+          "end_line": 98
+        },
+        {
+          "name": "_client_cache_key",
+          "line": 101,
+          "end_line": 120
+        },
+        {
+          "name": "_build_openai_client",
+          "line": 123,
+          "end_line": 182
+        },
+        {
+          "name": "_KeyRotatingCompletions",
+          "line": 185,
+          "end_line": 205
+        },
+        {
+          "name": "_KeyRotatingClient",
+          "line": 208,
+          "end_line": 214
+        },
+        {
+          "name": "_close_client",
+          "line": 217,
+          "end_line": 223
+        },
+        {
+          "name": "_schedule_client_close",
+          "line": 226,
+          "end_line": 231
+        },
+        {
+          "name": "build_openai_client",
+          "line": 234,
+          "end_line": 269
+        },
+        {
+          "name": "close_agentic_client_pool",
+          "line": 272,
+          "end_line": 277
+        },
+        {
+          "name": "reset_agentic_client_pool",
+          "line": 280,
+          "end_line": 294
+        },
+        {
+          "name": "agentic_client_pool_size",
+          "line": 297,
+          "end_line": 299
+        },
+        {
+          "name": "_build_anthropic_adapter",
+          "line": 302,
+          "end_line": 312
+        },
+        {
+          "name": "_build_codex_adapter",
+          "line": 315,
+          "end_line": 322
+        },
+        {
+          "name": "_build_copilot_adapter",
+          "line": 325,
+          "end_line": 331
+        },
+        {
+          "name": "_build_codebuddy_adapter",
+          "line": 334,
+          "end_line": 343
+        },
+        {
+          "name": "_build_direct_openai_adapter",
+          "line": 346,
+          "end_line": 358
+        },
+        {
+          "name": "_build_native_provider_adapter",
+          "line": 369,
+          "end_line": 394
+        },
+        {
+          "name": "_ProviderOpenAIAdapter",
+          "line": 397,
+          "end_line": 464
+        },
+        {
+          "name": "_provider_streams_tool_args",
+          "line": 467,
+          "end_line": 483
+        },
+        {
+          "name": "_ProviderOpenAIStream",
+          "line": 486,
+          "end_line": 649
+        },
+        {
+          "name": "_openai_tool_call",
+          "line": 656,
+          "end_line": 666
+        },
+        {
+          "name": "_openai_stream_chunk",
+          "line": 669,
+          "end_line": 697
+        },
+        {
+          "name": "build_completion_kwargs",
+          "line": 700,
+          "end_line": 727
+        },
+        {
+          "name": "build_provider_extra_kwargs",
+          "line": 730,
+          "end_line": 749
+        },
+        {
+          "name": "can_use_native_tool_calling",
+          "line": 752,
+          "end_line": 787
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/runtime/agentic/tool_dispatch.py",
+      "sha256": "d7e8ab2a8e8020ef621c41bda33c3b67eea11304fc4b24e3519034bb5b2437d5",
+      "lines": 926,
+      "vendor_sha256": "d7e8ab2a8e8020ef621c41bda33c3b67eea11304fc4b24e3519034bb5b2437d5",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.core.context",
+        "deeptutor.core.tool_protocol",
+        "deeptutor.core.trace",
+        "deeptutor.runtime.agentic.tool_arg_guard",
+        "deeptutor.runtime.registry.tool_registry",
+        "deeptutor.runtime.stream_bus",
+        "deeptutor.utils.json_parser"
+      ],
+      "declarations": [
+        {
+          "name": "tool_error_message_factory",
+          "line": 76,
+          "end_line": 95
+        },
+        {
+          "name": "DispatchOutcome",
+          "line": 99,
+          "end_line": 119
+        },
+        {
+          "name": "dispatch_tool_calls",
+          "line": 122,
+          "end_line": 354
+        },
+        {
+          "name": "_detect_duplicate_calls",
+          "line": 357,
+          "end_line": 389
+        },
+        {
+          "name": "_duplicate_stub_result",
+          "line": 392,
+          "end_line": 421
+        },
+        {
+          "name": "_reject_if_args_missing",
+          "line": 424,
+          "end_line": 504
+        },
+        {
+          "name": "_prepare_tool_args",
+          "line": 507,
+          "end_line": 539
+        },
+        {
+          "name": "_resolve_tool_request",
+          "line": 542,
+          "end_line": 565
+        },
+        {
+          "name": "_build_per_tool_trace_meta",
+          "line": 568,
+          "end_line": 615
+        },
+        {
+          "name": "_provider_of",
+          "line": 618,
+          "end_line": 630
+        },
+        {
+          "name": "_sensitive_arg_names",
+          "line": 633,
+          "end_line": 644
+        },
+        {
+          "name": "execute_tool_call",
+          "line": 647,
+          "end_line": 826
+        },
+        {
+          "name": "_collect_outcome",
+          "line": 829,
+          "end_line": 926
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/runtime/registry/tool_registry.py",
+      "sha256": "c8c7c6e8036dff013f8285fb7757eacbe0c43ce6665019a2b8f583ae1f009e7e",
+      "lines": 222,
+      "vendor_sha256": "c8c7c6e8036dff013f8285fb7757eacbe0c43ce6665019a2b8f583ae1f009e7e",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.core.tool_protocol",
+        "deeptutor.plugins.entry_points",
+        "deeptutor.plugins.registry",
+        "deeptutor.plugins.runtime",
+        "deeptutor.tools.builtin_specs",
+        "deeptutor.tools.prompting"
+      ],
+      "declarations": [
+        {
+          "name": "ToolRegistry",
+          "line": 28,
+          "end_line": 187
+        },
+        {
+          "name": "get_tool_registry",
+          "line": 194,
+          "end_line": 222
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/runtime/registry/scoped_registry.py",
+      "sha256": "20b72991cf82590f71768693599e28e57d66b78b3367b963d2df23118506b678",
+      "lines": 183,
+      "vendor_sha256": "20b72991cf82590f71768693599e28e57d66b78b3367b963d2df23118506b678",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.core.tool_protocol",
+        "deeptutor.runtime.providers.allowlist",
+        "deeptutor.tools.prompting"
+      ],
+      "declarations": [
+        {
+          "name": "ScopedToolRegistry",
+          "line": 40,
+          "end_line": 180
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/agents/_shared/tool_composition.py",
+      "sha256": "97f80cd0374f2661aca3e1785e0ce0274070c929090b012ba896304859f411de",
+      "lines": 397,
+      "vendor_sha256": "97f80cd0374f2661aca3e1785e0ce0274070c929090b012ba896304859f411de",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.learning.navigation",
+        "deeptutor.multi_user.paths",
+        "deeptutor.services.memory",
+        "deeptutor.services.notebook",
+        "deeptutor.services.partners.interaction",
+        "deeptutor.services.session",
+        "deeptutor.tools.builtin"
+      ],
+      "declarations": [
+        {
+          "name": "default_optional_tools",
+          "line": 84,
+          "end_line": 98
+        },
+        {
+          "name": "admin_enabled_optional_tools",
+          "line": 101,
+          "end_line": 142
+        },
+        {
+          "name": "ToolMountFlags",
+          "line": 146,
+          "end_line": 171
+        },
+        {
+          "name": "compose_enabled_tools",
+          "line": 174,
+          "end_line": 277
+        },
+        {
+          "name": "_finalize",
+          "line": 280,
+          "end_line": 285
+        },
+        {
+          "name": "_ordered_unique",
+          "line": 288,
+          "end_line": 296
+        },
+        {
+          "name": "user_has_memory",
+          "line": 299,
+          "end_line": 316
+        },
+        {
+          "name": "user_has_notebooks",
+          "line": 319,
+          "end_line": 333
+        },
+        {
+          "name": "user_has_mastery_topics",
+          "line": 336,
+          "end_line": 349
+        },
+        {
+          "name": "user_has_question_bank",
+          "line": 352,
+          "end_line": 365
+        },
+        {
+          "name": "partner_can_record_questions",
+          "line": 368,
+          "end_line": 382
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/session/turn_runtime.py",
+      "sha256": "912a985c8b11b73e1f0dd626286b6374cd012636ccca7cd586cd08c43a61fb9a",
+      "lines": 55,
+      "vendor_sha256": "912a985c8b11b73e1f0dd626286b6374cd012636ccca7cd586cd08c43a61fb9a",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.services.session",
+        "deeptutor.services.session.scope"
+      ],
+      "declarations": [
+        {
+          "name": "__getattr__",
+          "line": 19,
+          "end_line": 23
+        },
+        {
+          "name": "TurnRuntimeManager",
+          "line": 26,
+          "end_line": 34
+        },
+        {
+          "name": "get_turn_runtime_manager",
+          "line": 43,
+          "end_line": 52
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/session/sqlite_store.py",
+      "sha256": "3ce91074219983b3d5481d12f8dab608ece30cc9e9eb7983cceb1e1c8805f02a",
+      "lines": 4612,
+      "vendor_sha256": "3ce91074219983b3d5481d12f8dab608ece30cc9e9eb7983cceb1e1c8805f02a",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.core.assessment",
+        "deeptutor.multi_user.paths",
+        "deeptutor.services.path_service",
+        "deeptutor.services.practice.storage",
+        "deeptutor.services.session.protocol",
+        "deeptutor.services.workspace.context",
+        "deeptutor.utils.secret_files"
+      ],
+      "declarations": [
+        {
+          "name": "_json_dumps",
+          "line": 48,
+          "end_line": 52
+        },
+        {
+          "name": "_escape_like",
+          "line": 55,
+          "end_line": 57
+        },
+        {
+          "name": "_migration_lock",
+          "line": 61,
+          "end_line": 71
+        },
+        {
+          "name": "_Unset",
+          "line": 79,
+          "end_line": 80
+        },
+        {
+          "name": "_trace_bounds",
+          "line": 86,
+          "end_line": 97
+        },
+        {
+          "name": "_json_loads",
+          "line": 100,
+          "end_line": 106
+        },
+        {
+          "name": "make_imported_session_id",
+          "line": 134,
+          "end_line": 143
+        },
+        {
+          "name": "TurnRecord",
+          "line": 147,
+          "end_line": 182
+        },
+        {
+          "name": "QuestionBankQuery",
+          "line": 186,
+          "end_line": 251
+        },
+        {
+          "name": "SQLiteSessionStore",
+          "line": 254,
+          "end_line": 4578
+        },
+        {
+          "name": "get_sqlite_session_store",
+          "line": 4584,
+          "end_line": 4589
+        },
+        {
+          "name": "get_sqlite_session_store_for",
+          "line": 4592,
+          "end_line": 4603
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/session/protocol.py",
+      "sha256": "1cc124ae4915eefdbb3179053c223423bb90d1892cf7aedfa412c3532bd5d5f8",
+      "lines": 264,
+      "vendor_sha256": "1cc124ae4915eefdbb3179053c223423bb90d1892cf7aedfa412c3532bd5d5f8",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [],
+      "declarations": [
+        {
+          "name": "ActiveTurnConflict",
+          "line": 20,
+          "end_line": 35
+        },
+        {
+          "name": "SessionRepository",
+          "line": 39,
+          "end_line": 82
+        },
+        {
+          "name": "TurnRepository",
+          "line": 86,
+          "end_line": 127
+        },
+        {
+          "name": "MessageRepository",
+          "line": 131,
+          "end_line": 146
+        },
+        {
+          "name": "SessionStoreProtocol",
+          "line": 150,
+          "end_line": 256
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/session/model_history.py",
+      "sha256": "335aaab5cfbf2aba6b50172e18d98eaf3d01cd27045bfdf96588dcd23473afbc",
+      "lines": 187,
+      "vendor_sha256": "335aaab5cfbf2aba6b50172e18d98eaf3d01cd27045bfdf96588dcd23473afbc",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [],
+      "declarations": [
+        {
+          "name": "normalize_model_turn",
+          "line": 31,
+          "end_line": 98
+        },
+        {
+          "name": "model_turn",
+          "line": 101,
+          "end_line": 105
+        },
+        {
+          "name": "history_groups",
+          "line": 108,
+          "end_line": 121
+        },
+        {
+          "name": "replay_group",
+          "line": 124,
+          "end_line": 154
+        },
+        {
+          "name": "replay_history",
+          "line": 157,
+          "end_line": 167
+        },
+        {
+          "name": "complete_tool_results",
+          "line": 170,
+          "end_line": 187
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/session/turns/request_preparer.py",
+      "sha256": "bebbeb6e6fa5cd444d3cbb4844a96981da6e89ae5964765e7b4d83e9ed0e824a",
+      "lines": 1155,
+      "vendor_sha256": "bebbeb6e6fa5cd444d3cbb4844a96981da6e89ae5964765e7b4d83e9ed0e824a",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.capabilities.mastery.mode",
+        "deeptutor.core.stream",
+        "deeptutor.core.turn_request",
+        "deeptutor.learning.identity",
+        "deeptutor.learning.storage",
+        "deeptutor.multi_user.context",
+        "deeptutor.multi_user.learning_access",
+        "deeptutor.multi_user.model_access",
+        "deeptutor.multi_user.personal_models",
+        "deeptutor.multi_user.tool_access",
+        "deeptutor.reading",
+        "deeptutor.runtime.capability_routing",
+        "deeptutor.runtime.coordination",
+        "deeptutor.runtime.registry.capability_registry",
+        "deeptutor.runtime.request_contracts",
+        "deeptutor.services.config",
+        "deeptutor.services.config.runtime_settings",
+        "deeptutor.services.courses",
+        "deeptutor.services.model_selection",
+        "deeptutor.services.partners.scope",
+        "deeptutor.services.session.organization",
+        "deeptutor.services.session.protocol",
+        "deeptutor.services.session.workspace_preferences",
+        "deeptutor.services.settings.interface_settings",
+        "deeptutor.services.task_board",
+        "deeptutor.services.workspace",
+        "deeptutor.services.workspace.activity",
+        "deeptutor.services.workspace.context",
+        "deeptutor.video_learning.reading_migration"
+      ],
+      "declarations": [
+        {
+          "name": "TurnRequestPreparer",
+          "line": 87,
+          "end_line": 1155
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/session/turns/context_assembler.py",
+      "sha256": "615e0e5458880df036bb1dfe3f898f7167037e1f27faa3970cb4398251c46b53",
+      "lines": 20,
+      "vendor_sha256": "615e0e5458880df036bb1dfe3f898f7167037e1f27faa3970cb4398251c46b53",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.services.session.context_builder",
+        "deeptutor.services.session.protocol"
+      ],
+      "declarations": [
+        {
+          "name": "TurnContextAssembler",
+          "line": 11,
+          "end_line": 20
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/session/turns/executor.py",
+      "sha256": "f45111b0b599f5fb193cffcc59166d7ae2c6ead21ff8bf554eed140d040dff9f",
+      "lines": 1441,
+      "vendor_sha256": "f45111b0b599f5fb193cffcc59166d7ae2c6ead21ff8bf554eed140d040dff9f",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.agents.notebook",
+        "deeptutor.book.context",
+        "deeptutor.core.context",
+        "deeptutor.core.stream",
+        "deeptutor.learning.storage",
+        "deeptutor.multi_user.context",
+        "deeptutor.multi_user.identity",
+        "deeptutor.multi_user.learner_profile",
+        "deeptutor.multi_user.learning_access",
+        "deeptutor.runtime.coordination",
+        "deeptutor.runtime.memory_reclaim",
+        "deeptutor.services.learning_journal",
+        "deeptutor.services.llm.config",
+        "deeptutor.services.memory",
+        "deeptutor.services.model_selection.runtime",
+        "deeptutor.services.notebook",
+        "deeptutor.services.persona",
+        "deeptutor.services.session.artifact_attachments",
+        "deeptutor.services.session.attachment_parsing",
+        "deeptutor.services.session.protocol",
+        "deeptutor.services.session.provider_response_state",
+        "deeptutor.services.session.source_inventory",
+        "deeptutor.services.session.workspace_preferences",
+        "deeptutor.services.skill.runtime",
+        "deeptutor.services.storage",
+        "deeptutor.services.task_board",
+        "deeptutor.services.workspace",
+        "deeptutor.services.workspace.activity",
+        "deeptutor.services.workspace.context",
+        "deeptutor.services.workspace.resources",
+        "deeptutor.utils.document_extractor"
+      ],
+      "declarations": [
+        {
+          "name": "TurnExecutor",
+          "line": 67,
+          "end_line": 1441
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/session/turns/lifecycle.py",
+      "sha256": "62a3c88a55b5df7926c4c5dbcae8436cd038978170d0b077090508c73091c481",
+      "lines": 765,
+      "vendor_sha256": "62a3c88a55b5df7926c4c5dbcae8436cd038978170d0b077090508c73091c481",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.core.stream",
+        "deeptutor.runtime.coordination",
+        "deeptutor.runtime.stream_bus",
+        "deeptutor.runtime.turn_engine",
+        "deeptutor.services.app_update",
+        "deeptutor.services.session",
+        "deeptutor.services.session.protocol",
+        "deeptutor.services.session.scope"
+      ],
+      "declarations": [
+        {
+          "name": "TurnLifecycle",
+          "line": 33,
+          "end_line": 765
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/rag/service.py",
+      "sha256": "4505bc111306414456019ca6c7c0464503e8a07dcffd110ef37247ac7c1b9f1f",
+      "lines": 356,
+      "vendor_sha256": "4505bc111306414456019ca6c7c0464503e8a07dcffd110ef37247ac7c1b9f1f",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.knowledge.indexing_run",
+        "deeptutor.logging",
+        "deeptutor.logging.process_stream",
+        "deeptutor.runtime.home",
+        "deeptutor.services.memory",
+        "deeptutor.services.memory.trace",
+        "deeptutor.services.path_service"
+      ],
+      "declarations": [
+        {
+          "name": "RAGService",
+          "line": 22,
+          "end_line": 356
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/rag/factory.py",
+      "sha256": "bf53b02ca33908f7614fbd5637e4b2eaecfdaeb29d90a90d955112fea1cfde3b",
+      "lines": 369,
+      "vendor_sha256": "bf53b02ca33908f7614fbd5637e4b2eaecfdaeb29d90a90d955112fea1cfde3b",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.services.config"
+      ],
+      "declarations": [
+        {
+          "name": "normalize_provider_name",
+          "line": 67,
+          "end_line": 74
+        },
+        {
+          "name": "provider_uses_embedding_versions",
+          "line": 77,
+          "end_line": 86
+        },
+        {
+          "name": "version_matches_provider",
+          "line": 89,
+          "end_line": 107
+        },
+        {
+          "name": "has_ready_provider_index",
+          "line": 110,
+          "end_line": 114
+        },
+        {
+          "name": "version_has_provider_output",
+          "line": 117,
+          "end_line": 121
+        },
+        {
+          "name": "provider_failure_summary",
+          "line": 124,
+          "end_line": 133
+        },
+        {
+          "name": "_build_pipeline",
+          "line": 136,
+          "end_line": 190
+        },
+        {
+          "name": "get_pipeline",
+          "line": 193,
+          "end_line": 209
+        },
+        {
+          "name": "list_pipelines",
+          "line": 212,
+          "end_line": 348
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/tools/rag_tool.py",
+      "sha256": "4188fd3e2d8969b33d512244ca2ab574427c12f94140a912f42161f91a3fcd96",
+      "lines": 110,
+      "vendor_sha256": "4188fd3e2d8969b33d512244ca2ab574427c12f94140a912f42161f91a3fcd96",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.multi_user.knowledge_access",
+        "deeptutor.services.rag.service"
+      ],
+      "declarations": [
+        {
+          "name": "rag_search",
+          "line": 15,
+          "end_line": 51
+        },
+        {
+          "name": "initialize_rag",
+          "line": 54,
+          "end_line": 63
+        },
+        {
+          "name": "delete_rag",
+          "line": 66,
+          "end_line": 73
+        },
+        {
+          "name": "get_available_providers",
+          "line": 76,
+          "end_line": 77
+        },
+        {
+          "name": "get_current_provider",
+          "line": 80,
+          "end_line": 81
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/rag/pipelines/lightrag/pipeline.py",
+      "sha256": "d798339208cdc92f3c965e56583e2b89c3e3a313c83cff22a140e86caf16211c",
+      "lines": 692,
+      "vendor_sha256": "d798339208cdc92f3c965e56583e2b89c3e3a313c83cff22a140e86caf16211c",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.knowledge.manager",
+        "deeptutor.runtime.home",
+        "deeptutor.services.embedding",
+        "deeptutor.services.embedding.config",
+        "deeptutor.services.parsing",
+        "deeptutor.services.rag.embedding_binding",
+        "deeptutor.services.rag.index_versioning",
+        "deeptutor.services.rag.kb_paths"
+      ],
+      "declarations": [
+        {
+          "name": "BatchOutcome",
+          "line": 39,
+          "end_line": 60
+        },
+        {
+          "name": "LightRagBatchError",
+          "line": 63,
+          "end_line": 73
+        },
+        {
+          "name": "LightRagNeedsReindexError",
+          "line": 76,
+          "end_line": 77
+        },
+        {
+          "name": "_status_text",
+          "line": 80,
+          "end_line": 83
+        },
+        {
+          "name": "_row_name",
+          "line": 86,
+          "end_line": 87
+        },
+        {
+          "name": "_row_error",
+          "line": 90,
+          "end_line": 95
+        },
+        {
+          "name": "LightRagPipeline",
+          "line": 98,
+          "end_line": 684
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/rag/pipelines/lightrag/engine.py",
+      "sha256": "97a3f6d42380280932977b6cb2cb234db95c7842141f8e6c6c5cd95e9ad2d46c",
+      "lines": 536,
+      "vendor_sha256": "97a3f6d42380280932977b6cb2cb234db95c7842141f8e6c6c5cd95e9ad2d46c",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.services.embedding.config"
+      ],
+      "declarations": [
+        {
+          "name": "LightRagContractError",
+          "line": 39,
+          "end_line": 40
+        },
+        {
+          "name": "installed_version",
+          "line": 43,
+          "end_line": 49
+        },
+        {
+          "name": "_require_exact_version",
+          "line": 52,
+          "end_line": 57
+        },
+        {
+          "name": "_validate_component",
+          "line": 60,
+          "end_line": 66
+        },
+        {
+          "name": "_safe_candidate",
+          "line": 69,
+          "end_line": 80
+        },
+        {
+          "name": "_controlled_class",
+          "line": 83,
+          "end_line": 117
+        },
+        {
+          "name": "_register_parser",
+          "line": 175,
+          "end_line": 185
+        },
+        {
+          "name": "workspace_for",
+          "line": 188,
+          "end_line": 214
+        },
+        {
+          "name": "build_rag",
+          "line": 217,
+          "end_line": 292
+        },
+        {
+          "name": "initialize",
+          "line": 295,
+          "end_line": 298
+        },
+        {
+          "name": "enqueue",
+          "line": 301,
+          "end_line": 311
+        },
+        {
+          "name": "_document_id",
+          "line": 314,
+          "end_line": 326
+        },
+        {
+          "name": "confirmed_unaccepted",
+          "line": 329,
+          "end_line": 338
+        },
+        {
+          "name": "_managed_queue_funcs",
+          "line": 341,
+          "end_line": 351
+        },
+        {
+          "name": "_shutdown_queues",
+          "line": 354,
+          "end_line": 368
+        },
+        {
+          "name": "finalize",
+          "line": 371,
+          "end_line": 375
+        },
+        {
+          "name": "_string",
+          "line": 378,
+          "end_line": 381
+        },
+        {
+          "name": "_records",
+          "line": 384,
+          "end_line": 388
+        },
+        {
+          "name": "_query_sources",
+          "line": 391,
+          "end_line": 484
+        },
+        {
+          "name": "query_with_sources",
+          "line": 487,
+          "end_line": 520
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/rag/pipelines/lightrag/roles.py",
+      "sha256": "1a02a48083091e08ded87cd5eb8cd3f679edd8233a7e7f0fb4a01b9268ab2114",
+      "lines": 132,
+      "vendor_sha256": "1a02a48083091e08ded87cd5eb8cd3f679edd8233a7e7f0fb4a01b9268ab2114",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.multi_user.context",
+        "deeptutor.multi_user.model_access",
+        "deeptutor.multi_user.models",
+        "deeptutor.services.config",
+        "deeptutor.services.config.lightrag_roles",
+        "deeptutor.services.llm.capabilities",
+        "deeptutor.services.llm.config",
+        "deeptutor.services.model_selection.llm",
+        "deeptutor.services.model_selection.reasoning",
+        "deeptutor.services.model_selection.runtime"
+      ],
+      "declarations": [
+        {
+          "name": "model_options",
+          "line": 21,
+          "end_line": 40
+        },
+        {
+          "name": "resolve_selection",
+          "line": 43,
+          "end_line": 68
+        },
+        {
+          "name": "settings_models",
+          "line": 71,
+          "end_line": 74
+        },
+        {
+          "name": "validate_models",
+          "line": 77,
+          "end_line": 83
+        },
+        {
+          "name": "RoleCall",
+          "line": 87,
+          "end_line": 93
+        },
+        {
+          "name": "runtime_limits",
+          "line": 96,
+          "end_line": 107
+        },
+        {
+          "name": "resolve_query_roles",
+          "line": 110,
+          "end_line": 132
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/rag/pipelines/lightrag/worker.py",
+      "sha256": "0d111d3985d8abfc22b4b6d809144130f58c39b1675851ccc131e9de2b5f929b",
+      "lines": 259,
+      "vendor_sha256": "0d111d3985d8abfc22b4b6d809144130f58c39b1675851ccc131e9de2b5f929b",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [],
+      "declarations": [
+        {
+          "name": "_worker_loop",
+          "line": 34,
+          "end_line": 57
+        },
+        {
+          "name": "_WorkerLoopController",
+          "line": 60,
+          "end_line": 102
+        },
+        {
+          "name": "OwnerLoopBridge",
+          "line": 105,
+          "end_line": 170
+        },
+        {
+          "name": "run_in_worker_loop",
+          "line": 173,
+          "end_line": 252
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/rag/pipelines/lightrag/storage.py",
+      "sha256": "7495fef90309ef25b8bbacc2f28aeee0544be10c4158436876450f420e72137c",
+      "lines": 338,
+      "vendor_sha256": "7495fef90309ef25b8bbacc2f28aeee0544be10c4158436876450f420e72137c",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.services.embedding.config",
+        "deeptutor.services.file_io",
+        "deeptutor.services.rag.embedding_signature",
+        "deeptutor.services.rag.index_versioning"
+      ],
+      "declarations": [
+        {
+          "name": "working_dir",
+          "line": 50,
+          "end_line": 52
+        },
+        {
+          "name": "_store_root",
+          "line": 55,
+          "end_line": 67
+        },
+        {
+          "name": "has_output",
+          "line": 70,
+          "end_line": 89
+        },
+        {
+          "name": "_doc_status_has_success",
+          "line": 92,
+          "end_line": 110
+        },
+        {
+          "name": "failure_summary",
+          "line": 113,
+          "end_line": 133
+        },
+        {
+          "name": "document_error",
+          "line": 136,
+          "end_line": 150
+        },
+        {
+          "name": "_read_doc_status",
+          "line": 153,
+          "end_line": 163
+        },
+        {
+          "name": "has_any_doc_status",
+          "line": 166,
+          "end_line": 170
+        },
+        {
+          "name": "_read_meta",
+          "line": 173,
+          "end_line": 179
+        },
+        {
+          "name": "meta_is_native_published",
+          "line": 182,
+          "end_line": 194
+        },
+        {
+          "name": "_parser_inputs",
+          "line": 197,
+          "end_line": 215
+        },
+        {
+          "name": "read_published_policy",
+          "line": 218,
+          "end_line": 225
+        },
+        {
+          "name": "latest_published_root",
+          "line": 228,
+          "end_line": 236
+        },
+        {
+          "name": "published_root_for_embedding",
+          "line": 239,
+          "end_line": 249
+        },
+        {
+          "name": "embedding_matches",
+          "line": 252,
+          "end_line": 255
+        },
+        {
+          "name": "require_compatible_embedding",
+          "line": 258,
+          "end_line": 269
+        },
+        {
+          "name": "write_meta",
+          "line": 272,
+          "end_line": 323
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/rag/pipelines/lightrag/ingress.py",
+      "sha256": "2f87af56ead6e5217402d2b37b5b35d40ac26ce099bc9e9aa96c528e3005c426",
+      "lines": 364,
+      "vendor_sha256": "2f87af56ead6e5217402d2b37b5b35d40ac26ce099bc9e9aa96c528e3005c426",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.services.file_io",
+        "deeptutor.services.parsing.types"
+      ],
+      "declarations": [
+        {
+          "name": "IngressError",
+          "line": 27,
+          "end_line": 28
+        },
+        {
+          "name": "StagedDocument",
+          "line": 32,
+          "end_line": 39
+        },
+        {
+          "name": "ingress_root",
+          "line": 42,
+          "end_line": 43
+        },
+        {
+          "name": "pending_root",
+          "line": 46,
+          "end_line": 47
+        },
+        {
+          "name": "bundles_root",
+          "line": 50,
+          "end_line": 51
+        },
+        {
+          "name": "_sha256",
+          "line": 54,
+          "end_line": 59
+        },
+        {
+          "name": "_contained_regular_file",
+          "line": 62,
+          "end_line": 85
+        },
+        {
+          "name": "_copy_regular",
+          "line": 88,
+          "end_line": 110
+        },
+        {
+          "name": "_write_new_bytes",
+          "line": 113,
+          "end_line": 119
+        },
+        {
+          "name": "_asset_files",
+          "line": 122,
+          "end_line": 137
+        },
+        {
+          "name": "_freeze_asset_paths",
+          "line": 140,
+          "end_line": 181
+        },
+        {
+          "name": "freeze_document",
+          "line": 184,
+          "end_line": 301
+        },
+        {
+          "name": "load_verified_bundle",
+          "line": 304,
+          "end_line": 341
+        },
+        {
+          "name": "remove_unaccepted",
+          "line": 344,
+          "end_line": 348
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/capabilities/mastery/capability.py",
+      "sha256": "53312360f451fbe9f60976490026714b33201c21041a1d309380ef14856864dc",
+      "lines": 112,
+      "vendor_sha256": "53312360f451fbe9f60976490026714b33201c21041a1d309380ef14856864dc",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.capabilities.mastery.pipeline",
+        "deeptutor.capabilities.mastery.tools",
+        "deeptutor.core.capability_protocol",
+        "deeptutor.core.context",
+        "deeptutor.learning.identity",
+        "deeptutor.learning.storage",
+        "deeptutor.runtime.stream_bus"
+      ],
+      "declarations": [
+        {
+          "name": "resolve_mastery_path_id",
+          "line": 42,
+          "end_line": 54
+        },
+        {
+          "name": "MasteryPathCapability",
+          "line": 57,
+          "end_line": 109
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/capabilities/mastery/pipeline.py",
+      "sha256": "8f52ee9a8b519c3e340f3d07ec3f5c1122f1f6af777727670f8a3f8b0feeda81",
+      "lines": 94,
+      "vendor_sha256": "8f52ee9a8b519c3e340f3d07ec3f5c1122f1f6af777727670f8a3f8b0feeda81",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.agents.loop.pipeline",
+        "deeptutor.agents.loop.prompt_blocks",
+        "deeptutor.capabilities.mastery.loop",
+        "deeptutor.capabilities.mastery.mode",
+        "deeptutor.core.context",
+        "deeptutor.learning.storage",
+        "deeptutor.services.workspace.knowledge"
+      ],
+      "declarations": [
+        {
+          "name": "MasteryPromptAssembler",
+          "line": 35,
+          "end_line": 54
+        },
+        {
+          "name": "MasteryLoopPipeline",
+          "line": 57,
+          "end_line": 91
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/capabilities/mastery/tools.py",
+      "sha256": "b6be3c50425472056c4744f7d80917a6a2e3ccd8226f752e1d9e4092608c3872",
+      "lines": 2886,
+      "vendor_sha256": "b6be3c50425472056c4744f7d80917a6a2e3ccd8226f752e1d9e4092608c3872",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.capabilities.mastery.binding",
+        "deeptutor.capabilities.mastery.choices",
+        "deeptutor.capabilities.mastery.mode",
+        "deeptutor.core.tool_protocol",
+        "deeptutor.learning.assessment",
+        "deeptutor.learning.models",
+        "deeptutor.learning.objective_relations",
+        "deeptutor.learning.pending",
+        "deeptutor.learning.policy",
+        "deeptutor.learning.question_card",
+        "deeptutor.learning.scheduler",
+        "deeptutor.learning.service",
+        "deeptutor.learning.storage",
+        "deeptutor.learning.visual_practice",
+        "deeptutor.services.prompt",
+        "deeptutor.services.session",
+        "deeptutor.services.settings.interface_settings"
+      ],
+      "declarations": [
+        {
+          "name": "_new_service",
+          "line": 124,
+          "end_line": 128
+        },
+        {
+          "name": "_resolve_path_id",
+          "line": 131,
+          "end_line": 132
+        },
+        {
+          "name": "_resolve_session_id",
+          "line": 135,
+          "end_line": 136
+        },
+        {
+          "name": "_resolve_turn_id",
+          "line": 139,
+          "end_line": 140
+        },
+        {
+          "name": "_normalize_difficulty",
+          "line": 146,
+          "end_line": 153
+        },
+        {
+          "name": "_question_bank_type",
+          "line": 156,
+          "end_line": 162
+        },
+        {
+          "name": "_duplicate_option_body",
+          "line": 165,
+          "end_line": 181
+        },
+        {
+          "name": "_read_choice_options",
+          "line": 184,
+          "end_line": 223
+        },
+        {
+          "name": "_normalize_quiz_contract",
+          "line": 226,
+          "end_line": 290
+        },
+        {
+          "name": "_shuffle_choice_options",
+          "line": 293,
+          "end_line": 317
+        },
+        {
+          "name": "_resolve_pending_choice",
+          "line": 320,
+          "end_line": 341
+        },
+        {
+          "name": "_sync_mastery_attempt_to_question_bank",
+          "line": 344,
+          "end_line": 408
+        },
+        {
+          "name": "_sync_qualitative_to_question_bank",
+          "line": 411,
+          "end_line": 458
+        },
+        {
+          "name": "_unreadable_choice_result",
+          "line": 461,
+          "end_line": 477
+        },
+        {
+          "name": "_json_result",
+          "line": 480,
+          "end_line": 485
+        },
+        {
+          "name": "_no_path_result",
+          "line": 488,
+          "end_line": 492
+        },
+        {
+          "name": "_load_path",
+          "line": 495,
+          "end_line": 504
+        },
+        {
+          "name": "_profile_status",
+          "line": 507,
+          "end_line": 539
+        },
+        {
+          "name": "_review_scope_refusal",
+          "line": 542,
+          "end_line": 572
+        },
+        {
+          "name": "_mode_instructions",
+          "line": 575,
+          "end_line": 602
+        },
+        {
+          "name": "_mode_of",
+          "line": 605,
+          "end_line": 607
+        },
+        {
+          "name": "_wrong_mode_result",
+          "line": 610,
+          "end_line": 625
+        },
+        {
+          "name": "_no_built_path_result",
+          "line": 628,
+          "end_line": 637
+        },
+        {
+          "name": "_unbuilt_status_message",
+          "line": 640,
+          "end_line": 701
+        },
+        {
+          "name": "MasteryStatusTool",
+          "line": 704,
+          "end_line": 823
+        },
+        {
+          "name": "MasteryNoteExplainedTool",
+          "line": 826,
+          "end_line": 882
+        },
+        {
+          "name": "MasteryQuizTool",
+          "line": 885,
+          "end_line": 1182
+        },
+        {
+          "name": "MasteryGradeTool",
+          "line": 1185,
+          "end_line": 1418
+        },
+        {
+          "name": "MasteryAssessTool",
+          "line": 1421,
+          "end_line": 1525
+        },
+        {
+          "name": "MasterySkipQuestionTool",
+          "line": 1528,
+          "end_line": 1573
+        },
+        {
+          "name": "MasteryRepairQuestionTool",
+          "line": 1576,
+          "end_line": 1690
+        },
+        {
+          "name": "MasteryDeferObjectiveTool",
+          "line": 1693,
+          "end_line": 1758
+        },
+        {
+          "name": "MasteryBuildTool",
+          "line": 1761,
+          "end_line": 1916
+        },
+        {
+          "name": "MasteryModeTool",
+          "line": 1919,
+          "end_line": 2010
+        },
+        {
+          "name": "MasteryProfileTool",
+          "line": 2013,
+          "end_line": 2144
+        },
+        {
+          "name": "MasteryReviseTool",
+          "line": 2147,
+          "end_line": 2340
+        },
+        {
+          "name": "MasteryPathsTool",
+          "line": 2343,
+          "end_line": 2381
+        },
+        {
+          "name": "MasterySwitchTool",
+          "line": 2384,
+          "end_line": 2444
+        },
+        {
+          "name": "MasteryLeaveTool",
+          "line": 2447,
+          "end_line": 2490
+        },
+        {
+          "name": "_humanized",
+          "line": 2506,
+          "end_line": 2517
+        },
+        {
+          "name": "_display_name",
+          "line": 2520,
+          "end_line": 2530
+        },
+        {
+          "name": "_module_objective",
+          "line": 2533,
+          "end_line": 2545
+        },
+        {
+          "name": "_raw_knowledge_points",
+          "line": 2548,
+          "end_line": 2554
+        },
+        {
+          "name": "_normalized_module_tree",
+          "line": 2557,
+          "end_line": 2593
+        },
+        {
+          "name": "_revised_point_id",
+          "line": 2602,
+          "end_line": 2616
+        },
+        {
+          "name": "_revise_points",
+          "line": 2619,
+          "end_line": 2768
+        },
+        {
+          "name": "_parse_modules_with_refs",
+          "line": 2771,
+          "end_line": 2837
+        },
+        {
+          "name": "_parse_modules",
+          "line": 2840,
+          "end_line": 2846
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/capabilities/mastery/mode.py",
+      "sha256": "00f9794d49e34d4ff6273c3509c8cc9eb07368d133d017402c1f77f0e0ce9a31",
+      "lines": 180,
+      "vendor_sha256": "00f9794d49e34d4ff6273c3509c8cc9eb07368d133d017402c1f77f0e0ce9a31",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [],
+      "declarations": [
+        {
+          "name": "normalize_mode",
+          "line": 84,
+          "end_line": 92
+        },
+        {
+          "name": "enforced_mode",
+          "line": 95,
+          "end_line": 110
+        },
+        {
+          "name": "tool_is_allowed",
+          "line": 113,
+          "end_line": 119
+        },
+        {
+          "name": "admission_error",
+          "line": 122,
+          "end_line": 139
+        },
+        {
+          "name": "owning_modes",
+          "line": 142,
+          "end_line": 145
+        },
+        {
+          "name": "wrong_mode_message",
+          "line": 148,
+          "end_line": 164
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/learning/models.py",
+      "sha256": "66e8188c601cee457a0bc17d66b3a20e0181a2b2a0c51355b2ef9225ca5e3f4a",
+      "lines": 623,
+      "vendor_sha256": "66e8188c601cee457a0bc17d66b3a20e0181a2b2a0c51355b2ef9225ca5e3f4a",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.learning.pending"
+      ],
+      "declarations": [
+        {
+          "name": "KnowledgeType",
+          "line": 24,
+          "end_line": 33
+        },
+        {
+          "name": "ErrorType",
+          "line": 36,
+          "end_line": 45
+        },
+        {
+          "name": "LearningStage",
+          "line": 61,
+          "end_line": 77
+        },
+        {
+          "name": "KnowledgePoint",
+          "line": 80,
+          "end_line": 94
+        },
+        {
+          "name": "LearningModule",
+          "line": 97,
+          "end_line": 111
+        },
+        {
+          "name": "DiagnosticResult",
+          "line": 114,
+          "end_line": 119
+        },
+        {
+          "name": "QuizAttempt",
+          "line": 122,
+          "end_line": 139
+        },
+        {
+          "name": "RetryAttempt",
+          "line": 142,
+          "end_line": 147
+        },
+        {
+          "name": "ErrorRecord",
+          "line": 150,
+          "end_line": 162
+        },
+        {
+          "name": "LearningEvidence",
+          "line": 165,
+          "end_line": 189
+        },
+        {
+          "name": "RepetitionState",
+          "line": 192,
+          "end_line": 213
+        },
+        {
+          "name": "ReviewTask",
+          "line": 216,
+          "end_line": 228
+        },
+        {
+          "name": "PendingOption",
+          "line": 231,
+          "end_line": 246
+        },
+        {
+          "name": "PendingQuestion",
+          "line": 249,
+          "end_line": 299
+        },
+        {
+          "name": "InteractionStatus",
+          "line": 302,
+          "end_line": 315
+        },
+        {
+          "name": "MasteryInteraction",
+          "line": 318,
+          "end_line": 332
+        },
+        {
+          "name": "MasteryEvent",
+          "line": 335,
+          "end_line": 347
+        },
+        {
+          "name": "MasteryPathLease",
+          "line": 350,
+          "end_line": 358
+        },
+        {
+          "name": "TopicSourceKind",
+          "line": 361,
+          "end_line": 386
+        },
+        {
+          "name": "TopicSource",
+          "line": 389,
+          "end_line": 402
+        },
+        {
+          "name": "TopicMetadata",
+          "line": 405,
+          "end_line": 417
+        },
+        {
+          "name": "MasteryTopic",
+          "line": 420,
+          "end_line": 424
+        },
+        {
+          "name": "LearnerMasteryOverride",
+          "line": 427,
+          "end_line": 434
+        },
+        {
+          "name": "DeferredObjective",
+          "line": 437,
+          "end_line": 444
+        },
+        {
+          "name": "LearnerProfile",
+          "line": 447,
+          "end_line": 493
+        },
+        {
+          "name": "ReadingProgressRecord",
+          "line": 504,
+          "end_line": 514
+        },
+        {
+          "name": "ReadingActivityRecord",
+          "line": 517,
+          "end_line": 528
+        },
+        {
+          "name": "ReadingLearningRecords",
+          "line": 531,
+          "end_line": 537
+        },
+        {
+          "name": "LearningProgress",
+          "line": 540,
+          "end_line": 591
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/learning/service.py",
+      "sha256": "db80368e5fdbae06228193a09d65edf25375dd6f79fc2e75d92af6d18ea6e35b",
+      "lines": 1996,
+      "vendor_sha256": "db80368e5fdbae06228193a09d65edf25375dd6f79fc2e75d92af6d18ea6e35b",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.learning",
+        "deeptutor.learning.grading",
+        "deeptutor.learning.mastery",
+        "deeptutor.learning.models",
+        "deeptutor.learning.objective_relations",
+        "deeptutor.learning.pending",
+        "deeptutor.learning.policy",
+        "deeptutor.learning.scheduler",
+        "deeptutor.learning.storage",
+        "deeptutor.learning.visual_practice"
+      ],
+      "declarations": [
+        {
+          "name": "_objective_fingerprint",
+          "line": 59,
+          "end_line": 60
+        },
+        {
+          "name": "_unique_fingerprint_map",
+          "line": 63,
+          "end_line": 72
+        },
+        {
+          "name": "_reserved_objective_ids",
+          "line": 75,
+          "end_line": 91
+        },
+        {
+          "name": "_new_objective_id",
+          "line": 94,
+          "end_line": 100
+        },
+        {
+          "name": "_quiz_evidence_matches_attempt",
+          "line": 107,
+          "end_line": 117
+        },
+        {
+          "name": "_drop_quiz_evidence_for_attempts",
+          "line": 120,
+          "end_line": 154
+        },
+        {
+          "name": "_update_quiz_evidence_for_attempts",
+          "line": 157,
+          "end_line": 178
+        },
+        {
+          "name": "assign_objective_identities",
+          "line": 181,
+          "end_line": 247
+        },
+        {
+          "name": "MasteryInteractionError",
+          "line": 250,
+          "end_line": 251
+        },
+        {
+          "name": "NoPendingInteractionError",
+          "line": 254,
+          "end_line": 255
+        },
+        {
+          "name": "StaleInteractionError",
+          "line": 258,
+          "end_line": 266
+        },
+        {
+          "name": "LearningService",
+          "line": 269,
+          "end_line": 1988
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/learning/storage.py",
+      "sha256": "1f07c18ac1f59b621b5c565984f7f6876e0e7c42eb2efc538e02a577ef04a94b",
+      "lines": 2060,
+      "vendor_sha256": "1f07c18ac1f59b621b5c565984f7f6876e0e7c42eb2efc538e02a577ef04a94b",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.learning.event_hub",
+        "deeptutor.learning.migration",
+        "deeptutor.learning.models",
+        "deeptutor.services.file_io",
+        "deeptutor.services.path_service"
+      ],
+      "declarations": [
+        {
+          "name": "LearningStoreError",
+          "line": 80,
+          "end_line": 81
+        },
+        {
+          "name": "LearningConflictError",
+          "line": 84,
+          "end_line": 94
+        },
+        {
+          "name": "PathLeaseConflictError",
+          "line": 97,
+          "end_line": 105
+        },
+        {
+          "name": "LearningTransaction",
+          "line": 108,
+          "end_line": 345
+        },
+        {
+          "name": "LearningStore",
+          "line": 348,
+          "end_line": 2050
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/learning/policy.py",
+      "sha256": "07f4f8cf5911c1c383a674844c84adfd7355a2b28cfd1620742272514138e91c",
+      "lines": 555,
+      "vendor_sha256": "07f4f8cf5911c1c383a674844c84adfd7355a2b28cfd1620742272514138e91c",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.learning.models",
+        "deeptutor.learning.pending",
+        "deeptutor.learning.scheduler"
+      ],
+      "declarations": [
+        {
+          "name": "path_display_name",
+          "line": 54,
+          "end_line": 71
+        },
+        {
+          "name": "gate_threshold",
+          "line": 74,
+          "end_line": 79
+        },
+        {
+          "name": "is_assessed_mastered",
+          "line": 82,
+          "end_line": 92
+        },
+        {
+          "name": "visual_achievements",
+          "line": 95,
+          "end_line": 107
+        },
+        {
+          "name": "learning_stage",
+          "line": 110,
+          "end_line": 126
+        },
+        {
+          "name": "mastery_source",
+          "line": 129,
+          "end_line": 136
+        },
+        {
+          "name": "is_mastered",
+          "line": 139,
+          "end_line": 147
+        },
+        {
+          "name": "display_mastery",
+          "line": 150,
+          "end_line": 155
+        },
+        {
+          "name": "objective_status",
+          "line": 158,
+          "end_line": 165
+        },
+        {
+          "name": "due_reviews",
+          "line": 168,
+          "end_line": 176
+        },
+        {
+          "name": "NextStep",
+          "line": 180,
+          "end_line": 230
+        },
+        {
+          "name": "find_knowledge_point",
+          "line": 233,
+          "end_line": 241
+        },
+        {
+          "name": "gate_kind",
+          "line": 244,
+          "end_line": 252
+        },
+        {
+          "name": "next_objective",
+          "line": 255,
+          "end_line": 362
+        },
+        {
+          "name": "map_summary",
+          "line": 365,
+          "end_line": 416
+        },
+        {
+          "name": "_review_report",
+          "line": 419,
+          "end_line": 462
+        },
+        {
+          "name": "objective_report",
+          "line": 465,
+          "end_line": 535
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/learning/scheduler.py",
+      "sha256": "07146a2075a9230a5be7cea8b23f38d227c2390b2636cfa82c9d238f46303864",
+      "lines": 550,
+      "vendor_sha256": "07146a2075a9230a5be7cea8b23f38d227c2390b2636cfa82c9d238f46303864",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.learning.models"
+      ],
+      "declarations": [
+        {
+          "name": "validate_desired_retention",
+          "line": 56,
+          "end_line": 62
+        },
+        {
+          "name": "RetentionScheduler",
+          "line": 65,
+          "end_line": 110
+        },
+        {
+          "name": "_error_kp_ids",
+          "line": 113,
+          "end_line": 118
+        },
+        {
+          "name": "review_sort_key",
+          "line": 121,
+          "end_line": 124
+        },
+        {
+          "name": "SpacedRepetitionScheduler",
+          "line": 127,
+          "end_line": 508
+        },
+        {
+          "name": "_resolved_quality",
+          "line": 511,
+          "end_line": 523
+        },
+        {
+          "name": "_snap_interval_index",
+          "line": 526,
+          "end_line": 528
+        },
+        {
+          "name": "_format_span",
+          "line": 531,
+          "end_line": 539
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    },
+    {
+      "path": "deeptutor/services/llm/factory.py",
+      "sha256": "77d21699b9d78c9eb6d8bd72ba5f6b226a1bbf89e67881f6831f5ab42097f81f",
+      "lines": 819,
+      "vendor_sha256": "77d21699b9d78c9eb6d8bd72ba5f6b226a1bbf89e67881f6831f5ab42097f81f",
+      "vendor_text_matches": true,
+      "direct_absolute_deeptutor_imports": [
+        "deeptutor.config.settings",
+        "deeptutor.services.github_copilot_auth",
+        "deeptutor.services.keypool",
+        "deeptutor.services.model_selection.runtime",
+        "deeptutor.services.provider_registry"
+      ],
+      "declarations": [
+        {
+          "name": "ApiProviderPreset",
+          "line": 41,
+          "end_line": 48
+        },
+        {
+          "name": "LocalProviderPreset",
+          "line": 51,
+          "end_line": 58
+        },
+        {
+          "name": "_build_retry_delays",
+          "line": 66,
+          "end_line": 78
+        },
+        {
+          "name": "_resolve_provider_spec",
+          "line": 81,
+          "end_line": 111
+        },
+        {
+          "name": "_url_matches_current",
+          "line": 114,
+          "end_line": 119
+        },
+        {
+          "name": "_binding_matches_current",
+          "line": 122,
+          "end_line": 126
+        },
+        {
+          "name": "_matching_current_config",
+          "line": 129,
+          "end_line": 154
+        },
+        {
+          "name": "_resolve_call_config",
+          "line": 157,
+          "end_line": 254
+        },
+        {
+          "name": "_capability_binding",
+          "line": 257,
+          "end_line": 265
+        },
+        {
+          "name": "_build_messages",
+          "line": 268,
+          "end_line": 278
+        },
+        {
+          "name": "_coerce_stream_coalesce_chars",
+          "line": 281,
+          "end_line": 285
+        },
+        {
+          "name": "_coerce_stream_coalesce_seconds",
+          "line": 288,
+          "end_line": 292
+        },
+        {
+          "name": "_apply_inline_image_data",
+          "line": 295,
+          "end_line": 314
+        },
+        {
+          "name": "_sanitize_call_kwargs",
+          "line": 317,
+          "end_line": 344
+        },
+        {
+          "name": "_complete_with_resolved_config",
+          "line": 347,
+          "end_line": 408
+        },
+        {
+          "name": "complete",
+          "line": 411,
+          "end_line": 455
+        },
+        {
+          "name": "complete_with_config",
+          "line": 458,
+          "end_line": 523
+        },
+        {
+          "name": "stream",
+          "line": 526,
+          "end_line": 730
+        },
+        {
+          "name": "fetch_models",
+          "line": 733,
+          "end_line": 756
+        },
+        {
+          "name": "_build_api_provider_presets",
+          "line": 759,
+          "end_line": 771
+        },
+        {
+          "name": "_build_local_provider_presets",
+          "line": 774,
+          "end_line": 786
+        },
+        {
+          "name": "get_provider_presets",
+          "line": 793,
+          "end_line": 797
+        },
+        {
+          "name": "LLMFactory",
+          "line": 814,
+          "end_line": 819
+        }
+      ],
+      "inspection": "targeted manual call-site reading plus AST inventory; not all lines manually reviewed"
+    }
+  ],
+  "absolute_import_reachable_modules": [
+    "deeptutor.__version__",
+    "deeptutor.agents._shared.capability_result",
+    "deeptutor.agents._shared.tool_composition",
+    "deeptutor.agents._shared.tool_runtime",
+    "deeptutor.agents._shared.workspace_prompt",
+    "deeptutor.agents.base_agent",
+    "deeptutor.agents.loop.agent_loop",
+    "deeptutor.agents.loop.ask_user_drafts",
+    "deeptutor.agents.loop.context_budget",
+    "deeptutor.agents.loop.dsml_tool_calls",
+    "deeptutor.agents.loop.pipeline",
+    "deeptutor.agents.loop.prompt_blocks",
+    "deeptutor.agents.math_animator.request_config",
+    "deeptutor.agents.notebook",
+    "deeptutor.agents.research.mode_strategy",
+    "deeptutor.agents.research.request_config",
+    "deeptutor.agents.vision_solver.vision_solver_agent",
+    "deeptutor.book.context",
+    "deeptutor.capabilities",
+    "deeptutor.capabilities.audio_overview.request_config",
+    "deeptutor.capabilities.marginnote4.models",
+    "deeptutor.capabilities.marginnote4.store",
+    "deeptutor.capabilities.mastery.binding",
+    "deeptutor.capabilities.mastery.choices",
+    "deeptutor.capabilities.mastery.loop",
+    "deeptutor.capabilities.mastery.mode",
+    "deeptutor.capabilities.mastery.pipeline",
+    "deeptutor.capabilities.mastery.tools",
+    "deeptutor.capabilities.protocol",
+    "deeptutor.config.settings",
+    "deeptutor.core.assessment",
+    "deeptutor.core.capability_protocol",
+    "deeptutor.core.context",
+    "deeptutor.core.response_languages",
+    "deeptutor.core.stream",
+    "deeptutor.core.tool_protocol",
+    "deeptutor.core.trace",
+    "deeptutor.core.turn_request",
+    "deeptutor.events.event_bus",
+    "deeptutor.i18n.metadata_i18n",
+    "deeptutor.knowledge.indexing_run",
+    "deeptutor.knowledge.kb_types",
+    "deeptutor.knowledge.manager",
+    "deeptutor.knowledge.manifest",
+    "deeptutor.knowledge.naming",
+    "deeptutor.learning",
+    "deeptutor.learning.assessment",
+    "deeptutor.learning.event_hub",
+    "deeptutor.learning.grading",
+    "deeptutor.learning.identity",
+    "deeptutor.learning.mastery",
+    "deeptutor.learning.migration",
+    "deeptutor.learning.models",
+    "deeptutor.learning.navigation",
+    "deeptutor.learning.objective_relations",
+    "deeptutor.learning.pending",
+    "deeptutor.learning.policy",
+    "deeptutor.learning.question_card",
+    "deeptutor.learning.scheduler",
+    "deeptutor.learning.service",
+    "deeptutor.learning.storage",
+    "deeptutor.learning.visual_practice",
+    "deeptutor.logging",
+    "deeptutor.logging.process_stream",
+    "deeptutor.logging.stats.llm_stats",
+    "deeptutor.multi_user.book_permission",
+    "deeptutor.multi_user.context",
+    "deeptutor.multi_user.device_credentials",
+    "deeptutor.multi_user.grants",
+    "deeptutor.multi_user.identity",
+    "deeptutor.multi_user.knowledge_access",
+    "deeptutor.multi_user.learner_profile",
+    "deeptutor.multi_user.learning_access",
+    "deeptutor.multi_user.model_access",
+    "deeptutor.multi_user.models",
+    "deeptutor.multi_user.partner_access",
+    "deeptutor.multi_user.paths",
+    "deeptutor.multi_user.personal_models",
+    "deeptutor.multi_user.skill_access",
+    "deeptutor.multi_user.tool_access",
+    "deeptutor.partners.bus.events",
+    "deeptutor.partners.bus.queue",
+    "deeptutor.partners.channels.base",
+    "deeptutor.partners.channels.manager",
+    "deeptutor.partners.channels.registry",
+    "deeptutor.partners.config.paths",
+    "deeptutor.partners.config.schema",
+    "deeptutor.partners.helpers",
+    "deeptutor.partners.transcription",
+    "deeptutor.plugins.catalog",
+    "deeptutor.plugins.entry_points",
+    "deeptutor.plugins.manifest",
+    "deeptutor.plugins.registry",
+    "deeptutor.plugins.runtime",
+    "deeptutor.plugins.transactions",
+    "deeptutor.reading",
+    "deeptutor.reading.catalog_models",
+    "deeptutor.reading.catalog_store",
+    "deeptutor.reading.epub_bilingual",
+    "deeptutor.reading.export",
+    "deeptutor.reading.extract",
+    "deeptutor.reading.ingestion",
+    "deeptutor.reading.models",
+    "deeptutor.reading.references",
+    "deeptutor.reading.search",
+    "deeptutor.reading.service",
+    "deeptutor.reading.store",
+    "deeptutor.response_languages",
+    "deeptutor.runtime.agentic",
+    "deeptutor.runtime.agentic.messages",
+    "deeptutor.runtime.agentic.think_stream",
+    "deeptutor.runtime.agentic.tool_arg_guard",
+    "deeptutor.runtime.agentic.tool_call_stream",
+    "deeptutor.runtime.agentic.tool_dispatch",
+    "deeptutor.runtime.agentic.usage",
+    "deeptutor.runtime.bootstrap.builtin_capabilities",
+    "deeptutor.runtime.capability_catalog",
+    "deeptutor.runtime.capability_routing",
+    "deeptutor.runtime.coordination",
+    "deeptutor.runtime.home",
+    "deeptutor.runtime.isolated_worker",
+    "deeptutor.runtime.memory_reclaim",
+    "deeptutor.runtime.orchestrator",
+    "deeptutor.runtime.process",
+    "deeptutor.runtime.providers",
+    "deeptutor.runtime.providers.allowlist",
+    "deeptutor.runtime.providers.authorize",
+    "deeptutor.runtime.providers.scope",
+    "deeptutor.runtime.providers.text",
+    "deeptutor.runtime.providers.view",
+    "deeptutor.runtime.registry.capability_registry",
+    "deeptutor.runtime.registry.deferred_tools",
+    "deeptutor.runtime.registry.scoped_registry",
+    "deeptutor.runtime.registry.tool_registry",
+    "deeptutor.runtime.request_contracts",
+    "deeptutor.runtime.stream_bus",
+    "deeptutor.runtime.turn_engine",
+    "deeptutor.services",
+    "deeptutor.services.app_update",
+    "deeptutor.services.auth",
+    "deeptutor.services.cli_apps.catalog",
+    "deeptutor.services.cli_apps.models",
+    "deeptutor.services.cli_apps.paths",
+    "deeptutor.services.cli_apps.provider",
+    "deeptutor.services.cli_apps.runner",
+    "deeptutor.services.cli_apps.state",
+    "deeptutor.services.codebuddy_credentials",
+    "deeptutor.services.codex_auth",
+    "deeptutor.services.codex_auth.constants",
+    "deeptutor.services.codex_auth.contracts",
+    "deeptutor.services.codex_auth.storage",
+    "deeptutor.services.config",
+    "deeptutor.services.config.knowledge_base_config",
+    "deeptutor.services.config.lightrag_roles",
+    "deeptutor.services.config.model_catalog",
+    "deeptutor.services.config.provider_links",
+    "deeptutor.services.config.provider_runtime",
+    "deeptutor.services.config.runtime_settings",
+    "deeptutor.services.courses",
+    "deeptutor.services.cron",
+    "deeptutor.services.cron.executor",
+    "deeptutor.services.cron.repository",
+    "deeptutor.services.cron.service",
+    "deeptutor.services.embedding",
+    "deeptutor.services.embedding.config",
+    "deeptutor.services.file_io",
+    "deeptutor.services.generation_http",
+    "deeptutor.services.github_copilot_auth",
+    "deeptutor.services.github_copilot_storage",
+    "deeptutor.services.github_source.client",
+    "deeptutor.services.i18n",
+    "deeptutor.services.imagegen.config",
+    "deeptutor.services.keypool",
+    "deeptutor.services.learning_journal",
+    "deeptutor.services.learning_journal.models",
+    "deeptutor.services.learning_journal.store",
+    "deeptutor.services.llm",
+    "deeptutor.services.llm.capabilities",
+    "deeptutor.services.llm.config",
+    "deeptutor.services.llm.context_window",
+    "deeptutor.services.llm.exceptions",
+    "deeptutor.services.llm.image_replay",
+    "deeptutor.services.llm.metrics",
+    "deeptutor.services.llm.multimodal",
+    "deeptutor.services.llm.openai_http_client",
+    "deeptutor.services.llm.provider_core",
+    "deeptutor.services.llm.provider_core.base",
+    "deeptutor.services.llm.provider_core.codebuddy_http_provider",
+    "deeptutor.services.llm.provider_core.codebuddy_provider",
+    "deeptutor.services.llm.provider_core.openai_compat_provider",
+    "deeptutor.services.llm.provider_core.openai_responses",
+    "deeptutor.services.llm.reasoning_params",
+    "deeptutor.services.llm.request_cache",
+    "deeptutor.services.llm.request_compat",
+    "deeptutor.services.llm.usage_frame",
+    "deeptutor.services.llm.utils",
+    "deeptutor.services.mcp",
+    "deeptutor.services.mcp.config",
+    "deeptutor.services.mcp.manager",
+    "deeptutor.services.mcp.network",
+    "deeptutor.services.mcp.oauth",
+    "deeptutor.services.mcp.secrets",
+    "deeptutor.services.mcp.session_state",
+    "deeptutor.services.mcp.user_config",
+    "deeptutor.services.memory",
+    "deeptutor.services.memory.ids",
+    "deeptutor.services.memory.paths",
+    "deeptutor.services.memory.trace",
+    "deeptutor.services.model_selection",
+    "deeptutor.services.model_selection.llm",
+    "deeptutor.services.model_selection.reasoning",
+    "deeptutor.services.model_selection.runtime",
+    "deeptutor.services.model_selection.tasks",
+    "deeptutor.services.notebook",
+    "deeptutor.services.notebook.service",
+    "deeptutor.services.parsing",
+    "deeptutor.services.parsing.engines.factory",
+    "deeptutor.services.parsing.engines.formats",
+    "deeptutor.services.parsing.service",
+    "deeptutor.services.parsing.types",
+    "deeptutor.services.partner_groups",
+    "deeptutor.services.partner_groups.manager",
+    "deeptutor.services.partner_groups.memory",
+    "deeptutor.services.partner_groups.models",
+    "deeptutor.services.partner_groups.modes",
+    "deeptutor.services.partner_groups.store",
+    "deeptutor.services.partners",
+    "deeptutor.services.partners.channel_state_migration",
+    "deeptutor.services.partners.commands",
+    "deeptutor.services.partners.interaction",
+    "deeptutor.services.partners.links",
+    "deeptutor.services.partners.manager",
+    "deeptutor.services.partners.runtime",
+    "deeptutor.services.partners.runtime_status",
+    "deeptutor.services.partners.scope",
+    "deeptutor.services.partners.sessions",
+    "deeptutor.services.partners.web_continuity",
+    "deeptutor.services.partners.workspace",
+    "deeptutor.services.partners.workspace_binding",
+    "deeptutor.services.path_service",
+    "deeptutor.services.persona",
+    "deeptutor.services.pocketbase_client",
+    "deeptutor.services.practice.storage",
+    "deeptutor.services.prompt",
+    "deeptutor.services.prompt.language",
+    "deeptutor.services.prompt.lookup",
+    "deeptutor.services.provider_registry",
+    "deeptutor.services.rag.embedding_binding",
+    "deeptutor.services.rag.embedding_signature",
+    "deeptutor.services.rag.factory",
+    "deeptutor.services.rag.file_routing",
+    "deeptutor.services.rag.index_probe",
+    "deeptutor.services.rag.index_versioning",
+    "deeptutor.services.rag.kb_paths",
+    "deeptutor.services.rag.pipelines.graphrag",
+    "deeptutor.services.rag.pipelines.ima.inventory",
+    "deeptutor.services.rag.pipelines.kiwix.client",
+    "deeptutor.services.rag.pipelines.lightrag",
+    "deeptutor.services.rag.pipelines.lightrag.indexing_policy",
+    "deeptutor.services.rag.pipelines.lightrag.storage",
+    "deeptutor.services.rag.pipelines.pageindex",
+    "deeptutor.services.rag.pipelines.pageindex.tools",
+    "deeptutor.services.rag.provider_binding",
+    "deeptutor.services.rag.service",
+    "deeptutor.services.rag.source_visuals",
+    "deeptutor.services.rag.visual_assets",
+    "deeptutor.services.research.primitives",
+    "deeptutor.services.sandbox",
+    "deeptutor.services.sandbox.artifacts",
+    "deeptutor.services.sandbox.backends",
+    "deeptutor.services.sandbox.config",
+    "deeptutor.services.sandbox.quota",
+    "deeptutor.services.sandbox.service",
+    "deeptutor.services.sandbox.spec",
+    "deeptutor.services.search",
+    "deeptutor.services.session",
+    "deeptutor.services.session.artifact_attachments",
+    "deeptutor.services.session.attachment_parsing",
+    "deeptutor.services.session.context_builder",
+    "deeptutor.services.session.legacy_migration",
+    "deeptutor.services.session.model_history",
+    "deeptutor.services.session.organization",
+    "deeptutor.services.session.pocketbase_store",
+    "deeptutor.services.session.protocol",
+    "deeptutor.services.session.provider_response_state",
+    "deeptutor.services.session.scope",
+    "deeptutor.services.session.source_inventory",
+    "deeptutor.services.session.sqlite_store",
+    "deeptutor.services.session.turn_runtime",
+    "deeptutor.services.session.workspace_preferences",
+    "deeptutor.services.settings.interface_settings",
+    "deeptutor.services.skill",
+    "deeptutor.services.skill.runtime",
+    "deeptutor.services.skill.service",
+    "deeptutor.services.storage",
+    "deeptutor.services.storage.attachment_store",
+    "deeptutor.services.storage.file_library",
+    "deeptutor.services.task_board",
+    "deeptutor.services.videogen.config",
+    "deeptutor.services.voice",
+    "deeptutor.services.voice.adapters",
+    "deeptutor.services.voice.adapters.dashscope",
+    "deeptutor.services.voice.adapters.mimo",
+    "deeptutor.services.voice.adapters.minimax",
+    "deeptutor.services.voice.adapters.openai_compat",
+    "deeptutor.services.voice.adapters.volcengine",
+    "deeptutor.services.voice.audio",
+    "deeptutor.services.voice.base",
+    "deeptutor.services.voice.config",
+    "deeptutor.services.voice.options",
+    "deeptutor.services.voice.speech_text",
+    "deeptutor.services.web_source.bilingual",
+    "deeptutor.services.web_source.crawler",
+    "deeptutor.services.web_source.html_extractor",
+    "deeptutor.services.web_source.markdown",
+    "deeptutor.services.web_source.navigation",
+    "deeptutor.services.web_source.robots",
+    "deeptutor.services.web_source.snapshot_assets",
+    "deeptutor.services.workspace",
+    "deeptutor.services.workspace.activity",
+    "deeptutor.services.workspace.context",
+    "deeptutor.services.workspace.data_migration",
+    "deeptutor.services.workspace.dependencies",
+    "deeptutor.services.workspace.execution",
+    "deeptutor.services.workspace.knowledge",
+    "deeptutor.services.workspace.models",
+    "deeptutor.services.workspace.references",
+    "deeptutor.services.workspace.resources",
+    "deeptutor.services.workspace.session_move",
+    "deeptutor.services.workspace.session_transfer",
+    "deeptutor.tools.ask_user",
+    "deeptutor.tools.brainstorm",
+    "deeptutor.tools.builtin",
+    "deeptutor.tools.builtin_specs",
+    "deeptutor.tools.cron_tool",
+    "deeptutor.tools.github_query",
+    "deeptutor.tools.knowledge_frontier",
+    "deeptutor.tools.list_notebook",
+    "deeptutor.tools.mastery_nav",
+    "deeptutor.tools.paper_search_tool",
+    "deeptutor.tools.prompting",
+    "deeptutor.tools.question_bank",
+    "deeptutor.tools.rag_tool",
+    "deeptutor.tools.reason",
+    "deeptutor.tools.research_tools",
+    "deeptutor.tools.web_fetch",
+    "deeptutor.tools.web_search",
+    "deeptutor.tools.write_note",
+    "deeptutor.tools.zotero_search",
+    "deeptutor.utils.bibtex_converter",
+    "deeptutor.utils.document_extractor",
+    "deeptutor.utils.document_images",
+    "deeptutor.utils.document_validator",
+    "deeptutor.utils.json_parser",
+    "deeptutor.utils.secret_files",
+    "deeptutor.utils.text_display",
+    "deeptutor.video_learning",
+    "deeptutor.video_learning.reading_migration",
+    "deeptutor.video_learning.service"
+  ]
+}

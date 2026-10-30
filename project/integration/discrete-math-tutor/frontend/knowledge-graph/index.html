@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>教材知识图谱 · 心理学助教</title>
+  <link rel="stylesheet" href="/assets/graph.css">
+  <script defer src="/vendor/cytoscape.min.js"></script>
+  <script defer src="/assets/graph.js"></script>
+</head>
+<body>
+  <header><div><span class="eyebrow">心理学学习空间 / KNOWLEDGE ATLAS</span><h1>教材知识图谱 <span class="badge">候选 · 只读</span></h1></div><a href="http://127.0.0.1:8000/" target="_blank" rel="noopener">打开助教 ↗</a></header>
+  <main>
+    <aside class="explorer"><h2>探索概念之间的联系</h2><p class="muted">搜索教材实体，点击节点或连线查看详情。</p>
+      <form id="search-form"><label for="search">实体名称</label><div class="search-row"><input id="search" placeholder="例如：自变量、实验程序" maxlength="100" autocomplete="off"><button type="submit">搜索</button></div></form>
+      <div class="quick"><button data-query="自变量">自变量</button><button data-query="实验程序">实验程序</button><button data-query="反应时">反应时</button></div>
+      <p id="search-status" class="muted" aria-live="polite"></p><div id="results" aria-label="搜索结果"></div>
+      <div class="note"><strong>怎样理解这张图？</strong><p>节点与关系由模型从教材中抽取。关系摘要是候选解释，不等同于已核验的教材事实、先修关系或考试重点。</p><p>详情中的检索片段保留原始内容；请打开教材核对。PDF 链接定位到整章，不冒充段落级定位。</p></div>
+    </aside>
+    <section class="canvas-panel" aria-label="知识图谱"><div class="canvas-heading"><div><strong>实验心理学</strong><p id="summary" class="muted">正在校验并加载图谱…</p></div><button id="overview">回到概览</button></div>
+      <div id="graph" role="img" aria-label="可缩放拖拽的实体关系图；也可通过左侧搜索和右侧邻居列表浏览"></div>
+      <div class="tools"><button id="zoom-in" aria-label="放大">＋</button><button id="zoom-out" aria-label="缩小">−</button><button id="fit">适应画布</button><button id="layout">重新排列</button></div>
+      <p id="status" role="status">加载中…</p>
+    </section>
+    <aside class="details"><span class="eyebrow">ENTITY / RELATION</span><h2 id="detail-title">从一个概念开始</h2><button id="expand" hidden>展开相邻概念</button><div id="detail-content"><p class="muted">在图中选择一个节点或一条关系。可以拖拽节点、滚动缩放，也可以使用搜索浏览。</p></div></aside>
+  </main>
+  <footer><span>读取现有 LightRAG 候选 · 不写入索引或学习记录</span><span id="identity"></span></footer>
+</body></html>

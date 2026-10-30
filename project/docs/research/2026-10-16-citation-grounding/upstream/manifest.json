@@ -1,0 +1,150 @@
+[
+  {
+    "repo": "HKUDS/DeepTutor",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "path": "LICENSE",
+    "url": "https://github.com/HKUDS/DeepTutor/blob/6cf793bd868ba5ecbe64722936d4be8fab5a01df/LICENSE",
+    "ok": true,
+    "bytes": 11408,
+    "sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4",
+    "backend": "public_raw_fallback"
+  },
+  {
+    "repo": "HKUDS/DeepTutor",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "path": "NOTICE",
+    "url": "https://github.com/HKUDS/DeepTutor/blob/6cf793bd868ba5ecbe64722936d4be8fab5a01df/NOTICE",
+    "ok": false,
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "repo": "HKUDS/DeepTutor",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "path": "deeptutor/reading/_grounding.py",
+    "url": "https://github.com/HKUDS/DeepTutor/blob/6cf793bd868ba5ecbe64722936d4be8fab5a01df/deeptutor/reading/_grounding.py",
+    "ok": true,
+    "bytes": 3722,
+    "sha256": "2890d7146df08f0ce7a6ce1c243373e9ee9ec03f9672a9e15f52c66403cd6cf8",
+    "backend": "public_raw_fallback"
+  },
+  {
+    "repo": "HKUDS/DeepTutor",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "path": "deeptutor/capabilities/reading/tools.py",
+    "url": "https://github.com/HKUDS/DeepTutor/blob/6cf793bd868ba5ecbe64722936d4be8fab5a01df/deeptutor/capabilities/reading/tools.py",
+    "ok": true,
+    "bytes": 26517,
+    "sha256": "1788f9e2b9329ea8068de7312bcce369c90f6c7f4ae34b75d6da6a8a633cd89d",
+    "backend": "public_raw_fallback"
+  },
+  {
+    "repo": "Cinnamon/kotaemon",
+    "commit": "9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9",
+    "path": "LICENSE",
+    "url": "https://github.com/Cinnamon/kotaemon/blob/9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9/LICENSE",
+    "ok": false,
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "repo": "Cinnamon/kotaemon",
+    "commit": "9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9",
+    "path": "NOTICE",
+    "url": "https://github.com/Cinnamon/kotaemon/blob/9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9/NOTICE",
+    "ok": false,
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "repo": "Cinnamon/kotaemon",
+    "commit": "9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9",
+    "path": "libs/kotaemon/kotaemon/indices/qa/citation.py",
+    "url": "https://github.com/Cinnamon/kotaemon/blob/9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9/libs/kotaemon/kotaemon/indices/qa/citation.py",
+    "ok": true,
+    "bytes": 3241,
+    "sha256": "b3cf337a556465dc9eee5c39c39edd99beb8a232ed335c34d1cea2fd2a9f63cb",
+    "backend": "public_raw_fallback"
+  },
+  {
+    "repo": "Cinnamon/kotaemon",
+    "commit": "9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9",
+    "path": "libs/kotaemon/kotaemon/indices/qa/utils.py",
+    "url": "https://github.com/Cinnamon/kotaemon/blob/9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9/libs/kotaemon/kotaemon/indices/qa/utils.py",
+    "ok": true,
+    "bytes": 3013,
+    "sha256": "3076b7e4254c70baaffd83d54a2914793683ae1c01ef563e88391f57f72de316",
+    "backend": "public_raw_fallback"
+  },
+  {
+    "repo": "infiniflow/ragflow",
+    "commit": "987457c07f98828f9c61e8bffd5d75bb4962bd7c",
+    "path": "LICENSE",
+    "url": "https://github.com/infiniflow/ragflow/blob/987457c07f98828f9c61e8bffd5d75bb4962bd7c/LICENSE",
+    "ok": true,
+    "bytes": 11357,
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "backend": "public_raw_fallback"
+  },
+  {
+    "repo": "infiniflow/ragflow",
+    "commit": "987457c07f98828f9c61e8bffd5d75bb4962bd7c",
+    "path": "NOTICE",
+    "url": "https://github.com/infiniflow/ragflow/blob/987457c07f98828f9c61e8bffd5d75bb4962bd7c/NOTICE",
+    "ok": false,
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "repo": "infiniflow/ragflow",
+    "commit": "987457c07f98828f9c61e8bffd5d75bb4962bd7c",
+    "path": "web/src/utils/citation-utils.ts",
+    "url": "https://github.com/infiniflow/ragflow/blob/987457c07f98828f9c61e8bffd5d75bb4962bd7c/web/src/utils/citation-utils.ts",
+    "ok": true,
+    "bytes": 3647,
+    "sha256": "aed28b73bc5879558f94c6afa50e8871c1eb5a018e1c8ad953dadc025a6a9a6e",
+    "backend": "public_raw_fallback"
+  },
+  {
+    "repo": "infiniflow/ragflow",
+    "commit": "987457c07f98828f9c61e8bffd5d75bb4962bd7c",
+    "path": "web/src/utils/document-util.ts",
+    "url": "https://github.com/infiniflow/ragflow/blob/987457c07f98828f9c61e8bffd5d75bb4962bd7c/web/src/utils/document-util.ts",
+    "ok": true,
+    "bytes": 2495,
+    "sha256": "5ac8714ff4ec43bc6af7bb35ab43a5b2228fe953193f788559ebce974f563d7d",
+    "backend": "public_raw_fallback"
+  },
+  {
+    "repo": "run-llama/llama_index",
+    "commit": "619d74664e8404612038bc15a1a40c686037277c",
+    "path": "LICENSE",
+    "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/LICENSE",
+    "ok": true,
+    "bytes": 1065,
+    "sha256": "24f40b5190fdacabc24ddbb5f76364d15e4f030925220ea300d8a2dd4993c8cb",
+    "backend": "public_raw_fallback"
+  },
+  {
+    "repo": "run-llama/llama_index",
+    "commit": "619d74664e8404612038bc15a1a40c686037277c",
+    "path": "NOTICE",
+    "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/NOTICE",
+    "ok": false,
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "repo": "run-llama/llama_index",
+    "commit": "619d74664e8404612038bc15a1a40c686037277c",
+    "path": "llama-index-core/llama_index/core/query_engine/citation_query_engine.py",
+    "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/llama-index-core/llama_index/core/query_engine/citation_query_engine.py",
+    "ok": true,
+    "bytes": 21063,
+    "sha256": "03f98a8b805f39431f7fdb034dbcd94eadb1f8f6a390482dc9aca8a45990b54d",
+    "backend": "public_raw_fallback"
+  },
+  {
+    "repo": "Cinnamon/kotaemon",
+    "commit": "9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9",
+    "path": "LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/Cinnamon/kotaemon/9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9/LICENSE.txt",
+    "ok": true,
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+  }
+]

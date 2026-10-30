@@ -1,0 +1,1835 @@
+{
+  "date": "2026-10-20",
+  "method": "local source read; no web lookup; no runtime code changes",
+  "repositories": [
+    {
+      "name": "project",
+      "root": "E:\\项目\\heart",
+      "head": "2b5d5d6aa6080588ed9ba927a59d568984e4bb7a",
+      "files": [
+        {
+          "path": "project/integration/discrete-math-tutor/main.py",
+          "sha256": "1eeca4c842148d30f123170e27092508c5ab9334b0d9d9dbfbbf4f9bdf07c34d",
+          "lines": 363,
+          "symbols": [
+            {
+              "line": 70,
+              "text": "class TestAccountRequest(BaseModel):"
+            },
+            {
+              "line": 76,
+              "text": "def health():"
+            },
+            {
+              "line": 90,
+              "text": "def home():"
+            },
+            {
+              "line": 102,
+              "text": "def figure_image(figure_id: str):"
+            },
+            {
+              "line": 111,
+              "text": "def chat(request: ChatRequest):"
+            },
+            {
+              "line": 118,
+              "text": "def create_test_account(request: TestAccountRequest):"
+            },
+            {
+              "line": 131,
+              "text": "def destroy_test_account(student_id: str):"
+            },
+            {
+              "line": 137,
+              "text": "def get_profile(student_id: str):"
+            },
+            {
+              "line": 142,
+              "text": "def get_evidence(student_id: str, knowledge_point: Optional[str] = None):"
+            },
+            {
+              "line": 147,
+              "text": "def get_misconceptions(student_id: str, knowledge_point: str):"
+            },
+            {
+              "line": 155,
+              "text": "def get_lesson(student_id: str, knowledge_point: str):"
+            },
+            {
+              "line": 175,
+              "text": "def _run_turn(request: ChatRequest, progress=None, answer_ready=None):"
+            },
+            {
+              "line": 182,
+              "text": "def execute(*args, previous=None, **kwargs):"
+            },
+            {
+              "line": 192,
+              "text": "def _execute_task_turn(request, context, resolved, intercept, guard, progress, *, visualization_jobs=None, previous=None, q5_binding=None):"
+            },
+            {
+              "line": 219,
+              "text": "async def chat_stream(request: ChatRequest):"
+            },
+            {
+              "line": 221,
+              "text": "async def events():"
+            },
+            {
+              "line": 228,
+              "text": "def emit(event, data):"
+            },
+            {
+              "line": 232,
+              "text": "def progress(stage, label, detail=\"\"):"
+            },
+            {
+              "line": 241,
+              "text": "def work():"
+            },
+            {
+              "line": 277,
+              "text": "def _validate_pdf_request(request):"
+            },
+            {
+              "line": 309,
+              "text": "def textbook_pdf_file(document_id: str):"
+            },
+            {
+              "line": 316,
+              "text": "def textbook_pdf_crop(crop_id: str):"
+            },
+            {
+              "line": 323,
+              "text": "def preview_pdf_selection(selection: PDFSelection):"
+            },
+            {
+              "line": 329,
+              "text": "class TaskCancelRequest(BaseModel):"
+            },
+            {
+              "line": 336,
+              "text": "def pending_task(student_id: str, session_id: str = \"legacy\"):"
+            },
+            {
+              "line": 356,
+              "text": "def cancel_task(task_id: str, request: TaskCancelRequest):"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/llm/client.py",
+          "sha256": "ffe3e9a8ce5b87267a5347bc0ade11da55cb0d89c685cd1f7f04d272686ed931",
+          "lines": 287,
+          "symbols": [
+            {
+              "line": 24,
+              "text": "class LLMError(RuntimeError):"
+            },
+            {
+              "line": 28,
+              "text": "class LLMJSONError(LLMError):"
+            },
+            {
+              "line": 33,
+              "text": "class ChatToolCall:"
+            },
+            {
+              "line": 41,
+              "text": "class ChatToolResult:"
+            },
+            {
+              "line": 48,
+              "text": "def extract_json(text: str) -> Dict[str, Any]:"
+            },
+            {
+              "line": 65,
+              "text": "class LLMClient:"
+            },
+            {
+              "line": 66,
+              "text": "def __init__("
+            },
+            {
+              "line": 81,
+              "text": "def _client_lazy(self):"
+            },
+            {
+              "line": 91,
+              "text": "def _one_call("
+            },
+            {
+              "line": 118,
+              "text": "def _with_images(messages: List[Dict[str, Any]], image_paths: List[Path]) -> List[Dict[str, Any]]:"
+            },
+            {
+              "line": 150,
+              "text": "def chat("
+            },
+            {
+              "line": 198,
+              "text": "def chat_with_tools("
+            },
+            {
+              "line": 265,
+              "text": "def chat_json("
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/agent_loop.py",
+          "sha256": "0bde2c13f82745d5ad15852d395c02ff98f951b0ac81212c9d76b70cad39bdfc",
+          "lines": 344,
+          "symbols": [
+            {
+              "line": 26,
+              "text": "class LoopRequest:"
+            },
+            {
+              "line": 52,
+              "text": "class LoopResult:"
+            },
+            {
+              "line": 69,
+              "text": "def state(self) -> dict[str, Any]:"
+            },
+            {
+              "line": 84,
+              "text": "def _target_dict(self):"
+            },
+            {
+              "line": 93,
+              "text": "class LocalAgentLoop:"
+            },
+            {
+              "line": 94,
+              "text": "def __init__(self, llm: LLMClient, *, max_round_tokens: int = 1200) -> None:"
+            },
+            {
+              "line": 98,
+              "text": "def run(self, request: LoopRequest, *, resume_state: dict[str, Any] | None = None,"
+            },
+            {
+              "line": 141,
+              "text": "def _initial_messages(self, request: LoopRequest, resume_state: dict | None,"
+            },
+            {
+              "line": 161,
+              "text": "def _loop(self, request: LoopRequest, messages: list[dict[str, Any]],"
+            },
+            {
+              "line": 285,
+              "text": "def _forced_finish(self, request: LoopRequest, messages: list[dict[str, Any]],"
+            },
+            {
+              "line": 333,
+              "text": "def _error_result(result: LoopResult, messages: list[dict[str, Any]],"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/agent_loop_service.py",
+          "sha256": "be32c161b5def9ce391f57dc1dbaf8f913e64141dba11e993e51af237c7a310c",
+          "lines": 491,
+          "symbols": [
+            {
+              "line": 22,
+              "text": "def _target_from_context(context: TaskContext) -> LearningTarget:"
+            },
+            {
+              "line": 48,
+              "text": "def _target_from_state(state: dict[str, Any] | None) -> LearningTarget | None:"
+            },
+            {
+              "line": 62,
+              "text": "def _resume_state(previous: dict[str, Any] | None) -> dict[str, Any] | None:"
+            },
+            {
+              "line": 69,
+              "text": "def _default_navigator(target: LearningTarget | None,"
+            },
+            {
+              "line": 80,
+              "text": "def resolve_host(**_kwargs):"
+            },
+            {
+              "line": 83,
+              "text": "def search_host(*, target: LearningTarget, query: str, limit: int,"
+            },
+            {
+              "line": 117,
+              "text": "def search(*, target: LearningTarget, query: str, limit: int,"
+            },
+            {
+              "line": 131,
+              "text": "def _citation_format_issues(text: str) -> str:"
+            },
+            {
+              "line": 146,
+              "text": "def _excerpts(sources: list[dict[str, Any]]) -> str:"
+            },
+            {
+              "line": 157,
+              "text": "def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget):"
+            },
+            {
+              "line": 158,
+              "text": "def gate(text: str, result: LoopResult) -> tuple[bool, str]:"
+            },
+            {
+              "line": 194,
+              "text": "def _release_binding() -> dict[str, Any] | None:"
+            },
+            {
+              "line": 202,
+              "text": "def _map_result(result: LoopResult, target: LearningTarget,"
+            },
+            {
+              "line": 338,
+              "text": "def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext,"
+            },
+            {
+              "line": 401,
+              "text": "def emit(event_type: str, message: str,"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/q3_tools.py",
+          "sha256": "0ba8596b9ece23e45a3b84272be8335427bde44fe1725a3fde3347593e0c9f6d",
+          "lines": 204,
+          "symbols": [
+            {
+              "line": 19,
+              "text": "class RetrieveCourseTool(BaseTool):"
+            },
+            {
+              "line": 31,
+              "text": "def run(self, arguments: dict[str, Any], context: ToolContext) -> ToolResult:"
+            },
+            {
+              "line": 35,
+              "text": "def _run(self, arguments: dict[str, Any], context: ToolContext) -> ToolResult:"
+            },
+            {
+              "line": 100,
+              "text": "class AskUserTool(BaseTool):"
+            },
+            {
+              "line": 138,
+              "text": "def run(self, arguments: dict[str, Any], context: ToolContext) -> ToolResult:"
+            },
+            {
+              "line": 155,
+              "text": "def build_registry(*, workspace_root: str | Path | None = None,"
+            },
+            {
+              "line": 198,
+              "text": "def build_default_registry(navigation=None):"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/q3_navigation.py",
+          "sha256": "ea15e74b08e1b84af3f181ff76cb8c1ae0fa7b07adc75f4a5c88fa14576aad11",
+          "lines": 207,
+          "symbols": [
+            {
+              "line": 17,
+              "text": "class LearningTarget:"
+            },
+            {
+              "line": 28,
+              "text": "class NavigationDecision:"
+            },
+            {
+              "line": 37,
+              "text": "class SourceRef:"
+            },
+            {
+              "line": 49,
+              "text": "def to_dict(self) -> dict[str, Any]:"
+            },
+            {
+              "line": 64,
+              "text": "class LearningNavigator(Protocol):"
+            },
+            {
+              "line": 65,
+              "text": "def resolve(self, *, message: str, student_id: str, session_id: str,"
+            },
+            {
+              "line": 68,
+              "text": "def search(self, *, target: LearningTarget, query: str, limit: int,"
+            },
+            {
+              "line": 72,
+              "text": "class StubLearningNavigator:"
+            },
+            {
+              "line": 75,
+              "text": "def __init__(self, *, target: LearningTarget | None = None,"
+            },
+            {
+              "line": 83,
+              "text": "def resolve(self, *, message: str, student_id: str, session_id: str,"
+            },
+            {
+              "line": 98,
+              "text": "def search(self, *, target: LearningTarget, query: str, limit: int,"
+            },
+            {
+              "line": 105,
+              "text": "class CallbackNavigator:"
+            },
+            {
+              "line": 108,
+              "text": "def __init__(self, *,"
+            },
+            {
+              "line": 117,
+              "text": "def resolve(self, *, message: str, student_id: str, session_id: str,"
+            },
+            {
+              "line": 136,
+              "text": "def search(self, *, target: LearningTarget, query: str, limit: int,"
+            },
+            {
+              "line": 163,
+              "text": "def source_from_chunk(chunk: Any, index: int) -> SourceRef:"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/tool_dispatch.py",
+          "sha256": "e9adc1ddeacd073d7f1df6c94b969c72605e5915c854b42e6ea0e28da7e19906",
+          "lines": 180,
+          "symbols": [
+            {
+              "line": 24,
+              "text": "class DispatchOutcome:"
+            },
+            {
+              "line": 36,
+              "text": "def _normalise_call(call: Any, index: int) -> dict[str, Any]:"
+            },
+            {
+              "line": 59,
+              "text": "def _missing_required(tool: BaseTool, arguments: dict[str, Any]) -> list[str]:"
+            },
+            {
+              "line": 64,
+              "text": "def _tool_message(call: dict[str, Any], result: ToolResult) -> dict[str, Any]:"
+            },
+            {
+              "line": 69,
+              "text": "def _invoke(tool: BaseTool, call: dict[str, Any], context: ToolContext,"
+            },
+            {
+              "line": 111,
+              "text": "def dispatch_tool_calls(*, tool_calls: list[Any], registry: ToolRegistry,"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/task_service.py",
+          "sha256": "d2ad7c8cebac5c640f66ae49455176b106ff315c493e6d0048e1579d8d7136b1",
+          "lines": 519,
+          "symbols": [
+            {
+              "line": 15,
+              "text": "class TaskService:"
+            },
+            {
+              "line": 16,
+              "text": "def __init__(self, tutor, repository=None, *, ttl_seconds=1800, max_clarifications=2, policy=None):"
+            },
+            {
+              "line": 24,
+              "text": "def conflict_reply(self, error):"
+            },
+            {
+              "line": 28,
+              "text": "def _accepts_previous(executor):"
+            },
+            {
+              "line": 35,
+              "text": "def _selected_label(request, previous):"
+            },
+            {
+              "line": 53,
+              "text": "def _last_navigation_cursor(recent):"
+            },
+            {
+              "line": 69,
+              "text": "def _prefer_current_cursor(bound, previous):"
+            },
+            {
+              "line": 83,
+              "text": "def _needs_navigation_fallback(message):"
+            },
+            {
+              "line": 89,
+              "text": "def _context(self, request):"
+            },
+            {
+              "line": 137,
+              "text": "def origin(source, obj):"
+            },
+            {
+              "line": 163,
+              "text": "def _resume(self, request, row):"
+            },
+            {
+              "line": 201,
+              "text": "def run(self, request, executor, progress=None, *, visualization_jobs=None, answer_ready=None):"
+            },
+            {
+              "line": 275,
+              "text": "def save_q5(result):"
+            },
+            {
+              "line": 318,
+              "text": "def guard():"
+            },
+            {
+              "line": 342,
+              "text": "def intercept(routing, ignored=None):"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/loop_prompts.py",
+          "sha256": "cc9341fb345a13ec033655993be8b540ea4fcbf4fc617a1443448bd0f914d049",
+          "lines": 50,
+          "symbols": [
+            {
+              "line": 10,
+              "text": "def _tool_manifest(definitions: list[ToolDefinition]) -> str:"
+            },
+            {
+              "line": 20,
+              "text": "def build_loop_system_prompt(*, target: LearningTarget | None,"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/agents/course_prompts.py",
+          "sha256": "2b2245405fb6161bd285c353c8fb4c7803fd61a9088d64d51b8a580264a71438",
+          "lines": 64,
+          "symbols": [
+            {
+              "line": 62,
+              "text": "def adapt_generic(prompt):"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/knowledge/source_visuals.py",
+          "sha256": "de1f0cd873a015e0c79575bdbc55f408f4840cab92c7ea95c60608dc0b8138dc",
+          "lines": 255,
+          "symbols": [
+            {
+              "line": 34,
+              "text": "class SourceVisual:"
+            },
+            {
+              "line": 50,
+              "text": "def is_valid(self) -> bool:"
+            },
+            {
+              "line": 75,
+              "text": "def public(self) -> dict:"
+            },
+            {
+              "line": 91,
+              "text": "class VisualGap:"
+            },
+            {
+              "line": 97,
+              "text": "def public(self) -> dict:"
+            },
+            {
+              "line": 102,
+              "text": "def _sha256(path: Path) -> str:"
+            },
+            {
+              "line": 107,
+              "text": "def _manifest() -> dict:"
+            },
+            {
+              "line": 117,
+              "text": "def _expected_source_hashes() -> dict[int, str]:"
+            },
+            {
+              "line": 128,
+              "text": "def _chapter_dir(chapter_id: int) -> Path:"
+            },
+            {
+              "line": 132,
+              "text": "def _load_chapter(chapter_id: int):"
+            },
+            {
+              "line": 211,
+              "text": "def load_visuals():"
+            },
+            {
+              "line": 221,
+              "text": "def clear_cache():"
+            },
+            {
+              "line": 226,
+              "text": "def get_visual(visual_id: str) -> SourceVisual | None:"
+            },
+            {
+              "line": 231,
+              "text": "def visuals_for_section(chapter_id: int, section_id: int) -> list[SourceVisual]:"
+            },
+            {
+              "line": 236,
+              "text": "def visuals_for_block(chapter_id: int, block_index: int) -> list[SourceVisual]:"
+            },
+            {
+              "line": 242,
+              "text": "def gaps() -> list[dict]:"
+            },
+            {
+              "line": 246,
+              "text": "def stats() -> dict:"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/frontend/app.js",
+          "sha256": "28c171a23e0c4126d5481f9c9a28f7f5369d5d05955460f536799e42d35543d3",
+          "lines": 919,
+          "symbols": []
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/frontend/chat-transport.js",
+          "sha256": "55a3e0a531fbd85ae10fe2591f0262fd362ea06ca6d1b084db43718affd82f9c",
+          "lines": 73,
+          "symbols": []
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/reader/src/tutor/index.tsx",
+          "sha256": "be6f0255da6bf908dc615e1f998065dfc9ac636aeca272e60c2d7c5303d50c45",
+          "lines": 32,
+          "symbols": [
+            {
+              "line": 8,
+              "text": "export function render(text: string) {"
+            }
+          ]
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/reader/src/tutor/markdown.tsx",
+          "sha256": "5f2b6e05d7c2b2a42f1195cc5470a351e1c3118a7b805c8107baae157732983e",
+          "lines": 49,
+          "symbols": []
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/reader/src/tutor/style.css",
+          "sha256": "9505ebc8d11d009565c7ce19e396919626efbeef05abdfe311b8cb2060672aae",
+          "lines": 22,
+          "symbols": []
+        },
+        {
+          "path": "project/integration/discrete-math-tutor/reader/vite.chat.config.js",
+          "sha256": "6fd28896c8796434402806c025745b026e6fee72716c057a6485fdf69348baa6",
+          "lines": 56,
+          "symbols": []
+        }
+      ]
+    },
+    {
+      "name": "deeptutor",
+      "root": "D:\\deeptutor",
+      "head": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4",
+          "lines": 202,
+          "symbols": []
+        },
+        {
+          "path": "deeptutor/agents/loop/agent_loop.py",
+          "sha256": "8d388f5772937ae72d6f39313fff2460e8d594e96f406c4acc96ca674c9c7a78",
+          "lines": 1862,
+          "symbols": [
+            {
+              "line": 114,
+              "text": "async def _bounded_stream_chunks(stream: Any):"
+            },
+            {
+              "line": 126,
+              "text": "def _reasoning_budget_exhausted(result: \"LLMCallResult\", max_tokens: int) -> bool:"
+            },
+            {
+              "line": 153,
+              "text": "def _join_answer_parts(parts: list[str], final_text: str) -> str:"
+            },
+            {
+              "line": 159,
+              "text": "class AgentLoopState:"
+            },
+            {
+              "line": 171,
+              "text": "class LLMCallResult:"
+            },
+            {
+              "line": 195,
+              "text": "class LoopOutcome:"
+            },
+            {
+              "line": 209,
+              "text": "def _provider_response_state("
+            },
+            {
+              "line": 224,
+              "text": "def _assistant_round_message(result: LLMCallResult) -> dict[str, Any]:"
+            },
+            {
+              "line": 246,
+              "text": "def _has_replayable_assistant_state(result: LLMCallResult) -> bool:"
+            },
+            {
+              "line": 256,
+              "text": "def _reasoning_item_text(item: dict[str, Any]) -> str:"
+            },
+            {
+              "line": 274,
+              "text": "class AgentLoop:"
+            },
+            {
+              "line": 277,
+              "text": "def __init__("
+            },
+            {
+              "line": 309,
+              "text": "async def run(self) -> dict[str, Any]:"
+            },
+            {
+              "line": 398,
+              "text": "def _clean(self, text: str) -> str:"
+            },
+            {
+              "line": 403,
+              "text": "async def _run_loop("
+            },
+            {
+              "line": 773,
+              "text": "async def _begin_settlement(self, messages: list[dict[str, Any]]) -> None:"
+            },
+            {
+              "line": 793,
+              "text": "def _append_loop_instruction(messages: list[dict[str, Any]], instruction: str) -> None:"
+            },
+            {
+              "line": 801,
+              "text": "def _fold_context_checkpoint("
+            },
+            {
+              "line": 821,
+              "text": "async def _reject_capability_finish(self) -> LoopOutcome:"
+            },
+            {
+              "line": 837,
+              "text": "async def _forced_finish("
+            },
+            {
+              "line": 939,
+              "text": "async def _finalize_finish("
+            },
+            {
+              "line": 983,
+              "text": "async def _release_deferred_output(self, result: LLMCallResult) -> None:"
+            },
+            {
+              "line": 1002,
+              "text": "async def _discard_deferred_output(self, result: LLMCallResult) -> None:"
+            },
+            {
+              "line": 1037,
+              "text": "async def _call_llm("
+            },
+            {
+              "line": 1178,
+              "text": "async def _emit_segments(segments: list[tuple[str, str]]) -> None:"
+            },
+            {
+              "line": 1210,
+              "text": "async def _maybe_emit_reasoning_progress() -> None:"
+            },
+            {
+              "line": 1238,
+              "text": "async def _reasoning_progress_loop() -> None:"
+            },
+            {
+              "line": 1246,
+              "text": "async def _ensure_reasoning_progress_task() -> None:"
+            },
+            {
+              "line": 1251,
+              "text": "async def _stop_reasoning_progress_task() -> None:"
+            },
+            {
+              "line": 1712,
+              "text": "async def _single_shot_stream(self, kwargs: dict[str, Any]) -> Any:"
+            },
+            {
+              "line": 1726,
+              "text": "async def _create_response_stream("
+            },
+            {
+              "line": 1808,
+              "text": "async def _single_chunk_stream(response: Any) -> Any:"
+            },
+            {
+              "line": 1841,
+              "text": "def _last_context_checkpoint_summary(dispatch: DispatchOutcome) -> str:"
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/runtime/agentic/tool_call_stream.py",
+          "sha256": "3b29f10d684d114fac2d471842c3cfb910cf8f3dcdf98a071c729d4a10aefb4b",
+          "lines": 110,
+          "symbols": [
+            {
+              "line": 35,
+              "text": "class ToolCallAccumulator:"
+            },
+            {
+              "line": 38,
+              "text": "def __init__(self) -> None:"
+            },
+            {
+              "line": 41,
+              "text": "def feed(self, tc_delta: Any) -> int:"
+            },
+            {
+              "line": 78,
+              "text": "def part_at(self, index: int) -> dict[str, Any] | None:"
+            },
+            {
+              "line": 87,
+              "text": "def ordered(self) -> list[dict[str, Any]]:"
+            },
+            {
+              "line": 91,
+              "text": "def collected(self) -> list[dict[str, Any]]:"
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/runtime/agentic/think_stream.py",
+          "sha256": "b49958a368cdda2753fe2a84fee2092d533a70bf8f9bacbb91072d9908f70fd4",
+          "lines": 93,
+          "symbols": [
+            {
+              "line": 39,
+              "text": "class InlineThinkFilter:"
+            },
+            {
+              "line": 42,
+              "text": "def __init__(self) -> None:"
+            },
+            {
+              "line": 46,
+              "text": "def feed(self, chunk: str) -> list[tuple[str, str]]:"
+            },
+            {
+              "line": 74,
+              "text": "def flush(self) -> list[tuple[str, str]]:"
+            },
+            {
+              "line": 82,
+              "text": "def _kind(self) -> str:"
+            },
+            {
+              "line": 86,
+              "text": "def split_inline_think(text: str) -> list[tuple[str, str]]:"
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/runtime/stream_bus.py",
+          "sha256": "e1f13b28e974db722a59c18cd0cee1b347c120d74f05b8357bcf64f4c782d456",
+          "lines": 375,
+          "symbols": [
+            {
+              "line": 31,
+              "text": "class StreamBus:"
+            },
+            {
+              "line": 34,
+              "text": "def __init__("
+            },
+            {
+              "line": 58,
+              "text": "def latest_seq(self) -> int:"
+            },
+            {
+              "line": 62,
+              "text": "async def emit(self, event: StreamEvent) -> None:"
+            },
+            {
+              "line": 79,
+              "text": "async def subscribe(self, *, after_seq: int = 0) -> AsyncIterator[StreamEvent]:"
+            },
+            {
+              "line": 105,
+              "text": "def mark_closed(self) -> None:"
+            },
+            {
+              "line": 122,
+              "text": "async def close(self) -> None:"
+            },
+            {
+              "line": 129,
+              "text": "async def stage("
+            },
+            {
+              "line": 156,
+              "text": "async def content("
+            },
+            {
+              "line": 173,
+              "text": "async def thinking("
+            },
+            {
+              "line": 190,
+              "text": "async def observation("
+            },
+            {
+              "line": 207,
+              "text": "async def tool_call("
+            },
+            {
+              "line": 225,
+              "text": "async def tool_result("
+            },
+            {
+              "line": 243,
+              "text": "async def progress("
+            },
+            {
+              "line": 265,
+              "text": "async def sources("
+            },
+            {
+              "line": 281,
+              "text": "async def result("
+            },
+            {
+              "line": 295,
+              "text": "async def error("
+            },
+            {
+              "line": 312,
+              "text": "async def wait_for_input("
+            },
+            {
+              "line": 344,
+              "text": "def submit_input(self, content: str) -> None:"
+            },
+            {
+              "line": 353,
+              "text": "def event_to_json(event: StreamEvent) -> str:"
+            },
+            {
+              "line": 363,
+              "text": "def register_bus(turn_id: str, bus: StreamBus) -> None:"
+            },
+            {
+              "line": 368,
+              "text": "def unregister_bus(turn_id: str) -> None:"
+            },
+            {
+              "line": 373,
+              "text": "def get_bus(turn_id: str) -> StreamBus | None:"
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/tools/builtin/__init__.py",
+          "sha256": "27f7598be52707c9d9171a26b824718b76381ab383cfb6a1aaffaa2857197fa3",
+          "lines": 2095,
+          "symbols": [
+            {
+              "line": 26,
+              "text": "class _PromptHintsMixin:"
+            },
+            {
+              "line": 29,
+              "text": "def get_prompt_hints(self, language: str = \"en\"):"
+            },
+            {
+              "line": 33,
+              "text": "class BrainstormTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 34,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 53,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 68,
+              "text": "def _rag_sources(result: dict[str, Any], *, query: str, kb_name: str) -> list[dict[str, Any]]:"
+            },
+            {
+              "line": 105,
+              "text": "class RAGTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 106,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 161,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 256,
+              "text": "def _rag_visual_model_message(kb_name: str, sources: list[dict[str, Any]]) -> dict[str, Any] | None:"
+            },
+            {
+              "line": 304,
+              "text": "class KbFilesTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 313,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 349,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 389,
+              "text": "def _kb_files_limit(raw: Any) -> int:"
+            },
+            {
+              "line": 400,
+              "text": "class KnowledgeFrontierTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 403,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 444,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 483,
+              "text": "class WebSearchTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 484,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 493,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 523,
+              "text": "class ReasonTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 524,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 546,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 561,
+              "text": "class PaperSearchToolWrapper(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 562,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 593,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 641,
+              "text": "class ZoteroSearchToolWrapper(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 652,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 684,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 764,
+              "text": "class GeoGebraAnalysisTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 772,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 796,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 898,
+              "text": "class ReadSourceTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 909,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 933,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 965,
+              "text": "class ReadMemoryTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 973,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 985,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 995,
+              "text": "class WriteMemoryTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 1004,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 1041,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 1100,
+              "text": "class WebFetchTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 1109,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 1132,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 1164,
+              "text": "class ListNotebookTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 1173,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 1200,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 1214,
+              "text": "class QuestionBankTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 1228,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 1354,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 1381,
+              "text": "class WriteNoteTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 1398,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 1477,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 1507,
+              "text": "class GithubTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 1514,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 1541,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 1570,
+              "text": "class AskUserTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 1584,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 1688,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 1714,
+              "text": "class ReadSkillTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 1724,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 1751,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 1808,
+              "text": "class LoadToolsTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 1816,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 1837,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 1866,
+              "text": "class CronTool(_PromptHintsMixin, BaseTool):"
+            },
+            {
+              "line": 1876,
+              "text": "def get_definition(self) -> ToolDefinition:"
+            },
+            {
+              "line": 1956,
+              "text": "async def execute(self, **kwargs: Any) -> ToolResult:"
+            },
+            {
+              "line": 2048,
+              "text": "def __getattr__(name: str):"
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/source_visuals.py",
+          "sha256": "a1eb8aa12557f034079e9a37991bdc4611c33513cd9595568794e905d48174ec",
+          "lines": 424,
+          "symbols": [
+            {
+              "line": 28,
+              "text": "def figure_labels(text: str) -> list[str]:"
+            },
+            {
+              "line": 32,
+              "text": "def figure_references(text: str) -> list[str]:"
+            },
+            {
+              "line": 42,
+              "text": "def source_file(kb_dir: Path, source_path: str) -> Path:"
+            },
+            {
+              "line": 60,
+              "text": "def source_state(kb_dir: Path, record: dict[str, Any]) -> str:"
+            },
+            {
+              "line": 70,
+              "text": "def page_image("
+            },
+            {
+              "line": 155,
+              "text": "def source_url(kb_name: str, record: dict[str, Any], *, image: bool = False) -> str:"
+            },
+            {
+              "line": 176,
+              "text": "class VisualEvidence:"
+            },
+            {
+              "line": 182,
+              "text": "def model_message(self) -> dict[str, Any] | None:"
+            },
+            {
+              "line": 202,
+              "text": "def retrieve_visual("
+            }
+          ]
+        },
+        {
+          "path": "deeptutor/services/rag/visual_assets.py",
+          "sha256": "e7a023577216135a8e370239e94d2ab976f2311a076365d156e54c8fce50db79",
+          "lines": 430,
+          "symbols": [
+            {
+              "line": 38,
+              "text": "def _image_mime(data: bytes) -> str | None:"
+            },
+            {
+              "line": 65,
+              "text": "def _image_bytes(path: Path) -> tuple[bytes, str] | None:"
+            },
+            {
+              "line": 78,
+              "text": "def source_key_for(kb_dir: Path, source: Path) -> str:"
+            },
+            {
+              "line": 87,
+              "text": "def _sha256_file(path: Path) -> str:"
+            },
+            {
+              "line": 95,
+              "text": "def _managed_source(kb_dir: Path, source: Path) -> bool:"
+            },
+            {
+              "line": 99,
+              "text": "def _text(value: Any) -> str:"
+            },
+            {
+              "line": 107,
+              "text": "def _block_details("
+            },
+            {
+              "line": 156,
+              "text": "def _markdown_details(markdown: str, asset: Path) -> tuple[str, str, str]:"
+            },
+            {
+              "line": 171,
+              "text": "class VisualAssetCandidate:"
+            },
+            {
+              "line": 176,
+              "text": "def collect_visual_assets("
+            },
+            {
+              "line": 251,
+              "text": "class VisualAssetStore:"
+            },
+            {
+              "line": 254,
+              "text": "def __init__(self, kb_dir: Path):"
+            },
+            {
+              "line": 259,
+              "text": "def records(self) -> dict[str, dict[str, Any]]:"
+            },
+            {
+              "line": 268,
+              "text": "def _read_manifest(self) -> dict[str, dict[str, Any]]:"
+            },
+            {
+              "line": 288,
+              "text": "def publish("
+            },
+            {
+              "line": 342,
+              "text": "def read(self, asset_id: str) -> tuple[dict[str, Any], bytes] | None:"
+            },
+            {
+              "line": 362,
+              "text": "def remove_source(self, source_relative_path: str) -> None:"
+            },
+            {
+              "line": 381,
+              "text": "def move_source(self, old_relative_path: str, new_relative_path: str) -> None:"
+            },
+            {
+              "line": 404,
+              "text": "def _path(self, asset_id: str, mime: str) -> Path:"
+            },
+            {
+              "line": 409,
+              "text": "def _source_exists(self, relative_path: Any) -> bool:"
+            },
+            {
+              "line": 420,
+              "text": "def _atomic_write(path: Path, data: bytes) -> None:"
+            }
+          ]
+        },
+        {
+          "path": "web/components/common/MarkdownRenderer.tsx",
+          "sha256": "d202a6c4f326219eca3ee3ed5ce855c28b465400352ea0c5c5971a2cfbfdd655",
+          "lines": 88,
+          "symbols": []
+        },
+        {
+          "path": "web/components/common/SimpleMarkdownRenderer.tsx",
+          "sha256": "741e7b28c1c7bf36ff3033b2b6c2411057eef6846f067d75eeb542e3d55152cf",
+          "lines": 482,
+          "symbols": []
+        },
+        {
+          "path": "web/components/common/RichMarkdownRenderer.tsx",
+          "sha256": "ad98050864af6348c908ace782b54749e8134556065d6634bd22cdd74be15d8d",
+          "lines": 729,
+          "symbols": []
+        },
+        {
+          "path": "web/lib/markdown-display.ts",
+          "sha256": "9faca9d8922dc1c620f49b8bbe4629d2a5f02bc52acef268050e824a8a7cab32",
+          "lines": 1006,
+          "symbols": [
+            {
+              "line": 205,
+              "text": "export function markdownUrlTransform("
+            },
+            {
+              "line": 235,
+              "text": "export function safeDecodeURIComponent(value: string): string {"
+            },
+            {
+              "line": 273,
+              "text": "export function escapeUnknownHtmlTagsForDisplay(content: string): string {"
+            },
+            {
+              "line": 488,
+              "text": "export function citationAnchorIdFor(id: string): string | null {"
+            },
+            {
+              "line": 494,
+              "text": "export function citationHrefForId(id: string): string {"
+            },
+            {
+              "line": 576,
+              "text": "export function repairMalformedStrongEmphasis(content: string): string {"
+            },
+            {
+              "line": 765,
+              "text": "export function repairChineseEmphasis("
+            },
+            {
+              "line": 805,
+              "text": "export function appendWithEmphasisRepair("
+            },
+            {
+              "line": 886,
+              "text": "export function decodeEscapedUnicodeForDisplay(content: string): string {"
+            },
+            {
+              "line": 904,
+              "text": "export function normalizeAtxHeadings(content: string): string {"
+            },
+            {
+              "line": 957,
+              "text": "export function normalizeMarkdownForDisplay(content: string): string {"
+            },
+            {
+              "line": 987,
+              "text": "export function stripArtifactAnnotations(content: string): string {"
+            },
+            {
+              "line": 994,
+              "text": "export function hasVisibleMarkdownContent(content: string): boolean {"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "openmaic",
+      "root": "F:\\openmaic\\OpenMAIC",
+      "head": "d128ef67c920571a86ce8a7c0430185689ab3d45",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "ba252563743227138231604c9138dd400faca5a10c3cf206b466e5466c565a19",
+          "lines": 21,
+          "symbols": []
+        },
+        {
+          "path": "components/workbench/chat/text-block.tsx",
+          "sha256": "55d3f38c096bc44fa3e7d5db10c9bcd6266a362a790affe4890267664af0fe74",
+          "lines": 100,
+          "symbols": [
+            {
+              "line": 82,
+              "text": "export function TextBlock({ text, streaming = false }: { text: string; streaming?: boolean }) {"
+            }
+          ]
+        },
+        {
+          "path": "lib/markdown/safe-math-plugin.ts",
+          "sha256": "a7998aa701fe95de53d4f9c356ae55e2cf7a818155e6c34551a0c2cf3c2e53a9",
+          "lines": 43,
+          "symbols": [
+            {
+              "line": 19,
+              "text": "export function createSafeMathPlugin(options?: MathPluginOptions): MathPlugin {"
+            },
+            {
+              "line": 37,
+              "text": "export function freshMacrosOptions(options: object): object {"
+            }
+          ]
+        },
+        {
+          "path": "lib/workbench/markdown-math.ts",
+          "sha256": "14a2e3e39bed185ac08815313a666d12529bdcba021f05cf54bdcd06c82de602",
+          "lines": 126,
+          "symbols": [
+            {
+              "line": 122,
+              "text": "export function remarkSelectiveSingleDollarMath(this: MarkdownProcessor): void {"
+            }
+          ]
+        },
+        {
+          "path": "components/ai-elements/inline-citation.tsx",
+          "sha256": "e6d7deb0ca179a7ccd9876d18b5a67bb64286e15cdfdb11033bd3104ac478478",
+          "lines": 255,
+          "symbols": [
+            {
+              "line": 24,
+              "text": "export const InlineCitation = ({ className, ...props }: InlineCitationProps) => ("
+            },
+            {
+              "line": 30,
+              "text": "export const InlineCitationText = ({ className, ...props }: InlineCitationTextProps) => ("
+            },
+            {
+              "line": 36,
+              "text": "export const InlineCitationCard = (props: InlineCitationCardProps) => ("
+            },
+            {
+              "line": 44,
+              "text": "export const InlineCitationCardTrigger = ({"
+            },
+            {
+              "line": 64,
+              "text": "export const InlineCitationCardBody = ({ className, ...props }: InlineCitationCardBodyProps) => ("
+            },
+            {
+              "line": 77,
+              "text": "export const InlineCitationCarousel = ({"
+            },
+            {
+              "line": 95,
+              "text": "export const InlineCitationCarouselContent = (props: InlineCitationCarouselContentProps) => ("
+            },
+            {
+              "line": 101,
+              "text": "export const InlineCitationCarouselItem = ({"
+            },
+            {
+              "line": 110,
+              "text": "export const InlineCitationCarouselHeader = ({"
+            },
+            {
+              "line": 125,
+              "text": "export const InlineCitationCarouselIndex = ({"
+            },
+            {
+              "line": 166,
+              "text": "export const InlineCitationCarouselPrev = ({"
+            },
+            {
+              "line": 193,
+              "text": "export const InlineCitationCarouselNext = ({"
+            },
+            {
+              "line": 224,
+              "text": "export const InlineCitationSource = ({"
+            },
+            {
+              "line": 244,
+              "text": "export const InlineCitationQuote = ({"
+            }
+          ]
+        },
+        {
+          "path": "lib/buffer/stream-buffer.ts",
+          "sha256": "fef34bb6b162fb0358fc1f4aeb4cbbe0a937d193e9486f4f53dfa484bcba1bdc",
+          "lines": 749,
+          "symbols": [
+            {
+              "line": 169,
+              "text": "export class StreamBuffer {"
+            }
+          ]
+        },
+        {
+          "path": "lib/agent/runtime/stream-fn.ts",
+          "sha256": "839c5563a7738d03dc0459dc67de96f46994e943d7ca2c38329954fee91ebef1",
+          "lines": 582,
+          "symbols": [
+            {
+              "line": 53,
+              "text": "class LocalAssistantEventStream {"
+            },
+            {
+              "line": 136,
+              "text": "export function hasLengthToolCallProvenance(message: AssistantMessage): boolean {"
+            },
+            {
+              "line": 171,
+              "text": "export function createPartMapper("
+            },
+            {
+              "line": 253,
+              "text": "export function createCallLlmStreamFn(opts: CallLlmStreamFnOptions): StreamFn {"
+            },
+            {
+              "line": 483,
+              "text": "export function toModelMessages("
+            }
+          ]
+        },
+        {
+          "path": "tests/workbench/text-block.test.ts",
+          "sha256": "77ee168a338c602db491b2712d2b1bb2edadd844505e83ba1c55205bf28e5fa7",
+          "lines": 411,
+          "symbols": []
+        },
+        {
+          "path": "tests/workbench/text-block-lifecycle.test.ts",
+          "sha256": "1bc225f1fda1c17b8b9af8cc62f1d2673fb0b86bf2014d21f66a97d964a3235e",
+          "lines": 56,
+          "symbols": []
+        },
+        {
+          "path": "pnpm-lock.yaml",
+          "sha256": "922758e618b6aae41b9d72acb4d37910df012031459f46593ca18be76efa56a4",
+          "lines": 28151,
+          "symbols": []
+        }
+      ]
+    },
+    {
+      "name": "opentutor",
+      "root": "F:\\opentutor\\OpenTutor",
+      "head": "a890519f3632efa14cf24449b366b3b9d901eecf",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "5352b49679829689da4fa2db47ad7c32d58cb6442859eafe2bc5ce8599c83e44",
+          "lines": 21,
+          "symbols": []
+        },
+        {
+          "path": "apps/api/services/llm/providers/openai_client.py",
+          "sha256": "94b7922a91cc82f7412626126baf6c64f0bb17fd4fa4b9a52286c2c6495beea6",
+          "lines": 193,
+          "symbols": [
+            {
+              "line": 15,
+              "text": "def _build_openai_user_content(text: str, images: list[dict] | None = None) -> str | list[dict]:"
+            },
+            {
+              "line": 26,
+              "text": "class OpenAIClient(LLMClient):"
+            },
+            {
+              "line": 34,
+              "text": "def __init__(self, api_key: str, model: str, base_url: str | None = None, name: str = \"openai\"):"
+            },
+            {
+              "line": 48,
+              "text": "async def ping(self) -> bool:"
+            },
+            {
+              "line": 84,
+              "text": "async def stream_chat(self, system_prompt: str, user_message: str, images: list[dict] | None = None) -> AsyncIterator[str]:"
+            },
+            {
+              "line": 117,
+              "text": "async def chat(self, system_prompt: str, user_message: str, images: list[dict] | None = None) -> tuple[str, dict]:"
+            },
+            {
+              "line": 141,
+              "text": "async def chat_with_tools("
+            },
+            {
+              "line": 191,
+              "text": "async def extract(self, system_prompt: str, user_message: str) -> tuple[str, dict]:"
+            }
+          ]
+        },
+        {
+          "path": "apps/api/services/agent/tools/react_loop.py",
+          "sha256": "a8ca360f48a2e246d28c92c5c9b6284a903aff7b50b1773f23d2a776fc525da0",
+          "lines": 381,
+          "symbols": [
+            {
+              "line": 72,
+              "text": "async def react_stream("
+            },
+            {
+              "line": 125,
+              "text": "async def _react_function_calling("
+            },
+            {
+              "line": 280,
+              "text": "async def _react_text_parsing("
+            }
+          ]
+        },
+        {
+          "path": "apps/api/services/agent/orchestrator.py",
+          "sha256": "347a1681ec4fe133be9796ff9d3cdd295e90748cc61dbe94403843702d21fdb3",
+          "lines": 505,
+          "symbols": [
+            {
+              "line": 50,
+              "text": "def _parse_clarify_inputs(message: str) -> dict[str, str]:"
+            },
+            {
+              "line": 74,
+              "text": "def _record_stream_warning(ctx: AgentContext, warning: dict[str, str]) -> None:"
+            },
+            {
+              "line": 85,
+              "text": "async def _apply_turn_enrichment(ctx: AgentContext, db: AsyncSession) -> AgentContext:"
+            },
+            {
+              "line": 177,
+              "text": "def _build_plan_progress(plan_steps: list[dict]) -> list[dict]:"
+            },
+            {
+              "line": 193,
+              "text": "async def prepare_agent_turn("
+            },
+            {
+              "line": 207,
+              "text": "async def run_agent_turn("
+            },
+            {
+              "line": 249,
+              "text": "async def orchestrate_simple(user_id, message: str, channel: str = \"api\", db=None, course_id=None) -> str:"
+            },
+            {
+              "line": 272,
+              "text": "async def orchestrate_stream("
+            }
+          ]
+        },
+        {
+          "path": "apps/api/services/agent/agents/tutor.py",
+          "sha256": "cca525e458ff1d8c5f3fbc9cefe8e528839ddc2efeb9a75f8223edfe1f78373d",
+          "lines": 394,
+          "symbols": [
+            {
+              "line": 47,
+              "text": "class TutorAgent(ReActMixin, BaseAgent):"
+            },
+            {
+              "line": 84,
+              "text": "def build_system_prompt(self, ctx: AgentContext) -> str:"
+            },
+            {
+              "line": 209,
+              "text": "def _build_grounding_context(self, ctx: AgentContext) -> str:"
+            },
+            {
+              "line": 247,
+              "text": "async def _load_socratic(self, ctx: AgentContext, db: AsyncSession) -> None:"
+            },
+            {
+              "line": 283,
+              "text": "async def _save_socratic(self, ctx: AgentContext, db: AsyncSession) -> None:"
+            },
+            {
+              "line": 306,
+              "text": "async def execute(self, ctx: AgentContext, db: AsyncSession) -> AgentContext:"
+            },
+            {
+              "line": 342,
+              "text": "async def stream(self, ctx: AgentContext, db: AsyncSession) -> AsyncIterator[str]:"
+            },
+            {
+              "line": 372,
+              "text": "async def _pre_execute_code(self, ctx: AgentContext) -> None:"
+            },
+            {
+              "line": 392,
+              "text": "async def _build_assessment_data(self, ctx: AgentContext, db: AsyncSession) -> str:"
+            }
+          ]
+        },
+        {
+          "path": "apps/api/routers/chat.py",
+          "sha256": "26ac87b4d03688e5b50d7ea1df4dc59059455640080bef970c6d4575e1417618",
+          "lines": 395,
+          "symbols": [
+            {
+              "line": 52,
+              "text": "async def list_chat_sessions("
+            },
+            {
+              "line": 82,
+              "text": "async def get_chat_session_messages("
+            },
+            {
+              "line": 122,
+              "text": "async def chat_stream("
+            },
+            {
+              "line": 136,
+              "text": "async def injection_error():"
+            },
+            {
+              "line": 166,
+              "text": "async def event_generator():"
+            },
+            {
+              "line": 265,
+              "text": "async def get_greeting("
+            }
+          ]
+        },
+        {
+          "path": "apps/web/src/lib/api/chat.ts",
+          "sha256": "3614f6bb294221c5ac79158d4cd41cf1445ef11dec9877cbe9d43bc519a7a680",
+          "lines": 442,
+          "symbols": []
+        },
+        {
+          "path": "apps/web/src/store/chat.ts",
+          "sha256": "235ef1b1a1d49d34ece16aa6c5b7f981c20677c860e42390b2ed92f85e7bbfd2",
+          "lines": 676,
+          "symbols": [
+            {
+              "line": 124,
+              "text": "export const useChatStore = create<ChatState>((set, get) => ({"
+            }
+          ]
+        },
+        {
+          "path": "apps/web/src/components/shared/markdown-renderer.tsx",
+          "sha256": "4afa5a7f233a5deb670bb89db142b2f63df8e88d807a880e9d8180cd404d6818",
+          "lines": 167,
+          "symbols": [
+            {
+              "line": 108,
+              "text": "export function MarkdownRenderer({"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

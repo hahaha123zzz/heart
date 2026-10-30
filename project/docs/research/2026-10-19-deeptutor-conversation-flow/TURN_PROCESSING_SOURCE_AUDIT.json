@@ -1,0 +1,3294 @@
+{
+  "date": "2026-10-20",
+  "scope": "static source trace plus six isolated upstream test modules; no live model or running service trace",
+  "upstream_head": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "local_main_head": "95b956a515d1868341c8f18b29fc2d23e3a7ebb6",
+  "integration_head": "2b5d5d6aa6080588ed9ba927a59d568984e4bb7a",
+  "files": [
+    {
+      "path": "D:\\deeptutor\\deeptutor\\app\\service.py",
+      "sha256": "94f879b27a4e9951977aa364c8a65104fa80a8163035d645540cb4e50ae226b1",
+      "bytes": 23297,
+      "symbols": [
+        {
+          "name": "TurnApplicationService",
+          "line": 21
+        },
+        {
+          "name": "__init__",
+          "line": 22
+        },
+        {
+          "name": "_resolve",
+          "line": 32
+        },
+        {
+          "name": "start_turn",
+          "line": 37
+        },
+        {
+          "name": "regenerate_last_turn",
+          "line": 133
+        },
+        {
+          "name": "_done_has_tail",
+          "line": 174
+        },
+        {
+          "name": "subscribe_turn",
+          "line": 179
+        },
+        {
+          "name": "subscribe_session",
+          "line": 271
+        },
+        {
+          "name": "check_active_turn",
+          "line": 283
+        },
+        {
+          "name": "cancel_turn",
+          "line": 297
+        },
+        {
+          "name": "cancel_turn_and_wait",
+          "line": 320
+        },
+        {
+          "name": "submit_user_reply",
+          "line": 354
+        },
+        {
+          "name": "_reclaim_unowned_active_turn",
+          "line": 383
+        },
+        {
+          "name": "_reap_unowned_live_turn",
+          "line": 425
+        },
+        {
+          "name": "submit_user_input",
+          "line": 496
+        },
+        {
+          "name": "list_sessions",
+          "line": 517
+        },
+        {
+          "name": "get_session",
+          "line": 521
+        },
+        {
+          "name": "rename_session",
+          "line": 525
+        },
+        {
+          "name": "delete_session",
+          "line": 529
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\services\\session\\turns\\request_preparer.py",
+      "sha256": "bebbeb6e6fa5cd444d3cbb4844a96981da6e89ae5964765e7b4d83e9ed0e824a",
+      "bytes": 54321,
+      "symbols": [
+        {
+          "name": "TurnRequestPreparer",
+          "line": 87
+        },
+        {
+          "name": "start_turn",
+          "line": 138
+        },
+        {
+          "name": "regenerate_last_turn",
+          "line": 919
+        },
+        {
+          "name": "_ensure_accepting_turns",
+          "line": 96
+        },
+        {
+          "name": "_turns_blocked_for_update_locked",
+          "line": 98
+        },
+        {
+          "name": "_validate_mastery_session_topic",
+          "line": 100
+        },
+        {
+          "name": "_commit_mastery_card_answer",
+          "line": 108
+        },
+        {
+          "name": "_acquire_mastery_path_lease",
+          "line": 118
+        },
+        {
+          "name": "_publish_live_event",
+          "line": 127
+        },
+        {
+          "name": "_run_turn",
+          "line": 133
+        },
+        {
+          "name": "_coordinate_execution",
+          "line": 135
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\services\\session\\turns\\executor.py",
+      "sha256": "f45111b0b599f5fb193cffcc59166d7ae2c6ead21ff8bf554eed140d040dff9f",
+      "bytes": 72009,
+      "symbols": [
+        {
+          "name": "TurnExecutor",
+          "line": 67
+        },
+        {
+          "name": "_run_turn",
+          "line": 139
+        },
+        {
+          "name": "_create_context_builder",
+          "line": 76
+        },
+        {
+          "name": "_publish_live_event",
+          "line": 78
+        },
+        {
+          "name": "_grade_submitted_card_answer",
+          "line": 84
+        },
+        {
+          "name": "_skip_card_question",
+          "line": 92
+        },
+        {
+          "name": "_publish_mastery_path_change",
+          "line": 100
+        },
+        {
+          "name": "_publish_mastery_mode_change",
+          "line": 110
+        },
+        {
+          "name": "_flush_buffered_events",
+          "line": 118
+        },
+        {
+          "name": "_transition_execution",
+          "line": 120
+        },
+        {
+          "name": "_maybe_generate_session_title",
+          "line": 130
+        },
+        {
+          "name": "_persisted_answer",
+          "line": 159
+        },
+        {
+          "name": "_wait_for_user_reply",
+          "line": 181
+        },
+        {
+          "name": "_attachment_progress",
+          "line": 379
+        },
+        {
+          "name": "_emit_context_event",
+          "line": 549
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\services\\session\\context_builder.py",
+      "sha256": "520b17920ea8e3319bc09770068c7cd5a72809d46de543fc1508b22eaa7688e9",
+      "bytes": 29050,
+      "symbols": [
+        {
+          "name": "count_tokens",
+          "line": 49
+        },
+        {
+          "name": "_count_model_context_tokens",
+          "line": 62
+        },
+        {
+          "name": "trim_incomplete_tail",
+          "line": 93
+        },
+        {
+          "name": "expand_message_context",
+          "line": 105
+        },
+        {
+          "name": "format_messages_as_transcript",
+          "line": 128
+        },
+        {
+          "name": "build_history_text",
+          "line": 143
+        },
+        {
+          "name": "_provider_response_state_tokens",
+          "line": 159
+        },
+        {
+          "name": "ContextBuildResult",
+          "line": 174
+        },
+        {
+          "name": "_ContextSummaryAgent",
+          "line": 185
+        },
+        {
+          "name": "ContextBuilder",
+          "line": 199
+        },
+        {
+          "name": "accounting_view",
+          "line": 72
+        },
+        {
+          "name": "__init__",
+          "line": 188
+        },
+        {
+          "name": "process",
+          "line": 195
+        },
+        {
+          "name": "__init__",
+          "line": 206
+        },
+        {
+          "name": "_effective_context_window",
+          "line": 216
+        },
+        {
+          "name": "_history_budget",
+          "line": 223
+        },
+        {
+          "name": "_summary_budget",
+          "line": 228
+        },
+        {
+          "name": "_recent_budget",
+          "line": 237
+        },
+        {
+          "name": "_rebuild_source_budget",
+          "line": 243
+        },
+        {
+          "name": "_build_history",
+          "line": 249
+        },
+        {
+          "name": "_append_event",
+          "line": 273
+        },
+        {
+          "name": "_select_recent_messages",
+          "line": 283
+        },
+        {
+          "name": "_model_tokens",
+          "line": 309
+        },
+        {
+          "name": "_summarize",
+          "line": 316
+        },
+        {
+          "name": "build",
+          "line": 507
+        },
+        {
+          "name": "_trace_bridge",
+          "line": 339
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\runtime\\turn_engine.py",
+      "sha256": "727037834dd040a3bfdfea0118d4f431f99b2517d5cc6f66cdc581c571339c9f",
+      "bytes": 1312,
+      "symbols": [
+        {
+          "name": "TurnEngine",
+          "line": 11
+        },
+        {
+          "name": "get_turn_engine",
+          "line": 34
+        },
+        {
+          "name": "__init__",
+          "line": 14
+        },
+        {
+          "name": "execute",
+          "line": 17
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\runtime\\orchestrator.py",
+      "sha256": "3a45b4c699634000b6462213f6e9421c0d97eee58288bab1319190dfabbb982d",
+      "bytes": 9069,
+      "symbols": [
+        {
+          "name": "completion_event_fields",
+          "line": 28
+        },
+        {
+          "name": "ChatOrchestrator",
+          "line": 51
+        },
+        {
+          "name": "__init__",
+          "line": 57
+        },
+        {
+          "name": "handle",
+          "line": 61
+        },
+        {
+          "name": "_publish_completion",
+          "line": 204
+        },
+        {
+          "name": "list_tools",
+          "line": 221
+        },
+        {
+          "name": "list_capabilities",
+          "line": 224
+        },
+        {
+          "name": "get_capability_manifests",
+          "line": 227
+        },
+        {
+          "name": "get_tool_schemas",
+          "line": 230
+        },
+        {
+          "name": "_run",
+          "line": 133
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\runtime\\capability_routing.py",
+      "sha256": "5e1ea3e44bd432666b175f468f8ec3214d4ca436340aef216cf6bb500e38ea9e",
+      "bytes": 2953,
+      "symbols": [
+        {
+          "name": "CapabilityRoute",
+          "line": 11
+        },
+        {
+          "name": "route_explicit_quiz_request",
+          "line": 49
+        },
+        {
+          "name": "as_metadata",
+          "line": 18
+        },
+        {
+          "name": "auto_routed",
+          "line": 29
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\runtime\\agentic\\tool_dispatch.py",
+      "sha256": "d7e8ab2a8e8020ef621c41bda33c3b67eea11304fc4b24e3519034bb5b2437d5",
+      "bytes": 38245,
+      "symbols": [
+        {
+          "name": "tool_error_message_factory",
+          "line": 76
+        },
+        {
+          "name": "DispatchOutcome",
+          "line": 99
+        },
+        {
+          "name": "dispatch_tool_calls",
+          "line": 122
+        },
+        {
+          "name": "_detect_duplicate_calls",
+          "line": 357
+        },
+        {
+          "name": "_duplicate_stub_result",
+          "line": 392
+        },
+        {
+          "name": "_reject_if_args_missing",
+          "line": 424
+        },
+        {
+          "name": "_prepare_tool_args",
+          "line": 507
+        },
+        {
+          "name": "_resolve_tool_request",
+          "line": 542
+        },
+        {
+          "name": "_build_per_tool_trace_meta",
+          "line": 568
+        },
+        {
+          "name": "_provider_of",
+          "line": 618
+        },
+        {
+          "name": "_sensitive_arg_names",
+          "line": 633
+        },
+        {
+          "name": "execute_tool_call",
+          "line": 647
+        },
+        {
+          "name": "_collect_outcome",
+          "line": 829
+        },
+        {
+          "name": "_message",
+          "line": 87
+        },
+        {
+          "name": "_run_one",
+          "line": 212
+        },
+        {
+          "name": "_rebind",
+          "line": 264
+        },
+        {
+          "name": "_event_sink",
+          "line": 682
+        },
+        {
+          "name": "_execute_with_policy",
+          "line": 721
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\agents\\loop\\pipeline.py",
+      "sha256": "8ec2ec26777c3bf5166dde992e4e093528d0961071a1d502f475663677752041",
+      "bytes": 84493,
+      "symbols": [
+        {
+          "name": "_read_int",
+          "line": 114
+        },
+        {
+          "name": "_normalise_user_reply",
+          "line": 125
+        },
+        {
+          "name": "_format_user_reply_body",
+          "line": 144
+        },
+        {
+          "name": "_merge_prompt_packs",
+          "line": 173
+        },
+        {
+          "name": "_flatten_ask_user_summary",
+          "line": 190
+        },
+        {
+          "name": "AgenticLoopPipeline",
+          "line": 200
+        },
+        {
+          "name": "__init__",
+          "line": 230
+        },
+        {
+          "name": "_load_prompt_pack",
+          "line": 319
+        },
+        {
+          "name": "_read_prompt_pack",
+          "line": 327
+        },
+        {
+          "name": "usage",
+          "line": 342
+        },
+        {
+          "name": "tool_lookup",
+          "line": 346
+        },
+        {
+          "name": "max_rounds",
+          "line": 360
+        },
+        {
+          "name": "effective_max_rounds",
+          "line": 363
+        },
+        {
+          "name": "exploring_max_tokens",
+          "line": 379
+        },
+        {
+          "name": "respond_max_tokens",
+          "line": 383
+        },
+        {
+          "name": "loop_max_tokens",
+          "line": 387
+        },
+        {
+          "name": "run",
+          "line": 397
+        },
+        {
+          "name": "_build_system_prompt",
+          "line": 436
+        },
+        {
+          "name": "_build_loop_messages",
+          "line": 466
+        },
+        {
+          "name": "_finish_exhausted_instruction",
+          "line": 531
+        },
+        {
+          "name": "_settle_exhausted_instruction",
+          "line": 534
+        },
+        {
+          "name": "_tool_manifest",
+          "line": 537
+        },
+        {
+          "name": "_tool_result_snip_marker",
+          "line": 555
+        },
+        {
+          "name": "_prepare_messages_with_attachments",
+          "line": 564
+        },
+        {
+          "name": "_is_partner_turn",
+          "line": 579
+        },
+        {
+          "name": "_prepare_deferred_tools",
+          "line": 590
+        },
+        {
+          "name": "_tool_scope",
+          "line": 639
+        },
+        {
+          "name": "_pageindex_sdk_tool_bundles",
+          "line": 658
+        },
+        {
+          "name": "_deferred_tools_manifest",
+          "line": 689
+        },
+        {
+          "name": "_exec_allowed",
+          "line": 693
+        },
+        {
+          "name": "_compose_enabled_tools",
+          "line": 726
+        },
+        {
+          "name": "_mastery_nav_available",
+          "line": 789
+        },
+        {
+          "name": "_active_loop_capabilities",
+          "line": 803
+        },
+        {
+          "name": "_exclusive_capability_active",
+          "line": 807
+        },
+        {
+          "name": "_capability_owned_tools",
+          "line": 816
+        },
+        {
+          "name": "_capability_rebinding_tools",
+          "line": 823
+        },
+        {
+          "name": "_capability_system_blocks",
+          "line": 836
+        },
+        {
+          "name": "_capability_pre_loop_seed",
+          "line": 848
+        },
+        {
+          "name": "_capability_skips_kb_seed",
+          "line": 856
+        },
+        {
+          "name": "_capability_finish_instruction",
+          "line": 879
+        },
+        {
+          "name": "_capability_tool_round_output_policy",
+          "line": 904
+        },
+        {
+          "name": "_capability_final_text_override",
+          "line": 928
+        },
+        {
+          "name": "_has_capability_finish_guard",
+          "line": 951
+        },
+        {
+          "name": "_capability_buffers_visible_output",
+          "line": 958
+        },
+        {
+          "name": "_capability_pre_loop_briefings",
+          "line": 986
+        },
+        {
+          "name": "_build_llm_tool_schemas",
+          "line": 1019
+        },
+        {
+          "name": "_build_notebook_manifest",
+          "line": 1046
+        },
+        {
+          "name": "_notebook_choices_full",
+          "line": 1064
+        },
+        {
+          "name": "_notebook_choices",
+          "line": 1085
+        },
+        {
+          "name": "_execute_tool_call",
+          "line": 1093
+        },
+        {
+          "name": "_dispatch_tool_calls",
+          "line": 1120
+        },
+        {
+          "name": "_notify_pause_hooks",
+          "line": 1160
+        },
+        {
+          "name": "_await_user_reply_and_resolve",
+          "line": 1189
+        },
+        {
+          "name": "_resolve_workspace_export",
+          "line": 1275
+        },
+        {
+          "name": "_augment_tool_kwargs",
+          "line": 1328
+        },
+        {
+          "name": "_retrieve_trace_metadata",
+          "line": 1438
+        },
+        {
+          "name": "_retrieve_kb_seed_block",
+          "line": 1481
+        },
+        {
+          "name": "_seed_search_one_kb",
+          "line": 1523
+        },
+        {
+          "name": "_emit_final_text",
+          "line": 1560
+        },
+        {
+          "name": "_emit_protocol_fallback_final_response",
+          "line": 1575
+        },
+        {
+          "name": "_emit_terminator_final_response",
+          "line": 1592
+        },
+        {
+          "name": "_guard_context_window",
+          "line": 1623
+        },
+        {
+          "name": "measure_context_budget",
+          "line": 1660
+        },
+        {
+          "name": "_unloaded_deferred_tool_count",
+          "line": 1677
+        },
+        {
+          "name": "_estimate_messages_tokens",
+          "line": 1691
+        },
+        {
+          "name": "_build_openai_client",
+          "line": 1709
+        },
+        {
+          "name": "_completion_kwargs",
+          "line": 1712
+        },
+        {
+          "name": "_can_use_native_tool_calling",
+          "line": 1721
+        },
+        {
+          "name": "_current_user_id",
+          "line": 1727
+        },
+        {
+          "name": "_current_owner_id",
+          "line": 1736
+        },
+        {
+          "name": "_selected_kbs",
+          "line": 1754
+        },
+        {
+          "name": "_rag_kbs",
+          "line": 1757
+        },
+        {
+          "name": "_capability_owned_kbs",
+          "line": 1763
+        },
+        {
+          "name": "_coexisting_rag_kbs",
+          "line": 1777
+        },
+        {
+          "name": "_workspace_key",
+          "line": 1789
+        },
+        {
+          "name": "_kb_system_note",
+          "line": 1799
+        },
+        {
+          "name": "_prepare_kb_manifests",
+          "line": 1820
+        },
+        {
+          "name": "_collect_kb_manifests",
+          "line": 1845
+        },
+        {
+          "name": "_kb_manifest_system_note",
+          "line": 1859
+        },
+        {
+          "name": "_pageindex_system_note",
+          "line": 1866
+        },
+        {
+          "name": "_workspace_system_note",
+          "line": 1913
+        },
+        {
+          "name": "_t",
+          "line": 1929
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\agents\\loop\\agent_loop.py",
+      "sha256": "8d388f5772937ae72d6f39313fff2460e8d594e96f406c4acc96ca674c9c7a78",
+      "bytes": 87947,
+      "symbols": [
+        {
+          "name": "_bounded_stream_chunks",
+          "line": 114
+        },
+        {
+          "name": "_reasoning_budget_exhausted",
+          "line": 126
+        },
+        {
+          "name": "_join_answer_parts",
+          "line": 153
+        },
+        {
+          "name": "AgentLoopState",
+          "line": 159
+        },
+        {
+          "name": "LLMCallResult",
+          "line": 171
+        },
+        {
+          "name": "LoopOutcome",
+          "line": 195
+        },
+        {
+          "name": "_provider_response_state",
+          "line": 209
+        },
+        {
+          "name": "_assistant_round_message",
+          "line": 224
+        },
+        {
+          "name": "_has_replayable_assistant_state",
+          "line": 246
+        },
+        {
+          "name": "_reasoning_item_text",
+          "line": 256
+        },
+        {
+          "name": "AgentLoop",
+          "line": 274
+        },
+        {
+          "name": "_single_chunk_stream",
+          "line": 1808
+        },
+        {
+          "name": "_last_context_checkpoint_summary",
+          "line": 1841
+        },
+        {
+          "name": "__init__",
+          "line": 277
+        },
+        {
+          "name": "run",
+          "line": 309
+        },
+        {
+          "name": "_clean",
+          "line": 398
+        },
+        {
+          "name": "_run_loop",
+          "line": 403
+        },
+        {
+          "name": "_begin_settlement",
+          "line": 773
+        },
+        {
+          "name": "_append_loop_instruction",
+          "line": 793
+        },
+        {
+          "name": "_fold_context_checkpoint",
+          "line": 801
+        },
+        {
+          "name": "_reject_capability_finish",
+          "line": 821
+        },
+        {
+          "name": "_forced_finish",
+          "line": 837
+        },
+        {
+          "name": "_finalize_finish",
+          "line": 939
+        },
+        {
+          "name": "_release_deferred_output",
+          "line": 983
+        },
+        {
+          "name": "_discard_deferred_output",
+          "line": 1002
+        },
+        {
+          "name": "_call_llm",
+          "line": 1037
+        },
+        {
+          "name": "_single_shot_stream",
+          "line": 1712
+        },
+        {
+          "name": "_create_response_stream",
+          "line": 1726
+        },
+        {
+          "name": "_emit_segments",
+          "line": 1178
+        },
+        {
+          "name": "_maybe_emit_reasoning_progress",
+          "line": 1210
+        },
+        {
+          "name": "_reasoning_progress_loop",
+          "line": 1238
+        },
+        {
+          "name": "_ensure_reasoning_progress_task",
+          "line": 1246
+        },
+        {
+          "name": "_stop_reasoning_progress_task",
+          "line": 1251
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\agents\\loop\\prompt_blocks.py",
+      "sha256": "70c0cabeb6a230c58eff438beef1cbb352c96832a7c6708eb72cf45ccdd27ace",
+      "bytes": 14771,
+      "symbols": [
+        {
+          "name": "LoopPromptAssembler",
+          "line": 43
+        },
+        {
+          "name": "__init__",
+          "line": 46
+        },
+        {
+          "name": "system_prompt",
+          "line": 56
+        },
+        {
+          "name": "render",
+          "line": 81
+        },
+        {
+          "name": "split_for_replay",
+          "line": 99
+        },
+        {
+          "name": "blocks",
+          "line": 119
+        },
+        {
+          "name": "foundation_blocks",
+          "line": 193
+        },
+        {
+          "name": "_general_block",
+          "line": 210
+        },
+        {
+          "name": "_runtime_context_block",
+          "line": 237
+        },
+        {
+          "name": "_partner_turn_policy",
+          "line": 266
+        },
+        {
+          "name": "user_message",
+          "line": 274
+        },
+        {
+          "name": "finish_exhausted_instruction",
+          "line": 289
+        },
+        {
+          "name": "settle_exhausted_instruction",
+          "line": 299
+        },
+        {
+          "name": "_fallback_empty_tool_list",
+          "line": 310
+        },
+        {
+          "name": "_t",
+          "line": 313
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\capabilities\\explore_context\\capability.py",
+      "sha256": "23781cc5dfef76b395f876fa763e4e0d3d8acdea808fddc20c2b7a6c06be3553",
+      "bytes": 5423,
+      "symbols": [
+        {
+          "name": "_load_prompts",
+          "line": 48
+        },
+        {
+          "name": "_has_readable_sources",
+          "line": 68
+        },
+        {
+          "name": "ExploreContextCapability",
+          "line": 82
+        },
+        {
+          "name": "is_active",
+          "line": 90
+        },
+        {
+          "name": "system_block",
+          "line": 93
+        },
+        {
+          "name": "augment_kwargs",
+          "line": 105
+        },
+        {
+          "name": "pre_loop_seed",
+          "line": 114
+        },
+        {
+          "name": "pre_loop",
+          "line": 118
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\capabilities\\mastery\\capability.py",
+      "sha256": "53312360f451fbe9f60976490026714b33201c21041a1d309380ef14856864dc",
+      "bytes": 4858,
+      "symbols": [
+        {
+          "name": "resolve_mastery_path_id",
+          "line": 42
+        },
+        {
+          "name": "MasteryPathCapability",
+          "line": 57
+        },
+        {
+          "name": "run",
+          "line": 69
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\capabilities\\mastery\\pipeline.py",
+      "sha256": "8f52ee9a8b519c3e340f3d07ec3f5c1122f1f6af777727670f8a3f8b0feeda81",
+      "bytes": 4428,
+      "symbols": [
+        {
+          "name": "MasteryPromptAssembler",
+          "line": 35
+        },
+        {
+          "name": "MasteryLoopPipeline",
+          "line": 57
+        },
+        {
+          "name": "foundation_blocks",
+          "line": 45
+        },
+        {
+          "name": "run",
+          "line": 72
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\capabilities\\mastery\\loop.py",
+      "sha256": "c5bbacd13e2b40d8c59da236e67fa2bbda003f318ed462ba837b52e7b2806dd7",
+      "bytes": 29551,
+      "symbols": [
+        {
+          "name": "_claims_card_delivery",
+          "line": 118
+        },
+        {
+          "name": "_looks_like_plain_choice_quiz",
+          "line": 130
+        },
+        {
+          "name": "_turn_has_graded",
+          "line": 150
+        },
+        {
+          "name": "_announces_an_unposed_question",
+          "line": 165
+        },
+        {
+          "name": "MasteryLoopCapability",
+          "line": 175
+        },
+        {
+          "name": "_card_end_marker",
+          "line": 546
+        },
+        {
+          "name": "_path_binder",
+          "line": 555
+        },
+        {
+          "name": "_mode_binder",
+          "line": 564
+        },
+        {
+          "name": "_load_playbook",
+          "line": 581
+        },
+        {
+          "name": "is_active",
+          "line": 214
+        },
+        {
+          "name": "system_block",
+          "line": 217
+        },
+        {
+          "name": "augment_kwargs",
+          "line": 240
+        },
+        {
+          "name": "finish_instruction",
+          "line": 304
+        },
+        {
+          "name": "final_text_override",
+          "line": 381
+        },
+        {
+          "name": "pre_loop",
+          "line": 414
+        },
+        {
+          "name": "pre_loop_seed",
+          "line": 456
+        },
+        {
+          "name": "skip_kb_seed",
+          "line": 475
+        },
+        {
+          "name": "_skip_seed",
+          "line": 494
+        },
+        {
+          "name": "_grade_seed",
+          "line": 515
+        },
+        {
+          "name": "mark",
+          "line": 549
+        },
+        {
+          "name": "bind",
+          "line": 558
+        },
+        {
+          "name": "bind",
+          "line": 572
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\capabilities\\mastery\\tools.py",
+      "sha256": "b6be3c50425472056c4744f7d80917a6a2e3ccd8226f752e1d9e4092608c3872",
+      "bytes": 124681,
+      "symbols": [
+        {
+          "name": "_new_service",
+          "line": 124
+        },
+        {
+          "name": "_resolve_path_id",
+          "line": 131
+        },
+        {
+          "name": "_resolve_session_id",
+          "line": 135
+        },
+        {
+          "name": "_resolve_turn_id",
+          "line": 139
+        },
+        {
+          "name": "_normalize_difficulty",
+          "line": 146
+        },
+        {
+          "name": "_question_bank_type",
+          "line": 156
+        },
+        {
+          "name": "_duplicate_option_body",
+          "line": 165
+        },
+        {
+          "name": "_read_choice_options",
+          "line": 184
+        },
+        {
+          "name": "_normalize_quiz_contract",
+          "line": 226
+        },
+        {
+          "name": "_shuffle_choice_options",
+          "line": 293
+        },
+        {
+          "name": "_resolve_pending_choice",
+          "line": 320
+        },
+        {
+          "name": "_sync_mastery_attempt_to_question_bank",
+          "line": 344
+        },
+        {
+          "name": "_sync_qualitative_to_question_bank",
+          "line": 411
+        },
+        {
+          "name": "_unreadable_choice_result",
+          "line": 461
+        },
+        {
+          "name": "_json_result",
+          "line": 480
+        },
+        {
+          "name": "_no_path_result",
+          "line": 488
+        },
+        {
+          "name": "_load_path",
+          "line": 495
+        },
+        {
+          "name": "_profile_status",
+          "line": 507
+        },
+        {
+          "name": "_review_scope_refusal",
+          "line": 542
+        },
+        {
+          "name": "_mode_instructions",
+          "line": 575
+        },
+        {
+          "name": "_mode_of",
+          "line": 605
+        },
+        {
+          "name": "_wrong_mode_result",
+          "line": 610
+        },
+        {
+          "name": "_no_built_path_result",
+          "line": 628
+        },
+        {
+          "name": "_unbuilt_status_message",
+          "line": 640
+        },
+        {
+          "name": "MasteryStatusTool",
+          "line": 704
+        },
+        {
+          "name": "MasteryNoteExplainedTool",
+          "line": 826
+        },
+        {
+          "name": "MasteryQuizTool",
+          "line": 885
+        },
+        {
+          "name": "MasteryGradeTool",
+          "line": 1185
+        },
+        {
+          "name": "MasteryAssessTool",
+          "line": 1421
+        },
+        {
+          "name": "MasterySkipQuestionTool",
+          "line": 1528
+        },
+        {
+          "name": "MasteryRepairQuestionTool",
+          "line": 1576
+        },
+        {
+          "name": "MasteryDeferObjectiveTool",
+          "line": 1693
+        },
+        {
+          "name": "MasteryBuildTool",
+          "line": 1761
+        },
+        {
+          "name": "MasteryModeTool",
+          "line": 1919
+        },
+        {
+          "name": "MasteryProfileTool",
+          "line": 2013
+        },
+        {
+          "name": "MasteryReviseTool",
+          "line": 2147
+        },
+        {
+          "name": "MasteryPathsTool",
+          "line": 2343
+        },
+        {
+          "name": "MasterySwitchTool",
+          "line": 2384
+        },
+        {
+          "name": "MasteryLeaveTool",
+          "line": 2447
+        },
+        {
+          "name": "_humanized",
+          "line": 2506
+        },
+        {
+          "name": "_display_name",
+          "line": 2520
+        },
+        {
+          "name": "_module_objective",
+          "line": 2533
+        },
+        {
+          "name": "_raw_knowledge_points",
+          "line": 2548
+        },
+        {
+          "name": "_normalized_module_tree",
+          "line": 2557
+        },
+        {
+          "name": "_revised_point_id",
+          "line": 2602
+        },
+        {
+          "name": "_revise_points",
+          "line": 2619
+        },
+        {
+          "name": "_parse_modules_with_refs",
+          "line": 2771
+        },
+        {
+          "name": "_parse_modules",
+          "line": 2840
+        },
+        {
+          "name": "get_definition",
+          "line": 707
+        },
+        {
+          "name": "execute",
+          "line": 722
+        },
+        {
+          "name": "get_definition",
+          "line": 829
+        },
+        {
+          "name": "execute",
+          "line": 847
+        },
+        {
+          "name": "get_definition",
+          "line": 888
+        },
+        {
+          "name": "execute",
+          "line": 1009
+        },
+        {
+          "name": "get_definition",
+          "line": 1188
+        },
+        {
+          "name": "execute",
+          "line": 1218
+        },
+        {
+          "name": "get_definition",
+          "line": 1424
+        },
+        {
+          "name": "execute",
+          "line": 1455
+        },
+        {
+          "name": "get_definition",
+          "line": 1531
+        },
+        {
+          "name": "execute",
+          "line": 1545
+        },
+        {
+          "name": "get_definition",
+          "line": 1579
+        },
+        {
+          "name": "execute",
+          "line": 1617
+        },
+        {
+          "name": "get_definition",
+          "line": 1696
+        },
+        {
+          "name": "execute",
+          "line": 1722
+        },
+        {
+          "name": "get_definition",
+          "line": 1764
+        },
+        {
+          "name": "execute",
+          "line": 1867
+        },
+        {
+          "name": "get_definition",
+          "line": 1934
+        },
+        {
+          "name": "execute",
+          "line": 1965
+        },
+        {
+          "name": "get_definition",
+          "line": 2025
+        },
+        {
+          "name": "execute",
+          "line": 2092
+        },
+        {
+          "name": "get_definition",
+          "line": 2169
+        },
+        {
+          "name": "execute",
+          "line": 2250
+        },
+        {
+          "name": "get_definition",
+          "line": 2346
+        },
+        {
+          "name": "execute",
+          "line": 2359
+        },
+        {
+          "name": "get_definition",
+          "line": 2387
+        },
+        {
+          "name": "execute",
+          "line": 2410
+        },
+        {
+          "name": "get_definition",
+          "line": 2450
+        },
+        {
+          "name": "execute",
+          "line": 2464
+        },
+        {
+          "name": "relation_values",
+          "line": 2681
+        },
+        {
+          "name": "note",
+          "line": 862
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\capabilities\\mastery\\prompts\\zh\\mastery_loop.yaml",
+      "sha256": "4df64164ad95ff0fcd3072bb65cf7811c16c2fa0d65db9c33efbb627a18acffd",
+      "bytes": 21477
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\learning\\models.py",
+      "sha256": "66e8188c601cee457a0bc17d66b3a20e0181a2b2a0c51355b2ef9225ca5e3f4a",
+      "bytes": 21922,
+      "symbols": [
+        {
+          "name": "KnowledgeType",
+          "line": 24
+        },
+        {
+          "name": "ErrorType",
+          "line": 36
+        },
+        {
+          "name": "LearningStage",
+          "line": 61
+        },
+        {
+          "name": "KnowledgePoint",
+          "line": 80
+        },
+        {
+          "name": "LearningModule",
+          "line": 97
+        },
+        {
+          "name": "DiagnosticResult",
+          "line": 114
+        },
+        {
+          "name": "QuizAttempt",
+          "line": 122
+        },
+        {
+          "name": "RetryAttempt",
+          "line": 142
+        },
+        {
+          "name": "ErrorRecord",
+          "line": 150
+        },
+        {
+          "name": "LearningEvidence",
+          "line": 165
+        },
+        {
+          "name": "RepetitionState",
+          "line": 192
+        },
+        {
+          "name": "ReviewTask",
+          "line": 216
+        },
+        {
+          "name": "PendingOption",
+          "line": 231
+        },
+        {
+          "name": "PendingQuestion",
+          "line": 249
+        },
+        {
+          "name": "InteractionStatus",
+          "line": 302
+        },
+        {
+          "name": "MasteryInteraction",
+          "line": 318
+        },
+        {
+          "name": "MasteryEvent",
+          "line": 335
+        },
+        {
+          "name": "MasteryPathLease",
+          "line": 350
+        },
+        {
+          "name": "TopicSourceKind",
+          "line": 361
+        },
+        {
+          "name": "TopicSource",
+          "line": 389
+        },
+        {
+          "name": "TopicMetadata",
+          "line": 405
+        },
+        {
+          "name": "MasteryTopic",
+          "line": 420
+        },
+        {
+          "name": "LearnerMasteryOverride",
+          "line": 427
+        },
+        {
+          "name": "DeferredObjective",
+          "line": 437
+        },
+        {
+          "name": "LearnerProfile",
+          "line": 447
+        },
+        {
+          "name": "ReadingProgressRecord",
+          "line": 504
+        },
+        {
+          "name": "ReadingActivityRecord",
+          "line": 517
+        },
+        {
+          "name": "ReadingLearningRecords",
+          "line": 531
+        },
+        {
+          "name": "LearningProgress",
+          "line": 540
+        },
+        {
+          "name": "_missing_",
+          "line": 31
+        },
+        {
+          "name": "_missing_",
+          "line": 43
+        },
+        {
+          "name": "_missing_",
+          "line": 75
+        },
+        {
+          "name": "_read_legacy_option_strings",
+          "line": 281
+        },
+        {
+          "name": "choice_map",
+          "line": 297
+        },
+        {
+          "name": "is_empty",
+          "line": 482
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\learning\\policy.py",
+      "sha256": "07f4f8cf5911c1c383a674844c84adfd7355a2b28cfd1620742272514138e91c",
+      "bytes": 21868,
+      "symbols": [
+        {
+          "name": "path_display_name",
+          "line": 54
+        },
+        {
+          "name": "gate_threshold",
+          "line": 74
+        },
+        {
+          "name": "is_assessed_mastered",
+          "line": 82
+        },
+        {
+          "name": "visual_achievements",
+          "line": 95
+        },
+        {
+          "name": "learning_stage",
+          "line": 110
+        },
+        {
+          "name": "mastery_source",
+          "line": 129
+        },
+        {
+          "name": "is_mastered",
+          "line": 139
+        },
+        {
+          "name": "display_mastery",
+          "line": 150
+        },
+        {
+          "name": "objective_status",
+          "line": 158
+        },
+        {
+          "name": "due_reviews",
+          "line": 168
+        },
+        {
+          "name": "NextStep",
+          "line": 180
+        },
+        {
+          "name": "find_knowledge_point",
+          "line": 233
+        },
+        {
+          "name": "gate_kind",
+          "line": 244
+        },
+        {
+          "name": "next_objective",
+          "line": 255
+        },
+        {
+          "name": "map_summary",
+          "line": 365
+        },
+        {
+          "name": "_review_report",
+          "line": 419
+        },
+        {
+          "name": "objective_report",
+          "line": 465
+        },
+        {
+          "name": "to_dict",
+          "line": 211
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\learning\\objective_relations.py",
+      "sha256": "5dc9c07625f96081634a09ed690a48b9d7eb98aad97d03bdd1c160a7b1acb87a",
+      "bytes": 6668,
+      "symbols": [
+        {
+          "name": "ObjectiveRelationError",
+          "line": 16
+        },
+        {
+          "name": "RelationRefs",
+          "line": 21
+        },
+        {
+          "name": "normalize_refs",
+          "line": 29
+        },
+        {
+          "name": "source_ref_map",
+          "line": 41
+        },
+        {
+          "name": "_knowledge_points",
+          "line": 67
+        },
+        {
+          "name": "validate_objective_relations",
+          "line": 72
+        },
+        {
+          "name": "resolve_relation_refs",
+          "line": 131
+        },
+        {
+          "name": "visit",
+          "line": 112
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\learning\\topic_generation.py",
+      "sha256": "28434ce3609b80a038278f6f20916f1ef513f6885c9180f420740c3182453efb",
+      "bytes": 23919,
+      "symbols": [
+        {
+          "name": "TopicGenerationError",
+          "line": 42
+        },
+        {
+          "name": "source_documents",
+          "line": 46
+        },
+        {
+          "name": "_source_payload",
+          "line": 59
+        },
+        {
+          "name": "_retrieved_context",
+          "line": 86
+        },
+        {
+          "name": "_knowledge_base_inventory",
+          "line": 111
+        },
+        {
+          "name": "_inventory_metadata",
+          "line": 134
+        },
+        {
+          "name": "_ground_file_source",
+          "line": 144
+        },
+        {
+          "name": "_ground_knowledge_base_source",
+          "line": 197
+        },
+        {
+          "name": "ground_topic_sources",
+          "line": 241
+        },
+        {
+          "name": "_module_objective",
+          "line": 284
+        },
+        {
+          "name": "_new_entity_id",
+          "line": 298
+        },
+        {
+          "name": "materialize_modules",
+          "line": 308
+        },
+        {
+          "name": "module_limit_for",
+          "line": 465
+        },
+        {
+          "name": "_covered_documents",
+          "line": 478
+        },
+        {
+          "name": "_coverage_report",
+          "line": 502
+        },
+        {
+          "name": "generate_topic_draft",
+          "line": 534
+        },
+        {
+          "name": "ground",
+          "line": 249
+        },
+        {
+          "name": "ground_one",
+          "line": 260
+        },
+        {
+          "name": "record_discard",
+          "line": 352
+        }
+      ]
+    },
+    {
+      "path": "D:\\deeptutor\\deeptutor\\tools\\learning_journal_tools.py",
+      "sha256": "786dfc9734b5d898f43d1f6e7952e29a222eebd1b9ecef603fa85ca7c78a7a78",
+      "bytes": 6666,
+      "symbols": [
+        {
+          "name": "_PromptHintsMixin",
+          "line": 11
+        },
+        {
+          "name": "LearningStatusTool",
+          "line": 16
+        },
+        {
+          "name": "LearningUpdateTool",
+          "line": 47
+        },
+        {
+          "name": "get_prompt_hints",
+          "line": 12
+        },
+        {
+          "name": "get_definition",
+          "line": 19
+        },
+        {
+          "name": "execute",
+          "line": 34
+        },
+        {
+          "name": "get_definition",
+          "line": 50
+        },
+        {
+          "name": "execute",
+          "line": 120
+        },
+        {
+          "name": "_update",
+          "line": 129
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\main.py",
+      "sha256": "1eeca4c842148d30f123170e27092508c5ab9334b0d9d9dbfbbf4f9bdf07c34d",
+      "bytes": 16372,
+      "symbols": [
+        {
+          "name": "TestAccountRequest",
+          "line": 70
+        },
+        {
+          "name": "health",
+          "line": 76
+        },
+        {
+          "name": "home",
+          "line": 90
+        },
+        {
+          "name": "figure_image",
+          "line": 102
+        },
+        {
+          "name": "chat",
+          "line": 111
+        },
+        {
+          "name": "create_test_account",
+          "line": 118
+        },
+        {
+          "name": "destroy_test_account",
+          "line": 131
+        },
+        {
+          "name": "get_profile",
+          "line": 137
+        },
+        {
+          "name": "get_evidence",
+          "line": 142
+        },
+        {
+          "name": "get_misconceptions",
+          "line": 147
+        },
+        {
+          "name": "get_lesson",
+          "line": 155
+        },
+        {
+          "name": "_run_turn",
+          "line": 175
+        },
+        {
+          "name": "_execute_task_turn",
+          "line": 192
+        },
+        {
+          "name": "chat_stream",
+          "line": 219
+        },
+        {
+          "name": "_validate_pdf_request",
+          "line": 277
+        },
+        {
+          "name": "textbook_pdf_file",
+          "line": 309
+        },
+        {
+          "name": "textbook_pdf_crop",
+          "line": 316
+        },
+        {
+          "name": "preview_pdf_selection",
+          "line": 323
+        },
+        {
+          "name": "TaskCancelRequest",
+          "line": 329
+        },
+        {
+          "name": "pending_task",
+          "line": 336
+        },
+        {
+          "name": "cancel_task",
+          "line": 356
+        },
+        {
+          "name": "events",
+          "line": 221
+        },
+        {
+          "name": "execute",
+          "line": 182
+        },
+        {
+          "name": "emit",
+          "line": 228
+        },
+        {
+          "name": "progress",
+          "line": 232
+        },
+        {
+          "name": "work",
+          "line": 241
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\task_service.py",
+      "sha256": "d2ad7c8cebac5c640f66ae49455176b106ff315c493e6d0048e1579d8d7136b1",
+      "bytes": 34586,
+      "symbols": [
+        {
+          "name": "TaskService",
+          "line": 15
+        },
+        {
+          "name": "__init__",
+          "line": 16
+        },
+        {
+          "name": "conflict_reply",
+          "line": 24
+        },
+        {
+          "name": "_accepts_previous",
+          "line": 28
+        },
+        {
+          "name": "_selected_label",
+          "line": 35
+        },
+        {
+          "name": "_last_navigation_cursor",
+          "line": 53
+        },
+        {
+          "name": "_prefer_current_cursor",
+          "line": 69
+        },
+        {
+          "name": "_needs_navigation_fallback",
+          "line": 83
+        },
+        {
+          "name": "_context",
+          "line": 89
+        },
+        {
+          "name": "_resume",
+          "line": 163
+        },
+        {
+          "name": "run",
+          "line": 201
+        },
+        {
+          "name": "origin",
+          "line": 137
+        },
+        {
+          "name": "guard",
+          "line": 318
+        },
+        {
+          "name": "intercept",
+          "line": 342
+        },
+        {
+          "name": "save_q5",
+          "line": 275
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\agent_loop.py",
+      "sha256": "0bde2c13f82745d5ad15852d395c02ff98f951b0ac81212c9d76b70cad39bdfc",
+      "bytes": 17409,
+      "symbols": [
+        {
+          "name": "LoopRequest",
+          "line": 26
+        },
+        {
+          "name": "LoopResult",
+          "line": 52
+        },
+        {
+          "name": "LocalAgentLoop",
+          "line": 93
+        },
+        {
+          "name": "state",
+          "line": 69
+        },
+        {
+          "name": "_target_dict",
+          "line": 84
+        },
+        {
+          "name": "__init__",
+          "line": 94
+        },
+        {
+          "name": "run",
+          "line": 98
+        },
+        {
+          "name": "_initial_messages",
+          "line": 141
+        },
+        {
+          "name": "_loop",
+          "line": 161
+        },
+        {
+          "name": "_forced_finish",
+          "line": 285
+        },
+        {
+          "name": "_error_result",
+          "line": 333
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\agent_loop_service.py",
+      "sha256": "be32c161b5def9ce391f57dc1dbaf8f913e64141dba11e993e51af237c7a310c",
+      "bytes": 23380,
+      "symbols": [
+        {
+          "name": "_target_from_context",
+          "line": 22
+        },
+        {
+          "name": "_target_from_state",
+          "line": 48
+        },
+        {
+          "name": "_resume_state",
+          "line": 62
+        },
+        {
+          "name": "_default_navigator",
+          "line": 69
+        },
+        {
+          "name": "_citation_format_issues",
+          "line": 131
+        },
+        {
+          "name": "_excerpts",
+          "line": 146
+        },
+        {
+          "name": "_publish_gate",
+          "line": 157
+        },
+        {
+          "name": "_release_binding",
+          "line": 194
+        },
+        {
+          "name": "_map_result",
+          "line": 202
+        },
+        {
+          "name": "run_agent_loop_turn",
+          "line": 338
+        },
+        {
+          "name": "gate",
+          "line": 158
+        },
+        {
+          "name": "emit",
+          "line": 401
+        },
+        {
+          "name": "resolve_host",
+          "line": 80
+        },
+        {
+          "name": "search_host",
+          "line": 83
+        },
+        {
+          "name": "search",
+          "line": 117
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\q3_tools.py",
+      "sha256": "0ba8596b9ece23e45a3b84272be8335427bde44fe1725a3fde3347593e0c9f6d",
+      "bytes": 9559,
+      "symbols": [
+        {
+          "name": "RetrieveCourseTool",
+          "line": 19
+        },
+        {
+          "name": "AskUserTool",
+          "line": 100
+        },
+        {
+          "name": "build_registry",
+          "line": 155
+        },
+        {
+          "name": "build_default_registry",
+          "line": 198
+        },
+        {
+          "name": "run",
+          "line": 31
+        },
+        {
+          "name": "_run",
+          "line": 35
+        },
+        {
+          "name": "run",
+          "line": 138
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\q3_navigation.py",
+      "sha256": "ea15e74b08e1b84af3f181ff76cb8c1ae0fa7b07adc75f4a5c88fa14576aad11",
+      "bytes": 9242,
+      "symbols": [
+        {
+          "name": "LearningTarget",
+          "line": 17
+        },
+        {
+          "name": "NavigationDecision",
+          "line": 28
+        },
+        {
+          "name": "SourceRef",
+          "line": 37
+        },
+        {
+          "name": "LearningNavigator",
+          "line": 64
+        },
+        {
+          "name": "StubLearningNavigator",
+          "line": 72
+        },
+        {
+          "name": "CallbackNavigator",
+          "line": 105
+        },
+        {
+          "name": "source_from_chunk",
+          "line": 163
+        },
+        {
+          "name": "to_dict",
+          "line": 49
+        },
+        {
+          "name": "resolve",
+          "line": 65
+        },
+        {
+          "name": "search",
+          "line": 68
+        },
+        {
+          "name": "__init__",
+          "line": 75
+        },
+        {
+          "name": "resolve",
+          "line": 83
+        },
+        {
+          "name": "search",
+          "line": 98
+        },
+        {
+          "name": "__init__",
+          "line": 108
+        },
+        {
+          "name": "resolve",
+          "line": 117
+        },
+        {
+          "name": "search",
+          "line": 136
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\loop_prompts.py",
+      "sha256": "cc9341fb345a13ec033655993be8b540ea4fcbf4fc617a1443448bd0f914d049",
+      "bytes": 2565,
+      "symbols": [
+        {
+          "name": "_tool_manifest",
+          "line": 10
+        },
+        {
+          "name": "build_loop_system_prompt",
+          "line": 20
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\q5_runtime.py",
+      "sha256": "b726df170bd0a31d2d8134f0e2402ce9c6768d36e1055570bafbfbb85d2bb7f9",
+      "bytes": 11639,
+      "symbols": [
+        {
+          "name": "q5_enabled",
+          "line": 19
+        },
+        {
+          "name": "_course_id",
+          "line": 23
+        },
+        {
+          "name": "_scope",
+          "line": 27
+        },
+        {
+          "name": "Q5Runtime",
+          "line": 32
+        },
+        {
+          "name": "__init__",
+          "line": 33
+        },
+        {
+          "name": "status",
+          "line": 39
+        },
+        {
+          "name": "has_path",
+          "line": 42
+        },
+        {
+          "name": "is_plan_request",
+          "line": 45
+        },
+        {
+          "name": "is_confirm",
+          "line": 50
+        },
+        {
+          "name": "is_adjust",
+          "line": 55
+        },
+        {
+          "name": "is_understood",
+          "line": 59
+        },
+        {
+          "name": "propose_chapter_plan",
+          "line": 65
+        },
+        {
+          "name": "plan_result",
+          "line": 120
+        },
+        {
+          "name": "format_plan",
+          "line": 145
+        },
+        {
+          "name": "confirm",
+          "line": 158
+        },
+        {
+          "name": "adjust_first",
+          "line": 164
+        },
+        {
+          "name": "advance_understood",
+          "line": 184
+        },
+        {
+          "name": "record_explained",
+          "line": 200
+        },
+        {
+          "name": "status_line",
+          "line": 213
+        },
+        {
+          "name": "loop_binding",
+          "line": 223
+        },
+        {
+          "name": "search",
+          "line": 232
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\q5_plan_generator.py",
+      "sha256": "47bd37e3e65744c6dcd3a2bb44015c939c10627e64bc4e762eb772fce923d61a",
+      "bytes": 2661,
+      "symbols": [
+        {
+          "name": "LLMPlanGenerator",
+          "line": 48
+        },
+        {
+          "name": "__init__",
+          "line": 49
+        },
+        {
+          "name": "generate",
+          "line": 52
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\q5_learning.py",
+      "sha256": "bd17c89df6c991229f776a93ca703893efd61aac9a3dc5a6319ff1a16031d361",
+      "bytes": 51377,
+      "symbols": [
+        {
+          "name": "intake_gaps",
+          "line": 39
+        },
+        {
+          "name": "LearningScope",
+          "line": 58
+        },
+        {
+          "name": "ObjectiveDraft",
+          "line": 66
+        },
+        {
+          "name": "PlanDraft",
+          "line": 75
+        },
+        {
+          "name": "Q5LearningService",
+          "line": 127
+        },
+        {
+          "name": "selection_source_ref",
+          "line": 1170
+        },
+        {
+          "name": "_selection_matches_refs",
+          "line": 1210
+        },
+        {
+          "name": "Q5Navigator",
+          "line": 1233
+        },
+        {
+          "name": "_default_source_valid",
+          "line": 1261
+        },
+        {
+          "name": "_no_path",
+          "line": 1274
+        },
+        {
+          "name": "_now",
+          "line": 1288
+        },
+        {
+          "name": "from_mapping",
+          "line": 82
+        },
+        {
+          "name": "__init__",
+          "line": 128
+        },
+        {
+          "name": "generate_plan",
+          "line": 138
+        },
+        {
+          "name": "create_plan",
+          "line": 168
+        },
+        {
+          "name": "bind_textbook_target",
+          "line": 176
+        },
+        {
+          "name": "bind_selection",
+          "line": 331
+        },
+        {
+          "name": "confirm_plan",
+          "line": 406
+        },
+        {
+          "name": "set_mode",
+          "line": 448
+        },
+        {
+          "name": "record_explained",
+          "line": 483
+        },
+        {
+          "name": "mark_understood",
+          "line": 525
+        },
+        {
+          "name": "switch_path",
+          "line": 639
+        },
+        {
+          "name": "leave_path",
+          "line": 664
+        },
+        {
+          "name": "revise_objective",
+          "line": 681
+        },
+        {
+          "name": "status",
+          "line": 725
+        },
+        {
+          "name": "list_paths",
+          "line": 788
+        },
+        {
+          "name": "current_target",
+          "line": 823
+        },
+        {
+          "name": "tool_state",
+          "line": 850
+        },
+        {
+          "name": "_persist_draft",
+          "line": 861
+        },
+        {
+          "name": "_validate_draft",
+          "line": 947
+        },
+        {
+          "name": "_replay",
+          "line": 977
+        },
+        {
+          "name": "_command",
+          "line": 981
+        },
+        {
+          "name": "_save_command",
+          "line": 996
+        },
+        {
+          "name": "_ensure_binding",
+          "line": 1013
+        },
+        {
+          "name": "_binding_path",
+          "line": 1026
+        },
+        {
+          "name": "_owned_path",
+          "line": 1047
+        },
+        {
+          "name": "_objective",
+          "line": 1068
+        },
+        {
+          "name": "_progress",
+          "line": 1074
+        },
+        {
+          "name": "_ordered_objectives",
+          "line": 1089
+        },
+        {
+          "name": "_path_payload",
+          "line": 1106
+        },
+        {
+          "name": "_objective_payload",
+          "line": 1137
+        },
+        {
+          "name": "_objective_sources_valid",
+          "line": 1161
+        },
+        {
+          "name": "_objective_sources_valid_by_refs",
+          "line": 1164
+        },
+        {
+          "name": "__init__",
+          "line": 1236
+        },
+        {
+          "name": "resolve",
+          "line": 1241
+        },
+        {
+          "name": "search",
+          "line": 1252
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\q5_tools.py",
+      "sha256": "b39a7e9b7a33705c5097d9547bef5ec10a932c1f8728e57e6958d88194ae127b",
+      "bytes": 11459,
+      "symbols": [
+        {
+          "name": "_json",
+          "line": 27
+        },
+        {
+          "name": "_command",
+          "line": 31
+        },
+        {
+          "name": "_Q5Tool",
+          "line": 36
+        },
+        {
+          "name": "MasteryStatusTool",
+          "line": 49
+        },
+        {
+          "name": "MasteryBuildTool",
+          "line": 64
+        },
+        {
+          "name": "MasteryNoteExplainedTool",
+          "line": 102
+        },
+        {
+          "name": "MasteryUnderstoodTool",
+          "line": 132
+        },
+        {
+          "name": "MasteryModeTool",
+          "line": 154
+        },
+        {
+          "name": "MasteryPathsTool",
+          "line": 191
+        },
+        {
+          "name": "MasterySwitchTool",
+          "line": 206
+        },
+        {
+          "name": "MasteryLeaveTool",
+          "line": 228
+        },
+        {
+          "name": "MasteryReviseTool",
+          "line": 247
+        },
+        {
+          "name": "q5_tool_instances",
+          "line": 276
+        },
+        {
+          "name": "build_q5_registry",
+          "line": 291
+        },
+        {
+          "name": "__init__",
+          "line": 37
+        },
+        {
+          "name": "_result",
+          "line": 41
+        },
+        {
+          "name": "_failure",
+          "line": 44
+        },
+        {
+          "name": "run",
+          "line": 57
+        },
+        {
+          "name": "run",
+          "line": 85
+        },
+        {
+          "name": "run",
+          "line": 119
+        },
+        {
+          "name": "run",
+          "line": 140
+        },
+        {
+          "name": "run",
+          "line": 176
+        },
+        {
+          "name": "run",
+          "line": 199
+        },
+        {
+          "name": "run",
+          "line": 216
+        },
+        {
+          "name": "run",
+          "line": 236
+        },
+        {
+          "name": "run",
+          "line": 258
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\tools\\mounting.py",
+      "sha256": "89e1be4e716335d29f7425f2ce89958794a98ccfab63fdc7d133f3c27c49ddf1",
+      "bytes": 7728,
+      "symbols": [
+        {
+          "name": "ToolMountFlags",
+          "line": 86
+        },
+        {
+          "name": "default_optional_tools",
+          "line": 104
+        },
+        {
+          "name": "compose_enabled_tools",
+          "line": 113
+        },
+        {
+          "name": "compose_for_scene",
+          "line": 160
+        },
+        {
+          "name": "_all_names",
+          "line": 192
+        },
+        {
+          "name": "_enabled",
+          "line": 199
+        },
+        {
+          "name": "_finalize",
+          "line": 206
+        },
+        {
+          "name": "_available",
+          "line": 130
+        },
+        {
+          "name": "_optional",
+          "line": 133
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\tools\\registry.py",
+      "sha256": "5688e1ca7d58baeca8a3449d076e3866aed63091fa8834541e06a1cb54c4fbb1",
+      "bytes": 22553,
+      "symbols": [
+        {
+          "name": "ToolSpec",
+          "line": 37
+        },
+        {
+          "name": "ToolRegistry",
+          "line": 76
+        },
+        {
+          "name": "AuthorizationProxy",
+          "line": 295
+        },
+        {
+          "name": "ScopedToolRegistry",
+          "line": 385
+        },
+        {
+          "name": "_entry_points",
+          "line": 575
+        },
+        {
+          "name": "_coerce_tool",
+          "line": 582
+        },
+        {
+          "name": "_coerce_result",
+          "line": 591
+        },
+        {
+          "name": "from_class_path",
+          "line": 45
+        },
+        {
+          "name": "create",
+          "line": 63
+        },
+        {
+          "name": "__init__",
+          "line": 79
+        },
+        {
+          "name": "register",
+          "line": 94
+        },
+        {
+          "name": "register_spec",
+          "line": 106
+        },
+        {
+          "name": "unregister",
+          "line": 114
+        },
+        {
+          "name": "load_builtins",
+          "line": 120
+        },
+        {
+          "name": "load_plugins",
+          "line": 131
+        },
+        {
+          "name": "resolve_request",
+          "line": 171
+        },
+        {
+          "name": "get",
+          "line": 184
+        },
+        {
+          "name": "names",
+          "line": 207
+        },
+        {
+          "name": "list_tools",
+          "line": 213
+        },
+        {
+          "name": "definitions",
+          "line": 216
+        },
+        {
+          "name": "schemas",
+          "line": 228
+        },
+        {
+          "name": "get_enabled",
+          "line": 231
+        },
+        {
+          "name": "get_definitions",
+          "line": 242
+        },
+        {
+          "name": "build_openai_schemas",
+          "line": 245
+        },
+        {
+          "name": "deferred_tools",
+          "line": 248
+        },
+        {
+          "name": "run",
+          "line": 258
+        },
+        {
+          "name": "canonical_arguments",
+          "line": 275
+        },
+        {
+          "name": "load_errors",
+          "line": 283
+        },
+        {
+          "name": "_validate_name",
+          "line": 288
+        },
+        {
+          "name": "__init__",
+          "line": 298
+        },
+        {
+          "name": "run",
+          "line": 320
+        },
+        {
+          "name": "_root_mismatch",
+          "line": 358
+        },
+        {
+          "name": "_refuse",
+          "line": 376
+        },
+        {
+          "name": "__init__",
+          "line": 393
+        },
+        {
+          "name": "grant",
+          "line": 426
+        },
+        {
+          "name": "_authorized",
+          "line": 429
+        },
+        {
+          "name": "_ensure_base_loaded",
+          "line": 434
+        },
+        {
+          "name": "get",
+          "line": 448
+        },
+        {
+          "name": "mount_tool",
+          "line": 465
+        },
+        {
+          "name": "names",
+          "line": 497
+        },
+        {
+          "name": "list_tools",
+          "line": 508
+        },
+        {
+          "name": "definitions",
+          "line": 511
+        },
+        {
+          "name": "schemas",
+          "line": 523
+        },
+        {
+          "name": "get_enabled",
+          "line": 526
+        },
+        {
+          "name": "get_definitions",
+          "line": 530
+        },
+        {
+          "name": "build_openai_schemas",
+          "line": 533
+        },
+        {
+          "name": "deferred_tools",
+          "line": 536
+        },
+        {
+          "name": "resolve_request",
+          "line": 543
+        },
+        {
+          "name": "run",
+          "line": 555
+        },
+        {
+          "name": "canonical_arguments",
+          "line": 571
+        },
+        {
+          "name": "_load",
+          "line": 54
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\orchestrator.py",
+      "sha256": "f7622f64ee5f31ce290eaac3e4f44c2dc283b8db074a387b760e0252459335db",
+      "bytes": 54345,
+      "symbols": [
+        {
+          "name": "retrieve_course",
+          "line": 52
+        },
+        {
+          "name": "TutorOrchestrator",
+          "line": 63
+        },
+        {
+          "name": "__init__",
+          "line": 64
+        },
+        {
+          "name": "handle_turn",
+          "line": 88
+        },
+        {
+          "name": "_quality_accepted",
+          "line": 818
+        },
+        {
+          "name": "_retrieval_query",
+          "line": 822
+        },
+        {
+          "name": "_align_explanation",
+          "line": 835
+        },
+        {
+          "name": "_prepare_hypotheses",
+          "line": 847
+        },
+        {
+          "name": "_lesson_text",
+          "line": 853
+        },
+        {
+          "name": "report",
+          "line": 101
+        },
+        {
+          "name": "save_exchange",
+          "line": 157
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\memory\\memory_manager.py",
+      "sha256": "83c3eb06f9bb1a6c4b98704bd3b6492021bfa8cf87322d92cfe195601ea6ef2f",
+      "bytes": 23737,
+      "symbols": [
+        {
+          "name": "MemoryManager",
+          "line": 24
+        },
+        {
+          "name": "__init__",
+          "line": 25
+        },
+        {
+          "name": "get_recent_moves",
+          "line": 32
+        },
+        {
+          "name": "push_recent_move",
+          "line": 35
+        },
+        {
+          "name": "ensure_student",
+          "line": 42
+        },
+        {
+          "name": "reset",
+          "line": 45
+        },
+        {
+          "name": "cleanup_expired",
+          "line": 54
+        },
+        {
+          "name": "get_active_goal",
+          "line": 57
+        },
+        {
+          "name": "set_active_goal",
+          "line": 63
+        },
+        {
+          "name": "list_knowledge_points",
+          "line": 66
+        },
+        {
+          "name": "list_learning_points",
+          "line": 69
+        },
+        {
+          "name": "get_history",
+          "line": 73
+        },
+        {
+          "name": "append",
+          "line": 76
+        },
+        {
+          "name": "append_exchange",
+          "line": 90
+        },
+        {
+          "name": "get_state",
+          "line": 101
+        },
+        {
+          "name": "save_state",
+          "line": 107
+        },
+        {
+          "name": "get_misconceptions",
+          "line": 112
+        },
+        {
+          "name": "find_misconception",
+          "line": 117
+        },
+        {
+          "name": "add_hypothesis",
+          "line": 129
+        },
+        {
+          "name": "add_evidence",
+          "line": 173
+        },
+        {
+          "name": "resolve_misconceptions",
+          "line": 197
+        },
+        {
+          "name": "list_evidence",
+          "line": 204
+        },
+        {
+          "name": "get_lesson_plan",
+          "line": 207
+        },
+        {
+          "name": "save_lesson_plan",
+          "line": 212
+        },
+        {
+          "name": "strategy_summary",
+          "line": 222
+        },
+        {
+          "name": "get_profile",
+          "line": 226
+        },
+        {
+          "name": "save_profile",
+          "line": 236
+        },
+        {
+          "name": "update_effectiveness",
+          "line": 239
+        },
+        {
+          "name": "snapshot",
+          "line": 247
+        },
+        {
+          "name": "rollback",
+          "line": 252
+        },
+        {
+          "name": "retrieve_context",
+          "line": 259
+        },
+        {
+          "name": "skill_summary",
+          "line": 265
+        },
+        {
+          "name": "memory_overview",
+          "line": 268
+        },
+        {
+          "name": "set_preferences",
+          "line": 271
+        },
+        {
+          "name": "forget_preference",
+          "line": 274
+        },
+        {
+          "name": "dispute_misconception",
+          "line": 277
+        },
+        {
+          "name": "forget_point",
+          "line": 280
+        },
+        {
+          "name": "read_version",
+          "line": 286
+        },
+        {
+          "name": "get_version",
+          "line": 290
+        },
+        {
+          "name": "get_previous_event",
+          "line": 293
+        },
+        {
+          "name": "commit_learning_turn",
+          "line": 296
+        },
+        {
+          "name": "record_graph_submission",
+          "line": 353
+        },
+        {
+          "name": "record_truth_table_submission",
+          "line": 378
+        },
+        {
+          "name": "record_relation_submission",
+          "line": 403
+        },
+        {
+          "name": "record_exercise_submission",
+          "line": 423
+        }
+      ]
+    },
+    {
+      "path": "E:\\项目\\heart-worktrees\\integration-q1-q4\\project\\integration\\discrete-math-tutor\\agents\\response_generator.py",
+      "sha256": "d3b101101588ece72a16abfe6fe3c7c0c32c941fb58af19fc03c246b4e665bd0",
+      "bytes": 17627,
+      "symbols": [
+        {
+          "name": "_library_guides",
+          "line": 28
+        },
+        {
+          "name": "ResponseGenerator",
+          "line": 93
+        },
+        {
+          "name": "__init__",
+          "line": 94
+        },
+        {
+          "name": "generate",
+          "line": 97
+        },
+        {
+          "name": "social_reply",
+          "line": 214
+        }
+      ]
+    }
+  ],
+  "tests": {
+    "passed": 136,
+    "warnings": 2,
+    "seconds": 10.32,
+    "modules": [
+      "test_capability_routing",
+      "test_tool_dispatch_pause_ordering",
+      "test_tool_dispatch_events",
+      "test_ask_user",
+      "test_explore_context_capability",
+      "test_context_builder"
+    ]
+  }
+}
