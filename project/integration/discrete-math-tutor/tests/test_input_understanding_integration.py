@@ -71,6 +71,12 @@ class InputIntegrationTests(unittest.TestCase):
         turn=TeachingTurn(context,request,Mock(),validate_sources=lambda rows:rows)
         self.assertIsNone(turn.restore_reply())
 
+    def test_negated_topic_switch_does_not_discard_the_pending_question(self):
+        context,request=bound('不要换个话题，先解释操作性定义。')
+        original=context.tutoring['progress']['pending_question']['question_id']
+        turn=TeachingTurn(context,request,Mock(),validate_sources=lambda rows:rows)
+        self.assertEqual(turn.progress.pending_question.question_id,original)
+
     def test_turn_only_no_questions_does_not_disable_future_checks(self):
         context,request=bound('先解释操作性定义，不要出题。')
         turn=TeachingTurn(context,request,Mock(),validate_sources=lambda rows:rows)

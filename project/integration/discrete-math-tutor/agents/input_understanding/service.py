@@ -12,7 +12,11 @@ def mode():
 
 
 def explicit_switch(request):
-    return bool(re.search(r'换个知识点|换个话题|不学这个|改学|(?:我要|我想|开始)学习第.{1,3}章', request.message))
+    for match in re.finditer(r'换个知识点|换个话题|不学这个|改学|(?:我要|我想|开始)学习第.{1,3}章', request.message):
+        prefix = request.message[max(0, match.start()-6):match.start()]
+        if not re.search(r'(?:不要|不用|别|不想|先不|不必).{0,2}$', prefix):
+            return True
+    return False
 
 
 def understand(context, request, *, llm=None, classifier=None):

@@ -260,7 +260,9 @@ class TeachingTurn:
         self.interjection = False
         if self.progress.learner_profile is None:
             self.progress.learner_profile = LearnerProfile(teaching_strategy="teach_first")
-        if CHANGE_TOPIC.search(request.message) or (
+        from agents.input_understanding.service import explicit_switch
+        changed_target = explicit_switch(request) if self.input_turn else CHANGE_TOPIC.search(request.message)
+        if changed_target or (
                 old.get("topic") and old["topic"] != topic) or (
                 old.get("target_id") and target_id and old["target_id"] != target_id):
             self.progress = self._fresh(topic,
