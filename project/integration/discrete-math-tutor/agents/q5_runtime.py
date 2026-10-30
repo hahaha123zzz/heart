@@ -46,9 +46,10 @@ class Q5Runtime:
     def has_path(self) -> bool:
         return bool(self.status().get("path_id"))
 
-    def is_plan_request(self, message: str) -> bool:
+    @staticmethod
+    def is_plan_request(message: str) -> bool:
         text = "".join(str(message or "").split())
-        return self.is_chapter_guide(text) or bool(re.search(r"(?:制定|生成|做一份|设计|规划|安排).{0,8}(?:学习|复习)?计划|"
+        return Q5Runtime.is_chapter_guide(text) or bool(re.search(r"(?:制定|生成|做一份|设计|规划|安排).{0,8}(?:学习|复习)?计划|"
                               r"(?:今天|这次|本次).{0,12}(?:怎么安排|先学什么)|"
                               r"(?:帮我|请|给我)?安排.{0,16}(?:分钟|小时|学习|复习)|"
                               r"(?:今天|这次|本次).{0,20}(?:分钟|小时).{0,20}(?:想学|学习|复习)", text))
