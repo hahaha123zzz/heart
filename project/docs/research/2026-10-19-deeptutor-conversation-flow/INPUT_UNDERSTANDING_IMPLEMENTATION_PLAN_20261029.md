@@ -1,6 +1,6 @@
 # 输入理解层 V1 执行计划
 
-日期：2026-10-29。2026-10-30 更新：**首批规则理解、公共接线、复合回题及偏好确认已实现；整个 IU0—IU7 尚未完成，不具备全场景启用条件。**逐项证据及未通过项见 [执行记录](INPUT_UNDERSTANDING_EXECUTION_LOG.md)。
+日期：2026-10-29。2026-10-30 更新：**首批规则理解、公共接线、复合回题及偏好确认已实现；整个 IU0—IU7 尚未完成，不具备全场景启用条件。**逐项证据及未通过项见 [首批执行记录](INPUT_UNDERSTANDING_EXECUTION_LOG.md) 和 [第二批执行记录](INPUT_UNDERSTANDING_SECOND_WAVE_20261030.md)。
 
 执行核对：原工作区实际为 `codex/ta5-acceptance-20261029 @ 816e78a`，包含 `7439ba5` 的后续修复；`main`/`origin/main` 均为 `3b212250`。本轮从实际工作版本建立 `codex/input-understanding-v1` 隔离工作树，未擅自把 TA5 分支称作 main，未合并或更新正式服务。此前计划中的“本地 main 7439ba5”表述已更正，详见 [基线](INPUT_UNDERSTANDING_BASELINE.md)。
 

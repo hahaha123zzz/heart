@@ -71,6 +71,20 @@ def request(llm, registry, *, message="解释这个概念", target=None, **kwarg
 
 
 class ToolProtocolTests(unittest.TestCase):
+    def test_followup_sends_one_bound_image_and_resets_prior_pixel_flag(self):
+        from unittest.mock import patch
+        source={'source_id':'s','text':'教材原文','image_refs':[{'id':'figure1','model_saw_pixels':True}]}
+        image={'role':'user','content':[{'type':'text','text':'原图'},
+                {'type':'image_url','image_url':{'url':'data:image/png;base64,AA=='}}], '_media_ids':['figure1']}
+        for message,expected in [('刚才那张图再解释一下',True),('解释这个概念',False)]:
+            llm=ScriptedLLM([final_round('说明')])
+            with patch('knowledge.answer_media.model_message',return_value=image):
+                result=LocalAgentLoop(llm).run(request(llm,ToolRegistry(),message=message,initial_sources=[source]))
+            content=str(llm.calls[0]['messages'])
+            self.assertEqual('image_url' in content,expected)
+            self.assertEqual(result.sources[0]['image_refs'][0]['model_saw_pixels'],expected)
+        self.assertTrue(source['image_refs'][0]['model_saw_pixels'])
+
     def test_registry_schemas_do_not_include_unmounted_tools(self):
         registry = ToolRegistry(); registry.register(EchoTool())
         schemas = registry.schemas()

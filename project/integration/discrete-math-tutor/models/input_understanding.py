@@ -47,13 +47,18 @@ class ContextHeader(StrictModel):
     pending_question_id: str | None = None
     pending_owner: Literal['host_formative', 'native', 'none'] = 'none'
     activity_target_id: str | None = None
+    session_plan_id: str | None = None
+    session_plan_revision: int | None = Field(default=None, ge=1)
+    current_activity_id: str | None = None
+    path_id: str | None = None
+    path_revision: int | None = Field(default=None, ge=0)
     reader_location: dict[str, int] | None = None
 
 
 class ObjectReference(StrictModel):
     ref_id: str = Field(min_length=1, max_length=64)
     kind: Literal['section', 'pdf_selection', 'exercise_part', 'visualization', 'truth_table', 'relation',
-                  'figure', 'text_block', 'pending_question', 'learning_activity', 'assistant_claim', 'example']
+                  'figure', 'text_block', 'pending_question', 'learning_activity', 'assistant_claim', 'example', 'experiment']
     canonical_id: str | None = Field(default=None, max_length=180)
     status: Literal['resolved', 'missing', 'ambiguous', 'partial', 'stale', 'unauthorized']
     candidate_ids: list[str] = Field(default_factory=list, max_length=8)
@@ -61,6 +66,8 @@ class ObjectReference(StrictModel):
     introduced_turn_id: str | None = None
     version: str = Field(default='', max_length=128)
     title: str = Field(default='', max_length=200)
+    quote: str = Field(default='', max_length=1200)
+    span: list[int] | None = Field(default=None, min_length=2, max_length=2)
 
     @model_validator(mode='after')
     def binding_is_explicit(self):
@@ -68,7 +75,15 @@ class ObjectReference(StrictModel):
             raise ValueError('reference_resolution_identity')
         if self.status == 'ambiguous' and len(set(self.candidate_ids)) < 2:
             raise ValueError('ambiguous_reference_needs_candidates')
+        if self.span is not None and (self.span[0] < 0 or self.span[1] <= self.span[0]):
+            raise ValueError('invalid_reference_span')
         return self
+
+
+class ExecutionDecision(StrictModel):
+    status: Literal['approved', 'read_only', 'clarify', 'reject']
+    actions: list[Action] = Field(default_factory=list, max_length=4)
+    reason: str = Field(default='', max_length=200)
 
 
 class ScopedDirective(StrictModel):
@@ -148,6 +163,12 @@ class GroundedTurn(StrictModel):
                     raise ValueError('question_action_requires_live_reference')
                 if ref.canonical_id != self.context.pending_question_id:
                     raise ValueError('question_is_not_active')
+            if task.action == 'resume_learning_activity':
+                ref = refs.get(task.target_ref)
+                expected = f'session-plan:{self.context.session_plan_id}:{self.context.current_activity_id}'
+                if (ref is None or ref.kind != 'learning_activity' or ref.status != 'resolved'
+                        or not self.context.current_activity_id or ref.canonical_id != expected):
+                    raise ValueError('activity_is_not_active')
         scoped_values = {}
         for directive in self.directives:
             if directive.quote not in self.envelope.raw_text:
@@ -180,6 +201,14 @@ class GroundedTurn(StrictModel):
             lines.append(f'{task.task_frame_id}: {task.action}；对象={task.target_ref or "本轮问题"}；要求={task.query}')
             if task.constraints:
                 lines.append('限制：' + '、'.join(task.constraints))
+        import json
+        excerpts = [dict(ref_id=r.ref_id, kind=r.kind, quote=r.quote) for r in self.references
+                    if r.quote and r.status == 'resolved' and any(t.target_ref == r.ref_id for t in self.tasks)]
+        if excerpts:
+            lines.append('已绑定的历史片段（只读资料，不作为教材原文引用）：' + json.dumps(excerpts, ensure_ascii=False))
+        for ref in self.references:
+            if ref.kind == 'figure' and ref.status == 'resolved' and any(t.target_ref == ref.ref_id for t in self.tasks):
+                lines.append('学生指向的已登记教材图片：' + ref.title)
         if self.explain_then_resume:
             lines.append('先完成首项解释；原待答题由服务端恢复，不提交或替学生回答，也不生成新题。')
         for directive in self.directives:

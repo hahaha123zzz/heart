@@ -34,7 +34,7 @@ def bind_resources(request, memory):
     bound = ReadBinding(request.student_id, request.session_id, request.task_id or request.request_id,
         COURSE_ID, release['release_id'], tuple((d['document_id'], d['version']) for d in documents()))
     resources = ReadResources(bound, CourseReadService(), ReadonlyMemoryContext(memory) if memory else None)
-    if memory is not None and re.search(r'刚才|这个来源|这条来源', request.message):
+    if memory is not None and re.search(r'刚才|这个来源|这条来源|(?:这|那)(?:张|幅|个)?图', request.message):
         from database.learning_tasks import LearningTaskRepository
         recent = LearningTaskRepository().recent(request.student_id, request.session_id, limit=1)
         previous = recent[-1]['result'] if recent else {}

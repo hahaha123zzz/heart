@@ -1,0 +1,101 @@
+action	context	constraint	text
+explain_content	empty		什么是自变量？
+explain_content	empty		因变量是什么？
+explain_content	empty		请解释操作性定义。
+explain_content	empty		如何理解内部效度？
+explain_content	empty		实验中的随机分配为什么重要？
+explain_content	empty		主效应是什么意思？
+explain_content	empty		这个公式里的 d' 怎么读？
+explain_content	empty		请说明速度与准确率的权衡。
+explain_content	empty		拉丁方设计解决什么问题？
+explain_content	empty		信度应该如何理解？
+compare_content	empty		比较自变量和因变量。
+compare_content	empty		区分内部效度与外部效度。
+compare_content	empty		相关和因果有什么区别？
+compare_content	empty		被试内设计和被试间设计的区别。
+compare_content	empty		请比较主效应与交互作用。
+compare_content	empty		如何区分反应时与正确率？
+compare_content	empty		比较心理物理学三种阈限测量法。
+compare_content	empty		顺序效应和传递效应有什么区别？
+compare_content	empty		随机区组与拉丁方的区别。
+compare_content	empty		区分额外变量和控制变量。
+provide_hint	empty	hint_only	只给一个提示。
+provide_hint	empty	hint_only	只要一点提示，不要直接给出结论。
+provide_hint	pending	no_full_answer	不要给我完整答案，只给一个提示。
+provide_hint	pending	hint_only	只给提示：我应该先看实验的哪一项？
+provide_hint	empty	no_full_answer	不要直接给完整答案。
+provide_hint	empty	hint_only	请只要一个提示，关于内部效度。
+provide_hint	pending	no_full_answer	只给一点提示，不要替我作答。
+provide_hint	pending	hint_only	这一题只要提示。
+provide_hint	empty	hint_only	只给一个提示，别写计算结果。
+provide_hint	empty	hint_only	信号检测论只要一个提示。
+explain_content	empty	no_questions	解释自变量，不要出题。
+explain_content	empty	no_questions	解释因变量，不要再问我。
+explain_content	empty	no_questions	只讲不考，说明反应时。
+explain_content	empty	no_questions	我今天只讲解不测验。
+explain_content	pending	no_questions	不出题，先说明操作性定义。
+explain_content	empty	verdict_only	只判断对错：我的理解对吗？
+explain_content	empty	verdict_only	只确认是否正确。
+compare_content	empty	no_questions	比较内外部效度，不要出题。
+compare_content	empty	no_questions	区分相关与因果，只讲不考。
+explain_content	pending	no_questions	请解释反馈，不要再出题。
+request_practice	empty		考考我对自变量的理解。
+request_practice	empty		出一道内部效度的题。
+request_practice	empty		请用分步练习教我随机分配。
+request_practice	empty		出一道有选项的小题。
+request_practice	empty		考考我实验伦理。
+discuss_claim	empty		我觉得实验没控制好。
+discuss_claim	empty		我觉得这个设计不合理。
+discuss_claim	empty		我觉得结论有问题。
+discuss_claim	empty		我觉得研究中的控制不合理。
+discuss_claim	empty		我觉得随机化有问题。
+submit_student_answer	pending		我选A
+submit_student_answer	pending		我选 B
+submit_student_answer	pending		选A
+submit_student_answer	pending		A
+submit_student_answer	pending		B
+!submit_student_answer	pending		我不选B
+!submit_student_answer	pending		不是B
+!submit_student_answer	pending		不能选B
+!submit_student_answer	pending		还没选B
+!submit_student_answer	pending		没决定B
+!submit_student_answer	pending		为什么B不对？
+!submit_student_answer	pending		B或C
+!submit_student_answer	pending		A还是B
+!submit_student_answer	pending		A/B
+!submit_student_answer	pending		解释一下选项A
+!submit_student_answer	pending		如何判断选项B？
+!submit_student_answer	pending		不要选B，先给提示
+!submit_student_answer	pending		不是提交，我在问选项含义
+!submit_student_answer	pending		先插问：操作性定义是什么
+!submit_student_answer	pending		不要替我作答，我还没作答
+resume_pending_question	pending		回到原题
+resume_pending_question	pending		回到原来的题。
+resume_pending_question	pending		返回刚才的题
+resume_pending_question	pending		请回到这道题
+resume_pending_question	pending		回到原来的题，我还没作答。
+!resume_pending_question	pending		不要回到原题，解释信度。
+!resume_pending_question	pending		不用返回原题，先讲效度。
+!resume_pending_question	pending		别回到原题，我想提问。
+!resume_pending_question	pending		先不回到原题，讲一下操作性定义。
+!resume_pending_question	empty		回到原来的题。
+explain_content+resume_pending_question	pending		先解释操作性定义，再回到原题。
+explain_content+resume_pending_question	pending		先讲解内部效度，然后返回原题。
+explain_content+resume_pending_question	pending	no_full_answer	先说明这个公式，再回到原题，不要替我作答。
+explain_content+resume_pending_question	pending		请解释“主效应”这个词，再回到原题。
+explain_content+resume_pending_question	pending		先解释“反应时”，再返回原题。
+explain_content+resume_pending_question	pending		先讲解因变量，再回到原来的题。
+explain_content+resume_pending_question	pending		先说明自变量，然后回到刚才的题。
+explain_content+resume_pending_question	pending		先解释随机分配，再返回刚才的题。
+explain_content+resume_pending_question	pending	no_full_answer	先解释构思效度，再回到原题，不要给我完整答案。
+explain_content+resume_pending_question	pending		先说明顺序效应，然后返回这道题。
+explain_content	example		刚才那个例子，再通俗解释一遍。
+explain_content	ambiguous		前面那个例子，详细讲一下。
+explain_content	empty		刚才那个例子是什么？
+resume_learning_activity	plan		回到刚才的学习安排。
+resume_learning_activity	plan		继续本次安排。
+!resume_learning_activity	plan		不要回到学习安排，解释信度。
+propose_learning_plan	empty		请制定学习计划。
+propose_learning_plan	empty		今天怎么安排？
+propose_learning_plan	empty		帮我安排20分钟学习。
+propose_learning_plan	empty		生成一份复习计划。

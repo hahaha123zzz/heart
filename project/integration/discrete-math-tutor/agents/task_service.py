@@ -211,6 +211,10 @@ class TaskService:
         from agents.input_understanding.service import mode
         from agents.input_understanding.adapters import preserve_activity
         context.input_mode = mode()
+        if context.input_mode != 'off':
+            from agents.input_understanding.references import collect_objects
+            context.reference_objects = collect_objects(recent, self.tutor.memory.repo, request.student_id, request.session_id,
+                include_media=bool(re.search(r'(?:刚才|这|那).{0,6}(?:图|图片)',request.message)))
         preserve_activity(context, request)
         return context, resolved, origins
 
@@ -224,14 +228,17 @@ class TaskService:
                 position = {"一": 0, "二": 1, "三": 2, "四": 3, "1": 0, "2": 1, "3": 2, "4": 3}[match[1]]
                 if position >= len(options): raise TaskConflict("invalid_option", "没有这个选项，请选择列出的对象")
                 chosen = options[position]["id"]
-        suffix = "\n补充说明：" + request.message
+        clarification_mode = row["result"].get("clarification", {}).get("mode")
+        suffix = ("\n补充说明：已选择历史片段。" if chosen and clarification_mode == 'input_reference'
+                  else "\n补充说明：" + request.message)
         if chosen:
             option = next((value for value in options if value["id"] == chosen), None)
             if option is None:
                 raise TaskConflict("invalid_option", "选项不存在或已失效，请恢复最新任务")
-            clarification_mode = row["result"].get("clarification", {}).get("mode")
             if clarification_mode == "ask_user":
                 suffix += "\n明确回答：" + option["label"]
+            elif clarification_mode == "input_reference":
+                suffix += "\n已按所选片段恢复原任务。"
             elif clarification_mode in ("q5_plan", "q5_plan_adjust", "q5_session_plan", "q5_session_adjust", "q5_session_intake"):
                 suffix += "\n明确选择：" + option["label"]
             else:
@@ -315,6 +322,10 @@ class TaskService:
                 task_id, revision = pending["id"], pending["revision"]
             previous = self.repo.resume(request.student_id, request.session_id, task_id, revision, self.tutor.memory.repo) if task_id else None
             if previous is not None:
+                from agents.input_understanding.service import mode as input_mode
+                if previous['result'].get('clarification', {}).get('mode') == 'input_reference' and input_mode() != 'active':
+                    return {'answer_status':'input_mode_disabled','reply':'该任务需要输入理解层恢复；请重新启用后继续，或取消后重新提问。',
+                            'step_advanced':False,'task_id':previous['id'],'task_revision':previous['revision']}
                 # The loop needs the raw answer, not the merged "补充说明" body.
                 previous["_resume_answer"] = self._selected_label(request, previous)
             effective = self._resume(request, previous) if previous else request
@@ -372,8 +383,10 @@ class TaskService:
                 from agents.input_understanding.service import understand
                 from agents.input_understanding.adapters import resume_understanding
                 self.repo.guard(task['student_id'],task['session_id'],task['id'],task['revision'],self.tutor.memory.repo)
+                if q5 is not None and q5.sessions.ready():
+                    context.session_study_plan = q5.sessions.current()
                 context.input_understanding = stage_call('input_understanding',lambda:
-                    resume_understanding(previous,request,request_key) or understand(context,
+                    resume_understanding(previous,request,request_key,context) or understand(context,
                         request.model_copy(update={'request_id': request_key}),llm=self.tutor.llm))
                 self.repo.guard(task['student_id'],task['session_id'],task['id'],task['revision'],self.tutor.memory.repo)
             if context.input_understanding is not None:
@@ -381,6 +394,22 @@ class TaskService:
                 snapshot = context.input_understanding.model_dump()
                 snapshot['context'].update(task_id=task['id'],task_revision=task['revision'],memory_epoch=epoch)
                 context.input_understanding = GroundedTurn.model_validate(snapshot)
+            if context.input_mode == 'active' and context.input_understanding:
+                from agents.input_understanding.decision import decide, clarification_result
+                from agents.input_understanding.adapters import final_summary
+                context.input_decision = decide(context.input_understanding)
+                if context.input_decision.status in ('clarify', 'reject'):
+                    limited = task['clarification_count'] >= self.max_clarifications
+                    allowed = can_clarify and not limited and context.input_decision.status == 'clarify'
+                    result = clarification_result(context.input_understanding, context) if allowed else {
+                        'answer_status':'clarification_limit' if limited else 'input_rejected',
+                        'reply':'当前请求无法安全绑定对象或包含多个写入动作，请拆开或重新提供具体内容。','step_advanced':False}
+                    result['input_understanding'] = final_summary(context,result)
+                    self.repo.guard(task['student_id'],task['session_id'],task['id'],task['revision'],self.tutor.memory.repo)
+                    _, result = self.repo.save(task=task,receipt_id=receipt,memory_repo=self.tutor.memory.repo,
+                        status='awaiting_clarification' if allowed else 'failed',result=result,
+                        context=context.model_dump() | {'document_versions':document_versions},payload=effective.model_dump())
+                    return result
 
             q5_binding = None
             if q5 is not None and context.selection_scope is None:
@@ -483,6 +512,9 @@ class TaskService:
                 from llm.execution_budget import check_budget
                 check_budget()
                 self.repo.guard(task["student_id"], task["session_id"], task["id"], task["revision"], self.tutor.memory.repo)
+                if context.input_mode == 'active' and context.input_understanding:
+                    from agents.input_understanding.references import guard_bound_objects
+                    guard_bound_objects(context.input_understanding,self.repo,self.tutor.memory.repo)
                 if q5 and q5.session_snapshot:
                     try:q5.session_guard()
                     except ValueError as exc:raise TaskConflict('session_plan_changed',str(exc)) from exc

@@ -69,9 +69,16 @@ class MemoryManagementRepository:
         with session_scope(immediate=True) as session:
             if session.get(Student,student_id) is None:
                 raise LookupError("学生不存在")
-            profile=self.get_profile(student_id);profile.preferences.update(values)
+            profile=self.get_profile(student_id)
+            explicit=set(session.scalars(select(MemoryChangeRow.item_key).where(
+                MemoryChangeRow.student_id==student_id,MemoryChangeRow.action=='set_preference',
+                MemoryChangeRow.item_key.in_(values))))
+            changed={key:value for key,value in values.items() if key not in explicit or profile.preferences.get(key)!=value}
+            if not changed:
+                return profile.preferences
+            profile.preferences.update(changed)
             self.save_profile(profile)
-            for key in values:
+            for key in changed:
                 session.add(MemoryChangeRow(student_id=student_id,action="set_preference",item_key=key))
             return profile.preferences
 

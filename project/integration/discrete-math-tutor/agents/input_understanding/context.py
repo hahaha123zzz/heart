@@ -9,8 +9,13 @@ def pending_question(context):
 def state_projection(context, request):
     from knowledge.course_config import COURSE_ID
     pending = pending_question(context)
-    from agents.input_understanding.references import object_references
-    refs = object_references(context)
+    from agents.input_understanding.references import object_references, figure_references
+    refs = [*object_references(context), *figure_references(request)]
+    plan = context.session_study_plan or {}
+    if plan.get('current_item_id') and plan.get('plan_id'):
+        refs.append(ObjectReference(ref_id='activity',kind='learning_activity',status='resolved',origin='task',
+            canonical_id='session-plan:'+plan['plan_id']+':'+plan['current_item_id'],version=str(plan['revision']),
+            title=str(next((i.get('title') or i.get('goal') for i in plan.get('items',[]) if i.get('item_id')==plan['current_item_id']), '') or '')[:200]))
     if pending.get('question_id'):
         refs.append(ObjectReference(ref_id='pending', kind='pending_question',
             canonical_id=pending['question_id'], status='resolved', origin='task',
@@ -20,6 +25,8 @@ def state_projection(context, request):
         pending_question_id=pending.get('question_id'),
         pending_owner='host_formative' if pending else 'none',
         activity_target_id=(context.tutoring or {}).get('target_id'),
+        session_plan_id=plan.get('plan_id'),session_plan_revision=plan.get('revision'),
+        current_activity_id=plan.get('current_item_id'),path_id=plan.get('path_id'),path_revision=plan.get('path_revision'),
         reader_location=request.reader_location.model_dump() if request.reader_location else None)
     return header, refs
 

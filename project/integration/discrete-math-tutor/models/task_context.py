@@ -1,7 +1,7 @@
 """只允许已校验资源进入任务上下文；不存储新的学生能力判断。"""
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
-from models.input_understanding import GroundedTurn
+from models.input_understanding import GroundedTurn, ObjectReference, ExecutionDecision
 
 
 class ReaderLocation(BaseModel):
@@ -53,11 +53,14 @@ class TaskContext(BaseModel):
     input_understanding: GroundedTurn | None = None
     input_mode: Literal['off', 'shadow', 'active'] = 'off'
     activity_target: dict | None = None
+    reference_objects: list[ObjectReference] = Field(default_factory=list, max_length=8)
+    input_decision: ExecutionDecision | None = None
 
     def prompt_payload(self):
         # 识别无需知道学生ID，不把其作为模型生成引用的候选对象。
         payload = self.model_dump(exclude={"student_id", "session_id", "request_id", "task_understanding_enabled",
-                                           "input_understanding", "input_mode", "activity_target", "current_object_ids"})
+                                           "input_understanding", "input_mode", "activity_target", "current_object_ids",
+                                           "reference_objects", "input_decision"})
         if payload.get('truth_table_snapshot'):
             payload['truth_table_snapshot'].pop('evaluation', None)
         if payload.get('relation_snapshot'):

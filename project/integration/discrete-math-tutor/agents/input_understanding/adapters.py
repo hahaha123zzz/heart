@@ -21,10 +21,11 @@ def active_turn(context):
     return context.input_understanding if getattr(context,'input_mode','off') == 'active' else None
 
 
-def resume_understanding(previous, request, request_key):
+def resume_understanding(previous, request, request_key, context=None):
     """沿已授权暂停任务恢复；本次用户原话与原任务要求分别保存。"""
     state=(previous or {}).get('context') or {}
-    if not (state.get('loop_state') or {}).get('pending_tool_call_id') or not state.get('input_understanding'):
+    reference_resume = (previous or {}).get('result', {}).get('clarification', {}).get('mode') == 'input_reference'
+    if not state.get('input_understanding') or not (reference_resume or (state.get('loop_state') or {}).get('pending_tool_call_id')):
         return None
     from models.input_understanding import GroundedTurn,InputEnvelope
     from agents.input_understanding.rules import normalize
@@ -34,6 +35,32 @@ def resume_understanding(previous, request, request_key):
     value['reply_envelope']=InputEnvelope(request_id=request_key,raw_text=request.message,
         normalized_text=normalized or request.message,source_positions=positions or list(range(len(request.message))),
         input_kind='clarification').model_dump()
+    if reference_resume:
+        from agents.input_understanding.decision import selected_reference
+        chosen = selected_reference(previous, request)
+        if any(t.action == 'resume_pending_question' for t in turn.tasks):
+            if not context or pending_question(context).get('question_id') != turn.context.pending_question_id:
+                from database.learning_tasks import TaskConflict
+                raise TaskConflict('reference_stale', '原待答题已失效，不能按旧引用恢复。')
+        if chosen:
+            offered = {o['id'] for o in previous['result']['clarification']['options']}
+            matched = next((r for r in context.reference_objects if r.canonical_id == chosen), None) if context else None
+            if chosen not in offered or matched is None:
+                from database.learning_tasks import TaskConflict
+                raise TaskConflict('reference_stale', '原片段已失效，请重新提供内容。')
+            value['references'] = [dict(matched.model_dump(), ref_id=r['ref_id'])
+                if r['status'] in ('ambiguous', 'missing', 'partial') else r for r in value['references']]
+            value['resolution_status'] = 'resolved'
+        elif not previous['result']['clarification']['options'] and len(request.message.strip()) >= 5:
+            # 没有原对象时补充仅形成只读 query，不凭空登记历史身份。
+            for task in value['tasks']:
+                if task['target_ref'] and any(r.ref_id == task['target_ref'] and r.status != 'resolved' for r in turn.references):
+                    task['target_ref'] = None
+                    task['query'] = (task['query'] + '\n用户补充资料：' + request.message)[:4000]
+            value['resolution_status'] = 'partial'
+        for task in value['tasks']:
+            if task['state'] == 'paused':
+                task['state'] = 'pending'
     return GroundedTurn.model_validate(value)
 
 
@@ -51,9 +78,12 @@ def legacy_routing(context):
     objects={obj.id for obj in context.objects}
     ref=next((r for r in turn.references if r.ref_id==task.target_ref),None)
     targets=[ref.canonical_id] if ref and ref.canonical_id in objects else []
+    query = context.message
+    if ref and ref.quote:
+        query += '\n已绑定的同会话历史资料（不是教材引文）：' + ref.quote
     return TaskUnderstanding(student_move='question',intent='continue',confidence=1.,
         learning_intents=[intent],target_refs=targets,answer_constraints=list(task.constraints),
-        rewritten_query=context.message,needs_context=bool(targets),reason='已校验输入协议的确定性投影')
+        rewritten_query=query[:4000],needs_context=bool(targets or ref),reason='已校验输入协议的确定性投影')
 
 
 def preference_proposal(context):
@@ -71,6 +101,9 @@ def final_summary(context, result):
     if not turn:
         return None
     completed = result.get('answer_status') == 'answered'
+    if completed and turn.context.task_id:
+        from agents.input_understanding.references import introduced_objects
+        context.reference_objects = introduced_objects(turn.context.task_id, str(result.get('reply') or ''))
     value=turn.model_dump()
     for frame in value['tasks']:
         done=completed
@@ -80,6 +113,9 @@ def final_summary(context, result):
             done=done and (result.get('teaching') or {}).get('turn_move')=='answer'
         elif frame['action']=='propose_learning_plan':
             done=bool(result.get('session_plan') or result.get('q5_plan') or result.get('clarification',{}).get('mode')=='q5_session_plan')
+        elif frame['action']=='resume_learning_activity':
+            plan = (result.get('q5_status') or {}).get('session_plan') or result.get('session_plan') or {}
+            done = done and plan.get('current_item_id') == turn.context.current_activity_id and bool(plan.get('current_item_id'))
         frame['state']='completed' if done else 'paused' if result.get('loop_paused') else 'pending'
     from models.input_understanding import GroundedTurn
     context.input_understanding=GroundedTurn.model_validate(value)

@@ -32,6 +32,35 @@ class InputSemanticTests(unittest.TestCase):
         model=Mock();parse(model,'什么是自变量？')
         model.chat_json.assert_not_called()
 
+    def test_ordered_distinct_steps_are_resolved_but_a_simple_example_is_not(self):
+        for message in ('先说明自变量，然后比较因变量，最后概括差异。','先解释自变量，再比较因变量。'):
+            model=Mock();model.chat_json.return_value=candidate()
+            self.assertEqual(parse(model,message).parser,'model')
+            model.chat_json.assert_called_once()
+        model=Mock();parse(model,'先解释自变量再举一个例子')
+        model.chat_json.assert_not_called()
+
+    def test_clarification_without_reference_does_not_invent_an_example(self):
+        from agents.input_understanding.decision import clarification_result
+        model=Mock();model.chat_json.return_value=candidate()|{'clarification_needed':True}
+        turn=parse(model)
+        result=clarification_result(turn,TaskContext(student_id='s',message=turn.envelope.raw_text))
+        self.assertIn('具体对象或步骤',result['reply'])
+        self.assertNotIn('例子',result['reply'])
+
+    def test_model_cannot_drop_a_previously_resolved_example(self):
+        from agents.input_understanding.references import introduced_objects
+        message='先解释刚才那个例子，再比较因变量，最后总结。'
+        context=TaskContext(student_id='s',session_id='x',message=message,
+            reference_objects=introduced_objects('t','例子一：研究者操纵光照。'))
+        request=ChatRequest(student_id='s',session_id='x',request_id='r',message=message)
+        model=Mock();model.chat_json.return_value=candidate()
+        with patch.dict('os.environ',{'INPUT_UNDERSTANDING_SEMANTIC_ENABLED':'1'}):
+            turn=understand(context,request,llm=model)
+        self.assertEqual(turn.parser,'fallback')
+        self.assertEqual(turn.tasks[0].target_ref,'mention')
+        model.chat_json.assert_called_once()
+
     def test_schema_failure_has_one_repair_and_stops(self):
         model=Mock();model.chat_json.side_effect=[{},{}]
         turn=parse(model)

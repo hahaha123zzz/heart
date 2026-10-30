@@ -469,7 +469,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         workspace_root.mkdir(parents=True, exist_ok=True)
     from knowledge.lightrag.q3_adapter import ContextualRetrieveCourseTool
     q5_tools = tuple((q5_binding or {}).get('tool_instances') or ())
-    if interjection:
+    # 输入层启用后，路径写入由宿主显式命令执行；模型不能从历史资料推导推进授权。
+    host_owned_learning = context.input_mode == 'active'
+    if interjection or host_owned_learning:
         q5_tools = tuple(tool for tool in q5_tools if tool.definition.name in ('mastery_status', 'mastery_paths'))
     registry = build_registry(
         workspace_root=workspace_root,
@@ -478,7 +480,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         allow_skills=skills_root.is_dir(),
         extra_tools=(*q5_tools, ContextualRetrieveCourseTool(), *first_tools,
                      *((TeachingStepTool(teaching),) if teaching else ())),
-        extra_scopes=tuple({'learning:read'} if interjection else set((q5_binding or {}).get('scopes') or ())) +
+        extra_scopes=tuple({'learning:read'} if interjection or host_owned_learning else set((q5_binding or {}).get('scopes') or ())) +
                      tuple({scope for tool in first_tools for scope in tool.scopes}),
     )
     budget = reply_budget(request.message)
@@ -490,6 +492,14 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     input_turn = active_turn(context)
     if input_turn:
         system_prompt += '\n' + input_turn.instructions()
+    typed_queries = [t.query for t in input_turn.tasks if t.action in (
+        'explain_content','compare_content','provide_hint','discuss_claim') and t.query] if input_turn else []
+    typed_prefetch = bool(input_turn and input_turn.parser == 'model' and len(typed_queries) > 1
+                          and input_turn.resolution_status in ('resolved', 'partial'))
+    fallback_prefetch = bool(input_turn and input_turn.parser == 'fallback'
+                             and 'complex_parse_unavailable' in input_turn.unresolved)
+    if typed_prefetch:
+        prefetch_message = '；'.join(typed_queries)[:4000]
     if tool_purpose == 'textbook':
         from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions
         from models.interaction_preferences import style_instructions
@@ -622,12 +632,15 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 round_max_tokens=round_tokens, requires_evidence=(tool_purpose == 'textbook' and
                     (resume_needs_evidence or needs_teaching_question or needs_review_evidence or teaching is None or teaching.evidence_mode != 'blended')),
                 required_tools=required_tools,
+                bound_media_id=next((r.canonical_id for r in input_turn.references
+                    if r.kind == 'figure' and r.status == 'resolved' and r.origin == 'history'
+                    and any(t.target_ref == r.ref_id for t in input_turn.tasks)),None) if input_turn else None,
                 structured_response=bool(needs_presentation or resources and tool_purpose in STRUCTURED_TOOL and publish_gate is None),
                 answer_ready=((lambda outcome: bool(outcome.sources) or
                     (teaching.evidence_mode == 'blended' and not resume_needs_evidence
                      and not needs_teaching_question and not needs_review_evidence)) if teaching else None),
                 prefetch_query=(prefetch_message if resume_needs_evidence or (tool_purpose == 'textbook' and 'ask_user' not in required_tools and not resume_state and not initial_sources and (
-                    q5_binding or (context.course_navigation or {}).get("status")=="ready" or
+                    typed_prefetch or fallback_prefetch or q5_binding or (context.course_navigation or {}).get("status")=="ready" or
                     (getattr(navigation.backend,"backend",None) is not None and target is not None and
                      (question_interjection(request.message,target) or target.name in request.message)))) else None),
                 seed_messages=([] if selection_input and selection_input.scope_changed

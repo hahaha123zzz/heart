@@ -187,8 +187,9 @@ def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -
         return []
     if labels:
         exact = [figure for figure in load_figures()
-                if figure.kind in kinds and figure.is_valid()
-                and any((int(a), int(b)) in labels for a, b in FIGURE_NUMBER.findall(figure.label))][:limit]
+                if figure.kind in kinds
+                and any((int(a), int(b)) in labels for a, b in FIGURE_NUMBER.findall(figure.label))
+                and figure.is_valid()][:limit]
         if exact:
             return exact
         # 明确图号未命中时不以相似图替代。

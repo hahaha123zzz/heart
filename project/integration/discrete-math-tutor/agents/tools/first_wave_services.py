@@ -31,7 +31,8 @@ class CourseReadService:
 
     def verify_source(self, binding, source):
         """登记时重核实际范围，不能把任意source_index字符串升级成教材证据。"""
-        from knowledge.citation_index import LiveCitationIndex
+        from knowledge.citation_index import CitationIndex, LiveCitationIndex
+        from knowledge.grounded_citations import settings
         evidence = source['location']['evidence']
         block_id = evidence.get('source_block_id')
         if block_id is None:
@@ -40,7 +41,8 @@ class CourseReadService:
             if len(rows) != 1 or rows[0]['text'] != source['text'] or evidence.get('location_status') != 'page':
                 raise ReadFailure('unverified_source', '页级原文范围不匹配。')
             return
-        index = LiveCitationIndex()
+        index_path = settings()
+        index = LiveCitationIndex() if index_path in (None, 'live') else CitationIndex(index_path)
         try:
             blocks = index.blocks(source['document_id'], block_id, block_id)
             start, end = evidence.get('block_start'), evidence.get('block_end')
@@ -52,8 +54,12 @@ class CourseReadService:
             located = index.locate(source['document_id'], source['version'], source['text'], block_id=block_id)
             if evidence.get('location_status') == 'section':
                 from knowledge.grounding_text import normalized
+                document = index.document(source['document_id'], source['version'])
+                folded = document.get('folded')
+                if folded is None:
+                    folded = normalized(document['text'])
                 valid = (not evidence.get('rects') and normalized(source['text']) in
-                         index.document(source['document_id'], source['version'])['folded'])
+                         folded)
             else:
                 valid = (evidence.get('location_status') == 'exact' and located['status'] == 'exact'
                          and located['rects'] == evidence.get('rects'))

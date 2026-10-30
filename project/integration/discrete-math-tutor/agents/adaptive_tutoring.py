@@ -393,7 +393,12 @@ class TeachingTurn:
         pending = self.progress.pending_question
         if self.input_turn:
             from agents.input_understanding.rules import non_submission
-            if non_submission(self.request.message):
+            refs={r.ref_id:r for r in self.input_turn.references}
+            readonly_request = any(t.action == 'provide_hint' or t.constraints or
+                (t.target_ref in refs and refs[t.target_ref].kind in ('figure','pdf_selection','exercise_part'))
+                for t in self.input_turn.tasks) and not any(
+                                       t.action == 'submit_student_answer' for t in self.input_turn.tasks)
+            if non_submission(self.request.message) or readonly_request:
                 self.interjection = True
                 self.state['turn_move'] = 'question'
                 return

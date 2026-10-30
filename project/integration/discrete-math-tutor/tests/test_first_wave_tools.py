@@ -161,6 +161,27 @@ class TextbookFixture(TextbookResourceFixture):
             register_sources(self.context, [source])
         self.assertEqual(self.resources.source_index, {})
 
+    def test_registration_uses_same_bound_index_as_selected_evidence(self):
+        from unittest.mock import Mock
+        from agents.tools.first_wave import ReadFailure
+        text='重复出现的教材短句'
+        rectangles=[{'page':1,'x1':.1,'y1':.1,'x2':.5,'y2':.2}]
+        source={'document_id':self.docid,'version':self.version,'section_id':1,'text':text,
+                'location':{'evidence':{'source_block_id':7,'block_start':0,'block_end':len(text),
+                                        'location_status':'exact','rects':rectangles}}}
+        index=Mock()
+        index.blocks.return_value=[{'text':text,'section_id':1}]
+        index.locate.return_value={'status':'exact','rects':rectangles}
+        index.document.return_value={'text':text}
+        with patch('knowledge.grounded_citations.settings',return_value=Path('bound-index.sqlite3')), \
+             patch('knowledge.citation_index.CitationIndex',return_value=index), \
+             patch('knowledge.citation_index.LiveCitationIndex',side_effect=AssertionError('不能重新用全文猜位置')):
+            self.service.verify_source(self.binding,source)
+            source['location']['evidence']['rects']=[{'page':3}]
+            with self.assertRaises(ReadFailure):self.service.verify_source(self.binding,source)
+            source['location']['evidence'].update(location_status='section',rects=[])
+            self.service.verify_source(self.binding,source)
+
     def test_unknown_source_fails_closed(self):
         result = ReadSourceTool().run({'source_id': 'history-or-other-task'}, self.context)
         self.assertEqual(result.metadata['error'], 'unknown_source')

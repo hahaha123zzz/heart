@@ -27,6 +27,12 @@ def main():
                 'WHERE student_id=? AND session_id=? ORDER BY created_at DESC LIMIT 3', (student, session))
             return [dict(row, context=json.loads(row['context']), result=json.loads(row['result'])) for row in rows]
 
+    def session_plan(session):
+        with sqlite3.connect(args.database.resolve().as_uri() + '?mode=ro', uri=True) as db:
+            row=db.execute('SELECT session_plan FROM q5_learning_bindings WHERE student_id=? AND session_id=?',
+                           (student,session)).fetchone()
+            return json.loads(row[0]) if row and row[0] else None
+
     def ask(name, message, session='general', previous=None, option=None, reader=None):
         session = run + '-' + session
         payload = dict(student_id=student, session_id=session, account_type='test',
@@ -37,7 +43,7 @@ def main():
             payload['selected_option'] = option
         if reader:
             payload['reader_location'] = reader
-        row = dict(name=name, payload=payload, before=snapshot(session))
+        row = dict(name=name, payload=payload, before=snapshot(session), before_plan=session_plan(session))
         records.append(row)
         started = time.perf_counter()
         try:
@@ -51,7 +57,7 @@ def main():
             row['error'] = type(exc).__name__ + ': ' + str(exc)
             raise
         finally:
-            row.update(seconds=round(time.perf_counter() - started, 3), after=snapshot(session))
+            row.update(seconds=round(time.perf_counter() - started, 3), after=snapshot(session), after_plan=session_plan(session))
             report.write_text(json.dumps(dict(run=run, student=student, rows=records),
                                          ensure_ascii=False, indent=2), encoding='utf8')
         print(json.dumps(dict(name=name, status=row['result'].get('answer_status'), seconds=row['seconds']),
@@ -89,7 +95,7 @@ def main():
         return context(name)['tutoring']['progress']['pending_question']['question_id']
 
     for row in records:
-        expected = 'awaiting_clarification' if row['name'] in ('clarify', 'plan') else 'answered'
+        expected = 'awaiting_clarification' if row['name'] in ('clarify', 'plan', 'isolated_reference') else 'answered'
         assert row['result']['answer_status'] == expected, (row['name'], row['result']['answer_status'])
         understood = context(row['name'])['input_understanding']
         assert understood['parser'] == 'rule' and understood['model_calls'] == 0, row['name']
@@ -105,7 +111,10 @@ def main():
     assert confirmed['q5_status']['session_plan']['status'] == 'active'
     current = confirmed['q5_status']['session_plan']['current_item_id']
     for name in ('plan_interjection', 'plan_return'):
-        assert by_name[name]['result']['q5_status']['session_plan']['current_item_id'] == current
+        assert by_name[name]['after_plan']['current_item_id'] == current
+    assert by_name['plan_interjection']['before_plan'] == by_name['plan_interjection']['after_plan']
+    assert by_name['plan_interjection']['result']['learning_interjection'] is True
+    assert context('plan_return')['input_understanding']['tasks'][0]['action'] == 'resume_learning_activity'
     assert by_name['scoped_preferences']['result']['style_suggestion']['origin'] == 'explicit_request'
     print('HTTP 状态、原题身份、零额外理解调用、澄清原话和计划位置检查通过。')
     print('此结果不替代回答语义人工复核、跨入口页面验收或性能基准。')

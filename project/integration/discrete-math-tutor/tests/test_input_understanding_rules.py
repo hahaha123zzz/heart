@@ -49,5 +49,24 @@ class InputRulesTests(unittest.TestCase):
         parse('请解释',prior(pending=True),classifier=classifier)
         self.assertNotIn('PRIVATE-',str(classifier.annotate.call_args))
 
+    def test_session_activity_binding_keeps_revision_without_advancing(self):
+        message='回到刚才的学习安排'
+        plan={'plan_id':'p','revision':3,'current_item_id':'a','path_id':None,'path_revision':None,'items':[]}
+        context=TaskContext(student_id='s',session_id='x',message=message,session_study_plan=plan)
+        request=ChatRequest(student_id='s',session_id='x',message=message)
+        turn=understand(context,request)
+        self.assertEqual(turn.tasks[0].action,'resume_learning_activity')
+        self.assertEqual(turn.context.session_plan_revision,3)
+        self.assertEqual(plan['current_item_id'],'a')
+        request=request.model_copy(update={'message':'不要回到学习安排，解释信度'})
+        self.assertNotEqual(understand(context,request).tasks[0].action,'resume_learning_activity')
+
+    def test_multiple_state_changes_are_rejected_before_any_model_or_write(self):
+        from agents.input_understanding.decision import decide
+        model=Mock()
+        turn=parse('确认学习计划，同时提交我的答案，我选B。',prior(pending=True),llm=model)
+        self.assertEqual(decide(turn).status,'reject')
+        model.chat_json.assert_not_called()
+
 
 if __name__=='__main__':unittest.main()

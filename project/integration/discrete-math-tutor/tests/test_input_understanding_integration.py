@@ -24,6 +24,71 @@ def bound(message, old=None):
 
 
 class InputIntegrationTests(unittest.TestCase):
+    def test_prefixed_side_question_is_not_recorded_as_the_active_goal(self):
+        from agents.course_search import question_interjection
+        target=LearningTarget('goal','讲清自变量的含义')
+        self.assertTrue(question_interjection('先解释一下信度，不要推进当前活动。',target))
+        self.assertFalse(question_interjection('先解释当前活动，不要出题。',target))
+        self.assertFalse(question_interjection('先解释自变量，不要出题。',target))
+    def test_active_input_keeps_learning_writes_owned_by_host_commands(self):
+        from agents.tool_protocol import BaseTool,ToolDefinition
+        class WriteTool(BaseTool):
+            definition=ToolDefinition(name='mastery_understood',description='不应暴露给只读讲解')
+            scopes=('learning:position:write',)
+            def run(self,*_):raise AssertionError('must not execute')
+        context,request=bound('解释自变量，不要出题。')
+        request=request.model_copy(update={'request_id':'q5-read-only-test'})
+        model=ScriptedLLM([ChatToolResult(text='自变量由研究者操纵。',finish_reason='stop')])
+        q5=Mock()
+        q5.loop_binding.return_value={'target':LearningTarget('kp:自变量','自变量'),'session_study':True,
+            'session_plan':{'plan_id':'p','revision':1},'tool_instances':(WriteTool(),),
+            'scopes':('learning:position:write',)}
+        q5.status.return_value={}
+        q5.status_line.return_value=''
+        with patch.dict('os.environ',{'ADAPTIVE_TUTORING_ENABLED':'1'}), \
+             patch('agents.tools.first_wave_runtime.bind_resources',return_value=(None,())), \
+             patch('agents.adaptive_tutoring.verified_sources',side_effect=lambda rows:rows):
+            run_agent_loop_turn(orchestrator=SimpleNamespace(llm=model,memory=FakeMemory(),quality_checker=None),
+                request=request,context=context,q5=q5,publish_gate=lambda *_:(True,''))
+        offered=[t['function']['name'] for call in model.calls for t in call['tools']]
+        self.assertNotIn('mastery_understood',offered)
+
+    def test_complex_read_tasks_prefetch_before_the_blended_answer_round(self):
+        from models.input_understanding import GroundedTurn,TaskFrame
+        context,request=bound('先解释自变量，再比较因变量，最后总结。',old=prior(pending=False))
+        request=request.model_copy(update={'request_id':'complex-prefetch-test'})
+        context.knowledge_point='实验心理学的研究对象'
+        value=context.input_understanding.model_dump()|{'parser':'model','model_calls':1,'tasks':[
+            TaskFrame(task_frame_id='f1',action='explain_content',query='自变量').model_dump(),
+            TaskFrame(task_frame_id='f2',action='compare_content',query='自变量与因变量',depends_on=['f1']).model_dump()]}
+        context.input_understanding=GroundedTurn.model_validate(value)
+        model=ScriptedLLM([ChatToolResult(text='自变量由研究者操纵，因变量是被测量的结果[1]。',finish_reason='stop')])
+        navigator=StubLearningNavigator(target=LearningTarget('kp:研究对象','实验心理学的研究对象'),sources=[
+            SourceRef('e','d','自变量由研究者操纵，因变量被测量。',version='v')])
+        with patch.dict('os.environ',{'ADAPTIVE_TUTORING_ENABLED':'1'}), \
+             patch('agents.tools.first_wave_runtime.bind_resources',return_value=(None,())):
+            result=run_agent_loop_turn(orchestrator=SimpleNamespace(llm=model,memory=FakeMemory(),quality_checker=None),
+                request=request,context=context,navigator=navigator,publish_gate=lambda *_:(True,''))
+        self.assertEqual(result['answer_status'],'answered')
+        self.assertTrue(result['sources'])
+        self.assertIn('宿主已执行教材预检索',str(model.calls[0]['messages']))
+
+    def test_complex_parser_fallback_prefetches_original_question(self):
+        from models.input_understanding import GroundedTurn
+        context,request=bound('如果教材提到随机分配，先解释它，否则说明依据不足，再介绍随机区组设计。',old=prior(pending=False))
+        context.knowledge_point='实验心理学的研究对象'
+        context.input_understanding=GroundedTurn.model_validate(context.input_understanding.model_dump() | {
+            'parser':'fallback','resolution_status':'partial','unresolved':['complex_parse_unavailable']})
+        model=ScriptedLLM([ChatToolResult(text='随机分配使各处理条件的分配具有随机性[1]。',finish_reason='stop')])
+        navigator=StubLearningNavigator(target=LearningTarget('kp:研究对象','实验心理学的研究对象'),sources=[
+            SourceRef('e','d','随机分配采用随机方式分配被试。',version='v')])
+        with patch.dict('os.environ',{'ADAPTIVE_TUTORING_ENABLED':'1'}), \
+             patch('agents.tools.first_wave_runtime.bind_resources',return_value=(None,())):
+            result=run_agent_loop_turn(orchestrator=SimpleNamespace(llm=model,memory=FakeMemory(),quality_checker=None),
+                request=request,context=context,navigator=navigator,publish_gate=lambda *_:(True,''))
+        self.assertEqual(result['answer_status'],'answered')
+        self.assertIn('宿主已执行教材预检索',str(model.calls[0]['messages']))
+
     def test_reading_chapter_does_not_erase_pending_and_target(self):
         old=prior(pending=True)|{'chapter_id':2,'topic':'自变量','target_id':'kp:自变量'}
         context=TaskContext(student_id='s',session_id='x',message='回到原题',knowledge_point='第一章',
@@ -65,6 +130,19 @@ class InputIntegrationTests(unittest.TestCase):
             self.assertIsNotNone(turn.progress.pending_question)
             model.chat_json.assert_not_called()
             self.assertIsNone(turn.state['assessment'])
+
+    def test_explicit_figure_does_not_submit_the_pending_answer(self):
+        from models.task_context import TaskContext
+        figure=SimpleNamespace(id='image-1',sha256='f'*64,label='图5-2')
+        request=ChatRequest(student_id='s',session_id='x',message='图5-2')
+        context=TaskContext(student_id='s',session_id='x',message=request.message,knowledge_point='自变量',
+                            tutoring=prior(pending=True),input_mode='active')
+        with patch('knowledge.figures.retrieve_figures',return_value=[figure]):
+            context.input_understanding=understand(context,request)
+        model=Mock();turn=TeachingTurn(context,request,model,validate_sources=lambda rows:rows)
+        self.assertEqual(context.input_understanding.tasks[0].target_ref,'figure-0')
+        model.chat_json.assert_not_called()
+        self.assertIsNotNone(turn.progress.pending_question)
 
     def test_do_not_return_cannot_trigger_restore(self):
         context,request=bound('不要回到原题，先解释操作性定义。')

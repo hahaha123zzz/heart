@@ -29,9 +29,10 @@ def question_interjection(message, target):
         return True
     if FIGURE_NUMBER.search(message):
         return True
-    match = re.fullmatch(r'\s*(?:(?:请|给我|帮我)\s*)?(?:解释|讲解|介绍)(?:一下)?\s*(.+?)\s*[。？！?！]*', message)
+    subject = re.split(r'[，,；;]\s*(?:不要|不必|不用|别|不推进|不改变)', message, maxsplit=1)[0]
+    match = re.fullmatch(r'\s*(?:(?:请|给我|帮我|先|先插问[：:]?)\s*)?(?:解释|讲解|介绍)(?:一下)?\s*(.+?)\s*[。？！?！]*', subject)
     if match is None:
-        match = re.fullmatch(r'\s*(?:什么是(.+?)|(.+?)是什么)\s*[。？！?！]*', message)
+        match = re.fullmatch(r'\s*(?:什么是(.+?)|(.+?)是什么)\s*[。？！?！]*', subject)
     if match is None:
         return False
     topic = re.sub(r'[\s，。？！?！]', '', next(group for group in match.groups() if group))

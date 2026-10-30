@@ -54,6 +54,17 @@ class MemoryManagementTests(unittest.TestCase):
         with self.assertRaises(ValueError):self.memory.dispute_misconception("s",b.id," ")
         self.assertEqual(self.memory.get_misconceptions("s",self.point)[0].status,"supported")
 
+    def test_repeat_preference_confirmation_keeps_one_explicit_audit(self):
+        self.memory.set_preferences('s',{'answer_length':1.})
+        self.memory.set_preferences('s',{'answer_length':1.})
+        with self.factory() as session:
+            rows=session.scalars(select(MemoryChangeRow).where(MemoryChangeRow.student_id=='s',
+                MemoryChangeRow.action=='set_preference',MemoryChangeRow.item_key=='answer_length')).all()
+            self.assertEqual(len(rows),1)
+        self.memory.forget_preference('s','answer_length')
+        self.memory.set_preferences('s',{'answer_length':1.})
+        self.assertEqual(self.memory.get_profile('s').preferences['answer_length'],1.)
+
     def test_preferences_have_explicit_source_and_clear_old_snapshots(self):
         self.memory.set_preferences("s",{"answer_length":1})
         self.enqueue()
