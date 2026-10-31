@@ -441,7 +441,8 @@ class LocalAgentLoop:
                         collector('progress','补取教材依据',{'detail':reason})
                         continue
                     if not repair_used and any(token in (reason or "") for token in
-                                               ("过长", "压缩", "字数", "超过", "引用格式", "格式无效", "尚未引用双方", "内部工具协议")):
+                                               ("过长", "压缩", "字数", "超过", "引用格式", "格式无效", "尚未引用双方", "内部工具协议",
+                                                "未标注本轮教材引用编号", "引用编号不属于本轮已核验来源")):
                         repair_used = True
                         no_tools_next = True
                         messages.append({"role": "assistant", "content": final_text})
@@ -456,6 +457,13 @@ class LocalAgentLoop:
                             instruction = ('\n只使用已有原文重新组织回答，分别解释双方对象并在支持的结论旁标注各自引用；'
                                            '不能为了补编号硬贴不支持结论的引文，不新增事实或调用工具。')
                             label = '覆盖引用修订'
+                        elif ('未标注本轮教材引用编号' in reason or
+                              '引用编号不属于本轮已核验来源' in reason) and result.sources:
+                            allowed = [source.get('index', i) for i, source in enumerate(result.sources, 1)]
+                            instruction = ('\n本轮可用引用编号：' + json.dumps(allowed) +
+                                '。仅依据已提供原文，在它实际支持的结论旁使用单独的[n]；'
+                                '不把历史引用当本轮依据，不硬贴编号，不新增事实或调用工具。')
+                            label = '引用修订'
                         else:
                             instruction = ("\n请只修正引用格式，使用单独的 [n] 编号；"
                                            "不新增事实、不改变引用对应的来源，不要调用工具，"

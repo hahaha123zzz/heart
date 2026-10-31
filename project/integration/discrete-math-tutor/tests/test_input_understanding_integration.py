@@ -191,6 +191,18 @@ class InputIntegrationTests(unittest.TestCase):
         context.input_mode='shadow'
         self.assertIsNone(legacy_routing(context))
 
+    def test_new_explicit_concept_is_not_forced_into_current_topic(self):
+        context,request=bound('随机区组与拉丁方的区别。',old={})
+        self.assertEqual(context.knowledge_point,'自变量')
+        self.assertIsNone(legacy_routing(context))
+
+    def test_hint_still_uses_bound_pending_question_without_reclassification(self):
+        context,request=bound('只给一点提示，不要给完整答案。')
+        result=legacy_routing(context)
+        self.assertIsNotNone(result)
+        self.assertEqual(result.learning_intents,['hint'])
+        self.assertIn('no_full_answer',result.answer_constraints)
+
     def test_ask_user_resume_preserves_actual_reply_and_original_task(self):
         context,request=bound('先解释自变量，不要出题。')
         previous={'context':{'input_understanding':context.input_understanding.model_dump(),

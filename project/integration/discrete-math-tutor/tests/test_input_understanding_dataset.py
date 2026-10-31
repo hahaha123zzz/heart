@@ -5,6 +5,7 @@ import unittest
 from models.chat_request import ChatRequest
 from models.task_context import TaskContext
 from agents.input_understanding.service import understand
+from agents.input_understanding import ontology
 from agents.input_understanding.references import introduced_objects
 from agents.input_understanding.decision import decide
 from tests.test_adaptive_tutoring import prior
@@ -40,6 +41,13 @@ class InputDatasetTests(unittest.TestCase):
                 if case['context']=='ambiguous':self.assertEqual(decide(turn).status,'clarify')
                 if case['context']=='example':self.assertEqual(turn.tasks[0].target_ref,'mention')
                 self.assertEqual(turn.model_calls,0)
+                view=ontology.build(turn,context)
+                self.assertEqual(view['ontology_version'],'psy-6d-v1')
+                for name in ('request_intent','cognitive_demand','learner_state',
+                             'content_target','support_need','teaching_stage'):
+                    self.assertIn(name,view)
+                self.assertIn(view['request_intent']['primary'],
+                              ontology.registry()['dimensions']['request_intent']['values'])
 
 
 if __name__=='__main__':unittest.main()

@@ -38,10 +38,10 @@ class InputRulesTests(unittest.TestCase):
         self.assertTrue(result.directives[0].requires_confirmation)
 
     def test_semantic_classifier_cannot_replace_bindings(self):
-        classifier=Mock();classifier.annotate.return_value=('test-v1',[
-            dict(dimension='intent',label='explain',quote='解释',source='model')])
+        classifier=Mock();classifier.annotate.return_value=('psy-6d-v1',[
+            dict(dimension='cognitive_demand',label='comprehend',quote='解释',source='model')])
         result=parse('解释自变量',classifier=classifier)
-        self.assertEqual(result.annotations[0].label,'explain')
+        self.assertEqual(result.annotations[0].label,'comprehend')
         self.assertEqual(result.tasks[0].action,'explain_content')
 
     def test_no_private_answer_key_is_sent_to_classifier(self):

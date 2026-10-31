@@ -96,6 +96,10 @@ def understand(context, request, *, llm=None, classifier=None):
     understood=GroundedTurn(envelope=envelope,context=header,references=refs,tasks=tasks,directives=directives)
     from agents.input_understanding.references import bind_mention
     understood = bind_mention(understood, context, request)
+    # 规则标签只补语义视图，不改对象、任务与约束；关掉开关即退回无标签。
+    if os.getenv('SEMANTIC_LABELS_ENABLED', '1') == '1':
+        from agents.input_understanding.labels import annotate as annotate_rules
+        understood = annotate_rules(understood)
     writes = 0
     for pattern in (r'确认(?:本次)?(?:学习)?(?:计划|安排)', r'提交(?:我的)?答案|我选\s*[A-D]', r'删除(?:这条|当前)?(?:学习路径|学习计划)'):
         matches = list(re.finditer(pattern, request.message))

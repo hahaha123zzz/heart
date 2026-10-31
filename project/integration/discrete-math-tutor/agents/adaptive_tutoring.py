@@ -32,6 +32,8 @@ from agents.learning_cards import CardText, ComparisonRow, presentation_argument
 from models.interaction_preferences import EXAMPLE_ONLY_PATTERN
 
 SCHEMA = "deeptutor-teaching-v2"
+# Q3 运行时与 TeachingStepTool 仍用这 9 个名字；它们都是 13 个库 id 的别名/同义词，
+# 归一逻辑见 teaching_policy.STRATEGY_ALIASES。不要再新增第 5 份策略表。
 STRATEGIES = ("explain", "worked_example", "contrast", "break_down",
               "prerequisite", "guided_practice", "feedback", "transfer", "hint")
 
@@ -59,6 +61,24 @@ RESUME_CHECK = re.compile(r"回到.{0,6}(?:题|检查)|继续(?:答题|刚才的
 
 def enabled() -> bool:
     return os.getenv("ADAPTIVE_TUTORING_ENABLED", "0") == "1"
+
+
+def label_switch(name: str) -> bool:
+    """P3 三个消费者开关；关闭时行为与仅打标签时一致。"""
+    return os.getenv(name, "0") == "1"
+
+
+# 只映射运行时 9 个策略名里有明确对应关系的困难类型；memory/comprehension 先保留原轮换。
+LOCUS_STRATEGY = {"discrimination": "contrast", "procedure": "worked_example", "pace": "break_down"}
+
+# 与 analyze_teaching_turn 的困难轮换表一致；用于避免连续两轮同一策略。
+SUPPORT_CHOICES = ("worked_example", "contrast", "break_down", "prerequisite", "hint")
+
+STRUCTURE_NOTES = {
+    "create": "本轮是设计/创造任务：先列约束（自变量、因变量、控制条件、对象、伦理），再分步给方案，最后自查是否有混淆变量。",
+    "evaluate": "本轮是评价任务：先给评价标准，再逐条对照证据，最后给结论；不能只给结论。",
+    "analyze": "本轮是分析任务：先分解要素（变量、条件、步骤），再逐项说明关系。",
+}
 
 
 def is_difficulty(message: str) -> bool:
@@ -231,6 +251,12 @@ class TeachingTurn:
         self.context, self.request = context, request
         from agents.input_understanding.adapters import active_turn
         self.input_turn = active_turn(context)
+        self.six_dim = None
+        self.label_strategy = None
+        self.limit_disclosure = False
+        if self.input_turn:
+            from agents.input_understanding import ontology
+            self.six_dim = ontology.build(self.input_turn, context)
         topic = target.name if target is not None else context.knowledge_point
         target_id = target.target_id if target is not None else None
         validate_sources = validate_sources or verified_sources
@@ -241,7 +267,12 @@ class TeachingTurn:
         self.lock = threading.RLock()
         self.difficulty = is_difficulty(request.message)
         self.teaching_mode = resolve_teaching_mode(request.message)
-        self.skip = bool(SKIP_CHECK.fullmatch(request.message.strip()))
+        self.skip = bool(SKIP_CHECK.fullmatch(request.message.strip())) or (
+            label_switch("LABELS_TURN") and self._engagement() == "skip")
+        self.limit_disclosure = bool(
+            label_switch("LABELS_TURN") and self._engagement() == "answer_seeking"
+            and self.input_turn is not None
+            and any("no_full_answer" in task.constraints for task in self.input_turn.tasks))
         try:
             self.progress = LearningProgress.model_validate(old.get("progress") or {})
             if (old.get("schema") != SCHEMA
@@ -352,8 +383,29 @@ class TeachingTurn:
         # The upstream policy chooses objective/stage. Pedagogy remains a model
         # choice among alternatives, not a fixed failure-count state machine.
         self.strategy = self.strategy_decision.strategy
+        if label_switch("LABELS_POLICY"):
+            fixed = LOCUS_STRATEGY.get(self._locus())
+            if fixed:
+                self.strategy = fixed
+                self.label_strategy = fixed
+        self.avoided_repeat = False
         if self.state["assessment"]:
             self.strategy = "transfer" if self.state["assessment"]["verdict"] == "correct" else "contrast"
+        elif self.difficulty or self._locus():
+            # 学生在困难中：最近两轮用过同一策略就换下一个候选。
+            chosen = self.strategy
+            self.strategy = self._avoid_repeat(chosen)
+            self.avoided_repeat = self.strategy != chosen
+        self.state["label_strategy"] = self.label_strategy
+        self.state["decision"] = {
+            "strategy": self.strategy,
+            "source": ("assessment" if self.state["assessment"] else
+                       "label" if self.label_strategy else "rotation"),
+            "label_strategy": self.label_strategy,
+            "avoided_repeat": self.avoided_repeat,
+            "policy_version": "teaching-v1",
+            "ontology_version": (self.six_dim or {}).get("ontology_version"),
+        }
         assistance = public_assistance(self.progress.pending_question) or {}
         self.hint_level = 0
         if self.teaching_mode == 'guided' or self.strategy == 'hint':
@@ -364,6 +416,22 @@ class TeachingTurn:
         self.full_explanation_requested = self.teaching_mode == 'direct' and bool(re.search(
             r'查看完整(?:解释|解答)|完整(?:解释|讲解|解答)|直接(?:告诉我|给我).{0,4}答案', request.message))
         self._sync()
+
+    def _engagement(self):
+        return ((self.six_dim or {}).get("learner_state", {}).get("engagement") or {}).get("value")
+
+    def _locus(self):
+        return ((self.six_dim or {}).get("learner_state", {}).get("difficulty_locus") or {}).get("value")
+
+    def _avoid_repeat(self, strategy):
+        """最近两轮用过同一策略就换候选；全部用过则保留原选择。"""
+        recent = self.state["used_strategies"][-2:]
+        if strategy not in recent:
+            return strategy
+        for candidate in SUPPORT_CHOICES:
+            if candidate not in recent:
+                return candidate
+        return strategy
 
     def _fresh(self, topic, profile=None):
         course = os.getenv("TUTOR_COURSE", "default")
@@ -487,16 +555,25 @@ class TeachingTurn:
                      + '\n' + HINT_FEEDBACK_RULES + '\n') if self.hint_level else ''
         full_note = ('学生明确选择查看完整解释：围绕原待答题完整说明步骤和答案，不以提示代替；'
                      '保留原题供其自愿返回，不强制再作答、不登记新题。\n'
-                     if self.full_explanation_requested and self.progress.pending_question else '')
+                     if self.full_explanation_requested and self.progress.pending_question
+                     and not self.limit_disclosure else '')
         no_questions = ("学生本轮只听讲解：正文不得出现任何问号（包括自问、引用中的疑问句和研究问题）。"
                         "把疑问句改为陈述句，保留事实和引用；不要新增检查题或反问。\n"
                         if not self.state["allow_check"] else "")
         evidence_note = ("教材没有本轮概念的可引用原文时，仍要尽力用常见心理学知识把概念讲清楚；"
                         "自然注明这是课堂补充，不是教材原话。不要用‘无法回答’结束，也不要伪造引用。\n"
                         if self.evidence_mode == "blended" and not self.sources else "")
+        structure_note = ""
+        if label_switch("LABELS_STRUCTURE") and self.six_dim:
+            structure_note = "".join(
+                STRUCTURE_NOTES[value] + "\n"
+                for value in self.six_dim["cognitive_demand"]["values"] if value in STRUCTURE_NOTES)
+        limit_note = ("学生本轮要求直接给答案，但本轮约束禁止完整答案：明确说明这一限制，给一个下一步或提示，"
+                      "不给完整解答，也不把限制说成系统故障。\n" if self.limit_disclosure else "")
         return (
             "【DeepTutor 教学引擎当前快照，优先当前学生需求】\n"
             + teaching_mode_instructions(self.teaching_mode) + '\n'
+            + structure_note + limit_note
             + "你是温和、耐心、懂得变通的实验心理学老师。先回应学生卡住的地方，用自然口语和具体场景讲清楚；"
             "不说教、不责备、不用空泛夸奖，不把工具、检索或状态讲给学生听。\n"
             "本轮教学判断：" + json.dumps({"move": self.strategy_decision.move,

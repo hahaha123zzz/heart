@@ -77,6 +77,11 @@ def legacy_routing(context):
     from models.task_understanding import TaskUnderstanding
     objects={obj.id for obj in context.objects}
     ref=next((r for r in turn.references if r.ref_id==task.target_ref),None)
+    same_target = bool(context.knowledge_point and context.knowledge_point in turn.envelope.raw_text)
+    if not (same_target or ref and ref.status == 'resolved'
+            or intent == 'hint' and pending_question(context)):
+        # 单项动作明确不代表目标仍是原知识点；保留原路由的目标判定。
+        return None
     targets=[ref.canonical_id] if ref and ref.canonical_id in objects else []
     query = context.message
     if ref and ref.quote:
@@ -119,7 +124,9 @@ def final_summary(context, result):
         frame['state']='completed' if done else 'paused' if result.get('loop_paused') else 'pending'
     from models.input_understanding import GroundedTurn
     context.input_understanding=GroundedTurn.model_validate(value)
+    from agents.input_understanding import ontology
     return {'schema_version':turn.schema_version,'parser':turn.parser,'model_calls':turn.model_calls,
             'actions':[t.action for t in turn.tasks],
             'states':[t.state for t in context.input_understanding.tasks],
-            'resolution_status':turn.resolution_status}
+            'resolution_status':turn.resolution_status,
+            'six_dim':ontology.build(context.input_understanding,context)}

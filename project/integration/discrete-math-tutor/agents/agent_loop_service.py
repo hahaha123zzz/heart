@@ -180,6 +180,12 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             # 已有教材证据的改述不因缺少重复上标而撤回，也不自动编造引用。
             result._publication = {'reply':text,'pdf_references':[],'textbook_sources':[]}
             return True, ''
+        if result.sources:
+            format_issue = _citation_format_issues(text)
+            if format_issue:
+                return False, format_issue
+            if not re.search(r"\[\d+\]", text):
+                return False, "回答未标注本轮教材引用编号，暂不发布。"
         evidence = [source.get('location', {}).get('evidence') for source in result.sources]
         if any(evidence):
             if not all(evidence):
@@ -202,11 +208,6 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             issues = citation_issues(text, excerpts)
             if issues:
                 return False, "本次引用未通过核验：" + "；".join(issues)
-            format_issue = _citation_format_issues(text)
-            if format_issue:
-                return False, format_issue
-            if not re.search(r"\[\d+\]", text):
-                return False, "回答未标注本轮教材引用编号，暂不发布。"
         return True, ""
     return gate
 
