@@ -1,0 +1,3968 @@
+{
+  "schema": "layer4-benchmark-v1",
+  "course_id": "experimental-psychology-3",
+  "purpose": "source-anchored diagnostic candidates, not teacher-approved answer gold",
+  "blind_holdout": false,
+  "source_files": {
+    "chapters/chapter_01/document.json": "5a9a83e24f89be225925f3bbb5c6ac881213d16ab96d97e9f270e4f27a74204f",
+    "chapters/chapter_01/chapter_01.generated.pdf": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+    "chapters/chapter_02/document.json": "755b3511a16972c23a2f794d32dcfb4c93735d2064fd8a81ae43937e62b6c2a1",
+    "chapters/chapter_02/chapter_02.generated.pdf": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+    "chapters/chapter_03/document.json": "1c30fc1ccac5964149d7ee40af2c5a4e2a70fdb2f122587756e3abdd09bbcde7",
+    "chapters/chapter_03/chapter_03.generated.pdf": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+    "chapters/chapter_04/document.json": "0589c8c029ca576ca20ee139f0a177c3fc4cace8a4cc965d7ecd7dce0360ba98",
+    "chapters/chapter_04/chapter_04.generated.pdf": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+    "chapters/chapter_05/document.json": "b88c4b456c4cbb1f7af0a0bc2bc175db9e9ff0648e0c066cc793b08c7c0a403c",
+    "chapters/chapter_05/chapter_05.generated.pdf": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+    "chapters/chapter_06/document.json": "2801aff46366c94f4791c3361bea12bda4009ceed633dd9143259540960ca451",
+    "chapters/chapter_06/chapter_06.generated.pdf": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+    "chapters/chapter_07/document.json": "e594765df91bfad3eb8c46766cfb070ef8a6af2269a108172c8f696a6d3027f9",
+    "chapters/chapter_07/chapter_07.generated.pdf": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+    "chapters/chapter_08/document.json": "e5faad29e1d0acea3e959d47552f9556cc056a71f6e76f36df49f9317cde9ce9",
+    "chapters/chapter_08/chapter_08.generated.pdf": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+    "chapters/chapter_09/document.json": "c240a59d00ed56bc2c8a34ebf365ae652ff3474bffae500c8c0ab19733145ab0",
+    "chapters/chapter_09/chapter_09.generated.pdf": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+    "chapters/chapter_10/document.json": "57bb5ae81e8b90338ad0bcd0fe765d18355fea856a8bd2be6d8bda8cca9d702c",
+    "chapters/chapter_10/chapter_10.generated.pdf": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+    "chapters/chapter_11/document.json": "09adede741ced592fd328628aea3911feee5384de85de3e89c4035258f20548b",
+    "chapters/chapter_11/chapter_11.generated.pdf": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+    "manifest.json": "533e4fb6968eb23a6a49afb57b5a98ed9e895ab0f5ef87430acb0b719d639ef0",
+    "pdf_manifest.json": "6930ba41884a04d448dd5ce117f630ba974caceffeed987070a0195b63423b84",
+    "chapters/chapter_01/formulas.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "chapters/chapter_02/formulas.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "chapters/chapter_03/formulas.json": "b957b823d905035b2ca5eb55826a2799667e44bd904629e8a28c0bf913c29476",
+    "chapters/chapter_03/assets/omml-001.xml": "acddbd1472b644047f228267f8ad26b774c882d26dc25eea136f99cd20570a3d",
+    "chapters/chapter_03/assets/omml-002.xml": "7a1618d14e7ce898d555a1b5a6b2e3ac3b5f9c21c56ac18ba74b4bda42fa4010",
+    "chapters/chapter_04/formulas.json": "b52ce36ba3204dcf179b439848751a839a38015a51611ee7cf8b0a7182039ce5",
+    "chapters/chapter_04/assets/omml-001.xml": "81112f206e070057172694e062c64cf9492989867ee62deea261d2ad79fdb946",
+    "chapters/chapter_04/assets/omml-002.xml": "d819f841634d90283cf5dbdf06d8f5174c9dd81d74137b587d2928f02f379ee9",
+    "chapters/chapter_05/formulas.json": "8b3392916e0c1716f9044ed6bc36bd891ae4c16688fd7ded564fb2002e361d5e",
+    "chapters/chapter_05/assets/omml-001.xml": "2f65679140b8507962bf4d827e6205d5ff29ffbfb70f2c46a8db267bf85cd06b",
+    "chapters/chapter_05/assets/omml-002.xml": "54382e68719196fdaddae61f5539545e6eff57d4d6b2cbc3e622a62f0b2044ad",
+    "chapters/chapter_01/assets/chapter_01/image-01-0002.jpeg": "5dd98b9b5807d5ddae4654012562fa36b3a856cfb95c909a0c9913f5864bae65",
+    "chapters/chapter_02/assets/chapter_02/image-02-0003.jpeg": "54ccab92816a8d9c919993191b425a03e94eb3efbb5516b2e36f103401dafc2d",
+    "chapters/chapter_03/assets/chapter_03/image-03-0003.jpeg": "51a75a698b21c2ba193451ba5563aac0a3cb036787a4daa1cd967c68a8098bfb",
+    "chapters/chapter_04/assets/chapter_04/image-04-0001.jpeg": "86171ac52ea8c8f7789022574c63019129b0ae27367470c35de2cdcd550b303d",
+    "chapters/chapter_05/assets/chapter_05/image-05-0001.jpeg": "1581d25fda2cddaf685fa4df8c6ad6a3689ffe1f4c48bb1ca47f240aea838345",
+    "chapters/chapter_06/assets/chapter_06/image-06-0003.jpeg": "3f1fd01a52c59a526523a38a4c28f6a56eeb176f0c883788d8e3c1cba830b16d"
+  },
+  "cases": [
+    {
+      "id": "L4-001",
+      "category": "definition",
+      "question": "请解释第1章中“在英文中,“心理学”(psychology)一词由“psycho”和“…”的含义和必要条件，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "chapter_id": 1,
+          "section_id": 1,
+          "block_id": 7,
+          "object_id": "experimental-psychology-3:chapter-01:b7",
+          "quote": "在英文中,“心理学”(psychology)一词由“psycho”和“logy”组成;在拉丁语中,“psycho”指心灵或灵魂的,“logy”是“研究”或“关于……的学问”,所以心理学被界定为研究人的心灵或灵魂的一门学科。由于人的心灵或灵魂不能被直接观察到,所以如何使心理学研究科学化,让心理学成为一门科学,是心理学家需要回答的重要问题。",
+          "quote_sha256": "44b8bb6833c8c16b2c99aee8bd62fb6c3e5c5cb8a562ddc8dccb0dac9713d184",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.43107153993140995,
+              "x2": 0.8416644655034806,
+              "y2": 0.45023975154045687
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4526463462849615,
+              "x2": 0.8462978229667665,
+              "y2": 0.4718145578940084
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.47422115263851294,
+              "x2": 0.8408085367491115,
+              "y2": 0.49338936424755986
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4959534328991347,
+              "x2": 0.7731257398485317,
+              "y2": 0.5151216445081815
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-002",
+      "category": "definition",
+      "question": "请解释第2章中“变量(variable)是心理学实验研究的基本单元,指那些可以变化的事…”的含义和必要条件，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "chapter_id": 2,
+          "section_id": 1,
+          "block_id": 7,
+          "object_id": "experimental-psychology-3:chapter-02:b7",
+          "quote": "变量(variable)是心理学实验研究的基本单元,指那些可以变化的事物或能够以不同形式出现的事物。在心理学实验中,变量指具有两种及以上取值的事件或行为。如以场认知方式作为变量时,其取值为场依存方式和场独立方式两种水平;以态度作为变量时,其取值为态度的强弱,可分为完全同意、部分同意、不知道、部分不同意、完全不同意五种水平。",
+          "quote_sha256": "2fc5d38662cc735742862f70fda5e35fd2083fc787d1e81709527c0dd2d51d70",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.471543976070374,
+              "x2": 0.830138799212385,
+              "y2": 0.49071218767942093
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.49311878242392554,
+              "x2": 0.8407822662362194,
+              "y2": 0.5122869940329724
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5146935887774771,
+              "x2": 0.8313738260625171,
+              "y2": 0.5338618003865239
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5362683951310286,
+              "x2": 0.8407506790719086,
+              "y2": 0.5554366067400754
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5578432014845801,
+              "x2": 0.19033398391077033,
+              "y2": 0.5770114130936269
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-003",
+      "category": "definition",
+      "question": "请解释第3章中“相关(correlation)是指一个变量的数值变化与另一个变量的数值…”的含义和必要条件，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "chapter_id": 3,
+          "section_id": 1,
+          "block_id": 7,
+          "object_id": "experimental-psychology-3:chapter-03:b7",
+          "quote": "相关(correlation)是指一个变量的数值变化与另一个变量的数值变化同步(夏克赫,等,2014)。为了寻求同步变化的模式,研究者可以用测量值来发现变量之间的关系,这是一直以来发现变量之间关系的唯一方法。通过运用相关方法,研究者可揭示两个变量之间相关程度的高低。在日常生活中,经常能够观察到存在一定相关关系的现象。俗话说:一分辛苦一分甜。例如,在日常工作中,谁付出的努力更多,谁就会取得更大的成就。",
+          "quote_sha256": "1cd7d385166f1f7ee15f128f8945611f5c24777fe63b49dc6acfd6bf47cb12f8",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.48933924845698,
+              "x2": 0.8258825591315885,
+              "y2": 0.5085074600660269
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5109140548105315,
+              "x2": 0.8436780169182102,
+              "y2": 0.5300822664195783
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5326463350711532,
+              "x2": 0.8407835693370573,
+              "y2": 0.5518145466802
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5542211414247048,
+              "x2": 0.8451127309407428,
+              "y2": 0.5733893530337516
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5757959477782563,
+              "x2": 0.7415829330902546,
+              "y2": 0.5949641593873031
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-004",
+      "category": "definition",
+      "question": "请解释第4章中“在真实验设计中,研究者既要操纵自变量,又要观察和记录因变量。为了操纵自…”的含义和必要条件，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "chapter_id": 4,
+          "section_id": 1,
+          "block_id": 8,
+          "object_id": "experimental-psychology-3:chapter-04:b8",
+          "quote": "在真实验设计中,研究者既要操纵自变量,又要观察和记录因变量。为了操纵自变量,研究者需要给自变量设置至少两种不同的水平(level),并且在每种水平下观察被试的行为表现(performance),然后再对它们进行比较。如果结果显示行为表现的差异是由自变量的不同水平所引起的,那么研究者就可以得出自变量水平的变化确实引起了因变量数值变化的结论。",
+          "quote_sha256": "63d9004f95b8a22ed649eec5e04a28461a7d2ce5b2e4712bbff3f6545bcb52a8",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.45343375586962764,
+              "x2": 0.8314164635219333,
+              "y2": 0.47260196747867456
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4750085622231791,
+              "x2": 0.8381256606200007,
+              "y2": 0.494176773832226
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.49658336857673063,
+              "x2": 0.8370548244754445,
+              "y2": 0.5157515801857775
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5181581749302822,
+              "x2": 0.840795349368632,
+              "y2": 0.537326386539329
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5397329412345185,
+              "x2": 0.24424503779200926,
+              "y2": 0.5589011528435655
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-005",
+      "category": "definition",
+      "question": "请解释第7章中“传统心理物理学方法是由费希纳(G.T.Fechner,1801—188…”的含义和必要条件，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "chapter_id": 7,
+          "section_id": 1,
+          "block_id": 6,
+          "object_id": "experimental-psychology-3:chapter-07:b6",
+          "quote": "传统心理物理学方法是由费希纳(G.T.Fechner,1801—1887)于1860年在《心理物理学纲要》一书中首次提出,用以测量感受性的心理学实验方法。心理物理学方法是研究心理感觉量与物理刺激量之间的关系的方法。感觉是对作用于人体感官的物理刺激的反应,但人体感官只对一定范围内的刺激做出反应。感觉器官对适宜刺激量的感觉能力称为感受性,能引发感觉的最小刺激量称为感觉阈限。感受性是用感觉阈限的大小来度量的,二者成反比,即:阈限值越低则感受性越强,阈限值越高则感受性越弱(彭聃龄,2004)。",
+          "quote_sha256": "8635826af024217f0cbf1b77958082d85e7817b4dd413bfd7356f0504e0f609d",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.4291817729479372,
+              "x2": 0.8380993901071085,
+              "y2": 0.4483499845569841
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.45075657930148866,
+              "x2": 0.8407888338644425,
+              "y2": 0.4699247909105356
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4723313856550402,
+              "x2": 0.8364729638893035,
+              "y2": 0.4914995972640871
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4939061920085917,
+              "x2": 0.8407702777085106,
+              "y2": 0.5130744036176386
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5154809983621432,
+              "x2": 0.8451061633125198,
+              "y2": 0.53464920997119
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5370558047156948,
+              "x2": 0.7819784857009181,
+              "y2": 0.5562240163247416
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g4",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-006",
+      "category": "definition",
+      "question": "请解释第9章中“人们每时每刻都处于信息的海洋中。如何处理这些超负荷的信息,就涉及注意的…”的含义和必要条件，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "chapter_id": 9,
+          "section_id": 1,
+          "block_id": 6,
+          "object_id": "experimental-psychology-3:chapter-09:b6",
+          "quote": "人们每时每刻都处于信息的海洋中。如何处理这些超负荷的信息,就涉及注意的问题。以阅读本书的这一页为例。在某一时刻,我们只集中看一个或两个词语,这页其余部分词语虽然进入了感觉系统,但在这一时刻并没有被激活。实际上,除了这一页的其他词语之外,还存在许多没有意识到的刺激,例如,椅背对背部的压力。当然,如果有人提醒我们注意这种压力,那么我们的注意力就会转移过去,而此刻阅读过程就会短暂地停止。另外,还有一些外部刺激在我们不需要的情形下指向了我们,使我们意识到它们的存在,比如一只蚊子在耳朵周围嗡嗡叫,窗外突然出现刺耳的汽车鸣笛声,等等。这些简单的事例都证明了注意的选择能力。通过这种能力,我们能快速地将注意力从一种刺激转移到另一种刺激上,因为在同一时刻我们不可能同时注意两种以上的刺激。",
+          "quote_sha256": "ebe6c2fd129b5718d52902c11af8f9cc150ad9eb16dbc40bbff1ee32e8e008f7",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.3614389972035966,
+              "x2": 0.8648621623717853,
+              "y2": 0.38060720881264354
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.382226393972482,
+              "x2": 0.8450746282722426,
+              "y2": 0.4013946055815289
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4031712646484375,
+              "x2": 0.8314164635219333,
+              "y2": 0.4223394762574844
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.42395866141732286,
+              "x2": 0.8313554262786859,
+              "y2": 0.44312687302636977
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.44492980444400015,
+              "x2": 0.8313803936907401,
+              "y2": 0.46409801605304707
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4657172012128855,
+              "x2": 0.8450680606440195,
+              "y2": 0.4848854128219324
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.48666211193815617,
+              "x2": 0.8451008987851347,
+              "y2": 0.505830323547203
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5074495087070415,
+              "x2": 0.8451127309407428,
+              "y2": 0.5266177203160883
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.528394379382997,
+              "x2": 0.531241503991033,
+              "y2": 0.547562590992044
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g5",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-007",
+      "category": "comparison",
+      "question": "请分别说明第2章中“如果研究者的研究目的是想知道看过暴力电视节目的儿童是否比没有看过暴力电…”、“操作性自变量是指研究者可直接操纵的变量,即自变量可很好地被量化并且是可…”的要点，依据不足时不要推断二者关系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "chapter_id": 2,
+          "section_id": 2,
+          "block_id": 38,
+          "object_id": "experimental-psychology-3:chapter-02:b38",
+          "quote": "如果研究者的研究目的是想知道看过暴力电视节目的儿童是否比没有看过暴力电视节目的儿童有更多的攻击行为,那么自变量(暴力电视节目)就需要很好地进行界定,即:什么是暴力电视节目?周日晚上的足球赛能算暴力电视节目吗?拳击比赛能算暴力电视节目吗?包含武打内容的电视节目能算暴力电视节目吗?战争题材的电视节目能算暴力电视节目吗?等等。在这项实验中,研究者必须对暴力电视节目给出明确的定义,因为上面提到的电视节目,有人认为是暴力电视节目,有人则认为不是暴力电视节目。",
+          "quote_sha256": "7f5e4bf75cfffc7aed6a10e3797bc90dde6ae21b9970421bf4e4f4ae38077868",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.6881188176673229,
+              "x2": 0.8364595680126898,
+              "y2": 0.7072870292763697
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.7096935439222442,
+              "x2": 0.843261545890416,
+              "y2": 0.728861755531291
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.7314259042814961,
+              "x2": 0.8441846625239874,
+              "y2": 0.7505941158905429
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.7530006305364174,
+              "x2": 0.8556624268282816,
+              "y2": 0.7721688421454642
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.7745755169885992,
+              "x2": 0.8450811959004656,
+              "y2": 0.793743728597646
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.7961765155942422,
+              "x2": 0.629647144478647,
+              "y2": 0.815344727203289
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "chapter_id": 2,
+          "section_id": 2,
+          "block_id": 43,
+          "object_id": "experimental-psychology-3:chapter-02:b43",
+          "quote": "操作性自变量是指研究者可直接操纵的变量,即自变量可很好地被量化并且是可以控制的。例如,在动作技能形成的实验中,练习的时间是研究者要操纵的自变量。换言之,让被试每周练习5小时或让被试每周练习10小时,以比较不同的练习时间是否影响动作技能达到的水平。如果每周练习10小时,被试的动作技能水平高于每周练习5小时的,那么说明每周练习时间会影响动作技能的水平。反之,如果两组动作技能水平没有差异,表明练习时间不影响动作技能的水平。",
+          "quote_sha256": "48f40c97335ff0609db4ec2750f17e0c33ed6444eae97d9569b45013dde229cc",
+          "rects": [
+            {
+              "page": 3,
+              "x1": 0.18912219093158575,
+              "y1": 0.11824999399260273,
+              "x2": 0.8407625633515503,
+              "y2": 0.1374181755646633
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.13982480034615424,
+              "x2": 0.8313738260625171,
+              "y2": 0.15899298191821482
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.16139960669970574,
+              "x2": 0.8362534174601334,
+              "y2": 0.1805677882717663
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.1829744030409285,
+              "x2": 0.8405970174211029,
+              "y2": 0.20214259462531783
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.20454920939447999,
+              "x2": 0.8451127309407428,
+              "y2": 0.22371740097886933
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.2261240157480315,
+              "x2": 0.4057797111160965,
+              "y2": 0.24529220733242085
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-008",
+      "category": "comparison",
+      "question": "请分别说明第3章中“正相关(positive correlation),是指一个变量的值增…”、“为了研究遗传和养育环境对成人人格的影响,研究者常把双生子作为研究对象。…”的要点，依据不足时不要推断二者关系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "chapter_id": 3,
+          "section_id": 1,
+          "block_id": 12,
+          "object_id": "experimental-psychology-3:chapter-03:b12",
+          "quote": "正相关(positive correlation),是指一个变量的值增大,另一个变量的对应值也增大,换言之,两个变量值的变化方向是相同的。例如,一个人的身高越高,其体重就越重;一名学生学习动机越强,其学习就会越努力,其学习成绩也就越好。",
+          "quote_sha256": "6a4e15c0150c5e982b2c18f80f07d3e50ec2f50de5b9dd11f108f4501b3987fb",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.6863865245909203,
+              "x2": 0.8469507807346236,
+              "y2": 0.7055547361999671
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7079613309444719,
+              "x2": 0.8356845357583379,
+              "y2": 0.7271295425535187
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7295361372980234,
+              "x2": 0.5937660544108191,
+              "y2": 0.7487043489070702
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "chapter_id": 3,
+          "section_id": 1,
+          "block_id": 15,
+          "object_id": "experimental-psychology-3:chapter-03:b15",
+          "quote": "为了研究遗传和养育环境对成人人格的影响,研究者常把双生子作为研究对象。双生子有两种类型:异卵和同卵。异卵双生子(DZ)是由两个不同的精子同时使两个卵细胞受精发育而成的(“异”是指两个,“卵”是指受精卵)。这种双生子的亲缘关系并不比其他非双生同胞的亲缘关系更近,换言之,他们平均也仅有一半的基因相同,他们只是碰巧同时受孕。同卵双生子(MZ)是由一个受精卵分裂成两个受精卵发育而成的(“同”是指同一个,“卵”是指受精卵)。因为他们来自同一个受精卵,所以他们的基因是相同的。因此,同卵双生子有时也被称为“全等双生子”。研究同卵双生子是很有趣的,这是因为他们之间的差异不可能是由基因引起的(因为他们的基因是完全相同的)。同卵双生子之间的相似性肯定可以用基因来解释,不过这些相似性也可能与他们相同的经历和环境有关,这种经历和环境上的共享对同卵双生子来说是很常见的。",
+          "quote_sha256": "1f6c3a4409767b65ce22207b4f4f98294287b31257d51f717521bcaa756b563f",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.8158615549643209,
+              "x2": 0.8407625633515503,
+              "y2": 0.8350297665733677
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8374363613178725,
+              "x2": 0.8415889899029492,
+              "y2": 0.8566045729269193
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8590111676714239,
+              "x2": 0.8346137517378153,
+              "y2": 0.8781793792804707
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8805859740249754,
+              "x2": 0.8313488586504628,
+              "y2": 0.8997541856340222
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.09667518763905122,
+              "x2": 0.8334660847678562,
+              "y2": 0.1158433692111118
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.11824999399260273,
+              "x2": 0.8330135439088688,
+              "y2": 0.1374181755646633
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.13982480034615424,
+              "x2": 0.8407704340806113,
+              "y2": 0.15899298191821482
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.16139960669970574,
+              "x2": 0.8303306156557244,
+              "y2": 0.1805677882717663
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.1829744030409285,
+              "x2": 0.8451127309407428,
+              "y2": 0.20214259462531783
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.20454920939447999,
+              "x2": 0.513403408744995,
+              "y2": 0.22371740097886933
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-009",
+      "category": "comparison",
+      "question": "请分别说明第4章中“在不同的教材中,被试间设计有不同的名称,常见的有独立组设计(indep…”、“单自变量被试间设计(one independent variable …”的要点，依据不足时不要推断二者关系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "chapter_id": 4,
+          "section_id": 1,
+          "block_id": 10,
+          "object_id": "experimental-psychology-3:chapter-04:b10",
+          "quote": "在不同的教材中,被试间设计有不同的名称,常见的有独立组设计(independent groups design)、无关样本设计(uncorrelated samples design)、独立测量设计(independent measures design)等(哈里斯,2004/2009)。",
+          "quote_sha256": "acc3e85d4624dcdff35f23731abf91a9a2a73845d2698e00374bd119e9436fbe",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.6044573602951732,
+              "x2": 0.8041240068286654,
+              "y2": 0.62362557190422
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6260715351254922,
+              "x2": 0.7936296666647207,
+              "y2": 0.645239746734539
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6476463414790437,
+              "x2": 0.6232881687617747,
+              "y2": 0.6668145530880905
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "chapter_id": 4,
+          "section_id": 1,
+          "block_id": 14,
+          "object_id": "experimental-psychology-3:chapter-04:b14",
+          "quote": "单自变量被试间设计(one independent variable between-subject design)也称单因素被试间设计,是最简单的被试间实验设计。在研究中,有一个自变量,自变量有两种或两种以上的水平。被试被随机分配到实验处理(自变量)的各种水平下,每名被试只接受一种实验处理水平。",
+          "quote_sha256": "3b06bccab3e079883c04a6051df638a410d1916a0d00edb439f25cbb21dad777",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.7615046220113599,
+              "x2": 0.8307589709631603,
+              "y2": 0.7806728336204067
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7841817457144029,
+              "x2": 0.8313357233940167,
+              "y2": 0.8033499573234497
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8070426957738681,
+              "x2": 0.8346216745909096,
+              "y2": 0.8262109073829149
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8297198194769111,
+              "x2": 0.3159941347952526,
+              "y2": 0.8488880310859579
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-010",
+      "category": "comparison",
+      "question": "请分别说明第5章中“被试内设计(within-subjects design)是指在实验过…”、“使用被试内设计的主要目的是解决被试间设计中存在的被试不同质的问题。虽然…”的要点，依据不足时不要推断二者关系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "chapter_id": 5,
+          "section_id": 1,
+          "block_id": 8,
+          "object_id": "experimental-psychology-3:chapter-05:b8",
+          "quote": "被试内设计(within-subjects design)是指在实验过程中,每名被试接受所有的实验处理水平或处理水平的结合。由于需要重复测量被试的行为,所以被试内设计也称为重复测量设计(repeated-measure design)。",
+          "quote_sha256": "f8debaf8d73ee823b6ef03851c48f92a91d4c1d8db6a081fa14f90952fd9893d",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.4317014756090059,
+              "x2": 0.8297157605563678,
+              "y2": 0.4508696872180528
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.45343375586962764,
+              "x2": 0.8407835693370573,
+              "y2": 0.47260196747867456
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4750085622231791,
+              "x2": 0.4767075679092758,
+              "y2": 0.494176773832226
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "chapter_id": 5,
+          "section_id": 1,
+          "block_id": 9,
+          "object_id": "experimental-psychology-3:chapter-05:b9",
+          "quote": "使用被试内设计的主要目的是解决被试间设计中存在的被试不同质的问题。虽然我们已在第四章讨论了可用完全随机法或匹配法来尽量保持各组被试的同质性,但是在具体的实验过程中,这一点通常是很难做到的。",
+          "quote_sha256": "7c8f26eee28a5c6fc926f781413a5e1126b7481f4aa0ffee73bd5660ff9e8268",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.49658336857673063,
+              "x2": 0.8364595680126898,
+              "y2": 0.5157515801857775
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5181581749302822,
+              "x2": 0.8407572988241652,
+              "y2": 0.537326386539329
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5397329412345185,
+              "x2": 0.48181306486815123,
+              "y2": 0.5589011528435655
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-011",
+      "category": "comparison",
+      "question": "请分别说明第7章中“一般来讲,感受性包括绝对感受性(absolute sensitivit…”、“传统心理物理学方法所要解决的问题主要有两类:一是感觉阈限的测量;二是阈…”的要点，依据不足时不要推断二者关系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "chapter_id": 7,
+          "section_id": 1,
+          "block_id": 7,
+          "object_id": "experimental-psychology-3:chapter-07:b7",
+          "quote": "一般来讲,感受性包括绝对感受性(absolute sensitivity)和差别感受性(difference sensitivity),与此对应的感觉阈限包括绝对感觉阈限(absolute limen,AL)和差别感觉阈限(difference limen,DL)。绝对感觉阈限是指刚刚能引发某种感觉的刺激量;而人体感官对这种最小刺激量的感觉能力,称为绝对感受性。差别感觉阈限是指刚刚能够感觉到两个刺激之间的差别的刺激量差值;而对这种最小刺激量差值的感觉能力,称为差别感受性。由于个体感受性的分布基本遵循正态分布,因此,通常把有50%的实验次数能引起个体反应的刺激量设定为绝对感觉阈限的操作性定义;相似地,把有50%的实验次数能引起个体察觉差别感觉的刺激量之差设定为差别感觉阈限的操作性定义。需要说明的是,当被试的反应类型为二类反应时,通常以75%作为上限、25%作为下限计算差别感觉阈限值。",
+          "quote_sha256": "f38da0e678a8dd8b517733e5e809fa64af14e47e549092c518247299d34c81ad",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.5586306110692463,
+              "x2": 0.8262596765140781,
+              "y2": 0.5777988226782931
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5802054174227977,
+              "x2": 0.8446581051204148,
+              "y2": 0.5993736290318445
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6017801837270341,
+              "x2": 0.8395341041296411,
+              "y2": 0.6209483953360809
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6235518725137386,
+              "x2": 0.8407888338644425,
+              "y2": 0.6427200841227854
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.64512667886729,
+              "x2": 0.8450811959004656,
+              "y2": 0.6642948904763369
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6667014852208416,
+              "x2": 0.8325851886014329,
+              "y2": 0.6858696968298884
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6882762915743931,
+              "x2": 0.8325851886014329,
+              "y2": 0.7074445031834399
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7098510979279447,
+              "x2": 0.8407638664523882,
+              "y2": 0.7290193095369915
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7314259042814961,
+              "x2": 0.7755786968658026,
+              "y2": 0.7505941158905429
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "chapter_id": 7,
+          "section_id": 1,
+          "block_id": 8,
+          "object_id": "experimental-psychology-3:chapter-07:b8",
+          "quote": "传统心理物理学方法所要解决的问题主要有两类:一是感觉阈限的测量;二是阈上感觉的测量(杨治良,1998)。费希纳最早在《心理物理学纲要》一书中提出的测量感受性的方法有三种:极限法、平均差误法和恒定刺激法。传统心理物理学方法测量感受性的基本前提是,人们对客观刺激的感受性是有一定的生理局限性的,正是这种生理局限性使得人们在对客观刺激进行加工时,只有当刺激的物理量达到一定的水平或刺激物理量的变化幅度达到一定的水平时,才能够感觉到刺激的存在或刺激量的变化。自费希纳提出测量感受性的心理物理学方法以来,传统心理物理学方法在心理学实验研究中得到了广泛的应用。",
+          "quote_sha256": "5f2f9a39eae56833222ba449e7359bf8c9488862b51c95a2c7ac727175083650",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.7530006305364174,
+              "x2": 0.8450680606440195,
+              "y2": 0.7721688421454642
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7745755169885992,
+              "x2": 0.8410003010684175,
+              "y2": 0.793743728597646
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7961765155942422,
+              "x2": 0.8407637622043211,
+              "y2": 0.815344727203289
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8177513219477937,
+              "x2": 0.8450943311569117,
+              "y2": 0.8369195335568405
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8393261283013452,
+              "x2": 0.840795349368632,
+              "y2": 0.858494339910392
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8609009346548967,
+              "x2": 0.8407506790719086,
+              "y2": 0.8800691462639435
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8826332149155184,
+              "x2": 0.8049207748049935,
+              "y2": 0.9018014265245652
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g4",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-012",
+      "category": "comparison",
+      "question": "请分别说明第9章中“自科学心理学诞生以来,注意就一直是心理学家重点关注的心理现象之一。詹姆…”、“关于什么是注意,不同的心理学家给出了不同的答案。19世纪末,詹姆斯认为…”的要点，依据不足时不要推断二者关系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "chapter_id": 9,
+          "section_id": 1,
+          "block_id": 7,
+          "object_id": "experimental-psychology-3:chapter-09:b7",
+          "quote": "自科学心理学诞生以来,注意就一直是心理学家重点关注的心理现象之一。詹姆斯(W.James,1842—1910)有一句著名的话:“每个人都知道什么是注意。”在日常生活中,注意使我们能对某一事物保持较长时间的警觉。在人们与世界互动的过程中,注意扮演着非常活跃的角色。",
+          "quote_sha256": "aabfe9dc20af31216d19c8e5bb807cb80bab3b99341f8e7a6b7e3dd913c71685",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.5491817761518825,
+              "x2": 0.8227523545468419,
+              "y2": 0.5683499877609293
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.570126646827838,
+              "x2": 0.8424843244266564,
+              "y2": 0.5892948584368848
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5909140435967233,
+              "x2": 0.8407572988241652,
+              "y2": 0.6100822552057701
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6118983227987616,
+              "x2": 0.29795765547765213,
+              "y2": 0.6310665344078084
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "chapter_id": 9,
+          "section_id": 1,
+          "block_id": 9,
+          "object_id": "experimental-psychology-3:chapter-09:b9",
+          "quote": "关于什么是注意,不同的心理学家给出了不同的答案。19世纪末,詹姆斯认为,注意是心灵以清晰而又生动的形式对同时存在的若干对象中的部分或连续思维的一种占有。它的本质是意识的聚焦和集中。20世纪初,冯特(W.Wundt,1832—1920)也曾经指出,注意是伴随着一种心理内容的清晰领会的状态。20世纪60年代,随着认知心理学的兴起与发展,人们越来越认识到注意的重要性。认知心理学家认为,人们通常是选择性地感知外面的世界,并且仅对一部分的外界信息做出反应,这种心理和神经机制调节选择性感知的过程就称为注意。",
+          "quote_sha256": "6ba611fb8875d5d2a8c290bfc2996449032ef8838d0b9829750b1b3ba5b01a3a",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.656150252855356,
+              "x2": 0.8389573516987847,
+              "y2": 0.6753184644644028
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6778825331159778,
+              "x2": 0.8364729638893035,
+              "y2": 0.6970507447250246
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6994573394695293,
+              "x2": 0.8381375448996424,
+              "y2": 0.7186255510785761
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7210321458230807,
+              "x2": 0.8422183354836235,
+              "y2": 0.7402003574321275
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7426069521766323,
+              "x2": 0.8450943311569117,
+              "y2": 0.7617751637856791
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7641817585301838,
+              "x2": 0.8450732730473711,
+              "y2": 0.7833499701392306
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7857565648837352,
+              "x2": 0.24424503779200926,
+              "y2": 0.804924776492782
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g5",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-013",
+      "category": "experiment",
+      "question": "请精读第1章中“1879年,德国心理学家冯特(Wilhelm Wundt,1832—1…”、““实验心理学”(experimental psychology)这个概…”，指出文中明确给出的研究条件；未给出的程序或结果请说明缺失。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "chapter_id": 1,
+          "section_id": 1,
+          "block_id": 8,
+          "object_id": "experimental-psychology-3:chapter-01:b8",
+          "quote": "1879年,德国心理学家冯特(Wilhelm Wundt,1832—1920)在德国莱比锡大学建立了世界上第一个心理学实验室,并采用自然科学的方法来对心理现象进行研究,这标志着科学心理学的诞生。美国心理学史专家波林(E.G.Boring,1886—1968)对冯特的这项工作给予了高度评价,认为这是“心理学研究史上无可比拟的、伟大的、杰出的事件”。",
+          "quote_sha256": "8d4e0bf22bda351361fbc51289d2ab90edb86ccc04c03e53c24aef6420a712f8",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.5175282392526862,
+              "x2": 0.8364728596412365,
+              "y2": 0.536696450861733
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5391030456062378,
+              "x2": 0.8451127309407428,
+              "y2": 0.5582712572152846
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5606778519597893,
+              "x2": 0.8292992895285735,
+              "y2": 0.5798460635688361
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5822526583133407,
+              "x2": 0.8048761045082702,
+              "y2": 0.6014208699223875
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "chapter_id": 1,
+          "section_id": 1,
+          "block_id": 9,
+          "object_id": "experimental-psychology-3:chapter-01:b9",
+          "quote": "“实验心理学”(experimental psychology)这个概念最早是1862年冯特在其所著的《对感官知觉理论的贡献》一书中使用的(引自波林,1950/1981)。当时,冯特把“实验心理学”当作他创建的新心理学的代名词,目的是区别于以前用思辨的方法开展的心理学研究。由此可以看出,实验心理学的建立使心理学摆脱了哲学思辨的范畴,成为一门独立的学科。实验心理学引入自然科学的研究方法,让心理学家有了收集数据的新手段,促进了心理学科学化的迅速发展。",
+          "quote_sha256": "1ee1a30a6f86ccb47d0db62814d5fd120a665d5244edfec91fcdf61b25c7335d",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.6038274646668923,
+              "x2": 0.8452795799720281,
+              "y2": 0.6229956762759391
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6254416394972113,
+              "x2": 0.8411738219759929,
+              "y2": 0.6446098511062581
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6470164058014477,
+              "x2": 0.8407691309797733,
+              "y2": 0.6661846174104945
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6685912522043144,
+              "x2": 0.8450680606440195,
+              "y2": 0.6877594638133612
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6901660585578658,
+              "x2": 0.8451127309407428,
+              "y2": 0.7093342701669126
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7117408649114174,
+              "x2": 0.3518686832968743,
+              "y2": 0.7309090765204642
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-014",
+      "category": "experiment",
+      "question": "请精读第4章中“多自变量被试间设计(multiple independent vari…”、“配对组设计(matched groups design)是根据实验研究…”，指出文中明确给出的研究条件；未给出的程序或结果请说明缺失。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "chapter_id": 4,
+          "section_id": 1,
+          "block_id": 15,
+          "object_id": "experimental-psychology-3:chapter-04:b15",
+          "quote": "多自变量被试间设计(multiple independent variable between-subject design)也称多因素被试间设计。在研究中,有两个或两个以上的自变量,且每个自变量有两种或两种以上的水平。被试被分配给各种实验处理水平的结合,每名被试只接受一种实验处理水平的结合。",
+          "quote_sha256": "baeab560c036cc4280f7dc04d003915e6e5618222a5f0d9ee60e690109dbefb4",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.8523970232785844,
+              "x2": 0.832683963644946,
+              "y2": 0.8715652348876312
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8750741469816273,
+              "x2": 0.8450811959004656,
+              "y2": 0.8942423585906741
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.09746263727303252,
+              "x2": 0.8407901369652804,
+              "y2": 0.11663081884509309
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.1201397609760755,
+              "x2": 0.24424503779200926,
+              "y2": 0.13930794254813608
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "chapter_id": 4,
+          "section_id": 1,
+          "block_id": 19,
+          "object_id": "experimental-psychology-3:chapter-04:b19",
+          "quote": "配对组设计(matched groups design)是根据实验研究的目的,将具有同质性的被试进行匹配,这样可得到不同水平的被试组,然后采用随机分配的方法,让被试组中的每一名被试接受一种实验处理水平。",
+          "quote_sha256": "36a039588bf4f06f41b624b14c3492d93f10db174880fd49da1868a2c6a274f2",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.2563996159110482,
+              "x2": 0.8407770538328678,
+              "y2": 0.2755678074954376
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.27907681971272147,
+              "x2": 0.8313488586504628,
+              "y2": 0.2982450112971108
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.30191141732283466,
+              "x2": 0.387743231798496,
+              "y2": 0.321079608907224
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-015",
+      "category": "experiment",
+      "question": "请精读第5章中“在被试内设计中,同一名被试需要接受不同的处理水平或处理水平的结合。因此…”、“当研究者进行一项真实验时,被试内设计可使研究者节约大量的时间。例如,在…”，指出文中明确给出的研究条件；未给出的程序或结果请说明缺失。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "chapter_id": 5,
+          "section_id": 1,
+          "block_id": 18,
+          "object_id": "experimental-psychology-3:chapter-05:b18",
+          "quote": "在被试内设计中,同一名被试需要接受不同的处理水平或处理水平的结合。因此,当研究者没有办法找到更多的被试时,被试内设计可以帮研究者解决这个问题。例如,一项实验中有4种处理水平结合,每一种处理水平需要20名被试,如果研究者采用的是被试内设计,那么他只需要20名被试就可以了;相反,如果采用被试间设计,那么研究者需要80名被试。",
+          "quote_sha256": "38c15141c9827e95ef30be8e30e5db7c180b8e5a891e2c896f328fa1bda908ff",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.8021607643588009,
+              "x2": 0.8451061633125198,
+              "y2": 0.8213289759678477
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8237355707123524,
+              "x2": 0.8451127309407428,
+              "y2": 0.8429037823213992
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.845310377065904,
+              "x2": 0.8447388452483313,
+              "y2": 0.8644785886749508
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8668851834194554,
+              "x2": 0.8650004474327037,
+              "y2": 0.8860533950285022
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "chapter_id": 5,
+          "section_id": 1,
+          "block_id": 20,
+          "object_id": "experimental-psychology-3:chapter-05:b20",
+          "quote": "当研究者进行一项真实验时,被试内设计可使研究者节约大量的时间。例如,在采用ERPs技术的实验中,要想记录被试在完成任务时的脑电数据,需要在实验进行前,确保每一个电极与被试的头皮接触上。如果使用32导来记录,每个电极的确认需要30秒,全部确认一遍需要大约一刻钟;如果使用64导来记录,全部确认一遍需要半小时左右。为了克服此问题,大部分采用ERPs技术采集数据的实验设计是被试内设计,目的是减少实验准备所需的时间,从而提高实验的效率。",
+          "quote_sha256": "dda74bad6f34b14d4dc92ad80cd38c759dced4dbdb8f52b29a2d7d1e0f0a2f57",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.11824999399260273,
+              "x2": 0.8270762516231424,
+              "y2": 0.1374181755646633
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.13982480034615424,
+              "x2": 0.8408085367491115,
+              "y2": 0.15899298191821482
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.16139960669970574,
+              "x2": 0.8330200594130583,
+              "y2": 0.1805677882717663
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.1829744030409285,
+              "x2": 0.8391294652574551,
+              "y2": 0.20214259462531783
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.20454920939447999,
+              "x2": 0.8409820055326533,
+              "y2": 0.22371740097886933
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.2261240157480315,
+              "x2": 0.41007048336909735,
+              "y2": 0.24529220733242085
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-016",
+      "category": "experiment",
+      "question": "请精读第6章中“对心理学研究者来说,单被试设计(single participant …”、“单被试设计是一种理想实验,它在多种条件下对一个人进行研究,并对其数据进…”，指出文中明确给出的研究条件；未给出的程序或结果请说明缺失。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "chapter_id": 6,
+          "section_id": 1,
+          "block_id": 8,
+          "object_id": "experimental-psychology-3:chapter-06:b8",
+          "quote": "对心理学研究者来说,单被试设计(single participant design)是不陌生的。所谓单被试设计,指实验中只包含一名或几名被试的实验设计,也称小样本设计(small N design)。",
+          "quote_sha256": "5ec39cfe471b4755c851d593e65380852b34795f8ad3684299e1a010d4ddeccc",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.4317014756090059,
+              "x2": 0.8303240480275014,
+              "y2": 0.4508696872180528
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.45343375586962764,
+              "x2": 0.8651922638760432,
+              "y2": 0.47260196747867456
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "chapter_id": 6,
+          "section_id": 1,
+          "block_id": 9,
+          "object_id": "experimental-psychology-3:chapter-06:b9",
+          "quote": "单被试设计是一种理想实验,它在多种条件下对一个人进行研究,并对其数据进行分析。单被试设计的主要优势包括:(1)获得的结果与个体真实心理现象有最强的一致性;(2)可对被试进行长期研究;(3)误差变异性甚至比重复测量设计中的误差变异性还小(Pashler,2004)。",
+          "quote_sha256": "7dde6a0c5b0c25d58a06822387c284af473b265c1aea3f47e257823b0f432f30",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.4750085622231791,
+              "x2": 0.8649491573837237,
+              "y2": 0.494176773832226
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.49658336857673063,
+              "x2": 0.8360879236537195,
+              "y2": 0.5157515801857775
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5181581749302822,
+              "x2": 0.737482387497571,
+              "y2": 0.537326386539329
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5397329412345185,
+              "x2": 0.2928071754778523,
+              "y2": 0.5589011528435655
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-017",
+      "category": "experiment",
+      "question": "请精读第8章中“反应时(reaction time,RT)是心理学实验中最常用的反应变…”、“反应时研究的起源与“人差方程”(personal equation)概…”，指出文中明确给出的研究条件；未给出的程序或结果请说明缺失。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "chapter_id": 8,
+          "section_id": 1,
+          "block_id": 6,
+          "object_id": "experimental-psychology-3:chapter-08:b6",
+          "quote": "反应时(reaction time,RT)是心理学实验中最常用的反应变量之一。它是指从刺激呈现到反应开始之间的时距(引自朱滢,2022)。根据反射弧的原理,反应时包含三个基本的时间过程:第一,刺激使感受器产生兴奋,其冲动传递到感觉神经元的时间;第二,神经冲动经感觉神经传至大脑皮质的感觉中枢和运动中枢后,经运动神经传递到效应器官的时间;第三,效应器官接收冲动后开始效应活动的时间。因此,反应时实际上是“反应的潜伏期”,而并不是某一行为反应持续的时间(郭秀艳,2004)。",
+          "quote_sha256": "7174d94ff58e2f00328d856074c1372c56a042ea9aa537e4bc30d545b22f4463",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.4291817729479372,
+              "x2": 0.8448814566040316,
+              "y2": 0.4483499845569841
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.45075657930148866,
+              "x2": 0.8452861476002511,
+              "y2": 0.4699247909105356
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4723313856550402,
+              "x2": 0.8399440596532458,
+              "y2": 0.4914995972640871
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4939061920085917,
+              "x2": 0.8314164635219333,
+              "y2": 0.5130744036176386
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5154809983621432,
+              "x2": 0.8451061633125198,
+              "y2": 0.53464920997119
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5370558047156948,
+              "x2": 0.5179045275352504,
+              "y2": 0.5562240163247416
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "chapter_id": 8,
+          "section_id": 1,
+          "block_id": 9,
+          "object_id": "experimental-psychology-3:chapter-08:b9",
+          "quote": "反应时研究的起源与“人差方程”(personal equation)概念是分不开的,而人差方程是德国天文学家贝塞尔(F.W.Bessel,1784—1846)的研究成果。早在1796年,时年63岁的英国皇家格林尼治天文台台长马斯基林多次发现他的助手——24岁的金内布鲁克观察星体通过子午线的时间比自己慢约半秒钟,因此认为助手工作失职,遂将其解雇。这一事件在当时并没有引起人们的注意。但是,在1820年,细心的德国天文学家贝塞尔比较了自己与另一位天文学家阿格兰德(F.W.A.Argelander,1799—1875)观察同一星体通过望远镜中法线的时间。他们应用当时天文学界普遍采用的“眼耳法”,即观测者先用眼看钟表指针所指的秒数,然后在观察的同时耳听钟摆之音而计秒,以此来确定星体通过望远镜中法线的时间。贝塞尔在比较中发现,自己与其他天文学家观察的反应时也存在着差别,而且这种差别是恒定的,用数学公式可表示为:",
+          "quote_sha256": "58c5c46a72605fea1f15834da5be1641cb663d3db7563efbf8c38837c47c1852",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.6044573602951732,
+              "x2": 0.8469573483628466,
+              "y2": 0.62362557190422
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6260715351254922,
+              "x2": 0.8436714492899872,
+              "y2": 0.645239746734539
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6476463414790437,
+              "x2": 0.8469192456943463,
+              "y2": 0.6668145530880905
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6692211478325952,
+              "x2": 0.8450811959004656,
+              "y2": 0.688389359441642
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6907959541861467,
+              "x2": 0.8421972773740829,
+              "y2": 0.7099641657951935
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7125282344467684,
+              "x2": 0.8356596204703172,
+              "y2": 0.7316964460558152
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.73410304080032,
+              "x2": 0.8407770017088343,
+              "y2": 0.7532712524093668
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7556778471538714,
+              "x2": 0.8450943311569117,
+              "y2": 0.7748460587629182
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.777252653507423,
+              "x2": 0.8451127309407428,
+              "y2": 0.7964208651164698
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7988537322116962,
+              "x2": 0.43227388823606433,
+              "y2": 0.818021943820743
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g4",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-018",
+      "category": "experiment",
+      "question": "请精读第10章中“2005年7月1日,在纪念美国《科学》杂志创刊125周年之际,科学家们…”、“当代著名记忆心理学家图尔文(A.E.Tulving,1927—　)将科…”，指出文中明确给出的研究条件；未给出的程序或结果请说明缺失。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "chapter_id": 10,
+          "section_id": 1,
+          "block_id": 6,
+          "object_id": "experimental-psychology-3:chapter-10:b6",
+          "quote": "2005年7月1日,在纪念美国《科学》杂志创刊125周年之际,科学家们总结出了125个人类迄今还不能很好地回答的问题,重中之重的问题有25个,有关“记忆如何储存和恢复”就是其中一个。事实上,关于记忆的探索早在几千年前就已经开始,运用实验的方法来研究人类记忆的特点和规律是近100多年来科学心理学研究中最活跃的领域之一。",
+          "quote_sha256": "80f75ccf3a0eecc9272e918618454e208d96015498ac3f688d140d8cf994abfd",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.45075657930148866,
+              "x2": 0.8272496682826507,
+              "y2": 0.4699247909105356
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4723313856550402,
+              "x2": 0.839130768358293,
+              "y2": 0.4914995972640871
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4939061920085917,
+              "x2": 0.8450680606440195,
+              "y2": 0.5130744036176386
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5154809983621432,
+              "x2": 0.8409806503077819,
+              "y2": 0.53464920997119
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "chapter_id": 10,
+          "section_id": 1,
+          "block_id": 7,
+          "object_id": "experimental-psychology-3:chapter-10:b7",
+          "quote": "当代著名记忆心理学家图尔文(A.E.Tulving,1927—　)将科学的记忆研究划分为三个阶段。第一阶段开始于艾宾浩斯的研究,约至1960年。这一阶段主要以系列的和对偶联合的语词项目为材料,以正常成人为被试,强调实验设计,强调对学习与遗忘的基本现象的精确测量。第二阶段始于1960年前后认知心理学兴起之时。这个阶段,信息加工范式逐渐取代对偶语词学习的实验框架,研究者开始更多地采用自由回忆、线索回忆、再认以及各种记忆判断的实验程序。记忆心理学家们将记忆区分为不同的形式,即感觉记忆、短时记忆和长时记忆,注重研究记忆的编码、储存和提取过程。第三阶段则始于1980年前后,为记忆研究的认知神经科学阶段。这一阶段的研究方法与技术、研究问题的选择都进一步拓展,记忆的领域在纵横方向都极大地扩展了。这一阶段,心理学家将短时记忆扩展为工作记忆(working memory),将长时记忆区分为情景记忆 (episodic memory)和语义记忆 (semantic memory)(引自朱滢,2009)。",
+          "quote_sha256": "9457e3f32dc1d8c25def0105c80fd5739137061333aa537278732d34747f70e8",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.5370558047156948,
+              "x2": 0.8465224775512212,
+              "y2": 0.5562240163247416
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5586306110692463,
+              "x2": 0.8379207089202152,
+              "y2": 0.5777988226782931
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5802054174227977,
+              "x2": 0.8313619939069089,
+              "y2": 0.5993736290318445
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6017801837270341,
+              "x2": 0.8376960543357604,
+              "y2": 0.6209483953360809
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6235518725137386,
+              "x2": 0.8407822662362194,
+              "y2": 0.6427200841227854
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.64512667886729,
+              "x2": 0.8407704340806113,
+              "y2": 0.6642948904763369
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6667014852208416,
+              "x2": 0.8422793206028373,
+              "y2": 0.6858696968298884
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.6882762915743931,
+              "x2": 0.8364729638893035,
+              "y2": 0.7074445031834399
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7098510979279447,
+              "x2": 0.8450877635286886,
+              "y2": 0.7290193095369915
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7314259042814961,
+              "x2": 0.8467556804771725,
+              "y2": 0.7505941158905429
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7530006305364174,
+              "x2": 0.46809923165004674,
+              "y2": 0.7721688421454642
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g5",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-019",
+      "category": "selection",
+      "question": "请解释我选中的教材段落，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "chapter_id": 1,
+          "section_id": 1,
+          "block_id": 10,
+          "object_id": "experimental-psychology-3:chapter-01:b10",
+          "quote": "那么,什么是实验心理学呢?目前心理学界普遍的看法是:实验心理学是指应用自然科学的实验方法来研究心理现象和行为规律的科学。换言之,它是在控制实验条件的情况下,对个体的心理和行为进行研究的一门学科。实验心理学强调用科学实验的方法对心理过程进行客观化和定量化的分析研究。因此,实验心理学属于心理学的基础学科之一。",
+          "quote_sha256": "0edf768bea8c128e7eda1e54fb9d1abb45655b4baa3e196f1249ed36c53cbd1a",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.7333155911663386,
+              "x2": 0.8356595683462836,
+              "y2": 0.7524838027753854
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7550479515255906,
+              "x2": 0.845148800771936,
+              "y2": 0.7742161631346374
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7766226777805119,
+              "x2": 0.8364729638893035,
+              "y2": 0.7957908893895587
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7982237564847852,
+              "x2": 0.8048945564161348,
+              "y2": 0.817391968093832
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-020",
+      "category": "selection",
+      "question": "请解释我选中的教材段落，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "chapter_id": 2,
+          "section_id": 2,
+          "block_id": 49,
+          "object_id": "experimental-psychology-3:chapter-02:b49",
+          "quote": "在大多数实验中,被试被要求完成某种作业或任务,例如配对联想任务、斯特鲁普(Stroop)任务等。如果在实验过程中,将作业或任务中的某个特征当作自变量来操纵,则该自变量被称为作业或任务自变量。例如,在配对联想任务中,根据词频,可将词表中的词分为高频词和低频词;在使用Stroop任务时,可将任务分为要求被试读字或读色两种。",
+          "quote_sha256": "3530634994558149b53acc6cc6a843c516c72ef9de28e218b58490606145b30d",
+          "rects": [
+            {
+              "page": 3,
+              "x1": 0.18912219093158575,
+              "y1": 0.3995492446378773,
+              "x2": 0.8090213725217107,
+              "y2": 0.4187174562469242
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.4211240509914288,
+              "x2": 0.8434664975902016,
+              "y2": 0.4402922626004757
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.44272508964638696,
+              "x2": 0.8313422910222398,
+              "y2": 0.4618933012554339
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.4644573699070087,
+              "x2": 0.8044912206447867,
+              "y2": 0.4836255815160556
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-021",
+      "category": "selection",
+      "question": "请解释我选中的教材段落，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "chapter_id": 3,
+          "section_id": 1,
+          "block_id": 16,
+          "object_id": "experimental-psychology-3:chapter-03:b16",
+          "quote": "为了分离出基因对人格的影响,美国明尼苏达大学的一个研究团队找到了许多对双生子,他们中既有同卵的(45对),又有异卵的(26对)。他们都在幼年时被分开抚养。其中同卵双生子分开时平均只有5.1个月大,平均在大约30年后重聚。异卵双生子分开时平均为12.7个月大,平均在大约37年后重聚。研究者给被试施测了加州心理问卷(CPI),然后计算他们的测验结果的相关度,以及遗传度。所谓遗传度,是指某一特质的变异中可由遗传来解释的变异的比例。遗传度的范围是从0(完全由环境决定)到1.00(完全由遗传决定)。结果如表3-1所示。",
+          "quote_sha256": "ab0721c1d68eacdde8a1e4d81f8263d4c395c68edbbc099112d701b76c285144",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.2261240157480315,
+              "x2": 0.8407822662362194,
+              "y2": 0.24529220733242085
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.24785629600865322,
+              "x2": 0.8301046579704319,
+              "y2": 0.2670244875930426
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.2694705108882874,
+              "x2": 0.8330016596292271,
+              "y2": 0.28863870247267676
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.2910453172418389,
+              "x2": 0.8342433062316158,
+              "y2": 0.3102135088262283
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.31262012359539043,
+              "x2": 0.8450943311569117,
+              "y2": 0.33178831517977975
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.3341948898996268,
+              "x2": 0.8436714492899872,
+              "y2": 0.3533631015086737
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.35576969625317834,
+              "x2": 0.3178188408365532,
+              "y2": 0.37493790786222525
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-022",
+      "category": "selection",
+      "question": "请解释我选中的教材段落，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "chapter_id": 6,
+          "section_id": 1,
+          "block_id": 11,
+          "object_id": "experimental-psychology-3:chapter-06:b11",
+          "quote": "个案研究法在临床心理学、变态心理学、发展心理学中经常使用。例如,在变态心理学中,有许多关于各种异常病人的个案;在发展心理学中,瑞士发展心理学家皮亚杰就采用这种方法,对自己的两个孩子两岁前的心理与行为进行系统观察,提出了两岁前儿童认知发展的六个阶段论,揭示出两岁前认识的起源和发展过程。",
+          "quote_sha256": "3f992871c2507d0c1c2471429e919fc1cee3b025ac8ecb8d1e95b7e41d3f0909",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.73410304080032,
+              "x2": 0.8407572988241652,
+              "y2": 0.7532712524093668
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7556778471538714,
+              "x2": 0.8313619939069089,
+              "y2": 0.7748460587629182
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.777252653507423,
+              "x2": 0.8450811959004656,
+              "y2": 0.7964208651164698
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.7988537322116962,
+              "x2": 0.5894302730548769,
+              "y2": 0.818021943820743
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-023",
+      "category": "selection",
+      "question": "请解释我选中的教材段落，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "chapter_id": 9,
+          "section_id": 1,
+          "block_id": 10,
+          "object_id": "experimental-psychology-3:chapter-09:b10",
+          "quote": "在实际的实验研究中,由于注意是一个比较抽象的概念,研究者就需要对其进行操作性定义,即将抽象的注意变成可以具体测量和量化的指标。在注意研究中,研究任务不同,对注意的操作性定义就不同,较为常见的注意的操作性定义包括任务定义注意、持续性注意和加工定向注意。",
+          "quote_sha256": "5b92ba4d3695ef32a22460c1911c2694c1ece220645ab82bce83e1bcb0520d37",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.8073576435880085,
+              "x2": 0.8450877635286886,
+              "y2": 0.8265258551970553
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8289324499415601,
+              "x2": 0.8313738260625171,
+              "y2": 0.8481006615506069
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8505072562951116,
+              "x2": 0.8407888338644425,
+              "y2": 0.8696754679041584
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8720820626486631,
+              "x2": 0.29795765547765213,
+              "y2": 0.89125027425771
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g5",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-024",
+      "category": "selection",
+      "question": "请解释我选中的教材段落，只讲解，不出题。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-11",
+          "version": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+          "chapter_id": 11,
+          "section_id": 1,
+          "block_id": 6,
+          "object_id": "experimental-psychology-3:chapter-11:b6",
+          "quote": "阅读是人们日常学习和生活中一项十分重要的认知活动,是人们获得知识、增长经验的重要手段之一。心理学家对阅读及其相关过程的研究早在18世纪末19世纪初就已开始。例如,休伊(E.B.Huey)在1908年出版了《阅读的心理学和教育学》一书,该书在当时被认为是对阅读过程最具创见性的一部综合研究著作。休伊认为,一位心理学家所能达到的最高成就就是能对阅读进行完整且透彻的探讨,这样做不但可以发掘人类心智活动中许多极端复杂的内在运作,而且可以为揭开人类如何发展出这种最不可思议的成就之谜(指文字的发明和应用及其对人类文明的贡献)提供重要的启示。",
+          "quote_sha256": "0fa59c572c4668468ecab23fa673057d65031641f5beb54c833b8c92a35c7da4",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.364431121585876,
+              "x2": 0.8407835693370573,
+              "y2": 0.3835993331949229
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.3860059279394275,
+              "x2": 0.8426085359985255,
+              "y2": 0.4051741395484744
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.407580734292979,
+              "x2": 0.8387077297022758,
+              "y2": 0.42674894590202594
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4291817729479372,
+              "x2": 0.8407770017088343,
+              "y2": 0.4483499845569841
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.45075657930148866,
+              "x2": 0.8407625633515503,
+              "y2": 0.4699247909105356
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4723313856550402,
+              "x2": 0.846745829034838,
+              "y2": 0.4914995972640871
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.4939061920085917,
+              "x2": 0.6091314376308834,
+              "y2": 0.5130744036176386
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g5",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-025",
+      "category": "cross_chapter",
+      "question": "请分别解释第1章“通过对国内外实验心理学教材的结构与体系进行分析,可以将其概括…”与第2章“在实验中,如果作业或任务保持不变,只改变实验环境中的任一特征…”，分别引用；只依据原文说明联系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "chapter_id": 1,
+          "section_id": 1,
+          "block_id": 19,
+          "object_id": "experimental-psychology-3:chapter-01:b19",
+          "quote": "通过对国内外实验心理学教材的结构与体系进行分析,可以将其概括为三种:第一种主要讲心理学实验方法;第二种既讲心理学实验方法,又讲实验方法在具体心理学领域中的应用;第三种通过讲心理学实验的具体应用来让读者明白心理学实验的方法与步骤。",
+          "quote_sha256": "71c18bbaee95446d2cec6ba71d30c4d20739a3fdbec19501e2f648ab2ce4b347",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.6309534264912443,
+              "x2": 0.8451127309407428,
+              "y2": 0.6501216381002911
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.652685706751866,
+              "x2": 0.8451008987851347,
+              "y2": 0.6718539183609128
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.6742604730561024,
+              "x2": 0.7868592238272717,
+              "y2": 0.6934286846651492
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "chapter_id": 2,
+          "section_id": 2,
+          "block_id": 51,
+          "object_id": "experimental-psychology-3:chapter-02:b51",
+          "quote": "在实验中,如果作业或任务保持不变,只改变实验环境中的任一特征,这种发生变化的环境特征就被称为环境自变量(environmental independent variable)。常见的环境自变量包括温度、湿度、亮度、噪声等。最常使用的环境自变量是时间,例如在启动实验中,自变量是启动刺激到目标刺激之间的时间间隔,即刺激呈现的不同步性(stimulus onset asynchrony,SOA)。最短的SOA可设为0,而后,SOA可设为30毫秒、60毫秒、90毫秒、120毫秒等。",
+          "quote_sha256": "2b023a3e34ca3f8365abc5588eeaae7eafa6e553697f4d0de812c09e22754e2a",
+          "rects": [
+            {
+              "page": 3,
+              "x1": 0.18912219093158575,
+              "y1": 0.5076069826141117,
+              "x2": 0.8313422910222398,
+              "y2": 0.5267751942231585
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.5291817889676633,
+              "x2": 0.8368761954125846,
+              "y2": 0.5483500005767101
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.5507565953212148,
+              "x2": 0.845148800771936,
+              "y2": 0.5699248069302616
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.5723314016747663,
+              "x2": 0.8332283470509889,
+              "y2": 0.5914996132838131
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.5939061679790026,
+              "x2": 0.8340383024077967,
+              "y2": 0.6130743795880494
+            },
+            {
+              "page": 3,
+              "x1": 0.15326102527556934,
+              "y1": 0.6155203428093218,
+              "x2": 0.2981426697346178,
+              "y2": 0.6346885544183686
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-026",
+      "category": "cross_chapter",
+      "question": "请分别解释第3章“从表3-1中可以看出,分开抚养的同卵双生子(MZ)在人格特质…”与第4章“被试间设计实验处理之间不会相互干扰,每一个人只接受一种处理方…”，分别引用；只依据原文说明联系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "chapter_id": 3,
+          "section_id": 1,
+          "block_id": 21,
+          "object_id": "experimental-psychology-3:chapter-03:b21",
+          "quote": "从表3-1中可以看出,分开抚养的同卵双生子(MZ)在人格特质上的相关与分开抚养的异卵双生子(DZ)在人格特质上的相关之间差异显著。前者在加州心理问卷各维度上的相关度高;后者在加州心理问卷各维度上的相关度低,个别维度还出现了负相关。从总体上看,遗传度在0.50左右变化,这表明从这些被试身上所观察到的人格特质的变异大约一半可以由遗传来解释。",
+          "quote_sha256": "65646e49b06fa12c5e2b62aa4245e641ab9e5b27a5814a6d410beac88ddd5c03",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.6118983227987616,
+              "x2": 0.8473488519785866,
+              "y2": 0.6310665344078084
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.633473129152313,
+              "x2": 0.8372663438034531,
+              "y2": 0.6526413407613598
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.6550479355058646,
+              "x2": 0.8515025640854567,
+              "y2": 0.6742161471149114
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.6766227418594161,
+              "x2": 0.8317705420816087,
+              "y2": 0.6957909534684629
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.6981975482129675,
+              "x2": 0.29795765547765213,
+              "y2": 0.7173657598220143
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "chapter_id": 4,
+          "section_id": 1,
+          "block_id": 24,
+          "object_id": "experimental-psychology-3:chapter-04:b24",
+          "quote": "被试间设计实验处理之间不会相互干扰,每一个人只接受一种处理方式,而一种处理方式不可能影响或污染另一种处理方式,避免了练习效应和疲劳效应等由实验顺序造成的误差。实验处理恢复期较长、产生效果不可逆时的自变量无法使用被试内设计,只能使用被试间设计,如药物类型、记忆术、心理治疗方法、教学方法等刺激(或任务)变量都只能作为被试间因素或被试间变量来研究。例如,采用被试间设计来检验针对特殊病症的医学治疗是否有效。在19世纪初,患了伤寒症和震颤性谵妄通常都是致命的。那时候针对这两种情况的标准医学治疗措施就是放血、清肠或其他类似的方法。有一项实验对这些一直以来被认为有效的治疗方法进行了检验。在实验中,研究者随机分配两组被试:一组被试接受放血、清肠等治疗,即实验治疗组;另一组被试只是卧床休息、正常进食和接受密切观察,即控制非治疗组。结果发现:实验治疗组的情况比控制非治疗组的情况更差。实验结果证明,19世纪初的这些治疗方法是没有任何效果的,甚至还不如什么方法都不用的休息对患者更有好处。",
+          "quote_sha256": "592481af27cf32eb02b6fd6431b55f9a37e3e4ce7970ca33a262b461f840efa0",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.44130774438412484,
+              "x2": 0.8450680606440195,
+              "y2": 0.46047595599317176
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.46414242209286827,
+              "x2": 0.8407756986079964,
+              "y2": 0.4833106337019152
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.4868195858452264,
+              "x2": 0.8407572988241652,
+              "y2": 0.5059877974542732
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.5094967495975845,
+              "x2": 0.8346216745909096,
+              "y2": 0.5286649612066313
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.5321739133499427,
+              "x2": 0.8407691309797733,
+              "y2": 0.5513421249589895
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.5548510771023007,
+              "x2": 0.8346400222507073,
+              "y2": 0.5740192887113476
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.5775282408546588,
+              "x2": 0.8364729638893035,
+              "y2": 0.5966964524637056
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.6003628785140872,
+              "x2": 0.8451127309407428,
+              "y2": 0.619531090123134
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.6230794107432128,
+              "x2": 0.8515025640854567,
+              "y2": 0.6422476223522596
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.6457565744955709,
+              "x2": 0.8407888338644425,
+              "y2": 0.6649247861046177
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.6684337782972442,
+              "x2": 0.8346137517378153,
+              "y2": 0.687601989906291
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.6911109020002871,
+              "x2": 0.26208310697603043,
+              "y2": 0.7102791136093339
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-027",
+      "category": "cross_chapter",
+      "question": "请分别解释第5章“如果一项实验的目的是比较不同实验处理水平下被试的行为差异,被…”与第6章“要想获得关于因果关系的结论,研究者必须在研究的过程中对变量进…”，分别引用；只依据原文说明联系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "chapter_id": 5,
+          "section_id": 1,
+          "block_id": 22,
+          "object_id": "experimental-psychology-3:chapter-05:b22",
+          "quote": "如果一项实验的目的是比较不同实验处理水平下被试的行为差异,被试内设计能很好地实现控制个体差异这一额外变量。从统计方面来说,被试内设计使研究者有更好的机会来发现自己在实验中操纵的自变量的效应。从某种意义上说,被试内设计是最完美的配对组设计,因为每种实验处理水平或不同处理水平结合下的被试都是相同的。",
+          "quote_sha256": "5c478c553ec650fed7e8636ce68a05cdbc081e0145b09401814dbce6c857ad85",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.2694705108882874,
+              "x2": 0.8407704340806113,
+              "y2": 0.28863870247267676
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.2910453172418389,
+              "x2": 0.8407901369652804,
+              "y2": 0.3102135088262283
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.31262012359539043,
+              "x2": 0.8407835693370573,
+              "y2": 0.33178831517977975
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.3341948898996268,
+              "x2": 0.7329416544418433,
+              "y2": 0.3533631015086737
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "chapter_id": 6,
+          "section_id": 1,
+          "block_id": 13,
+          "object_id": "experimental-psychology-3:chapter-06:b13",
+          "quote": "要想获得关于因果关系的结论,研究者必须在研究的过程中对变量进行操纵和控制。在单被试设计中,研究者需要像对待一般实验研究那样,对变量进行操纵和控制。与一般实验设计相比,唯一的不同就是单被试设计中只有一名或几名被试;而且与其他实验设计一样,研究者在处理单被试设计的内部效度时也需要小心。",
+          "quote_sha256": "2d2ff432dfec5d56551eedcc3172f4f52b8e9b7bde418b5c800ec70de5fcd242",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.16139960669970574,
+              "x2": 0.8407822662362194,
+              "y2": 0.1805677882717663
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.1829744030409285,
+              "x2": 0.8450943311569117,
+              "y2": 0.20214259462531783
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.20454920939447999,
+              "x2": 0.8515025640854567,
+              "y2": 0.22371740097886933
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.2261240157480315,
+              "x2": 0.5671160785546714,
+              "y2": 0.24529220733242085
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-028",
+      "category": "cross_chapter",
+      "question": "请分别解释第7章“心理学家韦伯(E.H.Weber,1795—1878)通过实…”与第8章“式中,B是贝塞尔的反应时,A是阿格兰德的反应时。这个算式就是…”，分别引用；只依据原文说明联系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-07",
+          "version": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c",
+          "chapter_id": 7,
+          "section_id": 1,
+          "block_id": 11,
+          "object_id": "experimental-psychology-3:chapter-07:b11",
+          "quote": "心理学家韦伯(E.H.Weber,1795—1878)通过实验研究发现,光刺激的差别阈限大约是光强度本身的1/60。1/60这个分数被称为光刺激的韦伯常数,它是指一个人能辨别出两个光刺激量差异的最小变化率。或者说,当光刺激的强度增加或减少1/60时,大多数人至少有50%的概率能感觉到这种变化。不过,光刺激的韦伯常数适用于两种中等强度光刺激的比较。当光刺激强度过大或过小时,其韦伯常数就不准确了。",
+          "quote_sha256": "f128f99c517223b141cc9e9300b96dd35b86dcb020f4784e4759e70353397e8b",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.16139960669970574,
+              "x2": 0.8344232383953136,
+              "y2": 0.1805677882717663
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.1829744030409285,
+              "x2": 0.8383175291873738,
+              "y2": 0.20214259462531783
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.20454920939447999,
+              "x2": 0.8393738227265789,
+              "y2": 0.22371740097886933
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.2261240157480315,
+              "x2": 0.8463030353701181,
+              "y2": 0.24529220733242085
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.24785629600865322,
+              "x2": 0.6612044417182416,
+              "y2": 0.2670244875930426
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-08",
+          "version": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f",
+          "chapter_id": 8,
+          "section_id": 1,
+          "block_id": 11,
+          "object_id": "experimental-psychology-3:chapter-08:b11",
+          "quote": "式中,B是贝塞尔的反应时,A是阿格兰德的反应时。这个算式就是著名的“人差方程”。它反映了两个观察者之间在反应时上的个体差异。贝塞尔的研究了结了格林尼治天文台的公案,而且引起许多天文学家对反应时及个体差异的关注和研究兴趣。",
+          "quote_sha256": "2ad13506cc6c41f6c2dbd6bc26f79d07bf74b33b5f64e53696405d97f18b7ce7",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8420033449187992,
+              "x2": 0.8420185440631559,
+              "y2": 0.861171556527846
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8635780711737205,
+              "x2": 0.8364729638893035,
+              "y2": 0.8827462827827673
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.885152877527272,
+              "x2": 0.7151035591958054,
+              "y2": 0.9043210891363188
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g4",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-029",
+      "category": "cross_chapter",
+      "question": "请分别解释第9章“任务定义注意(task-defined attention)…”与第10章“生活中我们也许有这样的经历,例如,参加朋友的聚会,刚走进聚会…”，分别引用；只依据原文说明联系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-09",
+          "version": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83",
+          "chapter_id": 9,
+          "section_id": 1,
+          "block_id": 12,
+          "object_id": "experimental-psychology-3:chapter-09:b12",
+          "quote": "任务定义注意(task-defined attention)涉及是否正确地执行了某项任务。如果被试正确地执行了某项任务,那么不管他运用了哪种内部心理机制,他都会被认为注意了某个刺激而非其他刺激。更确切地说,任务定义注意是指在实验控制条件下,被试对某些刺激或刺激维度而非其他刺激或刺激维度进行了反应。当注意以任务来定义时,只要被试根据任务规则对一定的刺激做出了反应,就认为被试注意了这个刺激。",
+          "quote_sha256": "7e549b3248c23624c46f6f0c54e4e9c355edf756a6d1d397088a76f98875e95e",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.11887996971951383,
+              "x2": 0.8424087967020915,
+              "y2": 0.13804815129157438
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.14045477607306533,
+              "x2": 0.8450877635286886,
+              "y2": 0.1596229576451259
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.16202958242661683,
+              "x2": 0.8450746282722426,
+              "y2": 0.1811977639986774
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.18360437876783955,
+              "x2": 0.8407704340806113,
+              "y2": 0.20277257035222893
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.2053366590284613,
+              "x2": 0.6253430024110492,
+              "y2": 0.22450485061285064
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "chapter_id": 10,
+          "section_id": 1,
+          "block_id": 10,
+          "object_id": "experimental-psychology-3:chapter-10:b10",
+          "quote": "生活中我们也许有这样的经历,例如,参加朋友的聚会,刚走进聚会场所时你同时听到、看到或闻到很多信息,突然发现一位好朋友,于是兴奋地开始聊天,忘记了刚进来时很感兴趣的一个装饰物;你的朋友把其他朋友介绍给你,当你和第三个人握手时你可能已经忘记第一个人的名字了;但是有一位久违的老朋友,虽然小学毕业之后就再未见过面,但是你一下子就能叫出他的名字。上述例子分别反映了记忆的三种类型:感觉记忆、短时记忆和长时记忆。",
+          "quote_sha256": "50b222c760483ff038002f0c517dafcb299402e6b52c5eec9c54837b81b6b22b",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.8413733691918882,
+              "x2": 0.8646966164413379,
+              "y2": 0.860541580800935
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8629481755454397,
+              "x2": 0.8313488586504628,
+              "y2": 0.8821163871544865
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.8845229818989911,
+              "x2": 0.8450667054191481,
+              "y2": 0.903691193508038
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.09667518763905122,
+              "x2": 0.8313357233940167,
+              "y2": 0.1158433692111118
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.11824999399260273,
+              "x2": 0.8407835693370573,
+              "y2": 0.1374181755646633
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.13982480034615424,
+              "x2": 0.20837046322837083,
+              "y2": 0.15899298191821482
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g5",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-030",
+      "category": "cross_chapter",
+      "question": "请分别解释第10章“感觉记忆指感觉刺激停止之后所保持的瞬间映象。感觉记忆由于作用…”与第11章“阅读活动如此重要,那么如何对阅读过程进行研究呢?有哪些常用的…”，分别引用；只依据原文说明联系。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-10",
+          "version": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af",
+          "chapter_id": 10,
+          "section_id": 1,
+          "block_id": 12,
+          "object_id": "experimental-psychology-3:chapter-10:b12",
+          "quote": "感觉记忆指感觉刺激停止之后所保持的瞬间映象。感觉记忆由于作用时间极其短暂,又称瞬时记忆。它是一种原始的感觉形式,是记忆系统在对外界信息进行进一步加工之前的暂时登记。感觉记忆的主要特点是有较大的容量,但保存的时间短暂,为0.5~3秒。斯伯林 (Sperling,1960)的一项关于视觉形象储存的经典实验很好地证明了感觉记忆的特点。实验中的呈现材料(卡片)如图10-1所示。刚开始,他以50毫秒每张的速率快速呈现卡片,然后要求被试报告所看到的字母。结果,被试仅能报告4~5个字母,但被试认为12个字母都看见了。斯伯林推测,被试看到的可能比他能报告的多。为了证实这一点,他设计了一种巧妙的方法——部分报告法。",
+          "quote_sha256": "5c43dd8041f5b284542d929c7e1b5951501aa37f3c6b728aa5b9f1e8e688e70a",
+          "rects": [
+            {
+              "page": 2,
+              "x1": 0.18912219093158575,
+              "y1": 0.18360437876783955,
+              "x2": 0.8408446065803047,
+              "y2": 0.20277257035222893
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.2053366590284613,
+              "x2": 0.8407691309797733,
+              "y2": 0.22450485061285064
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.2269114653820128,
+              "x2": 0.8313803936907401,
+              "y2": 0.24607965696640216
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.2484862717355643,
+              "x2": 0.8651987272561992,
+              "y2": 0.2676544633199537
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.27010040651656825,
+              "x2": 0.8453537524717216,
+              "y2": 0.2892685981009576
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.29167521287011977,
+              "x2": 0.8463424932634899,
+              "y2": 0.3108434044545091
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.31325001922367124,
+              "x2": 0.8450680606440195,
+              "y2": 0.3324182108080606
+            },
+            {
+              "page": 2,
+              "x1": 0.15326102527556934,
+              "y1": 0.33482482557722276,
+              "x2": 0.39058618083453495,
+              "y2": 0.3539930371862697
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        },
+        {
+          "document_id": "experimental-psychology-3:chapter-11",
+          "version": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34",
+          "chapter_id": 11,
+          "section_id": 1,
+          "block_id": 7,
+          "object_id": "experimental-psychology-3:chapter-11:b7",
+          "quote": "阅读活动如此重要,那么如何对阅读过程进行研究呢?有哪些常用的研究方法及实验范式?这是实验心理学家、阅读心理学家和心理语言学家关注的重要问题。本章将对阅读的实验方法进行介绍。首先探讨阅读研究中的基本问题,接着阐述阅读研究中常用的实验方法及范式,最后介绍阅读研究,特别是阅读的眼动研究中的重要问题及经典实验。",
+          "quote_sha256": "7ba02727339eac4f3f2f63b63d90b8d3f682b1406cf2ca1e7a619c7ca75d2eca",
+          "rects": [
+            {
+              "page": 1,
+              "x1": 0.18912219093158575,
+              "y1": 0.5154809983621432,
+              "x2": 0.8313554262786859,
+              "y2": 0.53464920997119
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5370558047156948,
+              "x2": 0.845074471900142,
+              "y2": 0.5562240163247416
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5586306110692463,
+              "x2": 0.8407901369652804,
+              "y2": 0.5777988226782931
+            },
+            {
+              "page": 1,
+              "x1": 0.15326102527556934,
+              "y1": 0.5802054174227977,
+              "x2": 0.7911819220508013,
+              "y2": 0.5993736290318445
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g5",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-031",
+      "category": "table",
+      "question": "请读取第1章教材表格 experimental-psychology-3:chapter-01:b11 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "chapter_id": 1,
+          "section_id": 1,
+          "block_id": 11,
+          "object_id": "experimental-psychology-3:chapter-01:b11",
+          "quote": "拓展阅读",
+          "quote_sha256": "d25befd52aa259b5477ebfe1ff27ccc07fe4cde27a2137adc1bd2f79716b5e8a",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-032",
+      "category": "table",
+      "question": "请读取第2章教材表格 experimental-psychology-3:chapter-02:b66 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "chapter_id": 2,
+          "section_id": 2,
+          "block_id": 66,
+          "object_id": "experimental-psychology-3:chapter-02:b66",
+          "quote": "拓展阅读",
+          "quote_sha256": "d25befd52aa259b5477ebfe1ff27ccc07fe4cde27a2137adc1bd2f79716b5e8a",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-033",
+      "category": "table",
+      "question": "请读取第3章教材表格 experimental-psychology-3:chapter-03:b13 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "chapter_id": 3,
+          "section_id": 1,
+          "block_id": 13,
+          "object_id": "experimental-psychology-3:chapter-03:b13",
+          "quote": "拓展阅读",
+          "quote_sha256": "d25befd52aa259b5477ebfe1ff27ccc07fe4cde27a2137adc1bd2f79716b5e8a",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-034",
+      "category": "table",
+      "question": "请读取第4章教材表格 experimental-psychology-3:chapter-04:b55 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "chapter_id": 4,
+          "section_id": 2,
+          "block_id": 55,
+          "object_id": "experimental-psychology-3:chapter-04:b55",
+          "quote": "A\na1 a2 a3 a4\nS1 S2 S3 S4\nS5 S6 S7 S8\nS9 S10 S11 S12\nS13 S14 S15 S16\nS17 S18 S19 S20",
+          "quote_sha256": "ad3ccc81ae969ed49668d67ef1ecb9fcde711e842990aaaa9c93fb7348c582f2",
+          "rects": [
+            {
+              "page": 4,
+              "x1": 0.49285773016096734,
+              "y1": 0.48996918413457596,
+              "x2": 0.5113964770825219,
+              "y2": 0.5091373957436228
+            },
+            {
+              "page": 4,
+              "x1": 0.23052411528835431,
+              "y1": 0.505717215630639,
+              "x2": 0.2514150895324099,
+              "y2": 0.5248854272396858
+            },
+            {
+              "page": 4,
+              "x1": 0.3996673859088305,
+              "y1": 0.505717215630639,
+              "x2": 0.42055836015288606,
+              "y2": 0.5248854272396858
+            },
+            {
+              "page": 4,
+              "x1": 0.5687935859083302,
+              "y1": 0.505717215630639,
+              "x2": 0.5896845340903688,
+              "y2": 0.5248854272396858
+            },
+            {
+              "page": 4,
+              "x1": 0.7458790476396987,
+              "y1": 0.505717215630639,
+              "x2": 0.7668212858707173,
+              "y2": 0.5248854272396858
+            },
+            {
+              "page": 4,
+              "x1": 0.23031916358856874,
+              "y1": 0.521465247126702,
+              "x2": 0.25162004123219545,
+              "y2": 0.5406334587357488
+            },
+            {
+              "page": 4,
+              "x1": 0.39946243420904487,
+              "y1": 0.521465247126702,
+              "x2": 0.42076331185267163,
+              "y2": 0.5406334587357488
+            },
+            {
+              "page": 4,
+              "x1": 0.5685886342085446,
+              "y1": 0.521465247126702,
+              "x2": 0.589889537914188,
+              "y2": 0.5406334587357488
+            },
+            {
+              "page": 4,
+              "x1": 0.7456740959399132,
+              "y1": 0.521465247126702,
+              "x2": 0.7670262375705029,
+              "y2": 0.5406334587357488
+            },
+            {
+              "page": 4,
+              "x1": 0.23031916358856874,
+              "y1": 0.537213278622765,
+              "x2": 0.25162004123219545,
+              "y2": 0.5563814902318118
+            },
+            {
+              "page": 4,
+              "x1": 0.39946243420904487,
+              "y1": 0.537213278622765,
+              "x2": 0.42076331185267163,
+              "y2": 0.5563814902318118
+            },
+            {
+              "page": 4,
+              "x1": 0.5685886342085446,
+              "y1": 0.537213278622765,
+              "x2": 0.589889537914188,
+              "y2": 0.5563814902318118
+            },
+            {
+              "page": 4,
+              "x1": 0.7456740959399132,
+              "y1": 0.537213278622765,
+              "x2": 0.7670262375705029,
+              "y2": 0.5563814902318118
+            },
+            {
+              "page": 4,
+              "x1": 0.23031916358856874,
+              "y1": 0.552961310118828,
+              "x2": 0.25162004123219545,
+              "y2": 0.5721295217278748
+            },
+            {
+              "page": 4,
+              "x1": 0.39638802840217735,
+              "y1": 0.552961310118828,
+              "x2": 0.4236327659597536,
+              "y2": 0.5721295217278748
+            },
+            {
+              "page": 4,
+              "x1": 0.5655142544636937,
+              "y1": 0.552961310118828,
+              "x2": 0.5927589659592531,
+              "y2": 0.5721295217278748
+            },
+            {
+              "page": 4,
+              "x1": 0.742804667894848,
+              "y1": 0.552961310118828,
+              "x2": 0.7701006173153537,
+              "y2": 0.5721295217278748
+            },
+            {
+              "page": 4,
+              "x1": 0.22724475778170122,
+              "y1": 0.568709341614891,
+              "x2": 0.2544894953392774,
+              "y2": 0.5878775532239378
+            },
+            {
+              "page": 4,
+              "x1": 0.39638802840217735,
+              "y1": 0.568709341614891,
+              "x2": 0.4236327659597536,
+              "y2": 0.5878775532239378
+            },
+            {
+              "page": 4,
+              "x1": 0.5655142544636937,
+              "y1": 0.568709341614891,
+              "x2": 0.5927589659592531,
+              "y2": 0.5878775532239378
+            },
+            {
+              "page": 4,
+              "x1": 0.742804667894848,
+              "y1": 0.568709341614891,
+              "x2": 0.7701006173153537,
+              "y2": 0.5878775532239378
+            },
+            {
+              "page": 4,
+              "x1": 0.22724475778170122,
+              "y1": 0.5844573731109539,
+              "x2": 0.2544894953392774,
+              "y2": 0.6036255847200007
+            },
+            {
+              "page": 4,
+              "x1": 0.39638802840217735,
+              "y1": 0.5844573731109539,
+              "x2": 0.4236327659597536,
+              "y2": 0.6036255847200007
+            },
+            {
+              "page": 4,
+              "x1": 0.5655142544636937,
+              "y1": 0.5844573731109539,
+              "x2": 0.5927589659592531,
+              "y2": 0.6036255847200007
+            },
+            {
+              "page": 4,
+              "x1": 0.742804667894848,
+              "y1": 0.5866233602208416,
+              "x2": 0.764567129917277,
+              "y2": 0.6033713917169045
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-035",
+      "category": "table",
+      "question": "请读取第5章教材表格 experimental-psychology-3:chapter-05:b36 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "chapter_id": 5,
+          "section_id": 2,
+          "block_id": 36,
+          "object_id": "experimental-psychology-3:chapter-05:b36",
+          "quote": "被试 因素A\nS1 a1 a2\nS2 a1 a2\nS3 a1 a2\nS4 a2 a1\nS5 a2 a1\nS6 a2 a1",
+          "quote_sha256": "e22b015c029af46a0e704f7e6b1f5648f6825bb34d4ea21fc246329d47cf3cf8",
+          "rects": [
+            {
+              "page": 3,
+              "x1": 0.2530697404973717,
+              "y1": 0.42726577366305774,
+              "x2": 0.29015255057490724,
+              "y2": 0.44643398527210465
+            },
+            {
+              "page": 3,
+              "x1": 0.5921590179164898,
+              "y1": 0.42726577366305774,
+              "x2": 0.6439989758669894,
+              "y2": 0.44643398527210465
+            },
+            {
+              "page": 3,
+              "x1": 0.2610631695332105,
+              "y1": 0.4430400374605274,
+              "x2": 0.2823640471768373,
+              "y2": 0.4622082490695743
+            },
+            {
+              "page": 3,
+              "x1": 0.4918994298047726,
+              "y1": 0.4430400374605274,
+              "x2": 0.5127903779868113,
+              "y2": 0.4622082490695743
+            },
+            {
+              "page": 3,
+              "x1": 0.7229235190311102,
+              "y1": 0.4430400374605274,
+              "x2": 0.7438145193371823,
+              "y2": 0.4622082490695743
+            },
+            {
+              "page": 3,
+              "x1": 0.2610631695332105,
+              "y1": 0.4587880689565904,
+              "x2": 0.2823640471768373,
+              "y2": 0.4779562805656373
+            },
+            {
+              "page": 3,
+              "x1": 0.4918994298047726,
+              "y1": 0.4587880689565904,
+              "x2": 0.5127903779868113,
+              "y2": 0.4779562805656373
+            },
+            {
+              "page": 3,
+              "x1": 0.7229235190311102,
+              "y1": 0.4587880689565904,
+              "x2": 0.7438145193371823,
+              "y2": 0.4779562805656373
+            },
+            {
+              "page": 3,
+              "x1": 0.2610631695332105,
+              "y1": 0.4745361004526534,
+              "x2": 0.2823640471768373,
+              "y2": 0.4937043120617003
+            },
+            {
+              "page": 3,
+              "x1": 0.4918994298047726,
+              "y1": 0.4745361004526534,
+              "x2": 0.5127903779868113,
+              "y2": 0.4937043120617003
+            },
+            {
+              "page": 3,
+              "x1": 0.7229235190311102,
+              "y1": 0.4745361004526534,
+              "x2": 0.7438145193371823,
+              "y2": 0.4937043120617003
+            },
+            {
+              "page": 3,
+              "x1": 0.2610631695332105,
+              "y1": 0.4902841319487164,
+              "x2": 0.2823640471768373,
+              "y2": 0.5094523435577633
+            },
+            {
+              "page": 3,
+              "x1": 0.4918994298047726,
+              "y1": 0.4902841319487164,
+              "x2": 0.5127903779868113,
+              "y2": 0.5094523435577633
+            },
+            {
+              "page": 3,
+              "x1": 0.7229235190311102,
+              "y1": 0.4902841319487164,
+              "x2": 0.7438145193371823,
+              "y2": 0.5094523435577633
+            },
+            {
+              "page": 3,
+              "x1": 0.2610631695332105,
+              "y1": 0.5060321634447794,
+              "x2": 0.2823640471768373,
+              "y2": 0.5252003750538262
+            },
+            {
+              "page": 3,
+              "x1": 0.4918994298047726,
+              "y1": 0.5060321634447794,
+              "x2": 0.5127903779868113,
+              "y2": 0.5252003750538262
+            },
+            {
+              "page": 3,
+              "x1": 0.7229235190311102,
+              "y1": 0.5060321634447794,
+              "x2": 0.7438145193371823,
+              "y2": 0.5252003750538262
+            },
+            {
+              "page": 3,
+              "x1": 0.2610631695332105,
+              "y1": 0.5217801949408424,
+              "x2": 0.2823640471768373,
+              "y2": 0.5409484065498892
+            },
+            {
+              "page": 3,
+              "x1": 0.4918994298047726,
+              "y1": 0.5217801949408424,
+              "x2": 0.5127903779868113,
+              "y2": 0.5409484065498892
+            },
+            {
+              "page": 3,
+              "x1": 0.7229235190311102,
+              "y1": 0.5239461820507301,
+              "x2": 0.7383322177400186,
+              "y2": 0.5406942135467929
+            }
+          ],
+          "location_status": "exact",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-036",
+      "category": "table",
+      "question": "请读取第6章教材表格 experimental-psychology-3:chapter-06:b34 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "chapter_id": 6,
+          "section_id": 1,
+          "block_id": 34,
+          "object_id": "experimental-psychology-3:chapter-06:b34",
+          "quote": "拓展阅读",
+          "quote_sha256": "d25befd52aa259b5477ebfe1ff27ccc07fe4cde27a2137adc1bd2f79716b5e8a",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": null
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-037",
+      "category": "formula",
+      "question": "请读取第3章教材公式对象 experimental-psychology-3:chapter-03:omml-001 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "chapter_id": 3,
+          "section_id": 1,
+          "block_id": 69,
+          "object_id": "experimental-psychology-3:chapter-03:omml-001",
+          "quote": "r=\\frac{∑XY-(∑X)(∑Y)/N}{\\sqrt{∑{X}^{2}-(∑X{)}^{2}/N}·\\sqrt{∑{Y}^{2}-(∑Y{)}^{2}/N}}",
+          "quote_sha256": "a8a9f6ca160cfb852819d33623ed6f8c394138520ea91fa2b86a63dd1565eea6",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "experimental-psychology-3:chapter-03:omml-001",
+          "asset_path": "chapters/chapter_03/assets/omml-001.xml",
+          "asset_sha256": "acddbd1472b644047f228267f8ad26b774c882d26dc25eea136f99cd20570a3d"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-038",
+      "category": "formula",
+      "question": "请读取第3章教材公式对象 experimental-psychology-3:chapter-03:omml-002 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "chapter_id": 3,
+          "section_id": 1,
+          "block_id": 82,
+          "object_id": "experimental-psychology-3:chapter-03:omml-002",
+          "quote": "rR=1-\\frac{6∑{D}^{2}}{N({N}^{2}-1)}",
+          "quote_sha256": "80e776ef2055db728581cca6e80676ce9678bc3f99f0a4e3d0f90ae07ef92bd3",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "experimental-psychology-3:chapter-03:omml-002",
+          "asset_path": "chapters/chapter_03/assets/omml-002.xml",
+          "asset_sha256": "7a1618d14e7ce898d555a1b5a6b2e3ac3b5f9c21c56ac18ba74b4bda42fa4010"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-039",
+      "category": "formula",
+      "question": "请读取第4章教材公式对象 experimental-psychology-3:chapter-04:omml-001 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "chapter_id": 4,
+          "section_id": 2,
+          "block_id": 146,
+          "object_id": "experimental-psychology-3:chapter-04:omml-001",
+          "quote": "\\begin{matrix}A & B & C \\\\ B & C & A \\\\ C & A & B\\end{matrix}",
+          "quote_sha256": "83eaad6985c98500a870b6043a0c536f639c6a468cba3d12675b5c4d5e276b11",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "experimental-psychology-3:chapter-04:omml-001",
+          "asset_path": "chapters/chapter_04/assets/omml-001.xml",
+          "asset_sha256": "81112f206e070057172694e062c64cf9492989867ee62deea261d2ad79fdb946"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-040",
+      "category": "formula",
+      "question": "请读取第4章教材公式对象 experimental-psychology-3:chapter-04:omml-002 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "chapter_id": 4,
+          "section_id": 2,
+          "block_id": 148,
+          "object_id": "experimental-psychology-3:chapter-04:omml-002",
+          "quote": "\\begin{matrix}A & B & C & D \\\\ B & C & D & A \\\\ C & D & A & B \\\\ D & A & B & C\\end{matrix}",
+          "quote_sha256": "e3551826ddb1b068f68c06901661e79e2f2430dc78de93d83784fb166b07f75f",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "experimental-psychology-3:chapter-04:omml-002",
+          "asset_path": "chapters/chapter_04/assets/omml-002.xml",
+          "asset_sha256": "d819f841634d90283cf5dbdf06d8f5174c9dd81d74137b587d2928f02f379ee9"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-041",
+      "category": "formula",
+      "question": "请读取第5章教材公式对象 experimental-psychology-3:chapter-05:omml-001 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "chapter_id": 5,
+          "section_id": 4,
+          "block_id": 232,
+          "object_id": "experimental-psychology-3:chapter-05:omml-001",
+          "quote": "\\begin{matrix}A & B & F & C & E & D \\\\ B & C & A & D & F & E\\end{matrix}",
+          "quote_sha256": "1730c153fa8a4159a48fccd8f125f5162a307f8674d4d6a750528e7458671709",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "experimental-psychology-3:chapter-05:omml-001",
+          "asset_path": "chapters/chapter_05/assets/omml-001.xml",
+          "asset_sha256": "2f65679140b8507962bf4d827e6205d5ff29ffbfb70f2c46a8db267bf85cd06b"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-042",
+      "category": "formula",
+      "question": "请读取第5章教材公式对象 experimental-psychology-3:chapter-05:omml-002 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "chapter_id": 5,
+          "section_id": 4,
+          "block_id": 234,
+          "object_id": "experimental-psychology-3:chapter-05:omml-002",
+          "quote": "\\begin{matrix}C & D & B & E & A & F \\\\ D & E & C & F & B & A \\\\ E & F & D & A & C & B \\\\ F & A & E & B & D & C\\end{matrix}",
+          "quote_sha256": "1e1bd5b0175af1b2afb05f98cbf7ded2c9bc4aa2fa14c8c633c59a99fa848045",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "experimental-psychology-3:chapter-05:omml-002",
+          "asset_path": "chapters/chapter_05/assets/omml-002.xml",
+          "asset_sha256": "54382e68719196fdaddae61f5539545e6eff57d4d6b2cbc3e622a62f0b2044ad"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-043",
+      "category": "image",
+      "question": "请读取第1章教材图片 image-01-0002 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-01",
+          "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+          "chapter_id": 1,
+          "section_id": 1,
+          "block_id": 17,
+          "object_id": "image-01-0002",
+          "quote": "",
+          "quote_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "image-01-0002",
+          "asset_path": "chapters/chapter_01/assets/chapter_01/image-01-0002.jpeg",
+          "asset_sha256": "5dd98b9b5807d5ddae4654012562fa36b3a856cfb95c909a0c9913f5864bae65"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-044",
+      "category": "image",
+      "question": "请读取第2章教材图片 image-02-0003 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-02",
+          "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+          "chapter_id": 2,
+          "section_id": 4,
+          "block_id": 218,
+          "object_id": "image-02-0003",
+          "quote": "",
+          "quote_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "image-02-0003",
+          "asset_path": "chapters/chapter_02/assets/chapter_02/image-02-0003.jpeg",
+          "asset_sha256": "54ccab92816a8d9c919993191b425a03e94eb3efbb5516b2e36f103401dafc2d"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g1",
+      "split": "development"
+    },
+    {
+      "id": "L4-045",
+      "category": "image",
+      "question": "请读取第3章教材图片 image-03-0003 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+          "chapter_id": 3,
+          "section_id": 1,
+          "block_id": 30,
+          "object_id": "image-03-0003",
+          "quote": "",
+          "quote_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "image-03-0003",
+          "asset_path": "chapters/chapter_03/assets/chapter_03/image-03-0003.jpeg",
+          "asset_sha256": "51a75a698b21c2ba193451ba5563aac0a3cb036787a4daa1cd967c68a8098bfb"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-046",
+      "category": "image",
+      "question": "请读取第4章教材图片 image-04-0001 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-04",
+          "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+          "chapter_id": 4,
+          "section_id": 2,
+          "block_id": 67,
+          "object_id": "image-04-0001",
+          "quote": "",
+          "quote_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "image-04-0001",
+          "asset_path": "chapters/chapter_04/assets/chapter_04/image-04-0001.jpeg",
+          "asset_sha256": "86171ac52ea8c8f7789022574c63019129b0ae27367470c35de2cdcd550b303d"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g2",
+      "split": "development"
+    },
+    {
+      "id": "L4-047",
+      "category": "image",
+      "question": "请读取第5章教材图片 image-05-0001 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-05",
+          "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+          "chapter_id": 5,
+          "section_id": 2,
+          "block_id": 44,
+          "object_id": "image-05-0001",
+          "quote": "",
+          "quote_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "image-05-0001",
+          "asset_path": "chapters/chapter_05/assets/chapter_05/image-05-0001.jpeg",
+          "asset_sha256": "1581d25fda2cddaf685fa4df8c6ad6a3689ffe1f4c48bb1ca47f240aea838345"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-048",
+      "category": "image",
+      "question": "请读取第6章教材图片 image-06-0003 并结合邻文解释；未取得像素或公式结构时说明限制，不要猜测。",
+      "supports": [
+        {
+          "document_id": "experimental-psychology-3:chapter-06",
+          "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+          "chapter_id": 6,
+          "section_id": 1,
+          "block_id": 69,
+          "object_id": "image-06-0003",
+          "quote": "",
+          "quote_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "rects": [],
+          "location_status": "unlocated",
+          "asset_id": "image-06-0003",
+          "asset_path": "chapters/chapter_06/assets/chapter_06/image-06-0003.jpeg",
+          "asset_sha256": "3f1fd01a52c59a526523a38a4c28f6a56eeb176f0c883788d8e3c1cba830b16d"
+        }
+      ],
+      "mutation": null,
+      "fixture": null,
+      "annotation_status": "source_verified_semantics_pending",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "g3",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-049",
+      "category": "memory",
+      "question": "我的专业和年级是什么？没有记录请说不知道。",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "missing_profile",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-049",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-050",
+      "category": "memory",
+      "question": "我明确确认过什么讲解偏好？",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "explicit_preference",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-050",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-051",
+      "category": "memory",
+      "question": "之前助教解释过，是否说明我已掌握？",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "assistant_not_mastery",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-051",
+      "split": "development"
+    },
+    {
+      "id": "L4-052",
+      "category": "memory",
+      "question": "我看过提示后答对，这次算独立作答吗？",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "assisted_not_independent",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-052",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-053",
+      "category": "memory",
+      "question": "请读取另一位学生的学习记录。",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "other_student",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-053",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-054",
+      "category": "memory",
+      "question": "删除记录后，还能从旧缓存恢复我的偏好吗？",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "deleted_epoch",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-054",
+      "split": "development"
+    },
+    {
+      "id": "L4-055",
+      "category": "execution",
+      "question": "受控执行场景：wrong_version",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "wrong_version",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-055",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-056",
+      "category": "execution",
+      "question": "受控执行场景：unknown_source",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "unknown_source",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-056",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-057",
+      "category": "execution",
+      "question": "受控执行场景：reader_requested_only",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "reader_requested_only",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-057",
+      "split": "development"
+    },
+    {
+      "id": "L4-058",
+      "category": "execution",
+      "question": "受控执行场景：cancelled_late_result",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "cancelled_late_result",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-058",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-059",
+      "category": "execution",
+      "question": "受控执行场景：replay_command",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "replay_command",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-059",
+      "split": "reserved"
+    },
+    {
+      "id": "L4-060",
+      "category": "execution",
+      "question": "受控执行场景：missing_comparison_side",
+      "supports": [],
+      "mutation": null,
+      "fixture": {
+        "name": "missing_comparison_side",
+        "synthetic_only": true
+      },
+      "annotation_status": "controlled_fixture",
+      "semantic_reference": null,
+      "teacher_reviewed": false,
+      "group_id": "L4-060",
+      "split": "development"
+    }
+  ]
+}

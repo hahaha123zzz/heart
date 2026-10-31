@@ -1,0 +1,796 @@
+{
+  "date": "2026-10-31",
+  "baseline_commit": "94ba9ca",
+  "observed_head": "94ba9ca0223b164ac44cabdcb424b759b5e6e116",
+  "scope": "Static research and source inspection only; no dependency integration, model call or product test.",
+  "user_input": {
+    "path": "C:\\Users\\free\\.codex\\attachments\\73f704c2-f001-4133-a254-5fc29102d7ec\\已粘贴的文本.txt",
+    "sha256": "9ffbfdfaa417836c6f5599b03aad009cf29176e564fbca2b84c69157adaba4f7",
+    "lines": 1240
+  },
+  "repos": [
+    {
+      "repo": "AkariAsai/self-rag",
+      "sha": "1fcdc420e48f50a7d7ab1ece5494221b93252e99",
+      "date": "2024-03-19T21:53:36Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:23:23.8081273Z",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "b5627690e880968ef9274d209b15ef62de2733d1534b030b9ef7a480d6858367",
+          "bytes": 1067,
+          "url": "https://github.com/AkariAsai/self-rag/blob/1fcdc420e48f50a7d7ab1ece5494221b93252e99/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "sha256": "76f6673322fd991f3791e346b72cd60593641fcfda88004a152bda2d1fbff309",
+          "bytes": 21481,
+          "url": "https://github.com/AkariAsai/self-rag/blob/1fcdc420e48f50a7d7ab1ece5494221b93252e99/README.md"
+        },
+        {
+          "path": "retrieval_lm/run_short_form.py",
+          "sha256": "39bc137ec99c736b513e8da7eb16653a815088a6c89feb463ebd32adcefb51da",
+          "bytes": 16256,
+          "url": "https://github.com/AkariAsai/self-rag/blob/1fcdc420e48f50a7d7ab1ece5494221b93252e99/retrieval_lm/run_short_form.py"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "docling-project/docling",
+      "sha": "764b5d4dc22b03ea87afd4c2207f510300b27a5b",
+      "date": "2026-10-31T05:14:48Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:05.7184989Z",
+      "files": [
+        {
+          "path": "docling/backend/msword_backend.py",
+          "sha256": "0b84ead0340ccfbb0010109bd045806c02242e3015c80975f5176f09e8fe3303",
+          "bytes": 210351,
+          "url": "https://github.com/docling-project/docling/blob/764b5d4dc22b03ea87afd4c2207f510300b27a5b/docling/backend/msword_backend.py"
+        },
+        {
+          "path": "docling/document_converter.py",
+          "sha256": "ce8407bb8ddd8d8b8b518b413ced86cded5aa153606cd7ee2cf092232fa9ea65",
+          "bytes": 41299,
+          "url": "https://github.com/docling-project/docling/blob/764b5d4dc22b03ea87afd4c2207f510300b27a5b/docling/document_converter.py"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "edb765d1e3e60d0c7a7d5fba5f2bb2c3c29f7465cecb5c22cf1185c884954e4c",
+          "bytes": 1072,
+          "url": "https://github.com/docling-project/docling/blob/764b5d4dc22b03ea87afd4c2207f510300b27a5b/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "sha256": "ce605634509dc87d79182131ad001e5fddf6053963b9045b971c6e87e6b9bfa1",
+          "bytes": 8589,
+          "url": "https://github.com/docling-project/docling/blob/764b5d4dc22b03ea87afd4c2207f510300b27a5b/README.md"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "docling-project/docling-core",
+      "sha": "2dc4c9f511269eb39be5aad84b838f7bb179142e",
+      "date": "2026-10-29T09:03:08Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:07.3149291Z",
+      "files": [
+        {
+          "path": "docling_core/transforms/chunker/hybrid_chunker.py",
+          "sha256": "c0239b4c52a62ce9e13485ecff9f070057062bfe4ebc87aa626c7a890e513ced",
+          "bytes": 32520,
+          "url": "https://github.com/docling-project/docling-core/blob/2dc4c9f511269eb39be5aad84b838f7bb179142e/docling_core/transforms/chunker/hybrid_chunker.py"
+        },
+        {
+          "path": "docling_core/types/doc/document.py",
+          "sha256": "0a12822d26b0636f77c873e47207fb95b01ff90838ed9729883cde036cdc0944",
+          "bytes": 238149,
+          "url": "https://github.com/docling-project/docling-core/blob/2dc4c9f511269eb39be5aad84b838f7bb179142e/docling_core/types/doc/document.py"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "d8cf7ee84a10d6cc45ced4ce917180b7050326f9d66801dd07d058595c06908c",
+          "bytes": 1087,
+          "url": "https://github.com/docling-project/docling-core/blob/2dc4c9f511269eb39be5aad84b838f7bb179142e/LICENSE"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "vibrantlabsai/ragas",
+      "sha": "298b68274234c060deacab3cf5fb52aa3a20e885",
+      "date": "2026-02-24T07:47:18Z",
+      "branch": "main",
+      "license": "Apache-2.0",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:25.4686001Z",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "664b930830f291c2936ab30bcd6ef9ca6c9c7384cc475ae0c526156a27d5a6c6",
+          "bytes": 11346,
+          "url": "https://github.com/vibrantlabsai/ragas/blob/298b68274234c060deacab3cf5fb52aa3a20e885/LICENSE"
+        },
+        {
+          "path": "src/ragas/evaluation.py",
+          "sha256": "79fdbacf1229e5cf1d0d17963ce00b7dd90f6f7e4692a683bc7b3845e2dd88f4",
+          "bytes": 18089,
+          "url": "https://github.com/vibrantlabsai/ragas/blob/298b68274234c060deacab3cf5fb52aa3a20e885/src/ragas/evaluation.py"
+        },
+        {
+          "path": "src/ragas/metrics/_context_precision.py",
+          "sha256": "baaf3981986602754ccbaef2936b6ac8e6d6551cab86477e64170683d74a4716",
+          "bytes": 13261,
+          "url": "https://github.com/vibrantlabsai/ragas/blob/298b68274234c060deacab3cf5fb52aa3a20e885/src/ragas/metrics/_context_precision.py"
+        },
+        {
+          "path": "src/ragas/metrics/_context_recall.py",
+          "sha256": "154a260678839c3f3d7dcf15f38820e36a3514b492245fdc899e93b946554ada",
+          "bytes": 11161,
+          "url": "https://github.com/vibrantlabsai/ragas/blob/298b68274234c060deacab3cf5fb52aa3a20e885/src/ragas/metrics/_context_recall.py"
+        },
+        {
+          "path": "src/ragas/metrics/_faithfulness.py",
+          "sha256": "5370b57f3df537a1619f7c6ddeeb5fd67e392821a5dee30eb5e0830f3a75cdc9",
+          "bytes": 11231,
+          "url": "https://github.com/vibrantlabsai/ragas/blob/298b68274234c060deacab3cf5fb52aa3a20e885/src/ragas/metrics/_faithfulness.py"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "Future-House/paper-qa",
+      "sha": "c692d0dfeac4a0296599f7fe21a253a58b7ac12a",
+      "date": "2026-10-26T01:56:13Z",
+      "branch": "main",
+      "license": "Apache-2.0",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:23:27.9400059Z",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "a10f591e3522fbfe867cfde0b35e0594f6f43a51b013540208a1469c9e0b0f62",
+          "bytes": 11341,
+          "url": "https://github.com/Future-House/paper-qa/blob/c692d0dfeac4a0296599f7fe21a253a58b7ac12a/LICENSE"
+        },
+        {
+          "path": "src/paperqa/agents/tools.py",
+          "sha256": "3b2c4296413d2f3e6b5905ef95714e9d8ce1f15ef461e6c373b228ae872a73f4",
+          "bytes": 28526,
+          "url": "https://github.com/Future-House/paper-qa/blob/c692d0dfeac4a0296599f7fe21a253a58b7ac12a/src/paperqa/agents/tools.py"
+        },
+        {
+          "path": "src/paperqa/docs.py",
+          "sha256": "d14055c94afd811e4307a1ef3f7d05ebdeaf57ddf188f8b394f81bfeedce83d5",
+          "bytes": 27486,
+          "url": "https://github.com/Future-House/paper-qa/blob/c692d0dfeac4a0296599f7fe21a253a58b7ac12a/src/paperqa/docs.py"
+        },
+        {
+          "path": "src/paperqa/types.py",
+          "sha256": "c3fe6c4e241b58c0432bce85ba9e4577bc54afffb1918b79a39ad780d2cd5b5f",
+          "bytes": 54685,
+          "url": "https://github.com/Future-House/paper-qa/blob/c692d0dfeac4a0296599f7fe21a253a58b7ac12a/src/paperqa/types.py"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "1ea7df155447f4caf0e3abc86b3ff5395479cd4a",
+      "date": "2026-10-28T16:36:18Z",
+      "branch": "main",
+      "license": "Apache-2.0",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:15.7118371Z",
+      "files": [
+        {
+          "path": "deeptutor/agents/loop/agent_loop.py",
+          "sha256": "6aa2c62c51eb8128051560c6601924baece1c53a49e21b30a46d92eca82f7a68",
+          "bytes": 68299,
+          "url": "https://github.com/HKUDS/DeepTutor/blob/1ea7df155447f4caf0e3abc86b3ff5395479cd4a/deeptutor/agents/loop/agent_loop.py"
+        },
+        {
+          "path": "deeptutor/capabilities/protocol.py",
+          "sha256": "81925025f3953f206fb7c512daaf5c242313effd8a04f975cec1d24444c8715f",
+          "bytes": 8161,
+          "url": "https://github.com/HKUDS/DeepTutor/blob/1ea7df155447f4caf0e3abc86b3ff5395479cd4a/deeptutor/capabilities/protocol.py"
+        },
+        {
+          "path": "deeptutor/capabilities/reading/capability.py",
+          "sha256": "45b7f1665bb608b757fc3ede0703876a580689f620962ef17049e628313f7e6d",
+          "bytes": 20445,
+          "url": "https://github.com/HKUDS/DeepTutor/blob/1ea7df155447f4caf0e3abc86b3ff5395479cd4a/deeptutor/capabilities/reading/capability.py"
+        },
+        {
+          "path": "deeptutor/capabilities/registry.py",
+          "sha256": "190cb2f6e0d151087c778a36c6b8b0354657c4a5853e6eaf27949be13dbb97ee",
+          "bytes": 7514,
+          "url": "https://github.com/HKUDS/DeepTutor/blob/1ea7df155447f4caf0e3abc86b3ff5395479cd4a/deeptutor/capabilities/registry.py"
+        },
+        {
+          "path": "deeptutor/learning/assessment.py",
+          "sha256": "f2e04d9a59ed47d19f91013fdae01719874e0d85f94afe5299e0475b78e63f62",
+          "bytes": 20310,
+          "url": "https://github.com/HKUDS/DeepTutor/blob/1ea7df155447f4caf0e3abc86b3ff5395479cd4a/deeptutor/learning/assessment.py"
+        },
+        {
+          "path": "deeptutor/runtime/registry/scoped_registry.py",
+          "sha256": "20b72991cf82590f71768693599e28e57d66b78b3367b963d2df23118506b678",
+          "bytes": 7746,
+          "url": "https://github.com/HKUDS/DeepTutor/blob/1ea7df155447f4caf0e3abc86b3ff5395479cd4a/deeptutor/runtime/registry/scoped_registry.py"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4",
+          "bytes": 11408,
+          "url": "https://github.com/HKUDS/DeepTutor/blob/1ea7df155447f4caf0e3abc86b3ff5395479cd4a/LICENSE"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "HKUDS/LightRAG",
+      "sha": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+      "date": "2026-10-14T14:55:37Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:12.4434864Z",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "0c16924564059e493c86854574660a47ed1dcc2a476ba7b5f949d3f2f73a1984",
+          "bytes": 1070,
+          "url": "https://github.com/HKUDS/LightRAG/blob/aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a/LICENSE"
+        },
+        {
+          "path": "lightrag/base.py",
+          "sha256": "e7f0ec700659071d616b4c81c8711626d512d356d0036ce6f8da8d9a37a19f28",
+          "bytes": 94232,
+          "url": "https://github.com/HKUDS/LightRAG/blob/aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a/lightrag/base.py"
+        },
+        {
+          "path": "lightrag/operate.py",
+          "sha256": "176585e3f686574ab98657b666982302ce47d58229baacb529ef601bd6799326",
+          "bytes": 299930,
+          "url": "https://github.com/HKUDS/LightRAG/blob/aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a/lightrag/operate.py"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "HKUDS/RAG-Anything",
+      "sha": "2cd2b3329c470ccb53923f8a6d320596b34e56c5",
+      "date": "2026-10-28T07:20:34Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:10.8252912Z",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "68c9fc511bb10d1488522aa139d1e91289b76ab998fc8ca815e93a85c4ea4850",
+          "bytes": 1088,
+          "url": "https://github.com/HKUDS/RAG-Anything/blob/2cd2b3329c470ccb53923f8a6d320596b34e56c5/LICENSE"
+        },
+        {
+          "path": "raganything/modalprocessors.py",
+          "sha256": "e3df47cfbb7acfbf51988201ed6de748c894cd4690de273453c2266a05bd843c",
+          "bytes": 65725,
+          "url": "https://github.com/HKUDS/RAG-Anything/blob/2cd2b3329c470ccb53923f8a6d320596b34e56c5/raganything/modalprocessors.py"
+        },
+        {
+          "path": "raganything/parser.py",
+          "sha256": "b0be79403d61a47f2fb6cbc2fb065b7e1af5ec70e3bd388d463f5c134af26646",
+          "bytes": 149437,
+          "url": "https://github.com/HKUDS/RAG-Anything/blob/2cd2b3329c470ccb53923f8a6d320596b34e56c5/raganything/parser.py"
+        },
+        {
+          "path": "raganything/processor.py",
+          "sha256": "c4865d58c52c6c5b98615ae04523f4f66573834950b4b14c5d1a932b4e0216e6",
+          "bytes": 112851,
+          "url": "https://github.com/HKUDS/RAG-Anything/blob/2cd2b3329c470ccb53923f8a6d320596b34e56c5/raganything/processor.py"
+        },
+        {
+          "path": "raganything/query.py",
+          "sha256": "556de2e13496bfed735d8b48fcabbd518a7f65417fdcdfb4bc745fdf86d75cae",
+          "bytes": 37457,
+          "url": "https://github.com/HKUDS/RAG-Anything/blob/2cd2b3329c470ccb53923f8a6d320596b34e56c5/raganything/query.py"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "HuskyInSalt/CRAG",
+      "sha": "de7c2961ae624a1483a138c5798e1f6d0c4fb0e0",
+      "date": "2024-10-08T12:51:29Z",
+      "branch": "main",
+      "license": null,
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:23:25.8587803Z",
+      "files": [
+        {
+          "path": "README.md",
+          "sha256": "8892665c3deb48fe356d6211d8b37b8d68b6a832d7f089ba48144d9d0700d9dd",
+          "bytes": 7896,
+          "url": "https://github.com/HuskyInSalt/CRAG/blob/de7c2961ae624a1483a138c5798e1f6d0c4fb0e0/README.md"
+        },
+        {
+          "path": "scripts/train_evaluator.py",
+          "sha256": "70e0397fe343514f623b88ecf620d64abcc29d659f024ed02b5eb5d006c0fecd",
+          "bytes": 3706,
+          "url": "https://github.com/HuskyInSalt/CRAG/blob/de7c2961ae624a1483a138c5798e1f6d0c4fb0e0/scripts/train_evaluator.py"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "illuin-tech/colpali",
+      "sha": "97487f8871ff4d5d2284411fe61bdcd2cfe99894",
+      "date": "2026-08-24T14:35:10Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:23:21.7614143Z",
+      "files": [
+        {
+          "path": "colpali_engine/models/paligemma/colpali/processing_colpali.py",
+          "sha256": "cc5fdc935d42ed45002d0362f64249e4d7a8873213de833a0e893c0b273fdab5",
+          "bytes": 4265,
+          "url": "https://github.com/illuin-tech/colpali/blob/97487f8871ff4d5d2284411fe61bdcd2cfe99894/colpali_engine/models/paligemma/colpali/processing_colpali.py"
+        },
+        {
+          "path": "colpali_engine/utils/processing_utils.py",
+          "sha256": "4b44cecb9a33b2adc07434785fe37718e5ea50500e3f379ca752d8e47279d67c",
+          "bytes": 19960,
+          "url": "https://github.com/illuin-tech/colpali/blob/97487f8871ff4d5d2284411fe61bdcd2cfe99894/colpali_engine/utils/processing_utils.py"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "00971d5f2329e778f05085eebf3f0a72dd626b7b448f8c8549997420cc633932",
+          "bytes": 1095,
+          "url": "https://github.com/illuin-tech/colpali/blob/97487f8871ff4d5d2284411fe61bdcd2cfe99894/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "sha256": "7fee6d4bdf5771caef5a7cd5699af89ec38f116f877df154e11d60ba20fe3a31",
+          "bytes": 37139,
+          "url": "https://github.com/illuin-tech/colpali/blob/97487f8871ff4d5d2284411fe61bdcd2cfe99894/README.md"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "infiniflow/ragflow",
+      "sha": "12d9a38e24bf3fb8573b83bc41a2fe75dcd2c281",
+      "date": "2026-10-31T06:09:55Z",
+      "branch": "main",
+      "license": "Apache-2.0",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:09.2815538Z",
+      "files": [
+        {
+          "path": "internal/agent/component/citation_plus_test.go",
+          "sha256": "346c26da4bf156a630834defefe2f6eba5882a3efb68bc3b6379b62d0a10b72f",
+          "bytes": 2461,
+          "url": "https://github.com/infiniflow/ragflow/blob/12d9a38e24bf3fb8573b83bc41a2fe75dcd2c281/internal/agent/component/citation_plus_test.go"
+        },
+        {
+          "path": "internal/agent/component/citation_sources.go",
+          "sha256": "c4fc4d96b018618ca37ceaa9215832e8a8a74a3a8d5ff4651175bd5b5b832dac",
+          "bytes": 5529,
+          "url": "https://github.com/infiniflow/ragflow/blob/12d9a38e24bf3fb8573b83bc41a2fe75dcd2c281/internal/agent/component/citation_sources.go"
+        },
+        {
+          "path": "internal/agent/runtime/retrieval.go",
+          "sha256": "c500076ed7dcfdd0d677055862dcc29a217c8adfd3e15312b2422d84b8094dec",
+          "bytes": 13543,
+          "url": "https://github.com/infiniflow/ragflow/blob/12d9a38e24bf3fb8573b83bc41a2fe75dcd2c281/internal/agent/runtime/retrieval.go"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "bytes": 11357,
+          "url": "https://github.com/infiniflow/ragflow/blob/12d9a38e24bf3fb8573b83bc41a2fe75dcd2c281/LICENSE"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "langchain-ai/langgraph",
+      "sha": "e5c961d7fbe7ca6fdd4c94c84d90511372514d55",
+      "date": "2026-10-31T00:26:39Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:18.9873142Z",
+      "files": [
+        {
+          "path": "libs/checkpoint/langgraph/checkpoint/base/__init__.py",
+          "sha256": "e1b412fb541b47cf9ab0657f5c160c955c71ce929d8ac786f0bcc94d356481e9",
+          "bytes": 32051,
+          "url": "https://github.com/langchain-ai/langgraph/blob/e5c961d7fbe7ca6fdd4c94c84d90511372514d55/libs/checkpoint/langgraph/checkpoint/base/__init__.py"
+        },
+        {
+          "path": "libs/langgraph/langgraph/pregel/_retry.py",
+          "sha256": "38b7e726a2b2ce9fcf1d496348b9de72a20f4f3596de99b2dae015488cb9531a",
+          "bytes": 33008,
+          "url": "https://github.com/langchain-ai/langgraph/blob/e5c961d7fbe7ca6fdd4c94c84d90511372514d55/libs/langgraph/langgraph/pregel/_retry.py"
+        },
+        {
+          "path": "libs/langgraph/langgraph/types.py",
+          "sha256": "062583a1c0af9833477935a9a78d336408cc9a33c425722a1191e000d032107a",
+          "bytes": 37830,
+          "url": "https://github.com/langchain-ai/langgraph/blob/e5c961d7fbe7ca6fdd4c94c84d90511372514d55/libs/langgraph/langgraph/types.py"
+        },
+        {
+          "path": "libs/prebuilt/langgraph/prebuilt/tool_node.py",
+          "sha256": "433aecca1f020addea7425196443d1c4185f328ba2ceeda94f48fb625b496ab3",
+          "bytes": 81058,
+          "url": "https://github.com/langchain-ai/langgraph/blob/e5c961d7fbe7ca6fdd4c94c84d90511372514d55/libs/prebuilt/langgraph/prebuilt/tool_node.py"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "d9bb52f2e3540d60ff50d8f0f5b6ba649b7fd346948c4c3d086c8afb120763c7",
+          "bytes": 1072,
+          "url": "https://github.com/langchain-ai/langgraph/blob/e5c961d7fbe7ca6fdd4c94c84d90511372514d55/LICENSE"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "modelcontextprotocol/python-sdk",
+      "sha": "d7845c073a2b9ba5ab2817ecf93d3e45ef24cd14",
+      "date": "2026-10-27T11:15:09Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:20.6402408Z",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "5e13dbbc1d120fc2a03cecde7c91424ae2d7de11b63d58ded2f4431e261ee50d",
+          "bytes": 1071,
+          "url": "https://github.com/modelcontextprotocol/python-sdk/blob/d7845c073a2b9ba5ab2817ecf93d3e45ef24cd14/LICENSE"
+        },
+        {
+          "path": "src/mcp/client/session.py",
+          "sha256": "031512d2cd20670f542534274e39c514d2a8e4dba678256d97ed57e60f4bc5ac",
+          "bytes": 69444,
+          "url": "https://github.com/modelcontextprotocol/python-sdk/blob/d7845c073a2b9ba5ab2817ecf93d3e45ef24cd14/src/mcp/client/session.py"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "opendatalab/MinerU",
+      "sha": "0ef2c20c4a56e68f81a66647f819d924ef2d89ce",
+      "date": "2026-10-30T10:44:06Z",
+      "branch": "master",
+      "license": "NOASSERTION",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:03.8740876Z",
+      "files": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "2d9aeb5d15159329a20dd804f251c64860ba954fbd26ec02f802220e6d71cf5c",
+          "bytes": 3301,
+          "url": "https://github.com/opendatalab/MinerU/blob/0ef2c20c4a56e68f81a66647f819d924ef2d89ce/LICENSE.md"
+        },
+        {
+          "path": "mineru/parser/mineru_parser.py",
+          "sha256": "451f680149fbc7d36d9204b8963a3433b50853d950f042d73e709effdb306ba5",
+          "bytes": 10338,
+          "url": "https://github.com/opendatalab/MinerU/blob/0ef2c20c4a56e68f81a66647f819d924ef2d89ce/mineru/parser/mineru_parser.py"
+        },
+        {
+          "path": "README.md",
+          "sha256": "0e17472b9d41cf31bd9d2a22e964216a53e1e278cfbba556965aea78b21de233",
+          "bytes": 57773,
+          "url": "https://github.com/opendatalab/MinerU/blob/0ef2c20c4a56e68f81a66647f819d924ef2d89ce/README.md"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "run-llama/llama_index",
+      "sha": "619d74664e8404612038bc15a1a40c686037277c",
+      "date": "2026-10-14T15:29:28Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:22.8358082Z",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "24f40b5190fdacabc24ddbb5f76364d15e4f030925220ea300d8a2dd4993c8cb",
+          "bytes": 1065,
+          "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/LICENSE"
+        },
+        {
+          "path": "llama-index-core/llama_index/core/query_engine/citation_query_engine.py",
+          "sha256": "03f98a8b805f39431f7fdb034dbcd94eadb1f8f6a390482dc9aca8a45990b54d",
+          "bytes": 21063,
+          "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/llama-index-core/llama_index/core/query_engine/citation_query_engine.py"
+        },
+        {
+          "path": "llama-index-core/llama_index/core/retrievers/fusion_retriever.py",
+          "sha256": "e125fb8666943f40c56cb9b4102fb3ca3a81db485304464b8cd196dc8cf516f9",
+          "bytes": 13011,
+          "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/llama-index-core/llama_index/core/retrievers/fusion_retriever.py"
+        },
+        {
+          "path": "llama-index-core/llama_index/core/retrievers/recursive_retriever.py",
+          "sha256": "bbd8e729e79f4f6d4661170810068f16242d4b51360594db2d46f9576fc20ccc",
+          "bytes": 8314,
+          "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/llama-index-core/llama_index/core/retrievers/recursive_retriever.py"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "stanford-oval/storm",
+      "sha": "fb951af7744dab086e34962e9bc6fe878e145f83",
+      "date": "2025-09-30T18:07:17Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:23:29.8662064Z",
+      "files": [
+        {
+          "path": "knowledge_storm/interface.py",
+          "sha256": "d5593631bda5f3c6520181a46d44b2c4b02fbbc443dd8720a4f8e587a533d4f6",
+          "bytes": 21021,
+          "url": "https://github.com/stanford-oval/storm/blob/fb951af7744dab086e34962e9bc6fe878e145f83/knowledge_storm/interface.py"
+        },
+        {
+          "path": "knowledge_storm/storm_wiki/modules/knowledge_curation.py",
+          "sha256": "c3f037dc808287631825e6e9bb4dd0b51b9ca43f1c790a713d41513b7ae2c7e0",
+          "bytes": 16320,
+          "url": "https://github.com/stanford-oval/storm/blob/fb951af7744dab086e34962e9bc6fe878e145f83/knowledge_storm/storm_wiki/modules/knowledge_curation.py"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "88241386c28ff04821832762714c9ff0d22c4de6b0633d11554e69a968a718e0",
+          "bytes": 1091,
+          "url": "https://github.com/stanford-oval/storm/blob/fb951af7744dab086e34962e9bc6fe878e145f83/LICENSE"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "VectifyAI/PageIndex",
+      "sha": "2e0f4dd35aa6a24c2dedfcf54678b0b0ad323ce8",
+      "date": "2026-10-29T22:22:48Z",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "fork": false,
+      "parent": null,
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:14.0768135Z",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "bca9c3d401fdfd0965a2a2224f7dcf9945b512eaf5802b91d312ba739dbe9584",
+          "bytes": 1067,
+          "url": "https://github.com/VectifyAI/PageIndex/blob/2e0f4dd35aa6a24c2dedfcf54678b0b0ad323ce8/LICENSE"
+        },
+        {
+          "path": "pageindex/page_index_classic.py",
+          "sha256": "c10b2f4c8a7b59444311e9aa9e13e43acabd0be7d791bf40c9a602d50aa34197",
+          "bytes": 56711,
+          "url": "https://github.com/VectifyAI/PageIndex/blob/2e0f4dd35aa6a24c2dedfcf54678b0b0ad323ce8/pageindex/page_index_classic.py"
+        },
+        {
+          "path": "pageindex/page_index_md.py",
+          "sha256": "62c8d3acfb51476e7dc1226f4346fec201a31cb64c47fe922593c06b4dc30b27",
+          "bytes": 12171,
+          "url": "https://github.com/VectifyAI/PageIndex/blob/2e0f4dd35aa6a24c2dedfcf54678b0b0ad323ce8/pageindex/page_index_md.py"
+        },
+        {
+          "path": "pageindex/utils.py",
+          "sha256": "479b73663b24e94e8699c1214d1b05a522e1ea923ff84ab75c0faf5cdf6b0696",
+          "bytes": 70021,
+          "url": "https://github.com/VectifyAI/PageIndex/blob/2e0f4dd35aa6a24c2dedfcf54678b0b0ad323ce8/pageindex/utils.py"
+        },
+        {
+          "path": "README.md",
+          "sha256": "d84268d6bef642f15ef69321617256e584c6f253cfd4974bef2a350837d4b953",
+          "bytes": 13570,
+          "url": "https://github.com/VectifyAI/PageIndex/blob/2e0f4dd35aa6a24c2dedfcf54678b0b0ad323ce8/README.md"
+        },
+        {
+          "path": "requirements.txt",
+          "sha256": "bf02f8005e894a414605b6bf2ca2236025ef29dfe68b6eb803af3f2c3d47c959",
+          "bytes": 386,
+          "url": "https://github.com/VectifyAI/PageIndex/blob/2e0f4dd35aa6a24c2dedfcf54678b0b0ad323ce8/requirements.txt"
+        }
+      ],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    },
+    {
+      "repo": "zesks/deeptutor",
+      "sha": "65012a69e0705edec1c79f05b6ac8621184d8bfc",
+      "date": "2026-04-04T17:20:14Z",
+      "branch": "main",
+      "license": "Apache-2.0",
+      "archived": false,
+      "fork": true,
+      "parent": "HKUDS/DeepTutor",
+      "tree_truncated": false,
+      "fetched_utc": "2026-10-31T13:22:17.4108037Z",
+      "files": [],
+      "inspection": "Selected definitions and call sites reviewed; downloaded files are not claimed fully reviewed or executed."
+    }
+  ],
+  "local_sources": [
+    {
+      "path": "project/integration/discrete-math-tutor/agents/course_search.py",
+      "sha256": "7935e958d77051763740bef4153c891612c21b6731c2e149a4e643fd96ae8f79"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/q3_tools.py",
+      "sha256": "c41d149811eb8493133f52eb87c88d377b60fec4a8405b21cbbe02942f086484"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/tool_protocol.py",
+      "sha256": "71678c7c4d1826357cc2b85100815a83e96e556a52c7b932a421d8086e07c0f1"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/tool_dispatch.py",
+      "sha256": "b2b7ec053ec657bcf457e93d24c0038997df7c5959389e2b56d72302521ff3f0"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/tools/first_wave_contracts.py",
+      "sha256": "b94cd5d1f87f58a50721d787e8bda8df2de47416889769f18aeca8c3013a5f2d"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/tools/first_wave.py",
+      "sha256": "06b47c53ee9a7f4db0bf785efa33d90dd71c9a2b523737c9c19175570baee33a"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/tools/scope.py",
+      "sha256": "cd22d8883da81c3530e5f740b1ce7ed4ad8464cbb6abeb43052ac209e400848d"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/tools/registry.py",
+      "sha256": "5688e1ca7d58baeca8a3449d076e3866aed63091fa8834541e06a1cb54c4fbb1"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/fixed_book.py",
+      "sha256": "10be3c59388167a6a60177be473bf4db1413a205f43a11f52890df46d8e85e82"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/grounded_citations.py",
+      "sha256": "5e53cff2ea2ab572fdbf7f873b4b7e3a610a85fffa58ee226be2a94252e9b18f"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/pdf_reader.py",
+      "sha256": "b1dc0e55ff06af487c43aa820eaef53259f9fc7911099873ffe565ce7c155057"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/figure_reading.py",
+      "sha256": "606ec145582cdfab925d33c81ba6255da75fa14721e481912403cdb3555fdbab"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/answer_media.py",
+      "sha256": "93d8879366ddf3c06a4f0d37ed61bb46fe8b56579a1d3724ad0d0adec58d546b"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/structured_index.py",
+      "sha256": "fe966c949ded7c26da4b86df6366f687a4a52e75204f90378981794d62f4b2ad"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/semantic_chunks.py",
+      "sha256": "9299d703a0955ffc695bad75fc6b5853b3eef7983507a3698c490862041e6a0b"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/lightrag/block_policy.py",
+      "sha256": "8532c551f0bd5eebbb5a10df8495eae6a11372f8cccbefa57c9c06b4f89b8864"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/local_rag/course_retrieval.py",
+      "sha256": "76956c68a58da8a14e6114cc60c33b961fa8f3cc908fa4de34f9e9432a17bfc5"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/memory/readonly_context.py",
+      "sha256": "5e3a0a3b27e96b5b7447b5058128fc048aae733b045e3b155cbc4e0debb2270a"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/memory/retrieval.py",
+      "sha256": "107e8c0c0d13278152ee0cd172a449a2c31f5ecc0b5964615e62b19d7cf672c5"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/scripts/build_psychology_sample_index.py",
+      "sha256": "ba82208ac4c64dde62bfe652f82417737860860602cca922fa18f8b2ca05c87e"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/integrations/deeptutor/assessment_store.py",
+      "sha256": "0fb72b1a0fd476f887513a03fbbc7cb509e8ea6e8c8797396428c6df7b54a3c9"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/visualization/on_demand.py",
+      "sha256": "d56a5635324a98c4db396354c6524bfc799e06b8d4b13d195735c66aa8f499b6"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/visualization/psychology_presets.py",
+      "sha256": "31c81de71f52f8451a533ffb970f4b8e2b5acc9d8ba8a62ce05568e7a03f08e6"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/visualization/templates.py",
+      "sha256": "d26e2dcb4d3f3a9fd50fb18bd56e65f5279d968a0ecb03a8918122e5ebc75f3a"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/task_service.py",
+      "sha256": "d20793c5ea19cc031bfc72f27231eef3823c7be5ddb77b5d80558c68a07f6060"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/agent_loop_service.py",
+      "sha256": "a094695dad5e33f95bc8fc544be014396afa3fd53ca29d6c1ea00b4d292c81fc"
+    }
+  ],
+  "access_notes": [
+    "GitHub connector unavailable; CLI config initially sandbox restricted; anonymous API rate-limited; resumed read-only via existing gh CLI.",
+    "Raw sources fetched at fixed commits to ignored runtime directory; no textbook or student records sent externally.",
+    "CRAG has no declared license in inspected repository tree; no code adopted.",
+    "MinerU has custom Apache-2.0-based additional terms; GitHub license field NOASSERTION."
+  ]
+}

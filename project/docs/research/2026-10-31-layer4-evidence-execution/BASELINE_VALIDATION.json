@@ -1,0 +1,30 @@
+{
+  "benchmark_sha256": "0af1c33ba18a36a6a31a1ca35343099148071cc52a506d048036feb20ceceffd",
+  "validation": {
+    "cases": 60,
+    "categories": {
+      "definition": 6,
+      "comparison": 6,
+      "experiment": 6,
+      "selection": 6,
+      "cross_chapter": 6,
+      "table": 6,
+      "formula": 6,
+      "image": 6,
+      "memory": 6,
+      "execution": 6
+    },
+    "splits": {
+      "development": 30,
+      "reserved": 30
+    },
+    "anchor_locations": {
+      "exact": 50,
+      "unlocated": 16
+    },
+    "source_snapshot_valid": true,
+    "teacher_reviewed": 0,
+    "semantic_quality_passed": false,
+    "blind_holdout": false
+  }
+}
