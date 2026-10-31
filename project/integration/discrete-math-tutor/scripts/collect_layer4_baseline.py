@@ -62,7 +62,7 @@ def collect(case, chapter_blocks, retrieve):
                      'graph_upgrade_exercised': False, 'llm_calls': 0}
 
 
-def main():
+def main(*, collect_fn=collect, implementation_files=()):
     p = argparse.ArgumentParser()
     p.add_argument('--data', type=Path, required=True)
     p.add_argument('--course-dir', type=Path, required=True)
@@ -96,7 +96,7 @@ def main():
                'knowledge/local_rag/rerank.py', 'knowledge/hybrid_retrieval.py',
                'agents/q3_navigation.py', 'knowledge/source_mapping.py',
                'knowledge/visual_locations.py', 'knowledge/figure_reading.py', 'knowledge/answer_media.py']
-    implementation = {name: digest(app/name) for name in tracked}
+    implementation = {name: digest(app/name) for name in tracked + list(implementation_files)}
     chapters = {r['chapter_id']: json.loads((args.course_dir/'chapters'/f"chapter_{r['chapter_id']:02d}"/'document.json').read_text(encoding='utf-8'))['blocks']
                 for r in documents()}
     args.output.mkdir(parents=True)
@@ -112,7 +112,7 @@ def main():
     for case in selected:
         started = time.monotonic()
         try:
-            sources, trace = collect(case, chapters, retrieve)
+            sources, trace = collect_fn(case, chapters, retrieve)
             row = {'case_id': case['id'], 'category': case['category'], 'status': 'retrieved' if sources else 'empty',
                    'sources': sources, 'trace': trace}
         except Exception as exc:
