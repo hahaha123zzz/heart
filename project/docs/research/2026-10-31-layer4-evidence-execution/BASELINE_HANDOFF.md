@@ -48,3 +48,7 @@ $layer4Course = 'E:/项目/heart/project/integration/discrete-math-tutor/knowled
 4. 集成负责人统一接公共Agent循环和未来LangGraph；保留任务/会话/版本/epoch、来源门禁及单写入约束。
 
 本批新增文件未被公共回答入口导入；没有部署、改变正式服务、数据库、教材ready或其他窗口的改动。
+
+## 第二步续交付
+
+已完成只读采集、原16个对象核对与修正v2的48场景本地基线，详见`STAGE2_READONLY_BASELINE.md`。v1原样保留，不能再将其中4个单格排版栏框当数据表金标准。后续对照使用明确版本的v2，不能跨数据版本直接宣称召回提升。

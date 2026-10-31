@@ -65,6 +65,11 @@ def validate(data, course_dir):
 def matches(source, support):
     if source.get('document_id') != support['document_id'] or source.get('version') != support['version']:
         return False
+    if support.get('asset_id') and support.get('asset_sha256'):
+        if any(item.get('id') == support['asset_id'] and item.get('sha256') == support['asset_sha256']
+               and item.get('document_id') == support['document_id'] and item.get('version') == support['version']
+               for item in source.get('image_refs', [])):
+            return True
     location = source.get('location') or {}
     evidence = location.get('evidence') or {}
     block_id = evidence.get('source_block_id')
@@ -97,7 +102,7 @@ def score(data, runs, k=6):
     missing = [case['id'] for case in expected if case['id'] not in evaluated]
     # 未执行场景按0计入整体分母，另列缺口，不能靠少跑难题抬高分数。
     denominator = len(expected)
-    return {'metric_scope': 'diagnostic_original_block_presence_not_semantic_support', 'k': k,
+    return {'metric_scope': 'diagnostic_original_block_or_registered_asset_presence_not_semantic_support', 'k': k,
             'expected_retrieval_cases': denominator, 'evaluated': len(rows), 'missing_runs': missing,
             'anchor_recall': sum(r['anchor_recall'] for r in rows)/denominator if denominator else None,
             'all_anchors_rate': sum(r['all_anchors_found'] for r in rows)/denominator if denominator else None,

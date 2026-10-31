@@ -20,6 +20,13 @@ def block_text(block):
     return '\n'.join(' '.join(row) for row in block.get('rows', [])) if block['kind'] == 'table' else block['text']
 
 
+def data_table(block):
+    """排除单格栏框；只作为候选筛选，不等于教师确认表格语义。"""
+    rows = block.get('rows', [])
+    return (block.get('kind') == 'table' and len(block_text(block)) >= 40
+            and sum(sum(bool(cell.strip()) for cell in row) >= 2 for row in rows) >= 2)
+
+
 def freeze(course_dir):
     registry = json.loads((course_dir / 'pdf_manifest.json').read_text(encoding='utf-8'))
     snapshots, chapters = {}, {}
@@ -35,6 +42,8 @@ def freeze(course_dir):
         text, glyphs, _ = pdf_characters(pdf_path)
         folded, positions = normalized_with_map(text)
         document = json.loads(doc_path.read_text(encoding='utf-8'))
+        for path in (directory/'assets.json', directory/document['word_source']):
+            snapshots[str(path.relative_to(course_dir)).replace('\\', '/')] = digest(path)
         chapters[chapter] = (record, document, folded, positions, glyphs)
     for name in ('manifest.json', 'pdf_manifest.json'):
         snapshots[name] = digest(course_dir / name)
@@ -111,7 +120,7 @@ def build(course_dir):
         for chapter, (record, doc, folded, positions, glyphs) in chapters.items():
             chapter_chosen = 0
             blocks = {b['block_index']: b for b in doc['blocks']}
-            candidates = [b for b in doc['blocks'] if b['kind'] == 'table' and b.get('section_id') and b.get('rows')] if category == 'table' else []
+            candidates = [b for b in doc['blocks'] if b.get('section_id') and data_table(b)] if category == 'table' else []
             if category == 'formula':
                 formula_path = course_dir / 'chapters' / f'chapter_{chapter:02d}' / 'formulas.json'
                 snapshots[str(formula_path.relative_to(course_dir)).replace('\\', '/')] = digest(formula_path)
@@ -131,6 +140,10 @@ def build(course_dir):
                     if not path.is_relative_to(course_dir.resolve()) or not path.is_file():
                         continue
                     if category == 'image':
+                        from knowledge.source_visuals import get_visual
+                        visual = get_visual(candidate['id'])
+                        if visual is None or not visual.is_valid():
+                            continue
                         image = fitz.Pixmap(path)
                         if image.width < 120 or image.height < 70 or digest(path) in seen_images:
                             continue
