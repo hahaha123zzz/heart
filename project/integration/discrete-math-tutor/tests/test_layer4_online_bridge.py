@@ -14,9 +14,9 @@ class OnlineObjectTests(unittest.TestCase):
         self.identity = 'experimental-psychology-3:chapter-02:b30'
         self.source = SourceRef('raw', 'experimental-psychology-3:chapter-02', '教材真实对象的完整文字',
             version='v', chapter_id=2, section_id=1,
-            location={'object_id': self.identity, 'block_start': 30, 'source': '教材.txt'})
+            location={'object_id': self.identity, 'block_start': 30, 'source': '教材.txt', 'location_status': 'exact'})
         self.selected = replace(self.source, source_id='verified', location={**self.source.location,
-            'evidence': {'source_block_id': 30, 'block_start': 0, 'block_end': len(self.source.text)}})
+            'evidence': {'location_status': 'exact', 'source_block_id': 30, 'block_start': 0, 'block_end': len(self.source.text)}})
         self.target = LearningTarget('ch1:s1:b2', '当前学习目标', chapter_id=1, section_id=1, version='old-target')
         self.base = Mock()
 
@@ -40,9 +40,9 @@ class OnlineObjectTests(unittest.TestCase):
 
     def test_neighbor_only_or_partial_object_cannot_be_reported_complete(self):
         for selected in ([], [replace(self.selected, location={'evidence': {
-                'source_block_id': 29, 'block_start': 0, 'block_end': len(self.source.text)}})],
+                'location_status': 'exact', 'source_block_id': 29, 'block_start': 0, 'block_end': len(self.source.text)}})],
                 [replace(self.selected, text=self.source.text[:3], location={'evidence': {
-                    'source_block_id': 30, 'block_start': 0, 'block_end': 3}})]):
+                    'location_status': 'exact', 'source_block_id': 30, 'block_start': 0, 'block_end': 3}})]):
             with self.subTest(selected=selected):
                 sources, search, _ = self.search(selected)
                 self.assertEqual(sources, [])
@@ -82,15 +82,30 @@ class OnlineObjectTests(unittest.TestCase):
         old = replace(self.selected, version='old')
         self.assertEqual(missing_objects([self.source], [old]), [self.identity])
         chunks = [replace(self.selected, text=self.source.text[a:b], location={'evidence': {
-            'source_block_id': 30, 'block_start': a, 'block_end': b}}) for a, b in ((0, 2), (4, len(self.source.text)))]
+            'location_status': 'exact', 'source_block_id': 30, 'block_start': a, 'block_end': b}}) for a, b in ((0, 2), (4, len(self.source.text)))]
         self.assertEqual(missing_objects([self.source], chunks), [self.identity])
 
     def test_invalid_or_forged_range_is_rejected(self):
         for start, end in ((-1, 20), (0, 999), (0, 2)):
             selected = replace(self.selected, location={'evidence': {
-                'source_block_id': 30, 'block_start': start, 'block_end': end}})
+                'location_status': 'exact', 'source_block_id': 30, 'block_start': start, 'block_end': end}})
             with self.assertRaisesRegex(ValueError, '原文范围不一致'):
                 missing_objects([self.source], [selected])
+
+    def test_unlocated_original_cannot_be_upgraded_by_cached_index(self):
+        original = replace(self.source, location={**self.source.location, 'location_status': 'unlocated'})
+        search = CourseSearch(self.base, message=self.identity, llm=Mock())
+        with (patch('agents.object_evidence.read_requested_objects', return_value=([original], [original])),
+              patch.object(search, 'select') as select):
+            self.assertEqual(search.search(target=self.target, query='解释', limit=6), [])
+        select.assert_not_called()
+        self.assertEqual(search.coverage_report['status'], 'partial')
+        self.assertEqual(missing_objects([original], [self.selected]), [self.identity])
+
+    def test_section_evidence_cannot_replace_exact_object_range(self):
+        selected = replace(self.selected, location={**self.selected.location,
+            'evidence': {**self.selected.location['evidence'], 'location_status': 'section'}})
+        self.assertEqual(missing_objects([self.source], [selected]), [self.identity])
 
     def test_object_interjection_reaches_q5_and_selection_callers(self):
         from agents.course_search import question_interjection

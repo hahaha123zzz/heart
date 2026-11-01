@@ -139,7 +139,7 @@ class CourseSearch:
                 raw, expected = read_requested_objects(object_ids, check)
                 check()
                 self._needs_model_selection = True
-                sources = self.select(self.message, raw)
+                sources = [] if any(s.location.get('location_status') != 'exact' for s in expected) else self.select(self.message, raw)
                 if len(sources) > limit:
                     raise ValueError('对象证据超出本轮输出预算，请缩小问题')
                 check()

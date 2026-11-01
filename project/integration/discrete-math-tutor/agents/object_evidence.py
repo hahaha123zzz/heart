@@ -35,9 +35,14 @@ def read_requested_objects(ids, check):
 def missing_objects(expected, selected):
     missing = []
     for source in expected:
+        if source.location.get('location_status') != 'exact':
+            missing.append(source.location['object_id'])
+            continue
         spans = []
         for result in selected:
             evidence = result.location.get('evidence', {})
+            if evidence.get('location_status') != 'exact':
+                continue
             if ((result.document_id, result.version, result.section_id) == (source.document_id, source.version, source.section_id)
                     and evidence.get('source_block_id') == source.location['block_start']):
                 start, end = evidence.get('block_start'), evidence.get('block_end')
