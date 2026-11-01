@@ -1,0 +1,8 @@
+[
+  {"id":"relation","message":"请用教材解释相关关系与因果关系的区别，并给一个简单例子，不出题。","reader_location":{"chapter_id":3,"section_id":1}},
+  {"id":"between","message":"我第一次学被试间设计，请先解释它的基本含义，再举一个生活化例子。","reader_location":{"chapter_id":4,"section_id":1}},
+  {"id":"within","message":"被试内设计可能有哪些顺序影响？请给我一个理解方向，不要出练习题。","reader_location":{"chapter_id":5,"section_id":1}},
+  {"id":"single","message":"请解释单被试设计中的基线为什么重要，区分教材内容和你自己补充的例子。","reader_location":{"chapter_id":6,"section_id":1}},
+  {"id":"threshold","message":"请介绍绝对阈限的含义，不要编造具体实验数据。","reader_location":{"chapter_id":7,"section_id":1}},
+  {"id":"attention","message":"请结合教材解释注意研究中自变量和因变量分别可能是什么，只解释不测验。","reader_location":{"chapter_id":9,"section_id":1}}
+]

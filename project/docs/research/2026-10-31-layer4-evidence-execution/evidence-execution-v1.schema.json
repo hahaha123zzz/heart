@@ -1,0 +1,923 @@
+{
+  "request": {
+    "$defs": {
+      "ContextHeader": {
+        "additionalProperties": false,
+        "properties": {
+          "student_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Student Id",
+            "type": "string"
+          },
+          "session_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Session Id",
+            "type": "string"
+          },
+          "course_id": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Course Id",
+            "type": "string"
+          },
+          "task_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Task Id"
+          },
+          "task_revision": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Task Revision"
+          },
+          "memory_epoch": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Memory Epoch",
+            "type": "integer"
+          },
+          "pending_question_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pending Question Id"
+          },
+          "pending_owner": {
+            "default": "none",
+            "enum": [
+              "host_formative",
+              "native",
+              "none"
+            ],
+            "title": "Pending Owner",
+            "type": "string"
+          },
+          "activity_target_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Activity Target Id"
+          },
+          "session_plan_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Session Plan Id"
+          },
+          "session_plan_revision": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Session Plan Revision"
+          },
+          "current_activity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Current Activity Id"
+          },
+          "path_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Path Id"
+          },
+          "path_revision": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Path Revision"
+          },
+          "reader_location": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reader Location"
+          }
+        },
+        "required": [
+          "student_id",
+          "session_id",
+          "course_id"
+        ],
+        "title": "ContextHeader",
+        "type": "object"
+      },
+      "EvidenceRequirement": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "query": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "kind": {
+            "default": "text",
+            "enum": [
+              "text",
+              "image",
+              "table",
+              "formula"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "required": {
+            "default": true,
+            "title": "Required",
+            "type": "boolean"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/LearningTarget"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "pixels_required": {
+            "default": false,
+            "title": "Pixels Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "query"
+        ],
+        "title": "EvidenceRequirement",
+        "type": "object"
+      },
+      "LearningTarget": {
+        "additionalProperties": false,
+        "properties": {
+          "target_id": {
+            "title": "Target Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "chapter_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Chapter Id"
+          },
+          "section_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Section Id"
+          },
+          "source_scope": {
+            "additionalProperties": true,
+            "title": "Source Scope",
+            "type": "object"
+          },
+          "reason": {
+            "default": "",
+            "title": "Reason",
+            "type": "string"
+          },
+          "version": {
+            "default": "",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_id",
+          "name"
+        ],
+        "title": "LearningTarget",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "schema_version": {
+        "const": "evidence-execution-v1",
+        "default": "evidence-execution-v1",
+        "title": "Schema Version",
+        "type": "string"
+      },
+      "request_id": {
+        "maxLength": 64,
+        "minLength": 1,
+        "title": "Request Id",
+        "type": "string"
+      },
+      "decision_id": {
+        "maxLength": 128,
+        "minLength": 1,
+        "title": "Decision Id",
+        "type": "string"
+      },
+      "context": {
+        "$ref": "#/$defs/ContextHeader"
+      },
+      "documents": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "maxProperties": 32,
+        "minProperties": 1,
+        "title": "Documents",
+        "type": "object"
+      },
+      "requirements": {
+        "items": {
+          "$ref": "#/$defs/EvidenceRequirement"
+        },
+        "maxItems": 12,
+        "minItems": 1,
+        "title": "Requirements",
+        "type": "array"
+      },
+      "constraints": {
+        "items": {
+          "enum": [
+            "hint_only",
+            "no_full_answer",
+            "no_questions",
+            "verdict_only"
+          ],
+          "type": "string"
+        },
+        "maxItems": 4,
+        "title": "Constraints",
+        "type": "array"
+      }
+    },
+    "required": [
+      "request_id",
+      "decision_id",
+      "context",
+      "documents",
+      "requirements"
+    ],
+    "title": "EvidenceRequest",
+    "type": "object"
+  },
+  "package": {
+    "$defs": {
+      "ContextHeader": {
+        "additionalProperties": false,
+        "properties": {
+          "student_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Student Id",
+            "type": "string"
+          },
+          "session_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Session Id",
+            "type": "string"
+          },
+          "course_id": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Course Id",
+            "type": "string"
+          },
+          "task_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Task Id"
+          },
+          "task_revision": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Task Revision"
+          },
+          "memory_epoch": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Memory Epoch",
+            "type": "integer"
+          },
+          "pending_question_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pending Question Id"
+          },
+          "pending_owner": {
+            "default": "none",
+            "enum": [
+              "host_formative",
+              "native",
+              "none"
+            ],
+            "title": "Pending Owner",
+            "type": "string"
+          },
+          "activity_target_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Activity Target Id"
+          },
+          "session_plan_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Session Plan Id"
+          },
+          "session_plan_revision": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Session Plan Revision"
+          },
+          "current_activity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Current Activity Id"
+          },
+          "path_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Path Id"
+          },
+          "path_revision": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Path Revision"
+          },
+          "reader_location": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reader Location"
+          }
+        },
+        "required": [
+          "student_id",
+          "session_id",
+          "course_id"
+        ],
+        "title": "ContextHeader",
+        "type": "object"
+      },
+      "EvidenceRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "evidence-execution-v1",
+            "default": "evidence-execution-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Request Id",
+            "type": "string"
+          },
+          "decision_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "context": {
+            "$ref": "#/$defs/ContextHeader"
+          },
+          "documents": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 32,
+            "minProperties": 1,
+            "title": "Documents",
+            "type": "object"
+          },
+          "requirements": {
+            "items": {
+              "$ref": "#/$defs/EvidenceRequirement"
+            },
+            "maxItems": 12,
+            "minItems": 1,
+            "title": "Requirements",
+            "type": "array"
+          },
+          "constraints": {
+            "items": {
+              "enum": [
+                "hint_only",
+                "no_full_answer",
+                "no_questions",
+                "verdict_only"
+              ],
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Constraints",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "decision_id",
+          "context",
+          "documents",
+          "requirements"
+        ],
+        "title": "EvidenceRequest",
+        "type": "object"
+      },
+      "EvidenceRequirement": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "query": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "kind": {
+            "default": "text",
+            "enum": [
+              "text",
+              "image",
+              "table",
+              "formula"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "required": {
+            "default": true,
+            "title": "Required",
+            "type": "boolean"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/LearningTarget"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "pixels_required": {
+            "default": false,
+            "title": "Pixels Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "query"
+        ],
+        "title": "EvidenceRequirement",
+        "type": "object"
+      },
+      "LearningTarget": {
+        "additionalProperties": false,
+        "properties": {
+          "target_id": {
+            "title": "Target Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "chapter_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Chapter Id"
+          },
+          "section_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Section Id"
+          },
+          "source_scope": {
+            "additionalProperties": true,
+            "title": "Source Scope",
+            "type": "object"
+          },
+          "reason": {
+            "default": "",
+            "title": "Reason",
+            "type": "string"
+          },
+          "version": {
+            "default": "",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_id",
+          "name"
+        ],
+        "title": "LearningTarget",
+        "type": "object"
+      },
+      "RequirementCoverage": {
+        "additionalProperties": false,
+        "properties": {
+          "requirement_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Requirement Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "satisfied",
+              "missing",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 24,
+            "title": "Source Ids",
+            "type": "array"
+          },
+          "reason": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requirement_id",
+          "status"
+        ],
+        "title": "RequirementCoverage",
+        "type": "object"
+      },
+      "SourceRef": {
+        "additionalProperties": false,
+        "properties": {
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "version": {
+            "default": "",
+            "title": "Version",
+            "type": "string"
+          },
+          "chapter_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Chapter Id"
+          },
+          "section_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Section Id"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Page"
+          },
+          "quote": {
+            "default": "",
+            "title": "Quote",
+            "type": "string"
+          },
+          "image_refs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Image Refs",
+            "type": "array"
+          },
+          "location": {
+            "additionalProperties": true,
+            "title": "Location",
+            "type": "object"
+          }
+        },
+        "required": [
+          "source_id",
+          "document_id",
+          "text"
+        ],
+        "title": "SourceRef",
+        "type": "object"
+      },
+      "ToolExecutionReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "tool_call_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Tool Call Id",
+            "type": "string"
+          },
+          "tool_name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Tool Name",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "completed",
+              "requested",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "reason": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tool_call_id",
+          "tool_name",
+          "status"
+        ],
+        "title": "ToolExecutionReceipt",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "request": {
+        "$ref": "#/$defs/EvidenceRequest"
+      },
+      "status": {
+        "enum": [
+          "completed",
+          "partial",
+          "insufficient",
+          "failed",
+          "cancelled"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "sources": {
+        "items": {
+          "$ref": "#/$defs/SourceRef"
+        },
+        "maxItems": 24,
+        "title": "Sources",
+        "type": "array"
+      },
+      "coverage": {
+        "items": {
+          "$ref": "#/$defs/RequirementCoverage"
+        },
+        "maxItems": 12,
+        "title": "Coverage",
+        "type": "array"
+      },
+      "tool_receipts": {
+        "items": {
+          "$ref": "#/$defs/ToolExecutionReceipt"
+        },
+        "maxItems": 24,
+        "title": "Tool Receipts",
+        "type": "array"
+      }
+    },
+    "required": [
+      "request",
+      "status",
+      "coverage"
+    ],
+    "title": "EvidencePackage",
+    "type": "object"
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "statuses": {
+    "excluded_layout_table": 4,
+    "page_candidate": 6,
+    "section": 3,
+    "caption": 3
+  },
+  "objects": 16,
+  "rows": [
+    {
+      "document_id": "experimental-psychology-3:chapter-01",
+      "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+      "chapter_id": 1,
+      "block_id": 11,
+      "asset_id": null,
+      "case_id": "L4-031",
+      "category": "table",
+      "status": "excluded_layout_table",
+      "basis": "单格栏框或缺少多行多列",
+      "rects": []
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-02",
+      "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+      "chapter_id": 2,
+      "block_id": 66,
+      "asset_id": null,
+      "case_id": "L4-032",
+      "category": "table",
+      "status": "excluded_layout_table",
+      "basis": "单格栏框或缺少多行多列",
+      "rects": []
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-03",
+      "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+      "chapter_id": 3,
+      "block_id": 13,
+      "asset_id": null,
+      "case_id": "L4-033",
+      "category": "table",
+      "status": "excluded_layout_table",
+      "basis": "单格栏框或缺少多行多列",
+      "rects": []
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-06",
+      "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+      "chapter_id": 6,
+      "block_id": 34,
+      "asset_id": null,
+      "case_id": "L4-036",
+      "category": "table",
+      "status": "excluded_layout_table",
+      "basis": "单格栏框或缺少多行多列",
+      "rects": []
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-03",
+      "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+      "chapter_id": 3,
+      "block_id": 69,
+      "asset_id": "experimental-psychology-3:chapter-03:omml-001",
+      "case_id": "L4-037",
+      "category": "formula",
+      "status": "page_candidate",
+      "basis": "邻文原文可定位；未证明对象自身坐标",
+      "candidate_pages": [
+        6
+      ],
+      "rects": [],
+      "neighbor_blocks": [
+        68,
+        70
+      ]
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-03",
+      "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+      "chapter_id": 3,
+      "block_id": 82,
+      "asset_id": "experimental-psychology-3:chapter-03:omml-002",
+      "case_id": "L4-038",
+      "category": "formula",
+      "status": "page_candidate",
+      "basis": "邻文原文可定位；未证明对象自身坐标",
+      "candidate_pages": [
+        7
+      ],
+      "rects": [],
+      "neighbor_blocks": [
+        81,
+        83
+      ]
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-04",
+      "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+      "chapter_id": 4,
+      "block_id": 146,
+      "asset_id": "experimental-psychology-3:chapter-04:omml-001",
+      "case_id": "L4-039",
+      "category": "formula",
+      "status": "page_candidate",
+      "basis": "邻文原文可定位；未证明对象自身坐标",
+      "candidate_pages": [
+        10
+      ],
+      "rects": [],
+      "neighbor_blocks": [
+        145,
+        147
+      ]
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-04",
+      "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+      "chapter_id": 4,
+      "block_id": 148,
+      "asset_id": "experimental-psychology-3:chapter-04:omml-002",
+      "case_id": "L4-040",
+      "category": "formula",
+      "status": "page_candidate",
+      "basis": "邻文原文可定位；未证明对象自身坐标",
+      "candidate_pages": [
+        10
+      ],
+      "rects": [],
+      "neighbor_blocks": [
+        147,
+        149
+      ]
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-05",
+      "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+      "chapter_id": 5,
+      "block_id": 232,
+      "asset_id": "experimental-psychology-3:chapter-05:omml-001",
+      "case_id": "L4-041",
+      "category": "formula",
+      "status": "page_candidate",
+      "basis": "邻文原文可定位；未证明对象自身坐标",
+      "candidate_pages": [
+        20
+      ],
+      "rects": [],
+      "neighbor_blocks": [
+        231,
+        233
+      ]
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-05",
+      "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+      "chapter_id": 5,
+      "block_id": 234,
+      "asset_id": "experimental-psychology-3:chapter-05:omml-002",
+      "case_id": "L4-042",
+      "category": "formula",
+      "status": "page_candidate",
+      "basis": "邻文原文可定位；未证明对象自身坐标",
+      "candidate_pages": [
+        20
+      ],
+      "rects": [],
+      "neighbor_blocks": [
+        233,
+        235
+      ]
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-01",
+      "version": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+      "chapter_id": 1,
+      "block_id": 17,
+      "asset_id": "image-01-0002",
+      "case_id": "L4-043",
+      "category": "image",
+      "status": "section",
+      "basis": "无法核验精确原图或完整图注位置，仅打开已登记小节",
+      "rects": []
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-02",
+      "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+      "chapter_id": 2,
+      "block_id": 218,
+      "asset_id": "image-02-0003",
+      "case_id": "L4-044",
+      "category": "image",
+      "status": "caption",
+      "basis": "complete_caption_line",
+      "rects": [
+        {
+          "page": 18,
+          "x1": 0.3782366679232034,
+          "y1": 0.6479888675719734,
+          "x2": 0.6580511199161345,
+          "y2": 0.6661570791810203
+        }
+      ]
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-03",
+      "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+      "chapter_id": 3,
+      "block_id": 30,
+      "asset_id": "image-03-0003",
+      "case_id": "L4-045",
+      "category": "image",
+      "status": "caption",
+      "basis": "complete_caption_line",
+      "rects": [
+        {
+          "page": 3,
+          "x1": 0.3979128390251388,
+          "y1": 0.51724082966802,
+          "x2": 0.6383749748762159,
+          "y2": 0.5354090412770669
+        }
+      ]
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-04",
+      "version": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f",
+      "chapter_id": 4,
+      "block_id": 67,
+      "asset_id": "image-04-0001",
+      "case_id": "L4-046",
+      "category": "image",
+      "status": "section",
+      "basis": "无法核验精确原图或完整图注位置，仅打开已登记小节",
+      "rects": []
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-05",
+      "version": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026",
+      "chapter_id": 5,
+      "block_id": 44,
+      "asset_id": "image-05-0001",
+      "case_id": "L4-047",
+      "category": "image",
+      "status": "section",
+      "basis": "无法核验精确原图或完整图注位置，仅打开已登记小节",
+      "rects": []
+    },
+    {
+      "document_id": "experimental-psychology-3:chapter-06",
+      "version": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08",
+      "chapter_id": 6,
+      "block_id": 69,
+      "asset_id": "image-06-0003",
+      "case_id": "L4-048",
+      "category": "image",
+      "status": "caption",
+      "basis": "complete_caption_line",
+      "rects": [
+        {
+          "page": 8,
+          "x1": 0.4165641995041128,
+          "y1": 0.3025688912299049,
+          "x2": 0.6195186366354395,
+          "y2": 0.3207370828142942
+        }
+      ]
+    }
+  ],
+  "teacher_reviewed": false,
+  "reader_applied_tested": false,
+  "benchmark_sha256": "0af1c33ba18a36a6a31a1ca35343099148071cc52a506d048036feb20ceceffd"
+}

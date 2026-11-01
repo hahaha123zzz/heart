@@ -51,7 +51,13 @@ def explain_exercise(tutor, request, context, intercept, guard, progress=None):
         if result.get('pdf_references'):
             reference={**(reference or {}),'pdf_references':result['pdf_references'],
                 'textbook_sources':result['textbook_sources'],'grounding_schema':'citation-grounding-v1'}
-        if tutor.memory.append_exchange(request.student_id,request.message,result['reply'],selection_ref=reference,expected_point=point,task_guard=guard) is False:
+        from agents.response_composition_adapters import published_snapshot, snapshot_kind
+        snapshot = published_snapshot(reply=result['reply'], response_id=request.request_id or request.task_id,
+            target_id=current_id, semantic_type=snapshot_kind(execution=execution), authority_ref=current_id)
+        if snapshot:
+            result = {**result, 'learning_response':snapshot}
+            reference = {**(reference or {}), 'learning_response':snapshot}
+        if tutor.memory.append_exchange(request.student_id,request.message,result['reply'],selection_ref=reference,expected_point=point,task_guard=guard,session_id=request.session_id) is False:
             return {'reply':'相关记忆已删除，请重新提问。','answer_status':'memory_deleted','step_advanced':False}
         # 聊天获得提示也属于辅导，复用原有助教使用记录，避免后续评分误算独立作答。
         with session_scope() as session:

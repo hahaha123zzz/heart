@@ -56,3 +56,13 @@ the existing vanilla-JS host. No React component was copied. The host keeps
 its own task revisions, cancellation, source checks and receipt persistence.
 OpenMAIC command recovery and OpenTutor explicit teaching state were reviewed
 as design references; no source from those two repositories was copied.
+
+The 2026-11-01 response-composition C1 delivery reuses the already-adapted
+local AgentLoop, learning-card projection and citation publication helpers.
+DeepTutor book/blocks/base.py and book/compiler.py at the same fixed commit
+were reviewed for block-state and bounded-repair semantics. Host-specific
+claims, dependency validation and JSON composition are local adaptations;
+BookStorage, BookCompiler, optional RAG and global model configuration were
+not copied or introduced as a second runtime. File hashes and boundaries are
+recorded in RESPONSE_COMPOSITION_SOURCE_AUDIT_20261101.json and
+RESPONSE_COMPOSITION_IMPLEMENTATION_20261101.md.

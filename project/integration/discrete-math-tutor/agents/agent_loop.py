@@ -58,6 +58,8 @@ class LoopRequest:
     bound_media_id: str | None = None
     answer_ready: Callable[["LoopResult"], bool] | None = None
     evidence_repair: Callable[[str], str] | None = None
+    response_composer: Any = None
+    composition_execute: Callable | None = None
 
 
 @dataclass
@@ -284,9 +286,19 @@ class LocalAgentLoop:
                 tools = request.tools.schemas(names=['teaching_step'])
                 choice = 'required'
             role = 'progress' if tools else 'answer'
+            model_messages = with_transient_model_messages(messages, result._transient)
+            if not tools and request.composition_execute is not None:
+                outcome=request.composition_execute(self,request,result,model_messages,collector)
+                if outcome is not None:return outcome
+                request.composition_execute=None
+            if request.response_composer is not None:
+                model_messages = [*model_messages, {'role':'system', 'content':request.response_composer.instructions(result.sources)}]
+                role = 'progress'  # 候选JSON不进入学生正文；保存后发布经核验的内容块。
+                if not tools:
+                    collector('progress', '组织本轮讲解', {})
             try:
                 round_result = self.llm.chat_with_tools(
-                    with_transient_model_messages(messages, result._transient), tools or [], temperature=request.temperature,
+                    model_messages, tools or [], temperature=request.temperature,
                     timeout=90,
                     max_tokens=request.round_max_tokens,
                     tool_choice=choice,
@@ -398,11 +410,26 @@ class LocalAgentLoop:
                                                reason='上一轮没有返回正文，仅允许这一次基于已有证据收尾。')
                 return self._error_result(result, messages, collector, "empty_answer",
                                           "模型没有返回可发布回答")
+            if request.response_composer is not None:
+                try:
+                    final_text = request.response_composer.accept(final_text, result.sources)
+                except ValueError as exc:
+                    if not result.repair_used:
+                        result.repair_used = True
+                        no_tools_next = True
+                        messages.append({'role':'user','content':str(exc) + '。只修复指定块，不新增检索或教学动作。'})
+                        collector('progress', '核对本轮讲解', {'detail':str(exc)})
+                        continue
+                    return self._error_result(result, messages, collector, 'quality_rejected',
+                                              '回答模块未通过核验，本轮未发布。')
             if request.publish_gate is not None:
                 ok, reason = stage_call('publish_integrity', lambda: request.publish_gate(final_text, result))
                 check_budget()
                 if not ok:
                     retract()
+                    if request.response_composer is not None:
+                        request.response_composer.accepted.clear()
+                        request.response_composer.pending = [b.block_id for b in request.response_composer.plan.blocks]
                     if (not result.repair_used and request.evidence_repair is not None
                             and not result.sources
                             and reason == '本轮没有可核验的教材来源，暂不发布正式回答。'
@@ -534,13 +561,16 @@ class LocalAgentLoop:
             instruction += "\n" + reason
         messages.append({"role": "user", "content": instruction})
         try:
+            model_messages = with_transient_model_messages(messages, result._transient)
+            if request.response_composer is not None:
+                model_messages = [*model_messages, {'role':'system','content':request.response_composer.instructions(result.sources)}]
             round_result = self.llm.chat_with_tools(
-                with_transient_model_messages(messages, result._transient), [], temperature=request.temperature,
+                model_messages, [], temperature=request.temperature,
                 timeout=90,
-                max_tokens=request.round_max_tokens, **answer_kwargs())
+                max_tokens=request.round_max_tokens, **answer_kwargs('progress' if request.response_composer else 'answer'))
         except LLMError as exc:
             if exc.partial_response:
-                result.unpublished_draft = exc.partial_text
+                result.unpublished_draft = '' if request.response_composer is not None else exc.partial_text
                 result.usage.update(exc.usage)
                 return self._error_result(result, messages, collector,
                     'incomplete_answer' if exc.finish_reason == 'length' else 'answer_interrupted',
@@ -565,6 +595,11 @@ class LocalAgentLoop:
         if not text:
             return self._error_result(result, messages, collector, "empty_answer",
                                       "预算用尽后模型仍未给出回答")
+        if request.response_composer is not None:
+            try:
+                text = request.response_composer.accept(text, result.sources)
+            except ValueError:
+                return self._error_result(result, messages, collector, 'quality_rejected', '收尾内容块未通过核验。')
         if request.publish_gate is not None:
             ok, gate_reason = stage_call('publish_integrity', lambda: request.publish_gate(text, result))
             check_budget()

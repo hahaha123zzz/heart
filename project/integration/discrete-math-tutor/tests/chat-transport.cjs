@@ -19,7 +19,8 @@ function harness(responses) {
   };
   const sandbox = {window:{}, fetch, TextDecoder, URLSearchParams};
   vm.runInNewContext(source, sandbox);
-  return {chat:sandbox.window.TutorChatTransport.streamChat, applyDraft:sandbox.window.TutorChatTransport.applyDraft, calls};
+  return {chat:sandbox.window.TutorChatTransport.streamChat, applyDraft:sandbox.window.TutorChatTransport.applyDraft,
+    compositionPending:sandbox.window.TutorChatTransport.compositionPending,calls};
 }
 
 test('兼容带 id 的 SSE、CRLF、跨字节分片以及提前保存的回答', async () => {
@@ -148,4 +149,40 @@ test('取消状态拒绝迟到正文，不冒称已保存',()=>{
  assert.equal(message.answerState,'cancelled');
  assert.equal(applyDraft(message,'answer_delta',{...id,seq:2,text:'迟到'}),false);
  assert.equal(message.content,'');
+ assert.equal(applyDraft(message,'answer_blocks',{...id,seq:3,publication:committed('迟到的块')}),false);
+});
+
+function committed(reply='已核验[1]') {
+ return {answer_status:'partial_answer',reply,pdf_references:[{source_index:0}],learning_response:{
+  schema_version:'learning-response/v1',status:'in_progress',reply,leading_text:'',blocks:[
+   {block_id:'b1',status:'published',rendered_text:reply}]}};
+}
+test('旧后端没有可选C3接口时继续普通对话，来源失效不能被忽略',async()=>{
+ const {compositionPending}=harness([json({},404),json({},503),json({detail:'版本失效'},410),json({pending:null})]);
+ assert.equal((await compositionPending('s','tab')).pending,null);
+ assert.equal((await compositionPending('s','tab')).pending,null);
+ await assert.rejects(compositionPending('s','tab'),error=>error.status===410);
+ assert.equal((await compositionPending('s','tab')).pending,null);
+});
+test('核验块按前缀提交，重复/乱序/错任务拒绝且不冒称整轮已保存',()=>{
+ const {applyDraft}=harness([]),m={content:''};
+ const id={task_id:'t',task_revision:2,answer_id:'a',round_id:1,role:'progress'};
+ assert.ok(applyDraft(m,'answer_blocks',{...id,seq:1,publication:committed()}));
+ assert.equal(m.content,'已核验[1]');assert.equal(m.blocksCommitted,true);assert.ok(!m.answerSaved);
+ assert.equal(applyDraft(m,'answer_blocks',{...id,seq:1,publication:committed()}),false);
+ assert.equal(applyDraft(m,'answer_blocks',{...id,seq:2,task_revision:3,publication:committed('冒充')}),false);
+ assert.equal(applyDraft(m,'answer_blocks',{...id,seq:2,publication:committed('改写前段')}),false);
+ assert.equal(m.content,'已核验[1]');
+ assert.ok(applyDraft(m,'answer_blocks',{...id,seq:3,publication:committed('已核验[1]\n\n第二段[2]')}));
+ assert.ok(applyDraft(m,'answer_state',{...id,seq:4,role:'answer',state:'partial'}));
+ assert.equal(m.answerState,'partial');
+ m.answerSettled=true;
+ assert.equal(applyDraft(m,'answer_blocks',{...id,seq:5,publication:committed('迟到')}),false);
+});
+test('断线时只恢复宿主持久化内容块，不重新提交生成',async()=>{
+ const partial=committed();
+ const {chat,calls}=harness([new Error('断线'),json({result:null,composition_partial:partial})]);
+ const result=await chat(payload);
+ assert.equal(result.answer_status,'partial_answer');assert.equal(result.composition_partial.reply,partial.reply);
+ assert.equal(calls.length,2);assert.equal(calls.filter(c=>c[1]?.method==='POST').length,1);
 });

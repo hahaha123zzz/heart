@@ -1,0 +1,37 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "document_id": {
+      "pattern": "^experimental-psychology-3:chapter-(?:0[1-9]|1[01])$",
+      "title": "Document Id",
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Version",
+      "type": "string"
+    },
+    "object_id": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Object Id",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "table",
+        "formula"
+      ],
+      "title": "Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "document_id",
+    "version",
+    "object_id",
+    "kind"
+  ],
+  "title": "ObjectReadRequest",
+  "type": "object"
+}

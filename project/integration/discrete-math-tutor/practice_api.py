@@ -402,8 +402,15 @@ def help_question(qid:str,body:HelpRequest):
             return {'reply':'账户已删除，本次辅导未保存。','answer_status':'account_missing','image_refs':[]}
         if main.orchestrator.memory.repo.memory_epoch(sid,q['knowledge_point'])!=expected_epoch:
             return {'reply':'相关学习记忆已删除，请重新提问。','answer_status':'memory_deleted','image_refs':[]}
+        from agents.response_composition_adapters import published_snapshot, snapshot_kind
+        snapshot = published_snapshot(reply=result['reply'], response_id=str(uuid.uuid4()),
+            target_id=f'exercise:{qid}:{p["id"]}:{body.version}',
+            semantic_type=snapshot_kind(execution=execution), authority_ref=f'{qid}:{p["id"]}:{body.version}')
+        if snapshot:
+            result = {**result, 'learning_response':snapshot}
         message=f'{q["group_id"]} 第{q["number"]}题 {p["label"]} '+('请给提示' if body.action=='hint' else '请讲解')+'；当前答案：'+json.dumps(answers.get(p['id']),ensure_ascii=False)
-        main.orchestrator.memory.append_exchange(sid,message,result['reply'],expected_epoch=expected_epoch,expected_point=q['knowledge_point'])
+        reference = {key:result[key] for key in ('learning_response','pdf_references','textbook_sources','guided_visualization') if result.get(key)}
+        main.orchestrator.memory.append_exchange(sid,message,result['reply'],selection_ref=reference or None,expected_epoch=expected_epoch,expected_point=q['knowledge_point'])
         db.add(ExerciseHelpRow(id=str(uuid.uuid4()),student_id=sid,question_id=qid,version=body.version,part_id=body.part_id,action=body.action,level=body.level,answers=answers,response=result))
     return result
 

@@ -1,0 +1,474 @@
+{
+  "manifest": {
+    "benchmark_sha256": "eb438195e1dbbd7c3e08315b149eb2d37a43fbe60dfc19bba046a31fe7dbb6cd",
+    "index_sha256": "2a052d6d90624119c7bb10d445bcfb7c0a82306021f2af55ed29c71d23b0e7ef",
+    "base_commit": "2a5780fc30386c23a13063d0a64ba50fbdfd8082",
+    "implementation_sha256": {
+      "scripts/collect_layer4_baseline.py": "a3b08a3de00de245330bf4c969d52d8b5709320cbf51fac51aa115f2069386c7",
+      "scripts/evaluate_layer4_benchmark.py": "3f49a69aa5fb503f7450e73f629be32598b30a9b42bf57bf9a38317f3f9447ab",
+      "knowledge/local_rag/course_retrieval.py": "76956c68a58da8a14e6114cc60c33b961fa8f3cc908fa4de34f9e9432a17bfc5",
+      "knowledge/local_rag/retrievers.py": "26a24f6738baf18f8b74f79885b618bbd6f86338041623bb5afe100d2c0d2a0a",
+      "knowledge/local_rag/rerank.py": "51ddbff189dd22f183dfc40e6d6c584f2bd15334cc4c8fbeb3e8a744b57d1f3d",
+      "knowledge/hybrid_retrieval.py": "37caa06df1efbaeb21b2efcaf341b88fd326b8c66b1f9023bc81ddf0b3281159",
+      "agents/q3_navigation.py": "456e5d80af85637771e989f501a46c60c07b12810d9f3921d5fac3c5a68b5e11",
+      "knowledge/source_mapping.py": "43512c844e4e3fe447e51040cd3ce8ccc9588a14b03ab0800ee510418c157cfb",
+      "knowledge/visual_locations.py": "491ee79e2e90592ee22e0469b5d24465f82875b3929f5eef03d2ff7beddb705c",
+      "knowledge/figure_reading.py": "606ec145582cdfab925d33c81ba6255da75fa14721e481912403cdb3555fdbab",
+      "knowledge/answer_media.py": "93d8879366ddf3c06a4f0d37ed61bb46fe8b56579a1d3724ad0d0adec58d546b",
+      "scripts/collect_layer4_stage3.py": "5bb8a34c6a2c180c631bc9ad3d5113388b79d95aa5953b5291df3752a2bbebcb",
+      "knowledge/evidence_objects.py": "01f32071cc6a94263beab48d22bdab8ddd517cbb8871ad326276c838c7068672",
+      "agents/tools/evidence_requirements.py": "96f2d758b1ac0dbef837494bf4499e4c81a6f25a90ae9f3da137df9b71dc5c41"
+    },
+    "source_validation": {
+      "cases": 60,
+      "categories": {
+        "definition": 6,
+        "comparison": 6,
+        "experiment": 6,
+        "selection": 6,
+        "cross_chapter": 6,
+        "table": 6,
+        "formula": 6,
+        "image": 6,
+        "memory": 6,
+        "execution": 6
+      },
+      "splits": {
+        "development": 30,
+        "reserved": 30
+      },
+      "anchor_locations": {
+        "exact": 53,
+        "unlocated": 13
+      },
+      "source_snapshot_valid": true,
+      "teacher_reviewed": 0,
+      "semantic_quality_passed": false,
+      "blind_holdout": false
+    },
+    "scope": "offline existing A/B components, not full CourseSearch/LightRAG/chat acceptance"
+  },
+  "scope": "offline_object_presence_not_semantic_or_production_acceptance",
+  "before": {
+    "metric_scope": "diagnostic_original_block_or_registered_asset_presence_not_semantic_support",
+    "k": 6,
+    "expected_retrieval_cases": 48,
+    "evaluated": 48,
+    "missing_runs": [],
+    "anchor_recall": 0.7604166666666666,
+    "all_anchors_rate": 0.75,
+    "mrr": 0.728125,
+    "semantic_quality_passed": false
+  },
+  "after": {
+    "metric_scope": "diagnostic_original_block_or_registered_asset_presence_not_semantic_support",
+    "k": 6,
+    "expected_retrieval_cases": 48,
+    "evaluated": 48,
+    "missing_runs": [],
+    "anchor_recall": 1.0,
+    "all_anchors_rate": 1.0,
+    "mrr": 0.8645833333333334,
+    "rows": [
+      {
+        "case_id": "L4-001",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-002",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-003",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-004",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-005",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-006",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-007",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-008",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-009",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-010",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-011",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-012",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-013",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-014",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-015",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-016",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-017",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-018",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-019",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-020",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-021",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-022",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-023",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-024",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-025",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-026",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-027",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-028",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-029",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-030",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-031",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-032",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-033",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-034",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-035",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-036",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-037",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-038",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-039",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-040",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-041",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-042",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-043",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-044",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-045",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-046",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-047",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-048",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      }
+    ],
+    "semantic_quality_passed": false
+  },
+  "improved_cases": [
+    "L4-014",
+    "L4-031",
+    "L4-032",
+    "L4-033",
+    "L4-035",
+    "L4-036",
+    "L4-037",
+    "L4-038",
+    "L4-039",
+    "L4-040",
+    "L4-041",
+    "L4-042"
+  ],
+  "regressed_cases": [],
+  "routes": {
+    "B_single_query_baseline": 6,
+    "B_bounded_requirements": 18,
+    "A_selection": 6,
+    "A_object": 12,
+    "A_named_image": 6
+  },
+  "object_locations": {
+    "unlocated": 7,
+    "exact": 5
+  },
+  "runtime": {
+    "configured": {
+      "reranker": "cuda",
+      "embedding": "cuda"
+    },
+    "sessions": {
+      "embedding": {
+        "device": "cuda",
+        "providers": [
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ]
+      },
+      "reranker": {
+        "device": "cuda",
+        "providers": [
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ]
+      }
+    },
+    "cuda_cache_path": "E:\\项目\\heart\\.worktrees\\layer4-contract-baseline-20261031\\project\\integration\\discrete-math-tutor\\.cache\\cuda"
+  },
+  "llm_calls": 0,
+  "tests_passed": 34,
+  "teacher_reviewed": false,
+  "semantic_quality_passed": false,
+  "production_acceptance": false,
+  "artifacts": {
+    ".runtime/layer4-stage3/baseline-v2/report.json": "0747542bc01b8aa83e0384c050e9c2146c161908d8ff510d7dcf4012eca124a4",
+    ".runtime/layer4-stage2/baseline-v2/report.json": "55a74610b2769081ee5623f47d2e102a07bffa9db516f1e80f515bf5628fe983",
+    ".runtime/layer4-stage3/baseline-v2/manifest.json": "7b412cb656d6c56cf1f284de7bc9198e2e757334e7c6209750dd01dfb93f8a4a",
+    ".runtime/layer4-stage3/baseline-v2/runs.jsonl": "2520ab9f82f25bf40036e038b5ceddbdbbf0c67c598825fb71422ee59338703f",
+    ".runtime/layer4-stage3/baseline-v2/runs.json": "0aded71f76ef3083157169674ad56eaa6c1f9f12ecd1816ef8ac44d641f31484",
+    ".runtime/layer4-stage3/tests-final.log": "f5affd7137281c3f4e6ef9757105e47f49ded2d470927914b09c9d50b33a4615"
+  }
+}

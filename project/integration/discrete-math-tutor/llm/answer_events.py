@@ -63,6 +63,12 @@ class AnswerEvents:
             self.validate()
             self.send('answer_state', state='checking')
 
+    def blocks(self, publication):
+        self.guard()
+        if self.identity is None:
+            self.begin('progress')
+        self.send('answer_blocks', publication=publication)
+
     def retract(self):
         if self.identity:
             self.guard()
@@ -75,6 +81,10 @@ class AnswerEvents:
         if self.identity:
             saved = result.get('answer_status') == 'answered'
             self.role = 'answer'
+            if not saved and result.get('composition_partial'):
+                self.send('answer_blocks',publication=result['composition_partial'])
+                self.send('answer_state',state='partial')
+                return
             self.send('answer_replace', text=str(result.get('reply') or '') if saved else '', authoritative=True)
             state = {'answer_interrupted':'interrupted','incomplete_answer':'incomplete','active_timeout':'timeout','task_cancelled':'cancelled'}.get(result.get('answer_status'), 'rejected')
             self.send('answer_state', state='saved' if saved else state)

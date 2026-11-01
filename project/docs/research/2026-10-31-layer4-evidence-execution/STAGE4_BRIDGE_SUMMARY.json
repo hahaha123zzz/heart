@@ -1,0 +1,197 @@
+{
+  "scope": "real_original_and_Q2_grounding_with_protocol_fixture_not_semantic_acceptance",
+  "base_commit": "fd669872e9d4a5a51c94e10c7e4d6d5369c8f616",
+  "benchmark_sha256": "eb438195e1dbbd7c3e08315b149eb2d37a43fbe60dfc19bba046a31fe7dbb6cd",
+  "index_sha256": "2a052d6d90624119c7bb10d445bcfb7c0a82306021f2af55ed29c71d23b0e7ef",
+  "implementation_sha256": {
+    "scripts/accept_layer4_object_bridge.py": "e8b776f73b822ce8143798b3e6862e5ebd84158effa4960ff7d7031dba427934",
+    "agents/course_search.py": "31c0ff11e3cb3978095dc00c8dae10cec42852d6276e518e0da48e8997c1c430",
+    "agents/object_evidence.py": "e0553a40b4fc8661f40711b502a66d3b088233485b99cb09b690c30bbf7e7251",
+    "knowledge/evidence_objects.py": "fb9a336390bee0b1a7bc29d6528136e608daba96501bff2fa9e85330b3aad353",
+    "knowledge/grounded_citations.py": "5e53cff2ea2ab572fdbf7f873b4b7e3a610a85fffa58ee226be2a94252e9b18f",
+    "knowledge/lightrag/coverage.py": "a0dc1f62862ad4e54764ddec23e315d25902cebb971402810f8f2d69bce2cc11",
+    "knowledge/course_config.py": "ad762799eb7bceaed56d881ce0e7a10e6e4b0722d7cbfaaa93890a06f0ac2363",
+    "knowledge/pdf_reader.py": "b1dc0e55ff06af487c43aa820eaef53259f9fc7911099873ffe565ce7c155057",
+    "knowledge/source_mapping.py": "43512c844e4e3fe447e51040cd3ce8ccc9588a14b03ab0800ee510418c157cfb",
+    "scripts/parse_converted_textbook.py": "6a48243086b69cc5aea4921738a6ebacd0d1d645e6ec732a8668ffe2740c7a22",
+    "agents/q3_navigation.py": "456e5d80af85637771e989f501a46c60c07b12810d9f3921d5fac3c5a68b5e11"
+  },
+  "index_unchanged": true,
+  "llm_calls": 0,
+  "semantic_quality_passed": false,
+  "failed_cases": [],
+  "tests_passed": 145,
+  "runs": [
+    {
+      "case_id": "L4-031",
+      "category": "table",
+      "status": "withheld_incomplete_object",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [],
+      "missing_objects": [
+        "experimental-psychology-3:chapter-01:b15"
+      ],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-032",
+      "category": "table",
+      "status": "verified_original_range",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [
+        "01cce817de9b65f460f423c9f2e99536cdb212aa343bb2dbe85d65ef45dd58ef",
+        "8b898b0377f983b5f95229f067dd581039f43f4c3a487b6ac54dead0530c99c5"
+      ],
+      "missing_objects": [],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-033",
+      "category": "table",
+      "status": "verified_original_range",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [
+        "28a13a999602d3514e27247d68c7bb81ac61ac732f4a002dead93612669ea9b3",
+        "21087ddacfe8b31b0a335d8570ac187f2e0038dcf06c48a664642f2bab7ff020"
+      ],
+      "missing_objects": [],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-034",
+      "category": "table",
+      "status": "verified_original_range",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [
+        "05b88709c70fec6d083ab55c27da17ad9360980497a958ff573791d47b9f876a",
+        "ad24ac5bbb793e0f1809809e679ac5e6aedf2ecb5e121ee35141c1c65a63c0b9",
+        "da8d68163fa86e130d788d6129111d40014b4aa74c535cd2e37e11e22422a66a"
+      ],
+      "missing_objects": [],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-035",
+      "category": "table",
+      "status": "verified_original_range",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [
+        "c7659897dfa26778d4ecca06935804bf8e81af7fbc146f023593d8d6bb983603",
+        "ca8baa14d98e41809efd345d76227580836fbc83739e69db4c66375529cfc871",
+        "b4510bf48cefb5d11ee1d29c0810c86201f2accad8e3fa860556bae48dee0eb8"
+      ],
+      "missing_objects": [],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-036",
+      "category": "table",
+      "status": "verified_original_range",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [
+        "9c21d918ebef75a9ea300c0ea602f5d77af281b8b830e81633cd42dc9ed376fe",
+        "647b810660b6615cab2678d1194bdfd01f16f62d47d8f82833b18d861db437d8",
+        "7c07ee687ce5d87d7b8b8799c5957f5a5daf89c317985e20cf7aa98202f49d1b"
+      ],
+      "missing_objects": [],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-037",
+      "category": "formula",
+      "status": "withheld_incomplete_object",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [],
+      "missing_objects": [
+        "experimental-psychology-3:chapter-03:omml-001"
+      ],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-038",
+      "category": "formula",
+      "status": "withheld_incomplete_object",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [],
+      "missing_objects": [
+        "experimental-psychology-3:chapter-03:omml-002"
+      ],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-039",
+      "category": "formula",
+      "status": "withheld_incomplete_object",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [],
+      "missing_objects": [
+        "experimental-psychology-3:chapter-04:omml-001"
+      ],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-040",
+      "category": "formula",
+      "status": "withheld_incomplete_object",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [],
+      "missing_objects": [
+        "experimental-psychology-3:chapter-04:omml-002"
+      ],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-041",
+      "category": "formula",
+      "status": "withheld_incomplete_object",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [],
+      "missing_objects": [
+        "experimental-psychology-3:chapter-05:omml-001"
+      ],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    },
+    {
+      "case_id": "L4-042",
+      "category": "formula",
+      "status": "withheld_incomplete_object",
+      "selection_fixture_calls": 1,
+      "selected_source_ids": [],
+      "missing_objects": [
+        "experimental-psychology-3:chapter-05:omml-002"
+      ],
+      "model_saw_pixels": false,
+      "semantic_verified": false
+    }
+  ],
+  "statuses": {
+    "withheld_incomplete_object": 7,
+    "verified_original_range": 5
+  },
+  "by_category": {
+    "table": {
+      "withheld_incomplete_object": 1,
+      "verified_original_range": 5
+    },
+    "formula": {
+      "withheld_incomplete_object": 6
+    }
+  },
+  "production_deployed": false,
+  "real_llm_acceptance": false,
+  "artifacts": {
+    ".runtime/layer4-stage4/object-bridge-verified.json": "7c07f6291da638664287bee9eb5ca1456862c33598c10045675f6fa68536f088",
+    ".runtime/layer4-stage4/tests-verified.log": "107ea3ca39a37ee707ecab2578a6b70cab6a427ee6ad6fa1cea897692c5ae529"
+  }
+}

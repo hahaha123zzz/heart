@@ -1,0 +1,681 @@
+{
+  "scope": "offline existing A/B components, not full CourseSearch/LightRAG/chat acceptance",
+  "manifest": {
+    "benchmark_sha256": "eb438195e1dbbd7c3e08315b149eb2d37a43fbe60dfc19bba046a31fe7dbb6cd",
+    "index_sha256": "2a052d6d90624119c7bb10d445bcfb7c0a82306021f2af55ed29c71d23b0e7ef",
+    "base_commit": "d84ae97d6aa5cb64dd05ab831f87de1e95ac2a0d",
+    "implementation_sha256": {
+      "scripts/collect_layer4_baseline.py": "d0d9558e3f5fc5f193cee21598bb6d87e96202171b2aa9c8b73c942925f60e24",
+      "scripts/evaluate_layer4_benchmark.py": "3f49a69aa5fb503f7450e73f629be32598b30a9b42bf57bf9a38317f3f9447ab",
+      "knowledge/local_rag/course_retrieval.py": "76956c68a58da8a14e6114cc60c33b961fa8f3cc908fa4de34f9e9432a17bfc5",
+      "knowledge/local_rag/retrievers.py": "26a24f6738baf18f8b74f79885b618bbd6f86338041623bb5afe100d2c0d2a0a",
+      "knowledge/local_rag/rerank.py": "51ddbff189dd22f183dfc40e6d6c584f2bd15334cc4c8fbeb3e8a744b57d1f3d",
+      "knowledge/hybrid_retrieval.py": "37caa06df1efbaeb21b2efcaf341b88fd326b8c66b1f9023bc81ddf0b3281159",
+      "agents/q3_navigation.py": "456e5d80af85637771e989f501a46c60c07b12810d9f3921d5fac3c5a68b5e11",
+      "knowledge/source_mapping.py": "43512c844e4e3fe447e51040cd3ce8ccc9588a14b03ab0800ee510418c157cfb",
+      "knowledge/visual_locations.py": "491ee79e2e90592ee22e0469b5d24465f82875b3929f5eef03d2ff7beddb705c",
+      "knowledge/figure_reading.py": "606ec145582cdfab925d33c81ba6255da75fa14721e481912403cdb3555fdbab",
+      "knowledge/answer_media.py": "93d8879366ddf3c06a4f0d37ed61bb46fe8b56579a1d3724ad0d0adec58d546b"
+    },
+    "source_validation": {
+      "cases": 60,
+      "categories": {
+        "definition": 6,
+        "comparison": 6,
+        "experiment": 6,
+        "selection": 6,
+        "cross_chapter": 6,
+        "table": 6,
+        "formula": 6,
+        "image": 6,
+        "memory": 6,
+        "execution": 6
+      },
+      "splits": {
+        "development": 30,
+        "reserved": 30
+      },
+      "anchor_locations": {
+        "exact": 53,
+        "unlocated": 13
+      },
+      "source_snapshot_valid": true,
+      "teacher_reviewed": 0,
+      "semantic_quality_passed": false,
+      "blind_holdout": false
+    },
+    "scope": "offline existing A/B components, not full CourseSearch/LightRAG/chat acceptance"
+  },
+  "runtime": {
+    "configured": {
+      "reranker": "cuda",
+      "embedding": "cuda"
+    },
+    "sessions": {
+      "embedding": {
+        "device": "cuda",
+        "providers": [
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ]
+      },
+      "reranker": {
+        "device": "cuda",
+        "providers": [
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ]
+      }
+    },
+    "cuda_cache_path": "E:\\项目\\heart\\.worktrees\\layer4-contract-baseline-20261031\\project\\integration\\discrete-math-tutor\\.cache\\cuda"
+  },
+  "llm_calls": 0,
+  "index_unchanged": true,
+  "completed": 48,
+  "statuses": {
+    "retrieved": 48
+  },
+  "diagnostic": {
+    "metric_scope": "diagnostic_original_block_or_registered_asset_presence_not_semantic_support",
+    "k": 6,
+    "expected_retrieval_cases": 48,
+    "evaluated": 48,
+    "missing_runs": [],
+    "anchor_recall": 0.7604166666666666,
+    "all_anchors_rate": 0.75,
+    "mrr": 0.728125,
+    "rows": [
+      {
+        "case_id": "L4-001",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-002",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-003",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-004",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-005",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.5
+      },
+      {
+        "case_id": "L4-006",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-007",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-008",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-009",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-010",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-011",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-012",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-013",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 0.25
+      },
+      {
+        "case_id": "L4-014",
+        "status": "retrieved",
+        "anchor_recall": 0.5,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0.2
+      },
+      {
+        "case_id": "L4-015",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-016",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-017",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-018",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-019",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-020",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-021",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-022",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-023",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-024",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-025",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-026",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-027",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-028",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-029",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-030",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-031",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-032",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-033",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-034",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-035",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-036",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-037",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-038",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-039",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-040",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-041",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-042",
+        "status": "retrieved",
+        "anchor_recall": 0.0,
+        "all_anchors_found": false,
+        "reciprocal_rank": 0
+      },
+      {
+        "case_id": "L4-043",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-044",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-045",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-046",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-047",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      },
+      {
+        "case_id": "L4-048",
+        "status": "retrieved",
+        "anchor_recall": 1.0,
+        "all_anchors_found": true,
+        "reciprocal_rank": 1.0
+      }
+    ],
+    "semantic_quality_passed": false
+  },
+  "by_category": {
+    "comparison": {
+      "cases": 6,
+      "all_anchors_found": 6,
+      "macro_anchor_recall": 1.0
+    },
+    "cross_chapter": {
+      "cases": 6,
+      "all_anchors_found": 6,
+      "macro_anchor_recall": 1.0
+    },
+    "definition": {
+      "cases": 6,
+      "all_anchors_found": 6,
+      "macro_anchor_recall": 1.0
+    },
+    "experiment": {
+      "cases": 6,
+      "all_anchors_found": 5,
+      "macro_anchor_recall": 0.9166666666666666
+    },
+    "formula": {
+      "cases": 6,
+      "all_anchors_found": 0,
+      "macro_anchor_recall": 0.0
+    },
+    "image": {
+      "cases": 6,
+      "all_anchors_found": 6,
+      "macro_anchor_recall": 1.0
+    },
+    "selection": {
+      "cases": 6,
+      "all_anchors_found": 6,
+      "macro_anchor_recall": 1.0
+    },
+    "table": {
+      "cases": 6,
+      "all_anchors_found": 1,
+      "macro_anchor_recall": 0.16666666666666666
+    }
+  },
+  "failure_diagnosis": {
+    "benchmark_sha256": "eb438195e1dbbd7c3e08315b149eb2d37a43fbe60dfc19bba046a31fe7dbb6cd",
+    "index_sha256": "2a052d6d90624119c7bb10d445bcfb7c0a82306021f2af55ed29c71d23b0e7ef",
+    "missing_anchors": 12,
+    "reasons": {
+      "outside_final_topk_or_gate": 2,
+      "outside_recall_candidates": 10
+    },
+    "rows": [
+      {
+        "case_id": "L4-014",
+        "category": "experiment",
+        "object_id": "experimental-psychology-3:chapter-04:b15",
+        "block_id": 15,
+        "reason": "outside_final_topk_or_gate",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch04:b12:0"
+        ],
+        "candidate_ids": [
+          "experimental-psychology-3:ch04:b12:0"
+        ],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-031",
+        "category": "table",
+        "object_id": "experimental-psychology-3:chapter-01:b15",
+        "block_id": 15,
+        "reason": "outside_recall_candidates",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch01:b15:0"
+        ],
+        "candidate_ids": [],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-032",
+        "category": "table",
+        "object_id": "experimental-psychology-3:chapter-02:b157",
+        "block_id": 157,
+        "reason": "outside_recall_candidates",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch02:b157:0"
+        ],
+        "candidate_ids": [],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-033",
+        "category": "table",
+        "object_id": "experimental-psychology-3:chapter-03:b18",
+        "block_id": 18,
+        "reason": "outside_recall_candidates",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch03:b18:0"
+        ],
+        "candidate_ids": [],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-035",
+        "category": "table",
+        "object_id": "experimental-psychology-3:chapter-05:b36",
+        "block_id": 36,
+        "reason": "outside_recall_candidates",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch05:b36:0"
+        ],
+        "candidate_ids": [],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-036",
+        "category": "table",
+        "object_id": "experimental-psychology-3:chapter-06:b44",
+        "block_id": 44,
+        "reason": "outside_recall_candidates",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch06:b44:0"
+        ],
+        "candidate_ids": [],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-037",
+        "category": "formula",
+        "object_id": "experimental-psychology-3:chapter-03:omml-001",
+        "block_id": 69,
+        "reason": "outside_recall_candidates",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch03:b58:0-s0",
+          "experimental-psychology-3:ch03:b58:0-s1"
+        ],
+        "candidate_ids": [],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-038",
+        "category": "formula",
+        "object_id": "experimental-psychology-3:chapter-03:omml-002",
+        "block_id": 82,
+        "reason": "outside_final_topk_or_gate",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch03:b75:0-s0",
+          "experimental-psychology-3:ch03:b75:0-s1"
+        ],
+        "candidate_ids": [
+          "experimental-psychology-3:ch03:b75:0-s1"
+        ],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-039",
+        "category": "formula",
+        "object_id": "experimental-psychology-3:chapter-04:omml-001",
+        "block_id": 146,
+        "reason": "outside_recall_candidates",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch04:b143:0"
+        ],
+        "candidate_ids": [],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-040",
+        "category": "formula",
+        "object_id": "experimental-psychology-3:chapter-04:omml-002",
+        "block_id": 148,
+        "reason": "outside_recall_candidates",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch04:b143:0"
+        ],
+        "candidate_ids": [],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-041",
+        "category": "formula",
+        "object_id": "experimental-psychology-3:chapter-05:omml-001",
+        "block_id": 232,
+        "reason": "outside_recall_candidates",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch05:b224:0-s0",
+          "experimental-psychology-3:ch05:b224:0-s1"
+        ],
+        "candidate_ids": [],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      },
+      {
+        "case_id": "L4-042",
+        "category": "formula",
+        "object_id": "experimental-psychology-3:chapter-05:omml-002",
+        "block_id": 234,
+        "reason": "outside_recall_candidates",
+        "possible_index_ids": [
+          "experimental-psychology-3:ch05:b224:0-s0",
+          "experimental-psychology-3:ch05:b224:0-s1"
+        ],
+        "candidate_ids": [],
+        "selected_ids": [],
+        "normalized_quote_in_possible_chunk": true,
+        "note": "索引块范围不等于实际文本包含，尚须原文交集核验"
+      }
+    ]
+  },
+  "artifacts": {
+    "baseline-v2/report.json": {
+      "sha256": "55a74610b2769081ee5623f47d2e102a07bffa9db516f1e80f515bf5628fe983",
+      "relative_path": ".runtime/layer4-stage2/baseline-v2/report.json"
+    },
+    "baseline-v2/runs.json": {
+      "sha256": "46c69290482366114b3730d802ffb6caf88383834167beb9db355280a5156aab",
+      "relative_path": ".runtime/layer4-stage2/baseline-v2/runs.json"
+    },
+    "v1-location-audit.json": {
+      "sha256": "f3d24b3f42bfaaf8145c24062ee48446b8b6606360cf0a15f1b9381b4c40368e",
+      "relative_path": ".runtime/layer4-stage2/v1-location-audit.json"
+    },
+    "v2-location-audit.json": {
+      "sha256": "79b2979aabb0a3b3ccb1eae3204793f02a3b205ac80f1c81cac294429432dbed",
+      "relative_path": ".runtime/layer4-stage2/v2-location-audit.json"
+    },
+    "failure-diagnosis-normalized.json": {
+      "sha256": "414b960cf5f736e6c40c05665f83d3328a4b5b317dffa857bf4e40ed1bc0474d",
+      "relative_path": ".runtime/layer4-stage2/failure-diagnosis-normalized.json"
+    }
+  },
+  "semantic_quality_passed": false,
+  "production_acceptance": false,
+  "note": "正文为离线A/B组件诊断，不包含CourseSearch图谱升级、回答生成、真实页面或教师审核。"
+}

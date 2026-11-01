@@ -17,6 +17,11 @@ from knowledge.lightrag.relationships import relationship_context,append_tool_co
 
 
 class TeachingSourceRequirementsTests(unittest.TestCase):
+ def test_comparison_followed_by_explanation_keeps_both_objects(self):
+  rows=requirements_for('先比较自变量和因变量，再解释它们的联系；不要出题')
+  self.assertEqual([r.query for r in rows],['自变量','因变量'])
+  rows=requirements_for('先比较自变量和因变量，并解释它们的联系')
+  self.assertEqual([r.query for r in rows],['自变量','因变量'])
  def test_source_labels_do_not_become_extra_textbook_objects(self):
   question='直接讲解教材中自变量与因变量的联系，并说明学习重点。没有提供任何考纲或教师重点标注，请区分教材依据与教学建议，不要出题。'
   requirements=requirements_for(question)

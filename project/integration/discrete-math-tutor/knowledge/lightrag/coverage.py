@@ -35,13 +35,15 @@ def requirements_for(question):
             pieces.append((_chapter(m.group(1)),question[m.end():end]))
     else:
         content=question[matches[0].end():] if matches else question
+        # 后续动作不是比较对象；保留同一句中的两个明确对象供分别取证。
+        content=re.split(r'[，,；;]\s*(?:再|然后|接着|并且|并(?=解释|说明|讨论))',content,maxsplit=1)[0]
         parts=re.split(r'和|与|以及|相比| versus | vs\.? ',content,flags=re.I)
         if len(parts)<2:return []
         chapter=_chapter(matches[0].group(1)) if matches else None
         pieces=[(chapter,text) for text in parts]
     output=[]
     for chapter,text in pieces:
-        text=re.sub(r'^(?:请|比较|对比)+','',text)
+        text=re.sub(r'^(?:请|先|比较|对比)+','',text)
         text=re.sub(r'(?:有哪些|有什么|有何|的)?(?:联系|关系|区别|不同|异同|比较|对比).*$', '',text)
         text=text.strip(' 的和与，,。？?：:；;')
         if not text:return []

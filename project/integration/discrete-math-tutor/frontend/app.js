@@ -116,13 +116,23 @@ async function restoreClarification() {
     const result=await api('/api/chat/tasks/pending?student_id='+encodeURIComponent(owner)+'&session_id='+encodeURIComponent(tabSessionId));
     if(owner!==studentId) return;
     state.taskRecoveryNeeded=false;
-    state.clarification=result.pending?.answer_status==='awaiting_clarification'?result.pending:null;
+    state.clarification=result.pending?.answer_status==='awaiting_clarification'&&result.pending?.clarification?.mode!=='response_composition'?result.pending:null;
     const sessionResult=await api('/api/course/session-plan?student_id='+encodeURIComponent(owner)+'&session_id='+encodeURIComponent(tabSessionId));
     if(owner!==studentId)return;
     state.sessionPlan=sessionResult.session_plan;
     state.sessionPlanSourceStatus=sessionResult.source_status;
     if(state.clarification && !state.chat.some(m=>m.taskId===state.clarification.task_id))
       state.chat.push({role:'assistant',content:state.clarification.reply,taskId:state.clarification.task_id});
+    const recovery=await window.TutorChatTransport.compositionPending(owner,tabSessionId);
+    if(owner!==studentId)return;
+    if(recovery.pending) {
+      const task=recovery.pending,p=task.partial;
+      let message=state.chat.find(m=>m.taskId===task.task_id||m.request?.payload?.request_id===task.request_id||(p?.conversation_id&&m.conversationId===p.conversation_id));
+      if(!message){if(task.question)state.chat.push({role:'user',content:task.question});message={role:'assistant',taskId:task.task_id};state.chat.push(message);}
+      Object.assign(message,{content:p?.reply||'讲解尚未完成，可以继续保存的处理位置。',learningResponse:p?.learning_response,
+        pdfReferences:p?.pdf_references||[],sources:p?.textbook_sources||[],compositionResume:task,
+        taskId:task.task_id,answerState:'partial',blocksCommitted:!!p,committedContent:p?.reply,pending:false});
+    }
     $('#chat-error').textContent=result.notice || '';renderChat();
   } catch(error) {
     state.taskRecoveryNeeded=true;
@@ -173,7 +183,7 @@ async function startNewConversation() {
 async function api(path, options = {}) {
   const response = await fetch(path, { headers: {"Content-Type":"application/json"}, cache:"no-store", ...options });
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) { const error=new Error(typeof body.detail === "string" ? body.detail : `服务暂不可用（${response.status}）`);error.status=response.status;throw error; }
+    if (!response.ok) { const error=new Error(typeof body.detail === "string" ? body.detail : body.detail?.message || `服务暂不可用（${response.status}）`);error.status=response.status;throw error; }
   return body;
 }
 const post = (path, data) => api(path, {method:"POST", body:JSON.stringify(data)});
@@ -346,7 +356,7 @@ function renderProgress(message) {
   const stages = message.progress || [];
   const elapsed = Math.round(((message.finishedAt || Date.now()) - message.startedAt) / 1000);
   const current = stages.at(-1);
-  const answerLabel={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',saved:'已保存',rejected:'本轮未发布',interrupted:'输出中断（未保存）',incomplete:'输出未完成（未保存）',timeout:'本轮已超时（未保存）',cancelled:'已取消（未保存）'}[message.answerState];
+  const answerLabel={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',partial:'部分已核验，整轮未完成',saved:'已保存',rejected:'本轮未发布',interrupted:'输出中断（未保存）',incomplete:'输出未完成（未保存）',timeout:'本轮已超时（未保存）',cancelled:'已取消（未保存）'}[message.answerState];
   const title = message.pending ? (answerLabel || current?.label || "正在连接助教") : message.answerSaved && message.networkFailed ? "文字已保存，图解待恢复" : ["interrupted","incomplete","timeout","cancelled"].includes(message.answerState) ? answerLabel : message.failed ? "处理未完成" : message.answerState==='awaiting_clarification' ? '等待补充或确认' : message.answerState==='saved' ? '已保存' : "已完成";
   return `<div class="turn-progress ${message.failed ? "failed" : ""}"><div class="progress-heading" role="status"><span class="${message.pending ? "progress-spinner" : "progress-check"}">${message.pending ? "" : message.failed ? "!" : "✓"}</span><strong>${esc(title)}</strong><span class="progress-elapsed" data-start="${message.startedAt}" data-finished="${message.finishedAt || ""}">${elapsed} 秒</span></div>${message.pending ? `<div class="progress-detail">${esc(current?.detail || "请求已发出，等待服务响应")}</div>` : ""}<details><summary>处理记录（点击展开）</summary><ol>${stages.map(p => `<li class="${p.status}"><span>${p.status === "completed" ? "✓" : message.failed ? "!" : "·"}</span><div><strong>${esc(p.label)}</strong><small>${esc(p.detail)}</small></div></li>`).join("")}</ol></details></div>`;
 }
@@ -534,7 +544,7 @@ function renderContent() {
 }
 
 function messagesFromHistory(history) {
-  return history.map((m) => ({conversationId:m.id,styleSuggestion:m.role==="assistant"?styleControl().restore(m.id):null,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,cardsVerified:!(m.selection_ref?.learning_cards||[]).some(c=>c.schema==='learning-cards/v2'),learningCards:m.role==="assistant"?m.selection_ref?.learning_cards:undefined,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
+  return history.map((m) => ({conversationId:m.id,styleSuggestion:m.role==="assistant"?styleControl().restore(m.id):null,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,learningResponse:m.selection_ref?.learning_response,cardsVerified:!(m.selection_ref?.learning_cards||[]).some(c=>c.schema==='learning-cards/v2'),learningCards:m.role==="assistant"?m.selection_ref?.learning_cards:undefined,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
 }
 
 async function restoreLearningCards(){
@@ -657,10 +667,12 @@ function renderAnswerContent(message) {
   const previous=answerMarkup.get(message);
   const streaming=message.answerState==='generating';
   const media=JSON.stringify(message.imageRefs || []);
-  if (previous?.content===message.content && previous.streaming===streaming && previous.media===media && previous.draft===message.unpublishedDraft && previous.renderer===window.TutorMarkdown) return previous.html;
-  const html=window.renderTutorAnswer(message.content,{streaming,media:message.imageRefs || []})+window.TutorChatTransport.renderUnpublished(message.unpublishedDraft);
+  if (previous?.content===message.content && previous.response===message.learningResponse && previous.streaming===streaming && previous.media===media && previous.draft===message.unpublishedDraft && previous.renderer===window.TutorMarkdown) return previous.html;
+  const options={streaming,media:message.imageRefs || []};
+  const composed=!streaming&&window.renderLearningResponse?.(message.learningResponse,message.content,options);
+  const html=(composed || window.renderTutorAnswer(message.content,options))+window.TutorChatTransport.renderUnpublished(message.unpublishedDraft);
   // 进度变化不重新解析整条正文；消息删除后缓存随对象释放。
-  answerMarkup.set(message,{draft:message.unpublishedDraft,content:message.content,streaming,media,renderer:window.TutorMarkdown,html});
+  answerMarkup.set(message,{draft:message.unpublishedDraft,content:message.content,response:message.learningResponse,streaming,media,renderer:window.TutorMarkdown,html});
   return html;
 }
 let chatRenderer;
@@ -677,7 +689,7 @@ function renderChat() {
     figures:(m.role==='assistant'?(m.imageRefs||[]):[]).filter(image=>!m.content?.includes('(media:'+image.id+')')).map(image=>
       image.sha256 && image.version && image.document_id && image.image_url?.includes('?sha256=')
         ? renderFigure(image) : '<small>历史图片缺少版本绑定，保留原回答文字。</small>').join(''),
-    retry:m.failed&&m.request?'<button type="button" class="secondary-button retry-message" data-retry-message="'+index+'">'+(m.networkFailed?'重试原请求':'重新提问')+'</button>':'',
+    retry:m.compositionResume?(!m.pending?(m.compositionResume.resumable===false?'<span role="status">本轮预算已用完，请取消后重新提问。</span>':'<button type="button" class="secondary-button" data-composition-resume="'+index+'">继续未完成讲解</button>'):'')+'<button type="button" class="secondary-button" data-composition-cancel="'+index+'">取消未完成讲解</button>':m.failed&&m.request?'<button type="button" class="secondary-button retry-message" data-retry-message="'+index+'">'+(m.networkFailed?'重试原请求':'重新提问')+'</button>':'',
   }})));
   for(const message of messages) {
     if(message.role!=='assistant'||!window.GuidedVisualization)continue;
@@ -711,12 +723,15 @@ async function sendMessage(message, options={}) {
   state.sending = true;
   $$(".chat-input button").forEach(button => button.disabled = true);
   $("#chat-error").textContent = "";
-  const pending = {role:"assistant", content:"", pending:true, startedAt:Date.now(), progress:[], request:{text,selection,exercise}};
+  const pending = options.resumeMessage?Object.assign(options.resumeMessage,{pending:true,answerSettled:false,answerIdentity:undefined,answerSeq:0,answerRound:0,startedAt:Date.now(),progress:[],request:{text,selection,exercise}}):{role:"assistant", content:"", pending:true, startedAt:Date.now(), progress:[], request:{text,selection,exercise}};
   const styleSnapshot=styleControl().snapshot();
   const owner = studentId;
   const isCurrent = () => owner === studentId && localStorage.getItem(studentKey) === owner && state.chat.includes(pending);
   function showAnswer(result, finished) {
-    if (!isCurrent()) return;
+    if (!isCurrent()||pending.answerState==='cancelled') return;
+    const partial=result.answer_status!=='answered'&&result.composition_partial;
+    if(partial)result={...result,reply:partial.reply,learning_response:partial.learning_response,
+      pdf_references:partial.pdf_references,textbook_sources:partial.textbook_sources};
     if(result.answer_status==='answered')styleControl().consume(pending.request.styleOnceId);
     if(finished)pending.styleSuggestion=styleControl().observe(result);
     renderStyleStatus();
@@ -726,16 +741,20 @@ async function sendMessage(message, options={}) {
       content:result.reply || "助教暂时没有返回内容。", unpublishedDraft:result.unpublished_draft || '',
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
       cardsVerified:true,learningCards:result.answer_status==='answered'?result.learning_cards:undefined,selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
+      learningResponse:result.answer_status==='answered'||partial?result.learning_response:undefined,
+      compositionResume:partial?{task_id:result.task_id,task_revision:result.task_revision}:undefined,
+      blocksCommitted:!!partial,committedContent:partial?partial.reply:undefined,
       sessionPlan:result.q5_session_plan || result.session_plan || result.q5_status?.session_plan,
       relationContext:result.answer_status==='answered'?result.relation_context:undefined,
       guide:result.answer_status==='answered'||(!result.answer_status&&result.guided_visualization)?result.guided_visualization:undefined});
     state.sessionPlan=result.session_plan || result.q5_status?.session_plan || state.sessionPlan;
+    if(partial)pending.answerState='partial';
     if(result.session_plan || result.q5_status?.session_plan)state.sessionPlanSourceStatus='current';
     if (finished) pending.finishedAt = Date.now();
     else pending.answerSaved = true;
     renderChat();
   }
-  state.chat.push({role:"user", content:text, selectionRef:selection,objectLabel:exercise?.title || selection?.section_title}, pending);
+  if(!options.resumeMessage)state.chat.push({role:"user", content:text, selectionRef:selection,objectLabel:exercise?.title || selection?.section_title}, pending);
   renderChat();
   const timer = setInterval(() => {
     $$(".progress-elapsed").forEach(el => {
@@ -797,7 +816,7 @@ async function sendMessage(message, options={}) {
   } catch (error) {
     if (!isCurrent()) return;
     Object.assign(pending, {pending:false, answerSettled:true,answerState:pending.answerSaved?'saved':'rejected',failed:!pending.answerSaved, networkFailed:!!pending.request.payload && (!error.status || error.status>=500), finishedAt:Date.now()});
-    if (!pending.answerSaved) pending.content = error.message;
+    if (!pending.answerSaved && !pending.blocksCommitted) pending.content = error.message;
     renderChat();
     $("#chat-error").textContent = error.message;
 
@@ -1009,6 +1028,10 @@ function bindEvents() {
       if(ref) selectSection(ref.chapter_id,ref.section_id,{record:false}).then(ok=>{if(!ok)return;state.pdfFocus=ref;showView("course");syncPDFReader();}).catch(error=>toast(error.message));
       return;
     }
+    const cancelComposition=event.target.closest('[data-composition-cancel]');
+    if(cancelComposition){const message=state.chat[Number(cancelComposition.dataset.compositionCancel)],task=message?.compositionResume;if(task){api('/api/chat/tasks/'+encodeURIComponent(task.task_id),{method:'DELETE',body:JSON.stringify({student_id:studentId,session_id:tabSessionId,task_revision:task.task_revision})}).then(result=>{if(result.answer_status!=='task_cancelled')throw new Error(result.reply);Object.assign(message,{content:'本次讲解已取消。',learningResponse:undefined,compositionResume:undefined,blocksCommitted:false,pdfReferences:[],answerState:'cancelled',answerSettled:true,pending:false});renderChat();}).catch(error=>{toast(error.message);restoreClarification();});}return;}
+    const resume=event.target.closest('[data-composition-resume]');
+    if(resume){const message=state.chat[Number(resume.dataset.compositionResume)],task=message?.compositionResume;if(task&&!state.sending){post('/api/chat/tasks/'+encodeURIComponent(task.task_id)+'/composition/resume',{student_id:studentId,session_id:tabSessionId,task_revision:task.task_revision}).then(data=>sendMessage(data.request.message,{payload:data.request,resumeMessage:message})).catch(error=>{toast(error.message);restoreClarification();});}return;}
     const retry=event.target.closest('[data-retry-message]');
     if(retry){const old=state.chat[Number(retry.dataset.retryMessage)],request=old?.request;if(request&&!state.sending){if(old.networkFailed){sendMessage(request.text,{payload:request.payload,styleOnceId:request.styleOnceId,selection:request.selection,exercise:request.exercise});return;}state.exerciseDraft=request.exercise;state.pdfDraft=request.selection;renderSelectionDraft();$('#chat-input').value=request.text;$('#chat-input').dispatchEvent(new Event('input'));showView('chat');}return;}
     if(event.target.closest('[data-clear-exercise]')) {if(!state.sending){state.sending=true;cancelClarification().then(ok=>{if(ok){state.exerciseDraft=null;renderSelectionDraft();}}).catch(error=>toast(error.message)).finally(()=>{state.sending=false;renderChat();});}return;}

@@ -5,7 +5,13 @@ from pathlib import Path
 import statistics
 import time
 import uuid
+from urllib.parse import urlsplit
 import httpx
+
+
+def isolated_endpoint(url):
+    value=urlsplit(url)
+    return value.scheme=='http' and value.hostname in ('127.0.0.1','localhost') and value.port not in (None,8000)
 
 
 def effective_first_answer(events):
@@ -14,10 +20,15 @@ def effective_first_answer(events):
     if saved is None:
         return None
     accepted_round = saved['data'].get('round_id')
-    return next((e['seconds'] for e in events if e['event'] == 'answer_delta'
-                 and e['data'].get('round_id') == accepted_round
-                 and e['data'].get('role', 'answer') == 'answer'
-                 and e['data'].get('text')), None)
+    final = next((e['data'].get('text','') for e in reversed(events) if e['event']=='answer_replace'
+                  and e['data'].get('authoritative') and e['data'].get('answer_id')==saved['data'].get('answer_id')), '')
+    return next((e['seconds'] for e in events if
+                 (e['event'] == 'answer_blocks' and e['data'].get('answer_id')==saved['data'].get('answer_id')
+                  and e['data'].get('publication', {}).get('reply') and e['data']['publication']['reply'] in final)
+                 or (e['event'] == 'answer_delta' and e['data'].get('round_id') == accepted_round
+                     and e['data'].get('role', 'answer') == 'answer' and e['data'].get('text'))
+                 or (e['event']=='answer_replace' and e['data'].get('authoritative') and final
+                     and e['data'].get('answer_id')==saved['data'].get('answer_id'))), None)
 
 
 def turn(url, payload, output, *, expected_status="answered"):
@@ -89,6 +100,8 @@ def main():
     args = parser.parse_args()
     if args.pairs < 1:
         parser.error('pairs 必须大于0')
+    if not isolated_endpoint(args.before) or not isolated_endpoint(args.after) or args.before.rstrip('/')==args.after.rstrip('/'):
+        parser.error('请指定两个不同的本机隔离端口，不能使用正式端口8000')
     args.output.mkdir(parents=True, exist_ok=False)
     rows = []
     for pair in range(args.pairs):

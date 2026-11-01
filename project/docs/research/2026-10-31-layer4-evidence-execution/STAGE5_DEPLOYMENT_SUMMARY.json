@@ -1,0 +1,119 @@
+{
+  "deployed_source_commit": "7e9bd91d0acf87e683c104b36c263decd6762046",
+  "app": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor",
+  "source_sha256": {
+    "agents/course_search.py": "5bac8af3f88f8218eee29b2647b20d537222fa2e68ec262892443dcbe5fede30",
+    "agents/object_evidence.py": "da84f93b1544f7925e6bb5408aaa20b4b20ca878d205913a0cfaf8df75c8199d",
+    "knowledge/evidence_objects.py": "fb9a336390bee0b1a7bc29d6528136e608daba96501bff2fa9e85330b3aad353"
+  },
+  "formal_pid": 35340,
+  "formal_url": "http://127.0.0.1:8000/",
+  "health": {
+    "status": "ok",
+    "course_id": "experimental-psychology-3",
+    "version": "0.8.0",
+    "mock_mode": false,
+    "purged_expired_accounts": 0,
+    "rag_runtime": {
+      "configured": {
+        "reranker": "cuda",
+        "embedding": "cuda"
+      },
+      "sessions": {
+        "embedding": {
+          "device": "cuda",
+          "providers": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        },
+        "reranker": {
+          "device": "cuda",
+          "providers": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        }
+      },
+      "cuda_cache_path": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\.cache\\cuda"
+    },
+    "fixed_book": {
+      "enabled": true,
+      "ready": true,
+      "startup_seconds": 23.10899999999674
+    },
+    "memory_worker": {
+      "enabled": false,
+      "running": false
+    }
+  },
+  "regression_tests": 147,
+  "other_window_document_unchanged": true,
+  "prior_database_rows_missing_or_changed": {},
+  "formal_checks": {
+    "http_200": true,
+    "answered": true,
+    "citations": true,
+    "object_route": true,
+    "coverage_complete": true,
+    "no_progress_write": true
+  },
+  "browser": {
+    "passed": true,
+    "label": "1",
+    "chapter": 2,
+    "section": 4,
+    "document_id": "experimental-psychology-3:chapter-02",
+    "version": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7",
+    "reference_pages": [
+      12
+    ],
+    "highlight_parts": 14,
+    "highlight_visible_inside_reader": true,
+    "page_errors": []
+  },
+  "live_cases": [
+    {
+      "case": "natural_comparison",
+      "seconds": 5.328000000008615,
+      "answer_status": "answered",
+      "reference_count": 4,
+      "coverage_status": "covered",
+      "actual_backends": [
+        "lightrag"
+      ]
+    },
+    {
+      "case": "named_table",
+      "seconds": 3.5469999999913853,
+      "answer_status": "answered",
+      "reference_count": 2,
+      "coverage_status": "covered",
+      "actual_backends": [
+        "q2_object"
+      ]
+    },
+    {
+      "case": "formula_missing_original_range",
+      "seconds": 2.047000000005937,
+      "answer_status": "answered",
+      "reference_count": 0,
+      "coverage_status": "partial",
+      "actual_backends": [
+        "q2_object"
+      ]
+    }
+  ],
+  "teacher_semantic_reviewed": false,
+  "all_formulas_supported": false,
+  "artifacts": {
+    "preflight.json": "88cfb7f8569b9eba678d4944e0668961cd1837ef5abc7781e4b5264736d3e094",
+    "formal-before.sqlite3": "949e7396ce241c8a6476b2b14876654e718dd003c92676d1144abe6b5d206860",
+    "live-results-first.json": "07e287a0714b46fe4e6d5687fda2ee59479b514c777bc6997ae0c7f788db4776",
+    "live-results-verified.json": "6e8fc8f4faa03ef09b3c02baf6ca4379eb651a4db44c87317833d7aed81cf896",
+    "formal-smoke.json": "edea7ad7a73af0bd20222779335052da7cf622de47e8dbf3e1d268591bba0425",
+    "browser-result.json": "3644783e25e0b1e469333f9db92da9bec805fd1fc3ae00de0cdb46630465ea0c",
+    "formal-browser-result.json": "7f8ff3b445deb7bc69682d636c5bea4bfc019bafe319968331e7377a28fb281c",
+    "formal-citation-jump.png": "56a5c3acf400ce9ecaf649a9ed306925013f58c56976b5ae844d1461873e7980"
+  }
+}

@@ -210,7 +210,9 @@ class LearningTaskRepository:
             row.status = status; row.revision += 1
             if status == "awaiting_clarification": row.clarification_count += 1
             if status not in ACTIVE: row.scope_key = None
-            if context is not None: row.context = context
+            if context is not None:
+                checkpoint=row.context.get('composition_checkpoint')
+                row.context = {**context, **({'composition_checkpoint':checkpoint} if checkpoint and status!='completed' else {})}
             if routing is not None: row.routing = routing
             if payload is not None: row.payload = payload
             enriched = dict(result, task_id=row.id, task_revision=row.revision)
@@ -218,6 +220,45 @@ class LearningTaskRepository:
             if status != "executing": session.get(TaskRequestRow, receipt_id).result = enriched
             session.flush()
             return snapshot(row), enriched
+
+    def composition_checkpoint(self, task, checkpoint, memory_repo):
+        with session_scope(immediate=True) as session:
+            row=self._owned(session,task['student_id'],task['session_id'],task['id'])
+            self._live(row)
+            if row.revision!=task['revision'] or row.status not in ('ready','executing'):
+                raise TaskConflict('task_conflict','旧执行不能保存内容块')
+            if memory_repo.memory_epoch(row.student_id,row.knowledge_point)!=row.epoch:
+                raise TaskConflict('memory_deleted','学习记忆已删除')
+            row.status='executing'
+            row.context={**row.context,'composition_checkpoint':checkpoint}
+
+    def composition_pending(self, student_id, session_id):
+        with session_scope() as session:
+            rows=session.scalars(select(LearningTaskRow).where(LearningTaskRow.student_id==student_id,
+                LearningTaskRow.session_id==session_id,LearningTaskRow.status.in_(('executing','failed','awaiting_clarification')),
+                LearningTaskRow.expires_at>now()).order_by(LearningTaskRow.created_at.desc()).limit(12))
+            return next((snapshot(row) for row in rows if row.context.get('composition_checkpoint')),None)
+
+    def prepare_composition_resume(self, student_id, session_id, task_id, revision, memory_repo):
+        from time import time
+        with session_scope(immediate=True) as session:
+            row=self._owned(session,student_id,session_id,task_id)
+            checkpoint=row.context.get('composition_checkpoint') or {}
+            if row.revision!=revision or row.expires_at<=now() or row.status not in ('failed','executing','awaiting_clarification') or not checkpoint:
+                raise TaskConflict('task_conflict','任务已变化或没有可恢复内容')
+            if memory_repo.memory_epoch(student_id,row.knowledge_point)!=row.epoch:
+                raise TaskConflict('memory_deleted','学习记忆已删除')
+            if row.status=='executing' and time()-checkpoint.get('updated_at',time())<120:
+                raise TaskConflict('task_busy','原任务仍在执行，暂不重复启动')
+            other=session.scalar(select(LearningTaskRow.id).where(LearningTaskRow.student_id==student_id,
+                LearningTaskRow.session_id==session_id,LearningTaskRow.id!=task_id,LearningTaskRow.status.in_(ACTIVE),
+                LearningTaskRow.expires_at>now()).limit(1))
+            if other:raise TaskConflict('task_busy','请先结束当前会话中的其他任务')
+            row.revision+=1;row.status='awaiting_clarification'
+            row.scope_key=hashlib.sha256((student_id+'\0'+session_id).encode()).hexdigest()
+            row.result={'answer_status':'awaiting_clarification','reply':'继续未完成的教材讲解。',
+                'clarification':{'mode':'response_composition','options':[]},'task_id':row.id,'task_revision':row.revision}
+            return snapshot(row)
 
     def record_metrics(self, task, receipt_id, metrics):
         with session_scope(immediate=True) as session:
@@ -234,7 +275,8 @@ class LearningTaskRepository:
     def cancel(self, student_id, session_id, task_id, revision):
         with session_scope(immediate=True) as session:
             row = self._owned(session, student_id, session_id, task_id)
-            self._live(row)
+            if not (row.status=='failed' and row.context.get('composition_checkpoint') and row.expires_at>now()):
+                self._live(row)
             if row.revision != revision: raise TaskConflict("task_conflict", "任务版本已变化")
             row.status = "cancelled"; row.scope_key = None; row.revision += 1
             row.payload = {}; row.context = {}; row.routing = {}; row.result = {}
