@@ -152,10 +152,16 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
                 turn_id=context.request_id or message,references=grounded_refs if grounded_bundle else [{'source_index':0,'selection_ref':reference}],progress=progress,deferred=visualization_jobs)
         except (ValueError,OSError,KeyError,RuntimeError):pass
     if guided_visualization:reference=reference | {'guided_visualization':guided_visualization}
+    from agents.response_composition_adapters import published_snapshot, snapshot_kind
+    learning_response = published_snapshot(reply=reply, response_id=request_id or context.request_id,
+        target_id=current_selection or title, semantic_type=snapshot_kind(teaching_plan=plan, execution=execution))
+    if learning_response:
+        reference = {**reference, 'learning_response':learning_response}
     conversation_id = tutor.memory.append_exchange(student_id,message,reply,selection_ref=reference, expected_epoch=expected_epoch, expected_point=title, task_guard=task_guard, session_id=session_id)
     if conversation_id is False:
         return deleted_reply()
     return {'answer_status':'answered','conversation_id':conversation_id,'step_advanced':False,'reply':reply,'selection_ref':reference,'guided_visualization':guided_visualization,'memory_summary':memories['summary'],
+            **({'learning_response':learning_response} if learning_response else {}),
             'memory_commit':{'status':'committed','conversation_id':conversation_id},
             'pdf_references':grounded_refs or [],
             'context_refs':[{'page':p,'document_id':selection.document_id} for p in sorted({r.page for r in selection.rects})],

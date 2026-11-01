@@ -13,4 +13,9 @@ assert.equal(window.renderLearningResponse({...r,blocks:[...r.blocks,r.blocks[0]
 assert.equal(window.renderLearningResponse({...r,blocks:[{...r.blocks[0],block_id:'<script>'}]},r.reply),null);
 const unsafe={...r,leading_text:'',reply:'<img src=x onerror=alert(1)>',blocks:[{block_id:'b1',status:'published',rendered_text:'<img src=x onerror=alert(1)>'}]};
 assert.ok(!window.renderLearningResponse(unsafe,unsafe.reply).includes('<img'));
+const snapshot={schema_version:'learning-response/v1',status:'complete',leading_text:'',reply:'原来的检查题？',blocks:[{
+ block_id:'b1',status:'published',semantic_type:'check_question',content_origin:'host_snapshot',authority_ref:'q1',
+ claims:[],rendered_text:'原来的检查题？'}]};
+assert.equal((window.renderLearningResponse(snapshot,snapshot.reply).match(/原来的检查题/g)||[]).length,1);
+assert.ok(!window.renderLearningResponse(snapshot,snapshot.reply).includes('q1'));
 console.log('内容块：同源正文、引用、类型/身份/重复检查、安全显示与旧版本回退通过');

@@ -26,6 +26,8 @@ def plan_response(*, target_id, strategy='direct', tasks=(), hint_only=False):
         kinds = ['explanation', 'procedure']
     elif strategy == 'prerequisite':
         kinds = ['definition', 'explanation']
+    elif strategy in ('recap', 'counterexample'):
+        kinds = [strategy]
     specs = [BlockSpec(block_id=f'b{i}', semantic_type=kind,
                       depends_on=[] if i == 1 else ['b1']) for i, kind in enumerate(kinds, 1)]
     identity = json.dumps([target_id, strategy, hint_only, [s.model_dump() for s in specs]], sort_keys=True)
@@ -35,8 +37,17 @@ def plan_response(*, target_id, strategy='direct', tasks=(), hint_only=False):
 
 class ResponseComposer:
     """一批可对应多个块；验证失败只允许替换失败块及其下游。"""
-    def __init__(self, plan):
+    def __init__(self, plan, *, evidence_package=None, expected_context=None):
         self.plan = plan
+        self.evidence_package = None
+        if evidence_package is not None:
+            from models.evidence_execution import EvidencePackage
+            package = EvidencePackage.model_validate_json(json.dumps(evidence_package.checkpoint_payload()))
+            if expected_context is None or package.request.context != expected_context:
+                raise ValueError('composition_evidence_context_mismatch')
+            if not package.ready_for_composition:
+                raise ValueError('composition_evidence_incomplete')
+            self.evidence_package = package
         self.accepted = {}
         self.pending = [b.block_id for b in plan.blocks]
         self.sources = {}
@@ -44,6 +55,7 @@ class ResponseComposer:
         self.revision = 0
 
     def instructions(self, sources=()):
+        self._check_package_sources(sources)
         return ('本轮最终答案采用 learning-response 内容协议。探索阶段仍正常调用工具；最终只返回JSON，'
             '不要输出JSON草稿、HTML、DSML或工具参数说明。一次生成下列所需内容块，不另做规划调用。'
             '每个claims.text是完整中文段落，可含Markdown/公式，不自行写[n]、链接或图片地址；'
@@ -83,7 +95,17 @@ class ResponseComposer:
                     for key in claim.source_ids for image in self.sources[key].get('image_refs', [])):
                 raise ValueError('pixel_evidence_required')
 
+    def _check_package_sources(self, sources):
+        if self.evidence_package is not None:
+            allowed = {s.source_id: s for s in self.evidence_package.sources}
+            if (len({s.get('source_id') for s in sources}) != len(sources)
+                    or any(s.get('source_id') not in allowed or
+                           any(s.get(key) != value for key, value in allowed[s['source_id']].to_dict().items())
+                           for s in sources)):
+                raise ValueError('composition_evidence_source_mismatch')
+
     def accept(self, raw, sources):
+        self._check_package_sources(sources)
         self.sources = {s['source_id']: s for s in sources if s.get('source_id') and s.get('text')
                         and s.get('document_id') and s.get('version') and not s.get('location', {}).get('stub')}
         identity = json.dumps([(key, s['document_id'], s['version'], s['text'])

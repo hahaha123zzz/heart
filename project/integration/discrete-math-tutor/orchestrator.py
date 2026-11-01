@@ -763,6 +763,11 @@ class TutorOrchestrator:
         if guided_visualization:
             stored_reference=(stored_reference or {'pdf_references':pdf_references,
                 'textbook_sources':textbook_sources}) | {'guided_visualization':guided_visualization}
+        from agents.response_composition_adapters import published_snapshot, snapshot_kind
+        learning_response = published_snapshot(reply=response, response_id=event_id, target_id=point,
+            semantic_type=snapshot_kind(teaching_plan=plan, execution=execution))
+        if learning_response:
+            stored_reference = {**(stored_reference or {}), 'learning_response':learning_response}
         memory_commit = self.memory.commit_learning_turn(
             student_id=student_id, point=point, event_id=event_id, expected_token=expected_token, expected_epoch=expected_epoch,
             message=message, reply=response, state=state, lesson_plan=None if direct_answer else lesson_plan, decision=decision,
@@ -791,6 +796,7 @@ class TutorOrchestrator:
 
         return {
             "reply": response,
+            **({'learning_response':learning_response} if learning_response else {}),
             "answer_status": "answered",
             "response_path": "direct_answer" if direct_answer else "tutoring",
             "memory_commit": memory_commit,

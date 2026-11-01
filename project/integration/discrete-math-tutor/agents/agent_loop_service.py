@@ -594,10 +594,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             and not needs_teaching_question and not needs_presentation and 'ask_user' not in required_tools
             and not composition_hint_only
             and not (teaching and teaching.progress.pending_question)):
-        from agents.response_composition import ResponseComposer, plan_response
-        composer = ResponseComposer(plan_response(target_id=target.target_id,
-            strategy=getattr(teaching, 'strategy', 'direct'),
-            tasks=[task.action for task in input_turn.tasks] if input_turn else ()))
+        from agents.response_composition import ResponseComposer
+        from agents.response_composition_adapters import response_plan
+        composer = ResponseComposer(response_plan(target.target_id, context=context, teaching=teaching))
         round_tokens = min(round_tokens + 600, 3200)  # JSON开销不改变原有正文字数门禁。
 
     def final_gate(text, outcome):
@@ -729,17 +728,6 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     mapped['reply'] = rest.lstrip()
                 mapped['reply'] = status_line + '\n\n' + mapped['reply']
         result.final_text = mapped['reply']
-    if result.completed and composer is not None and composer.accepted:
-        try:
-            if guard:
-                guard()
-            mapped['learning_response'] = composer.publication(sources=result.sources,
-                references=mapped.get('pdf_references', []), reply=mapped['reply'],
-                response_id=request.request_id or request.task_id)
-        except ValueError:
-            release(request.task_id or request.request_id)
-            return {'reply':'内容块与已核验正文不一致，本轮未保存。',
-                    'answer_status':'quality_rejected','step_advanced':False}
     mapped['retrieval_calls'] = navigation.calls
     mapped['retrieval_coverage'] = navigation.coverage_report
     mapped['retrieval_trace'] = navigation.trace
@@ -770,6 +758,26 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         gaps = '、'.join(row['query'] for row in navigation.coverage_report['missing'])
         mapped['reply'] = f'本次仅回答已有原文支持的部分；尚缺“{gaps}”的可靠教材证据，无法完整说明双方联系。\n\n' + mapped['reply']
         result.final_text = mapped['reply']
+    if result.completed and tool_purpose == 'textbook':
+        from agents.response_composition_adapters import published_snapshot, snapshot_kind
+        try:
+            if guard:
+                guard()
+            if composer is not None and composer.accepted:
+                mapped['learning_response'] = composer.publication(sources=result.sources,
+                    references=mapped.get('pdf_references', []), reply=mapped['reply'],
+                    response_id=request.request_id or request.task_id)
+            else:
+                snapshot = published_snapshot(reply=mapped['reply'], response_id=request.request_id or request.task_id,
+                    target_id=target.target_id, semantic_type=snapshot_kind(teaching=teaching),
+                    authority_ref=(teaching.progress.pending_question.question_id
+                        if teaching and teaching.progress.pending_question else request.task_id or request.request_id))
+                if snapshot:
+                    mapped['learning_response'] = snapshot
+        except ValueError:
+            release(request.task_id or request.request_id)
+            return {'reply':'内容块与已核验正文不一致，本轮未保存。',
+                    'answer_status':'quality_rejected','step_advanced':False}
     if result.completed:
         memory = getattr(orchestrator, "memory", None)
         if memory is not None:

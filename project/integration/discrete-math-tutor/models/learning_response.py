@@ -1,10 +1,12 @@
 """第五层只读回答协议；状态、题目答案与工具权限不由模型填写。"""
-from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from typing import Annotated, Literal
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
+
+PublishedText = Annotated[str, StringConstraints(strip_whitespace=False)]
 
 SemanticType = Literal['direct_answer', 'definition', 'explanation', 'procedure', 'comparison',
     'worked_example', 'analogy', 'misconception', 'counterexample', 'formula_explanation',
-    'visual_explanation', 'hint', 'recap', 'next_step']
+    'visual_explanation', 'hint', 'recap', 'next_step', 'check_question', 'feedback']
 
 
 class ResponseModel(BaseModel):
@@ -16,6 +18,8 @@ class BlockSpec(ResponseModel):
     semantic_type: SemanticType
     required: bool = True
     depends_on: list[str] = Field(default_factory=list, max_length=6)
+    task_frame_ids: list[str] = Field(default_factory=list, max_length=4)
+    target_ref: str | None = None
 
 
 class ResponsePlan(ResponseModel):
@@ -54,10 +58,22 @@ class GeneratedResponse(ResponseModel):
     blocks: list[GeneratedBlock] = Field(min_length=1, max_length=6)
 
 
-class PublishedBlock(GeneratedBlock):
+class PublishedBlock(ResponseModel):
+    block_id: str = Field(min_length=1, max_length=64)
+    claims: list[ContentClaim] = Field(default_factory=list, max_length=8)
     semantic_type: SemanticType
     status: Literal['published'] = 'published'
-    rendered_text: str
+    rendered_text: PublishedText
+    content_origin: Literal['generated', 'host_snapshot'] = 'generated'
+    authority_ref: str | None = None
+
+    @model_validator(mode='after')
+    def publication_origin(self):
+        if self.content_origin == 'generated' and (not self.claims or self.authority_ref is not None):
+            raise ValueError('generated_claims_required')
+        if self.content_origin == 'host_snapshot' and (not self.authority_ref or self.claims):
+            raise ValueError('host_snapshot_requires_authority_without_generated_claims')
+        return self
 
 
 class LearningResponse(ResponseModel):
@@ -68,4 +84,4 @@ class LearningResponse(ResponseModel):
     blocks: list[PublishedBlock]
     omitted: list[str] = Field(default_factory=list)
     leading_text: str = ''
-    reply: str
+    reply: PublishedText
