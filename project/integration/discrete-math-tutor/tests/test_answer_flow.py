@@ -25,6 +25,7 @@ class AnswerFlowTests(unittest.TestCase):
     def run_turn(self, tutor, message='请解释随机区组设计并引用教材'):
         source = TextbookChunk(source='教材.txt', section='随机区组设计', text='区组内随机分配处理', terms=frozenset())
         with ExitStack() as stack:
+            stack.enter_context(patch("knowledge.grounded_citations.settings",return_value=None))
             stack.enter_context(patch('orchestrator.retrieve_course', return_value=[source]))
             stack.enter_context(patch('orchestrator.retrieve_figures', return_value=[]))
             stack.enter_context(patch('orchestrator.expand_proof_sources', return_value=([source], None)))

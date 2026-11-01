@@ -214,4 +214,22 @@ class InputIntegrationTests(unittest.TestCase):
         self.assertEqual(restored.tasks,context.input_understanding.tasks)
 
 
+class LiteralResumeModifierTests(unittest.TestCase):
+    def test_literal_question_restore_does_not_invoke_model_for_safe_modifiers(self):
+        for message in ('回到刚才的小检查，原样显示题目，不要给答案。',
+                        '回到原题，请原样重现题干。'):
+            with self.subTest(message=message):
+                context,request=bound(message)
+                self.assertTrue(context.input_understanding.only_resume_question)
+                model=Mock()
+                turn=TeachingTurn(context,request,model,validate_sources=lambda rows:rows)
+                self.assertEqual(turn.state['turn_move'],'resume_check')
+                self.assertTrue(turn.restore_reply().endswith(turn.progress.pending_question.prompt))
+                model.chat_json.assert_not_called()
+
+    def test_explanation_or_negated_resume_is_not_reduced_to_question_replay(self):
+        for message in ('不要回到刚才的小检查，解释选区。','回到原题，并解释为什么答案是B。'):
+            context,_=bound(message)
+            self.assertFalse(context.input_understanding.only_resume_question)
+
 if __name__=='__main__':unittest.main()

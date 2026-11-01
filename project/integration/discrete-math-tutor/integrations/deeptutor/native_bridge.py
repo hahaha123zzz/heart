@@ -194,7 +194,7 @@ class NativeTurnBridge:
                 submission_id = 'heart_submission_' + digest([*self._key(request), request.task_id, request.task_revision])
                 from .teaching_prompt_adapter import teaching_snapshot
                 style = teaching_snapshot(request.content, request.teaching_preferences.model_dump(exclude_none=True)
-                                          if request.teaching_preferences else None)
+                                          if request.teaching_preferences else None,identity=request)
                 db.execute('''INSERT OR IGNORE INTO native_requests
                     (student_id, course_id, session_id, request_id, task_id, task_revision, digest,
                      user_id, workspace_id, native_course_id, native_session_id, submission_id,

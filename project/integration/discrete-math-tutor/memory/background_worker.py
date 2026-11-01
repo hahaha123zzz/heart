@@ -5,6 +5,7 @@ import logging
 import os
 import threading
 from contextlib import asynccontextmanager
+from importlib import import_module
 from models.memory_artifact import verified_content
 
 LOGGER=logging.getLogger(__name__)
@@ -74,6 +75,11 @@ class MemoryWorker:
 
 @asynccontextmanager
 async def memory_lifespan(app):
+    client = getattr(app.state, 'memory_llm', None)
+    if (client is not None and not getattr(client, 'mock', True)
+            and getattr(client, 'api_key', '') and os.getenv('DEEPTUTOR_LLM_ENABLED', '0') != '1'):
+        # Finish SDK imports before readiness so cold starts do not consume a teaching turn's budget.
+        await asyncio.to_thread(import_module, 'openai')
     worker=None
     if os.getenv("MEMORY_WORKER_ENABLED","1")=="1":
         llm=app.state.memory_llm if os.getenv("MEMORY_REFLECTION_LLM","0")=="1" else None

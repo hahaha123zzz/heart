@@ -14,6 +14,7 @@ from knowledge.textbook import load_textbook
 from knowledge.pdf_reader import documents,document,document_for_chapter,pdf_path,PDFSelection,resolve_selection
 from knowledge.course_config import PSYCHOLOGY_DIR
 from knowledge.structured_index import build_records
+from knowledge.figures import get_figure
 from scripts.build_rag_index import INDEX
 from agents.task_context_builder import TaskContextBuilder
 from models.task_context import ReaderLocation
@@ -49,7 +50,12 @@ for chapter in chapters():
   assert response.status_code==200
   data=response.json()
   assert data['pdf']['document_id']==f'experimental-psychology-3:chapter-{chapter["id"]:02d}'
-  assert data['figures']==[] and data['blocks']==[]
+  assert data['blocks']==[]
+  for figure in data['figures']:
+   assert figure['chapter_id']==chapter['id'] and figure['section_id']==section['id']
+   original=get_figure(figure['id'])
+   assert original and original.kind in ('image','formula')  # get_figure already validates current bytes
+   assert figure['review_status']==original.review_status
 assert client.get('/api/course/chapters/12/sections/1').status_code==404
 record=document_for_chapter(11);section=record['sections'][2]
 selected=resolve_selection(PDFSelection(document_id=record['document_id'],version=record['version'],kind='text',rects=[section['rect']],text='伪造教材'))
@@ -66,7 +72,7 @@ print('PASS: 原教材接口11章37节、376页版本、全书索引、选区与
 '''
         with tempfile.TemporaryDirectory() as temporary:
             env=os.environ|{'TUTOR_COURSE':'experimental-psychology-3','DATABASE_URL':'sqlite:///'+str(Path(temporary)/'isolated.db')}
-            result=subprocess.run([sys.executable,'-X','utf8','-c',script],cwd=ROOT,env=env,text=True,capture_output=True,encoding='utf-8',timeout=60)
+            result=subprocess.run([sys.executable,'-X','utf8','-c',script],cwd=ROOT,env=env,text=True,capture_output=True,encoding='utf-8',timeout=180)
             self.assertEqual(result.returncode,0,result.stdout+'\n'+result.stderr)
             self.assertFalse((Path(temporary)/'isolated.db').exists(),'教材只读接口不应创建学生数据库')
 

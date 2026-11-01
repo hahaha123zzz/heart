@@ -5,15 +5,16 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 
 async function main() {
-  const [base, output] = process.argv.slice(2);
-  if (!base || !output) throw new Error('用法：node scripts/check_input_labels_page.cjs http://127.0.0.1:隔离端口 输出目录');
+  const [base, output, selectionFile] = process.argv.slice(2);
+  if (!base || !output) throw new Error('用法：node scripts/check_input_labels_page.cjs http://127.0.0.1:隔离端口 输出目录 [PDF选区JSON]');
   const url = new URL(base);
   assert.ok(['127.0.0.1','localhost'].includes(url.hostname) && url.port && url.port !== '8000', '仅允许独立本机验收端口');
   const out = path.resolve(output);
   await fs.mkdir(out, {recursive:true});
+  const selection = selectionFile ? JSON.parse(await fs.readFile(selectionFile, 'utf8')) : null;
   const browser = await chromium.launch({headless:false});
   const context = await browser.newContext();
-  const report = {base, passed:false, requests:[], turns:[], pageErrors:[]};
+  const report = {base, entrypoint:selection?'pdf_selection':'chat', passed:false, requests:[], turns:[], pageErrors:[]};
   await context.tracing.start({screenshots:true, snapshots:true});
   const page = await context.newPage();
   // 应用会缓存 streamChat 引用，须在 transport 脚本赋值时完成包装。
@@ -42,14 +43,22 @@ async function main() {
   page.on('request', request => {
     if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/chat/stream') {
       const body = request.postDataJSON();
-      report.requests.push({request_id:body.request_id, message:body.message});
+      report.requests.push({request_id:body.request_id, message:body.message, hasSelection:!!body.selection});
     }
   });
   try {
     await page.goto(url.href);
     // taskRecoveryNeeded 在章节、历史与待办恢复完成前为 true。
     await page.waitForFunction(() => typeof state !== 'undefined' && !state.taskRecoveryNeeded && !state.sending);
-    for (const message of ['请结合教材解释实验法和观察法的区别。', '我还是分不清这两个概念']) {
+    if (selection) {
+      // Exercise the reader's preview handler; the server re-extracts the actual PDF region.
+      await page.evaluate(value => askPDFSelection(value), selection);
+      await page.locator('.selection-draft:visible').first().waitFor();
+    }
+    const messages = selection
+      ? ['请结合选区解释自变量和因变量的区别，不要出题。', '我还是分不清这两个概念']
+      : ['请结合教材解释实验法和观察法的区别。', '我还是分不清这两个概念'];
+    for (const message of messages) {
       const index = report.turns.length;
       await page.waitForFunction(() => !state.sending && !state.taskRecoveryNeeded);
       await page.getByRole('textbox', {name:'向助教提问'}).fill(message);
@@ -57,13 +66,20 @@ async function main() {
         new URL(request.url()).pathname === '/api/chat/stream' && request.postDataJSON().message === message, {timeout:10000});
       await page.getByRole('button', {name:'发送消息'}).click();
       const request = await posted;
-      await page.waitForFunction(n => window.__labelChecks.length > n, index, {timeout:120000});
+      // The server allows 180 seconds for comparison turns; include transport finalization.
+      await page.waitForFunction(n => window.__labelChecks.length > n, index, {timeout:210000});
       await page.waitForFunction(() => !state.sending);
       const result = await page.evaluate(n => window.__labelChecks[n], index);
       report.turns.push({request_id:request.postDataJSON().request_id, status:result.answer_status,
         strategy:result.teaching?.last_strategy, six_dim:result.input_understanding?.six_dim,
+        strategy_id:result.teaching?.strategy_plan?.primary_strategy,
+        policy_version:result.teaching?.strategy_plan?.policy_version,
         sources:(result.textbook_sources || []).length});
       assert.equal(result.answer_status, 'answered');
+      if (selection) {
+        assert.equal(request.postDataJSON().selection?.document_id, selection.document_id);
+        assert.equal(result.teaching?.strategy_plan?.policy_version, 'teaching-v2');
+      }
       const prefix = String(result.reply || '').replace(/[*#\[\]]/g, '').slice(0,12);
       report.turns[index].renderedPrefix = prefix;
       assert.ok(prefix.length);

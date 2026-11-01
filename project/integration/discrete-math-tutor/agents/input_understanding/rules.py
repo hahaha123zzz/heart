@@ -28,6 +28,14 @@ def resume_requested(text):
     return bool(RESUME.search(text) and not NEGATED_RESUME.search(text))
 
 
+def only_resume_requested(text):
+    """Replay permits only a bound question and explicit presentation modifiers."""
+    return bool(resume_requested(text) and re.fullmatch(
+        r'(?:请|现在)?(?:回到|返回)(?:原来|刚才|上面|原)?的?(?:那道|这道|原)?(?:题|小?检查)'
+        r'(?:[，,；;]\s*(?:请)?(?:原样(?:显示|重现)(?:题目|题干|原题)?|不要(?:给|透露)(?:出)?(?:参考)?答案|我还没作答)){0,3}'
+        r'[。！!\s]*', text))
+
+
 def explanation_before_resume(text):
     match = EXPLAIN.search(text)
     if not match or not resume_requested(text):

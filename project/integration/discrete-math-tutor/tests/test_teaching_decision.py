@@ -13,21 +13,22 @@ class TeachingDecisionTests(unittest.TestCase):
             turn = labeled_turn('我还是分不清信度和效度', old=old)
         decision = turn.state['decision']
         self.assertEqual(decision['strategy'], 'contrast')
-        self.assertEqual(decision['source'], 'label')
+        self.assertEqual(decision['source'], 'unified_policy')
         self.assertEqual(decision['label_strategy'], 'contrast')
         self.assertEqual(decision['ontology_version'], 'psy-6d-v1')
-        self.assertEqual(decision['policy_version'], 'teaching-v1')
+        self.assertEqual(decision['policy_version'], 'teaching-v2')
         self.assertFalse(decision['avoided_repeat'])
 
-    def test_rotation_decision_has_no_label_source(self):
+    def test_rule_decision_uses_single_policy_source(self):
         turn = labeled_turn('我不会', old=prior())
         decision = turn.state['decision']
-        self.assertEqual(decision['source'], 'rotation')
+        self.assertEqual(decision['source'], 'unified_policy')
         self.assertIsNone(decision['label_strategy'])
 
-    def test_repeated_label_strategy_rotates(self):
+    def test_explicit_difficulty_reduces_previous_method_priority(self):
         old = prior() | {'last_strategy': 'contrast',
                          'used_strategies': ['contrast', 'contrast', 'contrast']}
+        old.pop('strategy_plan',None)
         with patch.dict('os.environ', {'LABELS_POLICY': '1'}):
             turn = labeled_turn('我还是分不清信度和效度', old=old)
         self.assertNotEqual(turn.strategy, 'contrast')

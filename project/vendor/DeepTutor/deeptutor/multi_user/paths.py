@@ -119,7 +119,7 @@ def ensure_scope_workspace(scope: UserScope) -> Path:
     For regular users both paths are identical.
     """
     root = scope.root.resolve()
-    PathService(workspace_root=root).ensure_all_directories()
+    get_path_service_for_scope(scope).ensure_all_directories()
     (root / "knowledge_bases").mkdir(parents=True, exist_ok=True)
     (root / "memory").mkdir(parents=True, exist_ok=True)
     return root

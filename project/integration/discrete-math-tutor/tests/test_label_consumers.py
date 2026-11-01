@@ -22,20 +22,21 @@ def labeled_turn(message, *, old=None):
 class LabelConsumerTests(unittest.TestCase):
     def test_policy_switch_targets_discrimination_instead_of_rotating(self):
         old = prior(last_strategy='contrast')
+        old.pop('strategy_plan',None)
         with patch.dict('os.environ', {}):
             off = labeled_turn('我还是分不清信度和效度', old=old)
-        self.assertEqual(off.strategy, 'break_down')
+        self.assertEqual(off.strategy, 'worked_example')
         self.assertIsNone(off.label_strategy)
         with patch.dict('os.environ', {'LABELS_POLICY': '1'}):
             on = labeled_turn('我还是分不清信度和效度', old=old)
-        self.assertEqual(on.strategy, 'contrast')
-        self.assertEqual(on.label_strategy, 'contrast')
+        self.assertEqual(on.strategy, 'worked_example')
+        self.assertEqual(on.label_strategy, 'worked_example')
 
-    def test_policy_switch_leaves_other_difficulties_to_rotation(self):
+    def test_policy_switch_supports_comprehension_without_rotation(self):
         old = prior(last_strategy='contrast')
         with patch.dict('os.environ', {'LABELS_POLICY': '1'}):
             turn = labeled_turn('我没听懂', old=old)
-        self.assertIsNone(turn.label_strategy)
+        self.assertEqual(turn.plan.primary_strategy, 'worked_example')
 
     def test_structure_note_reaches_instructions_only_when_enabled(self):
         message = '帮我设计一个心理学实验'

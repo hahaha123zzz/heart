@@ -45,7 +45,7 @@ class Figure:
                         and visual.chapter_id == self.chapter_id and visual.section_id == self.section_id)
         return self.path.is_file() and hashlib.sha256(self.path.read_bytes()).hexdigest() == self.sha256
 
-    def public(self) -> dict:
+    def public(self, *, release=None) -> dict:
         result = {
             "id": self.id,
             "label": self.label,
@@ -61,7 +61,8 @@ class Figure:
         from knowledge.course_release import binding
         record = document_for_chapter(self.chapter_id)
         if record:
-            release = binding()
+            if release is None:
+                release = binding()
             result.update(document_id=record['document_id'], version=record['version'],
                           sha256=self.sha256, textbook_release=release['release_id'],
                           release_status=release['status'], release_ready=release['ready'])
@@ -173,10 +174,13 @@ def _visual_kinds() -> tuple[str, ...]:
 
 def section_figures(chapter_id: int, section_id: int) -> list[dict]:
     kinds = _visual_kinds()
-    return [figure.public() for figure in load_figures()
-            if figure.kind in kinds and figure.chapter_id == chapter_id
-            and figure.section_id == section_id
-            and figure.is_valid()]
+    selected = [figure for figure in load_figures()
+                if figure.kind in kinds and figure.chapter_id == chapter_id
+                and figure.section_id == section_id and figure.is_valid()]
+    # A section response uses one freshly validated release, not one full-book scan per image.
+    from knowledge.course_release import binding
+    release = binding() if selected else None
+    return [figure.public(release=release) for figure in selected]
 
 
 def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -> list[Figure]:

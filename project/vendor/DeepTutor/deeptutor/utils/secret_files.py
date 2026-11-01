@@ -5,23 +5,31 @@ from __future__ import annotations
 import contextlib
 import os
 from pathlib import Path
+import stat
 
 SECRET_FILE_MODE = 0o600
 SECRET_DIR_MODE = 0o700
 
 
+def _private_mode(path: Path, mode: int) -> None:
+    # Windows chmod only clears read-only; recheck the attribute on every call.
+    if os.name != "nt" or path.stat().st_file_attributes & stat.FILE_ATTRIBUTE_READONLY:
+        path.chmod(mode)
+
+
 def ensure_private_directory(path: Path) -> Path:
     """Create *path* and keep it accessible only to its owner when possible."""
-    path.mkdir(parents=True, exist_ok=True, mode=SECRET_DIR_MODE)
+    if not path.is_dir():
+        path.mkdir(parents=True, exist_ok=True, mode=SECRET_DIR_MODE)
     with contextlib.suppress(OSError):
-        path.chmod(SECRET_DIR_MODE)
+        _private_mode(path, SECRET_DIR_MODE)
     return path
 
 
 def ensure_private_file(path: Path) -> Path:
     """Tighten an existing file to owner-only access when the OS supports it."""
     with contextlib.suppress(OSError):
-        path.chmod(SECRET_FILE_MODE)
+        _private_mode(path, SECRET_FILE_MODE)
     return path
 
 

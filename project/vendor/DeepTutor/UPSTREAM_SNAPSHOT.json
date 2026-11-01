@@ -10,6 +10,20 @@
       "local_sha256": "77d21699b9d78c9eb6d8bd72ba5f6b226a1bbf89e67881f6831f5ab42097f81f",
       "patch": "LOCAL_PATCHES/llm-config-adapter.patch",
       "reason": "将 ResolvedLLMConfig 转换为独立 provider 需要的 LLMConfig"
+    },
+    {
+      "path": "deeptutor/utils/secret_files.py",
+      "upstream_sha256": "ed15926577a979462d78f05f6143b9b48bf5ffdf7de76526b7a3f63769527e31",
+      "local_sha256": "74080146c26fc3d8aadc5d7de48ac70ae1289c4caccb23dfb8a11fafb1096342",
+      "patch": "LOCAL_PATCHES/windows-private-mode.patch",
+      "reason": "Preserve permission checks; avoid redundant Windows read-only attribute writes and existing-directory mkdir calls"
+    },
+    {
+      "path": "deeptutor/multi_user/paths.py",
+      "upstream_sha256": "c32d6bb6262192a325966c2e789ce6055cf1c7db8dbf7918e330097201f57f49",
+      "local_sha256": "a0d1b84e8ebeaa1b56d2baa2bc65ea275ac651cdbcc100dc616706456beaf70c",
+      "patch": "LOCAL_PATCHES/reuse-scoped-path-service.patch",
+      "reason": "Reuse existing root-keyed PathService cache while retaining every directory initialization and permission check"
     }
   ],
   "files": {
@@ -672,7 +686,7 @@
     "deeptutor/multi_user/model_access.py": "0e01483f05daf9aed87ab5be0376a6bc212fe651369ad271eb34c55a56fcac86",
     "deeptutor/multi_user/models.py": "4c4c386b93a516831687d7ceb13770e76e7954789eb9450779e1c86a62fe9c9d",
     "deeptutor/multi_user/partner_access.py": "6daebff9ab7751b8a5d3f2f083608294fdfdc5a6dd9fcb386f3468590fce7c91",
-    "deeptutor/multi_user/paths.py": "c32d6bb6262192a325966c2e789ce6055cf1c7db8dbf7918e330097201f57f49",
+    "deeptutor/multi_user/paths.py": "a0d1b84e8ebeaa1b56d2baa2bc65ea275ac651cdbcc100dc616706456beaf70c",
     "deeptutor/multi_user/personal_models.py": "d7b3aca0580acc94e57924a80d5d8fbb282944d987f4a1a3382c1b5bacef6a99",
     "deeptutor/multi_user/session_handoff.py": "1e54fad44d694a4967e8dc6030b9d0c51f5c828c6d73aa43b42198d6e9bfbf3a",
     "deeptutor/multi_user/skill_access.py": "36ee08db8a9f37a374449415b6a1dd3b55a2045d2fbc28fbffb0c8881c023597",
@@ -1446,7 +1460,7 @@
     "deeptutor/utils/error_utils.py": "27a2dea425f65f123afe79ddda43f54ff976e574064f8c0bcd714d903e5e11cb",
     "deeptutor/utils/json_parser.py": "e2ae190ebc22d3d602e01d44784395fbb26a1798de5e183d2df0e3bf4ad0b8a5",
     "deeptutor/utils/network/circuit_breaker.py": "5452330b1c88f93ef578a4e4f639b55ec9d48382005bf24f43be519124c86a76",
-    "deeptutor/utils/secret_files.py": "ed15926577a979462d78f05f6143b9b48bf5ffdf7de76526b7a3f63769527e31",
+    "deeptutor/utils/secret_files.py": "74080146c26fc3d8aadc5d7de48ac70ae1289c4caccb23dfb8a11fafb1096342",
     "deeptutor/utils/text_display.py": "113003811d93ca85f824a075d92f05b106ecb1a7b7a8c056e4ec2815536e8d65",
     "deeptutor/video_learning/__init__.py": "0db2aaecaa150028d7c2a0e6075d679e80de497eeccafbb67c09e1503da42aa7",
     "deeptutor/video_learning/invidious_account.py": "949059219d3b7362cee676960681d83d896be6a8223ea92344a1c0158460d520",

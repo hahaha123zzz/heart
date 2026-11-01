@@ -81,6 +81,10 @@ def resolve_teaching_mode(message: str) -> str:
     return max(matches)[1] if matches else "auto"
 
 
+def forbids_full_answer(message: str) -> bool:
+    return bool(re.search(r'(?:不要|别|不得|不用)(?:直接)?(?:给我?|我)?完整答案|不要替我作答',message))
+
+
 def teaching_mode_instructions(mode: str) -> str:
     """教学风格与outline/study/review路径生命周期分别管理。"""
     return {

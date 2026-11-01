@@ -3,7 +3,7 @@ import os
 import re
 from models.input_understanding import GroundedTurn, InputEnvelope, TaskFrame, ScopedDirective
 from agents.input_understanding.context import state_projection, pending_question
-from agents.input_understanding.rules import normalize, resume_requested, explanation_before_resume, non_submission, choice_submission
+from agents.input_understanding.rules import normalize, resume_requested, only_resume_requested, explanation_before_resume, non_submission, choice_submission
 
 
 def mode():
@@ -67,7 +67,7 @@ def understand(context, request, *, llm=None, classifier=None):
         tasks=[frame(1,'explain_content',target=figure.ref_id)]
     elif pending and resume_requested(request.message):
         # 只有完整恢复短句才可重放；包含其他要求时留给受限解析或正常回答。
-        if re.fullmatch(r'(?:请|现在)?(?:回到|返回)(?:原来|刚才|上面|原)?的?(?:那道|这道|原)?(?:题|检查)(?:，我还没作答)?[。！!\s]*', request.message):
+        if only_resume_requested(request.message):
             tasks=[frame(1,'resume_pending_question',target='pending')]
         else:
             tasks=[frame(1,'explain_content')]
