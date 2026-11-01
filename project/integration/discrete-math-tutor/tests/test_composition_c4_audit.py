@@ -5,9 +5,23 @@ import unittest
 from scripts.audit_composition_c4 import audit
 from scripts.benchmark_output_speed import isolated_endpoint
 from scripts.prepare_c4_review import prepare
+from scripts.summarize_c4_review import summarize
 
 
 class CompositionAuditTests(unittest.TestCase):
+    def test_review_summary_keeps_unreviewed_and_uncertain_separate(self):
+        row={'review_id':'a','source_support':'通过','concept_accuracy':'无法判定',
+             'follows_request':None,'example_and_continuity':'不通过',
+             'reviewer':'reviewer','reviewed_at':'2026-11-01','notes':'需要检查'}
+        report=summarize({'rows':[row]})
+        self.assertEqual(report['fully_reviewed'],0)
+        self.assertEqual(report['criteria']['concept_accuracy']['无法判定'],1)
+        self.assertEqual(report['criteria']['follows_request']['未审核'],1)
+        with self.assertRaises(ValueError): summarize({'rows':[row, row]})
+        with self.assertRaises(ValueError): summarize({'rows':[dict(row, reviewer='')]})
+        with self.assertRaises(ValueError): summarize({'rows':[dict(row, notes='')]})
+        with self.assertRaises(ValueError): summarize({'rows':[dict(row, source_support='ok')]})
+
     def test_only_explicit_isolated_local_ports_are_allowed(self):
         self.assertTrue(isolated_endpoint('http://127.0.0.1:8052'))
         for url in ('http://127.0.0.1:8000','http://localhost','https://example.com:8052'):
