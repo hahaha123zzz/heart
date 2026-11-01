@@ -1,0 +1,107 @@
+{
+  "version": "psy-6d-v1",
+  "rule": "六维只读视图。D2/D3 的 classifiable 标签由规则或模型补充；其余维度只读现有已校验状态。任何维度不得写入成绩、掌握度、误区、复习队列或偏好。",
+  "dimensions": {
+    "request_intent": {
+      "source": "derive",
+      "consumer": "decision.decide / 教学分流 / 教材来源策略",
+      "values": {
+        "knowledge_query": "求解教材知识：定义、原因、对比、举例",
+        "learning_support": "简化、详细化、换例子、可视化",
+        "exercise_interaction": "提交作答、请求练习、请求提示",
+        "repair": "不理解、质疑、纠错、追问",
+        "learning_management": "继续、暂停、返回、复习、计划确认",
+        "textbook_interaction": "指向教材选区、图、原文位置",
+        "session_control": "修改详细度、学习模式、反馈风格",
+        "unclear": "关键对象或意图无法确定"
+      }
+    },
+    "cognitive_demand": {
+      "source": "rule|model",
+      "classifiable": true,
+      "consumer": "回答结构 + 策略预筛",
+      "values": {
+        "recall": "回忆定义或列出特征",
+        "comprehend": "解释概念、说明原理、做比较",
+        "apply": "用概念判断具体情境",
+        "analyze": "找出变量、拆解结构、定位缺陷",
+        "evaluate": "判断研究设计或论述是否合理",
+        "create": "设计实验方案或提出改进"
+      }
+    },
+    "learner_state": {
+      "source": "state|rule|model",
+      "consumer": "策略定向 + 回合边界",
+      "fields": {
+        "attempt": {"source": "state", "values": ["none", "awaiting", "correct", "incorrect", "partial"]},
+        "self_report": {"source": "rule|model", "classifiable": true, "values": ["none", "confused", "stuck", "understood"]},
+        "difficulty_locus": {
+          "source": "rule|model",
+          "classifiable": true,
+          "values": ["comprehension", "discrimination", "procedure", "memory", "pace"],
+          "consumer": "策略定向：分不清→对比；不会做→样例；记不住→提取练习；太快→拆分"
+        },
+        "engagement": {
+          "source": "rule|model",
+          "classifiable": true,
+          "values": ["engaged", "help_seeking", "answer_seeking", "skip", "off_task"],
+          "consumer": "回合边界：skip 收尾；answer_seeking 且禁止披露时说明限制"
+        },
+        "affect": {"source": "state", "values": ["neutral", "confused", "frustrated", "bored"]},
+        "history": {"source": "state", "values": ["first", "repeat", "regressed"]}
+      }
+    },
+    "content_target": {
+      "source": "read",
+      "consumer": "检索范围 + 对象绑定",
+      "values": ["section", "pdf_selection", "exercise_part", "visualization", "truth_table", "relation",
+                 "figure", "text_block", "pending_question", "learning_activity", "assistant_claim", "example", "experiment"]
+    },
+    "support_need": {
+      "source": "resolve",
+      "consumer": "生成约束（长度、例子、引导、披露）",
+      "controls": {
+        "verbosity": ["short", "normal", "long"],
+        "terminology": ["casual", "normal", "professional"],
+        "guidance": ["direct", "light", "strong"],
+        "examples": ["none", "one", "many"],
+        "modality": ["text", "table", "diagram", "interactive"],
+        "disclosure": ["full", "hint_only", "no_answer", "verdict_only"],
+        "difficulty": ["unknown", "easier", "harder"]
+      }
+    },
+    "teaching_stage": {
+      "source": "state|derive",
+      "consumer": "任务推进与收尾",
+      "values": ["diagnostic", "explain", "feynman_check", "practice", "error_diagnosis", "review", "completed"],
+      "turn_states": ["awaiting_student", "explaining", "practicing", "closing"],
+      "next_states": ["continue_pending", "advance", "close"]
+    }
+  },
+  "labels": {
+    "cognitive_demand": {
+      "dimension": "cognitive_demand",
+      "max_labels": 3,
+      "examples": ["帮我设计一个心理学实验", "这个实验设计合理吗", "为什么随机分配能减少干扰"],
+      "counter_examples": ["讲得简单点（这是支持需求，不是认知任务）", "我选 B（这是作答，认知任务未定）"]
+    },
+    "self_report": {
+      "dimension": "learner_state",
+      "max_labels": 1,
+      "examples": ["我还是不懂", "懂了", "有点懵"],
+      "counter_examples": ["我不选 B（这是否定作答，不是自报困惑）"]
+    },
+    "difficulty_locus": {
+      "dimension": "learner_state",
+      "max_labels": 1,
+      "examples": ["分不清信度和效度", "不知道第一步做什么", "背不下来这几个条件", "讲得太快跟不上"],
+      "counter_examples": ["我不选 B", "这个实验没控制好（这是质疑，不是自报困难）"]
+    },
+    "engagement": {
+      "dimension": "learner_state",
+      "max_labels": 1,
+      "examples": ["直接告诉我答案", "这题我不想做了", "今天天气不错"],
+      "counter_examples": ["我选 B（正常作答）", "先别告诉我答案（约束，不是求答案）"]
+    }
+  }
+}

@@ -1,0 +1,21 @@
+--- a/deeptutor/utils/secret_files.py
++++ b/deeptutor/utils/secret_files.py
+@@ -7,0 +8 @@
++import stat
+@@ -12,0 +14,6 @@
++def _private_mode(path: Path, mode: int) -> None:
++    # Windows chmod only clears read-only; recheck the attribute on every call.
++    if os.name != "nt" or path.stat().st_file_attributes & stat.FILE_ATTRIBUTE_READONLY:
++        path.chmod(mode)
++
++
+@@ -15 +22,2 @@
+-    path.mkdir(parents=True, exist_ok=True, mode=SECRET_DIR_MODE)
++    if not path.is_dir():
++        path.mkdir(parents=True, exist_ok=True, mode=SECRET_DIR_MODE)
+@@ -17 +25 @@
+-        path.chmod(SECRET_DIR_MODE)
++        _private_mode(path, SECRET_DIR_MODE)
+@@ -24 +32 @@
+-        path.chmod(SECRET_FILE_MODE)
++        _private_mode(path, SECRET_FILE_MODE)

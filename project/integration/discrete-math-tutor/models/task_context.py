@@ -32,8 +32,10 @@ class TaskContext(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     schema_version: Literal[1] = 1
     student_id: str = Field(min_length=1, max_length=64)
-    session_id: str = Field(default="legacy", min_length=1, max_length=64)
-    request_id: str | None = Field(default=None, min_length=1, max_length=64)
+    session_id: str = Field(default="legacy", min_length=1, max_length=100)
+    request_id: str | None = Field(default=None, min_length=1, max_length=100)
+    task_id: str | None = Field(default=None, max_length=100)
+    task_revision: int | None = Field(default=None, ge=1)
     message: str = Field(min_length=1, max_length=4000)
     knowledge_point: str = Field(default="", max_length=200)
     history: list[dict[str, str]] = Field(default_factory=list, max_length=40)
@@ -60,7 +62,7 @@ class TaskContext(BaseModel):
         # 识别无需知道学生ID，不把其作为模型生成引用的候选对象。
         payload = self.model_dump(exclude={"student_id", "session_id", "request_id", "task_understanding_enabled",
                                            "input_understanding", "input_mode", "activity_target", "current_object_ids",
-                                           "reference_objects", "input_decision"})
+                                           "reference_objects", "input_decision", "task_id", "task_revision"})
         if payload.get('truth_table_snapshot'):
             payload['truth_table_snapshot'].pop('evaluation', None)
         if payload.get('relation_snapshot'):

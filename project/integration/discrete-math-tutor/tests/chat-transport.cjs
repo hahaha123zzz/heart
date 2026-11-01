@@ -38,6 +38,20 @@ test('兼容带 id 的 SSE、CRLF、跨字节分片以及提前保存的回答',
   assert.equal(calls.length, 1);
 });
 
+test('done 已到达时立即结束回合并取消仍打开的流', {timeout:2000}, async () => {
+  let cancelled = false;
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode(frame('done', {reply:'已完成'})));
+    },
+    cancel() { cancelled = true; },
+  });
+  const {chat, calls} = harness([new Response(stream)]);
+  assert.equal((await chat(payload)).reply, '已完成');
+  assert.equal(cancelled, true);
+  assert.equal(calls.length, 1);
+});
+
 test('断线后通过请求编号定位回合并重放持久化事件，只提交一次', async () => {
   const {chat, calls} = harness([
     new Response(frame('progress', {stage:'saving'})),

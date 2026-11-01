@@ -4,7 +4,7 @@ import re
 from typing import Literal
 from pydantic import BaseModel, Field
 from models.interaction_preferences import style_instructions
-from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions
+from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions, forbids_full_answer
 from agents.followup_context import (
     COMPARE_FOLLOWUP_PATTERN,
     FULL_EXPLANATION_PATTERN,
@@ -225,6 +225,8 @@ def build_execution(message, routing, context=None):
     if context is not None and any((snapshot or {}).get("answer_scope") == "hint" for snapshot in
         (context.graph_snapshot, context.truth_table_snapshot, context.relation_snapshot)):
         constraints = [c for c in constraints if c != "verdict_only"]
+    if forbids_full_answer(message):
+        constraints=list(dict.fromkeys([*constraints,'no_full_answer']))
     # 服务端对象的仅提示范围优先，不能被语言模式切换扩大为完整解答。
     if mode == 'direct' and not set(constraints) & {'hint_only', 'no_full_answer'}:
         constraints.append('no_questions')

@@ -3,7 +3,7 @@ import os
 import re
 from models.input_understanding import GroundedTurn, InputEnvelope, TaskFrame, ScopedDirective
 from agents.input_understanding.context import state_projection, pending_question
-from agents.input_understanding.rules import normalize, resume_requested, explanation_before_resume, non_submission, choice_submission
+from agents.input_understanding.rules import normalize, resume_requested, only_resume_requested, explanation_before_resume, non_submission, choice_submission
 
 
 def mode():
@@ -67,7 +67,7 @@ def understand(context, request, *, llm=None, classifier=None):
         tasks=[frame(1,'explain_content',target=figure.ref_id)]
     elif pending and resume_requested(request.message):
         # 只有完整恢复短句才可重放；包含其他要求时留给受限解析或正常回答。
-        if re.fullmatch(r'(?:请|现在)?(?:回到|返回)(?:原来|刚才|上面|原)?的?(?:那道|这道|原)?(?:题|检查)(?:，我还没作答)?[。！!\s]*', request.message):
+        if only_resume_requested(request.message):
             tasks=[frame(1,'resume_pending_question',target='pending')]
         else:
             tasks=[frame(1,'explain_content')]
@@ -96,6 +96,10 @@ def understand(context, request, *, llm=None, classifier=None):
     understood=GroundedTurn(envelope=envelope,context=header,references=refs,tasks=tasks,directives=directives)
     from agents.input_understanding.references import bind_mention
     understood = bind_mention(understood, context, request)
+    # 规则标签只补语义视图，不改对象、任务与约束；关掉开关即退回无标签。
+    if os.getenv('SEMANTIC_LABELS_ENABLED', '1') == '1':
+        from agents.input_understanding.labels import annotate as annotate_rules
+        understood = annotate_rules(understood)
     writes = 0
     for pattern in (r'确认(?:本次)?(?:学习)?(?:计划|安排)', r'提交(?:我的)?答案|我选\s*[A-D]', r'删除(?:这条|当前)?(?:学习路径|学习计划)'):
         matches = list(re.finditer(pattern, request.message))

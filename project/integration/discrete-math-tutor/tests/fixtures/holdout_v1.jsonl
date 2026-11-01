@@ -1,0 +1,30 @@
+{"text": "这块我老是转不过弯来", "labels": {"difficulty_locus": ["comprehension"]}}
+{"text": "脑子里一团浆糊", "labels": {"self_report": ["confused"]}}
+{"text": "定义记住了但一用就乱", "labels": {"difficulty_locus": ["comprehension"]}}
+{"text": "能不能先给个框架", "labels": {}}
+{"text": "我分不清哪个是自变量哪个是因变量", "labels": {"difficulty_locus": ["discrimination"]}}
+{"text": "这个实验站不住脚吧", "labels": {"cognitive_demand": ["evaluate"]}}
+{"text": "感觉懂了但做题就废", "labels": {}}
+{"text": "你刚才说的那个和这个啥关系", "labels": {"cognitive_demand": ["comprehend"]}}
+{"text": "我想自己试试设计一个小实验", "labels": {"cognitive_demand": ["create"]}}
+{"text": "这设计有点问题吧", "labels": {"cognitive_demand": ["evaluate"]}}
+{"text": "别讲那么快", "labels": {"difficulty_locus": ["pace"]}}
+{"text": "我脑子转不过来", "labels": {}}
+{"text": "这两个概念到底差在哪", "labels": {"cognitive_demand": ["comprehend"]}}
+{"text": "背了半天还是记不住", "labels": {"difficulty_locus": ["memory"]}}
+{"text": "能不能举个例子", "labels": {}}
+{"text": "我不太明白这个操作定义", "labels": {"difficulty_locus": ["comprehension"]}}
+{"text": "从哪一步开始比较好", "labels": {"difficulty_locus": ["procedure"]}}
+{"text": "这套流程我理不清", "labels": {}}
+{"text": "这样设计有没有逻辑漏洞", "labels": {"cognitive_demand": ["evaluate"]}}
+{"text": "帮我看看这个方案合不合理", "labels": {"cognitive_demand": ["evaluate"]}}
+{"text": "我不想继续做题了", "labels": {"engagement": ["skip"]}}
+{"text": "算了，先不做了", "labels": {"engagement": ["skip"]}}
+{"text": "直接说答案", "labels": {"engagement": ["answer_seeking"]}}
+{"text": "先给答案再解释", "labels": {"engagement": ["answer_seeking"]}}
+{"text": "我懂了", "labels": {"self_report": ["understood"]}}
+{"text": "理解了", "labels": {"self_report": ["understood"]}}
+{"text": "为什么会有混淆变量", "labels": {"cognitive_demand": ["comprehend"]}}
+{"text": "实验组对照组怎么区分", "labels": {}}
+{"text": "分析下哪里出了问题", "labels": {"cognitive_demand": ["analyze"]}}
+{"text": "如果我是主试应该怎么安排", "labels": {"cognitive_demand": ["apply"]}}

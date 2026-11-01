@@ -460,7 +460,21 @@ class TutorOrchestrator:
 
         # 2) 教学计划（State + Profile + Plan 三方决策）
         curriculum_done = bool(lesson_plan and lesson_plan.status == "completed")
-        if not direct_answer:
+        from agents.adaptive_tutoring import enabled as unified_teaching_enabled
+        unified_strategy = None
+        strategy_context = task_context
+        if unified_teaching_enabled():
+            from agents.teaching_strategy import decide_for_context, align_legacy_plan
+            if strategy_context is None:
+                from models.task_context import TaskContext
+                strategy_context = TaskContext(student_id=student_id,request_id=event_id,
+                    message=message,knowledge_point=point,preferences=dict(profile.preferences))
+            unified_strategy = decide_for_context(strategy_context,execution,
+                assessment={'verdict':answer_diagnosis.verdict} if answer_diagnosis and diagnose_answer else None)
+            plan = TeachingPlan(goal='回应当前目标：'+point,strategy=unified_strategy.primary_strategy,
+                action='explain',difficulty='medium')
+            align_legacy_plan(unified_strategy,plan)
+        elif not direct_answer:
             plan = self.teaching_planner.plan(
                 state, goal, current_step, curriculum_done, profile
             )
@@ -468,7 +482,9 @@ class TutorOrchestrator:
         # 2.2) Strategy Router：按学生 move + 状态 + 画像选本轮教学动作
         profile = self.memory.get_profile(student_id, point=point, difficulty=plan.difficulty, hint_level=plan.hint_level)
         recent_moves = self.memory.get_recent_moves(student_id)
-        if not direct_answer:
+        if unified_strategy is not None:
+            move = InstructionalMove(instructional_move=unified_strategy.primary_strategy,action=plan.action)
+        elif not direct_answer:
             move = self.strategy_router.select(
                 routing.student_move,
                 routing.move_status,
@@ -562,6 +578,16 @@ class TutorOrchestrator:
             lesson_text = "本轮围绕学生当前作答或困难反馈，课程进度仅作背景，不扩大到下一知识点。\n本轮反馈（诊断为暂定资料，不是新教材事实）：" + json.dumps(answer_feedback, ensure_ascii=False)
             check_context["answer_feedback"] = answer_feedback
             check_context["recent_moves"] = (recent_moves + [move.instructional_move])[-3:]
+        if unified_strategy is not None:
+            from agents.teaching_strategy import align_legacy_plan, strategy_prompt
+            align_legacy_plan(unified_strategy,plan,move)
+            if unified_strategy.interaction_boundary!='wait_for_student':
+                direct_content_question=True
+                question_spec=None
+                if answer_feedback.get('mode')=='check_self_report':
+                    answer_feedback={}
+                    check_context.pop('answer_feedback',None)
+            lesson_text += strategy_prompt(unified_strategy,selector_tool=False)
         if answer_feedback.get("mode") == "check_self_report":
             plan.goal = "围绕上一轮讲解的一个要点检查理解"
             check_context["feedback_target"] = previous_reply[:1200]
@@ -789,9 +815,15 @@ class TutorOrchestrator:
         elif memory_commit["status"] == "committed":
             self.memory.push_recent_move(student_id, move.instructional_move)
 
+        strategy_publication = None
+        if unified_strategy is not None:
+            from agents.teaching_strategy import publish_external_strategy
+            strategy_publication = publish_external_strategy(strategy_context,unified_strategy,response,
+                source_ids=[e.get('evidence_id','') for e in grounded_bundle.evidence] if grounded_bundle else [])
         return {
             "reply": response,
             "answer_status": "answered",
+            **({'teaching_strategy_plan':strategy_publication} if strategy_publication else {}),
             "response_path": "direct_answer" if direct_answer else "tutoring",
             "memory_commit": memory_commit,
             "conversation_id": memory_commit.get("conversation_id"),

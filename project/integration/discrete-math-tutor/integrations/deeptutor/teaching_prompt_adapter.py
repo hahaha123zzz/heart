@@ -12,9 +12,23 @@ from .client import BackendUnavailable
 _style = ContextVar('heart_native_teaching_style', default=None)
 
 
-def teaching_snapshot(message, preferences=None):
-    return {'mode': resolve_teaching_mode(message),
+def teaching_snapshot(message, preferences=None, *, identity=None):
+    snapshot = {'mode': resolve_teaching_mode(message),
             'preferences': {**(preferences or {}), **turn_style_overrides(message)}}
+    if identity is not None:
+        from agents.adaptive_tutoring import enabled
+        if enabled():
+            from types import SimpleNamespace
+            from models.task_context import TaskContext
+            from agents.task_execution import build_execution
+            from agents.teaching_strategy import decide_for_context
+            context=TaskContext(student_id=identity.student_id,session_id=identity.session_id,
+                request_id=identity.request_id,task_id=identity.task_id,task_revision=identity.task_revision,
+                message=message,knowledge_point='native-task:'+identity.task_id,
+                preferences=snapshot['preferences'])
+            execution=build_execution(message,SimpleNamespace(learning_intents=[],target_refs=[],answer_constraints=[]),context)
+            snapshot['strategy_plan']=decide_for_context(context,execution).model_dump(mode='json')
+    return snapshot
 
 
 def install_teaching_prompt_adapter():
@@ -47,6 +61,9 @@ def install_teaching_prompt_adapter():
             '学生询问重点或知识关系时，区分教材明确内容、已提供的考纲或教师标注和教学建议；没有考纲或教师依据不得声称考试重点或分值。教材明确关系应附来源，推断的联系注明是教学分析，不冒充原文或先修事实。',
             '复习到期仅提供选择，不强制切换当前讲解；只有可靠的近期证据或学生明确选择才调整讲法。调度器排序/回忆估计是启发式，不是校准的掌握概率；历史策略效果只是观察线索，不声称因果最优。',
         ))
+        if snapshot.get('strategy_plan') is not None:
+            from agents.teaching_strategy import strategy_prompt
+            text+=strategy_prompt(snapshot['strategy_plan'],selector_tool=False)
         return [*result, PromptBlock('host_teaching_style', text)]
 
     blocks._heart_teaching_adapter = True
@@ -61,7 +78,15 @@ def teaching_prompt_scope(entry):
     if mode not in ('auto', 'direct', 'guided', 'practice', 'review'):
         raise BackendUnavailable('原生教学模式记录无效')
     values = InteractionPreferences.model_validate(snapshot.get('preferences') or {}).model_dump(exclude_none=True)
-    token = _style.set({'mode': mode, 'preferences': values})
+    scoped={'mode':mode,'preferences':values}
+    if snapshot.get('strategy_plan'):
+        from agents.teaching_strategy import TeachingStrategyPlan
+        plan=TeachingStrategyPlan.model_validate(snapshot['strategy_plan'])
+        if (plan.student_id!=entry['student_id'] or plan.session_id!=entry['session_id']
+                or plan.task_id!=entry['task_id'] or plan.task_revision!=entry['task_revision']):
+            raise BackendUnavailable('原生教学策略不属于当前任务版本')
+        scoped['strategy_plan']=plan
+    token = _style.set(scoped)
     try:
         yield
     finally:

@@ -168,7 +168,7 @@ def memory_for(q,sid):
     memories=selection_memory(main.orchestrator.memory,sid,q['knowledge_point'],q['text'],'练习讲解',question_id=q['id'],version=catalog()['version'])
     return memories
 
-def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,user_question=None):
+def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,user_question=None,strategy_context=None):
     import main
     from knowledge.course_config import PSYCHOLOGY
     resolved=exercise_context(q)
@@ -209,6 +209,20 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
             grounded_bundle=selection_evidence(main.orchestrator.llm,user_question or q['text'],resolved,citation_path)
             payload['context']=format_excerpts(grounded_bundle.sources)
             system+='\n教材结论使用context中的本轮[n]证据编号；题目条件和学生答案不是教材引文。'
+    from agents.adaptive_tutoring import enabled as unified_teaching_enabled
+    unified_strategy = None
+    if action!='grade' and unified_teaching_enabled():
+        from uuid import uuid4
+        from models.task_context import TaskContext
+        from agents.teaching_strategy import decide_for_context,strategy_prompt
+        if strategy_context is None:
+            strategy_context=TaskContext(student_id=sid,session_id='exercise:'+q['id'][:50],
+                request_id=uuid4().hex,message=user_question or ('只给提示' if action=='hint' else '讲解指定小题'),
+                knowledge_point=q['knowledge_point'],preferences=dict(task_execution.preferences))
+        scoped_execution=task_execution.model_copy(deep=True)
+        scoped_execution.target_refs=[f"exercise:{q['id']}:{parts[0]['id']}:{catalog()['version']}"]
+        unified_strategy=decide_for_context(strategy_context,scoped_execution)
+        system+=strategy_prompt(unified_strategy,selector_tool=False)
     messages=[{'role':'system','content':system},{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]
     if action != 'grade':
         from llm.answer_events import answer_kwargs
@@ -225,6 +239,9 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
         execution = task_execution or TaskExecution(learning_intents=[action], answer_constraints=['hint_only','no_full_answer'] if action=='hint' else [])
         plan = TeachingPlan(goal='回应指定小题', strategy='worked_example', action='explain', difficulty='medium', hint_level=level)
         execution.align(plan)
+        if unified_strategy is not None:
+            from agents.teaching_strategy import align_legacy_plan
+            align_legacy_plan(unified_strategy,plan)
         if action=='hint': plan.hint_level = level
         # 同一任务约束参与质检，不能只靠生成Prompt保证不泄露。
         quality = main.orchestrator.quality_checker.check(reply, main.orchestrator.memory.get_state(sid,q['knowledge_point']),
@@ -257,7 +274,13 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
                 guide=generate_guide(main.orchestrator.llm,(user_question or '讲解所选小题')+'\n本题条件：'+json.dumps(payload['target_parts'],ensure_ascii=False),
                     reply,[source],execution,student_id=sid,turn_id=q['id']+'|'+parts[0]['id'],references=[{'source_index':0,'selection_ref':ref}])
                 if guide:guide=guide | {'exercise_target':{'chapter_id':q['chapter_id'],'question_id':q['id'],'part_id':parts[0]['id'],'version':catalog()['version']}}
-        return {'reply':reply,'guided_visualization':guide,'memory_summary':memories['summary'],'source':q['source'],
+        strategy_publication=None
+        if unified_strategy is not None:
+            from agents.teaching_strategy import publish_external_strategy
+            strategy_publication=publish_external_strategy(strategy_context,unified_strategy,reply,
+                source_ids=[resolved['reference'].get('document_id','')])
+        return {**({'teaching_strategy_plan':strategy_publication} if strategy_publication else {}),
+            'reply':reply,'guided_visualization':guide,'memory_summary':memories['summary'],'source':q['source'],
             'question_origin':q.get('origin'),'test_only':q.get('test_only',False),
             'image_refs':resolved['reference']['image_refs'],'pdf_references':grounded_refs,
             'textbook_sources':[f'{s.source}／{s.section}' for s in grounded_bundle.sources] if grounded_bundle else []}

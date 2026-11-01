@@ -104,6 +104,12 @@ $env:PYTHONPATH=(Resolve-Path ../../vendor/DeepTutor).Path
 - 现有 DeepTutor 迁入及 Apache-2.0 说明沿用 `third_party/DeepTutor` 与 vendor 固定快照；没有更新上游版本、账户/会话/学习主库。
 - OpenMAIC/OpenTutor 的对象引用、命令与诊断边界来自前期调研，固定版本和来源见本目录深度审计。本轮是宿主 Python 适配，没有复制 TS 运行时或引入新框架。
 
-本分支代码不构成 main 已更新的证据；合并、正式开关与运行目录必须另行核对，原工作区未提交教材和其他窗口修改仍由原持有人处理。
+截至 2026-10-30 本执行窗口结束时，本分支代码尚未合入 main；原工作区未提交教材和其他窗口修改仍由原持有人处理。2026-10-31 的本机主线历史对账见下文。
 
 收尾：本轮 8147 隔离测试服务已停止并确认 health 不再可访问；隔离数据库、候选快照及失败证据保留。正式服务及正式数据库未更新。
+
+## 主线历史对账（2026-10-31）
+
+- 更新核对：`codex/input-understanding-v1` 的 `25053a1` 已包含在本机 `main` / `origin/main` 当前引用 `a9725fb` 的提交历史中。此项仅核对本地 Git 引用，未执行 `fetch`，不代表已验证远端最新状态。
+- `main` 中的代码默认仍是 `INPUT_UNDERSTANDING_MODE=off`、`INPUT_UNDERSTANDING_SEMANTIC_ENABLED=0`；本次没有检查或更改 8000 运行进程的环境变量。
+- 六维分类器的当前本地扩展另见 `SEMANTIC_CLASSIFIER_COMPLETION_PLAN_20261031.md`；该代码与测试仍有未提交改动，不能和已合入的输入理解两批代码混称为同一稳定交付。

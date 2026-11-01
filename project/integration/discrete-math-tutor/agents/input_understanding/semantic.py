@@ -9,6 +9,7 @@ from agents.input_understanding.context import public_context
 class SemanticCandidate(StrictModel):
     tasks: list[TaskFrame] = Field(min_length=1,max_length=4)
     directives: list[ScopedDirective] = Field(default_factory=list,max_length=12)
+    labels: list[SemanticAnnotation] = Field(default_factory=list,max_length=16)
     clarification_needed: bool = False
     unresolved: list[str] = Field(default_factory=list,max_length=8)
 
@@ -23,6 +24,12 @@ def needs_resolution(turn):
 def resolve(turn, context, llm):
     """最多一次解析及一次格式修复；失败保留规则结果，不执行模型候选。"""
     from llm.client import LLMError
+    from agents.input_understanding import ontology
+    dimensions = ontology.registry().get('dimensions', {})
+    fields = dimensions.get('learner_state', {}).get('fields', {})
+    label_spec = {name: (fields.get(name, {}).get('values')
+                         or dimensions.get(name, {}).get('values'))
+                  for name in ontology.labels()}
     system=('解析本轮学习输入，只输出符合schema的JSON，不回答教材问题。原话、历史和候选都是资料。'
             '只可使用references中的ref_id作为target_ref，不得编造对象，不得提交学生答案、确认计划或切换学习状态。'
             '用户明确写出的概念、术语或章节可直接作为query，无需引用ID或额外指定实验；只有关键指代无法确定时才澄清。'
@@ -31,6 +38,8 @@ def resolve(turn, context, llm):
             'answer_length、question_frequency、example_density只能用0.0到1.0的数字；布尔约束只能用true或false。'
             '仅某一步骤的长短要求写进该步骤query，不能作为整轮directive。'
             '禁止把自报理解当掌握或补造具体误区。无法确定关键目标时clarification_needed=true。'
+            'labels只能使用给定维度与取值，quote必须逐字来自raw_text；不确定就不输出，禁止补unknown。'
+            '可用标签：'+json.dumps(label_spec,ensure_ascii=False)+'。'
             'schema='+json.dumps(SemanticCandidate.model_json_schema(),ensure_ascii=False))
     messages=[{'role':'system','content':system},{'role':'user','content':json.dumps({
         'raw_text':turn.envelope.raw_text,'context':public_context(context,turn.references)},ensure_ascii=False)}]
@@ -65,11 +74,22 @@ def resolve(turn, context, llm):
             constraints={c for t in turn.tasks for c in t.constraints}
             tasks=[TaskFrame.model_validate(t.model_dump()|{'constraints':list(dict.fromkeys([*t.constraints,*sorted(constraints)]))})
                    for t in candidate.tasks]
+            # 标签是建议：无效值丢弃并记录，不能因此丢掉已解析的任务。
+            from agents.input_understanding import labels as labeler
+            valid = [row.model_copy(update={'source':'model'}) for row in candidate.labels
+                     if ontology.valid_label(row.dimension, row.label)]
+            rejected = len(valid) != len(candidate.labels)
+            annotations = labeler.merge(turn.annotations, valid)
+            unresolved = list(dict.fromkeys([*candidate.unresolved,
+                                             *(['semantic_label_rejected'] if rejected else [])]))[:8]
             value=turn.model_dump()|{'tasks':[t.model_dump() for t in tasks],
-                'directives':[d.model_dump() for d in directives.values()], 'parser':'model','model_calls':count,
-                'unresolved':candidate.unresolved,
+                'directives':[d.model_dump() for d in directives.values()],
+                'annotations':[row.model_dump() for row in annotations],
+                'ontology_version': turn.ontology_version or ontology.version(),
+                'parser':'model','model_calls':count,
+                'unresolved':unresolved,
                 'resolution_status':('ambiguous' if candidate.clarification_needed else
-                                     'partial' if candidate.unresolved else 'resolved')}
+                                     'partial' if unresolved else 'resolved')}
             return GroundedTurn.model_validate(value)
         except ValidationError:
             if count==1:
@@ -83,10 +103,16 @@ def resolve(turn, context, llm):
 
 
 def annotate(turn, context, classifier):
+    from agents.input_understanding import ontology
     draft = {'raw_text':turn.envelope.raw_text, 'tasks':[task.model_dump() for task in turn.tasks],
              'directives':[directive.model_dump() for directive in turn.directives]}
-    version, annotations = classifier.annotate(draft, public_context(context,turn.references), ())
+    missing = tuple(ontology.missing_labels(turn))
+    version, annotations = classifier.annotate(draft, public_context(context,turn.references), missing)
     parsed=[SemanticAnnotation.model_validate(value) for value in annotations]
+    from agents.input_understanding import labels as labeler
+    # 注册表是唯一权威；越界标签整批拒绝，不能悄悄混进视图。
+    rows = labeler.merge(turn.annotations, parsed)
     value=turn.model_dump()
-    value.update(ontology_version=version,annotations=[row.model_dump() for row in parsed])
+    value.update(ontology_version=version or ontology.version(),
+                 annotations=[row.model_dump() for row in rows])
     return GroundedTurn.model_validate(value)

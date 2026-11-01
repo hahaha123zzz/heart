@@ -379,6 +379,7 @@ class TaskService:
             if duplicate is not None:
                 from knowledge.grounded_citations import references_for_display
                 return dict(duplicate,pdf_references=references_for_display(duplicate['pdf_references'])) if duplicate.get('pdf_references') else duplicate
+            context.task_id,context.task_revision=task['id'],task['revision']
             if context.input_mode != 'off':
                 from agents.input_understanding.service import understand
                 from agents.input_understanding.adapters import resume_understanding

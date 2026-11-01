@@ -33,3 +33,6 @@ artifacts/cuda-cache-*/
 
 # LightRAG 独立环境与候选产物
 .venv-lightrag/
+
+# Restored external release fixtures remain local.
+knowledge/courses/experimental-psychology-3/

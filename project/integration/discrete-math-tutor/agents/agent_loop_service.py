@@ -1,6 +1,7 @@
 """Wire the Q3 local loop into the project's task identity and page result shape."""
 from __future__ import annotations
 
+from copy import deepcopy
 import os
 import re
 from pathlib import Path
@@ -180,6 +181,12 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             # 已有教材证据的改述不因缺少重复上标而撤回，也不自动编造引用。
             result._publication = {'reply':text,'pdf_references':[],'textbook_sources':[]}
             return True, ''
+        if result.sources:
+            format_issue = _citation_format_issues(text)
+            if format_issue:
+                return False, format_issue
+            if not re.search(r"\[\d+\]", text):
+                return False, "回答未标注本轮教材引用编号，暂不发布。"
         evidence = [source.get('location', {}).get('evidence') for source in result.sources]
         if any(evidence):
             if not all(evidence):
@@ -202,11 +209,6 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             issues = citation_issues(text, excerpts)
             if issues:
                 return False, "本次引用未通过核验：" + "；".join(issues)
-            format_issue = _citation_format_issues(text)
-            if format_issue:
-                return False, format_issue
-            if not re.search(r"\[\d+\]", text):
-                return False, "回答未标注本轮教材引用编号，暂不发布。"
         return True, ""
     return gate
 
@@ -435,7 +437,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     from agents.adaptive_tutoring import enabled as tutoring_enabled, TeachingTurn, TeachingStepTool
     if guard:
         guard()
-    teaching = TeachingTurn(context, request, llm or orchestrator.llm, target=target) if tutoring_enabled() and tool_purpose == 'textbook' else None
+    if resume_state and previous:
+        context.tutoring = deepcopy((previous.get('context') or {}).get('tutoring') or context.tutoring)
+    teaching = TeachingTurn(context, request, llm or orchestrator.llm, target=target, resume=bool(resume_state)) if tutoring_enabled() and tool_purpose == 'textbook' else None
     if (teaching and teaching.input_turn and teaching.input_turn.context.pending_question_id
             and teaching.sources_invalidated):
         release(request.task_id or request.request_id)
@@ -449,8 +453,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         initial_sources = initial_sources or selection_input.initial_sources()
         if teaching and ('no_questions' in selection_input.execution.answer_constraints
                          or selection_input.execution.hint_only):
-            teaching.state['allow_check'] = False
-            teaching._sync()
+            teaching.apply_strategy_constraints(selection_input.execution.answer_constraints)
     if guard:
         guard()
     from agents.course_search import explicit_chapters, question_interjection
@@ -587,6 +590,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                                  else _publish_gate(orchestrator, request, target, navigation, teaching, selection_input))
 
     def final_gate(text, outcome):
+        if (teaching and not teaching.state['allow_check'] and re.search(r'[？?]',text)
+                and not (teaching.input_turn and teaching.input_turn.only_resume_question)):
+            return False, '学生要求先讲不考：请将疑问句改为陈述句并自然收束。'
         missing = set(required_tools) - {row.get('tool') for row in outcome.tool_outputs}
         if missing:
             return False, '所需读取或页面请求尚未成功：' + '、'.join(sorted(missing))
@@ -653,6 +659,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                             **({'first_wave': resources} if resources else {}),
                             **((q5_binding or {}).get("tool_state") or {})},
                 publish_gate=final_gate,
+                evidence_repair=teaching.repair_evidence if teaching else None,
                 emit=emit, tool_timeout_seconds=tool_seconds, max_exploration_rounds=4,
             ),
             resume_state=resume_state,
@@ -663,8 +670,11 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         cancellation.cancel()
     conversation_id = None
     mapped = _map_result(result, target)
+    if teaching and result.error and teaching.plan.evidence_recovery == 'attempted':
+        teaching.plan.evidence_recovery = 'blocked'
+        teaching._sync()
     if teaching and result.completed:
-        teaching.commit_sources(result.sources, answer_text=result.final_text)
+        teaching.commit_sources(result.sources, answer_text=result.final_text, tool_outputs=result.tool_outputs)
         mapped["teaching"] = teaching.public()
     if teaching and mapped.get("loop_state"):
         from agents.adaptive_tutoring import redact_protocol

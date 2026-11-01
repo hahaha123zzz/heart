@@ -258,6 +258,22 @@ class AgentLoopTests(unittest.TestCase):
         self.assertTrue(result.completed);self.assertEqual(result.rounds,3)
         self.assertEqual(llm.calls[-1]['tools'],[])
 
+    def test_reused_evidence_missing_citation_gets_one_bounded_repair(self):
+        reason = '回答未标注本轮教材引用编号，暂不发布。'
+        source = {'source_id':'cached','text':'操纵条件。','index':3}
+        gate = lambda text, result: ('[3]' in text, reason)
+        llm = ScriptedLLM([final_round('换个例子说明。'), final_round('操纵条件[3]。')])
+        result = LocalAgentLoop(llm).run(request(llm,self.registry(), initial_sources=[source],publish_gate=gate))
+        self.assertTrue(result.completed)
+        self.assertEqual(result.rounds,2)
+        self.assertEqual(result.tool_steps,0)
+        self.assertEqual(llm.calls[-1]['tools'],[])
+        self.assertIn('[3]',llm.calls[-1]['messages'][-1]['content'])
+        llm = ScriptedLLM([final_round('依旧没有编号。'), final_round('仍然没有编号。')])
+        result = LocalAgentLoop(llm).run(request(llm,self.registry(), initial_sources=[source],publish_gate=gate))
+        self.assertEqual(result.error,'quality_rejected')
+        self.assertEqual(result.rounds,2)
+
     def test_raw_tool_markup_gets_one_real_dispatch_retry_without_executing_text(self):
         reason='模型返回了内部工具协议，不能作为教学回答发布。'
         gate=lambda text,result:(bool(result.sources),reason)

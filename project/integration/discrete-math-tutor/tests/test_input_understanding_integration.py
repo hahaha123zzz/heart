@@ -191,6 +191,18 @@ class InputIntegrationTests(unittest.TestCase):
         context.input_mode='shadow'
         self.assertIsNone(legacy_routing(context))
 
+    def test_new_explicit_concept_is_not_forced_into_current_topic(self):
+        context,request=bound('随机区组与拉丁方的区别。',old={})
+        self.assertEqual(context.knowledge_point,'自变量')
+        self.assertIsNone(legacy_routing(context))
+
+    def test_hint_still_uses_bound_pending_question_without_reclassification(self):
+        context,request=bound('只给一点提示，不要给完整答案。')
+        result=legacy_routing(context)
+        self.assertIsNotNone(result)
+        self.assertEqual(result.learning_intents,['hint'])
+        self.assertIn('no_full_answer',result.answer_constraints)
+
     def test_ask_user_resume_preserves_actual_reply_and_original_task(self):
         context,request=bound('先解释自变量，不要出题。')
         previous={'context':{'input_understanding':context.input_understanding.model_dump(),
@@ -201,5 +213,23 @@ class InputIntegrationTests(unittest.TestCase):
         self.assertEqual(restored.reply_envelope.raw_text,'第二个')
         self.assertEqual(restored.tasks,context.input_understanding.tasks)
 
+
+class LiteralResumeModifierTests(unittest.TestCase):
+    def test_literal_question_restore_does_not_invoke_model_for_safe_modifiers(self):
+        for message in ('回到刚才的小检查，原样显示题目，不要给答案。',
+                        '回到原题，请原样重现题干。'):
+            with self.subTest(message=message):
+                context,request=bound(message)
+                self.assertTrue(context.input_understanding.only_resume_question)
+                model=Mock()
+                turn=TeachingTurn(context,request,model,validate_sources=lambda rows:rows)
+                self.assertEqual(turn.state['turn_move'],'resume_check')
+                self.assertTrue(turn.restore_reply().endswith(turn.progress.pending_question.prompt))
+                model.chat_json.assert_not_called()
+
+    def test_explanation_or_negated_resume_is_not_reduced_to_question_replay(self):
+        for message in ('不要回到刚才的小检查，解释选区。','回到原题，并解释为什么答案是B。'):
+            context,_=bound(message)
+            self.assertFalse(context.input_understanding.only_resume_question)
 
 if __name__=='__main__':unittest.main()

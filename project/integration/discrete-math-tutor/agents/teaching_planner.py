@@ -13,21 +13,13 @@ from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
-from agents.teaching_policy import select_policy
+from agents.teaching_policy import canonical_strategy, select_policy, strategy_ids
 from llm.client import LLMClient
 from models.lesson_plan import LessonStep
 from models.student_state import StudentState
 
-ALLOWED_STRATEGIES = [
-    "socratic_questioning",
-    "scaffolding",
-    "worked_example",
-    "self_explanation",
-    "retrieval_practice",
-    "conceptual_comparison",
-    "error_based_learning",
-    "progressive_hinting",
-]
+# 唯一权威是 knowledge/teaching_strategies.json；模型只看到这 13 个规范名。
+ALLOWED_STRATEGIES = strategy_ids()
 ALLOWED_ACTIONS = ["ask_question", "give_hint", "explain", "give_example", "summarize"]
 ALLOWED_DIFFICULTY = ["easy", "medium", "hard"]
 
@@ -97,7 +89,7 @@ class TeachingPlanner:
 
     @staticmethod
     def _validate(data: Dict[str, Any], policy: Dict) -> TeachingPlan:
-        strategy = data.get("strategy")
+        strategy = canonical_strategy(data.get("strategy"))
         if strategy not in ALLOWED_STRATEGIES:
             strategy = policy["recommended_strategies"][0]
 

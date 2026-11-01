@@ -1,0 +1,7 @@
+{
+  "samples": 150,
+  "sample_origin": "existing engineering and inspected holdout cases; not a new blind test set",
+  "registry_sha256": "615ab097256d7b4387aec499f9247e20873ba51ffb2c01e9e4c3fcbbd6dce5e6",
+  "template_sha256": "c3a230810828e93841eae829ff43bb479eaba6a224ff0d86fc457f4d6dc1a5f0",
+  "human_annotation_completed": false
+}

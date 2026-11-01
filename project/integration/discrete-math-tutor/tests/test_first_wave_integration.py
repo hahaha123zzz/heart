@@ -165,6 +165,17 @@ class FirstWaveIntegration(TextbookResourceFixture):
         self.assertTrue(ok, reason)
         self.assertEqual(result._publication['reply'], '第一页内容[1]')
 
+    def test_missing_followup_citation_has_actionable_reason_before_publication(self):
+        from agents.agent_loop_service import _publish_gate
+        from agents.agent_loop import LoopResult
+        source = self.service.read_material(self.binding, self.pages(), lambda: None)[1][0]
+        gate = _publish_gate(SimpleNamespace(memory=None, quality_checker=None),
+                             SimpleNamespace(message='还是分不清'), SimpleNamespace(name='变量'))
+        with patch('knowledge.fixed_book.active', return_value=None):
+            ok, reason = gate('换个例子说明。', LoopResult(sources=[source]))
+        self.assertFalse(ok)
+        self.assertEqual(reason, '回答未标注本轮教材引用编号，暂不发布。')
+
     def test_mixed_purpose_cannot_bypass_fact_gate(self):
         self.assertEqual(purpose('按我的偏好解释自变量'), 'textbook')
         self.assertEqual(purpose('我的偏好是什么'), 'personal_state')

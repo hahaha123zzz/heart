@@ -35,6 +35,7 @@ window.TutorChatTransport = (() => {
         while ((boundary = buffer.indexOf("\n\n")) >= 0) {
           parseFrame(buffer.slice(0, boundary));
           buffer = buffer.slice(boundary + 2);
+          if (result !== null) return result;
         }
         if (done) {
           if(buffer.trim())parseFrame(buffer);

@@ -39,16 +39,29 @@ def strategy_ids() -> List[str]:
     return [item["id"] for item in load_library()]
 
 
-KNOWN_STRATEGIES = [
-    "socratic_questioning",
-    "scaffolding",
-    "worked_example",
-    "self_explanation",
-    "retrieval_practice",
-    "conceptual_comparison",
-    "error_based_learning",
-    "progressive_hinting",
-]
+# 13 个库 id 是唯一权威；下面只是历史/运行时别名，不新增策略。
+# feedback 只保证可归一，部分正确与明确错误由调用方按 verdict 细分。
+STRATEGY_ALIASES = {
+    "explain": "direct_explanation",
+    "contrast": "conceptual_comparison",
+    "break_down": "scaffolding",
+    "prerequisite": "scaffolding",
+    "guided_practice": "socratic_questioning",
+    "feedback": "guided_revision",
+    "error_based_learning": "counterexample",
+    "progressive_hinting": "hint",
+}
+
+
+def canonical_strategy(value: str) -> str:
+    """归一策略名；未知名原样返回，由调用方按各自白名单拒绝。"""
+    name = str(value or "").strip()
+    return STRATEGY_ALIASES.get(name, name)
+
+
+def accepted_strategy_names() -> List[str]:
+    """校验用：库 id + 历史别名。"""
+    return [*strategy_ids(), *STRATEGY_ALIASES]
 
 
 def resolve_teaching_mode(message: str) -> str:
@@ -66,6 +79,10 @@ def resolve_teaching_mode(message: str) -> str:
                 continue
             matches.append((match.start(), mode))
     return max(matches)[1] if matches else "auto"
+
+
+def forbids_full_answer(message: str) -> bool:
+    return bool(re.search(r'(?:不要|别|不得|不用)(?:直接)?(?:给我?|我)?完整答案|不要替我作答',message))
 
 
 def teaching_mode_instructions(mode: str) -> str:

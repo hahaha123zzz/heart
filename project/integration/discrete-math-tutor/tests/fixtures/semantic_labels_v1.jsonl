@@ -1,0 +1,40 @@
+{"text": "我还是分不清信度和效度", "labels": {"difficulty_locus": ["discrimination"]}}
+{"text": "这两个概念我总是搞混", "labels": {"difficulty_locus": ["discrimination"]}}
+{"text": "我不知道第一步该做什么", "labels": {"difficulty_locus": ["procedure"]}}
+{"text": "这道题完全不会做", "labels": {"difficulty_locus": ["procedure"]}}
+{"text": "我记不住那几个控制条件", "labels": {"difficulty_locus": ["memory"]}}
+{"text": "背不下来操作性定义", "labels": {"difficulty_locus": ["memory"]}}
+{"text": "你讲得太快了", "labels": {"difficulty_locus": ["pace"]}}
+{"text": "信息量太大，我跟不上", "labels": {"difficulty_locus": ["pace"]}}
+{"text": "我没听懂随机分配的作用", "labels": {"difficulty_locus": ["comprehension"]}}
+{"text": "还是不懂操作性定义", "labels": {"difficulty_locus": ["comprehension"]}}
+{"text": "懂了", "labels": {"self_report": ["understood"]}}
+{"text": "我明白了", "labels": {"self_report": ["understood"]}}
+{"text": "有点懵", "labels": {"self_report": ["confused"]}}
+{"text": "脑子有点乱", "labels": {"self_report": ["confused"]}}
+{"text": "直接告诉我答案", "labels": {"engagement": ["answer_seeking"]}}
+{"text": "干脆给答案吧", "labels": {"engagement": ["answer_seeking"]}}
+{"text": "这题我不想做了", "labels": {"engagement": ["skip"]}}
+{"text": "先跳过这道题", "labels": {"engagement": ["skip"]}}
+{"text": "今天天气不错", "labels": {"engagement": ["off_task"]}}
+{"text": "讲个笑话", "labels": {"engagement": ["off_task"]}}
+{"text": "帮我设计一个心理学实验", "labels": {"cognitive_demand": ["create"]}}
+{"text": "提出一些改进建议", "labels": {"cognitive_demand": ["create"]}}
+{"text": "这个实验设计合理吗", "labels": {"cognitive_demand": ["evaluate"]}}
+{"text": "这个方案有没有问题", "labels": {"cognitive_demand": ["evaluate"]}}
+{"text": "分析一下这个实验的变量", "labels": {"cognitive_demand": ["analyze"]}}
+{"text": "找出实验中的自变量", "labels": {"cognitive_demand": ["analyze"]}}
+{"text": "为什么随机分配能减少干扰", "labels": {"cognitive_demand": ["comprehend"]}}
+{"text": "信度和效度有什么区别", "labels": {"cognitive_demand": ["comprehend"]}}
+{"text": "如果学生知道实验目的会怎样", "labels": {"cognitive_demand": ["apply"]}}
+{"text": "在真实实验情境下应该怎么控制变量", "labels": {"cognitive_demand": ["apply"]}}
+{"text": "请说出信度的三种类型", "labels": {"cognitive_demand": ["recall"]}}
+{"text": "列出实验设计的基本要素", "labels": {"cognitive_demand": ["recall"]}}
+{"text": "比较信度和效度的差异", "labels": {}}
+{"text": "复述一下双盲设计的流程", "labels": {"cognitive_demand": ["recall"]}}
+{"text": "分析这个实验是否合理，并设计改进方案", "labels": {"cognitive_demand": ["analyze", "evaluate", "create"]}}
+{"text": "为什么这个设计会引入额外变量，请提出改进方案", "labels": {"cognitive_demand": ["comprehend", "create"]}}
+{"text": "找出问题并设计一个更好的实验", "labels": {"cognitive_demand": ["analyze", "create"]}}
+{"text": "我不选 B", "labels": {}}
+{"text": "先别告诉我答案", "labels": {}}
+{"text": "解释一下自变量", "labels": {}}

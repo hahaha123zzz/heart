@@ -41,7 +41,7 @@ def explain_exercise(tutor, request, context, intercept, guard, progress=None):
     guard()
     with _GATE:
         result = ai_parts(q,[part],answers,request.student_id,'hint' if execution.hint_only else 'explain',
-            request.exercise_hint_level, task_execution=execution,user_question=request.message)
+            request.exercise_hint_level, task_execution=execution,user_question=request.message,strategy_context=context)
     guard()
     if result.get('answer_status') == 'quality_rejected': return result
     point = q['knowledge_point']

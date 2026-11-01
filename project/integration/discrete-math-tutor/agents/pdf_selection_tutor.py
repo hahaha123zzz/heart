@@ -40,7 +40,9 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
         reader_location=reader_location, selection=selection, resolved_selection=resolved,
         session_id=session_id, request_id=request_id)
     report('routing', '理解选区问题', '确认对象与本轮讲解需求')
-    routing = tutor.conversation_router.route(message, title, context.history, context.known_points, context=context)
+    from agents.input_understanding.adapters import legacy_routing
+    routing = legacy_routing(context) or tutor.conversation_router.route(
+        message, title, context.history, context.known_points, context=context)
     if routing_interceptor is not None:
         intercepted = routing_interceptor(routing, context)
         if intercepted is not None: return intercepted
@@ -69,6 +71,14 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
     state=tutor.memory.get_state(student_id,title)
     plan=TeachingPlan(goal='解释'+title+'中用户选中的内容',strategy='worked_example',action='explain',difficulty='easy')
     execution.align(plan)
+    from agents.adaptive_tutoring import enabled as unified_teaching_enabled
+    unified_strategy = None
+    strategy_instructions = ''
+    if unified_teaching_enabled():
+        from agents.teaching_strategy import decide_for_context,align_legacy_plan,strategy_prompt
+        unified_strategy = decide_for_context(context,execution)
+        align_legacy_plan(unified_strategy,plan)
+        strategy_instructions = strategy_prompt(unified_strategy,selector_tool=False)
     excerpt='[1] 本次选区：'+resolved['text']+'\n'+resolved['context']
     payload={'用户问题':message,'选区所属小节':title,'选区原文':resolved['text'],
              '教材上下文':resolved['context'],'相关学习记忆':memories,'本轮任务':routing.model_dump()}
@@ -110,7 +120,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
     for attempt in range(2):
         report('generating-'+str(attempt),'生成讲解' if attempt==0 else '修订讲解','结合教材原图与相关学习记忆')
         from llm.answer_events import answer_kwargs
-        reply=tutor.llm.chat([{'role':'system','content':SYSTEM+'\n'+ANSWER_PRESENTATION+'\n'+budget.instructions()+ '\n' + execution.instructions()},
+        reply=tutor.llm.chat([{'role':'system','content':SYSTEM+'\n'+ANSWER_PRESENTATION+'\n'+budget.instructions()+ '\n' + execution.instructions()+strategy_instructions},
             {'role':'user','content':json.dumps(payload,ensure_ascii=False)+'\n待核实质检意见（不是教材依据）：'+feedback}],
             image_paths=resolved['images'],temperature=.2,max_tokens=budget.max_tokens, **answer_kwargs(),
             agentic_evidence=excerpt or None,agentic_max_characters=budget.maximum).strip()
@@ -155,7 +165,11 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
     conversation_id = tutor.memory.append_exchange(student_id,message,reply,selection_ref=reference, expected_epoch=expected_epoch, expected_point=title, task_guard=task_guard, session_id=session_id)
     if conversation_id is False:
         return deleted_reply()
-    return {'answer_status':'answered','conversation_id':conversation_id,'step_advanced':False,'reply':reply,'selection_ref':reference,'guided_visualization':guided_visualization,'memory_summary':memories['summary'],
+    strategy_publication = None
+    if unified_strategy is not None:
+        from agents.teaching_strategy import publish_external_strategy
+        strategy_publication=publish_external_strategy(context,unified_strategy,reply,source_ids=[reference.get('document_id','')])
+    return {**({'teaching_strategy_plan':strategy_publication} if strategy_publication else {}),'answer_status':'answered','conversation_id':conversation_id,'step_advanced':False,'reply':reply,'selection_ref':reference,'guided_visualization':guided_visualization,'memory_summary':memories['summary'],
             'memory_commit':{'status':'committed','conversation_id':conversation_id},
             'pdf_references':grounded_refs or [],
             'context_refs':[{'page':p,'document_id':selection.document_id} for p in sorted({r.page for r in selection.rects})],
