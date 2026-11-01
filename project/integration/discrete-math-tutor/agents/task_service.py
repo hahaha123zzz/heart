@@ -220,6 +220,12 @@ class TaskService:
 
     def _resume(self, request, row):
         payload = dict(row["payload"])
+        if row['result'].get('clarification',{}).get('mode')=='response_composition':
+            from agents.composition_execution import enabled
+            if not enabled():raise TaskConflict('task_disabled','内容块恢复尚未启用')
+            payload=dict(row['context']['composition_checkpoint']['payload'])
+            payload.update(request_id=request.request_id,task_id=None,task_revision=None,selected_option=None,answers=None)
+            return ChatRequest.model_validate(payload)
         options = row["result"].get("clarification", {}).get("options", [])
         chosen = request.selected_option
         if chosen is None:
@@ -271,6 +277,16 @@ class TaskService:
         token = current_answer.set(answer)
         try:
             result = self._run(request, executor, progress, visualization_jobs=visualization_jobs, answer_ready=answer_ready)
+            from agents.composition_execution import enabled as composition_enabled
+            if composition_enabled() and result.get('task_id') and result.get('answer_status')!='answered':
+                try:
+                    from agents.composition_recovery import partial_result
+                    row=self.repo.get(request.student_id,request.session_id,result['task_id'])
+                    if row['context'].get('composition_checkpoint'):
+                        partial=partial_result(row)
+                        if partial:result=dict(result,composition_partial=partial)
+                except (TaskConflict,ValueError,KeyError,OSError):
+                    pass
             if answer and answer.identity:
                 # 已保存任务的 guard 只允许执行态；用既有收据复核最终版本及 epoch。
                 try:
@@ -364,6 +380,12 @@ class TaskService:
                 and q5_previous_mode in ("q5_plan", "q5_plan_adjust")
             )
             context, resolved, origins = self._context(effective)
+            composition_restore=None
+            if previous and previous['result'].get('clarification',{}).get('mode')=='response_composition':
+                from agents.composition_recovery import checked_checkpoint
+                from models.task_context import TaskContext
+                composition_restore,_=checked_checkpoint(previous)
+                context=TaskContext.model_validate(composition_restore['context'])
             from knowledge.pdf_reader import documents
             document_versions = {record["document_id"]: record["version"] for record in documents()}
             context.task_understanding_enabled = enabled
@@ -379,7 +401,7 @@ class TaskService:
             if duplicate is not None:
                 from knowledge.grounded_citations import references_for_display
                 return dict(duplicate,pdf_references=references_for_display(duplicate['pdf_references'])) if duplicate.get('pdf_references') else duplicate
-            if context.input_mode != 'off':
+            if context.input_mode != 'off' and composition_restore is None:
                 from agents.input_understanding.service import understand
                 from agents.input_understanding.adapters import resume_understanding
                 self.repo.guard(task['student_id'],task['session_id'],task['id'],task['revision'],self.tutor.memory.repo)
@@ -607,14 +629,25 @@ class TaskService:
             # 新任务也必须把已认领身份传给循环，使HTTP取消命中同一令牌。
             execution_request = effective.model_copy(update={
                 'task_id': task['id'], 'task_revision': task['revision']})
-            if q5_binding is not None:
-                result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard,
-                                  progress, previous=previous,
-                                  q5_binding=q5_binding))
-            elif self._accepts_previous(executor):
-                result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard, progress, previous=previous))
-            else:
-                result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard, progress))
+            from agents.composition_execution import composition_io, enabled as composition_enabled
+            def save_composition(value):
+                guard()
+                checkpoint={**value,'context':context.model_dump(mode='json'),
+                    'payload':execution_request.model_dump(mode='json'),'document_versions':document_versions}
+                self.repo.composition_checkpoint(task,checkpoint,self.tutor.memory.repo)
+                composition_session['latest']=checkpoint
+            composition_session={'save':save_composition,'restored':composition_restore,'latest':composition_restore}
+            composition_token=composition_io.set(composition_session if composition_enabled() else None)
+            try:
+                if q5_binding is not None:
+                    result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard,
+                                      progress, previous=previous,q5_binding=q5_binding))
+                elif self._accepts_previous(executor):
+                    result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard, progress, previous=previous))
+                else:
+                    result = stage_call('execution', lambda: executor(execution_request, context, resolved, intercept, guard, progress))
+            finally:
+                composition_io.reset(composition_token)
             if result.get("loop_paused"):
                 from agents.input_understanding.adapters import final_summary
                 summary = final_summary(context,result)
@@ -637,7 +670,10 @@ class TaskService:
                     and not result.get('learning_interjection')
                     and result.get("answer_status") == "answered"):
                 try:
-                    q5.record_explained(str(result.get("reply") or ""), request_key,guard=guard)
+                    explain_key=request_key
+                    if composition_enabled() and composition_session.get('latest'):
+                        explain_key=task['id']+':composition-explained'
+                    q5.record_explained(str(result.get("reply") or ""), explain_key,guard=guard)
                     result = dict(result, q5_status=q5.status())
                 except (ValueError, RuntimeError):
                     pass
@@ -713,9 +749,13 @@ class TaskService:
                 if current_budget.get():
                     current_budget.get().record('save.start')
                     result['execution_metrics'] = current_budget.get().snapshot()
-                task, result = self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo, status="completed", result=result,
+                completion_status='completed'
+                if composition_enabled() and result.get('answer_status')!='answered':
+                    if self.repo.get(task['student_id'],task['session_id'],task['id'])['context'].get('composition_checkpoint'):
+                        completion_status='failed'
+                task, result = self.repo.save(task=task, receipt_id=receipt, memory_repo=self.tutor.memory.repo, status=completion_status, result=result,
                     context=context.model_dump() | {"document_versions": document_versions})
-            if current_budget.get():
+            if current_budget.get() and task['status']=='completed':
                 current_budget.get().record('save.completed')
                 result = self.repo.record_metrics(task, receipt, current_budget.get().snapshot())
             return result

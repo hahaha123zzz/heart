@@ -151,7 +151,7 @@ def _excerpts(sources: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navigation=None, teaching=None, selection_input=None):
+def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navigation=None, teaching=None, selection_input=None, *, allow_incomplete=False):
     def gate(text: str, result: LoopResult) -> tuple[bool, str]:
         if not text.strip():
             return False, "模型没有返回可发布回答。"
@@ -165,10 +165,10 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
         required = explicit_chapters(request.message)
         missing = required - {source.get('chapter_id') for source in result.sources}
         partial = getattr(navigation, 'coverage_report', {}).get('status') == 'partial'
-        if len(required) > 1 and missing and not partial:
+        if len(required) > 1 and missing and not partial and not allow_incomplete:
             return False, '跨章问题缺少原文依据：' + '、'.join(f'第{chapter}章' for chapter in sorted(missing))
         coverage = getattr(navigation, 'coverage_report', {})
-        if coverage.get('status') == 'covered':
+        if coverage.get('status') == 'covered' and not allow_incomplete:
             cited = {int(value) for value in re.findall(r'\[(\d+)\]', text)}
             supported = {item for position, source in enumerate(result.sources, 1)
                          if int(source.get('index') or position) in cited
@@ -371,6 +371,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     The caller (``TaskService``) already claimed the task and owns its
     revision/idempotency; this function only executes the turn.
     """
+    from agents.composition_execution import composition_io
+    completed_checkpoint=(composition_io.get() or {}).get('restored') or {}
+    if completed_checkpoint.get('final_result'):
+        from copy import deepcopy
+        if guard:guard()
+        return deepcopy(completed_checkpoint['final_result'])
     resume_state = _resume_state(previous)
     from agents.selection_loop import enabled as selection_loop_enabled, descriptor, SelectionLoopInput
     selection_input = None
@@ -443,6 +449,11 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         return {'reply':'原待答题的教材来源已失效，不能恢复或评分。请重新选择教材内容后出题。',
                 'answer_status':'reference_stale','step_advanced':False}
     initial_sources = teaching.sources if teaching else []
+    from agents.composition_execution import composition_io, enabled as block_streaming_enabled
+    composition_runtime=composition_io.get()
+    composition_restore=(composition_runtime or {}).get('restored')
+    if composition_restore:
+        initial_sources=composition_restore['sources']
     resume_needs_evidence = bool(resume_state and not resume_state.get('sources') and tool_purpose == 'textbook')
     from knowledge.fixed_book import search_query
     prefetch_message = search_query(request.message) if resume_needs_evidence else request.message
@@ -597,6 +608,11 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         from agents.response_composition import ResponseComposer
         from agents.response_composition_adapters import response_plan
         composer = ResponseComposer(response_plan(target.target_id, context=context, teaching=teaching))
+        if composition_restore:
+            from models.learning_response import ResponsePlan
+            restored_plan=ResponsePlan.model_validate(composition_restore['plan'])
+            if restored_plan.target_id!=target.target_id:raise ValueError('恢复目标已变化')
+            composer=ResponseComposer(restored_plan)
         round_tokens = min(round_tokens + 600, 3200)  # JSON开销不改变原有正文字数门禁。
 
     def final_gate(text, outcome):
@@ -624,6 +640,19 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             publication.setdefault('reply', text)
             outcome._publication = publication
         return accepted, reason
+
+    progressive_execute=None
+    if composer is not None and block_streaming_enabled() and composition_runtime and not required_tools and len(composer.plan.blocks)>1:
+        from agents.composition_execution import execute_batches
+        partial_gate=publish_gate or _publish_gate(orchestrator,request,target,navigation,teaching,selection_input,allow_incomplete=True)
+        def batch_gate(text,outcome,complete):
+            if len(text)>budget.maximum:return False,'累计正文超过本轮字数预算；只压缩当前未发布部分'
+            return final_gate(text,outcome) if complete else partial_gate(text,outcome)
+        def progressive_execute(local_loop,loop_request,outcome,messages,collector):
+            # shortcut: 像素证据仍走整轮协议；完成视觉块逐批验收后再启用。
+            if not outcome.sources or not all(s.get('location',{}).get('evidence') and not s.get('image_refs') for s in outcome.sources):
+                return None
+            return execute_batches(local_loop,loop_request,outcome,messages,collector,composer=composer,gate=batch_gate,max_characters=budget.maximum)
 
     restored_reply = teaching.restore_reply() if teaching and not required_tools else None
     if restored_reply is not None:
@@ -653,6 +682,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     (teaching.evidence_mode == 'blended' and not resume_needs_evidence
                      and not needs_teaching_question and not needs_review_evidence)) if teaching else None),
                 response_composer=composer,
+                composition_execute=progressive_execute,
                 prefetch_query=(prefetch_message if resume_needs_evidence or (tool_purpose == 'textbook' and 'ask_user' not in required_tools and not resume_state and not initial_sources and (
                     composer is not None or
                     typed_prefetch or fallback_prefetch or q5_binding or (context.course_navigation or {}).get("status")=="ready" or
@@ -806,13 +836,20 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                         stored_reference['guided_visualization'] = mapped['guided_visualization']
                 if mapped.get('learning_cards'):
                     stored_reference['learning_cards'] = mapped['learning_cards']
-                conversation_id = memory.append_exchange(
-                    request.student_id, user_message, result.final_text,
-                    selection_ref=stored_reference
-                    if stored_reference["pdf_references"] or stored_reference["textbook_sources"] or stored_reference.get('learning_cards') or stored_reference.get('learning_response')
-                    else None,
-                    expected_epoch=epoch, expected_point=target.name, task_guard=guard,
-                    session_id=request.session_id)
+                def save_exchange():
+                    cid=memory.append_exchange(request.student_id,user_message,result.final_text,
+                        selection_ref=stored_reference if stored_reference['pdf_references'] or stored_reference['textbook_sources']
+                        or stored_reference.get('learning_cards') or stored_reference.get('learning_response') else None,
+                        expected_epoch=epoch,expected_point=target.name,task_guard=guard,session_id=request.session_id)
+                    if cid is not False and composition_runtime and composition_runtime.get('latest'):
+                        finished={**mapped,'conversation_id':cid,'memory_commit':{'status':'committed','conversation_id':cid}}
+                        composition_runtime['save']({**composition_runtime['latest'],'final_result':finished})
+                    return cid
+                if composition_runtime and composition_runtime.get('latest'):
+                    # 对话与最终标记同一事务，崩溃恢复不会再插入同一份完整回答。
+                    with memory.repo.unit_of_work():conversation_id=save_exchange()
+                else:
+                    conversation_id=save_exchange()
                 if conversation_id is False:
                     release(request.task_id or request.request_id)
                     return {

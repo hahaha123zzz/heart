@@ -33,7 +33,7 @@ window.renderLearningResponse = (response, reply, options={}) => {
   if(body!==reply)return null;
   return (response.leading_text?window.renderTutorAnswer(response.leading_text,options):'')+
     blocks.map(b=>'<section class="response-block" data-response-block="'+b.block_id+'">'+window.renderTutorAnswer(b.rendered_text,options)+'</section>').join('')+
-    (response.status==='partial'?'<small role="status">部分补充内容暂不可用，已保留可核验的讲解。</small>':'');
+    (response.status==='partial'?'<small role="status">讲解尚未全部完成，已保留可核验部分。</small>':response.status==='in_progress'?'<small role="status">已核验部分已保存，后续内容仍在处理中。</small>':'');
 };
 
 // 按稳定消息键更新文字区域，互动组件拥有独立生命周期。

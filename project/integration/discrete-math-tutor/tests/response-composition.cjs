@@ -5,7 +5,7 @@ const r={schema_version:'learning-response/v1',leading_text:'当前目标',reply
  {block_id:'b2',status:'published',rendered_text:'第二段'}]};
 const html=window.renderLearningResponse(r,r.reply);
 assert.ok(html.includes('data-response-block="b1"')&&html.includes('data-tutor-citation="1"'));
-assert.ok(window.renderLearningResponse({...r,status:'partial'},r.reply).includes('部分补充内容暂不可用'));
+assert.ok(window.renderLearningResponse({...r,status:'partial'},r.reply).includes('讲解尚未全部完成'));
 assert.equal((html.match(/第一段/g)||[]).length,1);
 assert.equal(window.renderLearningResponse({...r,schema_version:'future'},r.reply),null);
 assert.equal(window.renderLearningResponse(r,'其他正文'),null);

@@ -58,6 +58,7 @@ class LoopRequest:
     bound_media_id: str | None = None
     answer_ready: Callable[["LoopResult"], bool] | None = None
     response_composer: Any = None
+    composition_execute: Callable | None = None
 
 
 @dataclass
@@ -281,6 +282,10 @@ class LocalAgentLoop:
                 choice = 'required'
             role = 'progress' if tools else 'answer'
             model_messages = with_transient_model_messages(messages, result._transient)
+            if not tools and request.composition_execute is not None:
+                outcome=request.composition_execute(self,request,result,model_messages,collector)
+                if outcome is not None:return outcome
+                request.composition_execute=None
             if request.response_composer is not None:
                 model_messages = [*model_messages, {'role':'system', 'content':request.response_composer.instructions(result.sources)}]
                 role = 'progress'  # 候选JSON不进入学生正文；保存后发布经核验的内容块。

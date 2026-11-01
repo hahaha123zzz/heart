@@ -80,7 +80,7 @@ class LearningResponse(ResponseModel):
     schema_version: Literal['learning-response/v1'] = 'learning-response/v1'
     response_id: str
     plan: ResponsePlan
-    status: Literal['complete', 'partial']
+    status: Literal['complete', 'partial', 'in_progress']
     blocks: list[PublishedBlock]
     omitted: list[str] = Field(default_factory=list)
     leading_text: str = ''

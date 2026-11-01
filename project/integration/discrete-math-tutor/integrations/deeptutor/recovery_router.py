@@ -12,6 +12,54 @@ from .task_projection import checked_task, replay_events, source_pointers
 router = APIRouter(prefix="/api/chat", tags=["回合恢复"])
 
 
+@router.get('/composition/pending')
+def composition_pending(response: Response, student_id: str = Query(min_length=1,max_length=64),
+                        session_id: str = Query(default='legacy',min_length=1,max_length=64)):
+    from agents.composition_execution import enabled,resume_allowed
+    response.headers['Cache-Control']='no-store'
+    if not enabled():return {'pending':None}
+    row=LearningTaskRepository().composition_pending(student_id,session_id)
+    if not row:return {'pending':None}
+    try:
+        from agents.composition_recovery import partial_result
+        value=partial_result(row)
+        return {'pending':{'task_id':row['id'],'task_revision':row['revision'],
+            'partial':value,'status':row['status'],'resumable':resume_allowed(row['context']['composition_checkpoint']),
+            'question':row['context']['composition_checkpoint']['payload']['message'],
+            'request_id':row['context']['composition_checkpoint']['payload'].get('request_id')}}
+    except TaskConflict as error:raise conflict(error) from error
+    except (ValueError,KeyError,OSError) as error:raise HTTPException(410,'保存的教材来源已变化，不能恢复旧内容') from error
+
+
+from pydantic import BaseModel, Field
+
+
+class CompositionResumeRequest(BaseModel):
+    student_id: str = Field(min_length=1,max_length=64)
+    session_id: str = Field(default='legacy',min_length=1,max_length=64)
+    task_revision: int = Field(ge=1)
+
+
+@router.post('/tasks/{task_id}/composition/resume')
+def resume_composition(task_id: str, body: CompositionResumeRequest):
+    from uuid import uuid4
+    from agents.composition_execution import enabled,resume_allowed
+    from agents.composition_recovery import checked_checkpoint
+    from database.repository import Repository
+    if not enabled():raise HTTPException(409,'内容块恢复尚未启用')
+    repo=LearningTaskRepository()
+    try:
+        row=repo.get(body.student_id,body.session_id,task_id)
+        state,_=checked_checkpoint(row)
+        if not resume_allowed(state):raise TaskConflict('task_conflict','本轮累计预算已到，已保存部分仍可查看；请取消后重新提问')
+        row=repo.prepare_composition_resume(body.student_id,body.session_id,task_id,body.task_revision,Repository())
+        payload={**state['payload'],'student_id':body.student_id,'session_id':body.session_id,
+            'task_id':task_id,'task_revision':row['revision'],'request_id':str(uuid4()),'answers':None,'selected_option':None}
+        return {'request':payload}
+    except TaskConflict as error:raise conflict(error) from error
+    except (ValueError,KeyError,OSError) as error:raise HTTPException(410,'保存的教材来源已变化，不能恢复旧内容') from error
+
+
 def conflict(error):
     status = 404 if error.code in {"task_not_found", "account_missing"} else 409 if error.code in {"task_conflict", "task_busy"} else 410
     return HTTPException(status, {"code": error.code, "message": str(error)})
@@ -38,7 +86,12 @@ def request_status(request_id: str, response: Response, student_id: str = Query(
         if row["status"] not in {"ready", "executing"}:
             source_pointers(row["payload"], row["result"], row["context"].get("document_versions"))
         checked_task(student_id, session_id, task_id, row["revision"], allow_active=True)
+        composition_partial=None
+        if row['context'].get('composition_checkpoint'):
+            from agents.composition_recovery import partial_result
+            composition_partial=partial_result(row)
         return {"task_id": task_id, "task_revision": row["revision"], "status": row["status"],
+                'composition_partial':composition_partial,
                 "event_replay_enabled": os.getenv("DEEPTUTOR_TURN_SYNC", "0") == "1",
                 "result": row["result"] if row["status"] not in {"ready", "executing"} else None}
     except TaskConflict as error:
