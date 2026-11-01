@@ -102,6 +102,11 @@ def read_object(request: ObjectReadRequest):
             sources.append(SourceRef(key, request.document_id, text, request.version, chapter,
                 item.get('section_id'), min((r['page'] for r in rects), default=None), text,
                 location={'origin': 'layer4_object_read', 'kind': item['kind'],
+                          'source': record['source'], 'source_file': record['source'],
+                          'section': next((s['title'] for s in record.get('sections', [])
+                                           if s['id'] == item.get('section_id')), ''),
+                          'asset_ids': [request.object_id] if item is block and formula else [],
+                          'block_start': item['block_index'], 'block_end': item['block_index'],
                           'object_id': request.object_id if item is block else None,
                           'object_kind': request.kind if item is block else None,
                           'document_sha256': document_hash, 'original_sha256': registered['source_sha256'],

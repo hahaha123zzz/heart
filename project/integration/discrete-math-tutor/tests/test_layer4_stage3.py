@@ -45,7 +45,7 @@ class ObjectReadTests(unittest.TestCase):
         self.pdf = self.folder/'reader.pdf'
         self.pdf.write_bytes(b'fixture pdf version bytes')
         self.version = hashlib.sha256(self.pdf.read_bytes()).hexdigest()
-        self.record = {'document_id': self.doc_id, 'version': self.version, 'chapter_id': 1}
+        self.record = {'document_id': self.doc_id, 'version': self.version, 'chapter_id': 1, 'source': '测试教材.txt'}
         for target, kwargs in (
                 ('knowledge.course_config.PSYCHOLOGY_DIR', {'new': self.root}),
                 ('knowledge.pdf_reader.document', {'return_value': self.record}),

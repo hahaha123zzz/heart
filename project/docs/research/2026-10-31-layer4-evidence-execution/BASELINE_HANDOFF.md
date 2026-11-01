@@ -55,3 +55,6 @@ $layer4Course = 'E:/项目/heart/project/integration/discrete-math-tutor/knowled
 # 第三步后续交付
 
 对象直读、逐项覆盖和同一冻结集对照见[STAGE3_OBJECT_READ_AND_REQUIREMENTS.md](STAGE3_OBJECT_READ_AND_REQUIREMENTS.md)。本批仍是内部接口与离线验收，不是线上发布；公式OMML原件命中不等于语义或像素核验通过。
+# 第四步后续交付
+
+现有CourseSearch对象接线、本地逐项覆盖和隔离回归见[STAGE4_ONLINE_BRIDGE.md](STAGE4_ONLINE_BRIDGE.md)。代码仍在独立分支，未替换正在运行的服务；严格核验后7个对象仍缺少自身完整原页证据，不以邻文冒充通过。

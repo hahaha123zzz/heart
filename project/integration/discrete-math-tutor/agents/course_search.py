@@ -23,6 +23,9 @@ def explicit_chapters(message):
 
 def question_interjection(message, target):
     """显式点名的新问题只改变本轮读取，不改变教学目标。指代追问留在原目标。"""
+    from agents.object_evidence import OBJECT_ID
+    if OBJECT_ID.search(message):
+        return True
     from knowledge.figures import FIGURE_NUMBER
     chapters = explicit_chapters(message)
     if len(chapters) > 1 or (chapters and target.chapter_id not in chapters):
@@ -69,6 +72,7 @@ class CourseSearch:
         self.calls = []
         self.last_result = None
         self.coverage = None
+        self._object_coverage = {}
         self._covered_sources = None
         self._search_lock=threading.RLock()
         self._search_results={}
@@ -81,7 +85,9 @@ class CourseSearch:
     @bounded_stage('retrieval')
     def search(self, *, target, query, limit, preferred_types=()):
         chapters = explicit_chapters(self.message)
-        side_question = question_interjection(self.message, target)
+        from agents.object_evidence import requested_objects, read_requested_objects, missing_objects
+        object_ids = requested_objects(self.message)
+        side_question = bool(object_ids) or question_interjection(self.message, target)
         search_target = replace(target, target_id='question', name=self.message,
                                 chapter_id=next(iter(chapters)) if len(chapters) == 1 else None,
                                 section_id=None, source_scope={}, version='') if side_question else target
@@ -119,7 +125,44 @@ class CourseSearch:
             from knowledge.figures import FIGURE_NUMBER
             from knowledge.course_config import PSYCHOLOGY
             figure_request = PSYCHOLOGY and bool(FIGURE_NUMBER.search(self.message))
-            if figure_request:
+            if object_ids:
+                if not PSYCHOLOGY:
+                    raise ValueError('当前课程不授权读取心理学教材对象')
+                if limit < len(object_ids):
+                    raise ValueError('输出预算不足以保留所有请求的教材对象')
+                record.update(actual_backend='q2_object', object_ids=object_ids)
+                def check():
+                    from llm.execution_budget import check_budget
+                    check_budget()
+                    if self.cancellation:
+                        self.cancellation.check()
+                raw, expected = read_requested_objects(object_ids, check)
+                check()
+                self._needs_model_selection = True
+                sources = self.select(self.message, raw)
+                if len(sources) > limit:
+                    raise ValueError('对象证据超出本轮输出预算，请缩小问题')
+                check()
+                missing = missing_objects(expected, sources)
+                record.update(missing_objects=missing, object_status='incomplete' if missing else 'verified_original_range',
+                              model_saw_pixels=False, formula_semantic_verified=False)
+                if missing:
+                    sources = []
+                required_objects = [{'id': 'object-'+str(i+1), 'query': identity}
+                                    for i, identity in enumerate(object_ids)]
+                for i, original in enumerate(expected):
+                    sources = [replace(s, location={**s.location, 'retrieval_requirements':
+                        list(dict.fromkeys(s.location.get('retrieval_requirements', [])+['object-'+str(i+1)]))})
+                        if s.document_id == original.document_id and s.version == original.version
+                        and s.location.get('evidence', {}).get('source_block_id') == original.location['block_start']
+                        else s for s in sources]
+                self._object_coverage = {'status': 'partial' if missing else 'covered',
+                    'required': required_objects,
+                    'covered': [] if missing else [r['id'] for r in required_objects],
+                    'missing': [dict(r, reason='对象原文整体未通过核验，未发布邻文代替对象')
+                                for r in required_objects] if missing else [],
+                    'retrieval_calls': len(object_ids), 'supplemental_calls': 0}
+            elif figure_request:
                 from knowledge.figure_reading import named_figures, read_figure
                 figures = named_figures(self.message)
                 requested = {(int(a), int(b)) for a, b in FIGURE_NUMBER.findall(self.message)}
@@ -139,6 +182,14 @@ class CourseSearch:
                 record['document_identity'] = exact_version
                 record['exact_target_id'] = exact_id
                 sources = [source_from_chunk(chunk, index) for index, chunk in enumerate(exact[:limit])]
+            elif self.coverage is not None and self.coverage.requirements and self.backend is None:
+                record['actual_backend'] = 'local_requirement_coverage'
+                if self._covered_sources is None:
+                    self._covered_sources = self.coverage.search(target=search_target, query=query, limit=limit,
+                                                               preferred_types=preferred_types)
+                else:
+                    record['cached_coverage'] = True
+                sources = self._covered_sources
             elif self._use_fast_path(query):
                 sources = self._fast_sources(query, target, limit, preferred_types, record)
                 if sources is None:
@@ -181,12 +232,13 @@ class CourseSearch:
                     record['index_identity'] = {'path': str(INDEX), 'sha256': index_signature(INDEX)}
             record['retrieved_source_ids'] = [s.source_id for s in sources]
             # 先选择真实原文再分配本轮编号；发布时复用同一 evidence，而非重新检索。
-            if sources and all(s.location.get('source') for s in sources) and (figure_request or exact or not self.coverage
+            if record['actual_backend'] != 'q2_object' and sources and all(s.location.get('source') for s in sources) and (figure_request or exact or not self.coverage
                     or record['actual_backend'] == 'local_llamaindex' or record.get('upgraded_from')):
                 sources = self.select(self.message, sources)
             record.update(status='success' if sources else 'no_evidence',
                           selected_source_ids=[s.source_id for s in sources])
-            report = self.coverage.report if self.coverage and record['actual_backend'] not in ('q2_exact', 'q2_figure') else {}
+            report = self.coverage_report if record['actual_backend'] == 'q2_object' else (
+                self.coverage.report if self.coverage and record['actual_backend'] not in ('q2_exact', 'q2_figure') else {})
             record['retrieval_count'] = 0 if record.get('cached_coverage') else report.get('retrieval_calls', 1)
             record['supplemental_count'] = 0 if record.get('cached_coverage') else report.get('supplemental_calls', 0)
             return sources
@@ -261,9 +313,11 @@ class CourseSearch:
 
     @property
     def coverage_report(self):
-        return self.coverage.report if self.coverage else {}
+        return self._object_coverage or (self.coverage.report if self.coverage else {})
 
     def tool_context(self, sources):
+        if self._object_coverage:
+            return {'coverage': self._object_coverage}
         if self.coverage:
             return self.coverage.tool_context(sources)
         from knowledge.lightrag.relationships import relationship_context
@@ -287,9 +341,9 @@ def shared_search(base, *, message, llm, navigator=None, cancellation=None):
             allow_candidate=os.getenv('LIGHTRAG_ALLOW_CANDIDATE') == '1', source_root=PSYCHOLOGY_DIR), cancellation=cancellation)
     search = CourseSearch(base, message=message, llm=llm, backend=backend, cancellation=cancellation)
     from knowledge.lightrag.q3_adapter import LightRagNavigator
-    if isinstance(backend, LightRagNavigator):
-        from knowledge.lightrag.coverage import CoverageNavigator, semantic_selection
-        search.coverage = CoverageNavigator(backend, question=message,
+    from knowledge.lightrag.coverage import CoverageNavigator, semantic_selection, requirements_for
+    if isinstance(backend, LightRagNavigator) or (backend is None and requirements_for(message)):
+        search.coverage = CoverageNavigator(backend if backend is not None else base, question=message,
             select=lambda requirement, refs: search.select(requirement.query, refs, subproblem=requirement.id),
             judge=lambda requirement, refs: semantic_selection(llm, requirement, refs), cancellation=cancellation,
             decide=lambda requirement, refs: search.select(requirement.query,refs,subproblem=requirement.id,coverage=requirement))
