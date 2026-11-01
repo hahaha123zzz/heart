@@ -1,0 +1,1580 @@
+{
+  "schema": "source-research-audit/v1",
+  "date": "2026-11-01",
+  "scope": "static source/document review; no execution or performance evidence",
+  "projects": [
+    {
+      "name": "host",
+      "root": "E:\\项目\\heart",
+      "head": "61227247e66e3a3ca348e9681bb2bfccd19dea57",
+      "files": [
+        {
+          "path": "main.py",
+          "sha256": "317db39f6dfaeb99832e5257c8d33061fb59911d940680adac38099d58d5b8ff",
+          "lines": 405,
+          "symbols": [
+            {
+              "name": "TestAccountRequest",
+              "line": 76,
+              "end_line": 78
+            },
+            {
+              "name": "health",
+              "line": 82,
+              "end_line": 96
+            },
+            {
+              "name": "home",
+              "line": 100,
+              "end_line": 110
+            },
+            {
+              "name": "figure_image",
+              "line": 114,
+              "end_line": 125
+            },
+            {
+              "name": "chat",
+              "line": 129,
+              "end_line": 131
+            },
+            {
+              "name": "create_test_account",
+              "line": 136,
+              "end_line": 145
+            },
+            {
+              "name": "destroy_test_account",
+              "line": 149,
+              "end_line": 150
+            },
+            {
+              "name": "get_profile",
+              "line": 155,
+              "end_line": 156
+            },
+            {
+              "name": "get_evidence",
+              "line": 160,
+              "end_line": 161
+            },
+            {
+              "name": "get_misconceptions",
+              "line": 165,
+              "end_line": 169
+            },
+            {
+              "name": "get_lesson",
+              "line": 173,
+              "end_line": 175
+            },
+            {
+              "name": "_run_turn",
+              "line": 193,
+              "end_line": 207
+            },
+            {
+              "name": "_execute_task_turn",
+              "line": 210,
+              "end_line": 242
+            },
+            {
+              "name": "chat_stream",
+              "line": 245,
+              "end_line": 303
+            },
+            {
+              "name": "_validate_pdf_request",
+              "line": 306,
+              "end_line": 335
+            },
+            {
+              "name": "textbook_pdf_file",
+              "line": 338,
+              "end_line": 342
+            },
+            {
+              "name": "textbook_pdf_crop",
+              "line": 345,
+              "end_line": 349
+            },
+            {
+              "name": "preview_pdf_selection",
+              "line": 352,
+              "end_line": 355
+            },
+            {
+              "name": "TaskCancelRequest",
+              "line": 358,
+              "end_line": 361
+            },
+            {
+              "name": "pending_task",
+              "line": 365,
+              "end_line": 381
+            },
+            {
+              "name": "reader_receipt",
+              "line": 388,
+              "end_line": 394
+            },
+            {
+              "name": "cancel_task",
+              "line": 398,
+              "end_line": 405
+            },
+            {
+              "name": "events",
+              "line": 247,
+              "end_line": 300
+            },
+            {
+              "name": "execute",
+              "line": 200,
+              "end_line": 201
+            },
+            {
+              "name": "emit",
+              "line": 254,
+              "end_line": 256
+            },
+            {
+              "name": "progress",
+              "line": 258,
+              "end_line": 265
+            },
+            {
+              "name": "work",
+              "line": 267,
+              "end_line": 280
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "agents/agent_loop_service.py",
+          "sha256": "a094695dad5e33f95bc8fc544be014396afa3fd53ca29d6c1ea00b4d292c81fc",
+          "lines": 810,
+          "symbols": [
+            {
+              "name": "_target_from_context",
+              "line": 22,
+              "end_line": 47
+            },
+            {
+              "name": "_target_from_state",
+              "line": 50,
+              "end_line": 62
+            },
+            {
+              "name": "_resume_state",
+              "line": 65,
+              "end_line": 69
+            },
+            {
+              "name": "_default_navigator",
+              "line": 72,
+              "end_line": 125
+            },
+            {
+              "name": "_citation_format_issues",
+              "line": 128,
+              "end_line": 140
+            },
+            {
+              "name": "_excerpts",
+              "line": 143,
+              "end_line": 151
+            },
+            {
+              "name": "_publish_gate",
+              "line": 154,
+              "end_line": 212
+            },
+            {
+              "name": "_release_binding",
+              "line": 215,
+              "end_line": 220
+            },
+            {
+              "name": "_map_result",
+              "line": 223,
+              "end_line": 357
+            },
+            {
+              "name": "run_agent_loop_turn",
+              "line": 360,
+              "end_line": 807
+            },
+            {
+              "name": "gate",
+              "line": 155,
+              "end_line": 211
+            },
+            {
+              "name": "emit",
+              "line": 560,
+              "end_line": 576
+            },
+            {
+              "name": "final_gate",
+              "line": 590,
+              "end_line": 614
+            },
+            {
+              "name": "resolve_host",
+              "line": 83,
+              "end_line": 84
+            },
+            {
+              "name": "search_host",
+              "line": 86,
+              "end_line": 112
+            },
+            {
+              "name": "search",
+              "line": 118,
+              "end_line": 123
+            },
+            {
+              "name": "selection_guard",
+              "line": 383,
+              "end_line": 386
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "agents/adaptive_tutoring.py",
+          "sha256": "01a2c390519aa0a47a42f3d985a130bd660a370ae35842bde2e20bfbd5f07d5e",
+          "lines": 755,
+          "symbols": [
+            {
+              "name": "_check_question_key",
+              "line": 41,
+              "end_line": 45
+            },
+            {
+              "name": "enabled",
+              "line": 62,
+              "end_line": 63
+            },
+            {
+              "name": "label_switch",
+              "line": 66,
+              "end_line": 68
+            },
+            {
+              "name": "is_difficulty",
+              "line": 84,
+              "end_line": 88
+            },
+            {
+              "name": "TeachingDecision",
+              "line": 92,
+              "end_line": 98
+            },
+            {
+              "name": "analyze_teaching_turn",
+              "line": 101,
+              "end_line": 143
+            },
+            {
+              "name": "snapshot_from_recent",
+              "line": 146,
+              "end_line": 170
+            },
+            {
+              "name": "verified_sources",
+              "line": 173,
+              "end_line": 204
+            },
+            {
+              "name": "PracticeAssessment",
+              "line": 207,
+              "end_line": 213
+            },
+            {
+              "name": "public_state",
+              "line": 216,
+              "end_line": 229
+            },
+            {
+              "name": "redact_protocol",
+              "line": 232,
+              "end_line": 246
+            },
+            {
+              "name": "TeachingTurn",
+              "line": 249,
+              "end_line": 676
+            },
+            {
+              "name": "TeachingStepTool",
+              "line": 679,
+              "end_line": 755
+            },
+            {
+              "name": "__init__",
+              "line": 250,
+              "end_line": 418
+            },
+            {
+              "name": "_engagement",
+              "line": 420,
+              "end_line": 421
+            },
+            {
+              "name": "_locus",
+              "line": 423,
+              "end_line": 424
+            },
+            {
+              "name": "_avoid_repeat",
+              "line": 426,
+              "end_line": 434
+            },
+            {
+              "name": "_fresh",
+              "line": 436,
+              "end_line": 445
+            },
+            {
+              "name": "objective",
+              "line": 448,
+              "end_line": 449
+            },
+            {
+              "name": "_sync",
+              "line": 451,
+              "end_line": 458
+            },
+            {
+              "name": "_assess",
+              "line": 460,
+              "end_line": 548
+            },
+            {
+              "name": "instructions",
+              "line": 550,
+              "end_line": 608
+            },
+            {
+              "name": "gate",
+              "line": 610,
+              "end_line": 621
+            },
+            {
+              "name": "commit_sources",
+              "line": 623,
+              "end_line": 665
+            },
+            {
+              "name": "restore_reply",
+              "line": 667,
+              "end_line": 673
+            },
+            {
+              "name": "public",
+              "line": 675,
+              "end_line": 676
+            },
+            {
+              "name": "__init__",
+              "line": 696,
+              "end_line": 697
+            },
+            {
+              "name": "run",
+              "line": 699,
+              "end_line": 702
+            },
+            {
+              "name": "_run",
+              "line": 704,
+              "end_line": 755
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "agents/learning_cards.py",
+          "sha256": "4365e86ad19a30cbdf7985c9814d7af9c98d2196dd9b3faf53c1cfff5862d7c7",
+          "lines": 151,
+          "symbols": [
+            {
+              "name": "CardText",
+              "line": 11,
+              "end_line": 15
+            },
+            {
+              "name": "ComparisonRow",
+              "line": 18,
+              "end_line": 23
+            },
+            {
+              "name": "StepPresentation",
+              "line": 26,
+              "end_line": 30
+            },
+            {
+              "name": "ComparisonPresentation",
+              "line": 33,
+              "end_line": 38
+            },
+            {
+              "name": "presentation_arguments",
+              "line": 41,
+              "end_line": 57
+            },
+            {
+              "name": "_plain",
+              "line": 60,
+              "end_line": 61
+            },
+            {
+              "name": "presentation_text",
+              "line": 64,
+              "end_line": 82
+            },
+            {
+              "name": "published_reference_map",
+              "line": 85,
+              "end_line": 97
+            },
+            {
+              "name": "build_learning_cards",
+              "line": 100,
+              "end_line": 151
+            },
+            {
+              "name": "body",
+              "line": 66,
+              "end_line": 67
+            },
+            {
+              "name": "references",
+              "line": 69,
+              "end_line": 70
+            },
+            {
+              "name": "cell",
+              "line": 76,
+              "end_line": 77
+            },
+            {
+              "name": "card",
+              "line": 113,
+              "end_line": 115
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "agents/prompt_blocks.py",
+          "sha256": "43105b9bb041cb1e2c7727c69ceba0edd7d75c65e6c4e73ac8a38acdf382a0b2",
+          "lines": 40,
+          "symbols": [
+            {
+              "name": "PromptBlock",
+              "line": 17,
+              "end_line": 19
+            },
+            {
+              "name": "render_blocks",
+              "line": 22,
+              "end_line": 37
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "agents/response_generator.py",
+          "sha256": "c9f3e02b8225bed516cb3dc3c379614a3226f3f7f3afcbac8a2b08cc690bf860",
+          "lines": 235,
+          "symbols": [
+            {
+              "name": "_library_guides",
+              "line": 28,
+              "end_line": 34
+            },
+            {
+              "name": "ResponseGenerator",
+              "line": 93,
+              "end_line": 229
+            },
+            {
+              "name": "__init__",
+              "line": 94,
+              "end_line": 95
+            },
+            {
+              "name": "generate",
+              "line": 97,
+              "end_line": 216
+            },
+            {
+              "name": "social_reply",
+              "line": 218,
+              "end_line": 229
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "agents/quality_checker.py",
+          "sha256": "a32235b0f0d66cec2e7606b894e3c0afa3b85a1de85cfebe49ae3fb83327dc06",
+          "lines": 330,
+          "symbols": [
+            {
+              "name": "QualityResult",
+              "line": 73,
+              "end_line": 78
+            },
+            {
+              "name": "QualityChecker",
+              "line": 81,
+              "end_line": 330
+            },
+            {
+              "name": "__init__",
+              "line": 82,
+              "end_line": 84
+            },
+            {
+              "name": "check",
+              "line": 86,
+              "end_line": 265
+            },
+            {
+              "name": "_rule_check",
+              "line": 268,
+              "end_line": 330
+            },
+            {
+              "name": "teaching_check",
+              "line": 226,
+              "end_line": 241
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "agents/loop_prompts.py",
+          "sha256": "5113c6a24da93b2ebe98b09cc0fdce8d6870d8d8c3516af6559903690ad1dc53",
+          "lines": 69,
+          "symbols": [
+            {
+              "name": "_tool_manifest",
+              "line": 12,
+              "end_line": 19
+            },
+            {
+              "name": "build_loop_system_prompt",
+              "line": 22,
+              "end_line": 66
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "agents/teaching_planner.py",
+          "sha256": "3cda4cedff0eeb441c6a0d729fbf46c516a4db3cd5fd81ae4d2b3222826198f0",
+          "lines": 117,
+          "symbols": [
+            {
+              "name": "TeachingPlan",
+              "line": 27,
+              "end_line": 34
+            },
+            {
+              "name": "TeachingPlanner",
+              "line": 57,
+              "end_line": 117
+            },
+            {
+              "name": "__init__",
+              "line": 58,
+              "end_line": 59
+            },
+            {
+              "name": "plan",
+              "line": 61,
+              "end_line": 88
+            },
+            {
+              "name": "_validate",
+              "line": 91,
+              "end_line": 117
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "models/evidence_execution.py",
+          "sha256": "74c5fd0e2224e8e469ca0428f28e78e0c1b3f16409c35161207bfbe97c093c49",
+          "lines": 125,
+          "symbols": [
+            {
+              "name": "EvidenceRequirement",
+              "line": 10,
+              "end_line": 22
+            },
+            {
+              "name": "EvidenceRequest",
+              "line": 25,
+              "end_line": 42
+            },
+            {
+              "name": "RequirementCoverage",
+              "line": 45,
+              "end_line": 59
+            },
+            {
+              "name": "ToolExecutionReceipt",
+              "line": 62,
+              "end_line": 66
+            },
+            {
+              "name": "EvidencePackage",
+              "line": 69,
+              "end_line": 125
+            },
+            {
+              "name": "pixel_scope",
+              "line": 19,
+              "end_line": 22
+            },
+            {
+              "name": "bound_request",
+              "line": 35,
+              "end_line": 42
+            },
+            {
+              "name": "explicit_outcome",
+              "line": 52,
+              "end_line": 59
+            },
+            {
+              "name": "consistent_package",
+              "line": 77,
+              "end_line": 110
+            },
+            {
+              "name": "missing_required",
+              "line": 114,
+              "end_line": 117
+            },
+            {
+              "name": "ready_for_composition",
+              "line": 121,
+              "end_line": 122
+            },
+            {
+              "name": "checkpoint_payload",
+              "line": 124,
+              "end_line": 125
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "agents/tools/evidence_requirements.py",
+          "sha256": "96f2d758b1ac0dbef837494bf4499e4c81a6f25a90ae9f3da137df9b71dc5c41",
+          "lines": 50,
+          "symbols": [
+            {
+              "name": "execute_requirements",
+              "line": 9,
+              "end_line": 50
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "knowledge/grounded_citations.py",
+          "sha256": "5e53cff2ea2ab572fdbf7f873b4b7e3a610a85fffa58ee226be2a94252e9b18f",
+          "lines": 305,
+          "symbols": [
+            {
+              "name": "CitationGroundingError",
+              "line": 15,
+              "end_line": 15
+            },
+            {
+              "name": "EvidenceSelection",
+              "line": 18,
+              "end_line": 20
+            },
+            {
+              "name": "CoverageEvidenceSelection",
+              "line": 23,
+              "end_line": 26
+            },
+            {
+              "name": "settings",
+              "line": 29,
+              "end_line": 45
+            },
+            {
+              "name": "_parts",
+              "line": 48,
+              "end_line": 59
+            },
+            {
+              "name": "claims_for",
+              "line": 62,
+              "end_line": 71
+            },
+            {
+              "name": "EvidenceBundle",
+              "line": 75,
+              "end_line": 180
+            },
+            {
+              "name": "references_for_display",
+              "line": 183,
+              "end_line": 212
+            },
+            {
+              "name": "choose_evidence",
+              "line": 216,
+              "end_line": 283
+            },
+            {
+              "name": "selection_evidence",
+              "line": 286,
+              "end_line": 305
+            },
+            {
+              "name": "publish",
+              "line": 81,
+              "end_line": 105
+            },
+            {
+              "name": "references",
+              "line": 107,
+              "end_line": 180
+            },
+            {
+              "name": "markers",
+              "line": 98,
+              "end_line": 100
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "llm/answer_events.py",
+          "sha256": "72acd2aedd5cfbdcce1fcbade99a5baed0f730b906f3cd1061493e351beed639",
+          "lines": 100,
+          "symbols": [
+            {
+              "name": "AnswerEvents",
+              "line": 9,
+              "end_line": 80
+            },
+            {
+              "name": "answer_kwargs",
+              "line": 83,
+              "end_line": 88
+            },
+            {
+              "name": "checking",
+              "line": 91,
+              "end_line": 94
+            },
+            {
+              "name": "retract",
+              "line": 97,
+              "end_line": 100
+            },
+            {
+              "name": "__init__",
+              "line": 10,
+              "end_line": 18
+            },
+            {
+              "name": "bind",
+              "line": 20,
+              "end_line": 22
+            },
+            {
+              "name": "guard",
+              "line": 24,
+              "end_line": 27
+            },
+            {
+              "name": "validate",
+              "line": 29,
+              "end_line": 31
+            },
+            {
+              "name": "send",
+              "line": 33,
+              "end_line": 37
+            },
+            {
+              "name": "begin",
+              "line": 39,
+              "end_line": 49
+            },
+            {
+              "name": "delta",
+              "line": 51,
+              "end_line": 59
+            },
+            {
+              "name": "checking",
+              "line": 61,
+              "end_line": 64
+            },
+            {
+              "name": "retract",
+              "line": 66,
+              "end_line": 71
+            },
+            {
+              "name": "finish",
+              "line": 73,
+              "end_line": 80
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "frontend/chat-renderer.js",
+          "sha256": "d20f06c47eb6af635f9a849ba3bd8caa7e18fcba97ed89e81b7847aa867910fa",
+          "lines": 111,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        }
+      ]
+    },
+    {
+      "name": "DeepTutor",
+      "root": "D:\\deeptutor",
+      "head": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+      "files": [
+        {
+          "path": "deeptutor/book/agents/page_planner.py",
+          "sha256": "94be092f4eb3e919c8a49d262fb00912aba3f5d881d6c5fc41837f8585623fea",
+          "lines": 427,
+          "symbols": [
+            {
+              "name": "_build_block",
+              "line": 166,
+              "end_line": 196
+            },
+            {
+              "name": "_static_plan",
+              "line": 199,
+              "end_line": 221
+            },
+            {
+              "name": "_architect_prompts",
+              "line": 253,
+              "end_line": 264
+            },
+            {
+              "name": "_architect_user_prompt",
+              "line": 267,
+              "end_line": 282
+            },
+            {
+              "name": "SectionArchitect",
+              "line": 290,
+              "end_line": 406
+            },
+            {
+              "name": "_safe_dict",
+              "line": 409,
+              "end_line": 410
+            },
+            {
+              "name": "PagePlanner",
+              "line": 415,
+              "end_line": 419
+            },
+            {
+              "name": "__init__",
+              "line": 293,
+              "end_line": 303
+            },
+            {
+              "name": "plan_blocks",
+              "line": 306,
+              "end_line": 314
+            },
+            {
+              "name": "plan_blocks_async",
+              "line": 317,
+              "end_line": 406
+            },
+            {
+              "name": "__init__",
+              "line": 418,
+              "end_line": 419
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "deeptutor/book/blocks/base.py",
+          "sha256": "c21a9f3beb83002eb073282c0e525c907c6f183a586e57b6da4cf958cd3ad373",
+          "lines": 246,
+          "symbols": [
+            {
+              "name": "GenerationFailure",
+              "line": 34,
+              "end_line": 35
+            },
+            {
+              "name": "_classify_failure",
+              "line": 38,
+              "end_line": 66
+            },
+            {
+              "name": "_failure_metadata",
+              "line": 69,
+              "end_line": 85
+            },
+            {
+              "name": "BlockContext",
+              "line": 89,
+              "end_line": 127
+            },
+            {
+              "name": "BlockGenerator",
+              "line": 130,
+              "end_line": 175
+            },
+            {
+              "name": "BlockGeneratorRegistry",
+              "line": 178,
+              "end_line": 191
+            },
+            {
+              "name": "get_block_registry",
+              "line": 197,
+              "end_line": 201
+            },
+            {
+              "name": "_build_default_registry",
+              "line": 204,
+              "end_line": 237
+            },
+            {
+              "name": "primary_kb",
+              "line": 105,
+              "end_line": 106
+            },
+            {
+              "name": "relevant_chunks",
+              "line": 108,
+              "end_line": 127
+            },
+            {
+              "name": "generate",
+              "line": 135,
+              "end_line": 169
+            },
+            {
+              "name": "_generate",
+              "line": 172,
+              "end_line": 175
+            },
+            {
+              "name": "__init__",
+              "line": 181,
+              "end_line": 182
+            },
+            {
+              "name": "register",
+              "line": 184,
+              "end_line": 185
+            },
+            {
+              "name": "get",
+              "line": 187,
+              "end_line": 188
+            },
+            {
+              "name": "types",
+              "line": 190,
+              "end_line": 191
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "deeptutor/book/blocks/section.py",
+          "sha256": "a4286ecab85a689a90047a7ac6eb445d638733e547b728374f7f3103036cb1b9",
+          "lines": 369,
+          "symbols": [
+            {
+              "name": "_subsection_token_budget",
+              "line": 37,
+              "end_line": 48
+            },
+            {
+              "name": "_clip",
+              "line": 54,
+              "end_line": 58
+            },
+            {
+              "name": "_none_label",
+              "line": 61,
+              "end_line": 62
+            },
+            {
+              "name": "SectionGenerator",
+              "line": 70,
+              "end_line": 321
+            },
+            {
+              "name": "_fallback_outline",
+              "line": 329,
+              "end_line": 366
+            },
+            {
+              "name": "_generate",
+              "line": 73,
+              "end_line": 170
+            },
+            {
+              "name": "_make_outline",
+              "line": 176,
+              "end_line": 252
+            },
+            {
+              "name": "_fill_subsection",
+              "line": 258,
+              "end_line": 321
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "deeptutor/book/compiler.py",
+          "sha256": "5c3dfe108f51b717f4b73d69a6f1f36cf959bfc29a4978493d6c4f1d03717899",
+          "lines": 474,
+          "symbols": [
+            {
+              "name": "_parse_allowed_block_types",
+              "line": 53,
+              "end_line": 67
+            },
+            {
+              "name": "systemic_failure_reason",
+              "line": 70,
+              "end_line": 95
+            },
+            {
+              "name": "CompilerOptions",
+              "line": 99,
+              "end_line": 130
+            },
+            {
+              "name": "BookCompiler",
+              "line": 133,
+              "end_line": 471
+            },
+            {
+              "name": "__init__",
+              "line": 136,
+              "end_line": 148
+            },
+            {
+              "name": "compile_page",
+              "line": 152,
+              "end_line": 261
+            },
+            {
+              "name": "_generate_block",
+              "line": 265,
+              "end_line": 318
+            },
+            {
+              "name": "_generate_with_retry",
+              "line": 320,
+              "end_line": 346
+            },
+            {
+              "name": "attach_bridge_text",
+              "line": 350,
+              "end_line": 383
+            },
+            {
+              "name": "_attach_bridge_text",
+              "line": 385,
+              "end_line": 398
+            },
+            {
+              "name": "_plan_if_needed",
+              "line": 402,
+              "end_line": 450
+            },
+            {
+              "name": "_finalize_page_status",
+              "line": 455,
+              "end_line": 471
+            },
+            {
+              "name": "_run",
+              "line": 206,
+              "end_line": 217
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "deeptutor/book/models.py",
+          "sha256": "6726eea4664514a36fda7936adbfef7ac5081603f37695cb860b25a97c194bc3",
+          "lines": 580,
+          "symbols": [
+            {
+              "name": "BookStatus",
+              "line": 29,
+              "end_line": 39
+            },
+            {
+              "name": "PageStatus",
+              "line": 42,
+              "end_line": 48
+            },
+            {
+              "name": "BlockStatus",
+              "line": 51,
+              "end_line": 56
+            },
+            {
+              "name": "BlockType",
+              "line": 59,
+              "end_line": 83
+            },
+            {
+              "name": "BookDepth",
+              "line": 86,
+              "end_line": 96
+            },
+            {
+              "name": "depth_scale",
+              "line": 107,
+              "end_line": 112
+            },
+            {
+              "name": "ContentType",
+              "line": 115,
+              "end_line": 123
+            },
+            {
+              "name": "_new_id",
+              "line": 131,
+              "end_line": 132
+            },
+            {
+              "name": "_now",
+              "line": 135,
+              "end_line": 136
+            },
+            {
+              "name": "NotebookRef",
+              "line": 144,
+              "end_line": 150
+            },
+            {
+              "name": "ChatSelection",
+              "line": 153,
+              "end_line": 162
+            },
+            {
+              "name": "ChatMessageSnapshot",
+              "line": 165,
+              "end_line": 173
+            },
+            {
+              "name": "BookInputs",
+              "line": 176,
+              "end_line": 192
+            },
+            {
+              "name": "BookProposal",
+              "line": 200,
+              "end_line": 210
+            },
+            {
+              "name": "SourceAnchor",
+              "line": 218,
+              "end_line": 226
+            },
+            {
+              "name": "Chapter",
+              "line": 229,
+              "end_line": 242
+            },
+            {
+              "name": "ConceptNode",
+              "line": 250,
+              "end_line": 259
+            },
+            {
+              "name": "ConceptEdge",
+              "line": 262,
+              "end_line": 270
+            },
+            {
+              "name": "ConceptGraph",
+              "line": 273,
+              "end_line": 288
+            },
+            {
+              "name": "LearningCaptureStatus",
+              "line": 296,
+              "end_line": 314
+            },
+            {
+              "name": "LearningCapture",
+              "line": 317,
+              "end_line": 339
+            },
+            {
+              "name": "Spine",
+              "line": 342,
+              "end_line": 359
+            },
+            {
+              "name": "SourceChunk",
+              "line": 367,
+              "end_line": 383
+            },
+            {
+              "name": "ExplorationReport",
+              "line": 386,
+              "end_line": 405
+            },
+            {
+              "name": "Block",
+              "line": 413,
+              "end_line": 432
+            },
+            {
+              "name": "PageLink",
+              "line": 440,
+              "end_line": 447
+            },
+            {
+              "name": "Page",
+              "line": 450,
+              "end_line": 474
+            },
+            {
+              "name": "QuizAttempt",
+              "line": 482,
+              "end_line": 494
+            },
+            {
+              "name": "Progress",
+              "line": 497,
+              "end_line": 509
+            },
+            {
+              "name": "Book",
+              "line": 517,
+              "end_line": 547
+            },
+            {
+              "name": "node_by_id",
+              "line": 281,
+              "end_line": 285
+            },
+            {
+              "name": "has_edge",
+              "line": 287,
+              "end_line": 288
+            },
+            {
+              "name": "chapter_by_id",
+              "line": 355,
+              "end_line": 359
+            },
+            {
+              "name": "block_by_id",
+              "line": 470,
+              "end_line": 474
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "deeptutor/book/blocks/_rag_helpers.py",
+          "sha256": "cd55237f2eae7516b8c48022212b6b3d6c356f142090a17745e2c96ae0d13380",
+          "lines": 142,
+          "symbols": [
+            {
+              "name": "RagLookup",
+              "line": 21,
+              "end_line": 24
+            },
+            {
+              "name": "_coerce_anchors",
+              "line": 27,
+              "end_line": 44
+            },
+            {
+              "name": "optional_rag_lookup",
+              "line": 47,
+              "end_line": 139
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "deeptutor/book/blocks/_llm_writer.py",
+          "sha256": "4693ea076085c98b0b280ae6b1ed1d9e48be728ca6ea45e21985a4b1bcb3bc93",
+          "lines": 203,
+          "symbols": [
+            {
+              "name": "llm_text",
+              "line": 31,
+              "end_line": 77
+            },
+            {
+              "name": "_normalize_json_payload",
+              "line": 80,
+              "end_line": 93
+            },
+            {
+              "name": "_strip_thinking_preamble",
+              "line": 96,
+              "end_line": 134
+            },
+            {
+              "name": "llm_json",
+              "line": 137,
+              "end_line": 200
+            },
+            {
+              "name": "_once",
+              "line": 165,
+              "end_line": 189
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4",
+          "lines": 202,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        }
+      ]
+    },
+    {
+      "name": "OpenTutor",
+      "root": "F:\\opentutor\\OpenTutor",
+      "head": "a890519f3632efa14cf24449b366b3b9d901eecf",
+      "files": [
+        {
+          "path": "apps/web/src/lib/block-system/types.ts",
+          "sha256": "b0f5122cc967a7ba5d0d0bd27309504c91c968f7900a9288c5e4559549648e2e",
+          "lines": 52,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "apps/web/src/lib/block-system/registry.ts",
+          "sha256": "32b640c7ba7ecbf4819f60f14f9dff01149b3d4d4a8b850504cb0c54ae013be6",
+          "lines": 121,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "apps/api/services/agent/agents/tutor.py",
+          "sha256": "cca525e458ff1d8c5f3fbc9cefe8e528839ddc2efeb9a75f8223edfe1f78373d",
+          "lines": 394,
+          "symbols": [
+            {
+              "name": "TutorAgent",
+              "line": 47,
+              "end_line": 394
+            },
+            {
+              "name": "build_system_prompt",
+              "line": 84,
+              "end_line": 207
+            },
+            {
+              "name": "_build_grounding_context",
+              "line": 209,
+              "end_line": 245
+            },
+            {
+              "name": "_load_socratic",
+              "line": 247,
+              "end_line": 281
+            },
+            {
+              "name": "_save_socratic",
+              "line": 283,
+              "end_line": 304
+            },
+            {
+              "name": "execute",
+              "line": 306,
+              "end_line": 340
+            },
+            {
+              "name": "stream",
+              "line": 342,
+              "end_line": 370
+            },
+            {
+              "name": "_pre_execute_code",
+              "line": 372,
+              "end_line": 390
+            },
+            {
+              "name": "_build_assessment_data",
+              "line": 392,
+              "end_line": 394
+            }
+          ],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "5352b49679829689da4fa2db47ad7c32d58cb6442859eafe2bc5ce8599c83e44",
+          "lines": 21,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        }
+      ]
+    },
+    {
+      "name": "OpenMAIC",
+      "root": "F:\\openmaic\\OpenMAIC",
+      "head": "d128ef67c920571a86ce8a7c0430185689ab3d45",
+      "files": [
+        {
+          "path": "packages/@openmaic/dsl/src/validate.ts",
+          "sha256": "3daf0ecc98ebbde90f04e34e4b4176cb5b0aca62298592ed7b6077c3a0af4f8b",
+          "lines": 474,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "packages/@openmaic/dsl/src/version.ts",
+          "sha256": "fdd261439aeefd64facdabc6303bee6f8c218d0564b58783428b0b962d095d22",
+          "lines": 679,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "packages/@openmaic/dsl/package.json",
+          "sha256": "5453ef5ac7915aaae62eb7c7e1824c398b321d074c99776ef2c29027423fe11d",
+          "lines": 55,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "packages/@openmaic/dsl/LICENSE",
+          "sha256": "ba252563743227138231604c9138dd400faca5a10c3cf206b466e5466c565a19",
+          "lines": 21,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "packages/@openmaic/generation/src/pipeline-types.ts",
+          "sha256": "e68821117129733c1193b07a2c681e3e00efea727225799422b731f1295c27ad",
+          "lines": 64,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "packages/@openmaic/generation/src/generation-retry.ts",
+          "sha256": "a4a6780f3f4c3a7c973b5ffa9cf697eeb085c348a5e01c555784be814bbbd1e9",
+          "lines": 234,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "packages/@openmaic/generation/src/scene-generator.ts",
+          "sha256": "7e8e76b39a6e9e1ede72281d79f65a51999bc87968227646fa2d675d7c2e1836",
+          "lines": 2073,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "packages/@openmaic/renderer/src/elements/text/BaseTextElement.tsx",
+          "sha256": "c8ebfa150bf7c9028e63b161f6203f3bd1909cc40f5bd17b8cfe0f8787397b87",
+          "lines": 105,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "packages/@openmaic/renderer/src/utils/inlineMath.ts",
+          "sha256": "78954de0c63b321c28de527032f40554baf3c17db70ece73bd7a9a3cf0dc2b65",
+          "lines": 274,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "packages/@openmaic/renderer/src/utils/richText.ts",
+          "sha256": "ed2776b80737a530d17a2216a41b84a00c3ee23bd45f949dec7a9842cb047edc",
+          "lines": 10,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "packages/@openmaic/renderer/package.json",
+          "sha256": "060b02fdbe3c7206dc4bc984fa10c0f35854c490f29f6c240061797aa84684c9",
+          "lines": 113,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "ba252563743227138231604c9138dd400faca5a10c3cf206b466e5466c565a19",
+          "lines": 21,
+          "symbols": [],
+          "inspection": "selected source sections read; hash covers complete file"
+        }
+      ]
+    }
+  ],
+  "remote_references": [
+    {
+      "name": "ScaffoldLM",
+      "url": "https://raw.githubusercontent.com/BNU-ERC-ITEA/ScaffoldLM/main/model_serving/structured_tutor.py",
+      "commit": null,
+      "status": "official main source read; commit lookup unavailable; not approved for direct migration"
+    },
+    {
+      "name": "MRBench",
+      "url": "https://github.com/kaushal0494/UnifyingAITutorEvaluation",
+      "commit": null,
+      "status": "paper and README reviewed; CC BY-SA 4.0; direct dataset use requires license review"
+    },
+    {
+      "name": "PydanticAI output",
+      "url": "https://ai.pydantic.dev/output/",
+      "status": "official documentation only"
+    },
+    {
+      "name": "AI SDK data parts",
+      "url": "https://ai-sdk.dev/docs/ai-sdk-ui/streaming-data",
+      "status": "official documentation only"
+    },
+    {
+      "name": "DSPy optimizers",
+      "url": "https://dspy.ai/current/diving-deeper/choosing-an-optimizer/",
+      "status": "official documentation only"
+    }
+  ],
+  "input": {
+    "name": "用户第五层讨论稿",
+    "sha256": "56ba6c625598036cab295692c9c738a227d23e173b2314a831112f78e86b9f45"
+  }
+}

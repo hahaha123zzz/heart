@@ -586,6 +586,19 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         navigation.backend.cancellation = cancellation
     base_gate = publish_gate or (structured_gate(tool_purpose) if resources and tool_purpose in STRUCTURED_TOOL
                                  else _publish_gate(orchestrator, request, target, navigation, teaching, selection_input))
+    composer = None
+    composition_hint_only = bool(teaching and teaching.strategy == 'hint') or bool(input_turn and (
+        any(d.key in ('hint_only', 'no_full_answer') and d.value is True for d in input_turn.directives)
+        or any(set(task.constraints) & {'hint_only', 'no_full_answer'} for task in input_turn.tasks)))
+    if (os.getenv('RESPONSE_COMPOSITION_ENABLED', '0') == '1' and tool_purpose == 'textbook'
+            and not needs_teaching_question and not needs_presentation and 'ask_user' not in required_tools
+            and not composition_hint_only
+            and not (teaching and teaching.progress.pending_question)):
+        from agents.response_composition import ResponseComposer, plan_response
+        composer = ResponseComposer(plan_response(target_id=target.target_id,
+            strategy=getattr(teaching, 'strategy', 'direct'),
+            tasks=[task.action for task in input_turn.tasks] if input_turn else ()))
+        round_tokens = min(round_tokens + 600, 3200)  # JSON开销不改变原有正文字数门禁。
 
     def final_gate(text, outcome):
         missing = set(required_tools) - {row.get('tool') for row in outcome.tool_outputs}
@@ -631,16 +644,18 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 request_id=request.request_id or "",
                 message=request.message, system_prompt=system_prompt, tools=registry,
                 round_max_tokens=round_tokens, requires_evidence=(tool_purpose == 'textbook' and
-                    (resume_needs_evidence or needs_teaching_question or needs_review_evidence or teaching is None or teaching.evidence_mode != 'blended')),
+                    (composer is not None or resume_needs_evidence or needs_teaching_question or needs_review_evidence or teaching is None or teaching.evidence_mode != 'blended')),
                 required_tools=required_tools,
                 bound_media_id=next((r.canonical_id for r in input_turn.references
                     if r.kind == 'figure' and r.status == 'resolved' and r.origin == 'history'
                     and any(t.target_ref == r.ref_id for t in input_turn.tasks)),None) if input_turn else None,
                 structured_response=bool(needs_presentation or resources and tool_purpose in STRUCTURED_TOOL and publish_gate is None),
-                answer_ready=((lambda outcome: bool(outcome.sources) or
+                answer_ready=((lambda outcome: bool(outcome.sources)) if composer is not None else (lambda outcome: bool(outcome.sources) or
                     (teaching.evidence_mode == 'blended' and not resume_needs_evidence
                      and not needs_teaching_question and not needs_review_evidence)) if teaching else None),
+                response_composer=composer,
                 prefetch_query=(prefetch_message if resume_needs_evidence or (tool_purpose == 'textbook' and 'ask_user' not in required_tools and not resume_state and not initial_sources and (
+                    composer is not None or
                     typed_prefetch or fallback_prefetch or q5_binding or (context.course_navigation or {}).get("status")=="ready" or
                     (getattr(navigation.backend,"backend",None) is not None and target is not None and
                      (question_interjection(request.message,target) or target.name in request.message)))) else None),
@@ -714,6 +729,17 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     mapped['reply'] = rest.lstrip()
                 mapped['reply'] = status_line + '\n\n' + mapped['reply']
         result.final_text = mapped['reply']
+    if result.completed and composer is not None and composer.accepted:
+        try:
+            if guard:
+                guard()
+            mapped['learning_response'] = composer.publication(sources=result.sources,
+                references=mapped.get('pdf_references', []), reply=mapped['reply'],
+                response_id=request.request_id or request.task_id)
+        except ValueError:
+            release(request.task_id or request.request_id)
+            return {'reply':'内容块与已核验正文不一致，本轮未保存。',
+                    'answer_status':'quality_rejected','step_advanced':False}
     mapped['retrieval_calls'] = navigation.calls
     mapped['retrieval_coverage'] = navigation.coverage_report
     mapped['retrieval_trace'] = navigation.trace
@@ -764,6 +790,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     "image_refs": mapped.get('image_refs', []),
                     "session_study_plan": getattr(context,'session_study_plan',None),
                 }
+                if mapped.get('learning_response'):
+                    stored_reference['learning_response'] = mapped['learning_response']
                 if selection_input is not None:
                     stored_reference = {**selection_input.reference, **stored_reference}
                     if mapped.get('guided_visualization'):
@@ -773,7 +801,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 conversation_id = memory.append_exchange(
                     request.student_id, user_message, result.final_text,
                     selection_ref=stored_reference
-                    if stored_reference["pdf_references"] or stored_reference["textbook_sources"] or stored_reference.get('learning_cards')
+                    if stored_reference["pdf_references"] or stored_reference["textbook_sources"] or stored_reference.get('learning_cards') or stored_reference.get('learning_response')
                     else None,
                     expected_epoch=epoch, expected_point=target.name, task_guard=guard,
                     session_id=request.session_id)

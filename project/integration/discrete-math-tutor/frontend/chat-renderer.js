@@ -23,6 +23,19 @@ window.renderTutorAnswer = (text, options = {}) => {
   return '<p class="answer-text">'+result+plain(String(text).slice(end))+'</p>';
 };
 
+// 只消费服务端已发布的块；历史旧协议/正文不一致时保留基础正文。
+window.renderLearningResponse = (response, reply, options={}) => {
+  if(response?.schema_version!=='learning-response/v1' || response.reply!==reply || !response.blocks?.length)return null;
+  const blocks=response.blocks;
+  if(blocks.some(b=>b.status!=='published'||typeof b.rendered_text!=='string'||!/^b\d+$/.test(b.block_id)))return null;
+  if(new Set(blocks.map(b=>b.block_id)).size!==blocks.length)return null;
+  const body=[response.leading_text,...blocks.map(b=>b.rendered_text)].filter(Boolean).join('\n\n');
+  if(body!==reply)return null;
+  return (response.leading_text?window.renderTutorAnswer(response.leading_text,options):'')+
+    blocks.map(b=>'<section class="response-block" data-response-block="'+b.block_id+'">'+window.renderTutorAnswer(b.rendered_text,options)+'</section>').join('')+
+    (response.status==='partial'?'<small role="status">部分补充内容暂不可用，已保留可核验的讲解。</small>':'');
+};
+
 // 按稳定消息键更新文字区域，互动组件拥有独立生命周期。
 window.ChatMessageRenderer = class ChatMessageRenderer {
   constructor(container, renderMath) {

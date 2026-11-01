@@ -534,7 +534,7 @@ function renderContent() {
 }
 
 function messagesFromHistory(history) {
-  return history.map((m) => ({conversationId:m.id,styleSuggestion:m.role==="assistant"?styleControl().restore(m.id):null,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,cardsVerified:!(m.selection_ref?.learning_cards||[]).some(c=>c.schema==='learning-cards/v2'),learningCards:m.role==="assistant"?m.selection_ref?.learning_cards:undefined,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
+  return history.map((m) => ({conversationId:m.id,styleSuggestion:m.role==="assistant"?styleControl().restore(m.id):null,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,learningResponse:m.selection_ref?.learning_response,cardsVerified:!(m.selection_ref?.learning_cards||[]).some(c=>c.schema==='learning-cards/v2'),learningCards:m.role==="assistant"?m.selection_ref?.learning_cards:undefined,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
 }
 
 async function restoreLearningCards(){
@@ -657,10 +657,12 @@ function renderAnswerContent(message) {
   const previous=answerMarkup.get(message);
   const streaming=message.answerState==='generating';
   const media=JSON.stringify(message.imageRefs || []);
-  if (previous?.content===message.content && previous.streaming===streaming && previous.media===media && previous.draft===message.unpublishedDraft && previous.renderer===window.TutorMarkdown) return previous.html;
-  const html=window.renderTutorAnswer(message.content,{streaming,media:message.imageRefs || []})+window.TutorChatTransport.renderUnpublished(message.unpublishedDraft);
+  if (previous?.content===message.content && previous.response===message.learningResponse && previous.streaming===streaming && previous.media===media && previous.draft===message.unpublishedDraft && previous.renderer===window.TutorMarkdown) return previous.html;
+  const options={streaming,media:message.imageRefs || []};
+  const composed=!streaming&&window.renderLearningResponse?.(message.learningResponse,message.content,options);
+  const html=(composed || window.renderTutorAnswer(message.content,options))+window.TutorChatTransport.renderUnpublished(message.unpublishedDraft);
   // 进度变化不重新解析整条正文；消息删除后缓存随对象释放。
-  answerMarkup.set(message,{draft:message.unpublishedDraft,content:message.content,streaming,media,renderer:window.TutorMarkdown,html});
+  answerMarkup.set(message,{draft:message.unpublishedDraft,content:message.content,response:message.learningResponse,streaming,media,renderer:window.TutorMarkdown,html});
   return html;
 }
 let chatRenderer;
@@ -726,6 +728,7 @@ async function sendMessage(message, options={}) {
       content:result.reply || "助教暂时没有返回内容。", unpublishedDraft:result.unpublished_draft || '',
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
       cardsVerified:true,learningCards:result.answer_status==='answered'?result.learning_cards:undefined,selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
+      learningResponse:result.answer_status==='answered'?result.learning_response:undefined,
       sessionPlan:result.q5_session_plan || result.session_plan || result.q5_status?.session_plan,
       relationContext:result.answer_status==='answered'?result.relation_context:undefined,
       guide:result.answer_status==='answered'||(!result.answer_status&&result.guided_visualization)?result.guided_visualization:undefined});
