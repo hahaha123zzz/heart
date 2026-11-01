@@ -94,6 +94,7 @@ def execute_batches(loop, request, result, messages, collector, *, composer, gat
     if saved and (saved['plan']!=composer.plan.model_dump() or saved['source_digest']!=source_digest(result.sources)):
         raise ValueError('composition_checkpoint_input_changed')
     composer.accepted=restored_blocks(composer.plan,saved.get('accepted',{}))
+    composer.legacy_label_blocks=set(saved.get('legacy_label_blocks',[])) if saved.get('label_policy_version') else set(composer.accepted)
     composer.sources={s['source_id']:s for s in result.sources}
     omitted=set(saved.get('omitted',[]));calls=saved.get('calls',0)
     if type(calls) is not int or not 0<=calls<=8:raise ValueError('composition_checkpoint_call_budget')
@@ -119,6 +120,7 @@ def execute_batches(loop, request, result, messages, collector, *, composer, gat
         state={'schema':'response-checkpoint/v1','plan':composer.plan.model_dump(),
             'sources':result.sources,'source_digest':source_digest(result.sources),
             'accepted':{key:block.model_dump() for key,block in composer.accepted.items()},
+            'label_policy_version':2,'legacy_label_blocks':sorted(composer.legacy_label_blocks),
             'omitted':sorted(omitted),'calls':calls,'publication':previous,
             'active_seconds':consumed+monotonic()-started,'active_limit_seconds':budget.seconds if budget else 120,
             'in_flight_limit':min(90,budget.remaining()) if budget else 90,

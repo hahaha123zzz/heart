@@ -23,6 +23,7 @@ def checked_checkpoint(row):
     composer=ResponseComposer(ResponsePlan.model_validate(state['plan']))
     composer.sources={s['source_id']:s for s in state['sources']}
     composer.accepted=restored_blocks(composer.plan,state['accepted'])
+    composer.legacy_label_blocks=set(state.get('legacy_label_blocks',[])) if state.get('label_policy_version') else set(composer.accepted)
     for block in composer.accepted.values():composer._validate(block)
     if state.get('final_result'):
         from database.database import session_scope

@@ -53,6 +53,7 @@ class ResponseComposer:
         self.sources = {}
         self.source_identity = None
         self.revision = 0
+        self.legacy_label_blocks = set()
 
     def instructions(self, sources=()):
         self._check_package_sources(sources)
@@ -156,7 +157,11 @@ class ResponseComposer:
                       'derived_explanation':'补充说明：'}
             indices = [int(self.sources[key].get('index') or list(self.sources).index(key) + 1) for key in claim.source_ids]
             indices = list(dict.fromkeys((mapping or {}).get(index, index) for index in indices))
-            parts.append(labels.get(claim.provenance, '') + claim.text + ''.join(f'[{i}]' for i in indices))
+            label = labels.get(claim.provenance, '')
+            body = claim.text.removeprefix(label).lstrip() if label and block.block_id not in self.legacy_label_blocks else claim.text
+            if claim.provenance == 'generated_example' and block.block_id not in self.legacy_label_blocks:
+                body = re.sub(r'^教学示例[（(](?:非教材原例|非原书例题|非教材原例题)[）)][:：]\s*', '', body)
+            parts.append(label + body + ''.join(f'[{i}]' for i in indices))
         return '\n\n'.join(parts)
 
     def render(self, mapping=None):

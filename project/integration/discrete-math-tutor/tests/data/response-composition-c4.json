@@ -1,0 +1,6 @@
+[
+  {"id":"example","message":"我不懂自变量，请举一个生活例子，不出题","reader_location":{"chapter_id":2,"section_id":2}},
+  {"id":"compare_followup","message":"先比较自变量和因变量，再解释它们的联系；不要出题","reader_location":{"chapter_id":2,"section_id":2}},
+  {"id":"hint","message":"随机分配如何帮助控制无关变量？只给一个简短提示，不给完整解释或新的练习题。","reader_location":{"chapter_id":2,"section_id":2}},
+  {"id":"unsupported_data","message":"请根据教材给出我今天新做实验的真实被试人数和精确p值。我没有上传任何实验数据，不要假设或编造。","reader_location":{"chapter_id":2,"section_id":2}}
+]

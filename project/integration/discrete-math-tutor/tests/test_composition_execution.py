@@ -122,6 +122,17 @@ class CompositionExecutionTests(unittest.TestCase):
         outcome,model,_,_,_=self.execute([],saved=states[-1])
         self.assertTrue(outcome.completed);self.assertEqual(model.calls,[])
 
+    def test_old_checkpoint_keeps_existing_duplicate_label_before_continuing(self):
+        first=block('b1',text='教学示例（非原书例题）：一项模拟实验。',provenance='generated_example')
+        _,_,states,_,_=self.execute([final_round(response(first)),LLMError('中断')])
+        saved=states[-1]
+        saved.pop('label_policy_version');saved.pop('legacy_label_blocks')
+        saved['publication']['reply']=saved['publication']['reply'].replace('教学示例（非教材原例）：',
+            '教学示例（非教材原例）：教学示例（非原书例题）：')
+        resumed,model,_,events,_=self.execute([final_round(response(block('b2')))],saved=saved)
+        self.assertTrue(resumed.completed);self.assertEqual(len(model.calls),1)
+        self.assertTrue([e for e in events if e[0]=='answer_blocks'][-1][1]['publication']['reply'].startswith(saved['publication']['reply']))
+
     def test_frozen_prefix_cannot_be_rewritten_or_have_sources_removed(self):
         pub={'reply':'已发布[2]','pdf_references':references([SOURCES[0],SOURCES[1]])}
         first=freeze_publication(pub)

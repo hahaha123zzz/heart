@@ -215,7 +215,7 @@ class SpeedTests(unittest.TestCase):
     def test_combined_object_decision_replaces_separate_judge(self):
         from knowledge.lightrag.coverage import CoverageNavigator,Requirement
         from tests.test_lightrag_coverage import ref
-        navigator=Mock(last_result=None);navigator.search.return_value=[ref('s1',1)]
+        navigator=Mock(last_result=None,calls=[]);navigator.search.return_value=[ref('s1',1)]
         decide=Mock(side_effect=lambda req,rows:(rows,{'source_ids':[r.source_id for r in rows],'reason':'原文支持定义'}))
         select=Mock(side_effect=AssertionError('不得再次选证'));judge=Mock(side_effect=AssertionError('不得再次覆盖判定'))
         coverage=CoverageNavigator(navigator,question='比较',requirements=[Requirement('a','实验程序',1)],
@@ -280,6 +280,17 @@ class SpeedTests(unittest.TestCase):
                 {'event':'answer_state','seconds':10,'data':{'round_id':2,'state':'saved'}}]
         self.assertEqual(effective_first_answer(events),8)
         self.assertIsNone(effective_first_answer(events[:-1]))
+
+    def test_first_verified_block_counts_only_for_saved_answer(self):
+        from scripts.benchmark_output_speed import effective_first_answer
+        events=[{'event':'answer_blocks','seconds':2,'data':{'answer_id':'a','publication':{'reply':'已核验'}}},
+                {'event':'answer_replace','seconds':4,'data':{'answer_id':'a','authoritative':True,'text':'已核验\n\n后续'}},
+                {'event':'answer_state','seconds':5,'data':{'answer_id':'a','round_id':2,'state':'saved'}}]
+        self.assertEqual(effective_first_answer(events),2)
+        events[0]['data']['publication']['reply']='旧内容'
+        self.assertEqual(effective_first_answer(events),4)
+        events[-1]['data']['state']='rejected'
+        self.assertIsNone(effective_first_answer(events))
 
     def test_query_checks_content_twice_and_rejects_inflight_same_stat_change(self):
         from contextlib import ExitStack

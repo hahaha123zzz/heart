@@ -74,6 +74,12 @@ class CompositionTests(unittest.TestCase):
         self.assertEqual(published['status'],'partial');self.assertEqual(published['omitted'],['b2'])
         example=ResponseComposer(plan_response(target_id='t'))
         self.assertIn('非教材原例',example.accept(response(block('b1',provenance='generated_example')),SOURCES))
+        example=ResponseComposer(plan_response(target_id='t'))
+        result=example.accept(response(block('b1',text='教学示例（非教材原例）：一项模拟实验。',provenance='generated_example')),SOURCES)
+        self.assertEqual(result.count('教学示例（非教材原例）'),1)
+        example=ResponseComposer(plan_response(target_id='t'))
+        result=example.accept(response(block('b1',text='教学示例（非原书例题）：一项模拟实验。',provenance='generated_example')),SOURCES)
+        self.assertEqual(result.count('教学示例'),1)
 
     def test_changed_source_invalidates_repair_cache(self):
         composer=ResponseComposer(plan_response(target_id='t',strategy='contrast'))
