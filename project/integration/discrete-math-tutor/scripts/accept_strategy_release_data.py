@@ -19,7 +19,7 @@ def accept(snapshot_db):
     from knowledge.course_release import validate
     from agents.adaptive_tutoring import TeachingTurn, verified_sources, SCHEMA
     from agents.deeptutor_learning.models import LearningProgress
-    from agents.deeptutor_learning.policy import is_mastered
+    from agents.deeptutor_learning.policy import is_assessed_mastered, is_mastered
     from agents.q3_navigation import LearningTarget
     from agents.teaching_policy import strategy_ids
     from models.task_context import TaskContext
@@ -52,7 +52,8 @@ def accept(snapshot_db):
                 target=LearningTarget(old.get('target_id') or 'release-target',ctx.knowledge_point))
             assert turn.plan.primary_strategy in strategy_ids()
             assert len(turn.progress.learning_evidence)==len(progress.learning_evidence)
-            assert turn.state['formal_mastery']==is_mastered(progress,progress.modules[0].knowledge_points[0])
+            assert turn.state['formal_mastery']==is_assessed_mastered(progress,progress.modules[0].knowledge_points[0])
+            assert turn.state['route_can_advance']==is_mastered(progress,progress.modules[0].knowledge_points[0])
             assert turn.plan.publication_receipt is None
             summary['source_invalidations']+=int(turn.sources_invalidated)
             summary['snapshot_replays']+=1

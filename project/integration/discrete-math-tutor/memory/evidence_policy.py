@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
 
 
 @dataclass(frozen=True)
@@ -28,7 +29,11 @@ def source_quote(item, student_input: str) -> str:
 
 
 def assess_attempt(routing, message, evidence, previous_event=None, has_history=False, blocked=False):
-    if blocked or routing.student_move != "attempt":
+    self_report = re.fullmatch(
+        r"\s*(?:我)?(?:已经|现在|还是|仍然|还)?(?:懂了|明白了|理解了|会了|知道了|不懂|不理解|没懂|不会|不明白|好的|嗯|谢谢)[，。！!\s]*",
+        message,
+    )
+    if blocked or routing.student_move != "attempt" or self_report:
         return EvidenceDecision(False, False, "本轮为提问、讲解或自述，未测量独立能力")
     if routing.confidence < .7:
         return EvidenceDecision(False, False, "作答类别尚不确定")
@@ -54,6 +59,9 @@ def project_state(before, candidate, raw, decision):
     state.confidence = before.confidence
     state.metacognition = before.metacognition
     updates = dict(raw)
+    # The model's numeric observations do not establish their source or scale.
+    updates.pop("confidence", None)
+    updates.pop("metacognition", None)
     if not decision.eligible:
         updates.pop("mastery", None)
         updates.pop("steps_mastery", None)

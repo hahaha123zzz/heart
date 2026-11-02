@@ -24,7 +24,7 @@ from agents.deeptutor_learning.models import (
     LearningModule, LearningProgress, PendingQuestion, QuizAttempt,
 )
 from agents.deeptutor_learning.pending import public_pending_question
-from agents.deeptutor_learning.policy import is_mastered, learning_stage, next_objective
+from agents.deeptutor_learning.policy import is_assessed_mastered, is_mastered, learning_stage, mastery_source, next_objective
 from agents.tool_protocol import BaseTool, ToolContext, ToolDefinition, ToolParameter, ToolResult
 from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions
 from agents.teaching_strategy import (TeachingStrategyPlan, TeachingMove, decide, configure_moves,
@@ -210,7 +210,7 @@ def public_state(state):
     """One projection for prompts/clients; private LearningProgress stays local."""
     output = {k: deepcopy(state.get(k)) for k in (
         "schema", "topic", "teaching_mode", "last_strategy", "last_summary", "stage", "allow_check",
-        "assessment", "turn_move", "engine_next", "formal_mastery", "hint_level")}
+        "assessment", "turn_move", "engine_next", "formal_mastery", "route_can_advance", "mastery_source", "hint_level")}
     plan = state.get("strategy_plan")
     if plan:
         output["strategy_plan"] = {k: deepcopy(v) for k,v in plan.items()
@@ -481,7 +481,9 @@ class TeachingTurn:
         self.state["stage"] = learning_stage(self.progress, self.objective.id)
         self.state["engine_next"] = next_objective(
             self.progress, pending_session_id=self.request.session_id).to_dict()
-        self.state["formal_mastery"] = is_mastered(self.progress, self.objective)
+        self.state["formal_mastery"] = is_assessed_mastered(self.progress, self.objective)
+        self.state["route_can_advance"] = is_mastered(self.progress, self.objective)
+        self.state["mastery_source"] = mastery_source(self.progress, self.objective)
         self.state["progress"] = self.progress.model_dump(mode="json")
         self.state["profile"] = self.progress.learner_profile.model_dump()
         self.context.tutoring = self.state

@@ -1,6 +1,6 @@
 """Evidence —— 学习证据（Student Model 的可溯源原子事实）。
 
-【参考实现】ScaffoldLM 的 assessment/evidence 思路；OATutor "只认独立有效证据"。
+【参考实现】ScaffoldLM 的 assessment/evidence 思路；OATutor 的帮助与首次作答记录。
 【自主衔接】mastery / 误解判断都必须能追溯到证据，避免"LLM 一句话就下结论"。
 """
 

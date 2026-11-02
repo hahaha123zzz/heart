@@ -148,12 +148,16 @@ class MemoryEventTests(unittest.TestCase):
         state = project_state(self.before, candidate, raw, decision)
         self.assertEqual(state.mastery, self.before.mastery)
         self.assertEqual(state.steps_mastery, self.before.steps_mastery)
+        self.assertEqual(state.confidence, self.before.confidence)
         args=self.args();args.update(state=state, decision=decision, evidence=[])
         self.memory.commit_learning_turn(**args)
         self.assertEqual(self.memory.get_profile("s").teaching_effectiveness,{})
 
     def test_unattributed_or_assisted_attempt_is_not_mastery_evidence(self):
         routing = SimpleNamespace(student_move="attempt", confidence=1)
+        self_report = Evidence(content="我懂了", source_quote="我懂了")
+        self.assertFalse(assess_attempt(routing, "我懂了", [self_report]).eligible)
+        self.assertFalse(assess_attempt(routing, "我还是不懂", [self_report]).eligible)
         fake = Evidence(content="学生懂了", source_quote="教材中的另一句话")
         self.assertFalse(assess_attempt(routing,"A包含1",[fake]).eligible)
         grounded=Evidence(content="A包含1",source_quote="A包含1")
@@ -168,8 +172,10 @@ class MemoryEventTests(unittest.TestCase):
 
     def test_provisional_numeric_observation_is_blended_only_once(self):
         state=project_state(self.before,self.before.model_copy(update={"mastery":.9}),
-            {"mastery":.7},EvidenceDecision(True,True,"原文"))
+            {"mastery":.7,"confidence":1,"metacognition":1},EvidenceDecision(True,True,"原文"))
         self.assertAlmostEqual(state.mastery,.58)
+        self.assertEqual(state.confidence, self.before.confidence)
+        self.assertEqual(state.metacognition, self.before.metacognition)
         state=project_state(self.before,self.before,{"mastery":1,"steps_mastery":{"S1":1}},EvidenceDecision(True,True,"原文"))
         self.assertLess(state.mastery,.8)
         self.assertLess(state.steps_mastery["S1"],.8)
@@ -250,7 +256,7 @@ class MemoryEventTests(unittest.TestCase):
     def turn(self,tutor):
         from knowledge.textbook import TextbookChunk
         source=TextbookChunk(source="教材.txt",section="集合",text="集合的元素",terms=frozenset())
-        with patch("orchestrator.retrieve_hybrid",return_value=[source]),patch("orchestrator.retrieve_figures",return_value=[]),\
+        with patch("orchestrator.PSYCHOLOGY", False), patch("orchestrator.retrieve_course",return_value=[source]),patch("orchestrator.retrieve_figures",return_value=[]),\
              patch("orchestrator.expand_proof_sources",return_value=([source],None)),\
              patch("orchestrator.enrich_sources",return_value=([source],None)),\
              patch("orchestrator.complete_pdf_references",return_value=[]):

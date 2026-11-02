@@ -1,6 +1,6 @@
 """Evidence Extractor —— 从学生输入提取结构化学习证据（+ 状态观测 + 误解假设）。
 
-【参考实现】ScaffoldLM 的 assessment/evidence；OATutor "只认独立有效证据"。
+【参考实现】ScaffoldLM 的 assessment/evidence；OATutor 的帮助与首次作答记录。
 【自主衔接】按既定决策，本模块与 State Analyzer **共用一次 LLM 调用**（模块独立、调用合并）：
 本模块发起调用并返回 AnalysisResult（证据 / 观测 / 误解假设），
 State Analyzer 只负责把观测整合进 StudentState。

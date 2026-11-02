@@ -8,6 +8,7 @@ from database.models import (Student, KnowledgeStateRow, MisconceptionRow, Evide
     StrategyObservationRow, MemoryArtifactRow, MemoryControlRow, MemoryExclusionRow, MemoryChangeRow, ExerciseSkillObservationRow, LearningTaskRow, VisualizationRow)
 
 from models.interaction_preferences import InteractionPreferences
+from database.preference_provenance import confirmed_preferences
 PREFERENCE_KEYS=set(InteractionPreferences.model_fields)
 
 
@@ -46,9 +47,7 @@ class MemoryManagementRepository:
             if point and point not in points:
                 raise LookupError("知识点记忆不存在")
             profile=self.get_profile(student_id)
-            changes=session.scalars(select(MemoryChangeRow).where(MemoryChangeRow.student_id==student_id,
-                MemoryChangeRow.action=="set_preference").order_by(MemoryChangeRow.id)).all()
-            explicit={r.item_key for r in changes}
+            explicit=confirmed_preferences(session, student_id, profile.preferences)
             result={"preferences":[{"key":key,"value":value,"source":"explicit_user" if key in explicit else "legacy_unverified"}
                 for key,value in profile.preferences.items()],"points":points,"detail":None,
                 "scope":"本机测试账户；删除以知识点为单位。归属不明的旧对话不猜测删除，练习成绩单独保留。"}
@@ -70,16 +69,15 @@ class MemoryManagementRepository:
             if session.get(Student,student_id) is None:
                 raise LookupError("学生不存在")
             profile=self.get_profile(student_id)
-            explicit=set(session.scalars(select(MemoryChangeRow.item_key).where(
-                MemoryChangeRow.student_id==student_id,MemoryChangeRow.action=='set_preference',
-                MemoryChangeRow.item_key.in_(values))))
+            explicit=confirmed_preferences(session, student_id, profile.preferences)
             changed={key:value for key,value in values.items() if key not in explicit or profile.preferences.get(key)!=value}
             if not changed:
                 return profile.preferences
             profile.preferences.update(changed)
             self.save_profile(profile)
             for key in changed:
-                session.add(MemoryChangeRow(student_id=student_id,action="set_preference",item_key=key))
+                session.add(MemoryChangeRow(student_id=student_id,action="set_preference",item_key=key,
+                                            source="explicit_user",confirmed_value=changed[key]))
             return profile.preferences
 
     def forget_preference(self, student_id, key):

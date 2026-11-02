@@ -1,4 +1,4 @@
-"""Prove vendored algorithms are unchanged apart from import namespaces."""
+"""Verify the documented vendor snapshot and matching host adaptation."""
 import hashlib
 import json
 from pathlib import Path
@@ -12,7 +12,12 @@ def test_pinned_source_and_mechanical_import_adaptation():
     notice = json.loads((ENGINE / 'SOURCE_NOTICE.json').read_text(encoding='utf-8'))
     assert notice['commit'] == '6cf793bd868ba5ecbe64722936d4be8fab5a01df'
     assert notice['license'] == 'Apache-2.0'
+    policy = next(entry for entry in notice['files'] if entry['path'] == 'deeptutor/learning/policy.py')
+    assert policy['upstream_sha256'] == '07f4f8cf5911c1c383a674844c84adfd7355a2b28cfd1620742272514138e91c'
     for entry in notice['files']:
+        if entry['path'] == 'LICENSE':
+            assert hashlib.sha256((ENGINE / 'LICENSE').read_bytes()).hexdigest() == entry['sha256']
+            continue
         original = VENDOR / entry['path']
         assert hashlib.sha256(original.read_bytes()).hexdigest() == entry['sha256']
         expected = original.read_text(encoding='utf-8').replace('deeptutor.learning.', 'agents.deeptutor_learning.')

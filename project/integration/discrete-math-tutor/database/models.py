@@ -417,6 +417,7 @@ class MemoryChangeRow(Base):
     action: Mapped[str] = mapped_column(String(40))
     item_key: Mapped[str] = mapped_column(String(128), default="")
     source: Mapped[str] = mapped_column(String(32), default="explicit_user")
+    confirmed_value: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
 
 

@@ -24,6 +24,13 @@
       "local_sha256": "a0d1b84e8ebeaa1b56d2baa2bc65ea275ac651cdbcc100dc616706456beaf70c",
       "patch": "LOCAL_PATCHES/reuse-scoped-path-service.patch",
       "reason": "Reuse existing root-keyed PathService cache while retaining every directory initialization and permission check"
+    },
+    {
+      "path": "deeptutor/learning/policy.py",
+      "upstream_sha256": "07f4f8cf5911c1c383a674844c84adfd7355a2b28cfd1620742272514138e91c",
+      "local_sha256": "138df30b37791ec0ad74ab08c50871807edf5f39769a46ce964989ae40e00a11",
+      "patch": "LOCAL_PATCHES/learning-evidence-qualification.patch",
+      "reason": "Exclude explicitly non-independent and AI-provisional evidence from independent learning stages and visual achievements"
     }
   ],
   "files": {

@@ -10,7 +10,7 @@
 - steps_mastery -> OATutor：步骤级技能掌握度（S1/S2/…，达到 target 才算学会）
 - misconceptions -> Misconception Modeling（列表 + 状态，替代单一字符串）
 - mistake_patterns -> Adaptive AI Tutor 的 MistakePattern：错误模式独立建模、跨轮累计
-- evidence -> OATutor "evidence-based mastery"：掌握度只认独立有效证据
+- evidence -> 结合来源与独立性限制状态更新；具体门禁由项目维护
 - interaction_preference / cognitive_load -> 工程组合 / Cognitive Load Theory（预留）
 
 【自主衔接】统一数据结构 + blend_numeric() 融合方法

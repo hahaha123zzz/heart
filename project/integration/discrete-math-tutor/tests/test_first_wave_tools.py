@@ -310,7 +310,7 @@ class MemoryReadTests(unittest.TestCase):
                         s.flush()
                         s.add_all([LearnerProfileRow(student_id='s', preferences={'answer_length': .2, 'example_density': .9}),
                             LearnerProfileRow(student_id='other', preferences={'answer_length': .9}),
-                            MemoryChangeRow(student_id='s', action='set_preference', item_key='answer_length')])
+                            MemoryChangeRow(student_id='s', action='set_preference', item_key='answer_length', confirmed_value=.2)])
                     statements = []
                     event.listen(engine, 'before_cursor_execute', lambda conn, cursor, sql, *rest: statements.append(sql))
                     binding = ReadBinding('s', 'session', 'task', 'course', 'r', ())

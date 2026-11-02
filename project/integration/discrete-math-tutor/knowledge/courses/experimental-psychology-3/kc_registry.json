@@ -1,0 +1,35 @@
+{
+  "schema": "kc-registry-v1",
+  "course_id": "experimental-psychology-3",
+  "version": "2026-11-01-candidate-1",
+  "description": "实验变量候选切片，供教师审阅；不代表已确认的测量标准。",
+  "sources": [{
+    "id": "chapter-01-variable-blocks",
+    "document": "chapters/chapter_01/document.json",
+    "docx": "chapters/chapter_01/第1章实验心理学概论.docx",
+    "document_sha256": "5a9a83e24f89be225925f3bbb5c6ac881213d16ab96d97e9f270e4f27a74204f",
+    "docx_sha256": "a05e9db2579da12bbc1f2b9771b259613e7223cedb40d6c29825b19ca0e59458",
+    "chapter_id": 1,
+    "section_id": 3,
+    "block_ids": [320, 322, 323, 324]
+  }],
+  "knowledge_components": [
+    {"id": "kc-psych-001", "name": "识别实验自变量", "aliases": ["自变量识别"], "observable": "在充分描述的实验情境中指出研究者操纵的因素并给出依据。", "status": "candidate", "source_refs": [{"source_id": "chapter-01-variable-blocks", "block_ids": [322]}]},
+    {"id": "kc-psych-002", "name": "识别实验因变量", "aliases": ["因变量识别"], "observable": "在充分描述的实验情境中指出实际测量的反应或结果指标。", "status": "candidate", "source_refs": [{"source_id": "chapter-01-variable-blocks", "block_ids": [323]}]},
+    {"id": "kc-psych-003", "name": "辨析实验变量", "aliases": ["变量辨析"], "observable": "区分同一实验中的操纵因素、测量结果和可能影响结果的额外因素，并解释依据。", "status": "candidate", "source_refs": [{"source_id": "chapter-01-variable-blocks", "block_ids": [322, 323, 324]}]},
+    {"id": "kc-psych-004", "name": "评价额外变量控制方案", "aliases": ["控制方案评价"], "observable": "依据明确评分标准评价给定控制安排是否处理了情境中的额外因素。", "status": "candidate", "source_refs": [{"source_id": "chapter-01-variable-blocks", "block_ids": [324]}]}
+  ],
+  "relations": [
+    {"from": "kc-psych-001", "to": "kc-psych-002", "type": "related_to"},
+    {"from": "kc-psych-003", "to": "kc-psych-004", "type": "related_to"}
+  ],
+  "target_mappings": [{
+    "target_id": "ch1:s3:b320",
+    "target_version": "652c79d8897d9c57efd48976f60131496f972872ffe56d1afbbf4c0f04dab0ba:34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e",
+    "kc_ids": ["kc-psych-001", "kc-psych-002", "kc-psych-003", "kc-psych-004"],
+    "status": "candidate",
+    "source_id": "chapter-01-variable-blocks"
+  }],
+  "assessment_mappings": [],
+  "unresolved": ["候选能力和评价标准尚待课程教师审核。", "额外变量、控制变量与混淆变量的术语边界需按教材和具体研究设计核验。", "尚无审核通过且绑定题面、答案与评分标准的心理学题目映射。", "跨路径映射须核验目标和来源版本；合并或拆分不自动迁移历史掌握。"]
+}

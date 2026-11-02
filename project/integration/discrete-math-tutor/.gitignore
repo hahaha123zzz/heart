@@ -35,4 +35,5 @@ artifacts/cuda-cache-*/
 .venv-lightrag/
 
 # Restored external release fixtures remain local.
-knowledge/courses/experimental-psychology-3/
+knowledge/courses/experimental-psychology-3/*
+!knowledge/courses/experimental-psychology-3/kc_registry.json

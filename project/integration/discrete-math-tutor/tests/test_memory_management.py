@@ -65,6 +65,50 @@ class MemoryManagementTests(unittest.TestCase):
         self.memory.set_preferences('s',{'answer_length':1.})
         self.assertEqual(self.memory.get_profile('s').preferences['answer_length'],1.)
 
+    def test_confirmed_preference_is_bound_to_the_value(self):
+        from memory.readonly_context import ReadonlyMemoryContext
+        from database.models import LearnerProfileRow
+        self.memory.set_preferences('s', {'answer_length': .2})
+        reader = ReadonlyMemoryContext(self.memory)
+        self.assertEqual(reader.read('s', 'preferences')['known'], {'answer_length': .2})
+        with session_scope() as session:
+            row = session.get(LearnerProfileRow, 's')
+            row.preferences = {'answer_length': .8}
+        self.assertEqual(reader.read('s', 'preferences')['known'], {})
+        self.assertEqual(self.memory.get_profile('s').preferences, {})
+        self.assertEqual(self.memory.memory_overview('s')['preferences'][0]['source'], 'legacy_unverified')
+        self.memory.set_preferences('s', {'answer_length': .8})
+        self.assertEqual(reader.read('s', 'preferences')['known'], {'answer_length': .8})
+        self.memory.forget_preference('s', 'answer_length')
+        self.assertEqual(reader.read('s', 'preferences')['known'], {})
+
+    def test_legacy_preference_provenance_requires_reconfirmation(self):
+        from memory.readonly_context import ReadonlyMemoryContext
+        from database.models import LearnerProfileRow
+        with session_scope() as session:
+            session.add(LearnerProfileRow(student_id='s', preferences={'answer_length': .5}))
+            session.add(MemoryChangeRow(student_id='s', action='set_preference', item_key='answer_length'))
+        reader = ReadonlyMemoryContext(self.memory)
+        self.assertEqual(reader.read('s', 'preferences')['known'], {})
+        self.memory.set_preferences('s', {'answer_length': .5})
+        self.assertEqual(reader.read('s', 'preferences')['known'], {'answer_length': .5})
+
+    def test_preference_value_migration_preserves_unknown_history(self):
+        from sqlalchemy import create_engine, inspect, text
+        from database.preference_value_migration import migrate_preference_values
+        engine = create_engine('sqlite:///:memory:')
+        try:
+            with engine.begin() as connection:
+                connection.execute(text('CREATE TABLE memory_changes (id INTEGER PRIMARY KEY, item_key VARCHAR(128))'))
+                connection.execute(text("INSERT INTO memory_changes (id, item_key) VALUES (1, 'answer_length')"))
+            self.assertTrue(migrate_preference_values(engine))
+            self.assertTrue(migrate_preference_values(engine))
+            self.assertIn('confirmed_value', {c['name'] for c in inspect(engine).get_columns('memory_changes')})
+            with engine.connect() as connection:
+                self.assertIsNone(connection.execute(text('SELECT confirmed_value FROM memory_changes')).scalar())
+        finally:
+            engine.dispose()
+
     def test_preferences_have_explicit_source_and_clear_old_snapshots(self):
         self.memory.set_preferences("s",{"answer_length":1})
         self.enqueue()

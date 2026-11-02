@@ -56,6 +56,75 @@ def assessment(**extra):
 
 
 class TeachingPolicyTests(unittest.TestCase):
+    def test_formative_success_does_not_claim_independent_demonstration(self):
+        from agents.deeptutor_learning.models import LearningEvidence
+        t = turn("请解释自变量")
+        t.progress.learning_evidence.append(LearningEvidence(
+            knowledge_point_id=t.objective.id, source="host_formative",
+            assessment_type="qualitative", result="correct", hints_used=0,
+            visual_context={"independent": False, "verification": "ai_provisional"}))
+        t._sync()
+        self.assertNotEqual(t.state["stage"], "independently_demonstrated")
+        self.assertFalse(t.state["formal_mastery"])
+        t.progress.learning_evidence[0].visual_context["independent"] = True
+        t._sync()
+        self.assertNotEqual(t.state["stage"], "independently_demonstrated")
+        for context in (
+            {"independent": True, "verification": "reviewed_rubric", "teaching_after_question": True},
+            {"independent": True, "verification": "reviewed_rubric", "assistance": {"events": ["explanation"]}},
+            {"independent": True, "verification": "reviewed_rubric", "assistance": {"full_explanation_seen": True}},
+            {"independent": True, "verification": "reviewed_rubric", "assistance": {"examples_used": 1}},
+            {"independent": True, "verification": "reviewed_rubric", "hints_used": 1},
+            {"independent": True, "verification": "recorded_source_changed"},
+            {"independent": None, "verification": "reviewed_rubric"},
+            {"independent": True, "verification": "reviewed_rubric", "assistance": "invalid"},
+        ):
+            t.progress.learning_evidence[0].visual_context = context
+            t._sync()
+            self.assertNotEqual(t.state["stage"], "independently_demonstrated")
+        t.progress.learning_evidence[0].visual_context = {"independent": True, "verification": "reviewed_rubric"}
+        t._sync()
+        self.assertEqual(t.state["stage"], "independently_demonstrated")
+
+    def test_learner_override_does_not_claim_formal_mastery(self):
+        from agents.deeptutor_learning.models import LearnerMasteryOverride
+        t = turn("请解释自变量")
+        t.progress.learner_mastery_overrides[t.objective.id] = LearnerMasteryOverride(
+            knowledge_point_id=t.objective.id)
+        t._sync()
+        self.assertFalse(t.state["formal_mastery"])
+        self.assertTrue(t.state["route_can_advance"])
+        self.assertEqual(t.state["mastery_source"], "learner")
+        self.assertTrue(t.public()["route_can_advance"])
+        self.assertEqual(t.public()["mastery_source"], "learner")
+
+    def test_visual_achievement_requires_eligible_evidence(self):
+        from agents.deeptutor_learning.models import LearningEvidence
+        from agents.deeptutor_learning.policy import visual_achievements
+        t = turn("请解释自变量")
+        event = LearningEvidence(knowledge_point_id=t.objective.id, result="correct",
+            visual_context={"task": "identification", "key_status": "verified",
+                            "independent": True, "verification": "reviewed_key"})
+        t.progress.learning_evidence.append(event)
+        self.assertEqual(visual_achievements(t.progress, t.objective.id), ["identification"])
+        for field, value in (("independent", False), ("verification", "recorded_source_changed"),
+                             ("teaching_after_question", True)):
+            old = event.visual_context.get(field)
+            event.visual_context[field] = value
+            self.assertEqual(visual_achievements(t.progress, t.objective.id), [])
+            if old is None:
+                event.visual_context.pop(field)
+            else:
+                event.visual_context[field] = old
+
+    def test_attempt_with_provisional_verification_is_not_independent_evidence(self):
+        from agents.deeptutor_learning.models import QuizAttempt
+        t = turn("请解释自变量")
+        t.progress.quiz_attempts.append(QuizAttempt(question_id="q", knowledge_point_id=t.objective.id,
+            is_correct=True, independent=True, visual_context={"verification": "ai_provisional"}))
+        t._sync()
+        self.assertNotEqual(t.state["stage"], "independently_demonstrated")
+
     def test_reuses_actual_engine_and_not_failure_count(self):
         first = turn("我不会", prior())
         self.assertEqual(first.strategy, "worked_example")

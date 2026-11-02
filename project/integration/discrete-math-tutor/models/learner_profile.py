@@ -2,7 +2,7 @@
 
 【参考实现】GenMentor / LearningMAP 的 learner profile 与个性化记忆。
 【自主衔接】teaching_effectiveness：按策略累计"是否带来进展"（EMA），
-让 Teaching Policy 不只是"学生喜欢什么"，而是"什么对这个学生真正有效"。
+记录策略与后续表现的关联，不将其视为因果效果。
 """
 
 from __future__ import annotations

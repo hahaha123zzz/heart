@@ -225,10 +225,13 @@ class MemoryManager:
         return summarize(self.repo.strategy_observations(student_id, point))
 
     def get_profile(self, student_id: str, *, point=None, difficulty="medium", hint_level=1) -> LearnerProfile:
-        profile=self.repo.get_profile(student_id)
+        from database.database import session_scope
+        from database.preference_provenance import confirmed_preferences
+        with session_scope() as session:
+            profile=self.repo.get_profile(student_id).model_copy(deep=True)
+            profile.preferences=confirmed_preferences(session, student_id, profile.preferences)
         if point is not None:
             # 只供规划使用，不覆盖持久画像；旧无来源 EMA 不继续作为决策权重。
-            profile=profile.model_copy(deep=True)
             profile.teaching_effectiveness={item["instructional_move"]:item["weight"]
                 for item in self.strategy_summary(student_id,point)
                 if item["weight"] is not None and item["difficulty"]==difficulty and item["hint_level"]==hint_level}

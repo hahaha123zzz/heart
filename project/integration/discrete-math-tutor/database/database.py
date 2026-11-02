@@ -81,6 +81,8 @@ def init_db() -> None:
     models.Base.metadata.create_all(engine)
     from database.conversation_session_migration import migrate_conversation_sessions
     migrate_conversation_sessions(engine)
+    from database.preference_value_migration import migrate_preference_values
+    migrate_preference_values(engine)
 
 
 @contextmanager

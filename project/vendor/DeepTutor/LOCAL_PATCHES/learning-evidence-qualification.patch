@@ -1,0 +1,42 @@
+diff --git a/deeptutor/learning/policy.py b/deeptutor/learning/policy.py
+index 5989000..184d894 100644
+--- a/deeptutor/learning/policy.py
++++ b/deeptutor/learning/policy.py
+@@ -92,6 +92,18 @@ def is_assessed_mastered(progress: LearningProgress, kp: KnowledgePoint) -> bool
+     return progress.mastery_levels.get(kp.id, 0.0) >= gate_threshold(kp.type)
+ 
+ 
++def _independent_evidence(context: dict) -> bool:
++    verification = context.get("verification")
++    assistance = context.get("assistance")
++    return (("independent" not in context or context["independent"] is True)
++            and (verification is None or verification in ("rule_verified", "reviewed_key", "reviewed_rubric"))
++            and not context.get("teaching_after_question")
++            and not context.get("hints_used")
++            and (not assistance or isinstance(assistance, dict) and not any(
++                assistance.get(key) for key in ("events", "hints_used", "max_hint_level", "examples_used",
++                                               "explanations_used", "full_explanation_seen"))))
++
++
+ def visual_achievements(progress: LearningProgress, kp_id: str) -> list[str]:
+     """Independent source-verified visual tasks, separate from generic text scores."""
+     return sorted(
+@@ -102,6 +114,7 @@ def visual_achievements(progress: LearningProgress, kp_id: str) -> list[str]:
+             and event.result == "correct"
+             and event.visual_context.get("task")
+             and event.visual_context.get("key_status") == "verified"
++            and _independent_evidence(event.visual_context)
+             and not event.hints_used
+         }
+     )
+@@ -114,8 +127,9 @@ def learning_stage(progress: LearningProgress, kp_id: str) -> str:
+         if item.knowledge_point_id == kp_id and not item.voided
+     ]
+     evidence = [item for item in progress.learning_evidence if item.knowledge_point_id == kp_id]
+-    if any(item.independent and item.is_correct for item in attempts) or any(
++    if any(item.independent and item.is_correct and _independent_evidence(item.visual_context) for item in attempts) or any(
+         item.assessment_type == "qualitative" and item.result == "correct" and not item.hints_used
++        and _independent_evidence(item.visual_context)
+         for item in evidence
+     ):
+         return "independently_demonstrated"

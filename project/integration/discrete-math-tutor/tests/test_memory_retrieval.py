@@ -147,12 +147,16 @@ class MemoryRetrievalTests(unittest.TestCase):
     def test_prompt_budget_and_current_profile_are_enforced(self):
         profile=LearnerProfile(student_id="s",preferences={"answer_length":.2})
         self.memory.save_profile(profile)
+        self.assertEqual(self.retrieve(question="集合元素")["preferences"], {})
+        self.memory.set_preferences("s", {"answer_length": .2})
         for i in range(12):
             self.memory.append("s","user","集合元素"+str(i)+"很长的记录"*150)
         context=self.retrieve(title="集合",question="集合元素",budget=1500)
         self.assertLessEqual(len(json.dumps(context,ensure_ascii=False)),1500)
         self.assertEqual(context["preferences"]["answer_length"],.2)
         profile.preferences["answer_length"]=.9;self.memory.save_profile(profile)
+        self.assertEqual(self.retrieve(question="集合元素")["preferences"], {})
+        self.memory.set_preferences("s", {"answer_length": .9})
         self.assertEqual(self.retrieve(question="集合元素")["preferences"]["answer_length"],.9)
 
     def test_exercise_question_version_and_rule_verification_are_preserved(self):
@@ -215,7 +219,7 @@ class MemoryRetrievalTests(unittest.TestCase):
         self.memory.append_exchange("s","我分不清单元素集合","上次的解释",reference)
         selection=SimpleNamespace(document_id="book",rects=[SimpleNamespace(page=4)])
         resolved={"section":{"title":"集合"},"text":"单元素集合定义","context":"元素与集合区别","images":[],"reference":reference}
-        with patch("agents.pdf_selection_tutor.resolve_selection",return_value=resolved),patch.dict('os.environ',{'VISUALIZATION_ON_DEMAND':'0'}):
+        with patch("agents.pdf_selection_tutor.resolve_selection",return_value=resolved),patch("agents.pdf_selection_tutor.PSYCHOLOGY",False),patch.dict('os.environ',{'VISUALIZATION_ON_DEMAND':'0'}):
             result=explain_selection(tutor,"s","请解释单元素集合",selection,"production")
         payload=json.loads(tutor.llm.chat.call_args.args[0][1]["content"].split("\n待核实")[0])
         memories=payload["相关学习记忆"]

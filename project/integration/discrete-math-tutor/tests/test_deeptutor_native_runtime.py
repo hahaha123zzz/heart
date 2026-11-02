@@ -135,7 +135,8 @@ class NativeRuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.temp.cleanup()
 
     async def finished(self, req):
-        return await asyncio.wait_for(self._collect(req), 15)
+        # Windows workspace setup performs many filesystem checks on slow hosts.
+        return await asyncio.wait_for(self._collect(req), 120 if os.name == 'nt' else 15)
 
     async def _collect(self, req):
         return [event async for event in self.bridge.events(key(req, NativeTurnCursor))]
