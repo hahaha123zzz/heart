@@ -571,8 +571,7 @@ class AgentLoopQualityGateTests(unittest.TestCase):
                             action="explain", difficulty="medium")
         result = checker.check(
             "自变量是研究者操纵的变量。[1]", StudentState(), plan,
-            "请解释自变量。", context={"agent_loop": True,
-                                        "reply_maximum_override": 800},
+            "请解释自变量。", context={"agent_loop": True},
             textbook_excerpts="[1] 自变量是研究者操纵的变量。",
         )
         self.assertTrue(result.passed)
@@ -582,7 +581,7 @@ class AgentLoopQualityGateTests(unittest.TestCase):
         self.assertIn("只检查可发布性", system)
         self.assertIn("只把下列问题列为 issues", user)
         self.assertNotIn("遗漏任一比较对象", user)
-        self.assertIn("800", user)
+        self.assertIn("不设字数上限", user)
 
     def test_citation_format_accepts_single_numbers_only(self):
         self.assertEqual(_citation_format_issues("结论[1]，另一处[2]。"), "")
@@ -626,8 +625,7 @@ class AgentLoopQualityGateTests(unittest.TestCase):
                    return_value=["引用[2]不在本轮教材证据中"]) as guard:
             result = checker.check(
                 "自变量是研究者操纵的变量。[2]", StudentState(), plan,
-                "请解释自变量。", context={"agent_loop": True,
-                                            "reply_maximum_override": 800},
+                "请解释自变量。", context={"agent_loop": True},
                 textbook_excerpts="[1] 文档 第2页\n自变量是研究者操纵的变量。",
             )
         self.assertFalse(result.passed)

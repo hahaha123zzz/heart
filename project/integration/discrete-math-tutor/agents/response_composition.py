@@ -64,7 +64,7 @@ class ResponseComposer:
             'quotation必须逐字来自原文；改述用paraphrase，推论用derived_explanation；'
             '新例子用generated_example，类比用analogy，不能说是教材原例。'
             '只讲当前目标，不能新增题目、答案键、评分、导航或学习状态。'
-            '全部段落总长遵守本轮原有字数预算。只生成pending中的块，其余已核验块保留不变。\n'
+            '全部段落只生成pending中的块，其余已核验块保留不变。\n'
             + '只读生成上下文（禁止回显这些外层字段）：\n' + json.dumps({'plan': self.plan.model_dump(), 'pending': self.pending,
                 'source_ids': [{'source_id':s.get('source_id'), 'citation_index':s.get('index', i)}
                                for i, s in enumerate(sources, 1)],

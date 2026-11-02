@@ -1,0 +1,70 @@
+{
+  "verifier_probes": [
+    {
+      "case": "chinese_wrong_file_list",
+      "request_terms": [],
+      "issue": null,
+      "scope": "isolated_original_deterministic_functions_only"
+    },
+    {
+      "case": "chinese_topic_explanation",
+      "request_terms": [],
+      "issue": null,
+      "scope": "isolated_original_deterministic_functions_only"
+    },
+    {
+      "case": "english_wrong_file_list",
+      "request_terms": [
+        "fechner",
+        "law",
+        "logarithmic",
+        "psychophysics",
+        "teach"
+      ],
+      "issue": "response_misses_requested_points",
+      "scope": "isolated_original_deterministic_functions_only"
+    },
+    {
+      "case": "english_generic_nonanswer",
+      "request_terms": [
+        "fechner",
+        "law",
+        "logarithmic",
+        "psychophysics"
+      ],
+      "issue": "response_does_not_address_request",
+      "scope": "isolated_original_deterministic_functions_only"
+    },
+    {
+      "case": "chinese_topic_with_english_source_terms",
+      "request_terms": [],
+      "issue": "answer_lacks_evidence_coverage",
+      "scope": "isolated_original_deterministic_functions_only"
+    }
+  ],
+  "router_probes": [
+    {
+      "case": "learning_followup",
+      "route": "keep_chat"
+    },
+    {
+      "case": "ambiguous_quiz_mention",
+      "route": "keep_chat"
+    },
+    {
+      "case": "explicit_quiz",
+      "route": "deep_question"
+    },
+    {
+      "case": "workspace_preserved",
+      "route": "keep_chat"
+    },
+    {
+      "case": "disabled",
+      "route": "keep_chat"
+    }
+  ],
+  "model_calls": 0,
+  "upstream_full_suite_executed": false,
+  "production_changes": false
+}

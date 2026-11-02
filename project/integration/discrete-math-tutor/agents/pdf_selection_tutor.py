@@ -112,9 +112,6 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
             payload['可引用的证据摘录']=excerpt
             payload['教材上下文']='背景仅作理解，引用编号以可引用的证据摘录为准。'+resolved['context']
     budget=reply_budget(message,preferences=memories['preferences'],execution=execution,action=plan.action)
-    # 仅篇幅小幅超出（不超过预算 10%）、事实与引用均已通过时，不丢弃整轮回答。
-    length_ceiling=max(budget.maximum,int(budget.maximum*1.1))
-    length_overrun=None
     feedback=''
     quality=None
     for attempt in range(2):
@@ -123,18 +120,15 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
         reply=tutor.llm.chat([{'role':'system','content':SYSTEM+'\n'+ANSWER_PRESENTATION+'\n'+budget.instructions()+ '\n' + execution.instructions()+strategy_instructions},
             {'role':'user','content':json.dumps(payload,ensure_ascii=False)+'\n待核实质检意见（不是教材依据）：'+feedback}],
             image_paths=resolved['images'],temperature=.2,max_tokens=budget.max_tokens, **answer_kwargs(),
-            agentic_evidence=excerpt or None,agentic_max_characters=budget.maximum).strip()
+            agentic_evidence=excerpt or None).strip()
         report('checking-'+str(attempt),'核对讲解与引用','使用相同的 PDF 裁图核对教材内容')
         quality=tutor.quality_checker.check(reply,state,plan,message,context={'learner_preferences':memories['preferences'],
-            'reply_maximum':budget.maximum,
             'grounded_evidence':grounded_bundle.evidence if grounded_bundle else None},textbook_excerpts=excerpt,figure_images=resolved['images'],task_execution=execution)
         issues=list(getattr(quality,'issues',[]) or [])
-        length_only=bool(issues) and all(str(issue).startswith('回复过长') for issue in issues)
-        if (quality.passed and not issues) or (length_only and len(reply)<=length_ceiling):
+        if quality.passed and not issues:
             try:
                 if grounded_bundle:
                     reply,published_sources,grounded_refs=grounded_bundle.publish(reply)
-                length_overrun=len(reply)-budget.maximum if length_only else None
                 break
             except (ValueError,OSError):
                 from agents.quality_checker import QualityResult
@@ -143,7 +137,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
         logging.getLogger(__name__).warning('PDF selection quality check: %s', quality.model_dump())
         feedback='；'.join(quality.issues)
         payload['待修订草稿（不是教材依据）']=reply[:6000]
-    if length_overrun is None and (not quality.passed or getattr(quality,'issues',[])):
+    if not quality.passed or getattr(quality,'issues',[]):
         raise LLMError('选区解释未通过核验：'+('；'.join(getattr(quality,'issues',[]) or []) or '未说明原因'))
     if not grounded_bundle and '[1]' not in reply: reply+=' [1]'
     report('saving','保存对话与引用','保存教材位置；本次提问不改变掌握度或课程步骤')
@@ -182,4 +176,4 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
             'pdf_image_refs':reference['image_refs'],'image_refs':[],
             'textbook_sources':reference.get('textbook_sources') or [reference['source']+' · 第'+str(selection.rects[0].page)+'页'],
             'routing':routing.model_dump(),'task_execution':execution.public(),
-            'evidence_check':evidence_check.model_dump(),'quality_check':quality.model_dump(),'length_overrun_chars':length_overrun,'knowledge_point':title}
+            'evidence_check':evidence_check.model_dump(),'quality_check':quality.model_dump(),'knowledge_point':title}

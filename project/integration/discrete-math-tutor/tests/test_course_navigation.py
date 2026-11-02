@@ -147,12 +147,12 @@ class NavigationTests(unittest.TestCase):
         from agents.task_execution import TaskExecution
         execution = TaskExecution(learning_intents=['explain'],
             targets=[{'kind': 'course_navigation', 'mode': 'start'}])
-        self.assertEqual(reply_budget('学习第一章', execution=execution).maximum, 360)
+        self.assertIsNone(reply_budget('学习第一章', execution=execution).maximum)
         execution.targets[0]['mode'] = 'repeat'
-        self.assertEqual(reply_budget('没听懂', execution=execution).maximum, 260)
+        self.assertIsNone(reply_budget('没听懂', execution=execution).maximum)
         execution.learning_intents = ['hint']
         execution.targets[0]['mode'] = 'start'
-        self.assertEqual(reply_budget('只给提示', execution=execution).maximum, 260)
+        self.assertIsNone(reply_budget('只给提示', execution=execution).maximum)
 
     def test_host_orchestrator_uses_resolved_source_without_search_or_mastery_plan(self):
         from tests import test_quality_guard

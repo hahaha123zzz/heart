@@ -2,13 +2,28 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
-from scripts.audit_composition_c4 import audit
+from scripts.audit_composition_c4 import audit, observed_usage
 from scripts.benchmark_output_speed import isolated_endpoint
 from scripts.prepare_c4_review import prepare
 from scripts.summarize_c4_review import summarize
 
 
 class CompositionAuditTests(unittest.TestCase):
+    def test_observed_sdk_usage_preserves_missing_values_and_unfinished_calls(self):
+        result={'execution_metrics':{'stages':[{'stage':'sdk.connection_start'},
+            {'stage':'sdk.connection_start'},{'stage':'sdk.closed','usage':
+            {'prompt_tokens':10,'completion_tokens':2,'total_tokens':12}}]}}
+        observed=observed_usage(result)
+        self.assertEqual(observed['observed_tokens']['total_tokens'],12)
+        self.assertIsNone(observed['observed_tokens']['prompt_cache_hit_tokens'])
+        self.assertFalse(observed['all_started_finished'])
+        result['execution_metrics']['stages'].append({'stage':'sdk.completed','usage':{'prompt_tokens':3}})
+        observed=observed_usage(result)
+        self.assertTrue(observed['all_started_finished'])
+        self.assertEqual(observed['observed_tokens']['prompt_tokens'],13)
+        self.assertIsNone(observed['observed_tokens']['total_tokens'])
+        self.assertFalse(observed_usage({})['all_started_finished'])
+
     def test_review_summary_keeps_unreviewed_and_uncertain_separate(self):
         row={'review_id':'a','source_support':'通过','concept_accuracy':'无法判定',
              'follows_request':None,'example_and_continuity':'不通过',

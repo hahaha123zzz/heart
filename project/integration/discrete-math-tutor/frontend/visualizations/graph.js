@@ -116,7 +116,7 @@ window.EulerGraph = {
     }
     async function save(fields, retry = false) {
       if(disposed || busy || data.readonly) return;
-      if(!retry) pendingRequest={...scope,request_id:crypto.randomUUID(),expected_revision:data.revision,...fields};
+      if(!retry) pendingRequest={...scope,request_id:crypto.randomUUID?.()||String(Date.now())+Math.random().toString(36).slice(2),expected_revision:data.revision,...fields};
       if(!pendingRequest) return;
       busy=true;controls();status.textContent='正在保存…';
       try {
@@ -141,7 +141,7 @@ window.EulerGraph = {
       if(disposed || busy || data.readonly || data.attempt?.submitted) return;
       if(!retry) {
         if(!form.reportValidity()) return;
-        pendingSubmit={...scope,request_id:crypto.randomUUID(),expected_revision:data.revision,
+        pendingSubmit={...scope,request_id:crypto.randomUUID?.()||String(Date.now())+Math.random().toString(36).slice(2),expected_revision:data.revision,
           degrees:Object.fromEntries([...form.querySelectorAll('[data-graph-degree]')].map(input=>[input.dataset.graphDegree,Number(input.value)])),
           connected:form.querySelector('[data-graph-connected]').value==='yes',
           prediction:form.querySelector('[data-graph-prediction]').value,explanation:form.querySelector('[data-graph-explanation]').value.trim()};

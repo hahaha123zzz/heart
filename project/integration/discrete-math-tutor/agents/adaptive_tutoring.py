@@ -738,6 +738,11 @@ class TeachingTurn:
 
     def restore_reply(self):
         """A constrained server action, not an arbitrary model gate bypass."""
+        from agents.input_understanding.rules import only_declines_choice
+        if (self.input_turn and only_declines_choice(self.request.message) and self.sources
+                and self.progress.pending_question):
+            self.recorded = True
+            return "好的，暂不提交答案。原来的小检查是：\n\n" + self.progress.pending_question.prompt
         if (self.state["turn_move"] == "resume_check" and (self.state["allow_check"] or self.input_turn and self.input_turn.only_resume_question) and self.sources
                 and self.progress.pending_question):
             self.recorded = True

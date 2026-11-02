@@ -110,7 +110,8 @@ def main():
     different = sum(bool(row['legacy_differences']) for row in comparable)
     summary = {'comparable':len(comparable), 'different':different,
         'difference_rate':different / len(comparable) if comparable else None,
-        'effective_difference_rate':different / len(results) if args.legacy and results else None,
+        'effective_difference_rate':different / len(results)
+            if args.legacy and results and len(comparable)==len(results) else None,
         'unprojected':sum(row['candidate_projection'] is None for row in results),
         'critical_different':sum(bool(set(row['legacy_differences']) &
             {'student_move','intent','target_refs','answer_constraints'}) for row in comparable),

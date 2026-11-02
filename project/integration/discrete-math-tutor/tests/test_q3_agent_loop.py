@@ -417,17 +417,20 @@ class AgentLoopTests(unittest.TestCase):
         self.assertEqual(result.error, "cancelled")
         self.assertEqual(len(llm.calls), 1)
 
-    def test_length_gate_gets_one_bounded_repair(self):
+    def test_citation_gate_gets_one_bounded_repair_and_length_is_not_a_repair_reason(self):
         calls = []
         def gate(text, state):
             calls.append(text)
-            return (len(calls) > 1, "" if len(calls) > 1 else "回复过长（超过 260 字）")
-        llm = ScriptedLLM([final_round("很长的草稿" * 80), final_round("压缩后的回答")])
+            return (len(calls) > 1, "" if len(calls) > 1 else "引用格式无效：[1-3]")
+        llm = ScriptedLLM([final_round("很长的草稿" * 80 + "[1-3]"), final_round("修正后的回答[1]")])
         result = LocalAgentLoop(llm).run(request(llm, self.registry(), publish_gate=gate))
         self.assertTrue(result.completed)
-        self.assertEqual(result.final_text, "压缩后的回答")
+        self.assertEqual(result.final_text, "修正后的回答[1]")
         self.assertEqual(len(calls), 2)
         self.assertEqual(llm.calls[1]["tools"], [])
+        repair = llm.calls[1]["messages"][-1]["content"]
+        self.assertIn("只修正引用格式", repair)
+        self.assertNotIn("压缩重写", repair)
 
     def test_publish_gate_rejects_without_publishing(self):
         llm = ScriptedLLM([final_round("未经核验的回答")])
@@ -452,7 +455,15 @@ class AgentLoopTests(unittest.TestCase):
 
 
 class QualityGateOverrideTests(unittest.TestCase):
-    def test_loop_can_request_a_bounded_500_char_check(self):
+    def test_quality_checker_accepts_long_answer(self):
+        from agents.quality_checker import QualityChecker
+        from agents.teaching_planner import TeachingPlan
+        plan = TeachingPlan(goal="解释", strategy="worked_example",
+                            action="explain", difficulty="medium")
+        issues = QualityChecker._rule_check("字" * 5000, plan, {"reply_maximum": 260})
+        self.assertFalse(any("回复过长" in issue for issue in issues))
+
+    def test_loop_quality_prompt_is_uncapped(self):
         from agents.quality_checker import QualityChecker
         from agents.teaching_planner import TeachingPlan
         from models.student_state import StudentState
@@ -462,10 +473,10 @@ class QualityGateOverrideTests(unittest.TestCase):
         plan = TeachingPlan(goal="解释", strategy="worked_example",
                             action="explain", difficulty="medium")
         QualityChecker(llm).check("说明。" * 120, StudentState(), plan, "请解释",
-                                  context={"reply_maximum_override": 500},
                                   textbook_excerpts="[1] 教材原文")
         prompt = llm.chat_json.call_args.args[0][1]["content"]
-        self.assertIn("可到500字", prompt)
+        self.assertIn("不设字数上限", prompt)
+        self.assertNotIn("回复过长", prompt)
 
 
 class NavigationBoundaryTests(unittest.TestCase):

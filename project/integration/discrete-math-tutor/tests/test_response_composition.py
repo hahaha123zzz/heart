@@ -28,6 +28,10 @@ def response(*blocks):
 
 
 class CompositionTests(unittest.TestCase):
+    def test_composer_instructions_have_no_budget(self):
+        composer = ResponseComposer(plan_response(target_id="kp:x", strategy="direct"))
+        self.assertNotIn("字数预算", composer.instructions())
+
     def test_plan_consumes_strategy_and_constraints_without_model(self):
         self.assertEqual([b.semantic_type for b in plan_response(target_id='t',strategy='contrast').blocks],
                          ['direct_answer','comparison'])

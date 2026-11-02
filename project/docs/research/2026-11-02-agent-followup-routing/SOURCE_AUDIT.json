@@ -1,0 +1,476 @@
+{
+  "date": "2026-11-02",
+  "scope": "固定源码静态阅读与选定原始确定性函数隔离执行；未运行上游完整套件，未迁入业务代码",
+  "repositories": [
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "branch": "main",
+      "license": "Apache-2.0",
+      "archived": false,
+      "tree_truncated": false,
+      "fetched_at_utc": "2026-11-02T08:14:37.604503+00:00"
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "tree_truncated": false,
+      "fetched_at_utc": "2026-11-02T08:14:37.619994+00:00"
+    },
+    {
+      "repo": "run-llama/llama_index",
+      "sha": "619d74664e8404612038bc15a1a40c686037277c",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "tree_truncated": false,
+      "fetched_at_utc": "2026-11-02T08:14:38.304205+00:00"
+    },
+    {
+      "repo": "langchain-ai/langgraph",
+      "sha": "ee3c043bddcc514012885167dd5916b15d6e4731",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "tree_truncated": false,
+      "fetched_at_utc": "2026-11-02T08:14:40.010366+00:00"
+    },
+    {
+      "repo": "langchain-ai/langchain",
+      "sha": "aa13e9c0e94c4e9d203a15a5960b91e29088a98a",
+      "branch": "master",
+      "license": "MIT",
+      "archived": false,
+      "tree_truncated": false,
+      "fetched_at_utc": "2026-11-02T08:14:39.588941+00:00"
+    },
+    {
+      "repo": "pydantic/pydantic-ai",
+      "sha": "129c94ef2940565af3bc9f638196fcc994d1ed4d",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "tree_truncated": false,
+      "fetched_at_utc": "2026-11-02T08:14:40.291402+00:00"
+    },
+    {
+      "repo": "sierra-research/tau-bench",
+      "sha": "59a200c6d575d595120f1cb70fea53cef0632f6b",
+      "branch": "main",
+      "license": "MIT",
+      "archived": false,
+      "tree_truncated": false,
+      "fetched_at_utc": "2026-11-02T08:14:41.153665+00:00"
+    }
+  ],
+  "sources": [
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/runtime/capability_routing.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/runtime/capability_routing.py",
+      "sha256": "5e1ea3e44bd432666b175f468f8ec3214d4ca436340aef216cf6bb500e38ea9e",
+      "bytes": 2953,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\deeptutor\\runtime\\capability_routing.py",
+      "previous_fetch_error": "SSLError",
+      "fallback": "github_git_blob_api",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/runtime/agentic/loop.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/runtime/agentic/loop.py",
+      "sha256": "ac481e6c782b4f92e39230a943a68fd963c37b8173a2eb711e04f85cd96d59ca",
+      "bytes": 19522,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\deeptutor\\runtime\\agentic\\loop.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/services/session/context_builder.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/services/session/context_builder.py",
+      "sha256": "888abecc7f50a237bc51adea4d7969d945dd9a0bd4cedf314a772a3f902f7240",
+      "bytes": 36363,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\deeptutor\\services\\session\\context_builder.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/services/session/turns/context_assembler.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/services/session/turns/context_assembler.py",
+      "sha256": "a065f22ce34be4d240ee8dd2e40a5a0c5a7593fe0f8afd0f0b97745c80190685",
+      "bytes": 742,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\deeptutor\\services\\session\\turns\\context_assembler.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/core/source_context.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/core/source_context.py",
+      "sha256": "3751719e8090f9b8dd56144ae4cf4332bec7981a7d9d5a98a0411dd4e6d9af17",
+      "bytes": 312,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\deeptutor\\core\\source_context.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/agents/chat/agentic_pipeline.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/agents/chat/agentic_pipeline.py",
+      "sha256": "23cd037bb6c23be9543e60aa82046c5d4db50bc249d45b0d40404905b6beb151",
+      "bytes": 1538,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\deeptutor\\agents\\chat\\agentic_pipeline.py",
+      "previous_fetch_error": "SSLError",
+      "fallback": "github_git_blob_api",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "tests/services/session/test_capability_routing.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/tests/services/session/test_capability_routing.py",
+      "sha256": "bdcb40a04293a621605307aac02e0f772a27f862c1367f08f65cf5a6d495e3fd",
+      "bytes": 8723,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\tests\\services\\session\\test_capability_routing.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "tests/agents/chat/test_message_build.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/tests/agents/chat/test_message_build.py",
+      "sha256": "0585aac7e44aa027dfa223fd6cc2be7a56c24236b2494cd60791f44b18ac8f0b",
+      "bytes": 2012,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\tests\\agents\\chat\\test_message_build.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/tools/prompting/hints/zh/kb_files.yaml",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/tools/prompting/hints/zh/kb_files.yaml",
+      "sha256": "1ea8811ab6130788db2c9d3d462b6a9c062f96c90f2e244c3e4fdb935897a6d1",
+      "bytes": 968,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\deeptutor\\tools\\prompting\\hints\\zh\\kb_files.yaml",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "LICENSE",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/LICENSE",
+      "sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4",
+      "bytes": 11408,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\LICENSE",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/agents/tutor.py",
+      "url": "https://github.com/zijinz456/OpenTutor/blob/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/agents/tutor.py",
+      "sha256": "cca525e458ff1d8c5f3fbc9cefe8e528839ddc2efeb9a75f8223edfe1f78373d",
+      "bytes": 17578,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\zijinz456__OpenTutor\\files\\apps\\api\\services\\agent\\agents\\tutor.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/context_builder.py",
+      "url": "https://github.com/zijinz456/OpenTutor/blob/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/context_builder.py",
+      "sha256": "b0f00e83e4bd5da7d945b14dfca5c9f973705f041e5f360d13f7c5be64c1129e",
+      "bytes": 12913,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\zijinz456__OpenTutor\\files\\apps\\api\\services\\agent\\context_builder.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/orchestrator.py",
+      "url": "https://github.com/zijinz456/OpenTutor/blob/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/orchestrator.py",
+      "sha256": "347a1681ec4fe133be9796ff9d3cdd295e90748cc61dbe94403843702d21fdb3",
+      "bytes": 19477,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\zijinz456__OpenTutor\\files\\apps\\api\\services\\agent\\orchestrator.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/turn_pipeline.py",
+      "url": "https://github.com/zijinz456/OpenTutor/blob/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/turn_pipeline.py",
+      "sha256": "edf0437c7e093f17a48d0b602de789e09760d3b50d1cdca706f8c0f0c1377132",
+      "bytes": 12302,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\zijinz456__OpenTutor\\files\\apps\\api\\services\\agent\\turn_pipeline.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/verifier.py",
+      "url": "https://github.com/zijinz456/OpenTutor/blob/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/verifier.py",
+      "sha256": "0914599d2872bfca11fb0e188afa365ed48dc5da7bda6c7ca35f0368b07a20b0",
+      "bytes": 14015,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\zijinz456__OpenTutor\\files\\apps\\api\\services\\agent\\verifier.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/router.py",
+      "url": "https://github.com/zijinz456/OpenTutor/blob/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/router.py",
+      "sha256": "6b737831d51c11fa0a5b4bb6816829e9cca2fa75b2c9c1f8a6223f1004ca0fbe",
+      "bytes": 4104,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\zijinz456__OpenTutor\\files\\apps\\api\\services\\agent\\router.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/state.py",
+      "url": "https://github.com/zijinz456/OpenTutor/blob/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/state.py",
+      "sha256": "5eca7339cf715820072416c87af7d392f0c7e2698d87a85e6895c11ae0a9e3ab",
+      "bytes": 13053,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\zijinz456__OpenTutor\\files\\apps\\api\\services\\agent\\state.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/context_sources.py",
+      "url": "https://github.com/zijinz456/OpenTutor/blob/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/context_sources.py",
+      "sha256": "9ab5da8c0f689b4f56948fd76805c0445002fb6121f5c25815e30f5df03c9f0d",
+      "bytes": 9388,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\zijinz456__OpenTutor\\files\\apps\\api\\services\\agent\\context_sources.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "LICENSE",
+      "url": "https://github.com/zijinz456/OpenTutor/blob/3afba67fb809e85559d904ee4e901869d60f5eb9/LICENSE",
+      "sha256": "5352b49679829689da4fa2db47ad7c32d58cb6442859eafe2bc5ce8599c83e44",
+      "bytes": 1068,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\zijinz456__OpenTutor\\files\\LICENSE",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "run-llama/llama_index",
+      "sha": "619d74664e8404612038bc15a1a40c686037277c",
+      "path": "llama-index-core/llama_index/core/chat_engine/condense_plus_context.py",
+      "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/llama-index-core/llama_index/core/chat_engine/condense_plus_context.py",
+      "sha256": "24e096a64c405ed00d39379eaa05583cbea4acb75da7c4c3d1f24236a361ff62",
+      "bytes": 16478,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\run-llama__llama_index\\files\\llama-index-core\\llama_index\\core\\chat_engine\\condense_plus_context.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "run-llama/llama_index",
+      "sha": "619d74664e8404612038bc15a1a40c686037277c",
+      "path": "llama-index-core/tests/chat_engine/test_condense_plus_context.py",
+      "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/llama-index-core/tests/chat_engine/test_condense_plus_context.py",
+      "sha256": "15180ea8ff64e88f428d7cf60df98fab424ba1266072138d8f673049cc3d2fe2",
+      "bytes": 5013,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\run-llama__llama_index\\files\\llama-index-core\\tests\\chat_engine\\test_condense_plus_context.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "run-llama/llama_index",
+      "sha": "619d74664e8404612038bc15a1a40c686037277c",
+      "path": "LICENSE",
+      "url": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/LICENSE",
+      "sha256": "24f40b5190fdacabc24ddbb5f76364d15e4f030925220ea300d8a2dd4993c8cb",
+      "bytes": 1065,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\run-llama__llama_index\\files\\LICENSE",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "langchain-ai/langchain",
+      "sha": "aa13e9c0e94c4e9d203a15a5960b91e29088a98a",
+      "path": "libs/langchain/langchain_classic/chains/history_aware_retriever.py",
+      "url": "https://github.com/langchain-ai/langchain/blob/aa13e9c0e94c4e9d203a15a5960b91e29088a98a/libs/langchain/langchain_classic/chains/history_aware_retriever.py",
+      "sha256": "8c148c8940ffa4a966e5cd47d30e19121ded54e0c44e4d8326c7c7c3e549dd7d",
+      "bytes": 2663,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\langchain-ai__langchain\\files\\libs\\langchain\\langchain_classic\\chains\\history_aware_retriever.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "langchain-ai/langchain",
+      "sha": "aa13e9c0e94c4e9d203a15a5960b91e29088a98a",
+      "path": "libs/langchain/tests/unit_tests/chains/test_history_aware_retriever.py",
+      "url": "https://github.com/langchain-ai/langchain/blob/aa13e9c0e94c4e9d203a15a5960b91e29088a98a/libs/langchain/tests/unit_tests/chains/test_history_aware_retriever.py",
+      "sha256": "7d2e20feea7b59a1933037959cbbf8ceda1ea013e2e568a87a07da3cfaafd3d4",
+      "bytes": 1135,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\langchain-ai__langchain\\files\\libs\\langchain\\tests\\unit_tests\\chains\\test_history_aware_retriever.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "langchain-ai/langchain",
+      "sha": "aa13e9c0e94c4e9d203a15a5960b91e29088a98a",
+      "path": "LICENSE",
+      "url": "https://github.com/langchain-ai/langchain/blob/aa13e9c0e94c4e9d203a15a5960b91e29088a98a/LICENSE",
+      "sha256": "4ec67e4ca6e6721dba849b2ca82261597c86a61ee214bbf21416006b7b2d0478",
+      "bytes": 1067,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\langchain-ai__langchain\\files\\LICENSE",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "langchain-ai/langgraph",
+      "sha": "ee3c043bddcc514012885167dd5916b15d6e4731",
+      "path": "libs/prebuilt/langgraph/prebuilt/tool_node.py",
+      "url": "https://github.com/langchain-ai/langgraph/blob/ee3c043bddcc514012885167dd5916b15d6e4731/libs/prebuilt/langgraph/prebuilt/tool_node.py",
+      "sha256": "433aecca1f020addea7425196443d1c4185f328ba2ceeda94f48fb625b496ab3",
+      "bytes": 81058,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\langchain-ai__langgraph\\files\\libs\\prebuilt\\langgraph\\prebuilt\\tool_node.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "langchain-ai/langgraph",
+      "sha": "ee3c043bddcc514012885167dd5916b15d6e4731",
+      "path": "libs/prebuilt/tests/test_tool_node.py",
+      "url": "https://github.com/langchain-ai/langgraph/blob/ee3c043bddcc514012885167dd5916b15d6e4731/libs/prebuilt/tests/test_tool_node.py",
+      "sha256": "4be4904d9034c7bf27d3965a9b2ee8266ed7041a509be760d231ac7678e0fbef",
+      "bytes": 83161,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\langchain-ai__langgraph\\files\\libs\\prebuilt\\tests\\test_tool_node.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "langchain-ai/langgraph",
+      "sha": "ee3c043bddcc514012885167dd5916b15d6e4731",
+      "path": "LICENSE",
+      "url": "https://github.com/langchain-ai/langgraph/blob/ee3c043bddcc514012885167dd5916b15d6e4731/LICENSE",
+      "sha256": "d9bb52f2e3540d60ff50d8f0f5b6ba649b7fd346948c4c3d086c8afb120763c7",
+      "bytes": 1072,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\langchain-ai__langgraph\\files\\LICENSE",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "pydantic/pydantic-ai",
+      "sha": "129c94ef2940565af3bc9f638196fcc994d1ed4d",
+      "path": "pydantic_ai_slim/pydantic_ai/_agent_graph.py",
+      "url": "https://github.com/pydantic/pydantic-ai/blob/129c94ef2940565af3bc9f638196fcc994d1ed4d/pydantic_ai_slim/pydantic_ai/_agent_graph.py",
+      "sha256": "f9ef338bb991efa22a114f60f3e10dfa8ee99c15345addc5e1cf0c09b05e022c",
+      "bytes": 265481,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\pydantic__pydantic-ai\\files\\pydantic_ai_slim\\pydantic_ai\\_agent_graph.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "pydantic/pydantic-ai",
+      "sha": "129c94ef2940565af3bc9f638196fcc994d1ed4d",
+      "path": "tests/harness/guardrails/test_output_guardrail.py",
+      "url": "https://github.com/pydantic/pydantic-ai/blob/129c94ef2940565af3bc9f638196fcc994d1ed4d/tests/harness/guardrails/test_output_guardrail.py",
+      "sha256": "7fc677febbf845b1829bd8006c004f264ceeb5c106cbb0791b67cd9f7ba1e7b9",
+      "bytes": 12236,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\pydantic__pydantic-ai\\files\\tests\\harness\\guardrails\\test_output_guardrail.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "pydantic/pydantic-ai",
+      "sha": "129c94ef2940565af3bc9f638196fcc994d1ed4d",
+      "path": "docs/output.md",
+      "url": "https://github.com/pydantic/pydantic-ai/blob/129c94ef2940565af3bc9f638196fcc994d1ed4d/docs/output.md",
+      "sha256": "186ca959a6a6c48bd44a332a5232b772cac89086a4049b014379275b9d7ee332",
+      "bytes": 71930,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\pydantic__pydantic-ai\\files\\docs\\output.md",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "pydantic/pydantic-ai",
+      "sha": "129c94ef2940565af3bc9f638196fcc994d1ed4d",
+      "path": "pydantic_ai_slim/pydantic_ai/_output.py",
+      "url": "https://github.com/pydantic/pydantic-ai/blob/129c94ef2940565af3bc9f638196fcc994d1ed4d/pydantic_ai_slim/pydantic_ai/_output.py",
+      "sha256": "94ebe0c4ba1b4586b48bed1593236273af86095671888ebf33f36f32f0bbcc5b",
+      "bytes": 77168,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\pydantic__pydantic-ai\\files\\pydantic_ai_slim\\pydantic_ai\\_output.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "pydantic/pydantic-ai",
+      "sha": "129c94ef2940565af3bc9f638196fcc994d1ed4d",
+      "path": "LICENSE",
+      "url": "https://github.com/pydantic/pydantic-ai/blob/129c94ef2940565af3bc9f638196fcc994d1ed4d/LICENSE",
+      "sha256": "bc0e89738f36944c8106e1947c3d69631f9c33b8f1bcb60ec4f89d677d2dfcf4",
+      "bytes": 1100,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\pydantic__pydantic-ai\\files\\LICENSE",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "sierra-research/tau-bench",
+      "sha": "59a200c6d575d595120f1cb70fea53cef0632f6b",
+      "path": "tau_bench/envs/base.py",
+      "url": "https://github.com/sierra-research/tau-bench/blob/59a200c6d575d595120f1cb70fea53cef0632f6b/tau_bench/envs/base.py",
+      "sha256": "1ad0402073f0ac9ca6b527efa0706e2aa8836dd2e5c1d453ed414ecb768c6d21",
+      "bytes": 5688,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\sierra-research__tau-bench\\files\\tau_bench\\envs\\base.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "sierra-research/tau-bench",
+      "sha": "59a200c6d575d595120f1cb70fea53cef0632f6b",
+      "path": "tau_bench/agents/tool_calling_agent.py",
+      "url": "https://github.com/sierra-research/tau-bench/blob/59a200c6d575d595120f1cb70fea53cef0632f6b/tau_bench/agents/tool_calling_agent.py",
+      "sha256": "2d4a02ccd14cb6bdbbeafde49d5d682690625875feb6c9506f903bf98b0792f8",
+      "bytes": 3252,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\sierra-research__tau-bench\\files\\tau_bench\\agents\\tool_calling_agent.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "sierra-research/tau-bench",
+      "sha": "59a200c6d575d595120f1cb70fea53cef0632f6b",
+      "path": "README.md",
+      "url": "https://github.com/sierra-research/tau-bench/blob/59a200c6d575d595120f1cb70fea53cef0632f6b/README.md",
+      "sha256": "1a4b1b00634fe46fd677dd11dfa25a9bf357b5d7c3d726ff83025e8f104329f9",
+      "bytes": 8447,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\sierra-research__tau-bench\\files\\README.md",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "sierra-research/tau-bench",
+      "sha": "59a200c6d575d595120f1cb70fea53cef0632f6b",
+      "path": "LICENSE",
+      "url": "https://github.com/sierra-research/tau-bench/blob/59a200c6d575d595120f1cb70fea53cef0632f6b/LICENSE",
+      "sha256": "243d23d45b80122b5ac575586ccef352fdc9c45e6d7d2605449aca8a17478b42",
+      "bytes": 1063,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\sierra-research__tau-bench\\files\\LICENSE",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/agents/loop/pipeline.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/agents/loop/pipeline.py",
+      "sha256": "8eda0547b8f23e6c579d3125fae576d19627474e2a8587a772e4984dcb900d9e",
+      "bytes": 88569,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\deeptutor\\agents\\loop\\pipeline.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/agents/loop/loop_host.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/agents/loop/loop_host.py",
+      "sha256": "60b8942abeac28e553ed3d9729022fcb5051ab8f1478cc6f5a192fc23fef565d",
+      "bytes": 19032,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\deeptutor\\agents\\loop\\loop_host.py",
+      "git_blob_verified": true
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/agents/loop/agent_loop.py",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/agents/loop/agent_loop.py",
+      "sha256": "6aa2c62c51eb8128051560c6601924baece1c53a49e21b30a46d92eca82f7a68",
+      "bytes": 68299,
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\agent-followup-research-20261102\\HKUDS__DeepTutor\\files\\deeptutor\\agents\\loop\\agent_loop.py",
+      "git_blob_verified": true
+    }
+  ],
+  "fetch_note": "两项raw下载遇到SSL错误，保留原错误并经公开GitHub git blob API恢复，未关闭TLS校验；最终40项均核对Git blob和SHA256。"
+}

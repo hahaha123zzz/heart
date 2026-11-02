@@ -126,6 +126,34 @@ class GroundingTests(unittest.TestCase):
         llm.chat_json=Mock(return_value={'evidence_ids':['forged'],'rects':[]})
         with self.assertRaises(ValueError):choose_evidence(llm,'解释条件',sources,self.path)
 
+    def test_selection_without_matching_candidate_never_uses_unrelated_context(self):
+        llm=SimpleNamespace(chat_json=Mock(return_value={'evidence_ids':['invented']}))
+        with self.assertRaises(CitationGroundingError):
+            choose_evidence(llm,'解释选区',self.bundle().sources,self.path,
+                            selection={'text':'A different selected passage not present in the evidence.'})
+        llm.chat_json.assert_not_called()
+
+    def test_matching_words_outside_selected_region_are_not_selected_evidence(self):
+        llm=SimpleNamespace(chat_json=Mock())
+        with self.assertRaises(CitationGroundingError):
+            choose_evidence(llm,'解释选区',self.bundle().sources,self.path,
+                selection={'text':self.quote,'rects':[{'page':2,'x1':0,'y1':0,'x2':1,'y2':1}]})
+        llm.chat_json.assert_not_called()
+
+    def test_clipped_area_binds_verifiable_text_fragment_in_selected_rect(self):
+        from knowledge.pdf_reader import PDFSelection,resolve_selection
+        rect={'page':1,'x1':.13,'x2':.35,'y1':.09,'y2':.23}
+        selected=resolve_selection(PDFSelection(document_id=self.record['document_id'],version=self.record['version'],
+                                                  kind='area',rects=[rect]))
+        def choose(messages,**kw):
+            payload=json.loads(messages[1]['content'])
+            target=next(c for c in payload['candidates'] if c['selected_target'])
+            return {'evidence_ids':[target['evidence_id']]}
+        with patch('knowledge.fixed_book.active',return_value=False):
+            bundle=selection_evidence(SimpleNamespace(chat_json=choose),'解释选区',selected,self.path)
+        self.assertEqual(normalized(bundle.evidence[0]['quote']),normalized('he first condition is necess'))
+        self.assertTrue(bundle.evidence[0]['selected_target'])
+
     def test_quote_lookup_does_not_let_model_choose_ambiguous_or_invented_origin(self):
         llm=SimpleNamespace(chat_json=Mock())
         for quote in ('Repeated phrase.','An invented quotation.'):

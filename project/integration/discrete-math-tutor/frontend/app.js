@@ -16,7 +16,8 @@ if (!studentId) {
 let mediaNavigation = 0;
 const state = { chapters: [], chapter: 1, section: 1, sectionData: null, contentTab: "text", openChapter: 1, quiz: null, chat: [], sending: false, view:"course" };
 state.taskRecoveryNeeded=true;
-const newRequestId = () => crypto.randomUUID();
+// crypto.randomUUID 只在安全上下文（https 或 localhost）存在；内网穿透的 http://公网IP 没有。
+const newRequestId = () => crypto.randomUUID?.() || String(Date.now()) + Math.random().toString(36).slice(2);
 const tabSessionKey = course.id+'-task-session';
 let tabSessionId = sessionStorage.getItem(tabSessionKey) || newRequestId();
 sessionStorage.setItem(tabSessionKey, tabSessionId);

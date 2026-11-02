@@ -8,7 +8,7 @@ class ContinuationHandoffTests(unittest.TestCase):
         from agents.task_execution import TaskExecution
         execution = TaskExecution(learning_intents=['explain'], targets=[{
             'kind': 'course_navigation', 'mode': 'repeat', 'continuation_action': 'continue_current'}])
-        self.assertEqual(reply_budget('继续这个例子', execution=execution).maximum, 360)
+        self.assertIsNone(reply_budget('继续这个例子', execution=execution).maximum)
         execution.targets[0]['continuation_action'] = 'rephrase_current'
-        self.assertEqual(reply_budget('没听懂', execution=execution).maximum, 260)
+        self.assertIsNone(reply_budget('没听懂', execution=execution).maximum)
 

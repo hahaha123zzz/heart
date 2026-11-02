@@ -239,6 +239,8 @@ def _decide(inputs):
     reasons = ['constraints_before_labels', 'formal_mastery_unchanged']
     if hint_only:
         preferred = ['hint','scaffolding']; reasons.append('explicit_disclosure_limit')
+    elif 'example_before_proof' in constraints:
+        preferred = ['worked_example','direct_explanation']; reasons.append('explicit_example_before_proof')
     elif inputs.mode == 'direct':
         preferred = ['direct_explanation','worked_example']; reasons.append('explicit_direct_request')
     elif inputs.skip:
@@ -286,7 +288,7 @@ def _decide(inputs):
         candidates = ['hint' if hint_only else 'direct_explanation']
     # Only reduce repetition after explicit difficulty, never a blanket rotation.
     previous = inputs.previous_strategy
-    if inputs.difficulty and len(candidates)>1 and candidates[0] == previous:
+    if inputs.difficulty and 'example_before_proof' not in constraints and len(candidates)>1 and candidates[0] == previous:
         candidates = candidates[1:] + candidates[:1]
         reasons.append('previous_published_method_did_not_resolve_reported_difficulty')
     identity = [inputs.student_id, inputs.session_id, inputs.task_id or inputs.request_id,

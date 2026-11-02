@@ -20,6 +20,13 @@ def context(message,**values):
 
 
 class SharedStrategyPolicyTests(unittest.TestCase):
+    def test_example_before_proof_preserves_order_without_overriding_hint(self):
+        ctx=context('解释当前问题')
+        execution=TaskExecution(learning_intents=['example','proof'],answer_constraints=['example_before_proof'])
+        self.assertEqual(decide_for_context(ctx,execution).primary_strategy,'worked_example')
+        execution.answer_constraints.append('hint_only')
+        self.assertEqual(decide_for_context(ctx,execution).primary_strategy,'hint')
+
     def test_context_adapter_matches_turn_for_explicit_requests(self):
         for message in ('直接解释自变量，不要出题','只给提示','我还是不懂','自变量和因变量有什么区别'):
             with self.subTest(message=message):

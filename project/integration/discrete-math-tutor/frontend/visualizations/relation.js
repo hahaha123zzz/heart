@@ -114,7 +114,7 @@ window.RelationView={
       selectPair(selected.source,selected.target);renderResult();controls();}
     function answers(){return{values:Object.fromEntries([...form.querySelectorAll('[data-relation-answer]')].map(el=>[el.dataset.relationAnswer,el.value===''?null:el.value==='1'])),explanation:form.querySelector('[data-relation-explanation]').value};}
     async function persist(kind,fields,retry=false){if(disposed||busy||data.readonly)return false;
-      if(!retry){if(pending)return false;pending={kind,body:{...scope,request_id:crypto.randomUUID(),expected_revision:data.revision,...fields}};}
+      if(!retry){if(pending)return false;pending={kind,body:{...scope,request_id:crypto.randomUUID?.()||String(Date.now())+Math.random().toString(36).slice(2),expected_revision:data.revision,...fields}};}
       if(!pending)return false;busy=true;controls();status.textContent='正在保存…';
       try{await request('/api/relations/'+encodeURIComponent(data.artifact_id)+'/'+pending.kind,{method:'POST',body:JSON.stringify(pending.body),signal:controller.signal});
         const next=await request('/api/relations/'+encodeURIComponent(data.artifact_id)+'?'+new URLSearchParams(scope),{signal:controller.signal});

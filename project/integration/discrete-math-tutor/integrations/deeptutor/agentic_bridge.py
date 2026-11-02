@@ -2,6 +2,7 @@
 import asyncio
 from copy import deepcopy
 import hashlib
+import os
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import Field
@@ -10,10 +11,18 @@ from .generation_bridge import GenerationRequest, model_config
 from .session_bridge import require_bridge_token
 
 
+def _answer_max_tokens() -> int:
+    """模型 API 的技术输出上限；不是回答字符门禁。"""
+    try:
+        return int(os.getenv("ANSWER_MAX_TOKENS", "8000"))
+    except (TypeError, ValueError):
+        return 8000
+
+
 class AgenticRequest(GenerationRequest):
-    max_tokens: int = Field(default=1200, ge=256, le=16000)
+    max_tokens: int = Field(default_factory=_answer_max_tokens, ge=256, le=16000)
     evidence: str = Field(min_length=1, max_length=100000)
-    max_characters: int = Field(ge=1, le=10000)
+    max_characters: int | None = None
 
 
 async def generate_agentic(request: AgenticRequest):
@@ -65,10 +74,6 @@ async def generate_agentic(request: AgenticRequest):
             return "discard"
 
         def _capability_finish_instruction(self, context, final_text):
-            if len(final_text) > request.max_characters:
-                return (f"草稿超过本轮{request.max_characters}字上限（含公式、引用和格式）。"
-                    f"请完整重写压缩到{max(1, request.max_characters * 3 // 4)}字以内，"
-                    "删除重复和铺垫，保留所有明确子问题、必要条件及引用；不能截断或复述旧稿。")
             return ""
 
         def _completion_kwargs(self, max_tokens):
@@ -123,7 +128,7 @@ async def generate_agentic(request: AgenticRequest):
         result = await asyncio.wait_for(loop.run(), timeout=request.timeout)
         content = result.get("response", "").strip()
         if (loop.failed or loop.finish_reason != "stop" or not result.get("completed")
-                or not content or len(content) > request.max_characters or evidence.reads < 1):
+                or not content or evidence.reads < 1):
             raise HTTPException(502, "DeepTutor 教学执行链未通过完整性检查")
         return {"content": content, "finish_reason": "stop", "engine": "agent_loop",
             "rounds": result["rounds"], "tool_steps": result["tool_steps"],

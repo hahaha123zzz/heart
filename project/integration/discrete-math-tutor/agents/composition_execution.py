@@ -87,8 +87,9 @@ def freeze_publication(publication, previous=None):
     return {**publication,'reply':reply,'pdf_references':refs}
 
 
-def execute_batches(loop, request, result, messages, collector, *, composer, gate, max_characters=500):
-    """同一依赖前沿合并为一次生成；最多8次调用，累计活动预算不因恢复重置。"""
+def execute_batches(loop, request, result, messages, collector, *, composer, gate, max_characters=None):
+    """同一依赖前沿合并为一次生成；最多8次调用，累计活动预算不因恢复重置。
+    max_characters 仅为兼容旧调用；None 表示不按字符数分配或拒绝。"""
     io=composition_io.get()
     saved=deepcopy(io.get('restored') or {}) if io else {}
     if saved and (saved['plan']!=composer.plan.model_dump() or saved['source_digest']!=source_digest(result.sources)):
@@ -138,7 +139,8 @@ def execute_batches(loop, request, result, messages, collector, *, composer, gat
                 raise ValueError('composition_dependency_unavailable')
             batch_plan=composer.plan.model_copy(update={'blocks':[b.model_copy(update={'depends_on':[]}) for b in ready]})
             remaining=[b for b in composer.plan.blocks if b.block_id not in composer.accepted and b.block_id not in omitted]
-            allocation=max(16,(max_characters-len(composer.render())-2)*len(ready)//len(remaining))
+            allocation=(max(16,(max_characters-len(composer.render())-2)*len(ready)//len(remaining))
+                        if max_characters is not None else None)
             batch=ResponseComposer(batch_plan)
             candidate=None
             for repair in range(2):
@@ -146,9 +148,10 @@ def execute_batches(loop, request, result, messages, collector, *, composer, gat
                 if calls>=8:raise LLMError('内容块执行达到本轮调用上限')
                 calls+=1;checkpoint(in_flight=True)
                 prompt=[*messages,{'role':'system','content':batch.instructions(result.sources)+
-                    f'\n当前批次至多{allocation}字（含引用与示例标签），仅完成当前semantic_type。'
+                    (f'\n当前批次至多{allocation}字（含引用与示例标签），仅完成当前semantic_type。'
+                     if allocation is not None else '\n仅完成当前semantic_type。')+
                     '\n完整内容计划只读，未来模块的案例/比较留待后续，不提前完成：'+json.dumps(composer.plan.model_dump(),ensure_ascii=False)+
-                    '\n此前已发布正文只读，不能重复或修改；全部内容累计仍遵守原字数预算：\n'+composer.render()}]
+                    '\n此前已发布正文只读，不能重复或修改：\n'+composer.render()}]
                 if candidate:prompt.append({'role':'user','content':candidate})
                 collector('progress','生成下一部分讲解',{'blocks':[b.block_id for b in ready]})
                 response=loop.llm.chat_with_tools(prompt,[],temperature=request.temperature,
@@ -162,7 +165,7 @@ def execute_batches(loop, request, result, messages, collector, *, composer, gat
                 try:
                     batch.accept(response.text,result.sources)
                     parsed=True
-                    if len(batch.render())>allocation:raise ValueError(f'当前批次超过{allocation}字，必须压缩当前未发布模块')
+                    if allocation is not None and len(batch.render())>allocation:raise ValueError(f'当前批次超过{allocation}字，必须压缩当前未发布模块')
                     if any(b.semantic_type=='worked_example' and b not in ready for b in remaining):
                         if any(c.provenance in ('generated_example','analogy') for b in batch.accepted.values() for c in b.claims):
                             raise ValueError('案例由后续worked_example模块负责，本批只讲含义')

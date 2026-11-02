@@ -236,6 +236,11 @@ def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=Non
                 if selection:
                     for start,end in selection_ranges(block['text'],selection['text']):
                         parts.append((block['text'][start:end],start,end))
+                    if selection.get('rects'):
+                        for line in selection['text'].splitlines():
+                            if len(normalized(line)) >= 12:
+                                for start,end in selection_ranges(block['text'],line):
+                                    parts.append((block['text'][start:end],start,end))
                 for quote,start,end in parts:
                     if len(normalized(quote))<12:continue
                     if normalized(quote) not in normalized(source.text.replace(' | ',' ')):continue
@@ -245,10 +250,17 @@ def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=Non
                     seen.add(key)
                     located=index.locate(record['document_id'],record['version'],quote,block_id=block['block_id'])
                     exact=located['status']=='exact'
+                    selected=bool(selection and normalized(quote) in normalized(selection['text']))
+                    if selected and selection.get('rects'):
+                        boxes=located.get('rects',[])
+                        selected=bool(exact and boxes and all(any(
+                            box['page']==rect['page'] and rect['x1'] <= (box['x1']+box['x2'])/2 <= rect['x2']
+                            and rect['y1'] <= (box['y1']+box['y2'])/2 <= rect['y2']
+                            for rect in selection['rects']) for box in boxes))
                     item={'evidence_id':key,'retrieval_source_id':str(source.chunk_id or source_index),'retrieval_source_index':source_index,
                         'document_id':record['document_id'],'document_version':record['version'],'source_block_id':block['block_id'],
                         'section_id':source.section_id,'block_start':start,'block_end':end,'quote':quote,
-                        'selected_target':bool(selection and normalized(quote) in normalized(selection['text'])),
+                        'selected_target':selected,
                         'location_status':'exact' if exact else 'section','rects':located.get('rects',[]),
                         'degradation_reason':None if exact else located['status']}
                     candidates.append((item,replace(source,text=quote,page=None,block_start=block['block_id'],block_end=block['block_id'],
@@ -258,6 +270,8 @@ def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=Non
         if coverage is not None:
             return EvidenceBundle([],[],sources,'候选没有可核验的原文范围，不能支持该对象')
         raise CitationGroundingError('检索原文未能映射到本轮可核验的证据单元')
+    if selection and not any(item['selected_target'] for item,_ in candidates):
+        raise CitationGroundingError('选区未映射到可核验的原文范围，请缩小选区后重试')
     if len(candidates)>100:raise CitationGroundingError('本轮证据单元过多，请缩小问题范围')
     payload={'question':message,'revision_feedback':feedback,
         'conversation_context':[{'role':row['role'],'content':re.sub(r'\[\d+\]','（历史引用）',row['content'])} for row in history[-6:]],
@@ -301,5 +315,5 @@ def selection_evidence(llm,message,resolved,index_path):
     sources=[TextbookChunk(record['source'],section['title'],value,terms_for(value),chapter_id=record['chapter_id'],section_id=section['id'])
              for value in (text,resolved['context'])]
     from knowledge.fixed_book import active, select_evidence
-    return choose_evidence(llm,message,sources,index_path,selection={'text':text},
+    return choose_evidence(llm,message,sources,index_path,selection={'text':text,'rects':reference['rects']},
                            selection_fn=select_evidence if active() else None)

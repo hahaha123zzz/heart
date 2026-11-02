@@ -57,7 +57,7 @@ window.TruthTable = {
         if(pending)return false;
         const values=answers();
         if(kind==='submissions'&&Object.values(values.values).some(value=>value===null)){status.textContent='请填写全部四行后再提交。';return false;}
-        pending={kind,body:{...scope,request_id:crypto.randomUUID(),expected_revision:data.revision,...values}};
+        pending={kind,body:{...scope,request_id:crypto.randomUUID?.()||String(Date.now())+Math.random().toString(36).slice(2),expected_revision:data.revision,...values}};
       }
       if(!pending)return false;
       busy=true;controls();status.textContent='正在保存…';

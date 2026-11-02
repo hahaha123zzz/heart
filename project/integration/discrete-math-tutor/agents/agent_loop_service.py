@@ -614,7 +614,6 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             restored_plan=ResponsePlan.model_validate(composition_restore['plan'])
             if restored_plan.target_id!=target.target_id:raise ValueError('恢复目标已变化')
             composer=ResponseComposer(restored_plan)
-        round_tokens = min(round_tokens + 600, 3200)  # JSON开销不改变原有正文字数门禁。
 
     def final_gate(text, outcome):
         if (teaching and not teaching.state['allow_check'] and re.search(r'[？?]',text)
@@ -650,13 +649,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         from agents.composition_execution import execute_batches
         partial_gate=publish_gate or _publish_gate(orchestrator,request,target,navigation,teaching,selection_input,allow_incomplete=True)
         def batch_gate(text,outcome,complete):
-            if len(text)>budget.maximum:return False,'累计正文超过本轮字数预算；只压缩当前未发布部分'
             return final_gate(text,outcome) if complete else partial_gate(text,outcome)
         def progressive_execute(local_loop,loop_request,outcome,messages,collector):
             # shortcut: 像素证据仍走整轮协议；完成视觉块逐批验收后再启用。
             if not outcome.sources or not all(s.get('location',{}).get('evidence') and not s.get('image_refs') for s in outcome.sources):
                 return None
-            return execute_batches(local_loop,loop_request,outcome,messages,collector,composer=composer,gate=batch_gate,max_characters=budget.maximum)
+            return execute_batches(local_loop,loop_request,outcome,messages,collector,composer=composer,gate=batch_gate)
 
     restored_reply = teaching.restore_reply() if teaching and not required_tools else None
     if restored_reply is not None:

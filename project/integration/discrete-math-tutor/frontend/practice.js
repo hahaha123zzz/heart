@@ -139,7 +139,7 @@ window.ExercisePractice=(()=>{
   if(P.busy)return;if(!Object.values(P.answers).some(filled)){toast('请先完成至少一个小题');return;}
   P.busy=true;const qid=P.data.question.id,version=P.data.version,answers=snapshot();$('[data-practice-submit]').disabled=true;
   try{
-   await save();const storageKey='exercise-submit:'+studentId+':'+qid;const cached=JSON.parse(localStorage.getItem(storageKey)||'null');const serial=JSON.stringify(answers);const request_id=cached?.serial===serial?cached.id:crypto.randomUUID();localStorage.setItem(storageKey,JSON.stringify({id:request_id,serial}));
+   await save();const storageKey='exercise-submit:'+studentId+':'+qid;const cached=JSON.parse(localStorage.getItem(storageKey)||'null');const serial=JSON.stringify(answers);const request_id=cached?.serial===serial?cached.id:(crypto.randomUUID?.()||String(Date.now())+Math.random().toString(36).slice(2));localStorage.setItem(storageKey,JSON.stringify({id:request_id,serial}));
    const s=await post('/api/practice/questions/'+qid+'/submit',{student_id:studentId,version,answers,request_id});localStorage.removeItem(storageKey);
    if(P.data?.question.id!==qid)return;updateIndex(s.status,s);poll(s,++P.pollToken);
   }catch(e){if(P.data?.question.id===qid){P.busy=false;$('[data-practice-submit]').disabled=false;$('#practice-submit-status').textContent=e.message;}}

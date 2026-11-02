@@ -16,6 +16,12 @@ from llm.client import LLMClient, LLMError
 
 
 class AgenticContractTests(unittest.TestCase):
+    def test_native_accepts_unbounded_draft(self):
+        request = AgenticRequest(model="test-model",
+                                 messages=[{"role": "user", "content": "教材问题"}],
+                                 evidence="[1] 原文", max_characters=None)
+        self.assertIsNone(request.max_characters)
+
     def test_gateway_requires_token_and_rejects_extra_fields(self):
         app = FastAPI(); install_agentic_bridge(app)
         payload = dict(model='test', messages=[{'role': 'user', 'content': '教材问题'}], evidence='[1] 原文', max_characters=500)
@@ -206,8 +212,9 @@ class NativeLoopTests(unittest.IsolatedAsyncioTestCase):
         self.assertLessEqual(calls, 6)
 
 
-    async def test_native_finish_guard_rewrites_overlong_draft(self):
+    async def test_native_publishes_long_draft_without_rewrite(self):
         calls = []
+        long_reply = "完整讲解。" * 800 + "[1]"
         async def create(**kwargs):
             calls.append(deepcopy(kwargs))
             async def chunks():
@@ -215,12 +222,12 @@ class NativeLoopTests(unittest.IsolatedAsyncioTestCase):
                     yield self.chunk({'tool_calls': [{'index': 0, 'id': 'read', 'type': 'function',
                         'function': {'name': 'read_current_evidence', 'arguments': '{}'}}]}, 'tool_calls')
                 else:
-                    yield self.chunk({'content': '过长草稿' * 30 if len(calls) == 2 else '简短且完整。[1]'}, 'stop')
+                    yield self.chunk({'content': long_reply}, 'stop')
             return chunks()
         result = await self.run_native(self.request(max_characters=50), create)
-        self.assertEqual(result['content'], '简短且完整。[1]')
-        self.assertEqual(result['rounds'], 3)
-        self.assertTrue(any('草稿超过本轮50字' in str(row['content']) for row in calls[-1]['messages']))
+        self.assertEqual(result['content'], long_reply)
+        self.assertEqual(result['rounds'], 2)
+        self.assertEqual(len(calls), 2)
 
     async def test_native_transport_retry_preserves_tool_requirement(self):
         calls = []

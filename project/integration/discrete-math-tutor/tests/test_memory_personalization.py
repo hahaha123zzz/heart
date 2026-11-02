@@ -48,13 +48,13 @@ class MemoryPersonalizationTests(unittest.TestCase):
         self.memory.set_preferences("s",{"answer_length":0,"example_density":1,"learning_pace":0})
         short,llm=self.fresh_turn()
         system=llm.messages[-1][0]["content"]
-        self.assertIn("回复不超过140字",system)
+        self.assertIn("不设字数上限",system)
         self.assertIn("多给一个具体小例子",system)
         self.assertIn("放慢节奏",system)
         self.memory.set_preferences("s",{"answer_length":1,"example_density":0,"learning_pace":1})
         long,other=self.fresh_turn()
         system=other.messages[-1][0]["content"]
-        self.assertIn("回复不超过240字",system)
+        self.assertIn("不设字数上限",system)
         self.assertIn("例子只在必要时使用",system)
         self.assertIn("更快进入小检查",system)
         # 固定模拟输出只核验参数和原文保留，实际表达适配另用真实模型验收。
@@ -65,8 +65,17 @@ class MemoryPersonalizationTests(unittest.TestCase):
         self.memory.set_preferences("s",{"answer_length":0})
         self.memory.forget_preference("s","answer_length")
         _,llm=self.fresh_turn()
-        self.assertIn("回复不超过200字",llm.messages[-1][0]["content"])
+        self.assertIn("不设字数上限",llm.messages[-1][0]["content"])
         self.assertNotIn("answer_length",self.memory.get_profile("s").preferences)
+
+    def test_answer_length_preference_no_longer_becomes_length_instruction(self):
+        from models.interaction_preferences import style_instructions
+        for value in (0, .5, 1):
+            with self.subTest(value=value):
+                text=style_instructions({'answer_length':value})
+                self.assertNotIn("回答简短",text)
+                self.assertNotIn("回答长度适中",text)
+                self.assertNotIn("详细解释关键步骤",text)
 
     def test_disputed_misconception_does_not_drive_next_teaching_policy(self):
         args=self.args()

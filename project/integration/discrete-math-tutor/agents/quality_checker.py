@@ -107,11 +107,6 @@ class QualityChecker:
         budget = reply_budget(student_input, preferences={**rule_context.get("learner_preferences", {}), **(task_execution.preferences if task_execution else {})},
             execution=task_execution, action=plan.action, question_options=rule_context["question_options"],
             feedback_mode=rule_context.get("answer_feedback", {}).get("mode", ""))
-        override = rule_context.get("reply_maximum_override")
-        if isinstance(override, int) and override > 0 and override > budget.maximum:
-            from agents.reply_budget import ReplyBudget
-            budget = ReplyBudget(target=max(budget.target, override), maximum=override)
-        rule_context["reply_maximum"] = budget.maximum
         rule_issues = self._rule_check(response, plan, rule_context)
         if PSYCHOLOGY and re.search(r'随机区组|被试间设计',student_input+response) and not re.search(r'被试内|重复测量',response):
             for clause in re.split(r'[。！？\n]',response):
@@ -272,17 +267,6 @@ class QualityChecker:
     ) -> List[str]:
         issues: List[str] = []
         ctx = context or {}
-        limit = ctx.get("reply_maximum") or reply_budget(action=plan.action,
-            preferences=ctx.get("learner_preferences"), question_options=ctx.get("question_options", False),
-            feedback_mode=ctx.get("answer_feedback", {}).get("mode", ""),
-            proof_overview=ctx.get("proof_overview", False), supplementary_proof=ctx.get("supplementary_proof", False),
-            proof=ctx.get("task_proof", False), comparison=ctx.get("task_comparison", False)).maximum
-        if len(response) > limit:
-            issues.append(
-                "回复过长（超过 "
-                + str(limit)
-                + " 字）；请压缩重复表达，保留本轮子问题、关键条件和引用，不截断草稿"
-            )
         if plan.action in ("ask_question", "give_hint"):
             for marker in LEAK_MARKERS:
                 if marker in response:

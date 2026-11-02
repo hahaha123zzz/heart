@@ -14,6 +14,25 @@ spec.loader.exec_module(shadow)
 
 
 class SemanticShadowTests(unittest.TestCase):
+    def test_uncomparable_snapshot_never_reduces_effective_difference_rate(self):
+        rows=[{'case_id':'a','parser':'rule','legacy_comparable':True,
+               'legacy_differences':['intent'],'candidate_projection':{},'model_calls':0,
+               'legacy_model_calls':0,'baseline_unchanged':True},
+              {'case_id':'b','parser':'rule','legacy_comparable':False,
+               'legacy_differences':[],'candidate_projection':None,'model_calls':0,
+               'legacy_model_calls':0,'baseline_unchanged':True}]
+        with tempfile.TemporaryDirectory() as folder:
+            data=Path(folder)/'input.jsonl'; output=Path(folder)/'output.json'
+            data.write_text('{"text":"a"}\n{"text":"b"}',encoding='utf-8')
+            with patch('sys.argv',['check','--input',str(data),'--out',str(output),'--live','--legacy']), \
+                 patch('llm.client.LLMClient'), patch.object(shadow,'compare_case',side_effect=rows):
+                shadow.main()
+            summary=json.loads(output.read_text(encoding='utf-8'))['summary']
+        self.assertEqual(summary['difference_rate'],1.0)
+        self.assertEqual(summary['unprojected'],1)
+        self.assertIsNone(summary['effective_difference_rate'])
+        self.assertFalse(summary['eligible_for_removal'])
+
     def test_interrupted_batch_keeps_completed_cases_without_claiming_completion(self):
         with tempfile.TemporaryDirectory() as folder:
             data = Path(folder)/'input.jsonl'

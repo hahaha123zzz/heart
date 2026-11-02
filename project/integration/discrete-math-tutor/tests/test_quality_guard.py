@@ -113,7 +113,7 @@ class QualityGuardTests(unittest.TestCase):
         self.assertFalse(requests_supplementary_proof('证明这个结论'))
         plan=TeachingPlan(goal='补充证明',strategy='worked_example',action='explain',difficulty='medium')
         self.assertEqual(QualityChecker._rule_check('推理。'*100,plan,{'supplementary_proof':True}),[])
-        self.assertTrue(QualityChecker._rule_check('推理。'*100,plan,{}))
+        self.assertEqual(QualityChecker._rule_check('推理。'*100,plan,{}),[])
 
     def test_absent_quality_result_is_not_publishable(self):
         self.assertFalse(TutorOrchestrator._quality_accepted(None))

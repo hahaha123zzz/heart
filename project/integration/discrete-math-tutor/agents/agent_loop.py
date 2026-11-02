@@ -499,16 +499,12 @@ class LocalAgentLoop:
                         collector('progress','补取教材依据',{'detail':reason})
                         continue
                     if not result.repair_used and any(token in (reason or "") for token in
-                                               ("过长", "压缩", "字数", "超过", "引用格式", "格式无效", "尚未引用双方", "内部工具协议",
+                                               ("引用格式", "格式无效", "尚未引用双方", "内部工具协议",
                                                 "未标注本轮教材引用编号", "引用编号不属于本轮已核验来源")):
                         result.repair_used = True
                         no_tools_next = True
                         messages.append({"role": "assistant", "content": final_text})
-                        if any(token in (reason or "") for token in ("过长", "压缩", "字数", "超过")):
-                            instruction = ("\n请在不新增事实、不改变引用编号和范围的前提下压缩重写，"
-                                           "不要调用工具，直接给出修订后的完整回答。")
-                            label = "压缩修订"
-                        elif '内部工具协议' in reason:
+                        if '内部工具协议' in reason:
                             instruction = '\n已有教材原文，请只用自然语言给出完整讲解，保留实际引用；不要调用工具或输出DSML/tool_call协议。'
                             label = '修正正文格式'
                         elif '尚未引用双方' in reason:

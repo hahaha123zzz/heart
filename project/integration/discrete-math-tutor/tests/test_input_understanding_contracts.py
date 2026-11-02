@@ -60,8 +60,10 @@ class InputContractTests(unittest.TestCase):
     def test_negated_choice_and_question_are_not_answers(self):
         options={'A':'自变量','B':'因变量','C':'额外变量'}
         self.assertEqual(choice_submission('我选 B',options),'B')
-        for text in ('我不选 B','不是 B','为什么 B 不对？','B 或 C','先解释B，再回原题'):
+        for text in ('我不选 B','不是 B','为什么 B 不对？','B 或 C','先解释B，再回原题',
+                     '我不选择 B','我还没有选 B','我选 B 但不提交','我不认为选项 B','不是选项 B'):
             self.assertEqual(choice_submission(text,options),'',text)
+            self.assertTrue(non_submission(text),text)
 
     def test_compound_resume_preserves_order_and_negation(self):
         self.assertEqual(explanation_before_resume('先解释“操作性定义”这个词，再回到原来的题，不要替我作答。'),'操作性定义')

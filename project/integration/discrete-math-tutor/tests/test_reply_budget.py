@@ -22,10 +22,24 @@ class ReplyBudgetTests(unittest.TestCase):
             figure_context='[图5-2｜media:image-05-0004]',figure_images=['actual-image'])
         self.assertIn('media:资源ID',llm.chat.call_args.args[0][0]['content'])
 
-    def test_detailed_plan_budget_is_shared_and_hint_stays_short(self):
+    def test_budget_has_no_character_cap(self):
+        budget = reply_budget("我想学习第一章的主要内容")
+        self.assertIsNone(budget.target)
+        self.assertIsNone(budget.maximum)
+        self.assertEqual(budget.max_tokens, 8000)
+        self.assertNotIn("不超过", budget.instructions())
+        self.assertIn("不设字数上限", budget.instructions())
+
+    def test_detailed_and_hint_budgets_are_also_uncapped(self):
+        self.assertIsNone(reply_budget("请完整解释并比较", action="give_hint").maximum)
+        self.assertIsNone(reply_budget("请给出全书详细学习计划").maximum)
+
+    def test_detailed_plan_budget_is_shared_and_hint_is_uncapped(self):
         budget = reply_budget('请给出全书详细学习计划', preferences={'answer_length': 0})
-        self.assertEqual((budget.target, budget.maximum, budget.max_tokens), (1800, 2400, 4800))
-        self.assertLess(reply_budget('全书详细学习计划，只给提示', action='give_hint').maximum, 300)
+        self.assertEqual((budget.target, budget.maximum, budget.max_tokens), (None, None, 8000))
+        hint = reply_budget('全书详细学习计划，只给提示', action='give_hint')
+        self.assertIsNone(hint.maximum)
+        self.assertIn('不设字数上限', hint.instructions())
 
     def test_structured_q5_plan_projection_keeps_last_objective(self):
         from agents.q5_runtime import Q5Runtime
@@ -39,55 +53,57 @@ class ReplyBudgetTests(unittest.TestCase):
     def plan(self,action='explain'):
         return TeachingPlan(goal='实验设计',strategy='worked_example',action=action,difficulty='easy')
 
-    def test_explicit_complete_answer_overrides_old_short_preference(self):
+    def test_old_short_preference_no_longer_caps_any_request(self):
         for text in ['请完整解释双盲的条件与原因','请详细说明两类偏差','请分别说明分组和控制变量']:
             with self.subTest(text=text):
                 budget=reply_budget(text,preferences={'answer_length':0})
-                self.assertEqual((budget.target,budget.maximum),(480,500))
-        self.assertEqual(reply_budget('解释双盲',preferences={'answer_length':0}).maximum,160)
-        self.assertEqual(reply_budget(execution=TaskExecution(preferences={'answer_length':0.})).maximum,160)
+                self.assertIsNone(budget.target)
+                self.assertIsNone(budget.maximum)
+        self.assertIsNone(reply_budget('解释双盲',preferences={'answer_length':0}).maximum)
+        self.assertIsNone(reply_budget(execution=TaskExecution(preferences={'answer_length':0.})).maximum)
 
-    def test_hint_stays_bounded_even_when_message_requests_full_proof(self):
+    def test_hint_is_uncapped_but_still_only_a_hint(self):
         execution=TaskExecution(learning_intents=['hint','proof','compare'],answer_constraints=['hint_only'])
         budget=reply_budget('完整解释证明并比较，只给提示',execution=execution,action='give_hint')
-        self.assertEqual((budget.target,budget.maximum),(200,260))
+        self.assertEqual((budget.target,budget.maximum),(None,None))
+        self.assertIn('不设字数上限',budget.instructions())
         self.assertTrue(execution.hint_only)
 
     def test_multi_part_request_has_room(self):
         budget = reply_budget("请说明操作性自变量与选择性自变量的区别，并说明按年龄分组的变量是否一定不是自变量。")
-        self.assertGreaterEqual(budget.maximum, 360)
+        self.assertIsNone(budget.maximum)
 
     def test_symbol_list_and_two_formula_request_has_room(self):
         budget = reply_budget(
             "请解释两个差别感觉阈限DL公式的X、St、PSE、N与参照点区别，不要编造实验数据。")
-        self.assertGreaterEqual(budget.maximum, 500)
+        self.assertIsNone(budget.maximum)
 
     def test_options_and_multiple_intents_have_room(self):
-        self.assertGreaterEqual(reply_budget(question_options=True).maximum,420)
-        self.assertEqual(reply_budget(execution=TaskExecution(learning_intents=['example','explain'])).maximum,500)
+        self.assertIsNone(reply_budget(question_options=True).maximum)
+        self.assertIsNone(reply_budget(execution=TaskExecution(learning_intents=['example','explain'])).maximum)
 
     def test_long_draft_reaches_checker_without_losing_last_object_or_citation(self):
         draft='第一部分：'+('讲解条件。'*60)+'第二部分：不能从相关直接推出因果。[1]'
         llm=Mock();llm.mock=True;llm.chat.return_value=draft
+        llm.chat_json.return_value={'passed':True,'issues':[]}
         reply=ResponseGenerator(llm).generate(StudentState(),self.plan(),'解释关系',[])
         self.assertEqual(reply,draft)
         quality=QualityChecker(llm).check(reply,StudentState(),self.plan(),'解释关系',textbook_excerpts='[1] 相关不等于因果')
-        self.assertFalse(quality.passed)
-        self.assertIn('压缩重复表达',quality.issues[0])
-        llm.chat_json.assert_not_called()
+        self.assertTrue(quality.passed)
+        self.assertFalse(any('回复过长' in issue for issue in quality.issues))
 
     def test_generator_and_checker_use_identical_budget_for_detail_and_preferences(self):
         llm=Mock();llm.mock=True;llm.chat.return_value='条件。'*100;llm.chat_json.return_value={'passed':True,'issues':[]}
         execution=TaskExecution(learning_intents=['explain'],preferences={'answer_length':0.})
         message='请完整解释实验设计的条件和原因'
         response=ResponseGenerator(llm).generate(StudentState(),self.plan(),message,[],learner_preferences=execution.preferences,task_execution=execution)
-        self.assertIn('可到500字',llm.chat.call_args.args[0][0]['content'])
+        self.assertIn('不设字数上限',llm.chat.call_args.args[0][0]['content'])
         self.assertTrue(QualityChecker(llm).check(response,StudentState(),self.plan(),message,task_execution=execution).passed)
-        self.assertIn('可到500字',llm.chat_json.call_args.args[0][1]['content'])
+        self.assertIn('不设字数上限',llm.chat_json.call_args.args[0][1]['content'])
 
     def test_actual_retry_receives_full_previous_draft_and_feedback(self):
         helper=fixtures.QualityGuardTests()
-        tutor=helper.tutor([QualityResult(passed=False,issues=['回复过长，压缩重复表达']),QualityResult(passed=True)])
+        tutor=helper.tutor([QualityResult(passed=False,issues=['引用编号不支持结论']),QualityResult(passed=True)])
         tutor.response_generator.generate.side_effect=['需要压缩的原始草稿','两部分都保留的修订稿']
         result=helper.run_turn(tutor)
         calls=tutor.response_generator.generate.call_args_list
@@ -103,7 +119,7 @@ class ReplyBudgetTests(unittest.TestCase):
         tutor.context_sufficiency.check.return_value=SimpleNamespace(allowed=True,model_dump=lambda:{})
         long='说明。'*100+'第二部分仍完整。[1]';revised='两部分完整的修订说明。[1]'
         tutor.llm.chat.side_effect=[long,revised]
-        tutor.quality_checker.check.side_effect=[QualityResult(passed=False,issues=['回复过长']),QualityResult(passed=True)]
+        tutor.quality_checker.check.side_effect=[QualityResult(passed=False,issues=['引用编号不支持结论']),QualityResult(passed=True)]
         context=TaskContext(student_id='s',message='解释选中内容',knowledge_point='实验设计')
         reference={'source':'教材','image_refs':[],'chapter_id':2,'section_id':4,'section_title':'实验设计'}
         resolved={'section':{'title':'实验设计'},'text':'教材定义','context':'教材条件','images':[],'reference':reference,
@@ -130,39 +146,29 @@ class ReplyBudgetTests(unittest.TestCase):
         selection=SimpleNamespace(document_id='book',rects=[SimpleNamespace(page=1)])
         return tutor,context,resolved,selection
 
-    def test_pdf_selection_publishes_small_length_overrun_when_facts_pass(self):
-        over='回复过长（超过 260 字）压缩重复表达，保留第二个对象、关键理由与引用，不得截断草稿'
-        reply='说明。'*66
-        tutor,context,resolved,selection=self._selection([reply],[QualityResult(passed=False,issues=[over])])
-        from agents.reply_budget import ReplyBudget
-        with patch('knowledge.grounded_citations.settings',return_value=None),\
-             patch('agents.pdf_selection_tutor.reply_budget',return_value=ReplyBudget(200,260)),\
-             patch('agents.pdf_selection_tutor.selection_memory',return_value={'preferences':{},'summary':''}),\
-             patch.dict('os.environ',{'VISUALIZATION_ON_DEMAND':'0'}):
-            result=explain_selection(tutor,'s',context.message,selection,'production',task_context=context,resolved_selection=resolved)
-        self.assertEqual(result['answer_status'],'answered')
-        self.assertTrue(result['reply'].startswith(reply))
-        self.assertTrue(result['reply'].endswith('[1]'))
-        self.assertEqual(result['length_overrun_chars'],len(reply)-260)
-        self.assertEqual(tutor.llm.chat.call_count,1)
-        self.assertEqual(tutor.quality_checker.check.call_args.kwargs['context']['reply_maximum'],260)
-        self.assertEqual(tutor.memory.append_exchange.call_args.args[2],result['reply'])
+    def test_selection_publishes_long_reply_without_length_metadata(self):
+        reply = "说明。" * 1200
+        tutor, context, resolved, selection = self._selection([reply], [QualityResult(passed=True)])
+        with patch("knowledge.grounded_citations.settings", return_value=None), \
+             patch("agents.pdf_selection_tutor.selection_memory", return_value={"preferences": {}, "summary": ""}), \
+             patch.dict("os.environ", {"VISUALIZATION_ON_DEMAND": "0"}):
+            result = explain_selection(tutor, "s", context.message, selection, "production",
+                                       task_context=context, resolved_selection=resolved)
+        self.assertEqual(result["answer_status"], "answered")
+        self.assertGreaterEqual(len(result["reply"]), 3600)
+        self.assertNotIn("length_overrun_chars", result)
+        self.assertEqual(tutor.llm.chat.call_count, 1)
 
-    def test_pdf_selection_still_rejects_large_overrun_or_factual_issue(self):
-        over='回复过长（超过 260 字）压缩重复表达'
-        cases=[(['说明。'*160]*2,[QualityResult(passed=False,issues=[over])]*2,'回复过长'),
-               (['说明。'*66]*2,[QualityResult(passed=False,issues=[over,'引用编号不支持结论'])]*2,'引用编号不支持结论')]
-        from agents.reply_budget import ReplyBudget
-        for replies,qualities,expected in cases:
-            with self.subTest(expected=expected):
-                tutor,context,resolved,selection=self._selection(replies,qualities)
-                with patch('knowledge.grounded_citations.settings',return_value=None),\
-                     patch('agents.pdf_selection_tutor.reply_budget',return_value=ReplyBudget(200,260)),\
-                     patch('agents.pdf_selection_tutor.selection_memory',return_value={'preferences':{},'summary':''}),\
-                     patch.dict('os.environ',{'VISUALIZATION_ON_DEMAND':'0'}):
-                    with self.assertRaisesRegex(LLMError,expected):
-                        explain_selection(tutor,'s',context.message,selection,'production',task_context=context,resolved_selection=resolved)
-                tutor.memory.append_exchange.assert_not_called()
+    def test_selection_still_rejects_factual_issue(self):
+        tutor, context, resolved, selection = self._selection(
+            ["说明。" * 10, "说明。" * 10],
+            [QualityResult(passed=False, issues=["引用编号不支持结论"])] * 2)
+        with patch("knowledge.grounded_citations.settings", return_value=None), \
+             patch("agents.pdf_selection_tutor.selection_memory", return_value={"preferences": {}, "summary": ""}), \
+             patch.dict("os.environ", {"VISUALIZATION_ON_DEMAND": "0"}):
+            with self.assertRaisesRegex(LLMError, "引用编号不支持结论"):
+                explain_selection(tutor, "s", context.message, selection, "production",
+                                  task_context=context, resolved_selection=resolved)
 
     def test_gateway_rejects_nonempty_text_cut_short_by_provider(self):
         client=LLMClient(api_key='test-placeholder',mock=False)

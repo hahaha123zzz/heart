@@ -106,7 +106,8 @@ class DeepTutorBackend:
         if evidence is not None:
             import hashlib
             payload["evidence"] = evidence
-            payload["max_characters"] = max_characters
+            if max_characters is not None:
+                payload["max_characters"] = max_characters
         result = self._post("/internal/heart/agentic" if evidence is not None else "/internal/heart/generate", payload)
         if evidence is not None and (result.get("engine") != "agent_loop"
                 or type(result.get("rounds")) is not int or not 2 <= result["rounds"] <= 6

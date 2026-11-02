@@ -40,6 +40,14 @@ class LLMJSONError(LLMError):
     """模型已返回内容，但 JSON 结构不可解析。"""
 
 
+def answer_max_tokens() -> int:
+    """模型 API 的技术输出上限；不是回答字符门禁。"""
+    try:
+        return int(os.getenv("ANSWER_MAX_TOKENS", "8000"))
+    except (TypeError, ValueError):
+        return 8000
+
+
 @dataclass
 class ChatToolCall:
     id: str
@@ -258,7 +266,7 @@ class LLMClient:
         self,
         messages: List[Dict[str, Any]],
         temperature: float = 0.4,
-        max_tokens: int = 1200,
+        max_tokens: int | None = None,
         image_paths: Optional[List[Path]] = None,
         timeout: float | None = None,
         reasoning_effort: str | None = None,
@@ -269,6 +277,7 @@ class LLMClient:
     ) -> str:
         if self.mock:
             return str(mock_reply(messages, json_mode=False))
+        max_tokens = max_tokens or answer_max_tokens()
         try:
             reasoning = {"reasoning_effort": reasoning_effort} if reasoning_effort else {}
             visual = bool(image_paths)

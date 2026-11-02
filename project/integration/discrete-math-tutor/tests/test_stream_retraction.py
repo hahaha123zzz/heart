@@ -159,7 +159,7 @@ class RetractionTests(unittest.TestCase):
         token=current_answer.set(publisher);checks=[]
         def gate(text,result):
             checks.append(text)
-            return (len(checks)>1, '回复过长（超过 260 字）' if len(checks)==1 else '')
+            return (len(checks)>1, '引用格式无效：[1-3]' if len(checks)==1 else '')
         class EmittingLLM(ScriptedLLM):
             def chat_with_tools(self,messages,tools,**kwargs):
                 result=super().chat_with_tools(messages,tools,**kwargs)

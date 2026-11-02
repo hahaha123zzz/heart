@@ -124,12 +124,22 @@ class InputIntegrationTests(unittest.TestCase):
         self.assertIn('先完成首项解释',model.calls[0]['messages'][0]['content'])
 
     def test_negation_and_option_question_do_not_call_assessment_model(self):
-        for message in ('我不选 B','为什么 B 不对？'):
+        for message in ('我不选 B','为什么 B 不对？','我不选择 B','我还没有选 B','我选 B 但不提交'):
             context,request=bound(message);model=Mock()
             turn=TeachingTurn(context,request,model,validate_sources=lambda rows:rows)
             self.assertIsNotNone(turn.progress.pending_question)
             model.chat_json.assert_not_called()
             self.assertIsNone(turn.state['assessment'])
+
+    def test_bare_decline_replays_question_without_generating_an_answer(self):
+        for message in ('我不选择 B','我还没有选 B','我选 B 但不提交'):
+            context,request=bound(message); model=Mock()
+            turn=TeachingTurn(context,request,model,validate_sources=lambda rows:rows)
+            self.assertTrue(turn.restore_reply().endswith(turn.progress.pending_question.prompt))
+            self.assertIn('暂不提交答案',turn.restore_reply())
+            model.chat_json.assert_not_called()
+        context,request=bound('我不选 B，请解释为什么')
+        self.assertIsNone(TeachingTurn(context,request,Mock(),validate_sources=lambda rows:rows).restore_reply())
 
     def test_explicit_figure_does_not_submit_the_pending_answer(self):
         from models.task_context import TaskContext

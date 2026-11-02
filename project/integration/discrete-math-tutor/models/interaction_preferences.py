@@ -36,8 +36,6 @@ def turn_style_overrides(message):
 
 def style_instructions(values):
     lines = ["用户已确认的交互偏好（本轮明确要求、仅提示范围和教材准确性优先）："]
-    if "answer_length" in values:
-        lines.append("回答简短，保留必要条件。" if values["answer_length"] < .34 else "详细解释关键步骤。" if values["answer_length"] > .66 else "回答长度适中。")
     if "example_density" in values:
         lines.append("多用相关辅助例子并标注非原书例题。" if values["example_density"] > .66 else "例子仅在必要时使用。" if values["example_density"] < .34 else "适量举例。")
     if "learning_pace" in values:
