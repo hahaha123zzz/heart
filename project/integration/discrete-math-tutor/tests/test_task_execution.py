@@ -44,10 +44,9 @@ class TaskExecutionTests(unittest.TestCase):
         with patch('agents.response_generator._library_guides',return_value={}):
             response=ResponseGenerator(llm).generate(StudentState(),plan,'比较两种设计的条件、适用情境和控制问题',[],task_execution=execution)
         self.assertEqual(response,answer)
-        self.assertEqual(llm.chat.call_args.kwargs['max_tokens'],900)
+        self.assertEqual(llm.chat.call_args.kwargs['max_tokens'],8000)
         self.assertEqual(QualityChecker._rule_check(response,plan,{'task_comparison':True}),[])
         execution.answer_constraints=['hint_only']
-        self.assertEqual(execution.reply_limit(200),200)
     def plan(self): return TeachingPlan(goal='解释',strategy='worked_example',action='explain',difficulty='medium')
 
     def test_explicit_requests_can_repeat_action_without_repeating_answer(self):
@@ -111,7 +110,7 @@ class TaskExecutionTests(unittest.TestCase):
         system=llm.chat.call_args.args[0][0]['content']
         self.assertIn('仅给一个知识点',system)
         self.assertNotIn('本轮明确请求完整证明思路',system)
-        self.assertEqual(llm.chat.call_args.kwargs['max_tokens'],400)
+        self.assertEqual(llm.chat.call_args.kwargs['max_tokens'],8000)
 
     def test_semantic_quality_sees_task_constraints(self):
         llm=Mock();llm.mock=True;llm.chat_json.return_value={'passed':False,'issues':['提示泄露完整结论'],'suggestions':''}
@@ -171,21 +170,19 @@ class TaskExecutionTests(unittest.TestCase):
     def test_example_then_proof_has_consistent_generation_and_quality_budget(self):
         execution=TaskExecution(learning_intents=['example','proof'],answer_constraints=['example_before_proof'])
         plan=self.plan();execution.align(plan)
-        self.assertEqual(execution.reply_limit(200),480)
         self.assertEqual(QualityChecker._rule_check('推理。'*100,plan,{'task_proof':True}),[])
-        self.assertTrue(QualityChecker._rule_check('推理。'*100,plan,{}))
+        self.assertEqual(QualityChecker._rule_check('推理。'*100,plan,{}),[])
 
     def test_proof_task_has_room_without_inventing_full_overview_request(self):
         llm=Mock();llm.chat.return_value='推理。'*100;plan=self.plan()
         execution=TaskExecution(learning_intents=['proof']);execution.align(plan)
         with patch('agents.response_generator._library_guides',return_value={}):
             response=ResponseGenerator(llm).generate(StudentState(),plan,'解释这个步骤',[],task_execution=execution)
-        self.assertEqual(response,'推理。'*100);self.assertEqual(llm.chat.call_args.kwargs['max_tokens'],900)
+        self.assertEqual(response,'推理。'*100);self.assertEqual(llm.chat.call_args.kwargs['max_tokens'],8000)
         self.assertNotIn('本轮明确请求完整证明思路',llm.chat.call_args.args[0][0]['content'])
 
-    def test_hint_does_not_get_full_proof_length_budget(self):
+    def test_hint_still_does_not_request_full_proof(self):
         execution=TaskExecution(learning_intents=['proof','hint']);self.assertFalse(execution.proof_requested)
-        self.assertEqual(execution.reply_limit(200),200)
 
 
 if __name__=='__main__':unittest.main()

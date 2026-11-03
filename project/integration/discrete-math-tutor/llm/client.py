@@ -118,6 +118,7 @@ class LLMClient:
         self, messages: List[Dict[str, Any]], temperature: float, max_tokens: int,
         model: str | None = None, timeout: float | None = None,
         reasoning_effort: str | None = None,
+        json_mode: bool = False,
     ) -> tuple[str, str | None]:
         if os.getenv("DEEPTUTOR_LLM_ENABLED", "0") == "1":
             from integrations.deeptutor.client import DeepTutorBackend
@@ -133,6 +134,8 @@ class LLMClient:
             args["reasoning_effort"] = reasoning_effort
         if "api.deepseek.com" in self.base_url:
             args["extra_body"] = {"thinking": {"type": "enabled" if reasoning_effort else "disabled"}}
+            if json_mode:
+                args["response_format"] = {"type": "json_object"}
         timeout = model_timeout(timeout)
         client = self._client_lazy()
         if timeout is not None:
@@ -274,6 +277,7 @@ class LLMClient:
         agentic_max_characters: int | None = None,
         on_delta: Callable[[str], None] | None = None,
         stream_guard: Callable[[], None] | None = None,
+        json_mode: bool = False,
     ) -> str:
         if self.mock:
             return str(mock_reply(messages, json_mode=False))
@@ -303,7 +307,8 @@ class LLMClient:
                 return content.strip()
             content, reason = (
                 self._one_call(request_messages, temperature, max_tokens, self.vision_model, timeout=timeout, **reasoning)
-                if visual else self._one_call(request_messages, temperature, max_tokens, timeout=timeout, **reasoning)
+                if visual else self._one_call(request_messages, temperature, max_tokens, timeout=timeout,
+                                              **({'json_mode': True} if json_mode else {}), **reasoning)
             )
             if not content and reason == "length" and timeout is None and current_budget.get() is None:
                 retry_tokens = max(max_tokens * 2, 1200)
@@ -410,6 +415,7 @@ class LLMClient:
         image_paths: Optional[List[Path]] = None,
         timeout: float | None = None,
         reasoning_effort: str | None = None,
+        json_mode: bool = False,
     ) -> Dict[str, Any]:
         if self.mock:
             result = mock_reply(messages, json_mode=True)
@@ -420,7 +426,8 @@ class LLMClient:
             try:
                 return extract_json(self.chat(messages, temperature, max_tokens,
                                               image_paths=image_paths, timeout=timeout,
-                                              **({"reasoning_effort": reasoning_effort} if reasoning_effort else {})))
+                                              **({"reasoning_effort": reasoning_effort} if reasoning_effort else {}),
+                                              **({'json_mode': True} if json_mode else {})))
             except (ValueError, LLMError) as exc:
                 last_error = exc
         error_type = LLMJSONError if isinstance(last_error, ValueError) else LLMError

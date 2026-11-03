@@ -11,7 +11,7 @@ from knowledge.psychology_retrieval import retrieve
 from knowledge.citation_locations import locate_source
 from unittest.mock import Mock,patch
 from types import SimpleNamespace
-assert set(CATALOG)=={'experiment_flow','variable_map','design_matrix'}
+assert set(CATALOG)=={'experiment_flow','variable_map','design_matrix','knowledge_map'}
 assert '被试间因素' in read_skill('experimental-design')
 with patch('knowledge.psychology_retrieval.retrieve_hybrid',return_value=[]):
  sources=retrieve('单因素随机区组设计为什么能控制个体差异？',[])
@@ -40,6 +40,7 @@ plan=lambda name,payload:VisualPlan(template=name,title='图解',source_index=0,
 flow={'nodes':[{'id':'iv','label':'操纵自变量'},{'id':'dv','label':'测量因变量'}],'edges':[{'source':'iv','target':'dv','label':'实验程序'}],'steps':[{'node':'iv','text':'设置条件'},{'node':'dv','text':'测量反应'}]}
 assert render_plan(plan('experiment_flow',flow))[0]['graph']['focus_nodes']==['iv']
 assert render_plan(plan('variable_map',flow))[1]['graph']['focus_nodes']==['dv']
+assert render_plan(plan('knowledge_map',flow))[1]['graph']['focus_nodes']==['dv']
 for payload in [matrix|{'rows':[['少一列']]},matrix|{'steps':[{'row':3,'columns':[1],'text':'越界'}]},matrix|{'html':'<script>'}]:
  try:render_plan(plan('design_matrix',payload));raise AssertionError('接受无效矩阵')
  except ValueError:pass

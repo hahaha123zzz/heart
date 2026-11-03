@@ -3,7 +3,8 @@ from models.input_understanding import ExecutionDecision
 
 
 READ_ACTIONS = {'explain_content', 'compare_content', 'provide_hint', 'discuss_claim',
-                'resume_pending_question', 'resume_learning_activity', 'clarify_reference'}
+                'resume_pending_question', 'resume_learning_activity', 'clarify_reference',
+                'chapter_overview', 'section_overview'}
 
 
 def decide(turn):

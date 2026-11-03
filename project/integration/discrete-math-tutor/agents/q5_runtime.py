@@ -233,6 +233,7 @@ class Q5Runtime:
             },
             "q5_plan": proposal,
             "q5_status": proposal,
+            "result_type": "q5_plan",
             "step_advanced": False,
             "task_id": task.get("id"),
             "task_revision": task.get("revision"),

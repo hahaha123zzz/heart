@@ -48,7 +48,8 @@ class ProofGatewayTests(unittest.TestCase):
         plan=TeachingPlan(goal='证明',strategy='worked_example',action='explain',difficulty='medium')
         result=ResponseGenerator(llm).generate(StudentState(),plan,'补充这个证明',[])
         self.assertEqual(result,answer)
-        self.assertTrue(QualityChecker._rule_check(result,plan,{'supplementary_proof':True}))
+        self.assertIn('关键结论由这两个分情况推出。', result)
+        self.assertEqual(QualityChecker._rule_check(result,plan,{'supplementary_proof':True}),[])
 
     def test_parallel_calls_share_one_lazy_client(self):
         import time,threading

@@ -6,7 +6,8 @@ PublishedText = Annotated[str, StringConstraints(strip_whitespace=False)]
 
 SemanticType = Literal['direct_answer', 'definition', 'explanation', 'procedure', 'comparison',
     'worked_example', 'analogy', 'misconception', 'counterexample', 'formula_explanation',
-    'visual_explanation', 'hint', 'recap', 'next_step', 'check_question', 'feedback']
+    'visual_explanation', 'hint', 'recap', 'next_step', 'check_question', 'feedback',
+    'roadmap', 'section_map']
 
 
 class ResponseModel(BaseModel):
@@ -44,7 +45,7 @@ class ResponsePlan(ResponseModel):
 
 
 class ContentClaim(ResponseModel):
-    text: str = Field(min_length=1, max_length=2000)
+    text: str = Field(min_length=1, max_length=12000)
     source_ids: list[str] = Field(min_length=1, max_length=8)
     provenance: Literal['quotation', 'paraphrase', 'derived_explanation', 'generated_example', 'analogy']
 

@@ -136,7 +136,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
         import logging
         logging.getLogger(__name__).warning('PDF selection quality check: %s', quality.model_dump())
         feedback='；'.join(quality.issues)
-        payload['待修订草稿（不是教材依据）']=reply[:6000]
+        payload['待修订草稿（不是教材依据）']=reply
     if not quality.passed or getattr(quality,'issues',[]):
         raise LLMError('选区解释未通过核验：'+('；'.join(getattr(quality,'issues',[]) or []) or '未说明原因'))
     if not grounded_bundle and '[1]' not in reply: reply+=' [1]'

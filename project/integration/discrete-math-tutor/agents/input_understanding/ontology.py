@@ -28,6 +28,8 @@ ACTION_INTENT = {
     "revise_learning_plan": "learning_management",
     "confirm_learning_plan": "learning_management",
     "switch_learning_target": "learning_management",
+    "chapter_overview": "learning_management",
+    "section_overview": "learning_management",
     "propose_preference_change": "session_control",
     "clarify_reference": "unclear",
 }

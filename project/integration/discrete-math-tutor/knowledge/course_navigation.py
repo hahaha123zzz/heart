@@ -100,14 +100,20 @@ def intent(message):
     if re.fullmatch(r'(?:我懂了|明白了|懂了|好的|可以|嗯|行)?[，,。！？\s]*'
                     r'(?:继续|继续学习|继续学|接着学习|接着学|往下学|往下学习)[。！？\s]*', text):
         return 'next'
-    # 章节中的具体内容提问仍交给普通识别；章节导学要求才走目录入口。
+    # 章节中的具体内容提问仍交给普通识别；章节导学/导览要求才走目录入口。
     chapter_match = re.search(r'第[一二三四五六七八九十零\d]+章', text)
     named = next((chapter['title'] for chapter in chapters() if chapter['title'] in text), None) if PSYCHOLOGY else None
-    if re.search(r'学|带我|从头|开始|讲解|介绍', text) and (chapter_match or named):
+    # 指向具体小节的问题（“第一章第三节……是什么”）不是整章导览。
+    if (chapter_match or named) and not re.search(r'第[一二三四五六七八九十零\d]+[节小]', text):
         suffix = text.split(named, 1)[1] if named else text[chapter_match.end():]
         suffix = re.sub(r'(?:[，,。；;](?:只讲解|只讲|先讲解|直接讲解|直接讲|直接解释|'
                         r'从第一个知识点开始|不要出题|不出题|不要测试|不测试))+[。！？]*$', '', suffix)
-        if re.fullmatch(r'(?:的|内容|全部|从头|开始|学习|讲解|吧|[，。！？])*', suffix):
+        core = re.sub(r'[的了吧呢，,。；;！？!?\s]+', '', suffix)
+        if core and re.fullmatch(r'(?:主要|重点|核心|基本|大致|整体|概要|简介|框架|脉络|'
+                                 r'讲什么|学什么|有什么|有哪些|是什么|内容)+', core):
+            return 'overview'
+        if re.search(r'学|带我|从头|开始|讲解|介绍', text) and re.fullmatch(
+                r'(?:的|内容|全部|从头|开始|学习|讲解|吧|[，。！？])*', suffix):
             return 'start'
     return None
 
@@ -245,7 +251,9 @@ def resolve(message, *, cursor=None, reader_location=None, activity=None):
     if cursor and cursor.get('status') == 'clarify' and mode in ('next', 'topic', 'section', 'chapter'):
         return dict(cursor)
     units = outline()
-    if mode == 'start':
+    if mode in ('start', 'overview'):
+        # 导览与开始学习落在同一章的首个目录目标；游标模式保持兼容。
+        mode = 'start'
         text = ''.join(message.split())
         match = re.search(r'第([一二三四五六七八九十零\d]+)章', text)
         chapter_id = _number(match[1]) if match else None

@@ -7,7 +7,14 @@ from visualization.on_demand import build_guide
 
 
 class ProgressiveAnswerTests(unittest.TestCase):
-    setUp = fixtures.ClarificationTests.setUp
+    def setUp(self):
+        env = patch.dict('os.environ', {'INPUT_UNDERSTANDING_MODE': 'off', 'Q5_LEARNING_ENABLED': '0'})
+        env.start()
+        self.addCleanup(env.stop)
+        display = patch('knowledge.grounded_citations.references_for_display', side_effect=lambda refs: refs)
+        display.start()
+        self.addCleanup(display.stop)
+        fixtures.ClarificationTests.setUp(self)
     tearDown = fixtures.ClarificationTests.tearDown
     request = fixtures.ClarificationTests.request
 
@@ -40,6 +47,7 @@ class ProgressiveAnswerTests(unittest.TestCase):
         self.assertEqual(self.history()[-1]["selection_ref"]["textbook_sources"], ["教材"])
         self.assertEqual(self.history()[-1]['selection_ref']['pdf_references'],result['pdf_references'])
         again = self.service.run(request, Mock(side_effect=AssertionError("重复生成")), visualization_jobs=[build], answer_ready=ready)
+        self.assertTrue(again.pop('reader_action_replay', False))
         self.assertEqual(again, result)
         self.assertEqual(order, ["answer", "guide"])
         self.assertEqual(len(self.history()), 2)

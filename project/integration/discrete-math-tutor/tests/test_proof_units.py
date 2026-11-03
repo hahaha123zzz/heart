@@ -109,7 +109,7 @@ class ProofUnitTests(unittest.TestCase):
         self.assertTrue(requests_proof_overview("解释完整证明思路"))
         response="归纳与分情况证明。"*35
         self.assertEqual(QualityChecker._rule_check(response,plan,{"proof_overview":True}),[])
-        self.assertTrue(QualityChecker._rule_check(response,plan,{}))
+        self.assertEqual(QualityChecker._rule_check(response,plan,{}),[])
         self.assertFalse(requests_proof_overview("解释这一步"))
     def test_explicit_direction_focus(self):
         self.assertEqual(focus_pages(units_for(8)['定理8.16'],'解释（1）⇒（2）'),[15])

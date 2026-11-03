@@ -108,6 +108,8 @@ class StrategyInputs:
     difficulty_locus: str | None
     previous_strategy: str
     evidence_mode: str
+    route_kind: str = ''
+    scope: str = ''
 
 
 def _previous_strategy(old,target_ref):
@@ -122,6 +124,7 @@ def decide(turn, old):
     constraints = {c for t in turn.input_turn.tasks for c in t.constraints} if turn.input_turn else set()
     constraints.update(getattr(turn,'extra_strategy_constraints',()))
     request=turn.request
+    route=turn.turn_route
     return _decide(StrategyInputs(student_id=request.student_id,session_id=request.session_id,
         request_id=request.request_id or '',task_id=request.task_id or '',task_revision=request.task_revision,
         target_ref=turn.state.get('target_id') or turn.objective.id,message=request.message,mode=turn.teaching_mode,
@@ -130,7 +133,8 @@ def decide(turn, old):
         has_pending=bool(turn.progress.pending_question),interjection=turn.interjection,
         assessment=turn.state.get('assessment') or {},question_frequency=turn.context.preferences.get('question_frequency',.5),
         difficulty_locus=turn._locus() if turn.six_dim and os.getenv('LABELS_POLICY','0')=='1' else None,
-        previous_strategy=_previous_strategy(old,turn.state.get('target_id') or turn.objective.id),evidence_mode=turn.evidence_mode))
+        previous_strategy=_previous_strategy(old,turn.state.get('target_id') or turn.objective.id),evidence_mode=turn.evidence_mode,
+        route_kind=route.kind if route else '',scope=route.scope if route else ''))
 
 
 def decide_for_context(context, execution, *, assessment=None):
@@ -155,6 +159,7 @@ def decide_for_context(context, execution, *, assessment=None):
     header=input_turn.context if input_turn else None
     target=(execution.target_refs[0] if execution.target_refs else
         (context.activity_target or {}).get('target_id') or context.knowledge_point or 'current-goal')
+    route=context.turn_route or {}
     return _decide(StrategyInputs(student_id=context.student_id,session_id=context.session_id,
         request_id=context.request_id or '',task_id=context.task_id or (header.task_id if header else '') or '',
         task_revision=context.task_revision or (header.task_revision if header else None),
@@ -164,7 +169,8 @@ def decide_for_context(context, execution, *, assessment=None):
         constraints=frozenset(constraints),allow_check=not no_questions,invite_check=features.invite_check,
         has_pending=pending,interjection=False,assessment=assessment or {},
         question_frequency=preferences.get('question_frequency',.5),difficulty_locus=locus,
-        previous_strategy=_previous_strategy(context.tutoring,target),evidence_mode=features.evidence_mode))
+        previous_strategy=_previous_strategy(context.tutoring,target),evidence_mode=features.evidence_mode,
+        route_kind=route.get('kind',''),scope=route.get('scope','')))
 
 
 def strategy_action(plan):
@@ -245,6 +251,13 @@ def _decide(inputs):
         preferred = ['direct_explanation','worked_example']; reasons.append('explicit_direct_request')
     elif inputs.skip:
         preferred = ['summary']; reasons.append('student_skipped')
+    elif inputs.route_kind == 'comparison':
+        preferred = ['conceptual_comparison','worked_example','scaffolding']; reasons.append('turn_route:comparison')
+    elif inputs.route_kind == 'hint':
+        preferred = ['hint','scaffolding']; reasons.append('turn_route:hint')
+    elif inputs.route_kind == 'exercise' and verdict is None:
+        preferred = (['retrieval_practice','socratic_questioning'] if allow
+                     else ['worked_example','scaffolding']); reasons.append('turn_route:exercise')
     elif inputs.mode == 'practice' and allow:
         preferred = ['retrieval_practice','socratic_questioning']
     elif verdict == 'partial':

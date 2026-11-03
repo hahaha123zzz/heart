@@ -19,7 +19,7 @@ def purpose(message):
         return 'reader_action'
     if re.search(r'目录|有哪些小节|章节结构', text):
         return 'outline'
-    if re.search(r'几[份本个].*(教材|文档|资料)|(?:教材|资料|文档).*(几[份本个]|有哪些|数量)', text):
+    if re.search(r'几[本份个].*(教材|文档|资料)|(?:教材|资料|文档).*(几[本份个]|数量|清单|列表)', text):
         return 'catalog'
     if re.search(r'记得我|我的.*(?:偏好|画像|基础)|我喜欢.*(?:讲|学)', text):
         return 'personal_state'

@@ -19,6 +19,14 @@ def context(message,**values):
         task_id='shared-task',task_revision=3,knowledge_point='自变量',message=message,**values)
 
 
+def context_with_route(message,kind,**route_values):
+    from models.input_understanding import TurnRoute
+    from models.task_context import apply_route
+    ctx=context(message,input_mode='active')
+    apply_route(ctx,TurnRoute(kind=kind,reason='test',**route_values))
+    return ctx
+
+
 class SharedStrategyPolicyTests(unittest.TestCase):
     def test_example_before_proof_preserves_order_without_overriding_hint(self):
         ctx=context('解释当前问题')
@@ -97,6 +105,34 @@ class SharedStrategyPolicyTests(unittest.TestCase):
     def test_legacy_prompt_does_not_request_a_tool_that_is_not_installed(self):
         plan=decide_for_context(context('只给提示'),TaskExecution())
         self.assertNotIn('teaching_step',strategy_prompt(plan,selector_tool=False))
+
+    def test_comparison_route_selects_comparison_strategy(self):
+        plan=decide_for_context(context_with_route('观察法有什么特点','comparison',scope='kp'),TaskExecution())
+        self.assertEqual(plan.primary_strategy,'conceptual_comparison')
+
+    def test_hint_route_selects_hint_without_regex(self):
+        plan=decide_for_context(context_with_route('观察法有什么特点','hint',scope='kp'),TaskExecution())
+        self.assertEqual(plan.primary_strategy,'hint')
+
+    def test_answer_route_does_not_override_incorrect_verdict(self):
+        plan=decide_for_context(context_with_route('我选 B','exercise',scope='pending'),
+            TaskExecution(),assessment={'move':'answer','verdict':'incorrect',
+                'student_quote':'B','reason':'概念混用','next_hint':'先区分两个变量'})
+        self.assertEqual(plan.primary_strategy,'direct_correction')
+
+    def test_answer_route_does_not_override_partial_verdict(self):
+        plan=decide_for_context(context_with_route('我选 B','exercise',scope='pending'),
+            TaskExecution(),assessment={'move':'answer','verdict':'partial',
+                'student_quote':'B','reason':'只答对一半','next_hint':'补上另一半'})
+        self.assertEqual(plan.primary_strategy,'guided_revision')
+
+    def test_chapter_scope_target_is_chapter_not_section(self):
+        from agents.agent_loop_service import _target_from_context
+        ctx=context_with_route('我想学习第一章','chapter_overview',scope='chapter',chapter_id=1,
+            target_id='chapter:1',name='实验心理学概论',query='实验心理学概论 第一节')
+        target=_target_from_context(ctx)
+        self.assertEqual(target.target_id,'chapter:1')
+        self.assertIsNone(target.section_id)
 
     def test_legacy_chat_uses_one_policy_and_keeps_user_no_question_boundary(self):
         from tests.test_answer_flow import AnswerFlowTests

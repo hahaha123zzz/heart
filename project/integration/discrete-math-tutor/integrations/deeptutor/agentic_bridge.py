@@ -20,7 +20,7 @@ def _answer_max_tokens() -> int:
 
 
 class AgenticRequest(GenerationRequest):
-    max_tokens: int = Field(default_factory=_answer_max_tokens, ge=256, le=16000)
+    max_tokens: int = Field(default_factory=_answer_max_tokens, ge=256)
     evidence: str = Field(min_length=1, max_length=100000)
     max_characters: int | None = None
 

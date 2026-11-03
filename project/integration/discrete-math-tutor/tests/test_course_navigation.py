@@ -60,6 +60,23 @@ class NavigationTests(unittest.TestCase):
             with self.subTest(message=message):
                 self.assertIsNone(intent(message))
 
+    def test_chapter_main_content_is_overview(self):
+        for message in ('我想学习第一章的主要内容', '第一章主要内容是什么',
+                        '第一章讲什么', '第一章有什么内容', '第一章重点'):
+            with self.subTest(message=message):
+                self.assertEqual(intent(message), 'overview')
+
+    def test_chapter_start_stays_start(self):
+        for message in ('我想学习第一章', '从第一章开始'):
+            with self.subTest(message=message):
+                self.assertEqual(intent(message), 'start')
+
+    def test_specific_concept_is_not_chapter_overview(self):
+        for message in ('第一章的实验设计是什么', '第一章第三节的实验程序是什么',
+                        '第一章第三节的内容是什么'):
+            with self.subTest(message=message):
+                self.assertIsNone(intent(message))
+
     def test_natural_next_phrases_navigate_but_same_point_phrases_do_not(self):
         for message in ('我懂了，下一部分', '下一步', '继续', '接下来',
                         '继续学习', '好的，继续'):

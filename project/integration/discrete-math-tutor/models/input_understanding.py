@@ -10,8 +10,14 @@ class StrictModel(BaseModel):
 Action = Literal['explain_content', 'compare_content', 'provide_hint', 'discuss_claim',
                  'resume_pending_question', 'resume_learning_activity', 'propose_learning_plan',
                  'revise_learning_plan', 'confirm_learning_plan', 'submit_student_answer',
-                 'request_practice', 'propose_preference_change', 'clarify_reference', 'switch_learning_target']
+                 'request_practice', 'propose_preference_change', 'clarify_reference', 'switch_learning_target',
+                 'chapter_overview', 'section_overview']
 Constraint = Literal['hint_only', 'no_full_answer', 'no_questions', 'verdict_only']
+RouteKind = Literal['concept_answer', 'comparison', 'chapter_overview', 'section_overview', 'learning_plan',
+                    'exercise', 'hint', 'navigation', 'catalog', 'personal_state', 'reader_action',
+                    'clarify', 'reject']
+RouteScope = Literal['course', 'chapter', 'section', 'kp', 'selection', 'figure', 'pending', 'none']
+ToolPurpose = Literal['textbook', 'outline', 'catalog', 'personal_state', 'reader_action']
 
 
 class InputEnvelope(StrictModel):
@@ -122,6 +128,21 @@ class TaskFrame(StrictModel):
     state: Literal['pending', 'completed', 'paused', 'failed'] = 'pending'
 
 
+class TurnRoute(StrictModel):
+    kind: RouteKind
+    scope: RouteScope
+    chapter_id: int | None = Field(default=None, ge=1)
+    section_id: int | None = Field(default=None, ge=1)
+    target_id: str | None = Field(default=None, max_length=180)
+    name: str = Field(default='', max_length=200)
+    query: str = Field(default='', max_length=4000)
+    tool_purpose: ToolPurpose = 'textbook'
+    navigation_mode: Literal['start', 'overview', 'guide', 'next', 'repeat', 'bind'] | None = None
+    constraints: list[Constraint] = Field(default_factory=list, max_length=4)
+    source: Literal['rule', 'model', 'fallback'] = 'rule'
+    reason: str = Field(default='', max_length=200)
+
+
 class SemanticAnnotation(StrictModel):
     dimension: str = Field(min_length=1, max_length=64)
     label: str = Field(min_length=1, max_length=64)
@@ -139,6 +160,7 @@ class GroundedTurn(StrictModel):
     directives: list[ScopedDirective] = Field(default_factory=list, max_length=12)
     annotations: list[SemanticAnnotation] = Field(default_factory=list, max_length=16)
     ontology_version: str | None = None
+    route: TurnRoute | None = None
     resolution_status: Literal['resolved', 'partial', 'ambiguous', 'missing'] = 'resolved'
     unresolved: list[str] = Field(default_factory=list, max_length=8)
     parser: Literal['rule', 'model', 'fallback'] = 'rule'
@@ -216,4 +238,9 @@ class GroundedTurn(StrictModel):
                 lines.append(f'呈现要求：范围={directive.scope}；{directive.key}={directive.value}；依据={directive.quote}')
         if any(d.scope == 'persistent' for d in self.directives):
             lines.append('长期偏好只是待确认候选，不能声称已经保存。')
+        if self.route is not None:
+            route = self.route
+            scope = f'；章={route.chapter_id}' if route.chapter_id is not None else ''
+            scope += f'；节={route.section_id}' if route.section_id is not None else ''
+            lines.append(f'本轮路由：{route.kind}；范围={route.scope}{scope}')
         return '\n'.join(lines)

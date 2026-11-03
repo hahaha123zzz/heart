@@ -71,5 +71,24 @@ class InputContractTests(unittest.TestCase):
         self.assertFalse(resume_requested('不要回到原题，先解释操作性定义'))
         self.assertFalse(non_submission('自变量是研究者操纵的条件或因素。'))
 
+    def test_chapter_overview_action_and_route(self):
+        from agents.input_understanding import ontology
+        from agents.input_understanding.service import understand
+        from models.chat_request import ChatRequest
+        from models.task_context import TaskContext
+        message='我想学习第一章的主要内容'
+        context=TaskContext(student_id='s',session_id='x',message=message,input_mode='active')
+        turn=understand(context,ChatRequest(student_id='s',session_id='x',request_id='r',message=message))
+        self.assertEqual(turn.tasks[0].action,'chapter_overview')
+        self.assertEqual(turn.route.kind,'chapter_overview')
+        self.assertEqual(turn.route.chapter_id,1)
+        self.assertEqual(ontology.intent_for('chapter_overview'),'learning_management')
+        self.assertEqual(ontology.intent_for('section_overview'),'learning_management')
+
+    def test_saved_old_turn_without_route_still_validates(self):
+        data=question_turn(tasks=[TaskFrame(task_frame_id='t1',action='explain_content',query='自变量')]).model_dump()
+        data.pop('route',None)
+        self.assertIsNone(GroundedTurn.model_validate(data).route)
+
 
 if __name__=='__main__':unittest.main()

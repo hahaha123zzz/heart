@@ -356,29 +356,6 @@ class TaskService:
                 if budget:
                     budget.seconds = seconds
                     budget.deadline = budget.started + seconds
-            q5_plan = previous_result.get("q5_plan") if isinstance(previous_result, dict) else None
-            q5_previous_mode = (previous_result.get("clarification") or {}).get("mode")
-            q5_propose = bool(q5 and q5.is_plan_request(request.message))
-            session_draft = previous_result.get('q5_session_plan')
-            if q5 and not session_draft and q5.is_adjust(request.message):
-                session_draft = q5.sessions.current()
-            session_confirm = bool(q5 and session_draft and q5_previous_mode in ('q5_session_plan','q5_session_adjust')
-                and (request.selected_option=='q5sp:confirm' or q5.is_confirm(request.message)))
-            session_adjust_prompt = bool(q5 and session_draft and request.selected_option=='q5sp:adjust')
-            session_revise = bool(q5 and session_draft and q5.is_adjust(request.message) and not session_adjust_prompt)
-            session_intake = bool(q5 and session_draft and q5_previous_mode=='q5_session_intake')
-            q5_adjust_prompt = bool(
-                q5 and q5_plan and request.selected_option == "q5:adjust"
-            )
-            q5_adjust_text = bool(
-                q5 and q5_plan and q5_previous_mode == "q5_plan_adjust"
-                and request.selected_option is None and q5.is_adjust(request.message)
-            )
-            q5_confirm = bool(
-                q5 and q5_plan
-                and (request.selected_option == "q5:confirm" or q5.is_confirm(effective.message))
-                and q5_previous_mode in ("q5_plan", "q5_plan_adjust")
-            )
             context, resolved, origins = self._context(effective)
             composition_restore=None
             if previous and previous['result'].get('clarification',{}).get('mode')=='response_composition':
@@ -434,26 +411,67 @@ class TaskService:
                         context=context.model_dump() | {'document_versions':document_versions},payload=effective.model_dump())
                     return result
 
+            if (context.input_mode == 'active' and context.input_understanding is not None
+                    and context.input_understanding.envelope.request_id == request_key):
+                from models.task_context import apply_route
+                if context.input_understanding.route is not None:
+                    apply_route(context, context.input_understanding.route)
+
+            def save_answer(result, *, status=None):
+                from agents.input_understanding.adapters import final_summary
+                summary = final_summary(context,result)
+                if summary:
+                    result = dict(result,input_understanding=summary)
+                saved_context = context.model_dump() | {
+                    "document_versions": document_versions,
+                    "q5_status": result.get("q5_status"),
+                }
+                _, saved_result = self.repo.save(
+                    task=task, receipt_id=receipt,
+                    memory_repo=self.tutor.memory.repo,
+                    status=status or ("awaiting_clarification" if result.get("loop_paused") else "completed"),
+                    result=result, context=saved_context, routing=None,
+                    payload=effective.model_dump(),
+                )
+                return saved_result
+
+            q5_plan = previous_result.get("q5_plan") if isinstance(previous_result, dict) else None
+            q5_previous_mode = (previous_result.get("clarification") or {}).get("mode")
+            route = context.turn_route or {}
+            session_draft = previous_result.get('q5_session_plan')
+            if q5 and not session_draft and q5.is_adjust(request.message):
+                session_draft = q5.sessions.current()
+            session_confirm = bool(q5 and session_draft and q5_previous_mode in ('q5_session_plan','q5_session_adjust')
+                and (request.selected_option=='q5sp:confirm' or q5.is_confirm(request.message)))
+            session_adjust_prompt = bool(q5 and session_draft and request.selected_option=='q5sp:adjust')
+            session_revise = bool(q5 and session_draft and q5.is_adjust(request.message) and not session_adjust_prompt)
+            session_intake = bool(q5 and session_draft and q5_previous_mode=='q5_session_intake')
+            q5_adjust_prompt = bool(
+                q5 and q5_plan and request.selected_option == "q5:adjust"
+            )
+            q5_adjust_text = bool(
+                q5 and q5_plan and q5_previous_mode in ("q5_plan", "q5_plan_adjust")
+                and request.selected_option is None and q5.is_adjust(request.message)
+            )
+            q5_confirm = bool(
+                q5 and q5_plan
+                and (request.selected_option == "q5:confirm" or q5.is_confirm(effective.message))
+                and q5_previous_mode in ("q5_plan", "q5_plan_adjust")
+            )
+            plan_continuation = bool(q5_confirm or q5_adjust_prompt or q5_adjust_text
+                or session_confirm or session_adjust_prompt or session_revise or session_intake)
+            q5_propose = (route.get("kind") == "learning_plan" if route
+                          else bool(q5 and q5.is_plan_request(request.message)))
+            q5_propose = q5_propose and not plan_continuation
+
+            if (route.get("kind") in ("chapter_overview", "section_overview")
+                    and not plan_continuation):
+                from agents.chapter_overview import run_chapter_overview
+                result = run_chapter_overview(context, request, self.tutor.llm)
+                return save_answer(result)
+
             q5_binding = None
             if q5 is not None and context.selection_scope is None:
-                def save_q5(result):
-                    from agents.input_understanding.adapters import final_summary
-                    summary = final_summary(context,result)
-                    if summary:
-                        result = dict(result,input_understanding=summary)
-                    saved_context = context.model_dump() | {
-                        "document_versions": document_versions,
-                        "q5_status": result.get("q5_status"),
-                    }
-                    saved_task, saved_result = self.repo.save(
-                        task=task, receipt_id=receipt,
-                        memory_repo=self.tutor.memory.repo,
-                        status="awaiting_clarification" if result.get("loop_paused") else "completed",
-                        result=result, context=saved_context, routing=None,
-                        payload=effective.model_dump(),
-                    )
-                    return saved_result
-
                 try:
                     def planning_guard():
                         self.repo.guard(task['student_id'],task['session_id'],task['id'],task['revision'],self.tutor.memory.repo)
@@ -465,38 +483,46 @@ class TaskService:
                         if q5.has_path():
                             from knowledge.course_navigation import outline
                             sections=list(dict.fromkeys(u['section_title'] for u in outline() if u['chapter_id']==chapter_id))
-                            return save_q5({'reply':f'第{chapter_id}章章节导学目录：'+'、'.join(sections)+
+                            return save_answer({'reply':f'第{chapter_id}章章节导学目录：'+'、'.join(sections)+
                                 '。这是目录覆盖，保留当前长期路径；可用“今天怎么安排”选择其中的本次活动。',
                                 'answer_status':'answered','result_type':'chapter_guide','step_advanced':False})
                         from database.database import session_scope
                         with session_scope(immediate=True):
                             planning_guard()
                             proposal=q5.propose_chapter_plan(request.message,request_key,chapter_id=chapter_id)
-                            return save_q5(q5.plan_result(proposal,task))
+                            return save_answer(q5.plan_result(proposal,task))
+                    if (q5_propose and route.get('scope') == 'chapter' and route.get('chapter_id')
+                            and not plan_continuation):
+                        from database.database import session_scope
+                        with session_scope(immediate=True):
+                            planning_guard()
+                            proposal=q5.propose_chapter_plan(request.message,request_key,
+                                chapter_id=int(route['chapter_id']))
+                            return save_answer(q5.plan_result(proposal,task))
                     if session_confirm:
                         q5.sessions.confirm(session_draft,command_id=request_key+':session-confirm',guard=planning_guard)
                     elif session_adjust_prompt:
-                        return save_q5(q5.session_result(session_draft,task,adjust_prompt=True))
+                        return save_answer(q5.session_result(session_draft,task,adjust_prompt=True))
                     elif q5_propose or session_revise or session_intake:
                         if progress:progress('session_plan','安排本次学习','读取教材、核对画像与时间预算')
                         proposal = q5.propose_session(effective.message,self.tutor.llm,self.tutor.memory,
                             previous=session_draft if session_revise or session_intake else None,guard=planning_guard)
                         planning_guard()
-                        return save_q5(q5.session_result(proposal,task))
+                        return save_answer(q5.session_result(proposal,task))
                     if q5_adjust_prompt:
-                        return save_q5(q5.plan_result(
+                        return save_answer(q5.plan_result(
                             q5_plan, task, adjust_prompt=True))
                     if q5_adjust_text:
                         proposal = q5.adjust_first(
                             q5_plan, request.message, request_key)
-                        return save_q5(q5.plan_result(proposal, task))
+                        return save_answer(q5.plan_result(proposal, task))
                     if q5_confirm:
                         q5.confirm(q5_plan, request_key)
                     current_session = q5.sessions.current()
                     if current_session and current_session['status'] in ('active','paused'):
                         if re.fullmatch(r'(?:请)?暂停(?:本次安排|学习|一下)?[。！!\s]*',request.message):
                             plan=q5.sessions.set_mode(current_session,'paused',command_id=request_key+':pause',guard=planning_guard)
-                            return save_q5({'reply':'本次安排已暂停，活动与长期路径均未推进。','answer_status':'answered',
+                            return save_answer({'reply':'本次安排已暂停，活动与长期路径均未推进。','answer_status':'answered',
                                 'session_plan':plan,'result_type':'session_plan','step_advanced':False})
                         resumed=False
                         if current_session['status']=='paused' and re.fullmatch(r'(?:继续|恢复)(?:本次安排|学习)?[。！!\s]*',request.message):
@@ -506,7 +532,7 @@ class TaskService:
                         execution=None if textbook_next else q5.prepare_session('' if resumed else request.message,context.preferences)
                         if execution and execution['status']=='done':
                             plan=q5.sessions.finish(execution,command_id=request_key+':finish',guard=planning_guard)
-                            return save_q5({'reply':'本次安排已结束。已讲活动：'+ '、'.join(i['title'] for i in plan['items'] if i['status']=='done')+
+                            return save_answer({'reply':'本次安排已结束。已讲活动：'+ '、'.join(i['title'] for i in plan['items'] if i['status']=='done')+
                                 '。未纳入内容：'+('；'.join(plan['omitted']) or '无额外安排')+'。活动完成不代表长期路径完成或已经掌握。',
                                 'answer_status':'answered','session_plan':plan,'result_type':'session_plan','step_advanced':False})
                         if execution and execution['status']=='active':
@@ -530,7 +556,7 @@ class TaskService:
                         "step_advanced": False,
                         "task_id": task.get("id"), "task_revision": task.get("revision"),
                     }
-                    return save_q5(result)
+                    return save_answer(result)
             def guard():
                 from llm.execution_budget import check_budget
                 check_budget()

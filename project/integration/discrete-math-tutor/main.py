@@ -222,7 +222,8 @@ def _execute_task_turn(request, context, resolved, intercept, guard, progress, *
         from agents.agent_loop_service import run_agent_loop_turn
         return run_agent_loop_turn(orchestrator=orchestrator, request=request,
             context=context, resolved=resolved, intercept=intercept, guard=guard,
-            progress=progress, previous=previous, q5=q5_binding)
+            progress=progress, previous=previous, q5=q5_binding,
+            visualization_jobs=visualization_jobs)
     if explicit_target and explicit_target.action:
         routing = TaskContextBuilder.button_task(context, explicit_target.action)
         return orchestrator.handle_turn(request.student_id, request.message, request.learning_goal,

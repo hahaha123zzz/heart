@@ -39,10 +39,6 @@ class TaskExecution(BaseModel):
     def proof_requested(self):
         return "proof" in self.learning_intents and not self.hint_only
 
-    def reply_limit(self, baseline):
-        expanded=self.proof_requested or ('compare' in self.learning_intents and not self.hint_only)
-        return max(baseline,480) if expanded else baseline
-
     def public(self):
         """Serializable view including computed scope flags used by UI/checks."""
 
@@ -83,7 +79,7 @@ class TaskExecution(BaseModel):
         style = style_instructions(self.preferences) if self.preferences else ""
         mode = teaching_mode_instructions(self.teaching_mode)
         if not self.explicit: return '\n'.join(filter(None, (style, mode)))
-        lines = [style, mode, "本轮任务约束（优先于默认教学动作、字数偏好和节奏）："]
+        lines = [style, mode, "本轮任务约束（优先于默认教学动作、表达偏好和节奏）："]
         if "check_answer" in self.learning_intents:
             lines.append("先核对本轮作答，按最终教学计划决定本轮提示或讲解的深度；意图列表不是段落标题，不要求在提示之后补出完整讲解。")
         else:

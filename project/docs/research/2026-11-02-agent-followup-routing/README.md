@@ -16,6 +16,8 @@
 4. [源码审计清单](SOURCE_AUDIT.json)：7个仓库、固定提交、40份源码/测试/文档/许可证文件，含下载来源与哈希。
 5. [隔离机制实验](MECHANISM_PROBES.json)：10个原始确定性函数夹具结果，不等于完整应用性能评测。
 6. [实施计划](IMPLEMENTATION_PLAN_20261102.md)：待执行的P0–P5阶段、24条验收用例、兼容检查和8000集成回退要求。
+7. [教学表达与自动图解专项计划](TEACHING_VISUALIZATION_IMPLEMENTATION_PLAN_20261103.md)：T0–T5实施、已有小修复状态、12类验收与8000启用要求。
+8. [自动图解稳定性与DeepTutor源码对照](DEEPTUTOR_VISUAL_STABILITY_COMPARISON_20261103.md)：最新两个失败任务的阶段定位、上游在线源码与blob核对、长期未收敛原因及后续改进建议。
 
 相关本地证据：[六层失败核查](../2026-10-31-layer4-evidence-execution/FECHNER_FOLLOWUP_SIX_LAYER_AUDIT_20261102.md)、[此前第五层参与情况](../2026-10-19-deeptutor-conversation-flow/RESPONSE_COMPOSITION_FECHNER_AUDIT_20261102.md)。未将学生原始聊天复制进本调研目录。
 

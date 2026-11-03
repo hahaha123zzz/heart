@@ -195,6 +195,25 @@ class CourseSearchBridgeTests(unittest.TestCase):
         self.assertIn("因变量是研究者测量的结果", result["teaching"]["last_summary"])
         self.assertEqual([name for row in navigator.calls for name in row[:1]].count("search"), 1)
 
+    def test_retrieval_uses_resolved_route_query(self):
+        from models.input_understanding import TurnRoute
+        route = TurnRoute(kind='concept_answer', scope='kp', target_id='kp:费希纳',
+                          name='费希纳', query='费希纳 心理物理学 韦伯定律 对数定律',
+                          tool_purpose='textbook', source='rule', reason='test')
+        search = CourseSearch(self.base, message='与他相关的内容有哪些', llm=None, route=route)
+        self.assertEqual(search.message_for_retrieval(), route.query)
+
+    def test_route_chapter_scope_is_not_overridden_by_raw_text(self):
+        from models.input_understanding import TurnRoute
+        route = TurnRoute(kind='chapter_overview', scope='chapter', chapter_id=2,
+                          target_id='chapter:2', name='第二章', query='第二章 自变量控制',
+                          reason='test')
+        search = CourseSearch(self.base, message='第一章的学习内容', llm=Mock(), backend=self.backend,
+                              route=route)
+        search.search(target=self.target, query='自变量控制', limit=4)
+        passed = self.backend.search.call_args.kwargs['target']
+        self.assertEqual(passed.chapter_id, 2)
+
     def setUp(self):
         self.target = LearningTarget('objective', '当前点', chapter_id=2, section_id=3)
         self.source = SourceRef('s1', 'doc', '教材原文', version='v1')

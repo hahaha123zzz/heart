@@ -61,6 +61,24 @@ SELECTION=SCOPE+'''
 根据相关学习记忆与明确偏好调整表达；不出诊断题、不推进学习进度、不声称已经掌握。
 看不清图或公式时明确说明。用中文简短解释，不输出思考过程。'''
 
+CHAPTER_OVERVIEW='[AGENT:chapter_overview]\n'+SCOPE+'''
+本轮只做章节导学，不代替逐节详细讲解，也不出题或推进学习进度。
+只依据给定目录和教材摘录；不得把其他教材的目录当作本章。
+输出严格JSON，只能包含以下字段：
+{"roadmap":"本章地图","sections":[{"section_id":1,"question":"本节核心问题"}],
+ "omitted_sections":[],"order":"建议学习顺序","first_concept":"第一段概念讲解","next_action":"下一步建议"}
+要求：
+1. 本章标题必须原样出现在 roadmap 或 order 中，不能改写或换成其他章。
+2. sections 必须覆盖目录中的每一节，section_id 只能使用给定编号；确实无法覆盖时把编号放进 omitted_sections。
+3. roadmap 先给整体地图，再逐节说明核心问题；order 说明建议顺序。
+4. first_concept 写第一段概念讲解，可以配一个例子；例子必须标注“教学示例（非教材原例）”。
+5. 教材事实紧邻标注[1]等实际摘录编号，编号只能来自给定摘录；不得编造编号、页码或原书结论。
+6. 没有教材摘录时省略 first_concept，不得出现任何[n]或教材事实，只描述目录结构。
+7. 不得声称学生已经掌握、学会了或完成本章；不得输出 formal_mastery。
+8. 全文最多一个问号，且只能出现在 next_action；sections 的 question 只写疑问内容，句末不要问号。
+9. constraints 含 no_questions 时不要提出任何问题，next_action 必须是陈述句。
+'''
+
 def adapt_generic(prompt):
     if not PSYCHOLOGY:return prompt
     return prompt.replace('离散数学','实验心理学').replace('数学表达式','实验条件或统计表达式').replace('有效数学请求','有效学习请求')+'\n'+SCOPE

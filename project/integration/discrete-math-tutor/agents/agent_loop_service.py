@@ -20,9 +20,27 @@ from knowledge.citation_guard import citation_issues
 from models.task_context import TaskContext
 
 
+def _turn_route(context: TaskContext):
+    row = getattr(context, 'turn_route', None)
+    if not row:
+        return None
+    from models.input_understanding import TurnRoute
+    return TurnRoute.model_validate(row)
+
+
+def resolve_tool_purpose(context: TaskContext, message: str) -> str:
+    """The active turn route owns tool purpose; legacy parsing is only a fallback."""
+    row = getattr(context, 'turn_route', None) or {}
+    if row.get('tool_purpose'):
+        return row['tool_purpose']
+    from agents.tools.first_wave_runtime import purpose
+    return purpose(message)
+
+
 def _target_from_context(context: TaskContext) -> LearningTarget:
     if context.input_mode == 'active' and context.activity_target:
-        return LearningTarget(**context.activity_target, reason='有效待答任务绑定；阅读位置仅作背景')
+        values = dict(context.activity_target, reason='有效待答任务绑定；阅读位置仅作背景')
+        return LearningTarget(**values)
     # Q2's TaskService resolves chapter/next-topic requests before the model
     # runs.  Use that authoritative target instead of re-parsing the message
     # or falling back to the reader's current chapter.
@@ -391,8 +409,18 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     host_guard()
                 selection_input.guard()
             guard = selection_guard
-    from agents.tools.first_wave_runtime import purpose, bind_resources, STRUCTURED_TOOL, structured_gate, skill_catalog
-    tool_purpose = 'textbook' if selection_input is not None else purpose(request.message)
+    from agents.tools.first_wave_runtime import bind_resources, STRUCTURED_TOOL, structured_gate, skill_catalog
+    route = _turn_route(context)
+    chapter_route = route is not None and route.kind in ('chapter_overview', 'section_overview')
+    tool_purpose = 'textbook' if selection_input is not None else resolve_tool_purpose(context, request.message)
+    if route is not None and route.kind == 'learning_plan' and route.scope == 'chapter' and q5 is None:
+        release(request.task_id or request.request_id)
+        return {
+            "reply": (f"第{route.chapter_id}章的学习计划需要启用学习计划功能，"
+                      "本轮不会把整章当成一个知识点讲解。可以改为普通问答，或稍后重试。"),
+            "answer_status": "learning_plan_unavailable",
+            "step_advanced": False,
+        }
     resources, first_tools = None, ()
     try:
         if selection_input is None:
@@ -421,7 +449,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     from agents.course_search import shared_search
     if selection_input is None:
         navigation = shared_search(navigation, message=request.message,
-                                  llm=llm or orchestrator.llm, navigator=navigator)
+                                  llm=llm or orchestrator.llm, navigator=navigator,
+                                  route=route)
         navigation.reader_location = request.reader_location
     decision: NavigationDecision = navigation.resolve(
         message=request.message, student_id=request.student_id,
@@ -444,7 +473,10 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         guard()
     if resume_state and previous:
         context.tutoring = deepcopy((previous.get('context') or {}).get('tutoring') or context.tutoring)
-    teaching = TeachingTurn(context, request, llm or orchestrator.llm, target=target, resume=bool(resume_state)) if tutoring_enabled() and tool_purpose == 'textbook' else None
+    # Chapter/selection overview is assembled from the course outline by the
+    # host handler; it must not become a knowledge-point mastery turn.
+    teaching = (TeachingTurn(context, request, llm or orchestrator.llm, target=target, resume=bool(resume_state))
+                if tutoring_enabled() and tool_purpose == 'textbook' and not chapter_route else None)
     if (teaching and teaching.input_turn and teaching.input_turn.context.pending_question_id
             and teaching.sources_invalidated):
         release(request.task_id or request.request_id)
@@ -771,18 +803,30 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     mapped['learning_interjection'] = interjection or restored_reply is not None or selection_input is not None
     if restored_reply is not None:
         mapped['publication_mode'] = 'saved_formative_question'
-    if (selection_input is not None and result.completed and restored_reply is None
+    if ((selection_input is not None or (tool_purpose == 'textbook' and visualization_jobs is not None))
+            and result.completed and restored_reply is None
             and not (teaching and teaching.progress.pending_question)):
         # Preserve the selected-text pipeline's optional diagram integration.
         # Never build an answer-revealing diagram while a check awaits an answer.
         from knowledge.course_config import PSYCHOLOGY
         if PSYCHOLOGY and os.getenv('VISUALIZATION_ON_DEMAND', '0') == '1':
             from visualization.on_demand import build_guide, permitted
-            if permitted(request.message, selection_input.execution):
+            if selection_input is not None:
+                visual_execution = selection_input.execution
+            else:
+                from agents.task_execution import TaskExecution
+                constraints = list({c for task in input_turn.tasks for c in task.constraints}) if input_turn else []
+                if input_turn:
+                    constraints.extend(d.key for d in input_turn.directives
+                                       if d.scope != 'persistent' and d.value is True)
+                visual_execution = TaskExecution(answer_constraints=constraints,
+                    teaching_mode='guided' if composition_hint_only else 'auto',
+                    learning_intents=['explain'])
+            if permitted(request.message, visual_execution):
                 try:
                     from knowledge.lightrag.retrieval import as_textbook_chunk
                     guide = build_guide(orchestrator.llm, request.message, mapped['reply'],
-                        [as_textbook_chunk(s) for s in result.sources], selection_input.execution,
+                        [as_textbook_chunk(s) for s in result.sources], visual_execution,
                         student_id=request.student_id, turn_id=request.task_id or request.request_id,
                         references=mapped.get('pdf_references', []), progress=progress,
                         deferred=visualization_jobs)

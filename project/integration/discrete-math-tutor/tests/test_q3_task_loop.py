@@ -133,7 +133,8 @@ class TaskLoopPersistenceTests(unittest.TestCase):
             self.assertIs(q5_binding,q5)
             return {'reply':'双方原文的局部解释','answer_status':'answered',
                     'learning_interjection':True,'step_advanced':False}
-        with patch('agents.q5_runtime.q5_enabled',return_value=True),patch('agents.q5_runtime.Q5Runtime',return_value=q5):
+        with patch('agents.q5_runtime.q5_enabled',return_value=True),patch('agents.q5_runtime.Q5Runtime',return_value=q5), \
+             patch('agents.q5_runtime.Q5Runtime.is_plan_request',return_value=False):
             result=self.service.run(ChatRequest(student_id='s',request_id='side',
                 message='第一章的实验程序和第二章的自变量控制有哪些联系？'),executor)
         self.assertEqual(result['answer_status'],'answered')
@@ -170,6 +171,102 @@ class TaskLoopPersistenceTests(unittest.TestCase):
         self.assertEqual(result['answer_status'],'answered')
         q5.advance_understood.assert_not_called();q5.record_explained.assert_not_called()
         q5.prepare_session.assert_not_called();q5.sessions.current.assert_not_called()
+
+    def test_chapter_plan_route_uses_chapter_proposal(self):
+        q5=Mock();q5.is_plan_request.return_value=False;q5.is_adjust.return_value=False
+        q5.is_chapter_guide.return_value=False;q5.sessions.ready.return_value=False
+        q5.sessions.current.return_value=None;q5.session_snapshot=None
+        q5.propose_chapter_plan.return_value={'path_id':'path','modules':[]}
+        q5.plan_result.return_value={'reply':'第一节 实验心理学的研究对象\n第四节 心理学实验中的伦理问题',
+            'answer_status':'awaiting_clarification','loop_paused':True,'result_type':'q5_plan','step_advanced':False}
+        with patch('agents.q5_runtime.q5_enabled',return_value=True),patch('agents.q5_runtime.Q5Runtime',return_value=q5), \
+             patch.dict('os.environ',{'INPUT_UNDERSTANDING_MODE':'active'}):
+            result=self.service.run(ChatRequest(student_id='s',request_id='chapter-plan-route',
+                message='帮我制定第一章的学习计划'),Mock())
+        self.assertEqual(q5.propose_chapter_plan.call_args.kwargs['chapter_id'],1)
+        q5.propose_session.assert_not_called()
+        self.assertEqual(result['result_type'],'q5_plan')
+
+    def chapter_plan_q5(self):
+        q5=Mock();q5.is_plan_request.return_value=False;q5.is_adjust.return_value=False
+        q5.is_chapter_guide.return_value=False;q5.sessions.ready.return_value=False
+        q5.sessions.current.return_value=None;q5.session_snapshot=None
+        q5.is_understood.return_value=False;q5.status.return_value={}
+        q5.propose_chapter_plan.return_value={'path_id':'path','modules':[]}
+        def plan_result(proposal,task,*,adjust_prompt=False):
+            return {'reply':'### 学习计划草稿','answer_status':'awaiting_clarification',
+                'loop_paused':True,'result_type':'q5_plan','q5_plan':proposal,'step_advanced':False,
+                'clarification':{'mode':'q5_plan_adjust' if adjust_prompt else 'q5_plan',
+                    'options':[{'id':'q5:confirm','label':'确认计划并开始'},
+                               {'id':'q5:adjust','label':'调整计划'}]}}
+        q5.plan_result.side_effect=plan_result
+        return q5
+
+    @staticmethod
+    def plain_executor(request,context,resolved,intercept,guard,progress):
+        return {'reply':'已按计划确认','answer_status':'answered','step_advanced':False}
+
+    def test_chapter_route_confirm_does_not_repropose(self):
+        q5=self.chapter_plan_q5()
+        with patch('agents.q5_runtime.q5_enabled',return_value=True),patch('agents.q5_runtime.Q5Runtime',return_value=q5), \
+             patch.dict('os.environ',{'INPUT_UNDERSTANDING_MODE':'active'}):
+            first=self.service.run(ChatRequest(student_id='s',request_id='chapter-confirm-1',
+                message='帮我制定第一章的学习计划'),self.plain_executor)
+            second=self.service.run(ChatRequest(student_id='s',request_id='chapter-confirm-2',
+                task_id=first['task_id'],task_revision=first['task_revision'],selected_option='q5:confirm',
+                message='帮我制定第一章的学习计划'),self.plain_executor)
+        self.assertEqual(q5.propose_chapter_plan.call_count,1)
+        q5.confirm.assert_called_once()
+        self.assertEqual(second['answer_status'],'answered')
+
+    def test_chapter_route_adjustment_does_not_repropose(self):
+        q5=self.chapter_plan_q5()
+        with patch('agents.q5_runtime.q5_enabled',return_value=True),patch('agents.q5_runtime.Q5Runtime',return_value=q5), \
+             patch.dict('os.environ',{'INPUT_UNDERSTANDING_MODE':'active'}):
+            first=self.service.run(ChatRequest(student_id='s',request_id='chapter-adjust-1',
+                message='帮我制定第一章的学习计划'),self.plain_executor)
+            second=self.service.run(ChatRequest(student_id='s',request_id='chapter-adjust-2',
+                task_id=first['task_id'],task_revision=first['task_revision'],selected_option='q5:adjust',
+                message='帮我制定第一章的学习计划'),self.plain_executor)
+        self.assertEqual(q5.propose_chapter_plan.call_count,1)
+        self.assertTrue(any(call.kwargs.get('adjust_prompt') for call in q5.plan_result.call_args_list))
+        self.assertEqual(second['clarification']['mode'],'q5_plan_adjust')
+
+    def test_chapter_overview_does_not_preempt_q5_adjust_text(self):
+        q5 = self.chapter_plan_q5()
+        q5.is_adjust.side_effect = lambda message: "调整" in message
+        q5.is_confirm.return_value = False
+        q5.adjust_first.return_value = {"path_id": "path", "modules": []}
+        self.tutor.llm = Mock()
+        with patch("agents.q5_runtime.q5_enabled", return_value=True), \
+             patch("agents.q5_runtime.Q5Runtime", return_value=q5), \
+             patch("agents.chapter_overview.run_chapter_overview",
+                   side_effect=AssertionError("chapter overview must not run")) as overview, \
+             patch.dict("os.environ", {"INPUT_UNDERSTANDING_MODE": "active"}):
+            first = self.service.run(ChatRequest(student_id="s", request_id="chapter-adjust-text-1",
+                message="帮我制定第一章的学习计划"), self.plain_executor)
+            second = self.service.run(ChatRequest(student_id="s", request_id="chapter-adjust-text-2",
+                task_id=first["task_id"], task_revision=first["task_revision"],
+                message="把第一章内容调整为重点学第三节"), self.plain_executor)
+        q5.adjust_first.assert_called_once()
+        overview.assert_not_called()
+        self.assertEqual(second["clarification"]["mode"], "q5_plan")
+
+    def test_generic_session_plan_still_uses_session_proposal(self):
+        q5=Mock();q5.is_plan_request.return_value=False;q5.is_adjust.return_value=False
+        q5.is_chapter_guide.return_value=False;q5.sessions.ready.return_value=False
+        q5.sessions.current.return_value=None;q5.session_snapshot=None
+        q5.is_understood.return_value=False;q5.status.return_value={}
+        q5.propose_session.return_value={'items':[]}
+        q5.session_result.return_value={'reply':'### 本次学习安排','answer_status':'awaiting_clarification',
+            'result_type':'session_plan','step_advanced':False}
+        with patch('agents.q5_runtime.q5_enabled',return_value=True),patch('agents.q5_runtime.Q5Runtime',return_value=q5), \
+             patch.dict('os.environ',{'INPUT_UNDERSTANDING_MODE':'active'}):
+            result=self.service.run(ChatRequest(student_id='s',request_id='generic-plan-route',
+                message='今天怎么安排'),Mock())
+        q5.propose_session.assert_called_once()
+        q5.propose_chapter_plan.assert_not_called()
+        self.assertEqual(result['result_type'],'session_plan')
 
     def test_practice_button_preserves_hint_level_and_saves_help_once(self):
         from agents.exercise_task_tutor import explain_exercise

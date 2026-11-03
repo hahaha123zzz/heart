@@ -36,6 +36,44 @@ def context(tasks, **kwargs):
 
 
 class CompositionAdapterTests(unittest.TestCase):
+    def test_original_teaching_strategy_survives_legacy_alias(self):
+        for original, legacy, expected in (
+            ('summary', 'explain', 'recap'),
+            ('counterexample', 'worked_example', 'counterexample'),
+        ):
+            with self.subTest(strategy=original):
+                teaching = SimpleNamespace(plan=SimpleNamespace(primary_strategy=original),
+                                           strategy=legacy, limit_disclosure=False)
+                plan = response_plan('test-target', teaching=teaching)
+                self.assertEqual(plan.blocks[0].semantic_type, expected)
+
+    def test_transfer_comparison_and_scaffolding_keep_distinct_plans(self):
+        for strategy, expected in (
+            ('transfer', ['explanation', 'worked_example']),
+            ('conceptual_comparison', ['direct_answer', 'comparison']),
+            ('scaffolding', ['explanation', 'procedure']),
+        ):
+            with self.subTest(strategy=strategy):
+                teaching = SimpleNamespace(plan=SimpleNamespace(primary_strategy=strategy),
+                                           strategy='explain', limit_disclosure=False)
+                plan = response_plan('test-target', teaching=teaching)
+                self.assertEqual([block.semantic_type for block in plan.blocks], expected)
+
+    def test_composer_explains_purpose_of_different_blocks(self):
+        prompt = ResponseComposer(plan_response(target_id='t', strategy='counterexample')).instructions()
+        self.assertIn('counterexample说明违反的条件', prompt)
+        self.assertIn('不必机械套用固定结构', prompt)
+
+    def test_active_transfer_frame_retains_task_identity_and_hint_limit(self):
+        ctx = context([dict(task_frame_id='t1', action='explain_content')])
+        teaching = SimpleNamespace(plan=SimpleNamespace(primary_strategy='transfer'),
+                                   strategy='transfer', limit_disclosure=False)
+        plan = response_plan('t', context=ctx, teaching=teaching)
+        self.assertEqual([b.semantic_type for b in plan.blocks], ['explanation', 'worked_example'])
+        self.assertTrue(all(b.task_frame_ids == ['t1'] for b in plan.blocks))
+        ctx.input_understanding.tasks[0].constraints = ['no_full_answer']
+        self.assertEqual([b.semantic_type for b in response_plan('t', context=ctx, teaching=teaching).blocks], ['hint'])
+
     def test_active_task_order_dependencies_and_strategy_do_not_reclassify_input(self):
         ctx = context([dict(task_frame_id='t1',action='compare_content'),
             dict(task_frame_id='t2',action='explain_content',depends_on=['t1'])])

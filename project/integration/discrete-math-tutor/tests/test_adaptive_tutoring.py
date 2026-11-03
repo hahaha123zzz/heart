@@ -56,6 +56,21 @@ def assessment(**extra):
 
 
 class TeachingPolicyTests(unittest.TestCase):
+    def test_chapter_route_resets_previous_target_state(self):
+        from models.input_understanding import TurnRoute
+        from models.task_context import apply_route
+        old = prior()
+        old['used_strategies'] = ['explain']
+        request = ChatRequest(student_id='s', session_id='x', request_id='r',
+                              message='第一章的主要内容')
+        context = TaskContext(student_id='s', session_id='x', knowledge_point='自变量',
+                              message=request.message, input_mode='active', tutoring=deepcopy(old))
+        apply_route(context, TurnRoute(kind='chapter_overview', scope='chapter', chapter_id=1,
+            target_id='chapter:1', name='实验心理学概论'))
+        t = TeachingTurn(context, request, Mock(), validate_sources=lambda x: deepcopy(x),
+                         target=LearningTarget('kp:自变量', '自变量'))
+        self.assertEqual(t.state['used_strategies'], [])
+
     def test_formative_success_does_not_claim_independent_demonstration(self):
         from agents.deeptutor_learning.models import LearningEvidence
         t = turn("请解释自变量")
@@ -338,6 +353,43 @@ class TeachingPolicyTests(unittest.TestCase):
 
 
 class TeachingLoopIntegrationTests(unittest.TestCase):
+    @patch.dict("os.environ", {"ADAPTIVE_TUTORING_ENABLED": "1", "Q5_LEARNING_ENABLED": "0"})
+    def test_chapter_route_does_not_construct_teaching_turn(self):
+        from models.input_understanding import TurnRoute
+        from models.task_context import apply_route
+        from tests.test_q3_agent_loop import final_round
+        message = "我想学习第一章的主要内容"
+        context = TaskContext(student_id="s", session_id="x", message=message, input_mode="active")
+        apply_route(context, TurnRoute(kind="chapter_overview", scope="chapter", chapter_id=1,
+            target_id="chapter:1", name="实验心理学概论", query="实验心理学概论 第一节"))
+        model = ScriptedLLM([final_round("本章导学。")])
+        with patch("agents.adaptive_tutoring.TeachingTurn", side_effect=AssertionError("chapter is not a kp")), \
+             patch("agents.tools.first_wave_runtime.bind_resources", return_value=(None, ())):
+            result = run_agent_loop_turn(
+                orchestrator=SimpleNamespace(llm=model, memory=FakeMemory(), quality_checker=None),
+                request=ChatRequest(student_id="s", session_id="x", request_id="chapter", message=message),
+                context=context,
+                navigator=StubLearningNavigator(target=LearningTarget(target_id="chapter:1", name="实验心理学概论")),
+                publish_gate=lambda *_: (True, ""))
+        self.assertNotIn("teaching", result)
+
+    @patch.dict("os.environ", {"ADAPTIVE_TUTORING_ENABLED": "1", "Q5_LEARNING_ENABLED": "0"})
+    def test_chapter_plan_without_q5_refuses_instead_of_teaching_chapter(self):
+        from models.input_understanding import TurnRoute
+        from models.task_context import apply_route
+        message = "帮我制定第一章的学习计划"
+        context = TaskContext(student_id="s", session_id="x", message=message, input_mode="active")
+        apply_route(context, TurnRoute(kind="learning_plan", scope="chapter", chapter_id=1,
+            target_id="chapter:1", name="实验心理学概论"))
+        model = ScriptedLLM([])
+        result = run_agent_loop_turn(
+            orchestrator=SimpleNamespace(llm=model, memory=FakeMemory(), quality_checker=None),
+            request=ChatRequest(student_id="s", session_id="x", request_id="chapter-plan", message=message),
+            context=context,
+            navigator=StubLearningNavigator(target=LearningTarget(target_id="chapter:1", name="实验心理学概论")))
+        self.assertEqual(result["answer_status"], "learning_plan_unavailable")
+        self.assertEqual(model.calls, [])
+        self.assertNotIn("teaching", result)
     def setUp(self):
         self.enterContext(patch('agents.tools.first_wave_runtime.bind_resources', return_value=(None, ())))
 
@@ -358,7 +410,7 @@ class TeachingLoopIntegrationTests(unittest.TestCase):
         self.assertEqual(result['loop_summary']['rounds'], 0)
         self.assertFalse(result['teaching']['formal_mastery'])
 
-    @patch.dict("os.environ", {"ADAPTIVE_TUTORING_ENABLED": "1", "Q5_LEARNING_ENABLED": "0"})
+    @patch.dict("os.environ", {"ADAPTIVE_TUTORING_ENABLED": "1", "Q5_LEARNING_ENABLED": "0", "RESPONSE_COMPOSITION_ENABLED": "0"})
     def test_actual_loop_uses_teaching_tool_and_cached_sources(self):
         model = ScriptedLLM([
             tool_round("teaching_step", {"strategy": "worked_example", "summary": "示范操纵和测量",

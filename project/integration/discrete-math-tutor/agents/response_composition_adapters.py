@@ -11,7 +11,8 @@ def response_plan(target_id, *, context=None, teaching=None, teaching_plan=None,
     from agents.input_understanding.adapters import active_turn
     from agents.teaching_policy import canonical_strategy
     turn = active_turn(context) if context is not None else None
-    strategy = getattr(teaching, 'strategy', None) or getattr(teaching_plan, 'strategy', 'direct')
+    strategy = (getattr(getattr(teaching, 'plan', None), 'primary_strategy', None)
+                or getattr(teaching, 'strategy', None) or getattr(teaching_plan, 'strategy', 'direct'))
     hint = bool(getattr(execution, 'hint_only', False) or getattr(teaching, 'limit_disclosure', False)
                 or getattr(teaching_plan, 'action', None) == 'give_hint')
     if turn:
@@ -20,7 +21,7 @@ def response_plan(target_id, *, context=None, teaching=None, teaching_plan=None,
                           and d.scope != 'persistent' for d in turn.directives)
     canonical = strategy if strategy == 'prerequisite' else canonical_strategy(strategy)
     hint = hint or canonical == 'hint'
-    strategy = {'self_explanation':'recap', 'direct_explanation':'direct'}.get(canonical, canonical)
+    strategy = {'summary':'recap', 'direct_explanation':'direct'}.get(canonical, canonical)
     intents = getattr(execution, 'learning_intents', ())
     if not hint and 'example' in intents:
         strategy = 'worked_example'

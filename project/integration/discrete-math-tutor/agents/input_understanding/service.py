@@ -123,4 +123,13 @@ def understand(context, request, *, llm=None, classifier=None):
         except (ValidationError,ValueError,LLMError):
             # 标签不可用不能推翻已验证的规则任务，也不制造学生误区。
             pass
+    # 唯一路由在理解末尾定型；只把“单条解释”升级为章节/小节导览。
+    from agents.input_understanding.route import classify_route
+    route = classify_route(understood, context)
+    if (route.kind in ('chapter_overview', 'section_overview') and len(understood.tasks) == 1
+            and understood.tasks[0].action == 'explain_content'):
+        value = understood.model_dump()
+        value['tasks'][0]['action'] = route.kind
+        understood = GroundedTurn.model_validate(value)
+    understood.route = route
     return understood

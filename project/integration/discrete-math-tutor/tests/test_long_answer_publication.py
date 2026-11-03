@@ -1,26 +1,27 @@
-"""长回答回归：回答不设字数上限，发布路径不因长度拒绝或截断。"""
+"""长回答回归：回答不设字数上限，真实生成/核验路径不因长度拒绝或截断。"""
 import unittest
+from unittest.mock import Mock
 
-from agents.agent_loop import LocalAgentLoop
-from agents.agent_loop_service import _map_result
-from agents.q3_navigation import LearningTarget
-from agents.tool_protocol import ToolRegistry
-from tests.test_q3_agent_loop import ScriptedLLM, final_round, request
+from agents.quality_checker import QualityChecker
+from agents.response_generator import ResponseGenerator
+from agents.task_execution import TaskExecution
+from agents.teaching_planner import TeachingPlan
+from models.student_state import StudentState
 
 
 class LongAnswerPublicationTests(unittest.TestCase):
     def test_long_answer_is_published_without_length_rejection(self):
-        reply = "这是完整讲解。" * 1000
-        llm = ScriptedLLM([final_round(reply)])
-        result = LocalAgentLoop(llm).run(
-            request(llm, ToolRegistry(), publish_gate=lambda text, outcome: (True, "")))
-        self.assertTrue(result.completed)
-        self.assertEqual(result.final_text, reply)
-        self.assertGreaterEqual(len(result.final_text), 6000)
-        self.assertNotIn("回复过长", result.final_text)
-        mapped = _map_result(result, LearningTarget("kp:x", "概念"))
-        self.assertEqual(mapped["answer_status"], "answered")
-        self.assertGreaterEqual(len(mapped["reply"]), 6000)
+        reply = "这是完整讲解。" * 1000  # 约 7000 字
+        llm = Mock()
+        llm.chat.return_value = reply
+        plan = TeachingPlan(goal="解释", strategy="worked_example", action="explain", difficulty="medium")
+        result = ResponseGenerator(llm).generate(
+            StudentState(), plan, "请完整讲解第一章", [],
+            task_execution=TaskExecution(learning_intents=["explain"]))
+        self.assertEqual(result, reply)
+        self.assertGreaterEqual(len(result), 6000)
+        self.assertEqual(llm.chat.call_args.kwargs["max_tokens"], 8000)
+        self.assertEqual(QualityChecker._rule_check(result, plan, {}), [])
 
 
 if __name__ == "__main__":

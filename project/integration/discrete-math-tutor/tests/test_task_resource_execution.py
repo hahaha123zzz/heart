@@ -150,7 +150,7 @@ class TaskResourceExecutionTests(unittest.TestCase):
         with patch.dict(sys.modules,{'main':SimpleNamespace(orchestrator=tutor)}),patch.object(practice,'exercise_context',return_value={'context':'教材','images':[],'reference':{'image_refs':[]}}),patch.object(practice,'memory_for',return_value={'summary':'无记录'}):
             practice.ai_parts(q,[part],{},'s','explain')
         execution=tutor.quality_checker.check.call_args.kwargs['task_execution']
-        self.assertTrue(execution.proof_requested);self.assertEqual(execution.reply_limit(200),480)
+        self.assertTrue(execution.proof_requested)
         self.assertIn('核对前提与推导',tutor.llm.chat_json.call_args.args[0][0]['content'])
 
 

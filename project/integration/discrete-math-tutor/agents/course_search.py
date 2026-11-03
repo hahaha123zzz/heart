@@ -48,7 +48,7 @@ def question_interjection(message, target):
 def _turn_search(method):
     @wraps(method)
     def run(self, *, target, query, limit, preferred_types=()):
-        key=json.dumps([target.__dict__,query,limit,preferred_types,self.message],ensure_ascii=False,sort_keys=True)
+        key=json.dumps([target.__dict__,query,limit,preferred_types,self.message_for_retrieval()],ensure_ascii=False,sort_keys=True)
         with self._search_lock:
             if self.cancellation: self.cancellation.check()
             from llm.execution_budget import check_budget
@@ -65,10 +65,11 @@ def _turn_search(method):
 
 
 class CourseSearch:
-    def __init__(self, base, *, message, llm, backend=None, cancellation=None):
+    def __init__(self, base, *, message, llm, backend=None, cancellation=None, route=None):
         self.base, self.message, self.llm = base, message, llm
         self.backend = backend
         self.cancellation = cancellation
+        self.route = route
         self.calls = []
         self.last_result = None
         self.coverage = None
@@ -77,6 +78,21 @@ class CourseSearch:
         self._search_lock=threading.RLock()
         self._search_results={}
 
+    def message_for_retrieval(self):
+        """The resolved route query owns retrieval; raw text is only a fallback."""
+        if self.route is not None and self.route.query:
+            return self.route.query
+        return self.message
+
+    def _scope(self):
+        """(chapters, section) — a resolved route replaces raw-text scope entirely."""
+        if self.route is not None:
+            chapters = {self.route.chapter_id} if self.route.chapter_id is not None else set()
+            section = self.route.section_id
+        else:
+            chapters, section = explicit_chapters(self.message), None
+        return chapters, section
+
     def resolve(self, **kwargs):
         self.reader_location = getattr(kwargs.get('context'), 'reader_location', None) or getattr(self, 'reader_location', None)
         return self.base.resolve(**kwargs)
@@ -84,18 +100,25 @@ class CourseSearch:
     @_turn_search
     @bounded_stage('retrieval')
     def search(self, *, target, query, limit, preferred_types=()):
-        chapters = explicit_chapters(self.message)
+        message = self.message_for_retrieval()
+        chapters, route_section = self._scope()
         from agents.object_evidence import requested_objects, read_requested_objects, missing_objects
         object_ids = requested_objects(self.message)
-        side_question = bool(object_ids) or question_interjection(self.message, target)
-        search_target = replace(target, target_id='question', name=self.message,
+        # A resolved route owns scope; only a true cross-chapter turn stays a side question.
+        side_question = (bool(object_ids) or len(explicit_chapters(self.message)) > 1
+                         or (self.route is None and question_interjection(self.message, target)))
+        search_target = replace(target, target_id='question', name=message,
                                 chapter_id=next(iter(chapters)) if len(chapters) == 1 else None,
                                 section_id=None, source_scope={}, version='') if side_question else target
         # 页面位置只是检索偏好；只有 Q2 的精确目标/来源指针才是硬范围。
         exact_scope = bool(re.fullmatch(r'ch\d+:s\d+:b\d+', target.target_id) or target.source_scope.get('source_refs'))
         if not exact_scope and not side_question:
-            search_target = replace(target, section_id=None,
-                source_scope={**target.source_scope, 'allow_course_expansion': not bool(chapters)})
+            if self.route is not None and self.route.chapter_id is not None:
+                search_target = replace(target, chapter_id=self.route.chapter_id, section_id=route_section,
+                    source_scope={**target.source_scope, 'allow_course_expansion': False})
+            else:
+                search_target = replace(target, section_id=None,
+                    source_scope={**target.source_scope, 'allow_course_expansion': not bool(chapters)})
         record = {'requested_backend': os.getenv('Q3_RETRIEVAL_MODE', 'existing'),
                   'actual_backend': 'not_started', 'target_id': target.target_id,
                   'side_question': side_question, 'fallback': False, 'status': 'running',
@@ -139,7 +162,7 @@ class CourseSearch:
                 raw, expected = read_requested_objects(object_ids, check)
                 check()
                 self._needs_model_selection = True
-                sources = [] if any(s.location.get('location_status') != 'exact' for s in expected) else self.select(self.message, raw)
+                sources = [] if any(s.location.get('location_status') != 'exact' for s in expected) else self.select(message, raw)
                 if len(sources) > limit:
                     raise ValueError('对象证据超出本轮输出预算，请缩小问题')
                 check()
@@ -191,7 +214,8 @@ class CourseSearch:
                     record['cached_coverage'] = True
                 sources = self._covered_sources
             elif self._use_fast_path(query):
-                sources = self._fast_sources(query, target, limit, preferred_types, record)
+                sources = self._fast_sources(query, target, limit, preferred_types, record,
+                                             chapters, route_section)
                 if sources is None:
                     self._needs_model_selection = True
                     record.update(actual_backend='lightrag', upgraded_from='local_llamaindex', upgrade_reason='low_confidence')
@@ -234,7 +258,7 @@ class CourseSearch:
             # 先选择真实原文再分配本轮编号；发布时复用同一 evidence，而非重新检索。
             if record['actual_backend'] != 'q2_object' and sources and all(s.location.get('source') for s in sources) and (figure_request or exact or not self.coverage
                     or record['actual_backend'] == 'local_llamaindex' or record.get('upgraded_from')):
-                sources = self.select(self.message, sources)
+                sources = self.select(message, sources)
             record.update(status='success' if sources else 'no_evidence',
                           selected_source_ids=[s.source_id for s in sources])
             report = self.coverage_report if record['actual_backend'] == 'q2_object' else (
@@ -283,15 +307,19 @@ class CourseSearch:
     def _use_fast_path(self, query):
         from knowledge.fixed_book import active
         from knowledge.lightrag.coverage import requirements_for
-        return bool(active() and not requirements_for(self.message)
-                    and not re.search(r'全书|跨章|综合|先修|知识体系|关联|关系', self.message))
+        message = self.message_for_retrieval()
+        return bool(active() and not requirements_for(message)
+                    and not re.search(r'全书|跨章|综合|先修|知识体系|关联|关系', message))
 
-    def _fast_sources(self, query, target, limit, preferred_types, record):
+    def _fast_sources(self, query, target, limit, preferred_types, record, chapters=None, route_section=None):
         from knowledge.local_rag.course_retrieval import retrieve
-        explicit = explicit_chapters(self.message)
+        explicit = chapters if chapters is not None else explicit_chapters(self.message)
         reader = getattr(self, 'reader_location', None)
-        chapter = next(iter(explicit)) if len(explicit) == 1 else (getattr(reader, 'chapter_id', None) or target.chapter_id)
-        section = getattr(reader, 'section_id', None) if not explicit else None
+        if self.route is not None and self.route.chapter_id is not None:
+            chapter, section = self.route.chapter_id, route_section
+        else:
+            chapter = next(iter(explicit)) if len(explicit) == 1 else (getattr(reader, 'chapter_id', None) or target.chapter_id)
+            section = getattr(reader, 'section_id', None) if not explicit else None
         trace = {}
         chunks = retrieve(query, limit=limit, preferred_types=preferred_types, trace=trace,
                           chapter_id=chapter, section_id=section)
@@ -324,7 +352,7 @@ class CourseSearch:
         return relationship_context((self.last_result or {}).get('graph_context', []), sources)
 
 
-def shared_search(base, *, message, llm, navigator=None, cancellation=None):
+def shared_search(base, *, message, llm, navigator=None, cancellation=None, route=None):
     backend = navigator if navigator is not None else None
     if backend is None and os.getenv('Q3_RETRIEVAL_MODE', '').lower() == 'lightrag':
         from knowledge.course_config import COURSE_ID, PSYCHOLOGY_DIR
@@ -339,11 +367,12 @@ def shared_search(base, *, message, llm, navigator=None, cancellation=None):
             raise ValueError('LightRAG 未提供索引路径，不能静默回退')
         backend = LightRagNavigator(base, fixed.backend if fixed else LightRagBackend(path, authorized_course_ids={COURSE_ID},
             allow_candidate=os.getenv('LIGHTRAG_ALLOW_CANDIDATE') == '1', source_root=PSYCHOLOGY_DIR), cancellation=cancellation)
-    search = CourseSearch(base, message=message, llm=llm, backend=backend, cancellation=cancellation)
+    search = CourseSearch(base, message=message, llm=llm, backend=backend, cancellation=cancellation, route=route)
+    retrieval = search.message_for_retrieval()
     from knowledge.lightrag.q3_adapter import LightRagNavigator
     from knowledge.lightrag.coverage import CoverageNavigator, semantic_selection, requirements_for
-    if isinstance(backend, LightRagNavigator) or (backend is None and requirements_for(message)):
-        search.coverage = CoverageNavigator(backend if backend is not None else base, question=message,
+    if isinstance(backend, LightRagNavigator) or (backend is None and requirements_for(retrieval)):
+        search.coverage = CoverageNavigator(backend if backend is not None else base, question=retrieval,
             select=lambda requirement, refs: search.select(requirement.query, refs, subproblem=requirement.id),
             judge=lambda requirement, refs: semantic_selection(llm, requirement, refs), cancellation=cancellation,
             decide=lambda requirement, refs: search.select(requirement.query,refs,subproblem=requirement.id,coverage=requirement))

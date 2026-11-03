@@ -24,6 +24,49 @@ def bound(message, old=None):
 
 
 class InputIntegrationTests(unittest.TestCase):
+    def test_section_overview_reaches_action_and_prompt(self):
+        message='第一章第一节讲什么'
+        context=TaskContext(student_id='s',session_id='x',message=message,input_mode='active')
+        request=ChatRequest(student_id='s',session_id='x',request_id='r',message=message)
+        turn=understand(context,request)
+        self.assertEqual(turn.tasks[0].action,'section_overview')
+        self.assertEqual((turn.route.chapter_id,turn.route.section_id),(1,1))
+        self.assertIn('section_overview',turn.instructions())
+
+    def test_chapter_overview_route_is_served_from_the_course_outline(self):
+        from agents.chapter_overview import build_chapter_package, run_chapter_overview
+        from models.task_context import apply_route
+        package = build_chapter_package(1)
+        message = '我想学习第一章的主要内容'
+        context = TaskContext(student_id='s', session_id='x', message=message, input_mode='active')
+        request = ChatRequest(student_id='s', session_id='x', request_id='r', message=message)
+        context.input_understanding = understand(context, request)
+        apply_route(context, context.input_understanding.route)
+        payload = {
+            'roadmap': '本章是实验心理学概论[1]。',
+            'sections': [{'section_id': section.section_id, 'question': f'{section.title}的核心问题[1]'}
+                         for section in package.sections],
+            'order': '先研究对象，再发展史，再实验程序，最后伦理[1]。',
+            'first_concept': '实验心理学用实验方法研究心理现象[1]。',
+            'next_action': '先从第一节开始。',
+        }
+
+        class Model:
+            calls = 0
+
+            def chat_json(self, messages, **kwargs):
+                Model.calls += 1
+                return deepcopy(payload)
+
+        result = run_chapter_overview(context, request, Model())
+        self.assertEqual(result['answer_status'], 'answered')
+        self.assertEqual(Model.calls, 1)
+        self.assertIn('实验心理学概论', result['reply'])
+        self.assertTrue(result['chapter_overview']['coverage_ok'])
+        self.assertTrue(result['chapter_overview']['content_ok'])
+        self.assertEqual(result['course_navigation']['mode'], 'overview')
+        self.assertFalse(result.get('teaching', {}).get('formal_mastery', False))
+
     def test_prefixed_side_question_is_not_recorded_as_the_active_goal(self):
         from agents.course_search import question_interjection
         target=LearningTarget('goal','讲清自变量的含义')

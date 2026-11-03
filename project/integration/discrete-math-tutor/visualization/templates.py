@@ -23,6 +23,7 @@ if PSYCHOLOGY:
         'experiment_flow':('experimental-design','实验程序、被试分组和变量控制流程','{nodes:[{id:"n1",label:"确定变量"}],edges:[{source:"n1",target:"n2",label:"下一步"}],steps:[{node:"n1",text:"解释本步"}]}'),
         'variable_map':('experimental-design','自变量、因变量、额外变量的角色与控制关系','{nodes:[{id:"iv",label:"自变量：操纵条件"}],edges:[{source:"iv",target:"dv",label:"拟检验的影响，不等于已证明因果"}],steps:[{node:"iv",text:"说明变量角色"}]}'),
         'design_matrix':('experimental-design','实验条件、被试分组或区组分配的矩阵','{columns:["区组","条件A","条件B"],rows:[["区组1","被试1","被试2"]],steps:[{row:0,columns:[1,2],text:"不同被试分别接受不同水平"}]}'),
+        'knowledge_map':('experimental-design','章节或概念之间的关系框架；箭头表示教学关系，不自动等于因果','{nodes:[{id:"n1",label:"概念"}],edges:[{source:"n1",target:"n2",label:"关系"}],steps:[{node:"n1",text:"解释"}]}'),
     }
 
 
@@ -89,7 +90,7 @@ def structure(payload, tree=False):
 def render_plan(plan):
     p=plan.payload; name=plan.template
     if name not in CATALOG:raise ValueError('模板不属于当前教材')
-    if name in {'experiment_flow','variable_map'}:return structure(p)
+    if name in {'experiment_flow','variable_map','knowledge_map'}:return structure(p)
     if name=='design_matrix':
         keys(p,['columns','rows','steps']);columns=strings(p['columns'],8);rows=p['rows'];steps=p['steps']
         if not isinstance(rows,list) or not 1<=len(rows)<=12:raise ValueError('矩阵须为1至12行')

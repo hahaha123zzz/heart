@@ -4,7 +4,7 @@ import time
 import unittest
 from copy import deepcopy
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from agents.agent_loop import LocalAgentLoop, LoopRequest
 from agents.ask_user_contract import build_ask_user_payload, format_user_reply, substitute_answer
@@ -480,6 +480,23 @@ class QualityGateOverrideTests(unittest.TestCase):
 
 
 class NavigationBoundaryTests(unittest.TestCase):
+    def test_active_mode_does_not_call_legacy_purpose(self):
+        from agents.agent_loop_service import resolve_tool_purpose
+        from models.task_context import TaskContext, apply_route
+        from models.input_understanding import TurnRoute
+        message = '教材中与他相关的内容有哪些，我想学习'
+        context = TaskContext(student_id='s', session_id='x', message=message, input_mode='active')
+        apply_route(context, TurnRoute(kind='concept_answer', scope='kp', target_id='kp:费希纳',
+            name='费希纳', tool_purpose='textbook', reason='test'))
+        with patch('agents.tools.first_wave_runtime.purpose', side_effect=AssertionError('legacy')):
+            self.assertEqual(resolve_tool_purpose(context, message), 'textbook')
+
+    def test_no_route_still_uses_legacy_purpose(self):
+        from agents.agent_loop_service import resolve_tool_purpose
+        from models.task_context import TaskContext
+        context = TaskContext(student_id='s', session_id='x', message='教材有几本')
+        self.assertEqual(resolve_tool_purpose(context, '教材有几本'), 'catalog')
+
     def test_next_topic_without_a_course_path_asks_for_target(self):
         target = LearningTarget("kp-1", "自变量")
         navigator = StubLearningNavigator(target=target)

@@ -1,7 +1,8 @@
 """本次安排：输入边界、旧库增量迁移和独立路径身份。"""
 import unittest
 from copy import deepcopy
-from unittest.mock import Mock
+import os
+from unittest.mock import Mock, patch
 from sqlalchemy import text, inspect
 from database.session_plan_migration import has_session_plan, migrate_session_plan
 from models.session_study_plan import StudyRequest, StudyItem, SessionStudyPlan
@@ -132,6 +133,48 @@ class SessionServiceTests(Q5TestBase):
         self.assertEqual(restored,paused)
         active=self.sessions.set_mode(paused,'active',command_id='resume')
         self.assertEqual(active['current_item_id'],value['current_item_id'])
+
+
+class TurnRoutePlanTests(Q5TestBase):
+    """A chapter plan is proposed only after the turn route is known."""
+
+    def setUp(self):
+        super().setUp()
+        import database.learning_tasks  # noqa: F401
+        from agents.task_service import TaskService
+        from database.learning_tasks import LearningTaskRepository
+        from memory.memory_manager import MemoryManager
+        self.memory = MemoryManager()
+        self.memory.ensure_student('s', account_type='test')
+        self.repository = LearningTaskRepository()
+        self.executed = []
+        tutor = Mock()
+        tutor.memory = self.memory
+        tutor.llm = Mock()
+        policy = Mock()
+        policy.enabled.return_value = True
+        policy.can_clarify.return_value = True
+        policy.context = True
+        self.service = TaskService(tutor, repository=self.repository, policy=policy)
+
+    def run_turn(self, message, session='route-plan'):
+        from models.chat_request import ChatRequest
+
+        def executor(request, context, resolved, intercept, guard, progress):
+            self.executed.append(request.message)
+            return {'reply': '普通回答', 'answer_status': 'answered', 'step_advanced': False}
+
+        with patch.dict(os.environ, {'INPUT_UNDERSTANDING_MODE': 'active',
+                                     'Q5_LEARNING_ENABLED': '1'}):
+            return self.service.run(ChatRequest(student_id='s', session_id=session,
+                request_id=session + '-request', message=message), executor)
+
+    def test_chapter_plan_uses_chapter_guide(self):
+        result = self.run_turn('帮我制定第一章的学习计划')
+        self.assertEqual(result['result_type'], 'q5_plan')
+        self.assertIn('第一节', result['reply'])
+        self.assertIn('第四节', result['reply'])
+        self.assertEqual(self.executed, [])
 
 
 class PlannerTests(unittest.TestCase):

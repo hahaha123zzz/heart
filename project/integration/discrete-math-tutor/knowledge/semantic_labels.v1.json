@@ -10,7 +10,7 @@
         "learning_support": "简化、详细化、换例子、可视化",
         "exercise_interaction": "提交作答、请求练习、请求提示",
         "repair": "不理解、质疑、纠错、追问",
-        "learning_management": "继续、暂停、返回、复习、计划确认",
+        "learning_management": "继续、暂停、返回、复习、计划确认、章节导览/学习路径",
         "textbook_interaction": "指向教材选区、图、原文位置",
         "session_control": "修改详细度、学习模式、反馈风格",
         "unclear": "关键对象或意图无法确定"

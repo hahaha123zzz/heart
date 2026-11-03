@@ -366,3 +366,5 @@ LearnLM 的核心是 **pedagogical instruction following**：训练和评估样�
 确认后我再按 P0 → P1 出具体实施计划和测试用例。
 
 实施计划：[取消回答字数限制与统一回合分类](../../plans/2026-11-02-turn-routing-and-answer-quality.md)。
+
+实现验收：[章节导学与统一路由验收记录](ACCEPTANCE.md)。

@@ -290,7 +290,15 @@ class TeachingTurn:
         if self.progress.learner_profile is None:
             self.progress.learner_profile = LearnerProfile(teaching_strategy="teach_first")
         from agents.input_understanding.service import explicit_switch
-        changed_target = explicit_switch(request) if self.input_turn else CHANGE_TOPIC.search(request.message)
+        self.turn_route = self.input_turn.route if self.input_turn else None
+        if self.turn_route is None and context.turn_route:
+            from models.input_understanding import TurnRoute
+            self.turn_route = TurnRoute.model_validate(context.turn_route)
+        if self.turn_route is not None:
+            changed_target = (self.turn_route.scope in ('chapter', 'section')
+                              or bool(explicit_switch(request)))
+        else:
+            changed_target = explicit_switch(request) if self.input_turn else CHANGE_TOPIC.search(request.message)
         if changed_target or (
                 old.get("topic") and old["topic"] != topic) or (
                 old.get("target_id") and target_id and old["target_id"] != target_id):
