@@ -179,7 +179,7 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
         if not result.sources and (teaching is None or teaching.evidence_mode == "textbook"):
             return False, "本轮没有可核验的教材来源，暂不发布正式回答。"
         if not result.sources and re.search(r"\[\d+\]", text):
-            return False, "本轮没有教材引用来源；请移除虚构的引用编号，并明确这是课堂补充知识。"
+            return False, "本轮没有教材引用来源；请移除虚构的引用编号，不要把课堂补充写成教材原文，也不要描述材料覆盖或检索过程。"
         from agents.course_search import explicit_chapters
         required = explicit_chapters(request.message)
         missing = required - {source.get('chapter_id') for source in result.sources}
@@ -505,6 +505,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         or (teaching and teaching.interjection) or tool_purpose != 'textbook')
     root = Path(__file__).resolve().parents[1]
     skills_root = root / "visualization" / "skills"
+    from agents.teaching_skills import enabled as skills_enabled, allowed_skills
+    from knowledge.course_config import COURSE_ID
+    teaching_skills_enabled = skills_enabled(skills_root)
     task_key = re.sub(r"[^A-Za-z0-9_.-]+", "_",
                       request.task_id or request.request_id or "turn")[:80]
     workspace_root = Path(os.getenv("Q3_WORKSPACE_ROOT") or
@@ -531,7 +534,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     budget = reply_budget(request.message)
     system_prompt = build_loop_system_prompt(
         target=target, definitions=registry.definitions(),
-        teaching_prompt=teaching.instructions() if teaching else "",
+        teaching_prompt=teaching.instructions() if teaching and not teaching_skills_enabled else "",
         verified_sources=initial_sources) + "\n" + budget.instructions()
     from agents.input_understanding.adapters import active_turn
     input_turn = active_turn(context)
@@ -550,7 +553,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         from models.interaction_preferences import style_instructions
         # 当前有效偏好在普通问答中也生效，不依赖Q5本次安排或辅助教学开关。
         system_prompt += '\n' + style_instructions(context.preferences)
-        if teaching is None:
+        if teaching is None and not teaching_skills_enabled:
             system_prompt += '\n' + teaching_mode_instructions(resolve_teaching_mode(request.message))
     if selection_input is not None:
         system_prompt += '\n' + selection_input.instructions()
@@ -580,7 +583,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         and tool_purpose == 'textbook' and 'ask_user' not in required_tools)
     if needs_review_evidence and not initial_sources:
         system_prompt += '\n本轮回顾当前课程知识：先实际调用retrieve_course读取原文，再整理关系与重点依据；工具协议文本不能代替检索，不另行出题。'
-    needs_teaching_question = bool(teaching and teaching.teaching_mode in ('guided', 'practice')
+    needs_teaching_question = bool(not teaching_skills_enabled and teaching and teaching.teaching_mode in ('guided', 'practice')
         and teaching.strategy_decision.invite_check and teaching.state['allow_check']
         and not teaching.progress.pending_question and not teaching.interjection
         and 'ask_user' not in required_tools)
@@ -589,7 +592,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         system_prompt += '\n本轮明确要求引导或练习：必须用teaching_step登记一个check_prompt/check_focus，再把同一问题放在正文最后并停止。不能只在正文提问而不登记待答题。'
         if not initial_sources:
             system_prompt += '\n本轮尚无核验来源，先检索教材再登记与原文相符的检查；不能生成没有可核验依据的待答题。'
-    needs_presentation = bool(teaching and not needs_teaching_question and 'ask_user' not in required_tools
+    needs_presentation = bool(not teaching_skills_enabled and teaching and not needs_teaching_question and 'ask_user' not in required_tools
             and re.search(r'分步展开|逐步展示|对比卡|比较卡', request.message))
     if needs_presentation:
         required_tools = tuple(dict.fromkeys((*required_tools, 'teaching_step')))
@@ -635,7 +638,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     composition_hint_only = bool(teaching and teaching.strategy == 'hint') or bool(input_turn and (
         any(d.key in ('hint_only', 'no_full_answer') and d.value is True for d in input_turn.directives)
         or any(set(task.constraints) & {'hint_only', 'no_full_answer'} for task in input_turn.tasks)))
-    if (os.getenv('RESPONSE_COMPOSITION_ENABLED', '0') == '1' and tool_purpose == 'textbook'
+    if (not teaching_skills_enabled and os.getenv('RESPONSE_COMPOSITION_ENABLED', '0') == '1' and tool_purpose == 'textbook'
             and not needs_teaching_question and not needs_presentation and 'ask_user' not in required_tools
             and not composition_hint_only
             and not (teaching and teaching.progress.pending_question)):
@@ -649,7 +652,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             composer=ResponseComposer(restored_plan)
 
     def final_gate(text, outcome):
-        if (teaching and not teaching.state['allow_check'] and re.search(r'[？?]',text)
+        if (not teaching_skills_enabled and teaching and not teaching.state['allow_check'] and re.search(r'[？?]',text)
                 and not (teaching.input_turn and teaching.input_turn.only_resume_question)):
             return False, '学生要求先讲不考：请将疑问句改为陈述句并自然收束。'
         missing = set(required_tools) - {row.get('tool') for row in outcome.tool_outputs}
@@ -689,7 +692,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 return None
             return execute_batches(local_loop,loop_request,outcome,messages,collector,composer=composer,gate=batch_gate)
 
-    restored_reply = teaching.restore_reply() if teaching and not required_tools else None
+    restored_reply = teaching.restore_reply() if teaching and not teaching_skills_enabled and not required_tools else None
     if restored_reply is not None:
         # Only the exact persisted, revalidated formative question is replayed.
         # No new model text or textbook assertion bypasses the publish gate.
@@ -729,7 +732,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 navigation=navigation, cancellation=cancellation, guard=guard,
                 tool_state={"workspace_root": str(workspace_root),
                             "skills_root": str(skills_root), "deferred_loader": None,
-                            'allowed_skills': ('reasoning-diagrams', 'experimental-design') if resources and resources.binding.course_id == 'experimental-psychology-3' else ('reasoning-diagrams', 'finite-structures'),
+                            'allowed_skills': allowed_skills(skills_root, resources.binding.course_id if resources else COURSE_ID),
+                            'teaching_skills': teaching_skills_enabled,
                             **({'first_wave': resources} if resources else {}),
                             **((q5_binding or {}).get("tool_state") or {})},
                 publish_gate=final_gate,
@@ -797,6 +801,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                     mapped['reply'] = rest.lstrip()
                 mapped['reply'] = status_line + '\n\n' + mapped['reply']
         result.final_text = mapped['reply']
+    mapped['teaching_skills'] = [row for row in result.tool_outputs if row.get('result_kind') == 'teaching_skill']
     mapped['retrieval_calls'] = navigation.calls
     mapped['retrieval_coverage'] = navigation.coverage_report
     mapped['retrieval_trace'] = navigation.trace

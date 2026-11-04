@@ -378,6 +378,12 @@ def run_chapter_overview(context, request, llm, *, package: ChapterPackage | Non
     if not package.sources:
         return _structure_result(package, kind, max_questions)
     messages = _messages(package, constraints)
+    messages.append({'role': 'user', 'content': request.message})
+    from agents.teaching_skills import prepare_teaching_skills
+    skill_policy, skill_receipts = prepare_teaching_skills(llm, messages)
+    messages.append({'role': 'system', 'content': skill_policy +
+        '\n本次使用既有章节JSON字段传输内容，教法以已读技能为准；'
+        '教材目录、引用和掌握状态的真实性检查仍须遵守。'})
     payload, errors, raised = {}, [], 0
     ok = False
     for attempt in range(2):
@@ -401,8 +407,12 @@ def run_chapter_overview(context, request, llm, *, package: ChapterPackage | Non
     if not ok:
         # Never publish the rejected generated text; a structure-only partial is
         # safer and more useful than a 32-character refusal.
-        return _structure_result(package, kind, max_questions)
+        result = _structure_result(package, kind, max_questions)
+        result['teaching_skills'] = skill_receipts
+        return result
     omitted = bool(payload.get('omitted_sections'))
     coverage_ok = _coverage(payload, package) and not omitted
-    return _result(payload, package, coverage_ok=coverage_ok,
-                   content_ok=_content_ok(payload, package), kind=kind)
+    result = _result(payload, package, coverage_ok=coverage_ok,
+                     content_ok=_content_ok(payload, package), kind=kind)
+    result['teaching_skills'] = skill_receipts
+    return result

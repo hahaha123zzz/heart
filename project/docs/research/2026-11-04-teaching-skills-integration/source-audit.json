@@ -1,0 +1,432 @@
+{
+  "date": "2026-11-04",
+  "scope": "static research; not installation or runtime evaluation",
+  "downloaded_files": [
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "README.md",
+      "bytes": 2280,
+      "sha256": "4bf034e3bd97eb906599cced5ac999f0d0f405187ca135b331b25b323744745d",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/README.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\README.md"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "LICENSE",
+      "bytes": 11357,
+      "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/LICENSE",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\LICENSE"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "NOTICE",
+      "bytes": 208,
+      "sha256": "649801521f6c04ba05677caf2d58d29a5a92d20841334b929fa7ddc1553b02a4",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/NOTICE",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\NOTICE"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "evals/README.md",
+      "bytes": 9525,
+      "sha256": "41b28705c138a66dd7878f05f5a51aaf350a3f493227723e16d274063a7a1284",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/evals/README.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\evals\\README.md"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "evals/k12-check-for-understanding/rubrics/math.csv",
+      "bytes": 15857,
+      "sha256": "a6153e79cf27e747e431b95101c7de8950652203e166fd7ca26835114cc7cb14",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/evals/k12-check-for-understanding/rubrics/math.csv",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\evals\\k12-check-for-understanding\\rubrics\\math.csv"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "plugin/skills/k12-check-for-understanding/SKILL.md",
+      "bytes": 8666,
+      "sha256": "152e3272fbd108fedf2b7ee43fba71422c807b379500dabc04688b3185809e7f",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\plugin\\skills\\k12-check-for-understanding\\SKILL.md"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "plugin/skills/k12-check-for-understanding/LICENSE",
+      "bytes": 11357,
+      "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/LICENSE",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\plugin\\skills\\k12-check-for-understanding\\LICENSE"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "plugin/skills/k12-lesson-differentiation/SKILL.md",
+      "bytes": 15372,
+      "sha256": "01fa34f4a5a657b3e9af471abccf382a3d0e992b763ce0638e5f8500d132a716",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\plugin\\skills\\k12-lesson-differentiation\\SKILL.md"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "plugin/skills/k12-lesson-plan-creation/SKILL.md",
+      "bytes": 13145,
+      "sha256": "c4ed0b8cf2bad05c60a887634b95a3e392a342aad9e9ad6d12b407445aecdfb5",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\plugin\\skills\\k12-lesson-plan-creation\\SKILL.md"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "plugin/skills/k12-lesson-prep/SKILL.md",
+      "bytes": 2093,
+      "sha256": "cfca47967fc70625f92756a7f1228ed1176050772a46e43e73e38112c85354a3",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-prep/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\plugin\\skills\\k12-lesson-prep\\SKILL.md"
+    },
+    {
+      "repo": "bstellato/ai-teaching-skills",
+      "sha": "6d3f85726e7b0fedacc8a078e174161293777044",
+      "file": "README.md",
+      "bytes": 9274,
+      "sha256": "d46d74833f221ff246db82a8674f7494a5b700774b0e5b714905a4bc98f5aec0",
+      "url": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/README.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\bstellato\\ai-teaching-skills\\README.md"
+    },
+    {
+      "repo": "bstellato/ai-teaching-skills",
+      "sha": "6d3f85726e7b0fedacc8a078e174161293777044",
+      "file": "LICENSE",
+      "bytes": 1076,
+      "sha256": "b6f81aea546a126222fcc866caf8bb11c28938a0faacafe523987fce2c9cb88b",
+      "url": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/LICENSE",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\bstellato\\ai-teaching-skills\\LICENSE"
+    },
+    {
+      "repo": "bstellato/ai-teaching-skills",
+      "sha": "6d3f85726e7b0fedacc8a078e174161293777044",
+      "file": "ai-socratic-tutor/SKILL.md",
+      "bytes": 4020,
+      "sha256": "90e62cff194687baea2392304a84a62bd835b4627d19393806b3053ecbb29d07",
+      "url": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/ai-socratic-tutor/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\bstellato\\ai-teaching-skills\\ai-socratic-tutor\\SKILL.md"
+    },
+    {
+      "repo": "bstellato/ai-teaching-skills",
+      "sha": "6d3f85726e7b0fedacc8a078e174161293777044",
+      "file": "ai-novice/SKILL.md",
+      "bytes": 2555,
+      "sha256": "42781b68fc3a411378d5273608753905dc650719a4c74a263dec77549a873694",
+      "url": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/ai-novice/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\bstellato\\ai-teaching-skills\\ai-novice\\SKILL.md"
+    },
+    {
+      "repo": "bstellato/ai-teaching-skills",
+      "sha": "6d3f85726e7b0fedacc8a078e174161293777044",
+      "file": "ai-solution-study/SKILL.md",
+      "bytes": 3571,
+      "sha256": "2dc7258d9753fcec07e3b95bb99b53be275cc39d1f9f015973d0667e69c010e7",
+      "url": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/ai-solution-study/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\bstellato\\ai-teaching-skills\\ai-solution-study\\SKILL.md"
+    },
+    {
+      "repo": "lowwwbank/anything-to-course",
+      "sha": "f11bbf21572a9864759929946c2c3da6857e1744",
+      "file": "README.md",
+      "bytes": 13209,
+      "sha256": "f3d60da6c794bdd5ce65636654167990708240c3fb1479d4cdd57cf432913687",
+      "url": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/README.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\lowwwbank\\anything-to-course\\README.md"
+    },
+    {
+      "repo": "lowwwbank/anything-to-course",
+      "sha": "f11bbf21572a9864759929946c2c3da6857e1744",
+      "file": "LICENSE",
+      "bytes": 1066,
+      "sha256": "d41346e796d60942d0cc8370e765a1260a64382f55a95dabd91ac64d62e1965b",
+      "url": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/LICENSE",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\lowwwbank\\anything-to-course\\LICENSE"
+    },
+    {
+      "repo": "lowwwbank/anything-to-course",
+      "sha": "f11bbf21572a9864759929946c2c3da6857e1744",
+      "file": "SKILL.md",
+      "bytes": 9800,
+      "sha256": "fc8d618dbdd946458f803c568c30bb2bfbbacdabcb34618d6ee9c0834f4d8ec6",
+      "url": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\lowwwbank\\anything-to-course\\SKILL.md"
+    },
+    {
+      "repo": "lowwwbank/anything-to-course",
+      "sha": "f11bbf21572a9864759929946c2c3da6857e1744",
+      "file": "references/study-mode.md",
+      "bytes": 3860,
+      "sha256": "72c6f64dcba9d1b7fbc125820490207c5065ae2f3b30b7bae7222efa1dd3c2d9",
+      "url": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/references/study-mode.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\lowwwbank\\anything-to-course\\references\\study-mode.md"
+    },
+    {
+      "repo": "lowwwbank/anything-to-course",
+      "sha": "f11bbf21572a9864759929946c2c3da6857e1744",
+      "file": "references/quality-rubrics.md",
+      "bytes": 5817,
+      "sha256": "633f7ea2d412d563103b4e9211543b67dc08c49e6a3a9957cc9ae618f7364485",
+      "url": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/references/quality-rubrics.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\lowwwbank\\anything-to-course\\references\\quality-rubrics.md"
+    },
+    {
+      "repo": "lowwwbank/anything-to-course",
+      "sha": "f11bbf21572a9864759929946c2c3da6857e1744",
+      "file": "references/practice-design.md",
+      "bytes": 6739,
+      "sha256": "71199293e7a967e3f0a2e00a440c45d621f78a1ba75137e5349e7e7510220f1f",
+      "url": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/references/practice-design.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\lowwwbank\\anything-to-course\\references\\practice-design.md"
+    },
+    {
+      "repo": "yugash007/edu-agent-skills",
+      "sha": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+      "file": "README.md",
+      "bytes": 7741,
+      "sha256": "192540c983f16213f6def52a71c88f6c56ce2b4551982f8a7b57d18dbd176e1f",
+      "url": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/README.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\yugash007\\edu-agent-skills\\README.md"
+    },
+    {
+      "repo": "yugash007/edu-agent-skills",
+      "sha": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+      "file": "LICENSE",
+      "bytes": 1086,
+      "sha256": "591a421738b7ace6a07fb9dd385988b2af06190c3899130d24722e05e8340145",
+      "url": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/LICENSE",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\yugash007\\edu-agent-skills\\LICENSE"
+    },
+    {
+      "repo": "yugash007/edu-agent-skills",
+      "sha": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+      "file": "skills/teaching/teach-concept/SKILL.md",
+      "bytes": 2801,
+      "sha256": "55d4809b901e233b0f6095fdfdb98bba6dd90b62452754f82184a3c0a3ce8a8d",
+      "url": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/teaching/teach-concept/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\yugash007\\edu-agent-skills\\skills\\teaching\\teach-concept\\SKILL.md"
+    },
+    {
+      "repo": "yugash007/edu-agent-skills",
+      "sha": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+      "file": "skills/teaching/simplify-topic/SKILL.md",
+      "bytes": 3966,
+      "sha256": "46631bd45b5f34b89821e61355b8e2538bd3b45fbd54372e4fb730fbed52bbb7",
+      "url": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/teaching/simplify-topic/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\yugash007\\edu-agent-skills\\skills\\teaching\\simplify-topic\\SKILL.md"
+    },
+    {
+      "repo": "yugash007/edu-agent-skills",
+      "sha": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+      "file": "skills/teaching/socratic-mode/SKILL.md",
+      "bytes": 2537,
+      "sha256": "456ce8d9a38b47af5657161f15d0ad1a8b5be625d905d57f425307f2f127a2f2",
+      "url": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/teaching/socratic-mode/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\yugash007\\edu-agent-skills\\skills\\teaching\\socratic-mode\\SKILL.md"
+    },
+    {
+      "repo": "yugash007/edu-agent-skills",
+      "sha": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+      "file": "skills/assessment/misconception-detector/SKILL.md",
+      "bytes": 4030,
+      "sha256": "fd1ca57efaf0848dfdce322bcb61c834cd3e172df8df8efc7c78585224e4a87e",
+      "url": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/assessment/misconception-detector/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\yugash007\\edu-agent-skills\\skills\\assessment\\misconception-detector\\SKILL.md"
+    },
+    {
+      "repo": "yugash007/edu-agent-skills",
+      "sha": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+      "file": "skills/assessment/check-understanding/SKILL.md",
+      "bytes": 2239,
+      "sha256": "fbcd0be7500df8e22e69860a2eb213b726b62ced669b8fd044a3e129793cbf10",
+      "url": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/assessment/check-understanding/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\yugash007\\edu-agent-skills\\skills\\assessment\\check-understanding\\SKILL.md"
+    },
+    {
+      "repo": "yugash007/edu-agent-skills",
+      "sha": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+      "file": "skills/memory/learning-memory/SKILL.md",
+      "bytes": 3310,
+      "sha256": "fa812a902afa96fa673ba6d68ce904542a1db6a036f224d2be4000436d50f1dc",
+      "url": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/memory/learning-memory/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\yugash007\\edu-agent-skills\\skills\\memory\\learning-memory\\SKILL.md"
+    },
+    {
+      "repo": "yugash007/edu-agent-skills",
+      "sha": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+      "file": "src/installer.js",
+      "bytes": 2904,
+      "sha256": "7930ac2dfd1f6cf00b7b083a70a3ff5d392111d5c7a9fdd5b4f75b259788dd06",
+      "url": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/src/installer.js",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\yugash007\\edu-agent-skills\\src\\installer.js"
+    },
+    {
+      "repo": "hezkvectory/hermes-edu-skills",
+      "sha": "b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030",
+      "file": "README.md",
+      "bytes": 84861,
+      "sha256": "f8a408fddb7c2fa35826798062e153d0f6044ee9fb7439b37c3ef76a83f325f0",
+      "url": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/README.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\hezkvectory\\hermes-edu-skills\\README.md"
+    },
+    {
+      "repo": "hezkvectory/hermes-edu-skills",
+      "sha": "b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030",
+      "file": "LICENSE",
+      "bytes": 1065,
+      "sha256": "94ad27c3fa1311f1e48a9ce97fbfb17c76147216f880f6d2a924cc0742946ede",
+      "url": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/LICENSE",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\hezkvectory\\hermes-edu-skills\\LICENSE"
+    },
+    {
+      "repo": "hezkvectory/hermes-edu-skills",
+      "sha": "b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030",
+      "file": "skills/learning-core/agent-socratic-tutor/SKILL.md",
+      "bytes": 4636,
+      "sha256": "6dae4dc695625aaa9caaddc99c304ca6f99781f7d39a48a1831881ab881ae3f6",
+      "url": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/skills/learning-core/agent-socratic-tutor/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\hezkvectory\\hermes-edu-skills\\skills\\learning-core\\agent-socratic-tutor\\SKILL.md"
+    },
+    {
+      "repo": "hezkvectory/hermes-edu-skills",
+      "sha": "b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030",
+      "file": "skills/learning-core/agent-question-explanation/SKILL.md",
+      "bytes": 5136,
+      "sha256": "c1d0b8d4324134ebe5e01bd0f823f7e2d38a3acfbb696dd776a05cfdaf17628d",
+      "url": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/skills/learning-core/agent-question-explanation/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\hezkvectory\\hermes-edu-skills\\skills\\learning-core\\agent-question-explanation\\SKILL.md"
+    },
+    {
+      "repo": "hezkvectory/hermes-edu-skills",
+      "sha": "b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030",
+      "file": "skills/learning-core/agent-mistake-review/SKILL.md",
+      "bytes": 4637,
+      "sha256": "2129ee66b30871d5b0b4ae256c123063ab3dd96ed61578e7de79bf1c21053e41",
+      "url": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/skills/learning-core/agent-mistake-review/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\hezkvectory\\hermes-edu-skills\\skills\\learning-core\\agent-mistake-review\\SKILL.md"
+    },
+    {
+      "repo": "hezkvectory/hermes-edu-skills",
+      "sha": "b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030",
+      "file": "skills/learning-core/agent-weakness-boost/SKILL.md",
+      "bytes": 4564,
+      "sha256": "d34d8092b670a96e3be7c1a8719f731ac154fec6fd89e347a173fab922a96892",
+      "url": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/skills/learning-core/agent-weakness-boost/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\hezkvectory\\hermes-edu-skills\\skills\\learning-core\\agent-weakness-boost\\SKILL.md"
+    },
+    {
+      "repo": "hezkvectory/hermes-edu-skills",
+      "sha": "b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030",
+      "file": "skills/career-learning/college-cs-python/SKILL.md",
+      "bytes": 4986,
+      "sha256": "4dff6384c4f8ba8795b44c860ff45d2f10f8de3f8c451a24fcaf47d32b8267ba",
+      "url": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/skills/career-learning/college-cs-python/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\hezkvectory\\hermes-edu-skills\\skills\\career-learning\\college-cs-python\\SKILL.md"
+    },
+    {
+      "repo": "xixiaofinland/agent-skills",
+      "sha": "6d98d5ba75f4bd50dda4a1f3f63c87a00e19cec8",
+      "file": "skills/book-tutor/SKILL.md",
+      "bytes": 3605,
+      "sha256": "5474c852662a6173a97f7b442e5ad8af664051bf5c306658018c2feb0cb8745a",
+      "url": "https://raw.githubusercontent.com/xixiaofinland/agent-skills/6d98d5ba75f4bd50dda4a1f3f63c87a00e19cec8/skills/book-tutor/SKILL.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\xixiaofinland\\agent-skills\\skills\\book-tutor\\SKILL.md"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "plugin/skills/k12-check-for-understanding/references/math.md",
+      "bytes": 6875,
+      "sha256": "a2a73b86b8a6bc00e9d08d4ab4dc377cbb553387a9a7aa02bf2e57e104f5f2ef",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/references/math.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\plugin\\skills\\k12-check-for-understanding\\references\\math.md"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "plugin/skills/k12-check-for-understanding/references/verification.md",
+      "bytes": 5170,
+      "sha256": "5a42b87056233f406a5eaecab36b737b43194dc40b2517b3731bbc28510d5412",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/references/verification.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\plugin\\skills\\k12-check-for-understanding\\references\\verification.md"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "plugin/skills/k12-check-for-understanding/references/output.md",
+      "bytes": 11809,
+      "sha256": "a45f5742f4040f383ffbf5c47b3528e0dbae913a1a96613bf965b792923b9ec5",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/references/output.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\plugin\\skills\\k12-check-for-understanding\\references\\output.md"
+    },
+    {
+      "repo": "anthropics/k12-teacher-skills",
+      "sha": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+      "file": "plugin/skills/k12-check-for-understanding/references/learning-commons-kg.md",
+      "bytes": 3410,
+      "sha256": "fba868d6d52e4ffe790fd356c7acfdd0ae044e12c99f0f4391397277c9d32e93",
+      "url": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/references/learning-commons-kg.md",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-teaching-skills-research-20261104\\anthropics\\k12-teacher-skills\\plugin\\skills\\k12-check-for-understanding\\references\\learning-commons-kg.md"
+    }
+  ],
+  "local_inspected_files": [
+    {
+      "path": "project/integration/discrete-math-tutor/agents/tools/skill_tools.py",
+      "sha256": "57c73b7845459ea13a40d622bc3dc28b87ea72f1a77cb8e512028b4882d72ca0"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/tools/first_wave_runtime.py",
+      "sha256": "8d74aeeea5d4881171eded185015bfef3ca488f469b8857c961aeb48b42b81f6"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/agent_loop_service.py",
+      "sha256": "08fb408c7618ccc93bc73a221a4b740f01bcf9f94e2cbe7c1a291d366b7d7d2d"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/agent_loop.py",
+      "sha256": "6e074cb1ec7dcd093c7448dc63cadbe43b395b64ba9e715c6a507f3b1926e6ef"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/teaching_policy.py",
+      "sha256": "6a8e3edc051f9df9e94a4a86f28d63a2675e50b1bde07e22e75c24372f08cb33"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/teaching_strategy.py",
+      "sha256": "bcd77ad3db5e637958037ab738f37ea15f5301be492c01ed974d076bcc17361e"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/response_composition.py",
+      "sha256": "3d39a92153835d39c1fcf2327ce0255be3f6ad7452193dc1565ba1f5030a09c6"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/response_composition_adapters.py",
+      "sha256": "153f6aa284a1ca8105c705db28773aa934dadd3368e6079a8503e654fd07a982"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/teaching_strategies.json",
+      "sha256": "2b690dbed61dae6ea2c31518713eac7f187fe929a1f16cad7a749a282f103c71"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/tests/test_first_wave_integration.py",
+      "sha256": "68b19f50fbf7ef6abbf52272a204469b0bbfb5e51ef90e390089c98bfecd32cd"
+    },
+    {
+      "path": "project/docs/research/2026-11-02-agent-followup-routing/TEACHER_LIKE_RESPONSES_RESEARCH_20261103.md",
+      "sha256": "e84a328a03401d8ea099b7b4f5ffd4ce6c9c815f8f0b1b3feae49f650781215b"
+    }
+  ],
+  "book_tutor_license": "No applicable license found; repository metadata null; unrelated clean-apex license does not establish book-tutor permission",
+  "read_coverage": "Core candidate skills read; remaining downloads selectively inspected. Download count is not full skill review coverage."
+}

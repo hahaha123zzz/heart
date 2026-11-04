@@ -199,6 +199,15 @@ class LocalAgentLoop:
                 result.sources.extend(dispatch.sources)
                 result.tool_steps+=1
                 if result.sources: collector('sources','',{'sources':result.sources})
+            if request.tool_state.get('teaching_skills'):
+                from agents.teaching_skills import prepare_teaching_skills
+                collector('progress', '读取教学技能指南', {})
+                policy, receipts = prepare_teaching_skills(self.llm, messages, context=tool_context)
+                messages[:] = [row for row in messages if not (row.get('role') == 'system' and
+                    isinstance(row.get('content'), str) and row['content'].startswith('【教学技能优先】'))]
+                messages.append({'role': 'system', 'content': policy})
+                result.tool_outputs.extend(receipts)
+                result.tool_steps += len(receipts)
             outcome = self._loop(request, messages, result, tool_context, collector)
             result.events = collector.to_dicts()
             return outcome
@@ -296,6 +305,10 @@ class LocalAgentLoop:
                 role = 'progress'  # 候选JSON不进入学生正文；保存后发布经核验的内容块。
                 if not tools:
                     collector('progress', '组织本轮讲解', {})
+            if request.tool_state.get('teaching_skills'):
+                from agents.teaching_skills import PRIORITY
+                model_messages = [*model_messages, {'role': 'system', 'content': PRIORITY +
+                    '遵守当前工具、来源与输出协议；其余教法按本轮已读取技能组织。'}]
             try:
                 round_result = self.llm.chat_with_tools(
                     model_messages, tools or [], temperature=request.temperature,
@@ -560,6 +573,10 @@ class LocalAgentLoop:
             model_messages = with_transient_model_messages(messages, result._transient)
             if request.response_composer is not None:
                 model_messages = [*model_messages, {'role':'system','content':request.response_composer.instructions(result.sources)}]
+            if request.tool_state.get('teaching_skills'):
+                from agents.teaching_skills import PRIORITY
+                model_messages = [*model_messages, {'role': 'system', 'content': PRIORITY +
+                    '遵守当前来源与输出协议，按已读技能完成本次收尾。'}]
             round_result = self.llm.chat_with_tools(
                 model_messages, [], temperature=request.temperature,
                 timeout=90,

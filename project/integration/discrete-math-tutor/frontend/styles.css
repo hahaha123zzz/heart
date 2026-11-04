@@ -95,3 +95,18 @@
 .session-study-plan li[aria-current="step"] { border-left:3px solid #386b77; background:#eaf3f5; }
 .session-study-plan p { margin:5px 0; }
 .session-study-plan small, .session-plan-note { color:#53636c; }
+
+/* T3.2: published semantic block presentation (content stays server-rendered). */
+.response-block{margin:10px 0}
+.response-block+.response-block{margin-top:12px}
+.response-block.response-comparison,.response-block.response-procedure,.response-block.response-recap,.response-block.response-counterexample,.response-block.response-misconception,.response-block.response-example{padding:10px 12px;border:1px solid #dbe6f6;border-radius:9px;background:#fbfdff}
+.response-block.response-comparison{background:#f7faff;border-color:#d7e5fb}
+.response-block.response-procedure{background:#fbfdf9;border-color:#dfead8}
+.response-block.response-recap{background:#f8f9fc;border-color:#e2e6ef}
+.response-block.response-counterexample,.response-block.response-misconception{background:#fff9f5;border-color:#f0d8c8}
+.response-block.response-example{background:#fcfbff;border-color:#e5ddf4}
+.response-block-label{display:inline-block;margin-bottom:4px;font-size:12px;font-weight:700;letter-spacing:.04em;color:#45638f}
+.response-block.response-counterexample .response-block-label,.response-block.response-misconception .response-block-label{color:#9a4f2f}
+.response-block table{display:block;max-width:100%;overflow-x:auto}
+.response-block :focus-visible{outline:3px solid #8bb5ff;outline-offset:2px}
+@media(max-width:780px){.response-block.response-comparison,.response-block.response-procedure,.response-block.response-recap,.response-block.response-counterexample,.response-block.response-misconception,.response-block.response-example{padding:9px 10px}.response-block-label{font-size:11px}}

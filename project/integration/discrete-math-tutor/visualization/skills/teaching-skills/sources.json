@@ -1,0 +1,881 @@
+[
+  {
+    "name": "k12-lesson-plan-creation",
+    "repo": "anthropics/k12-teacher-skills",
+    "commit": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+    "upstream_path": "plugin/skills/k12-lesson-plan-creation/SKILL.md",
+    "license": "Apache-2.0",
+    "files": [
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/LICENSE",
+        "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+        "bytes": 11357
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/SKILL.md",
+        "sha256": "c4ed0b8cf2bad05c60a887634b95a3e392a342aad9e9ad6d12b407445aecdfb5",
+        "bytes": 13145
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/references/NOTICE",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/references/NOTICE",
+        "sha256": "4c63b0236167174a760bc32cec65f25c1df88e5783d2953d5dcbfee3e8164c65",
+        "bytes": 294
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/references/ela.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/references/ela.md",
+        "sha256": "9c1de76d87afbe87b2a95c7f192c9595b4b756fd036c0804f22df1213714ab71",
+        "bytes": 14637
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/references/example_lesson.json",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/references/example_lesson.json",
+        "sha256": "0ad133f291bae290102f05368934128869cdccced5994371baca9668f95c2026",
+        "bytes": 21306
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/references/learning-commons-kg.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/references/learning-commons-kg.md",
+        "sha256": "ebde94cfac4aa1475f5149db7e0c3912136aec869289c6139438e2bfd7e9793b",
+        "bytes": 10091
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/references/lesson-json.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/references/lesson-json.md",
+        "sha256": "8b27d2ee40a43256fe3aa4708950c1de895c982540cc8ce213717d49489c26d3",
+        "bytes": 12528
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/references/math.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/references/math.md",
+        "sha256": "4d510d6579e35b1a4ef9cb65a7d77681bc64dfe30d3064e4628a964c5f8277a2",
+        "bytes": 12463
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/references/output.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/references/output.md",
+        "sha256": "e6832eb472ab52fcd91b5ff547213dcfc911c116949a9a4698ce5843928407c6",
+        "bytes": 9633
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/references/science.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/references/science.md",
+        "sha256": "7f0401e77ef55d7f7ec043c09de394fcd334f0585d4afe108f428fd0865602a9",
+        "bytes": 18657
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/references/social_studies.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/references/social_studies.md",
+        "sha256": "1b85c811d4a07207947d2bab9459cf4895ec3d828c281f0dd5102d06e0a784c3",
+        "bytes": 12875
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/rendering/claude-artifact.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/rendering/claude-artifact.md",
+        "sha256": "a575c3d129893cbf6bb98dc3e65e06672f68cb53969a0c5c1339c3e6025d8d74",
+        "bytes": 9902
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/rendering/docx.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/rendering/docx.md",
+        "sha256": "536662a19f097d16de9d9415c38fe0123132a4e47cb1e7ec1a6e60aad01c3363",
+        "bytes": 1875
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/scripts/lesson_common.py",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/scripts/lesson_common.py",
+        "sha256": "cb5e33b03ddebf19a82cb76e84237077d565a872bfa6a81918d3e0d7dca9e2ce",
+        "bytes": 33326
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/scripts/render_all.sh",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/scripts/render_all.sh",
+        "sha256": "f04b7a89f828ba3c16b1ac7941aa36f3d2f872c38ffa5420cd5a6e46ac27249b",
+        "bytes": 2122
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/scripts/render_documents.py",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/scripts/render_documents.py",
+        "sha256": "b448cc28fda0c8a24364e83c73e9b29ef1f6c7d53748dc3dd7854f571030b442",
+        "bytes": 4677
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/scripts/render_lesson_docx.py",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/scripts/render_lesson_docx.py",
+        "sha256": "1c09071be8de48479d03646df7068551bcc9bcc5df5ae1fdb4cc7883f7ca7586",
+        "bytes": 25982
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/scripts/render_lesson_html.py",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/scripts/render_lesson_html.py",
+        "sha256": "037501bf3b72eb1caea00d52ed23f50310f59c786230ba9c62520602a96cc4de",
+        "bytes": 17148
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/scripts/theme.css",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-plan-creation/scripts/theme.css",
+        "sha256": "89edea0fa28473d61f1a18a950af7cf8d836b20b071f5a42322275ac57d4b5a6",
+        "bytes": 5293
+      },
+      {
+        "name": "k12-lesson-plan-creation",
+        "file": "k12-lesson-plan-creation/NOTICE",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/NOTICE",
+        "sha256": "649801521f6c04ba05677caf2d58d29a5a92d20841334b929fa7ddc1553b02a4",
+        "bytes": 208
+      }
+    ]
+  },
+  {
+    "name": "k12-lesson-differentiation",
+    "repo": "anthropics/k12-teacher-skills",
+    "commit": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+    "upstream_path": "plugin/skills/k12-lesson-differentiation/SKILL.md",
+    "license": "Apache-2.0",
+    "files": [
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/LICENSE",
+        "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+        "bytes": 11357
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/SKILL.md",
+        "sha256": "01fa34f4a5a657b3e9af471abccf382a3d0e992b763ce0638e5f8500d132a716",
+        "bytes": 15372
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/references/NOTICE",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/references/NOTICE",
+        "sha256": "4c63b0236167174a760bc32cec65f25c1df88e5783d2953d5dcbfee3e8164c65",
+        "bytes": 294
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/references/differentiation-json.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/references/differentiation-json.md",
+        "sha256": "c642e239ad4a147cfb43a7a208d40987d3b087472377cb8ee09d5705fdf6de6a",
+        "bytes": 11747
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/references/ela.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/references/ela.md",
+        "sha256": "3efe3154c23c23dec49d92140b38168f41ae10a85969fa5414a97815dd865b63",
+        "bytes": 26744
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/references/example_differentiation.json",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/references/example_differentiation.json",
+        "sha256": "f17755c592150851ab6ee3f985284f5f7d6a84c940b791c5bf9f022c43ebfc4a",
+        "bytes": 15460
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/references/learning-commons-kg.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/references/learning-commons-kg.md",
+        "sha256": "c7ba40f3f3c0f835d710af3dac322da8992c9213695c8d31dee830321a63845f",
+        "bytes": 12867
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/references/math.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/references/math.md",
+        "sha256": "f086a08eb6c6a0b4fb9482d40c6a7f359e89c2423d6b1b24877d2f9a7d32b810",
+        "bytes": 20400
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/references/output.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/references/output.md",
+        "sha256": "8f4d39475cf1565614cfb4d15b26ef32622be3c21dc0fe9ddacdd88696710bc5",
+        "bytes": 6922
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/references/science.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/references/science.md",
+        "sha256": "6ee14b9e8cc76b8c7be2cf22d1e5a7dfd3e83dcd8b5b4220635a07f5fedcd82d",
+        "bytes": 23796
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/references/social_studies.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/references/social_studies.md",
+        "sha256": "68c9f91d417485832b752dcb16aebbe6c0b86943c11a265f9a5429f4075fdc63",
+        "bytes": 22979
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/rendering/claude-artifact.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/rendering/claude-artifact.md",
+        "sha256": "415f9921c07b1cf366489812bf20f3789610a4e0c35f14e58d38ba952171a614",
+        "bytes": 9764
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/rendering/docx.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/rendering/docx.md",
+        "sha256": "36efab64b14b6488cdefd537dc7bf0551b231a17262f9057b9b25750f5d342c3",
+        "bytes": 2032
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/scripts/lesson_common.py",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/scripts/lesson_common.py",
+        "sha256": "cb5e33b03ddebf19a82cb76e84237077d565a872bfa6a81918d3e0d7dca9e2ce",
+        "bytes": 33326
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/scripts/render_all.sh",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/scripts/render_all.sh",
+        "sha256": "03f4397c31f9f9a5b50beac5f001b77f6cd923c72611bdaba2410e47ce42cec2",
+        "bytes": 2132
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/scripts/render_documents.py",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/scripts/render_documents.py",
+        "sha256": "b448cc28fda0c8a24364e83c73e9b29ef1f6c7d53748dc3dd7854f571030b442",
+        "bytes": 4677
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/scripts/render_lesson_docx.py",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/scripts/render_lesson_docx.py",
+        "sha256": "1c09071be8de48479d03646df7068551bcc9bcc5df5ae1fdb4cc7883f7ca7586",
+        "bytes": 25982
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/scripts/render_lesson_html.py",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/scripts/render_lesson_html.py",
+        "sha256": "037501bf3b72eb1caea00d52ed23f50310f59c786230ba9c62520602a96cc4de",
+        "bytes": 17148
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/scripts/theme.css",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-differentiation/scripts/theme.css",
+        "sha256": "89edea0fa28473d61f1a18a950af7cf8d836b20b071f5a42322275ac57d4b5a6",
+        "bytes": 5293
+      },
+      {
+        "name": "k12-lesson-differentiation",
+        "file": "k12-lesson-differentiation/NOTICE",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/NOTICE",
+        "sha256": "649801521f6c04ba05677caf2d58d29a5a92d20841334b929fa7ddc1553b02a4",
+        "bytes": 208
+      }
+    ]
+  },
+  {
+    "name": "k12-lesson-prep",
+    "repo": "anthropics/k12-teacher-skills",
+    "commit": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+    "upstream_path": "plugin/skills/k12-lesson-prep/SKILL.md",
+    "license": "Apache-2.0",
+    "files": [
+      {
+        "name": "k12-lesson-prep",
+        "file": "k12-lesson-prep/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-prep/LICENSE",
+        "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+        "bytes": 11357
+      },
+      {
+        "name": "k12-lesson-prep",
+        "file": "k12-lesson-prep/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-lesson-prep/SKILL.md",
+        "sha256": "cfca47967fc70625f92756a7f1228ed1176050772a46e43e73e38112c85354a3",
+        "bytes": 2093
+      },
+      {
+        "name": "k12-lesson-prep",
+        "file": "k12-lesson-prep/NOTICE",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/NOTICE",
+        "sha256": "649801521f6c04ba05677caf2d58d29a5a92d20841334b929fa7ddc1553b02a4",
+        "bytes": 208
+      }
+    ]
+  },
+  {
+    "name": "k12-check-for-understanding",
+    "repo": "anthropics/k12-teacher-skills",
+    "commit": "31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c",
+    "upstream_path": "plugin/skills/k12-check-for-understanding/SKILL.md",
+    "license": "Apache-2.0",
+    "files": [
+      {
+        "name": "k12-check-for-understanding",
+        "file": "k12-check-for-understanding/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/LICENSE",
+        "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+        "bytes": 11357
+      },
+      {
+        "name": "k12-check-for-understanding",
+        "file": "k12-check-for-understanding/NOTICE",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/NOTICE",
+        "sha256": "069fd4b90c886db2dbed74fcf5ebf45f886d7fec194b63a3f0d3186833cf2c09",
+        "bytes": 320
+      },
+      {
+        "name": "k12-check-for-understanding",
+        "file": "k12-check-for-understanding/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/SKILL.md",
+        "sha256": "152e3272fbd108fedf2b7ee43fba71422c807b379500dabc04688b3185809e7f",
+        "bytes": 8666
+      },
+      {
+        "name": "k12-check-for-understanding",
+        "file": "k12-check-for-understanding/references/learning-commons-kg.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/references/learning-commons-kg.md",
+        "sha256": "fba868d6d52e4ffe790fd356c7acfdd0ae044e12c99f0f4391397277c9d32e93",
+        "bytes": 3410
+      },
+      {
+        "name": "k12-check-for-understanding",
+        "file": "k12-check-for-understanding/references/math.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/references/math.md",
+        "sha256": "a2a73b86b8a6bc00e9d08d4ab4dc377cbb553387a9a7aa02bf2e57e104f5f2ef",
+        "bytes": 6875
+      },
+      {
+        "name": "k12-check-for-understanding",
+        "file": "k12-check-for-understanding/references/output.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/references/output.md",
+        "sha256": "a45f5742f4040f383ffbf5c47b3528e0dbae913a1a96613bf965b792923b9ec5",
+        "bytes": 11809
+      },
+      {
+        "name": "k12-check-for-understanding",
+        "file": "k12-check-for-understanding/references/verification.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/references/verification.md",
+        "sha256": "5a42b87056233f406a5eaecab36b737b43194dc40b2517b3731bbc28510d5412",
+        "bytes": 5170
+      },
+      {
+        "name": "k12-check-for-understanding",
+        "file": "k12-check-for-understanding/rendering/claude-artifact.md",
+        "upstream": "https://raw.githubusercontent.com/anthropics/k12-teacher-skills/31fd6dbb0c07cb50bb3ce7f62a4135a393bd0e8c/plugin/skills/k12-check-for-understanding/rendering/claude-artifact.md",
+        "sha256": "7581899c842efcd7a62daca5bbae86aad326606b798ab7ab50dce54ab370517d",
+        "bytes": 1722
+      }
+    ]
+  },
+  {
+    "name": "ai-socratic-tutor",
+    "repo": "bstellato/ai-teaching-skills",
+    "commit": "6d3f85726e7b0fedacc8a078e174161293777044",
+    "upstream_path": "ai-socratic-tutor/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "ai-socratic-tutor",
+        "file": "ai-socratic-tutor/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/ai-socratic-tutor/SKILL.md",
+        "sha256": "90e62cff194687baea2392304a84a62bd835b4627d19393806b3053ecbb29d07",
+        "bytes": 4020
+      },
+      {
+        "name": "ai-socratic-tutor",
+        "file": "ai-socratic-tutor/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/LICENSE",
+        "sha256": "b6f81aea546a126222fcc866caf8bb11c28938a0faacafe523987fce2c9cb88b",
+        "bytes": 1076
+      }
+    ]
+  },
+  {
+    "name": "ai-novice",
+    "repo": "bstellato/ai-teaching-skills",
+    "commit": "6d3f85726e7b0fedacc8a078e174161293777044",
+    "upstream_path": "ai-novice/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "ai-novice",
+        "file": "ai-novice/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/ai-novice/SKILL.md",
+        "sha256": "42781b68fc3a411378d5273608753905dc650719a4c74a263dec77549a873694",
+        "bytes": 2555
+      },
+      {
+        "name": "ai-novice",
+        "file": "ai-novice/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/LICENSE",
+        "sha256": "b6f81aea546a126222fcc866caf8bb11c28938a0faacafe523987fce2c9cb88b",
+        "bytes": 1076
+      }
+    ]
+  },
+  {
+    "name": "ai-solution-study",
+    "repo": "bstellato/ai-teaching-skills",
+    "commit": "6d3f85726e7b0fedacc8a078e174161293777044",
+    "upstream_path": "ai-solution-study/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "ai-solution-study",
+        "file": "ai-solution-study/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/ai-solution-study/SKILL.md",
+        "sha256": "2dc7258d9753fcec07e3b95bb99b53be275cc39d1f9f015973d0667e69c010e7",
+        "bytes": 3571
+      },
+      {
+        "name": "ai-solution-study",
+        "file": "ai-solution-study/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/bstellato/ai-teaching-skills/6d3f85726e7b0fedacc8a078e174161293777044/LICENSE",
+        "sha256": "b6f81aea546a126222fcc866caf8bb11c28938a0faacafe523987fce2c9cb88b",
+        "bytes": 1076
+      }
+    ]
+  },
+  {
+    "name": "anything-to-course",
+    "repo": "lowwwbank/anything-to-course",
+    "commit": "f11bbf21572a9864759929946c2c3da6857e1744",
+    "upstream_path": "SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/LICENSE",
+        "sha256": "d41346e796d60942d0cc8370e765a1260a64382f55a95dabd91ac64d62e1965b",
+        "bytes": 1066
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/README.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/README.md",
+        "sha256": "f3d60da6c794bdd5ce65636654167990708240c3fb1479d4cdd57cf432913687",
+        "bytes": 13209
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/SKILL.md",
+        "sha256": "fc8d618dbdd946458f803c568c30bb2bfbbacdabcb34618d6ee9c0834f4d8ec6",
+        "bytes": 9800
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/assets/social-preview.jpg",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/assets/social-preview.jpg",
+        "sha256": "5c324f367644bee60e31ff4e719e302b35d7e7048de7866e3f7ced56150bbc18",
+        "bytes": 460673
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/README.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/README.md",
+        "sha256": "71b623a87fe7ff30285f8a0d7fd53a4c9377847cd350aaf66945bd3c41ea4da7",
+        "bytes": 1903
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/00-syllabus.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/00-syllabus.md",
+        "sha256": "0a1df28275b6a74881120677cf31688a0bcd0b292a6a55d9bd5600081d9c6a65",
+        "bytes": 3003
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/answers/module-1.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/answers/module-1.md",
+        "sha256": "3ea8e516578a6f0fc1df1c703cb85a9a5d87dd697911b01088bed7a03cafc047",
+        "bytes": 4424
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/answers/module-2.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/answers/module-2.md",
+        "sha256": "a90902290a57375bff1c7fceb65e661e5c81f0ba4d4d65870ee39fc82a88ddf5",
+        "bytes": 3956
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/answers/prerequisites.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/answers/prerequisites.md",
+        "sha256": "0f28ae9ff24228bd25dc8064e98569c3b70ffc838847f27ee7beb8c62bbbed35",
+        "bytes": 816
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/modules/01-filtering-rows/00-overview.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/modules/01-filtering-rows/00-overview.md",
+        "sha256": "2f2f85e861b44b80ab3be025721302b678c4b3cc5a84a2340d1b6751e1a891b1",
+        "bytes": 1460
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/modules/01-filtering-rows/01-select-and-where.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/modules/01-filtering-rows/01-select-and-where.md",
+        "sha256": "848b64efbedb06ae72ca185cee4cc5efb7c8dcb12067fd8adec1a5299922d0f5",
+        "bytes": 3886
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/modules/01-filtering-rows/02-null-and-logic.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/modules/01-filtering-rows/02-null-and-logic.md",
+        "sha256": "2daf62d71d3d315c2aa656ceb9585fa5719130b3628b7b3811b3ed2904abad4f",
+        "bytes": 4232
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/modules/01-filtering-rows/99-checkpoint.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/modules/01-filtering-rows/99-checkpoint.md",
+        "sha256": "81c5f057fa4f30b3ecad6bb818082d5a763ce3c6e768e70861b034c7816bda0c",
+        "bytes": 1810
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/modules/02-aggregation/00-overview.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/modules/02-aggregation/00-overview.md",
+        "sha256": "4bb74fcf261d44f58168395201587ba43463bebed9babbf5dd89deda723a0306",
+        "bytes": 1437
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/modules/02-aggregation/01-group-by-having.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/modules/02-aggregation/01-group-by-having.md",
+        "sha256": "9da66056146bb1fb81fb46e647ba5d499b2946256c03c31e386558d02db5cc87",
+        "bytes": 4141
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/modules/02-aggregation/99-checkpoint.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/modules/02-aggregation/99-checkpoint.md",
+        "sha256": "90d811e0c6aed5d810984c5063468ef1d9f5b4abfc6a837a01d8a9bd1dcb1e0f",
+        "bytes": 2118
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/example-course/sql-for-analysts/review-schedule.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/example-course/sql-for-analysts/review-schedule.md",
+        "sha256": "f1fbdf21ef4cc4ceacaab72ea2e0f4311e6ce682bbdc4a916aca9d91e947877a",
+        "bytes": 1749
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/examples/sample-lesson.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/examples/sample-lesson.md",
+        "sha256": "632bc7b6b6c02386e84c0a5ca27c09fd7f70bef9ef25442b76847d1a24339346",
+        "bytes": 4073
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/references/course-blueprint.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/references/course-blueprint.md",
+        "sha256": "134699f8febb8ed507848a5414421b787832b8438491d5458d1160c9bdd2d78d",
+        "bytes": 7095
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/references/learning-science.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/references/learning-science.md",
+        "sha256": "5fc5950493d8312795356cb22c31173c47905cc0599beb847432f616ead4dfb3",
+        "bytes": 10222
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/references/practice-design.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/references/practice-design.md",
+        "sha256": "71199293e7a967e3f0a2e00a440c45d621f78a1ba75137e5349e7e7510220f1f",
+        "bytes": 6739
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/references/quality-rubrics.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/references/quality-rubrics.md",
+        "sha256": "633f7ea2d412d563103b4e9211543b67dc08c49e6a3a9957cc9ae618f7364485",
+        "bytes": 5817
+      },
+      {
+        "name": "anything-to-course",
+        "file": "anything-to-course/references/study-mode.md",
+        "upstream": "https://raw.githubusercontent.com/lowwwbank/anything-to-course/f11bbf21572a9864759929946c2c3da6857e1744/references/study-mode.md",
+        "sha256": "72c6f64dcba9d1b7fbc125820490207c5065ae2f3b30b7bae7222efa1dd3c2d9",
+        "bytes": 3860
+      }
+    ]
+  },
+  {
+    "name": "teach-concept",
+    "repo": "yugash007/edu-agent-skills",
+    "commit": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+    "upstream_path": "skills/teaching/teach-concept/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "teach-concept",
+        "file": "teach-concept/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/teaching/teach-concept/SKILL.md",
+        "sha256": "55d4809b901e233b0f6095fdfdb98bba6dd90b62452754f82184a3c0a3ce8a8d",
+        "bytes": 2801
+      },
+      {
+        "name": "teach-concept",
+        "file": "teach-concept/examples.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/teaching/teach-concept/examples.md",
+        "sha256": "8d56ee6cf74208d03cc66323f06b4be89c2254e1b3a91d92e05a197f84147ec8",
+        "bytes": 1281
+      },
+      {
+        "name": "teach-concept",
+        "file": "teach-concept/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/LICENSE",
+        "sha256": "591a421738b7ace6a07fb9dd385988b2af06190c3899130d24722e05e8340145",
+        "bytes": 1086
+      }
+    ]
+  },
+  {
+    "name": "simplify-topic",
+    "repo": "yugash007/edu-agent-skills",
+    "commit": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+    "upstream_path": "skills/teaching/simplify-topic/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "simplify-topic",
+        "file": "simplify-topic/README.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/teaching/simplify-topic/README.md",
+        "sha256": "fcec6a684db3ac06ba1946f62b9c9458cef741326e1133b892f66abef2421c53",
+        "bytes": 766
+      },
+      {
+        "name": "simplify-topic",
+        "file": "simplify-topic/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/teaching/simplify-topic/SKILL.md",
+        "sha256": "46631bd45b5f34b89821e61355b8e2538bd3b45fbd54372e4fb730fbed52bbb7",
+        "bytes": 3966
+      },
+      {
+        "name": "simplify-topic",
+        "file": "simplify-topic/examples.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/teaching/simplify-topic/examples.md",
+        "sha256": "a03f51f0bcbd23f680f6634d9748052a471b6b547d3cda8793ddfdd4054ac30f",
+        "bytes": 2068
+      },
+      {
+        "name": "simplify-topic",
+        "file": "simplify-topic/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/LICENSE",
+        "sha256": "591a421738b7ace6a07fb9dd385988b2af06190c3899130d24722e05e8340145",
+        "bytes": 1086
+      }
+    ]
+  },
+  {
+    "name": "socratic-mode",
+    "repo": "yugash007/edu-agent-skills",
+    "commit": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+    "upstream_path": "skills/teaching/socratic-mode/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "socratic-mode",
+        "file": "socratic-mode/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/teaching/socratic-mode/SKILL.md",
+        "sha256": "456ce8d9a38b47af5657161f15d0ad1a8b5be625d905d57f425307f2f127a2f2",
+        "bytes": 2537
+      },
+      {
+        "name": "socratic-mode",
+        "file": "socratic-mode/examples.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/teaching/socratic-mode/examples.md",
+        "sha256": "2107101f583c8a911ef1ddec6e0c1671b95d007abd52fc67750fe3469fc84ff2",
+        "bytes": 1184
+      },
+      {
+        "name": "socratic-mode",
+        "file": "socratic-mode/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/LICENSE",
+        "sha256": "591a421738b7ace6a07fb9dd385988b2af06190c3899130d24722e05e8340145",
+        "bytes": 1086
+      }
+    ]
+  },
+  {
+    "name": "misconception-detector",
+    "repo": "yugash007/edu-agent-skills",
+    "commit": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+    "upstream_path": "skills/assessment/misconception-detector/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "misconception-detector",
+        "file": "misconception-detector/README.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/assessment/misconception-detector/README.md",
+        "sha256": "95c9e8cfb05d35fecd1195766311c7eb6c84f35a97635dbf5862ccac175b9c3f",
+        "bytes": 782
+      },
+      {
+        "name": "misconception-detector",
+        "file": "misconception-detector/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/assessment/misconception-detector/SKILL.md",
+        "sha256": "fd1ca57efaf0848dfdce322bcb61c834cd3e172df8df8efc7c78585224e4a87e",
+        "bytes": 4030
+      },
+      {
+        "name": "misconception-detector",
+        "file": "misconception-detector/examples.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/assessment/misconception-detector/examples.md",
+        "sha256": "757bba16429864a1a15ba9bf978456058960f90f2205cbe594b0527942cd4ca7",
+        "bytes": 2329
+      },
+      {
+        "name": "misconception-detector",
+        "file": "misconception-detector/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/LICENSE",
+        "sha256": "591a421738b7ace6a07fb9dd385988b2af06190c3899130d24722e05e8340145",
+        "bytes": 1086
+      }
+    ]
+  },
+  {
+    "name": "check-understanding",
+    "repo": "yugash007/edu-agent-skills",
+    "commit": "e75f44303570bb2eae37a8f7536c0358be2502ee",
+    "upstream_path": "skills/assessment/check-understanding/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "check-understanding",
+        "file": "check-understanding/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/assessment/check-understanding/SKILL.md",
+        "sha256": "fbcd0be7500df8e22e69860a2eb213b726b62ced669b8fd044a3e129793cbf10",
+        "bytes": 2239
+      },
+      {
+        "name": "check-understanding",
+        "file": "check-understanding/examples.md",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/skills/assessment/check-understanding/examples.md",
+        "sha256": "fe01b5b205dfba750e5461892953b93f68b6722f5bf2d2024354728b6e03971c",
+        "bytes": 1218
+      },
+      {
+        "name": "check-understanding",
+        "file": "check-understanding/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/yugash007/edu-agent-skills/e75f44303570bb2eae37a8f7536c0358be2502ee/LICENSE",
+        "sha256": "591a421738b7ace6a07fb9dd385988b2af06190c3899130d24722e05e8340145",
+        "bytes": 1086
+      }
+    ]
+  },
+  {
+    "name": "agent-socratic-tutor",
+    "repo": "hezkvectory/hermes-edu-skills",
+    "commit": "b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030",
+    "upstream_path": "skills/learning-core/agent-socratic-tutor/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "agent-socratic-tutor",
+        "file": "agent-socratic-tutor/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/skills/learning-core/agent-socratic-tutor/SKILL.md",
+        "sha256": "6dae4dc695625aaa9caaddc99c304ca6f99781f7d39a48a1831881ab881ae3f6",
+        "bytes": 4636
+      },
+      {
+        "name": "agent-socratic-tutor",
+        "file": "agent-socratic-tutor/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/LICENSE",
+        "sha256": "94ad27c3fa1311f1e48a9ce97fbfb17c76147216f880f6d2a924cc0742946ede",
+        "bytes": 1065
+      }
+    ]
+  },
+  {
+    "name": "agent-question-explanation",
+    "repo": "hezkvectory/hermes-edu-skills",
+    "commit": "b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030",
+    "upstream_path": "skills/learning-core/agent-question-explanation/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "agent-question-explanation",
+        "file": "agent-question-explanation/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/skills/learning-core/agent-question-explanation/SKILL.md",
+        "sha256": "c1d0b8d4324134ebe5e01bd0f823f7e2d38a3acfbb696dd776a05cfdaf17628d",
+        "bytes": 5136
+      },
+      {
+        "name": "agent-question-explanation",
+        "file": "agent-question-explanation/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/LICENSE",
+        "sha256": "94ad27c3fa1311f1e48a9ce97fbfb17c76147216f880f6d2a924cc0742946ede",
+        "bytes": 1065
+      }
+    ]
+  },
+  {
+    "name": "agent-mistake-review",
+    "repo": "hezkvectory/hermes-edu-skills",
+    "commit": "b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030",
+    "upstream_path": "skills/learning-core/agent-mistake-review/SKILL.md",
+    "license": "MIT",
+    "files": [
+      {
+        "name": "agent-mistake-review",
+        "file": "agent-mistake-review/SKILL.md",
+        "upstream": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/skills/learning-core/agent-mistake-review/SKILL.md",
+        "sha256": "2129ee66b30871d5b0b4ae256c123063ab3dd96ed61578e7de79bf1c21053e41",
+        "bytes": 4637
+      },
+      {
+        "name": "agent-mistake-review",
+        "file": "agent-mistake-review/LICENSE",
+        "upstream": "https://raw.githubusercontent.com/hezkvectory/hermes-edu-skills/b1c32d71bf70902f5dcc36cbe0a2dd9dbd728030/LICENSE",
+        "sha256": "94ad27c3fa1311f1e48a9ce97fbfb17c76147216f880f6d2a924cc0742946ede",
+        "bytes": 1065
+      }
+    ]
+  },
+  {
+    "name": "book-tutor",
+    "repo": null,
+    "commit": null,
+    "license": "project-authored adaptation; no upstream license asserted",
+    "upstream_reference": "https://github.com/xixiaofinland/agent-skills/blob/6d98d5ba75f4bd50dda4a1f3f63c87a00e19cec8/skills/book-tutor/SKILL.md",
+    "files": [
+      {
+        "file": "book-tutor/SKILL.md",
+        "sha256": "7ffd314476e8390bba2e85874be61e7bf5dda4049acfa1e7eeba161b633078c8",
+        "bytes": 1530
+      }
+    ]
+  }
+]

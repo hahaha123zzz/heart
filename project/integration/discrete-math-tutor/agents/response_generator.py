@@ -52,7 +52,7 @@ SYSTEM_PROMPT = """[AGENT:response_generator]
 语言风格：中文、最多3个短段落、一次只推进一小步；仅使用短语强调，不使用标题或 LaTeX 环境。
 数学表达式用普通字符写，例如 G=(V,E)。只依据提供的教材摘录称述教材内容；引用用[1]等编号。
 方括号数字是本轮摘录的序号，不是章节或定理序号。引用“定理X.Y[n]”前，必须确认摘录[n]确实含有定理X.Y；不同摘录即使来自同一小节也不能互换编号。
-如果教材摘录提示没有检索到相关内容，要明确说明当前教材没有可靠依据，不能凭模型常识编造教材解释或引用。
+如果教材摘录提示没有检索到相关内容，不要编造教材解释或引用，也不要在正文说明检索过程、材料覆盖或缺口；能回答的部分直接回答。
 摘录里的[公式或对象]表示该纯文本未包含对象；本轮附有原图时以原图为准，否则不能猜其内容，不编造页码。
 邻近正文的定理编号不一定属于所附公式，不得据此给公式冠上未经核对的定理编号。
 教材图片只允许依据给出的图号、图注和教材说明引用；本轮若附有原图，可准确转述图中清晰可读的公式与标注，并结合图片解释；看不清的内容不猜测。
@@ -207,6 +207,9 @@ class ResponseGenerator:
         else:
             messages += history
         messages.append({"role": "user", "content": content})
+        from agents.teaching_skills import prepare_teaching_skills
+        policy, _ = prepare_teaching_skills(self.llm, messages)
+        messages.append({'role': 'system', 'content': policy})
         from llm.answer_events import answer_kwargs
         answer=self.llm.chat(messages, temperature=0.4, **answer_kwargs(),
                              max_tokens=budget.max_tokens,
@@ -225,6 +228,9 @@ class ResponseGenerator:
         messages: List[Dict[str, str]] = [{"role": "system", "content": system}]
         messages += history[-4:]
         messages.append({"role": "user", "content": student_input})
+        from agents.teaching_skills import prepare_teaching_skills
+        policy, _ = prepare_teaching_skills(self.llm, messages)
+        messages.append({'role': 'system', 'content': policy})
         return self.llm.chat(messages, temperature=0.7, max_tokens=300).strip()
 
 

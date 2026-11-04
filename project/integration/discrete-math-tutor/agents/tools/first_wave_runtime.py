@@ -91,12 +91,14 @@ def structured_gate(kind):
 
 def skill_catalog(root, course_id):
     from agents.tools.skill_tools import _skills, _read
-    allowed = {'reasoning-diagrams', 'experimental-design'} if course_id == 'experimental-psychology-3' else {'reasoning-diagrams', 'finite-structures'}
+    from agents.teaching_skills import allowed_skills
+    allowed = allowed_skills(root, course_id)
     rows = []
     for name in _skills(root):
         if name in allowed:
             text, _ = _read(root, name, 'SKILL.md')
-            description = next((line.strip() for line in text.splitlines() if line.strip() and not line.startswith(('#', '---'))), '')
+            match = re.search(r'(?m)^description:\s*(.*(?:\n[ \t]+[^\n]+)*)', text)
+            description = re.sub(r'\s+', ' ', match[1]).strip(" \"'>|") if match else next((line.strip() for line in text.splitlines() if line.strip() and not line.startswith(('#', '---'))), '')
             rows.append(f'- {name}: {description[:180]}')
     return '\n可读取的当前课程技能（技能不是教材事实依据，也不代表已生成图解）：\n' + '\n'.join(rows) if rows else ''
 

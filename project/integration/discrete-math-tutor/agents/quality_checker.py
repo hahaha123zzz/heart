@@ -97,7 +97,10 @@ class QualityChecker:
     ) -> QualityResult:
         from llm.answer_events import checking
         checking()
+        from agents.teaching_skills import current_teaching_skills
+        skill_policy = current_teaching_skills.get()
         rule_context = dict(context or {})
+        rule_context['teaching_skills'] = bool(skill_policy)
         rule_context["question_options"] = bool(question_spec is not None and question_spec.options)
         rule_context["task_proof"] = bool(not PSYCHOLOGY and task_execution is not None and task_execution.proof_requested)
         rule_context['task_comparison'] = bool(task_execution is not None and 'compare' in task_execution.learning_intents and not task_execution.hint_only)
@@ -141,7 +144,7 @@ class QualityChecker:
             content += ("\n本轮按一般心理学知识做课堂补充，当前没有可引用的教材摘录。"
                         "不要仅因缺少教材引文或原书没有同款教学例子而拒绝；"
                         "核对回答是否把补充说成教材原话、虚构具体研究结果，或明显违背实验心理学基本概念。"
-                        "允许简明诚实地说明这是课堂补充。")
+                        "不要求说明材料来源或覆盖范围。")
         elif not rule_context.get("agent_loop"):
             content += "\n逐项核对本轮明确要求：遗漏任一比较对象、指定理由、例子或关键条件，应要求补齐；仅提示不应补最终结论。短但漏答不能判通过。"
         if rule_context.get('grounded_evidence'):
@@ -150,7 +153,7 @@ class QualityChecker:
             import json
             content += ("\n本轮是适应性教学，以下状态仅用于当前教法，不是正式成绩："
                         + json.dumps(rule_context["adaptive_teaching"], ensure_ascii=False)
-                        + "\n允许符合已核验概念、明确标为教学示例的假设情境，不要求原书有同一句例子。"
+                        + "\n允许符合已核验概念、未冒充教材原文的假设情境，不要求原书有同一句例子，也不要求正文显示来源标签。"
                         "学生说没懂时应换讲法；若有练习反馈，要对照原问题和学生原话核验，不能盲从暂定判断。"
                         "末尾的小步检查是等待学生作答，不要求本轮给出其答案；不得据此称讲解不完整。"
                         "先讲不考时不强制出题。解释过或答对一次都不等于正式掌握整章。")
@@ -215,6 +218,12 @@ class QualityChecker:
             messages[0]["content"] += "\n学生明确说自己受挫：只有回复先用一句自然的话承认困难，再继续完成解释，才通过；拒绝训斥、淡化感受、‘先别急’及关于掌握度或系统评估的表述。"
         if rule_context.get("answer_feedback", {}).get("mode") == "check_self_report":
             messages[0]["content"] += "\n学生刚自述理解：只用自然邀请引出一道围绕刚讲过要点的小检查，不说明平台判断能力的内部规则。确认历史上已核验的具体回答正确，不等于声称学生已掌握；不得把这两者混同。"
+        if skill_policy:
+            messages.append({'role': 'system', 'content': skill_policy +
+                '\n这是现有质量核验阶段，不执行技能工作流。教学方法以本轮实际读取的技能为优先参考；'
+                '技能优先于旧教学计划、提示强度、固定段落和默认节奏；不能仅因偏离这些旧规则拒绝。'
+                '继续核对事实、引用、用户当前任务、工具权限、评分和状态真实性。'
+                '仍严格返回原核验JSON。'})
         started=time.perf_counter()
         proof_required=needs_proof_audit(student_input,response,plan.action) or rule_context["task_proof"]
 
@@ -267,13 +276,13 @@ class QualityChecker:
     ) -> List[str]:
         issues: List[str] = []
         ctx = context or {}
-        if plan.action in ("ask_question", "give_hint"):
+        if plan.action in ("ask_question", "give_hint") and not ctx.get("teaching_skills"):
             for marker in LEAK_MARKERS:
                 if marker in response:
                     issues.append("计划要求提问/引导，但回复包含疑似答案泄露：" + marker)
         ctx = context or {}
         snapshot=ctx.get('graph_snapshot')
-        if snapshot and (plan.action == 'give_hint' or snapshot.get('answer_scope') == 'hint'):
+        if snapshot and ((not ctx.get('teaching_skills') and plan.action == 'give_hint') or snapshot.get('answer_scope') == 'hint'):
             if re.search(r'(?:因此|所以|故|本图|这张图|该图|当前图|它)[^。！？\n]{0,32}(?:没有|不存在|存在|有)(?:非闭合)?欧拉(?:回路|通路|路径)', response):
                 issues.append('仅提示图的回复给出了当前图的最终判定')
             ids=[node['id'] for node in snapshot['graph']['nodes']]
@@ -281,7 +290,7 @@ class QualityChecker:
                 issues.append('仅提示图的回复给出了全部顶点度数')
         previous_reply = (ctx.get("previous_reply") or "").strip()
         table = ctx.get('truth_table_snapshot')
-        if table and (plan.action == 'give_hint' or table.get('answer_scope') == 'hint'):
+        if table and ((not ctx.get('teaching_skills') and plan.action == 'give_hint') or table.get('answer_scope') == 'hint'):
             # 核对已知 p/q 真值或询问“是否同时为真”是提示，不是当前公式结论。
             value = r'(?:真|假|[01]|True|False)'
             result_statement = r'(?<![pq]的)(?:本行|这一行|该行|当前行|结果|真值|公式(?:结果|的真值)?)\s*(?:的(?:公式)?(?:结果|真值))?\s*(?:应)?(?:为|是|等于|=|：)\s*'+value
@@ -290,7 +299,7 @@ class QualityChecker:
             if re.search(result_statement,compact,re.I) or re.search(formula_statement,compact,re.I):
                 issues.append('仅提示真值表回复给出了当前行的最终真值')
         relation=ctx.get('relation_snapshot')
-        if relation and (plan.action=='give_hint' or relation.get('answer_scope')=='hint'):
+        if relation and ((not ctx.get('teaching_skills') and plan.action=='give_hint') or relation.get('answer_scope')=='hint'):
             compact=re.sub(r'\s+','',response)
             if re.search(r'(?:本关系|当前关系|这个关系|该关系|关系R|R)(?:是|不是|满足|不满足|具有|不具有|为)(?:自反|反自反|对称|反对称|传递)',compact):
                 issues.append('仅提示关系回复给出了当前实例的性质结论')
@@ -307,7 +316,7 @@ class QualityChecker:
             if old_topic and old_topic in response and current_topic not in response:
                 issues.append("已切换到新知识点，但回复仍在讲旧知识点：" + old_topic)
         recent_moves = ctx.get("recent_moves") or []
-        if len(recent_moves) >= 3 and len(set(recent_moves[-3:])) == 1 and not ctx.get('explicit_task'):
+        if len(recent_moves) >= 3 and len(set(recent_moves[-3:])) == 1 and not ctx.get('explicit_task') and not ctx.get('teaching_skills'):
             issues.append(
                 "教学动作连续 3 轮未变化（" + str(recent_moves[-1]) + "），教学可能没有推进"
             )

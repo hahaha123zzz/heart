@@ -227,6 +227,9 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
     if action != 'grade':
         from llm.answer_events import answer_kwargs
         messages[0]['content'] += '\n本次只输出面向学生的 reply 正文，不输出 JSON 或内部思考。'
+        from agents.teaching_skills import prepare_teaching_skills
+        policy, _ = prepare_teaching_skills(main.orchestrator.llm, messages)
+        messages.append({'role':'system','content':policy})
         result={'reply':main.orchestrator.llm.chat(messages,temperature=.1,
             max_tokens=min(8000,1800+len(parts)*550),image_paths=resolved['images'],**answer_kwargs())}
     else:

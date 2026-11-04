@@ -46,6 +46,17 @@ class FakeLLM:
     def __init__(self, *payloads):
         self.payloads = list(payloads)
         self.calls = []
+        self.skill_calls = []
+
+    def chat_with_tools(self, messages, tools, **kwargs):
+        from types import SimpleNamespace
+        name = ('teaching-skills', 'book-tutor', None)[len(self.skill_calls) % 3]
+        self.skill_calls.append(messages)
+        calls = [] if name is None else [SimpleNamespace(
+            id='skill-' + str(len(self.skill_calls)), name='read_skill',
+            arguments={'name': name}, extra_content=None)]
+        return SimpleNamespace(text='SKILLS_READY' if name is None else '',
+                               tool_calls=calls, finish_reason='stop' if name is None else 'tool_calls')
 
     def chat_json(self, messages, **kwargs):
         self.calls.append(messages)
@@ -181,6 +192,9 @@ class HandlerTests(unittest.TestCase):
         self.assertFalse(result.get("teaching", {}).get("formal_mastery", False))
         self.assertFalse(result["step_advanced"])
         self.assertEqual(len(llm.calls), 1)
+        self.assertEqual([row['skill'] for row in result['teaching_skills']],
+                         ['teaching-skills', 'book-tutor'])
+        self.assertEqual(len(llm.skill_calls), 3)
         LearningResponse.model_validate(result["learning_response"])
         self.assertTrue(result["sources"])
 

@@ -19,6 +19,7 @@
   if(!Array.isArray(cards))return '';
   return cards.slice(0,4).map(card=>{
    if(!['learning-cards/v1','learning-cards/v2'].includes(card?.schema)||!text(card.title)||!text(card.card_id)||!Number.isInteger(card.revision))return '';
+   if(card.kind==='learning_progress')return '';
    known.set(card.card_id,{card,context});if(known.size>200)known.delete(known.keys().next().value);
    if(card.kind==='assessment_question')return card.schema==='learning-cards/v2'?question(card):'';
    let expanded=[];
@@ -40,7 +41,7 @@
     if(!Array.isArray(card.labels)||card.labels.length!==2||!card.labels.every(text)||!Array.isArray(card.rows)||card.rows.length<1||card.rows.length>6||!card.rows.every(row=>text(row.aspect)&&text(row.left)&&text(row.right)))return '';
     body='<div class="learning-card-table"><table><thead><tr><th scope="col">比较角度</th>'+card.labels.map(label=>'<th scope="col">'+esc(label)+'</th>').join('')+'</tr></thead><tbody>'+card.rows.map(row=>'<tr><th scope="row">'+esc(row.aspect)+refs(row.source_indices)+'</th><td><p>'+prose(row.left)+'</p></td><td><p>'+prose(row.right)+'</p></td></tr>').join('')+'</tbody></table></div>';
    }else return '';
-   return '<details class="learning-card" data-learning-card="'+esc(card.card_id)+'" data-card-revision="'+card.revision+'" data-card-kind="'+card.kind+'"'+open(0)+'><summary>'+(card.kind==='learning_progress'?'学习记录 · ':'')+esc(card.title)+'</summary>'+body+'<p role="status" aria-live="polite" data-card-notice></p></details>';
+   return '<details class="learning-card" data-learning-card="'+esc(card.card_id)+'" data-card-revision="'+card.revision+'" data-card-kind="'+card.kind+'"'+open(0)+'><summary>'+esc(card.title)+'</summary>'+body+'<p role="status" aria-live="polite" data-card-notice></p></details>';
   }).join('');
  }
  const notice=(element,message)=>{const p=element.querySelector('[data-card-notice]');if(p)p.textContent=message};

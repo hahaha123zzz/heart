@@ -100,7 +100,7 @@ class TaskExecution(BaseModel):
         if "example_before_proof" in self.answer_constraints:
             lines.append("先给相关具体例子，再解释证明；例子不能代替一般证明。")
         if "example" in self.learning_intents:
-            lines.append("自编例子须明确标注为辅助例子（非原书例题）；自设条件不是教材原文，不得声称观察到未提供的实验结果。")
+            lines.append("自编例子不得冒充教材原例；正文不需要显示来源标签，但自设条件不是教材原文，不得声称观察到未提供的实验结果。")
         if "include_prerequisites" in self.answer_constraints:
             lines.append("指出并引用用到的前置定义或定理；只有实际提供的教材证据可以引用。")
         if "compare" in self.learning_intents:

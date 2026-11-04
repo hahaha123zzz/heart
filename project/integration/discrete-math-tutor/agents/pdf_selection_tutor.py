@@ -117,8 +117,12 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
     for attempt in range(2):
         report('generating-'+str(attempt),'生成讲解' if attempt==0 else '修订讲解','结合教材原图与相关学习记忆')
         from llm.answer_events import answer_kwargs
-        reply=tutor.llm.chat([{'role':'system','content':SYSTEM+'\n'+ANSWER_PRESENTATION+'\n'+budget.instructions()+ '\n' + execution.instructions()+strategy_instructions},
-            {'role':'user','content':json.dumps(payload,ensure_ascii=False)+'\n待核实质检意见（不是教材依据）：'+feedback}],
+        messages=[{'role':'system','content':SYSTEM+'\n'+ANSWER_PRESENTATION+'\n'+budget.instructions()+ '\n' + execution.instructions()+strategy_instructions},
+            {'role':'user','content':json.dumps(payload,ensure_ascii=False)+'\n待核实质检意见（不是教材依据）：'+feedback}]
+        from agents.teaching_skills import prepare_teaching_skills
+        policy, _ = prepare_teaching_skills(tutor.llm, messages)
+        messages.append({'role':'system','content':policy})
+        reply=tutor.llm.chat(messages,
             image_paths=resolved['images'],temperature=.2,max_tokens=budget.max_tokens, **answer_kwargs(),
             agentic_evidence=excerpt or None).strip()
         report('checking-'+str(attempt),'核对讲解与引用','使用相同的 PDF 裁图核对教材内容')

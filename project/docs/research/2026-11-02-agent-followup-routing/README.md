@@ -18,6 +18,8 @@
 6. [实施计划](IMPLEMENTATION_PLAN_20261102.md)：待执行的P0–P5阶段、24条验收用例、兼容检查和8000集成回退要求。
 7. [教学表达与自动图解专项计划](TEACHING_VISUALIZATION_IMPLEMENTATION_PLAN_20261103.md)：T0–T5实施、已有小修复状态、12类验收与8000启用要求。
 8. [自动图解稳定性与DeepTutor源码对照](DEEPTUTOR_VISUAL_STABILITY_COMPARISON_20261103.md)：最新两个失败任务的阶段定位、上游在线源码与blob核对、长期未收敛原因及后续改进建议。
+9. [T3.2 对话内容语义展示实施计划](T3_2_CONVERSATION_PRESENTATION_IMPLEMENTATION_PLAN_20261103.md)：现有语义块的展示规则、前端改动范围、S0–S3步骤、8000验收和T4/T5交接要求。
+10. [教学回答组织与老师感调研](TEACHER_LIKE_RESPONSES_RESEARCH_20261103.md)：Study Mode、LearnLM、Claude Learning mode、Tutor CoPilot/Bridge、DeepTutor和OpenTutor的行为/源码对照；当前固定块组合的限制与有边界动态组织建议。附[固定源码与许可清单](TEACHER_LIKE_RESPONSES_SOURCE_AUDIT_20261103.json)。
 
 相关本地证据：[六层失败核查](../2026-10-31-layer4-evidence-execution/FECHNER_FOLLOWUP_SIX_LAYER_AUDIT_20261102.md)、[此前第五层参与情况](../2026-10-19-deeptutor-conversation-flow/RESPONSE_COMPOSITION_FECHNER_AUDIT_20261102.md)。未将学生原始聊天复制进本调研目录。
 

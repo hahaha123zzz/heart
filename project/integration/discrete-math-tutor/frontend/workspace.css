@@ -46,3 +46,40 @@ body:is([data-workspace-view="quiz"],[data-workspace-view="learning"]) .main-con
 #quiz-view #practice-help-panel{margin-top:20px;padding:18px 0;border-top:1px solid var(--line);overflow:visible}
 
 .answer-text{white-space:pre-wrap;line-height:1.85}.answer-text strong{font-weight:700;color:#243e51}.answer-text mark{color:#283d46;background:#fff0ba;padding:1px 3px;border-radius:3px;box-decoration-break:clone}.answer-text code{font-family:Consolas,monospace;background:#f0f3f5;padding:1px 4px;border-radius:3px}
+
+/* Keep the sidebar library space on the learning page so other sidebar items do not move. */
+body[data-workspace-view=home] .sidebar-library,body[data-workspace-view=learning] .sidebar-library{visibility:hidden}
+.image-viewer{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px;background:#0b1720d9;backdrop-filter:blur(2px)}
+.image-viewer img{max-width:min(94vw,1500px);max-height:84vh;width:auto;height:auto;object-fit:contain;background:#fff;border-radius:6px;box-shadow:0 14px 50px #0009}
+.image-viewer-caption{max-width:90vw;margin:0;color:#fff;font-size:12px;line-height:1.6;text-align:center;overflow-wrap:anywhere}
+.image-viewer-close{position:absolute;top:14px;right:18px;width:36px;height:36px;border:1px solid #ffffff55;border-radius:50%;background:#0b172099;color:#fff;font-size:22px;line-height:1;cursor:pointer}
+.image-viewer-close:hover{background:#ffffff22}
+.textbook-figure a[href*="/api/figures/"],.inline-formula{cursor:zoom-in}
+/* 回答处理状态：只保留一行概述，详细步骤默认折叠。 */
+.turn-progress{--progress-accent:var(--accent);min-width:0;border:1px solid var(--line);border-radius:8px;background:linear-gradient(180deg,#fbfcfb,#f6f8f8);padding:0;margin:0 0 12px;box-shadow:none;color:#5b6b76;font-size:12px;overflow:hidden}
+.turn-progress>summary{display:flex;align-items:center;gap:9px;min-height:36px;padding:8px 10px;margin:0;list-style:none;cursor:pointer;color:#5b6b76}
+.turn-progress>summary::-webkit-details-marker{display:none}
+.progress-heading strong{font-size:12px;font-weight:500;letter-spacing:.1px}
+.progress-copy{flex:1;min-width:0;display:flex;align-items:center}
+.progress-title{display:inline-block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;animation:progress-fade-in .38s ease both}
+.progress-elapsed{margin-left:0;font-size:10px;color:var(--muted);white-space:nowrap;flex:0 0 auto}
+.progress-chevron{margin-left:2px;color:#9aa6ad;font-size:12px;line-height:1;transition:transform .2s ease}
+.turn-progress[open] .progress-chevron{transform:rotate(180deg)}
+.progress-orbit{position:relative;width:18px;height:18px;flex:0 0 18px}
+.progress-orbit i{position:absolute;inset:0;animation:progress-orbit 1.15s linear infinite}
+.progress-orbit i::after{content:'';position:absolute;left:50%;top:0;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--progress-accent)}
+.progress-orbit i:nth-child(2){animation-delay:-.12s}.progress-orbit i:nth-child(2)::after{width:3.6px;height:3.6px;opacity:.72}
+.progress-orbit i:nth-child(3){animation-delay:-.24s}.progress-orbit i:nth-child(3)::after{width:3.2px;height:3.2px;opacity:.5}
+.progress-orbit i:nth-child(4){animation-delay:-.36s}.progress-orbit i:nth-child(4)::after{width:2.8px;height:2.8px;opacity:.34}
+.progress-orbit i:nth-child(5){animation-delay:-.48s}.progress-orbit i:nth-child(5)::after{width:2.4px;height:2.4px;opacity:.2}
+.progress-check{display:grid;place-items:center;width:18px;height:18px;flex:0 0 18px;border-radius:50%;background:#edf4f0;color:#5d8a6d;font-size:11px}
+.turn-progress .progress-steps{list-style:none;margin:0;padding:3px 10px 9px;border-top:1px solid #edf1f2}
+.turn-progress .progress-steps li{display:flex;gap:8px;margin:0;padding:5px 0;color:#7a878f;font-size:11px;line-height:1.5}
+.turn-progress .progress-steps li.running{color:var(--accent)}
+.turn-progress .progress-steps li strong{font-weight:500}
+.turn-progress .progress-steps li small{display:block;margin-top:1px;color:#98a3a9;font-size:10px}
+.turn-progress.failed{background:#fdf9f7;border-color:#edddd7}
+.turn-progress.failed .progress-check{background:#fbf0ed;color:#a75a4b}
+@keyframes progress-orbit{to{transform:rotate(360deg)}}
+@keyframes progress-fade-in{from{opacity:0;transform:translateY(3px);filter:blur(.4px)}to{opacity:1;transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){.progress-orbit i{animation:none}.progress-title{animation:none}.progress-chevron{transition:none}}

@@ -14,7 +14,7 @@ if (!studentId) {
 }
 
 let mediaNavigation = 0;
-const state = { chapters: [], chapter: 1, section: 1, sectionData: null, contentTab: "text", openChapter: 1, quiz: null, chat: [], sending: false, initializing:true, view:"course" };
+const state = { chapters: [], chapter: 1, section: 1, readingSection: null, readerJump: 0, sectionData: null, contentTab: "text", openChapter: 1, quiz: null, chat: [], sending: false, initializing:true, view:"course" };
 state.taskRecoveryNeeded=true;
 // crypto.randomUUID 只在安全上下文（https 或 localhost）存在；内网穿透的 http://公网IP 没有。
 const newRequestId = () => crypto.randomUUID?.() || String(Date.now()) + Math.random().toString(36).slice(2);
@@ -283,6 +283,34 @@ function toast(message) {
   clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove("show"), 3300);
 }
 
+let imagePreview = null;
+function openImagePreview(trigger, image) {
+  imagePreview?.remove();
+  const overlay = document.createElement("div");
+  overlay.className = "image-viewer";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", image.alt || "教材图片预览");
+  const close = document.createElement("button");
+  close.type = "button"; close.className = "image-viewer-close"; close.setAttribute("aria-label", "关闭图片预览"); close.textContent = "×";
+  const preview = document.createElement("img");
+  preview.src = image.currentSrc || image.src; preview.alt = image.alt || "教材图片";
+  const caption = document.createElement("p");
+  caption.className = "image-viewer-caption"; caption.textContent = image.alt || "";
+  const onKey = event => { if (event.key === "Escape") { event.preventDefault(); closeViewer(); } };
+  function closeViewer() {
+    overlay.remove(); document.removeEventListener("keydown", onKey); imagePreview = null; trigger.focus?.();
+  }
+  close.addEventListener("click", closeViewer);
+  overlay.addEventListener("click", event => { if (event.target === overlay) closeViewer(); });
+  document.addEventListener("keydown", onKey);
+  overlay.append(close, preview);
+  if (caption.textContent) overlay.append(caption);
+  document.body.append(overlay);
+  imagePreview = overlay;
+  close.focus();
+}
+
 function showView(view, options={}) {
   if(view==='home')view='course';
   if(view==='stats')view='learning';
@@ -301,10 +329,11 @@ function showView(view, options={}) {
 }
 
 function renderTrees() {
+  const activeSection = state.readingSection ?? state.section;
   const html = state.chapters.map((chapter) => {
     const open = chapter.id === state.openChapter;
-    const sections = chapter.sections.map((section) => `<button class="section-link ${state.chapter === chapter.id && state.section === section.id ? "active" : ""}" data-chapter="${chapter.id}" data-section="${section.id}"><span class="section-dot"></span><span>${esc(section.title)}</span></button>`).join("");
-    return `<div class="chapter-group ${open ? "open" : ""}"><button class="chapter-toggle" data-open-chapter="${chapter.id}" aria-expanded="${open}"><span class="chevron">›</span><span>第${chapter.id}章&nbsp; ${esc(chapter.title)}</span></button><div class="chapter-sections">${sections}</div></div>`;
+    const sections = chapter.sections.map((section) => `<button class="section-link ${state.chapter === chapter.id && activeSection === section.id ? "active" : ""}" data-chapter="${chapter.id}" data-section="${section.id}"><span class="section-dot"></span><span>${esc(section.title)}</span></button>`).join("");
+    return `<div class="chapter-group ${open ? "open" : ""}"><button class="chapter-toggle" data-open-chapter="${chapter.id}" aria-expanded="${open}"><span class="chevron" data-toggle-chapter>›</span><span>第${chapter.id}章&nbsp; ${esc(chapter.title)}</span></button><div class="chapter-sections">${sections}</div></div>`;
   }).join("");
   $("#course-tree").innerHTML = html;
 
@@ -326,7 +355,7 @@ async function selectSection(chapter, section, {record=true,restore=false} = {})
   try {
     const data = await api(`/api/course/chapters/${chapter}/sections/${section}`);
     if (selection !== state.selection) return;
-    state.chapter = chapter; state.section = section; state.openChapter = chapter;
+    state.chapter = chapter; state.section = section; state.readingSection = section; state.readerJump++; state.openChapter = chapter;
     state.contentTab = "text"; state.pdfFocus = null;
     state.sectionData = data;
     $$("[data-content-tab]").forEach(el => el.classList.toggle("active", el.dataset.contentTab === "text"));
@@ -394,9 +423,46 @@ function renderProgress(message) {
   const stages = message.progress || [];
   const elapsed = Math.round(((message.finishedAt || Date.now()) - message.startedAt) / 1000);
   const current = stages.at(-1);
-  const answerLabel={generating:'正在生成（未核验）',retrieving:'正在读取教材依据（未保存）',checking:'正在核验（未保存）',partial:'部分已核验，整轮未完成',saved:'已保存',rejected:'本轮未发布',interrupted:'输出中断（未保存）',incomplete:'输出未完成（未保存）',timeout:'本轮已超时（未保存）',cancelled:'已取消（未保存）'}[message.answerState];
-  const title = message.pending ? (answerLabel || current?.label || "正在连接助教") : message.answerSaved && message.networkFailed ? "文字已保存，图解待恢复" : ["interrupted","incomplete","timeout","cancelled"].includes(message.answerState) ? answerLabel : message.failed ? "处理未完成" : message.answerState==='awaiting_clarification' ? '等待补充或确认' : message.answerState==='saved' ? '已保存' : "已完成";
-  return `<div class="turn-progress ${message.failed ? "failed" : ""}"><div class="progress-heading" role="status"><span class="${message.pending ? "progress-spinner" : "progress-check"}">${message.pending ? "" : message.failed ? "!" : "✓"}</span><strong>${esc(title)}</strong><span class="progress-elapsed" data-start="${message.startedAt}" data-finished="${message.finishedAt || ""}">${elapsed} 秒</span></div>${message.pending ? `<div class="progress-detail">${esc(current?.detail || "请求已发出，等待服务响应")}</div>` : ""}<details><summary>处理记录（点击展开）</summary><ol>${stages.map(p => `<li class="${p.status}"><span>${p.status === "completed" ? "✓" : message.failed ? "!" : "·"}</span><div><strong>${esc(p.label)}</strong><small>${esc(p.detail)}</small></div></li>`).join("")}</ol></details></div>`;
+  const friendly={routing:'正在理解你的问题','routing-stopped':'需要补充一点信息',retrieving:'正在查阅教材','proof-context':'正在核对前后知识','pdf-evidence':'正在核对教材原页',memory:'正在回顾相关学习情况',evidence:'正在核对教材依据','citation-selection':'正在选择教材依据',resources:'正在读取教材资源',planning:'正在组织讲解',diagnosing:'正在核对你当前的理解',generating:'正在整理回答','citation-grounding':'正在核对引用','citation-reselection':'正在重新核对引用','quality-rejected':'本轮未通过核对',saving:'正在保存回答',locating:'正在定位选中内容','visual-select':'正在选择合适的图解','visual-generate':'正在组织图解','visual-check':'正在核对图解'};
+  const status = stage => {
+    const key=String(stage?.stage||'').toLowerCase(),detail=String(stage?.detail||'');
+    if(key==='queued'||key.startsWith('active-execution')||key.startsWith('loop-stage_start'))return '正在准备';
+    if(key.startsWith('loop-progress'))return /读取|检索|资料|依据/.test(detail)?'正在查阅教材':/讲解|组织/.test(detail)?'正在组织讲解':'正在整理回答';
+    if(key.startsWith('loop-tool')||key.startsWith('active-retrieval')||key.startsWith('retrieving'))return '正在查阅教材';
+    if(key.startsWith('loop-sources')||key.startsWith('active-source')||key.startsWith('active-semantic')||key.startsWith('proof-')||key.startsWith('pdf-')||key==='evidence'||key.startsWith('citation-')||key==='resources'||key.startsWith('locating')||key==='memory')return '正在核对教材依据';
+    if(key.startsWith('loop-answer')||key.startsWith('active-answer')||key.startsWith('active-quality')||key.startsWith('generating')||key.startsWith('checking')||key==='quality-rejected')return '正在整理回答';
+    if(key.startsWith('active-save')||key.startsWith('saving')||key.startsWith('loop-done'))return '正在保存回答';
+    if(key.startsWith('planning')||key.startsWith('diagnosing'))return '正在组织讲解';
+    if(key.startsWith('visual'))return '正在组织图解';
+    if(key.startsWith('loop-wait'))return '等待补充信息';
+    if(key.startsWith('loop-error'))return '本轮未完成';
+    if(key.startsWith('routing'))return '正在理解你的问题';
+    return friendly[key]||stage?.label||'正在处理';
+  };
+  const title = message.pending ? (current ? status(current) : '正在连接助教')
+    : message.answerSaved && message.networkFailed ? '文字已保存，图解稍后恢复'
+    : message.answerState==='awaiting_clarification' ? '等待补充或确认'
+    : ['interrupted','incomplete','timeout','cancelled'].includes(message.answerState) ? '本次回答未完成'
+    : message.failed ? '本次未完成'
+    : message.answerState==='partial' ? '部分内容已保存' : '已完成';
+  const orbit = message.pending ? '<span class="progress-orbit" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>' : `<span class="progress-check">${message.failed ? '!' : '✓'}</span>`;
+  const phases=[['understand','理解你的问题'],['read','查阅并核对教材'],['memory','结合你的学习情况'],['plan','组织讲解方式'],['write','整理回答并检查引用'],['visual','组织图解'],['save','保存回答']];
+  const phaseOf=stage=>{
+    const key=String(stage?.stage||'').toLowerCase(),detail=String(stage?.detail||'');
+    if(key==='memory')return 'memory';
+    if(key.startsWith('visual'))return 'visual';
+    if(key.startsWith('active-save')||key.startsWith('saving'))return 'save';
+    if(key.startsWith('planning')||key.startsWith('diagnosing'))return 'plan';
+    if(key.startsWith('active-answer')||key.startsWith('active-quality')||key.startsWith('loop-answer')||key.startsWith('generating')||key.startsWith('checking')||key==='quality-rejected')return 'write';
+    if(key.startsWith('loop-progress'))return /读取|检索|资料|依据/.test(detail)?'read':/讲解|组织/.test(detail)?'plan':'write';
+    if(key.startsWith('active-retrieval')||key.startsWith('active-source')||key.startsWith('active-semantic')||key.startsWith('loop-tool')||key.startsWith('loop-sources')||key.startsWith('retrieving')||key.startsWith('proof-')||key.startsWith('pdf-')||key==='evidence'||key.startsWith('citation-')||key==='resources'||key.startsWith('locating'))return 'read';
+    if(key==='queued'||key.startsWith('routing')||key.startsWith('loop-stage_start')||key.startsWith('loop-wait'))return 'understand';
+    if(key.startsWith('loop-done')||key.startsWith('loop-error'))return 'write';
+    return '';
+  };
+  const seen=new Map();for(const stage of stages){const key=phaseOf(stage);if(key)seen.set(key,stage.status||'running');}
+  const steps=phases.filter(([key])=>seen.has(key)).map(([key,label],index,list)=>{const state=seen.get(key);return `<li class="${state}${message.failed&&index===list.length-1?' failed':''}"><span>${state==='completed'?'✓':'·'}</span><div><strong>${label}</strong></div></li>`;}).join('');
+  return `<details class="turn-progress ${message.failed ? "failed" : ""}"><summary class="progress-heading">${orbit}<span class="progress-copy" role="status"><strong class="progress-title">${esc(title)}</strong></span>${message.pending ? `<span class="progress-elapsed" data-start="${message.startedAt}" data-finished="">${elapsed} 秒</span>` : ''}<span class="progress-chevron" aria-hidden="true">⌄</span></summary><ol class="progress-steps">${steps}</ol></details>`;
 }
 
 function selectionPayload(ref) {
@@ -505,7 +571,7 @@ function syncPDFReader() {
       state.pdfFocus=null;toast('该引用的教材版本已失效，请重新提问');return;
     }
     const resume=focus?.page && !focus.rects?.length ? {page:focus.page,y:0,scale:'page-width'} : state.restoreReading?Workspace.resumeFor(metadata):null;
-    window.TextbookPDF.mount(host,{...metadata,resume},state.pdfFocus,askPDFSelection);
+    window.TextbookPDF.mount(host,{...metadata,resume,jumpToken:state.readerJump},state.pdfFocus,askPDFSelection);
   }
 }
 
@@ -515,7 +581,27 @@ window.addEventListener("pdf-reader-ready",()=>{syncPDFReader();chatRenderer?.re
 const streamChat = window.TutorChatTransport.streamChat;
 let actualReaderPosition = null;
 let readerPositionSeq = 0;
-window.addEventListener('pdf-position', event => {actualReaderPosition = event.detail;readerPositionSeq++;});
+window.addEventListener('pdf-copied',()=>toast('已复制选中文字'));
+window.addEventListener('pdf-position', event => {
+  actualReaderPosition = event.detail;readerPositionSeq++;
+  const position = event.detail;
+  if(position.chapter !== state.chapter || position.section === state.readingSection) return;
+  state.readingSection = position.section;
+  state.section = position.section;
+  const section = state.sectionData?.pdf?.sections?.find(item => item.id === position.section);
+  if(section) {
+    $("#content-subtitle").textContent = /^第\d+章/.test(section.title) ? section.title : `第${position.chapter}章 · ${section.title}`;
+    $("#conversation-title").textContent = section.title;
+    $("#chat-topic").textContent = `当前知识点：${section.title}`;
+  }
+  let active = null;
+  $$('#course-tree .section-link').forEach(el => {
+    const on = Number(el.dataset.chapter) === position.chapter && Number(el.dataset.section) === position.section;
+    el.classList.toggle('active', on);
+    if(on) active = el;
+  });
+  active?.scrollIntoView({block: 'nearest'});
+});
 
 async function applyReaderAction(action, result, pending, owner) {
   let expectedSelection = pending.readerOrigin;
@@ -976,6 +1062,9 @@ function bindEvents() {
   document.addEventListener("click", (event) => {
     const sessionButton=event.target.closest('[data-session-id]');
     if(sessionButton){switchConversation(sessionButton.dataset.sessionId).catch(error=>toast(error.message));return;}
+    const mediaLink = event.target.closest('a[href*="/api/figures/"]');
+    const mediaImage = mediaLink?.querySelector("img");
+    if (mediaImage) { event.preventDefault(); openImagePreview(mediaLink, mediaImage); return; }
     const styleButton=event.target.closest('[data-style-apply],[data-style-dismiss],[data-style-disable]');
     if(styleButton){
       if(state.sending)return;
@@ -1093,8 +1182,10 @@ function bindEvents() {
     if(taskOption) {const option=state.clarification?.clarification?.options?.[Number(taskOption.dataset.taskOption)];if(option&&!state.sending)sendMessage(option.label,{selectedOption:option.id});return;}
     const nav = event.target.closest("[data-view]");
     if (nav) { showView(nav.dataset.view); return; }
+    const chevron = event.target.closest("[data-toggle-chapter]");
+    if (chevron) { const number = Number(chevron.closest("[data-open-chapter]").dataset.openChapter); state.openChapter = state.openChapter === number ? 0 : number; renderTrees(); return; }
     const toggle = event.target.closest("[data-open-chapter]");
-    if (toggle) { const number = Number(toggle.dataset.openChapter); state.openChapter = state.openChapter === number ? 0 : number; renderTrees(); return; }
+    if (toggle) { const number = Number(toggle.dataset.openChapter); const first = state.chapters.find(c => c.id === number)?.sections[0]; if (first) { showView("course"); Workspace.setReaderOpen(true);selectSection(number, first.id); } else { state.openChapter = number; renderTrees(); } return; }
     const section = event.target.closest("[data-chapter][data-section]");
     if (section) { showView("course");selectSection(Number(section.dataset.chapter), Number(section.dataset.section)); return; }
     const prompt = event.target.closest("[data-prompt]");

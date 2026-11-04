@@ -1,7 +1,15 @@
 "use strict";
 
+// 来源标签只用于内部发布核验，不在学生正文里显示。
+const cleanAnswerText = value => String(value ?? '')
+  .replace(/[（(][^（）()\n]{0,80}(?:非教材原|非原书|AI\s?生成)[^（）()\n]{0,80}[）)]/g, '')
+  .replace(/(^|\n)([ \t]*)(?:教学示例|教学类比|补充说明|示例说明)\s*[:：]\s*/g, '$1$2')
+  .replace(/(?:^|\n)[ \t]*(?:需要说明的是|需要注意的是|另外需要说明的是)[：:][^\n]*(?:摘录|材料|覆盖|未包含|补全|只讲|只覆盖|没有出现)[^\n]*/g, '')
+  .replace(/(?:^|\n)[ \t]*(?:本次|当前)(?:提供的)?(?:教材)?材料[^\n]*(?:覆盖|未包含|只讲|没有出现|不补全)[^\n]*/g, '');
+
 // 富文本资源加载失败时保留原基础正文。
 window.renderTutorAnswer = (text, options = {}) => {
+  text = cleanAnswerText(text);
   if (window.TutorMarkdown) {
     try { return window.TutorMarkdown.render(text, options); }
     catch (error) { console.error('正文富文本解析失败，显示基础正文', error); }
@@ -23,6 +31,17 @@ window.renderTutorAnswer = (text, options = {}) => {
   return '<p class="answer-text">'+result+plain(String(text).slice(end))+'</p>';
 };
 
+// 已发布类型 -> 轻量展示；host_snapshot 保留宿主原文，不额外加教学标签。
+const RESPONSE_BLOCK_STYLE = {
+  comparison: {className:'response-comparison', label:'对照'},
+  procedure: {className:'response-procedure', label:'步骤'},
+  recap: {className:'response-recap', label:''},
+  counterexample: {className:'response-counterexample', label:'边界'},
+  misconception: {className:'response-misconception', label:'易混边界'},
+  worked_example: {className:'response-example', label:''},
+  analogy: {className:'response-example', label:''},
+};
+
 // 只消费服务端已发布的块；历史旧协议/正文不一致时保留基础正文。
 window.renderLearningResponse = (response, reply, options={}) => {
   if(response?.schema_version!=='learning-response/v1' || response.reply!==reply || !response.blocks?.length)return null;
@@ -32,7 +51,14 @@ window.renderLearningResponse = (response, reply, options={}) => {
   const body=[response.leading_text,...blocks.map(b=>b.rendered_text)].filter(Boolean).join('\n\n');
   if(body!==reply)return null;
   return (response.leading_text?window.renderTutorAnswer(response.leading_text,options):'')+
-    blocks.map(b=>'<section class="response-block" data-response-block="'+b.block_id+'">'+window.renderTutorAnswer(b.rendered_text,options)+'</section>').join('')+
+    blocks.map(b=>{
+      const style=b.content_origin==='host_snapshot'?null:RESPONSE_BLOCK_STYLE[b.semantic_type];
+      const cls='response-block'+(style?' '+style.className:'');
+      const label=style?.label?'<div class="response-block-label">'+style.label+'</div>':'';
+      return '<section class="'+cls+'" data-response-block="'+b.block_id+'"'+
+        (style?' data-response-type="'+b.semantic_type+'"':'')+'>'+label+
+        window.renderTutorAnswer(b.rendered_text,options)+'</section>';
+    }).join('')+
     (response.status==='partial'?'<small role="status">讲解尚未全部完成，已保留可核验部分。</small>':response.status==='in_progress'?'<small role="status">已核验部分已保存，后续内容仍在处理中。</small>':'');
 };
 

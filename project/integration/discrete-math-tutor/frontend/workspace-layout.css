@@ -99,3 +99,6 @@ body[data-workspace-view=settings] :is(.chat-panel,.workspace-divider){display:n
  .reader-toggle span{font-size:11px}
  .chat-welcome{padding-inline:16px}
 }
+/* 学习对话只在“学习”页出现；其余页面收回对话列表占用的列。 */
+body:not([data-workspace-view=course]) .conversation-sidebar{display:none!important}
+@media(min-width:1024px){body:not([data-workspace-view=course]) .app-shell{grid-template-columns:60px minmax(0,1fr)}}

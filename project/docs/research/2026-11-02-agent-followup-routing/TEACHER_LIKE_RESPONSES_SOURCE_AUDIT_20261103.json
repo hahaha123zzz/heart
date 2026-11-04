@@ -1,0 +1,108 @@
+{
+  "research_date": "2026-11-03",
+  "scope": "固定提交源码和提示词静态阅读；未运行上游或复制业务实现",
+  "files": [
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/agents/chat/prompts/zh/agentic_chat.yaml",
+      "url": "https://raw.githubusercontent.com/HKUDS/DeepTutor/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/agents/chat/prompts/zh/agentic_chat.yaml",
+      "sha256": "b2108e6e4c59dba9b3ed7543332f9424e13da3c3f015eb9b47dfbe6cc9fe5d59",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\teaching-organization-20261103-76v7hz1k\\HKUDS__DeepTutor\\deeptutor\\agents\\chat\\prompts\\zh\\agentic_chat.yaml"
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "path": "deeptutor/capabilities/mastery/prompts/zh/mastery_loop.yaml",
+      "url": "https://raw.githubusercontent.com/HKUDS/DeepTutor/f7aed0744c36c5afef16a4261c31ebee1208cac2/deeptutor/capabilities/mastery/prompts/zh/mastery_loop.yaml",
+      "sha256": "800af24eb0725f6e79b9f80345e23499ee2477b2a8fc9cf57b520af15658e454",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\teaching-organization-20261103-76v7hz1k\\HKUDS__DeepTutor\\deeptutor\\capabilities\\mastery\\prompts\\zh\\mastery_loop.yaml"
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/agents/tutor.py",
+      "url": "https://raw.githubusercontent.com/zijinz456/OpenTutor/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/agents/tutor.py",
+      "sha256": "cca525e458ff1d8c5f3fbc9cefe8e528839ddc2efeb9a75f8223edfe1f78373d",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\teaching-organization-20261103-76v7hz1k\\zijinz456__OpenTutor\\apps\\api\\services\\agent\\agents\\tutor.py"
+    },
+    {
+      "repo": "rosewang2008/tutor-copilot",
+      "sha": "25c6eab7e416614f2033358bceddd30a4d5ca616",
+      "path": "Tutor_CoPilot_Demo.ipynb",
+      "url": "https://raw.githubusercontent.com/rosewang2008/tutor-copilot/25c6eab7e416614f2033358bceddd30a4d5ca616/Tutor_CoPilot_Demo.ipynb",
+      "sha256": "7cb7a652eca03b5466c3f4cbd8762e24431a7fe1a0e74bb1700be009b22a52b1",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\teaching-organization-20261103-76v7hz1k\\rosewang2008__tutor-copilot\\Tutor_CoPilot_Demo.ipynb"
+    },
+    {
+      "repo": "rosewang2008/bridge",
+      "sha": "a5b1d426ce517e0aeb4b7b2a64e842501c98e38f",
+      "path": "prompts/task1_infer_error/gpt4.txt",
+      "url": "https://raw.githubusercontent.com/rosewang2008/bridge/a5b1d426ce517e0aeb4b7b2a64e842501c98e38f/prompts/task1_infer_error/gpt4.txt",
+      "sha256": "b85bca21b4f05d3a38c6df0c45cc177aa64b7631aa9e1ec3e76b1998344f740f",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\teaching-organization-20261103-76v7hz1k\\rosewang2008__bridge\\prompts\\task1_infer_error\\gpt4.txt"
+    },
+    {
+      "repo": "rosewang2008/bridge",
+      "sha": "a5b1d426ce517e0aeb4b7b2a64e842501c98e38f",
+      "path": "prompts/task2_strategy/gpt4.txt",
+      "url": "https://raw.githubusercontent.com/rosewang2008/bridge/a5b1d426ce517e0aeb4b7b2a64e842501c98e38f/prompts/task2_strategy/gpt4.txt",
+      "sha256": "ec932b879b8e6473a6f455e0f8ce28892e7f1fb61159a72893c981b5a187fc36",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\teaching-organization-20261103-76v7hz1k\\rosewang2008__bridge\\prompts\\task2_strategy\\gpt4.txt"
+    },
+    {
+      "repo": "rosewang2008/bridge",
+      "sha": "a5b1d426ce517e0aeb4b7b2a64e842501c98e38f",
+      "path": "prompts/task3_generate_response/gpt4_rFalse.txt",
+      "url": "https://raw.githubusercontent.com/rosewang2008/bridge/a5b1d426ce517e0aeb4b7b2a64e842501c98e38f/prompts/task3_generate_response/gpt4_rFalse.txt",
+      "sha256": "aeac3bc986f46ba9f27e0fceb91dddb7fca505c32175a257d633fd44654ac803",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\teaching-organization-20261103-76v7hz1k\\rosewang2008__bridge\\prompts\\task3_generate_response\\gpt4_rFalse.txt"
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/agents/prompts.py",
+      "url": "https://raw.githubusercontent.com/zijinz456/OpenTutor/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/agents/prompts.py",
+      "sha256": "3379aad49b7fc8734c782ad7ec6372b93f1063811d4168e71e1eb676c94e6fa9",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\teaching-organization-20261103-76v7hz1k\\zijinz456__OpenTutor\\apps\\api\\services\\agent\\agents\\prompts.py"
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "path": "apps/api/services/agent/socratic_engine.py",
+      "url": "https://raw.githubusercontent.com/zijinz456/OpenTutor/3afba67fb809e85559d904ee4e901869d60f5eb9/apps/api/services/agent/socratic_engine.py",
+      "sha256": "e0b59e087f9e02dafd64637c2df4a8a8cae06d4bc4fd9b3662196e3f3cf13b37",
+      "local_path": "C:\\Users\\free\\AppData\\Local\\Temp\\teaching-organization-20261103-76v7hz1k\\zijinz456__OpenTutor\\apps\\api\\services\\agent\\socratic_engine.py"
+    }
+  ],
+  "licenses": [
+    {
+      "repo": "HKUDS/DeepTutor",
+      "sha": "f7aed0744c36c5afef16a4261c31ebee1208cac2",
+      "license": "Apache-2.0",
+      "url": "https://raw.githubusercontent.com/HKUDS/DeepTutor/f7aed0744c36c5afef16a4261c31ebee1208cac2/LICENSE",
+      "sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4"
+    },
+    {
+      "repo": "zijinz456/OpenTutor",
+      "sha": "3afba67fb809e85559d904ee4e901869d60f5eb9",
+      "license": "MIT",
+      "url": "https://raw.githubusercontent.com/zijinz456/OpenTutor/3afba67fb809e85559d904ee4e901869d60f5eb9/LICENSE",
+      "sha256": "5352b49679829689da4fa2db47ad7c32d58cb6442859eafe2bc5ce8599c83e44"
+    },
+    {
+      "repo": "rosewang2008/tutor-copilot",
+      "sha": "25c6eab7e416614f2033358bceddd30a4d5ca616",
+      "license": "Apache-2.0",
+      "url": "https://raw.githubusercontent.com/rosewang2008/tutor-copilot/25c6eab7e416614f2033358bceddd30a4d5ca616/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "repo": "rosewang2008/bridge",
+      "sha": "a5b1d426ce517e0aeb4b7b2a64e842501c98e38f",
+      "license": "MIT",
+      "url": "https://raw.githubusercontent.com/rosewang2008/bridge/a5b1d426ce517e0aeb4b7b2a64e842501c98e38f/LICENSE",
+      "sha256": "6e26bb9b58991a2fbe7e551a5d365d41780e47a5b35831e292b23d20ffce1352"
+    }
+  ]
+}

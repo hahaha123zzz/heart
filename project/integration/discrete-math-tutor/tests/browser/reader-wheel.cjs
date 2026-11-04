@@ -48,37 +48,39 @@ const OUT=path.resolve(process.env.READER_WHEEL_ARTIFACTS||path.join(ROOT,'artif
   const container=()=>page.locator('#chapter-content .PdfHighlighter');
   const number=async()=>Number(await input().inputValue());
   const expectPage=async n=>page.waitForFunction(n=>Number(document.querySelector('#chapter-content [aria-label="PDF 页码"]')?.value)===n,n);
-  const idle=()=>page.waitForTimeout(350); // 明确分隔独立手势，非页面就绪等待。
-  const dispatch=async(extra={})=>container().evaluate((el,extra)=>{const e=new WheelEvent('wheel',{deltaY:120,bubbles:true,cancelable:true,...extra});el.dispatchEvent(e);const event={kind:'wheel',...extra,prevented:e.defaultPrevented};window.wheelEvidence.push(event);window.recordReaderWheel(event);return e.defaultPrevented;},extra);
+  const idle=()=>page.waitForTimeout(350); // 明确分隔连续操作，非页面就绪等待。
   async function check(name,fn){const start=Date.now();try{await fn();attempts.push({name,pass:true,ms:Date.now()-start});console.log('PASS',name);}catch(error){attempts.push({name,pass:false,error:error.stack,ms:Date.now()-start});throw error;}}
   await page.goto(BASE);await page.locator('#chapter-content canvas').first().waitFor();await expectPage(1);
-  await check('正文中部 CDP 滚轮上下翻页，不必到边缘',async()=>{
+  await check('正文中部 CDP 滚轮连续向下滑动，不整页跳转',async()=>{
    const box=await container().boundingBox();await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
-   await page.mouse.wheel(0,120);await expectPage(2);await idle();await page.mouse.wheel(0,-120);await expectPage(1);
+   const start=await container().evaluate(el=>el.scrollTop);
+   await page.mouse.wheel(0,400);
+   await page.waitForFunction(start=>document.querySelector('#chapter-content .PdfHighlighter').scrollTop>start+100,start);
+   await page.waitForFunction(()=>wheelEvidence.some(e=>e.kind==='position'&&e.y>.02));
+   await container().evaluate(el=>{el.scrollTop=0;});await expectPage(1);await idle();
   });
-  await check('触控板小幅累计与 2 秒惯性连续序列仅一页',async()=>{
-   await idle();const maxGap=await container().evaluate(async el=>{
-    let last=performance.now(),maxGap=0;
-    for(let i=0;i<80;i++){const now=performance.now();maxGap=Math.max(maxGap,now-last);last=now;el.dispatchEvent(new WheelEvent('wheel',{deltaY:i<40?3:1,bubbles:true,cancelable:true}));await new Promise(resolve=>setTimeout(resolve,25));}
-    const event={kind:'continuous-gesture',events:80,maxGap};window.wheelEvidence.push(event);window.recordReaderWheel(event);return maxGap;
-   });assert(maxGap<280,'事件序列本身必须连续，避免测试宿主通信停顿制造新手势');await expectPage(2);
-   await idle();await dispatch();await expectPage(3);
+  await check('向下滚动进入下一节时，左侧目录同步高亮',async()=>{
+   await page.evaluate(()=>selectSection(2,1,{record:false}));
+   await page.locator('[data-document="experimental-psychology-3:chapter-02"] canvas').first().waitFor();await expectPage(1);
+   const target=await page.evaluate(()=>state.sectionData.pdf.sections.find(s=>s.id!==state.section));
+   assert(target,'第二章应包含多个小节');
+   await container().evaluate((el,s)=>{const page=el.querySelector(`.page[data-page-number="${s.page}"]`);el.scrollTop=page.offsetTop+s.y*page.clientHeight+8;},target);
+   await page.waitForFunction(id=>document.querySelector(`#course-tree .section-link[data-chapter="2"][data-section="${id}"]`)?.classList.contains('active'),target.id);
+   await page.waitForFunction(id=>wheelEvidence.some(e=>e.kind==='position'&&e.chapter===2&&e.section===id),target.id);
+   assert.equal(await number(),target.page);
   });
-  await check('工具栏按钮及输入；首尾不越界，不推动外层或推进章节',async()=>{
-   await page.getByRole('button',{name:'上一页',exact:true}).click();await expectPage(2);
-   await input().fill('1');await expectPage(1);await idle();const outer=await page.evaluate(()=>({y:scrollY,chapter:state.chapter,section:state.section}));
-   await dispatch({deltaY:-120});await expectPage(1);assert.deepEqual(await page.evaluate(()=>({y:scrollY,chapter:state.chapter,section:state.section})),outer);
-   const count=await page.evaluate(()=>state.sectionData.pdf.page_count);await input().fill(String(count));await expectPage(count);await idle();await dispatch();await expectPage(count);
+  await check('工具栏按钮及页码输入可达首尾',async()=>{
+   await page.getByRole('button',{name:'上一页',exact:true}).click();await expectPage(1);
+   await page.getByRole('button',{name:'下一页',exact:true}).click();await expectPage(2);
+   await input().fill('1');await expectPage(1);
+   const count=await page.evaluate(()=>state.sectionData.pdf.page_count);await input().fill(String(count));await expectPage(count);
    await input().fill('2');await expectPage(2);
   });
-  await check('目录聊天外层及工具栏未拦截；修饰键与横向不翻页',async()=>{
-   const n=await number();
+  await check('目录聊天外层及工具栏未拦截滚轮',async()=>{
    for(const selector of ['#course-tree','#chat-input','body','.pdf-toolbar']){
     assert.equal(await page.locator(selector).evaluate(el=>{const e=new WheelEvent('wheel',{deltaY:10,bubbles:true,cancelable:true});el.dispatchEvent(e);return e.defaultPrevented;}),false);
    }
    assert.equal(await input().evaluate(el=>{const e=new WheelEvent('wheel',{deltaY:10,bubbles:true,cancelable:true});el.dispatchEvent(e);return e.defaultPrevented;}),false);
-   for(const extra of [{ctrlKey:true},{metaKey:true},{shiftKey:true},{deltaX:150}]){await idle();assert.equal(await dispatch(extra),false);}
-   assert.equal(await number(),n);
   });
   await check('目录和右侧聊天实际 CDP 滚动保持独立',async()=>{
    const n=await number();
@@ -89,41 +91,45 @@ const OUT=path.resolve(process.env.READER_WHEEL_ARTIFACTS||path.join(ROOT,'artif
    }
    await page.evaluate(()=>renderChat());
   });
-  await check('真实文字层选区及菜单活跃不翻页，取消后可翻页',async()=>{
+  await check('真实文字层选区及菜单可用',async()=>{
    await page.waitForFunction(()=>document.querySelector('.page[data-page-number="2"] .textLayer span')?.textContent);
    await page.evaluate(()=>{const node=document.querySelector('.page[data-page-number="2"] .textLayer span').firstChild;const range=document.createRange();range.selectNodeContents(node);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);});
-   await page.locator('.pdf-selection-menu').waitFor();await idle();assert.equal(await dispatch({deltaY:3}),false);assert.equal(await number(),2);
-   await page.locator('.pdf-selection-menu').getByRole('button',{name:'取消'}).click();await idle();await dispatch();await expectPage(3);
+   await page.locator('.pdf-selection-menu').waitFor();
+   await page.locator('.pdf-selection-menu').getByRole('button',{name:'取消'}).click();
   });
-  await check('鼠标区域圈选拖动和菜单不翻页，取消恢复',async()=>{
+  await check('鼠标区域圈选拖动和菜单可用',async()=>{
    await page.getByRole('button',{name:'框选图 / 公式'}).click();const box=await container().boundingBox();
    await page.mouse.move(box.x+100,box.y+100);await page.mouse.down();await page.mouse.move(box.x+240,box.y+180,{steps:5});
-   await idle();assert.equal(await dispatch({deltaY:3}),false);assert.equal(await number(),3);await page.mouse.up();
-   await page.locator('.pdf-selection-menu').waitFor();await idle();assert.equal(await dispatch({deltaY:3}),false);
+   await page.mouse.up();
+   await page.locator('.pdf-selection-menu').waitFor();
    await page.locator('.pdf-selection-menu').getByRole('button',{name:'取消'}).click();await page.getByRole('button',{name:'退出框选'}).click();
   });
-  await check('引用坐标跳转高亮保留，随后可滚轮翻页',async()=>{
+  await check('引用坐标跳转高亮保留，随后滚轮可继续下滑',async()=>{
    await page.evaluate(()=>{const m=state.sectionData.pdf;state.pdfFocus={document_id:m.document_id,version:m.version,kind:'text',text:m.section.title,rects:[m.section.rect]};syncPDFReader();});
    await expectPage(1);const highlight=page.locator('#chapter-content .Highlight__part').first();await highlight.waitFor();
    const h=await highlight.boundingBox(),body=await container().boundingBox();assert(h.y>=body.y&&h.y<body.y+body.height,'真实章节标题引用应定位到可见正文');
-   await page.screenshot({path:path.join(OUT,'citation.png')});await idle();await dispatch();await expectPage(2);
+   await page.screenshot({path:path.join(OUT,'citation.png')});
+   const start=await container().evaluate(el=>el.scrollTop);const box=await container().boundingBox();await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.wheel(0,400);
+   await page.waitForFunction(start=>document.querySelector('#chapter-content .PdfHighlighter').scrollTop>start+100,start);
   });
-  await check('200% 缩放后滚动条可访问页下半部分，滚轮仍直接翻页',async()=>{
+  await check('200% 缩放后滚动条可访问页下半部分',async()=>{
    await page.getByLabel('PDF 缩放').selectOption('2');
    await page.waitForFunction(()=>document.querySelector('.page[data-page-number="2"]').clientHeight>document.querySelector('.PdfHighlighter').clientHeight);
    const result=await container().evaluate(el=>{const p=el.querySelector('.page[data-page-number="2"]');el.scrollTop=p.offsetTop+p.clientHeight-el.clientHeight-10;return {overflow:getComputedStyle(el).overflowY,height:p.clientHeight,viewport:el.clientHeight,lower:el.scrollTop>p.offsetTop};});
    assert.equal(result.overflow,'auto');assert(result.lower);await expectPage(2);await page.screenshot({path:path.join(OUT,'zoom-lower-half.png')});
-   await idle();await dispatch();await expectPage(3);
+   await input().fill('3');await expectPage(3);
   });
   await check('现有 pdf-position / Workspace 刷新恢复页码和缩放',async()=>{
    await page.waitForFunction(()=>Workspace.resumeFor(state.sectionData.pdf)?.page===3);
    await page.reload();await page.locator('#chapter-content canvas').first().waitFor();await expectPage(3);assert.equal(await page.getByLabel('PDF 缩放').inputValue(),'2');
   });
-  await check('换章与重复挂载后单个滚轮仅翻一页；page_map沿用来源页',async()=>{
+  await check('换章与重复挂载后滚动继续生效；page_map沿用来源页',async()=>{
    await page.evaluate(()=>selectSection(2,1,{record:false}));await page.locator('[data-document="experimental-psychology-3:chapter-02"] canvas').first().waitFor();await expectPage(1);
-   await page.evaluate(()=>{for(let i=0;i<5;i++)syncPDFReader();});await idle();await dispatch();await expectPage(2);
+   await page.evaluate(()=>{for(let i=0;i<5;i++)syncPDFReader();});
+   await container().evaluate(el=>{const p=el.querySelector('.page[data-page-number="2"]');el.scrollTop=p.offsetTop+10;});await expectPage(2);
    await page.evaluate(()=>{const host=document.querySelector('#chapter-content .pdf-reader-host');TextbookPDF.unmount(host);const pdf=state.sectionData.pdf;state.sectionData.pdf={...pdf,page_map:Array.from({length:pdf.page_count},(_,i)=>i+101)};syncPDFReader();});
-   await page.locator('[data-document="experimental-psychology-3:chapter-02"] canvas').first().waitFor();await expectPage(1);await idle();await dispatch();await expectPage(2);
+   await page.locator('[data-document="experimental-psychology-3:chapter-02"] canvas').first().waitFor();await expectPage(1);
+   await container().evaluate(el=>{const p=el.querySelector('.page[data-page-number="2"]');el.scrollTop=p.offsetTop+10;});await expectPage(2);
    await page.waitForFunction(()=>document.querySelector('.pdf-source-page')?.textContent.includes('102'));
    await page.waitForFunction(()=>wheelEvidence.some(e=>e.kind==='position'&&e.page===102));
   });
