@@ -76,6 +76,7 @@ class PausedExecutor:
                 "loop_events": [], "routing": {"status": "ok"}, "step_advanced": False}
 
 
+@patch.dict('os.environ', {'RESPONSE_COMPOSITION_ENABLED': '0', 'RESPONSE_BLOCK_STREAMING_ENABLED': '0'})
 class TaskLoopPersistenceTests(unittest.TestCase):
     def test_structured_multi_question_answers_resume_same_loop_and_replay(self):
         llm = ScriptedLLM([
@@ -427,6 +428,34 @@ class TaskLoopPersistenceTests(unittest.TestCase):
         tool_message = next(message for message in resumed_messages
                             if message.get("role") == "tool")
         self.assertIn("被试内设计", tool_message["content"])
+
+    def test_composed_answer_after_ask_user_uses_same_task_and_sources(self):
+        from agents.q3_navigation import SourceRef
+        from tests.test_response_composition import block, response
+
+        llm = ScriptedLLM([
+            tool_round(("ask_user", {"questions": [{"id": "q1", "prompt": "你指哪种变量？"}]})),
+            final_round(response(block('b1'))),
+        ])
+        executor = LiveLoopExecutor(llm, self.memory)
+        executor.navigator = StubLearningNavigator(sources=[SourceRef(
+            source_id='s1', document_id='fixture-book', version='v1',
+            text='研究者主动改变的变量是自变量。')])
+        # 只验任务/内容协议，检索使用注入来源，不让本机教材光标覆盖夹具。
+        with patch.dict('os.environ', {'RESPONSE_COMPOSITION_ENABLED': '1'}), \
+             patch('agents.course_search.CourseSearch.search', return_value=executor.navigator.sources), \
+             patch('agents.tools.first_wave_runtime.bind_resources', return_value=(None, ())):
+            first = self.service.run(ChatRequest(student_id='s', session_id='legacy', request_id='composed-ask',
+                message='请解释变量。'), executor)
+            self.assertEqual(first['answer_status'], 'awaiting_clarification')
+            second = self.service.run(ChatRequest(student_id='s', session_id='legacy', request_id='composed-answer',
+                task_id=first['task_id'], task_revision=first['task_revision'], message='自变量'), executor)
+        self.assertEqual(second['answer_status'], 'answered')
+        self.assertEqual(second['task_id'], first['task_id'])
+        self.assertEqual(len(llm.calls), 2)
+        self.assertIn('研究者主动改变的变量是自变量', second['reply'])
+        self.assertEqual(second['learning_response']['reply'], second['reply'])
+        self.assertTrue(second['pdf_references'])
 
     def test_ask_user_option_click_resumes_with_label(self):
         llm = ScriptedLLM([

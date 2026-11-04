@@ -28,6 +28,25 @@ def response(*blocks):
 
 
 class CompositionTests(unittest.TestCase):
+    def test_inline_media_must_belong_to_the_claim_sources(self):
+        sources = deepcopy(SOURCES)
+        sources[0]['image_refs'] = [{'id': 'image-05-0004'}]
+        text = '实验流程如下。\n\n![图5-2](media:image-05-0004)'
+        composer = ResponseComposer(plan_response(target_id='t'))
+        self.assertIn('(media:image-05-0004)', composer.accept(response(block('b1', text=text)), sources))
+        for invalid, ids in (
+            ('说明。![图片](media:unknown)', ['s1']),
+            (text, ['s2']),
+            ('说明。![图片](https://example.com/image.png)', ['s1']),
+            ('说明。[链接](https://example.com)', ['s1']),
+            ('说明。![<script>alert(1)</script>](media:image-05-0004)', ['s1']),
+            ('![图5-2](media:image-05-0004)', ['s1']),
+        ):
+            with self.subTest(text=invalid):
+                with self.assertRaises(ValueError):
+                    ResponseComposer(plan_response(target_id='t')).accept(
+                        response(block('b1', text=invalid, ids=ids)), sources)
+
     def test_composer_instructions_have_no_budget(self):
         composer = ResponseComposer(plan_response(target_id="kp:x", strategy="direct"))
         self.assertNotIn("字数预算", composer.instructions())

@@ -53,6 +53,21 @@ def bound_claim(message='教材中与他相关的内容有哪些，我想学习'
 
 
 class TurnRouterTests(unittest.TestCase):
+    def test_figure_explanation_does_not_become_page_navigation(self):
+        for message in ('解释刚才那个图', '不要执行教材页面跳转，只解释刚才那个图',
+                        '不要跳转或打开页面，说明刚才那个图的步骤'):
+            with self.subTest(message=message):
+                value = route(message, reference_objects=[FIGURE])
+                self.assertEqual(value.tool_purpose, 'textbook')
+                self.assertNotEqual(value.kind, 'reader_action')
+        self.assertEqual(route('不要跳转，只解释自变量').tool_purpose, 'textbook')
+        self.assertEqual(route('不要跳转第一页，打开第二页').tool_purpose, 'reader_action')
+        from agents.input_understanding.route import reader_requested
+        from agents.tools.first_wave_runtime import purpose
+        for message in ('不要执行教材页面跳转，只解释图5-2', '不用打开第三页', '别定位到那里'):
+            self.assertFalse(reader_requested(message))
+            self.assertEqual(purpose(message), 'textbook')
+
     def test_route_table(self):
         for message, kind, scope, chapter_id, purpose in CASES:
             extra = {'tutoring': PENDING} if message == '我选 B' else {}

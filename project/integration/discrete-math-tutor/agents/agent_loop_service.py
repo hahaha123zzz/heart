@@ -567,7 +567,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
             if re.search(r'偏好|我的基础|记得我', request.message) and resources.memory:
                 needed.append('read_memory')
                 system_prompt += '\n先读取当前偏好，再结合本轮教材原文回答；偏好缺失不推断。'
-            if re.search(r'跳转|带我到|定位到', request.message):
+            from agents.input_understanding.route import reader_requested
+            if reader_requested(request.message):
                 needed.append('reader_goto')
             if re.search(r'展开.{0,12}来源|补读|来源.{0,12}(完整|上下文)', request.message):
                 needed.append('read_source')

@@ -14,7 +14,7 @@ if (!studentId) {
 }
 
 let mediaNavigation = 0;
-const state = { chapters: [], chapter: 1, section: 1, sectionData: null, contentTab: "text", openChapter: 1, quiz: null, chat: [], sending: false, view:"course" };
+const state = { chapters: [], chapter: 1, section: 1, sectionData: null, contentTab: "text", openChapter: 1, quiz: null, chat: [], sending: false, initializing:true, view:"course" };
 state.taskRecoveryNeeded=true;
 // crypto.randomUUID 只在安全上下文（https 或 localhost）存在；内网穿透的 http://公网IP 没有。
 const newRequestId = () => crypto.randomUUID?.() || String(Date.now()) + Math.random().toString(36).slice(2);
@@ -25,15 +25,16 @@ const conversationHistoryUrl = (sessionId=tabSessionId) => `/api/students/${enco
 // 新标签可能复制 sessionStorage；发现同编号的存活标签后，为新标签换编号。
 const sessionChannel = typeof BroadcastChannel === 'function' ? new BroadcastChannel(course.id+'-task-tabs') : null;
 const tabInstance = newRequestId();
+let claimingInitialSession = true;
 sessionChannel?.addEventListener('message', ({data}) => {
   if(data.instance === tabInstance || data.session !== tabSessionId) return;
   if(data.type === 'hello') sessionChannel.postMessage({type:'occupied',session:tabSessionId,to:data.instance,instance:tabInstance});
-  if(data.type === 'occupied' && data.to === tabInstance) {
+  if(data.type === 'occupied' && data.to === tabInstance && claimingInitialSession) {
     tabSessionId = newRequestId();sessionStorage.setItem(tabSessionKey,tabSessionId);
   }
 });
 sessionChannel?.postMessage({type:'hello',session:tabSessionId,instance:tabInstance});
-const taskSessionReady = new Promise(resolve => setTimeout(resolve,150));
+const taskSessionReady = new Promise(resolve => setTimeout(resolve,150)).then(()=>{claimingInitialSession=false;});
 let interactionStyle;
 function styleControl() {
   const key=course.id+'-interaction-style:'+studentId+':'+tabSessionId;
@@ -152,8 +153,42 @@ async function cancelClarification() {
   state.clarification=null;renderChat();toast('本次问题已取消');return true;
 }
 
+let conversationSessions = [];
+function renderConversationList() {
+  const rows=conversationSessions.some(row=>row.session_id===tabSessionId)?conversationSessions:
+    [{session_id:tabSessionId,title:'新对话'},...conversationSessions];
+  $('#conversation-list').innerHTML=rows.map(row=>'<button type="button" data-session-id="'+esc(row.session_id)+'" aria-current="'+(row.session_id===tabSessionId)+'" title="'+esc(row.title)+'">'+esc(row.title)+'</button>').join('');
+}
+async function refreshConversations() {
+  const owner=studentId;
+  try {
+    const rows=await api('/api/students/'+encodeURIComponent(owner)+'/conversation-sessions');
+    if(owner!==studentId)return;
+    conversationSessions=rows;renderConversationList();
+  } catch { $('#conversation-list').innerHTML='<p>对话列表暂不可用，刷新后重试。</p>'; }
+}
+async function switchConversation(sessionId) {
+  if(sessionId===tabSessionId)return;
+  if(state.sending||state.switchingConversation||state.initializing){toast('请等待当前操作结束后再切换对话。');return;}
+  if(($('#chat-input').value.trim()||state.pdfDraft||state.exerciseDraft)&&!window.confirm('切换对话会清除尚未发送的文字或选区，已保存内容会保留。继续吗？'))return;
+  state.switchingConversation=true;
+  try {
+    const history=await api(conversationHistoryUrl(sessionId));
+    tabSessionId=sessionId;sessionStorage.setItem(tabSessionKey,sessionId);
+    // 历史会话是显式打开，可由多标签共用；任务 revision 仍由服务端校验。
+    state.chat=messagesFromHistory(history);state.clarification=null;state.clarificationObject=null;
+    state.sessionPlan=null;state.sessionPlanSourceStatus=null;state.taskRecoveryNeeded=true;
+    state.pdfDraft=null;state.exerciseDraft=null;
+    graphArtifacts.clear();graphCreateRequest=null;tableArtifacts.clear();tableCreateRequest=null;relationArtifacts.clear();relationCreateRequest=null;
+    $('#chat-input').value='';$('#chat-error').textContent='';
+    Workspace.clearDraft();Workspace.showHelp(null);renderSelectionDraft();renderChat();renderStyleStatus();
+    showView('course');showView('chat');renderConversationList();
+    await restoreLearningCards();await restoreClarification();await restoreGraphs();
+  } finally {state.switchingConversation=false;}
+}
+
 async function startNewConversation() {
-  if (state.sending) { toast('请等当前回答结束后再开启新对话。'); return; }
+  if (state.sending || state.switchingConversation || state.initializing) { toast('请等当前操作结束后再开启新对话。'); return; }
   const hasDraft = Boolean($('#chat-input').value.trim() || state.pdfDraft || state.exerciseDraft);
   const hasPendingTask = Boolean(state.clarification);
   if ((hasDraft || hasPendingTask) && !window.confirm('开启新对话会清除尚未发送的文字或选区'+(hasPendingTask?'，并取消当前未完成的问题':'')+'；已保存的聊天记录和学习记忆不会删除。继续吗？')) return;
@@ -178,7 +213,8 @@ async function startNewConversation() {
   showView('chat');
   await restoreClarification();
   $('#chat-input').focus();
-  toast('新对话已开启，之前的记录仍保留在“学习记录”中。');
+  renderConversationList();
+  toast('新对话已开启，可从左侧返回之前的对话。');
 }
 
 async function api(path, options = {}) {
@@ -248,8 +284,9 @@ function toast(message) {
 }
 
 function showView(view, options={}) {
+  if(view==='home')view='course';
   if(view==='stats')view='learning';
-  if(view==='chat'){Workspace.showHelp(null);Workspace.setPane('chat');$('#chat-input').focus();return;}
+  if(view==='chat'){if(state.view!=='course')showView('course');Workspace.showHelp(null);Workspace.setPane('chat');$('#chat-input').focus();return;}
   if(state.view==='quiz'&&view!=='quiz')window.ExercisePractice?.save().catch(()=>{});
   state.view=view;
   $$('.view').forEach(el=>el.classList.toggle('active',el.id===view+'-view'));
@@ -459,7 +496,7 @@ function startPractice(origin) {
 }
 
 function syncPDFReader() {
-  if(!window.TextbookPDF||!state.sectionData?.pdf)return;
+  if(!window.TextbookPDF||!state.sectionData?.pdf||!document.body.classList.contains('reader-open'))return;
   const host=$('#chapter-content .pdf-reader-host');
   if(host&&state.contentTab==='text'){
     const metadata=readingMetadata(state.sectionData.pdf);
@@ -472,6 +509,7 @@ function syncPDFReader() {
   }
 }
 
+window.addEventListener("workspace-reader-open",syncPDFReader);
 window.addEventListener("pdf-reader-ready",()=>{syncPDFReader();chatRenderer?.refreshMath();renderChat();});
 
 const streamChat = window.TutorChatTransport.streamChat;
@@ -495,7 +533,7 @@ async function applyReaderAction(action, result, pending, owner) {
       const ok = await selectSection(target.chapter_id, target.section_id, {record:false});
       if (!ok || !guard()) throw new Error('教材切换未完成');
       state.pdfFocus = {...target, kind:'text', text:target.quote || ''};
-      showView('course');syncPDFReader();
+      showView('course');Workspace.setReaderOpen(true);syncPDFReader();
       const started = Date.now();
       while (Date.now()-started<12000) {
         if (!guard() || state.pdfFocus?.action_id !== target.action_id) throw new Error('教材或任务已切换');
@@ -660,7 +698,6 @@ async function openEulerGraph(graph=null, forQuestion=false, mode='explore', cor
   } finally {button.disabled=false;}
 }
 
-const emptyChatMessage = {renderKey:'empty',role:'assistant',content:'选一节教材开始阅读。你可以划选文字或圈选图、公式，再向我提问。'};
 const answerMarkup = new WeakMap();
 function renderAnswerContent(message) {
   if (!message.content) return '';
@@ -678,7 +715,8 @@ function renderAnswerContent(message) {
 }
 let chatRenderer;
 function renderChat() {
-  const messages=state.chat.length?state.chat:[emptyChatMessage];
+  Workspace.chatChanged();
+  const messages=state.chat;
   const el=$('#chat-messages');const nearBottom=el.scrollHeight-el.scrollTop-el.clientHeight<100;
   chatRenderer ??= new window.ChatMessageRenderer(el, p => window.TextbookPDF?.renderMath(p));
   chatRenderer.render(messages.map((m,index)=>({key:m.renderKey ??= newRequestId(),role:m.role,parts:{
@@ -709,18 +747,19 @@ async function openGuideSource(guide,reference){
   try{
     if(guide.exercise_target){showView('quiz');await window.ExercisePractice.openTarget(guide.exercise_target);return;}
     const ok=await selectSection(reference.chapter_id,reference.section_id,{record:false});
-    if(ok){state.pdfFocus=reference;showView('course');syncPDFReader();}
+    if(ok){state.pdfFocus=reference;showView('course');Workspace.setReaderOpen(true);syncPDFReader();}
   }catch(error){toast(error.message);}
 }
 
 async function sendMessage(message, options={}) {
   const text = message.trim();
-  if (!text || state.sending) return;
+  if (!text || state.sending || state.switchingConversation || state.initializing) return;
   if(state.taskRecoveryNeeded) { toast('请先恢复问题状态，再继续提问');return; }
   await taskSessionReady;
   if(state.sending) return;
   const selection=options.visualization || options.truthTable || options.relation ? null : options.payload ? options.selection : state.pdfDraft;
   const exercise=options.visualization || options.truthTable || options.relation ? null : options.payload ? options.exercise : state.exerciseDraft;
+  Workspace.dismissSuggestions();
   state.sending = true;
   $$(".chat-input button").forEach(button => button.disabled = true);
   $("#chat-error").textContent = "";
@@ -825,6 +864,7 @@ async function sendMessage(message, options={}) {
   } finally {
     clearInterval(timer);
     state.sending = false;
+    refreshConversations();
     $$(".chat-input button").forEach(button => button.disabled = false);
     renderChat();
   }
@@ -883,7 +923,7 @@ async function refreshLearning() {
     ]);
     if(refresh!==refreshLearning.sequence||owner!==studentId||session!==tabSessionId)return;
     $("#review-list").innerHTML = window.LearningReview.render(review);
-    $('#home-review-list').innerHTML=$('#review-list').innerHTML;
+    if($('#home-review-list'))$('#home-review-list').innerHTML=$('#review-list').innerHTML;
     $("#history-list").innerHTML = history.length ? history.slice(-16).reverse().map((m) => `<div class="history-item"><small>${m.role === "user" ? "我" : "助教"}</small><p>${esc(m.content)}</p>${(m.role==='assistant'?(m.image_refs || []):[]).map(renderFigure).join("")}</div>`).join("") : '<div class="resource-note">还没有对话记录。向助教提一个问题吧。</div>';
   } catch (error) { if(refresh===refreshLearning.sequence&&owner===studentId&&session===tabSessionId)toast(`学习记录暂不可用：${error.message}`); }
 }
@@ -934,6 +974,8 @@ function bindEvents() {
     applyCourseCollapse();
   });
   document.addEventListener("click", (event) => {
+    const sessionButton=event.target.closest('[data-session-id]');
+    if(sessionButton){switchConversation(sessionButton.dataset.sessionId).catch(error=>toast(error.message));return;}
     const styleButton=event.target.closest('[data-style-apply],[data-style-dismiss],[data-style-disable]');
     if(styleButton){
       if(state.sending)return;
@@ -978,7 +1020,7 @@ function bindEvents() {
         if(!['exact','caption','section'].includes(located.status)||!located.selection_ref)throw new Error(located.basis||'无法可靠定位原图');
         if(await selectSection(located.chapter_id,located.section_id,{record:false})){
           if(navigation!==mediaNavigation)return;
-          state.pdfFocus=located.selection_ref;showView('course');syncPDFReader();
+          state.pdfFocus=located.selection_ref;showView('course');Workspace.setReaderOpen(true);syncPDFReader();
           mediaButton.textContent=located.status==='section'?'打开所在小节':located.status==='caption'?'查看图注位置':'返回教材';
           if(located.status==='section')toast('无法精确定位原图，已打开登记小节');
           if(located.status==='caption')toast('已定位完整图注，尚未核验图片区域');
@@ -1009,7 +1051,7 @@ function bindEvents() {
         if(!reference)throw new Error('该来源无法定位');
         const ok=await selectSection(reference.chapter_id,reference.section_id,{record:false});
         if(!ok)return;
-        state.pdfFocus=reference;showView('course');syncPDFReader();
+        state.pdfFocus=reference;showView('course');Workspace.setReaderOpen(true);syncPDFReader();
         if(!reference.rects?.length)toast(reference.location_kind==='page'?'已打开来源页，没有精确文字高亮':'已打开教材小节，没有精确证据位置');
         else if(reference.location_kind==='section_heading')toast('旧引用仅记录了小节标题，不代表结论的精确原文');
       })().catch(error=>toast(error.message)).finally(()=>{sourceCitation.disabled=false;});
@@ -1026,7 +1068,7 @@ function bindEvents() {
       const item=referenceIndex>=0 ? message?.pdfReferences?.[referenceIndex] : null;
       const selectionIndex=Number(citation.dataset.evidenceSelection ?? -1);
       const ref=selectionIndex>=0 ? item?.evidence?.selections?.[selectionIndex] : item?.selection_ref || message?.selectionRef;
-      if(ref) selectSection(ref.chapter_id,ref.section_id,{record:false}).then(ok=>{if(!ok)return;state.pdfFocus=ref;showView("course");syncPDFReader();}).catch(error=>toast(error.message));
+      if(ref) selectSection(ref.chapter_id,ref.section_id,{record:false}).then(ok=>{if(!ok)return;state.pdfFocus=ref;showView("course");Workspace.setReaderOpen(true);syncPDFReader();}).catch(error=>toast(error.message));
       return;
     }
     const cancelComposition=event.target.closest('[data-composition-cancel]');
@@ -1071,24 +1113,17 @@ function bindEvents() {
     if (contentTab) { state.contentTab = contentTab.dataset.contentTab; $$("[data-content-tab]").forEach((el) => el.classList.toggle("active", el === contentTab)); renderContent(); }
   });
   for (const [formSelector,inputSelector] of [["#chat-form","#chat-input"]]) {
-    $(formSelector).addEventListener("submit", (event) => { event.preventDefault(); if (state.sending) return; if(state.taskRecoveryNeeded){toast('请先恢复问题状态，再继续提问');return;} const input = $(inputSelector); const value = input.value; input.value = "";Workspace.clearDraft();Workspace.showHelp(null); sendMessage(value); });
+    $(formSelector).addEventListener("submit", (event) => { event.preventDefault(); if (state.sending||state.switchingConversation||state.initializing) return; if(state.taskRecoveryNeeded){toast('请先恢复问题状态，再继续提问');return;} const input = $(inputSelector); const value = input.value; input.value = "";Workspace.clearDraft();Workspace.showHelp(null); sendMessage(value); });
   }
   $("#quiz-chapter").addEventListener("change", (event) => { loadQuiz(Number(event.target.value)); });
   $("#quiz-area").addEventListener("submit", (event) => { if (event.target.id === "quiz-form") { event.preventDefault(); submitQuiz(event.target); } });
   $("#settings-form").addEventListener("submit", (event) => { event.preventDefault(); savePreferences(event.target); });
-  $("#search-form").addEventListener("submit", async (event) => {
-    event.preventDefault(); const value = $("#global-search").value.trim(); if (!value) return;
-    try {
-      const results = await api(`/api/course/search?q=${encodeURIComponent(value)}`);
-      const match = results[0];
-      if (match) { await selectSection(match.chapter_id, match.section_id); showView("course"); toast(`已找到：${match.title}`); }
-      else { showView("chat"); $("#chat-input").value = value; $("#chat-input").focus(); toast("教材暂未匹配到；你可以直接问助教"); }
-    } catch (error) { toast(`搜索失败：${error.message}`); }
-  });
+
 }
 
 async function init() {
   Workspace.bind();bindEvents(); applyCourseCollapse(); renderChat();
+  await taskSessionReady;refreshConversations();
   try {
     const [chapters,catalog]=await Promise.all([api("/api/course/chapters"),api(course.reading_map_url)]);
     state.chapters=chapters;state.practiceCatalog=catalog;
@@ -1105,6 +1140,7 @@ async function init() {
   await restoreClarification();
   await restoreGraphs();
   await refreshGraphCapability();
+  state.initializing=false;
   refreshStats();
 }
 

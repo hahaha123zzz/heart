@@ -25,9 +25,16 @@ _CATALOG = re.compile(r'(?:几[本份个]|数量|清单|列表).{0,6}(?:教材|�
 _OUTLINE = re.compile(r'目录|章节结构|有哪些小节|小节结构')
 _PERSONAL = re.compile(r'记得我|我的.{0,4}(?:偏好|画像|基础)|我喜欢.{0,4}(?:讲|学)')
 _READER = re.compile(r'跳转|带我到|打开.{0,6}页|定位到|翻到')
+_NO_READER = re.compile(r'(?:不要|不用|不必|别|无需|不需要)(?:再)?(?:执行)?(?:教材)?(?:页面)?(?:的)?'
+                        r'(?:跳转|带我到|打开|定位到|翻到)[^，。；;：:！？!?]*')
+_FIGURE_QUESTION = re.compile(r'解释|讲解|说明|为什么|如何|什么|看不懂|看懂|含义|区别|步骤')
 _SECTION_OVERVIEW = re.compile(r'讲什么|学什么|内容|重点|要点|框架|脉络|概览|简介|有什么|有哪些')
 _UNRESOLVED = re.compile(r'(?:^|[^其])他(?!人)|她|它')
 _PURE_DEICTIC = re.compile(r'(?:这个|那个|它|这些|那些|这里|那里)(?:呢|啊)?[？?。！!]*')
+
+
+def reader_requested(message: str) -> bool:
+    return bool(_READER.search(_NO_READER.sub('', ''.join(message.split()))))
 
 
 def _query(turn: GroundedTurn) -> str:
@@ -188,7 +195,11 @@ def _explain(turn, context, text):
             name=chapter['title'] if chapter else '', reason='plan_request')
 
     target = _figure_ref(turn)
+    reader_command = reader_requested(text)
     if target is not None:
+        if not reader_command and (_FIGURE_QUESTION.search(text) or _NO_READER.search(text)):
+            return _result(turn, kind='concept_answer', scope='figure', target_id=target.canonical_id,
+                name=target.title, reason='figure_question')
         return _result(turn, kind='reader_action', scope='figure', target_id=target.canonical_id,
             name=target.title, purpose='reader_action', reason='figure_reference')
 
@@ -197,7 +208,7 @@ def _explain(turn, context, text):
     if _PERSONAL.search(text):
         return _result(turn, kind='personal_state', scope='none', purpose='personal_state',
             reason='explicit_personal_state')
-    if _READER.search(text):
+    if reader_command:
         return _result(turn, kind='reader_action', scope='none', purpose='reader_action', reason='reader_command')
 
     chapter = _chapter(text)

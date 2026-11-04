@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from database.database import session_scope
 from database.models import (ConversationRow, KnowledgeStateRow, MisconceptionRow,
@@ -307,6 +307,26 @@ def review_items(student_id: str, session_id: str | None = None):
     scheduled = scheduled_reviews(student_id, session_id)
     scheduled_points = {row['point'].strip().casefold() for row in scheduled if row['kind'] == 'scheduled_review'}
     return scheduled + [item for item in legacy if item.get('question_id') or item['point'].strip().casefold() not in scheduled_points]
+
+
+@router.get("/students/{student_id}/conversation-sessions")
+def conversation_sessions(student_id: str):
+    """按真实会话分组，只读取标题所需的首条消息。"""
+    _student_id(student_id)
+    with session_scope() as session:
+        groups = session.execute(
+            select(ConversationRow.session_id, func.min(ConversationRow.id), func.max(ConversationRow.id))
+            .where(ConversationRow.student_id == student_id,
+                   ConversationRow.session_id.is_not(None), ConversationRow.session_id != "")
+            .group_by(ConversationRow.session_id)
+            .order_by(func.max(ConversationRow.id).desc()).limit(100)
+        ).all()
+        first_ids = [first_id for _, first_id, _ in groups]
+        titles = {row.id: " ".join(row.content.split())[:80] or "学习对话"
+                  for row in session.scalars(select(ConversationRow).where(
+                      ConversationRow.student_id == student_id, ConversationRow.id.in_(first_ids))).all()} if first_ids else {}
+        return [{"session_id": identity, "title": titles[first_id]}
+                for identity, first_id, _ in groups]
 
 
 @router.get("/students/{student_id}/conversation")

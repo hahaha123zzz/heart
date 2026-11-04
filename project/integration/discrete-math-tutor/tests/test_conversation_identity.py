@@ -41,6 +41,27 @@ class ConversationIdentityTests(unittest.TestCase):
         self.assertEqual(row['textbook_sources'], ref['textbook_sources'])
         self.assertEqual(row['pdf_references'], ref['pdf_references'])
 
+    def test_session_list_groups_orders_and_isolates_students(self):
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+        from web_api import router
+
+        repo = self.memory.repo
+        self.memory.ensure_student('other')
+        repo.append_conversation('s', 'user', '  第一段\n学习  ', session_id='first')
+        repo.append_conversation('s', 'user', '第二段学习', session_id='second')
+        repo.append_conversation('s', 'assistant', '第一段的新回复', session_id='first')
+        repo.append_conversation('s', 'user', '无会话的旧记录')
+        repo.append_conversation('other', 'user', '其他学生的私密记录', session_id='private')
+        app = FastAPI()
+        app.include_router(router)
+        client = TestClient(app)
+        self.assertEqual(client.get('/api/students/s/conversation-sessions').json(), [
+            {'session_id': 'first', 'title': '第一段 学习'},
+            {'session_id': 'second', 'title': '第二段学习'},
+        ])
+        self.assertEqual(client.get('/api/students/empty/conversation-sessions').json(), [])
+
 
 if __name__ == '__main__':
     unittest.main()
