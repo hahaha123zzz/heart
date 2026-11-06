@@ -126,6 +126,29 @@ class GroundingTests(unittest.TestCase):
         llm.chat_json=Mock(return_value={'evidence_ids':['forged'],'rects':[]})
         with self.assertRaises(ValueError):choose_evidence(llm,'解释条件',sources,self.path)
 
+    def test_retrieval_slice_recovers_full_original_block_and_conditions(self):
+        from dataclasses import replace
+        source=replace(self.bundle().sources[0], text='The first condition is necessary.', block_end=0)
+        def choose(payload):
+            self.assertEqual([c['quote'] for c in payload['candidates']], [self.quote])
+            return {'evidence_ids':[payload['candidates'][0]['evidence_id']]}
+        bundle=choose_evidence(None,'解释条件',[source],self.path,selection_fn=choose)
+        self.assertEqual(bundle.sources[0].text,self.quote)
+        self.assertEqual(bundle.evidence[0]['location_status'],'exact')
+        self.assertEqual(bundle.evidence[0]['block_end'],len(self.quote))
+        self.assertIn('-10 is not 10',bundle.evidence[0]['quote'])
+
+    def test_retrieval_slice_does_not_recover_unmatched_neighbour_blocks(self):
+        from dataclasses import replace
+        source=replace(self.bundle().sources[0],text='The first condition is necessary.')
+        def choose(payload):
+            self.assertEqual([c['quote'] for c in payload['candidates']], [self.quote])
+            return {'evidence_ids':[payload['candidates'][0]['evidence_id']]}
+        choose_evidence(None,'解释条件',[source],self.path,selection_fn=choose)
+        invalid=replace(source,text='Invented words with no original overlap.')
+        with self.assertRaises(CitationGroundingError):
+            choose_evidence(None,'解释条件',[invalid],self.path,selection_fn=choose)
+
     def test_selection_without_matching_candidate_never_uses_unrelated_context(self):
         llm=SimpleNamespace(chat_json=Mock(return_value={'evidence_ids':['invented']}))
         with self.assertRaises(CitationGroundingError):

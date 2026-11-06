@@ -258,8 +258,13 @@ def rule_evidence(question, sources):
     state = active()
     if state is None:
         raise RuntimeError('retrieval_not_ready')
+    def select(payload):
+        for item in payload['candidates']:
+            if 'retrieval_source_index' in item:
+                item['retrieval_score']=sources[item['retrieval_source_index']].location.get('retrieval_score')
+        return select_evidence(payload)
     return choose_evidence(None, question, [as_textbook_chunk(s.to_dict()) for s in sources],
-                           state.citation_path, selection_fn=select_evidence)
+                           state.citation_path, selection_fn=select)
 
 
 def search_query(message):
@@ -277,11 +282,17 @@ def select_evidence(payload):
     terms = terms_for(question)
     import re
     topic = re.sub(r'^(?:请|给我|帮我)?(?:解释|讲解|介绍)(?:一下)?|是什么[？?。]*$|^什么是', '', question).strip(' ，。？！?')
-    ranked = sorted(enumerate(payload['candidates']), key=lambda pair:
-        (-bool(pair[1].get('selected_target')), -(10 * bool(topic and topic in pair[1]['quote']) +
-           len(terms & terms_for(pair[1]['quote'])) / max(1, len(pair[1]['quote'])) ** .5), pair[0]))
+    def relevance(item):
+        return 10 * bool(topic and topic in item['quote']) + len(terms & terms_for(item['quote']))
+    def rank(item):
+        return (0 if item.get('selected_target') else 1, -relevance(item),
+                -(item.get('retrieval_score') or 0), item.get('retrieval_source_index',0),
+                -min(len(item['quote']),400))
+    ranked = sorted(payload['candidates'], key=rank)
+    relevant = [item for item in ranked if item.get('selected_target') or relevance(item)]
+    # 无关键词的追问保留最佳上下文；不以无关条目补满三条。
     chosen = []; seen = set()
-    for _, item in ranked:
+    for item in relevant or ranked[:1]:
         identity = item['quote']
         if identity not in seen:
             chosen.append(item['evidence_id']);seen.add(identity)

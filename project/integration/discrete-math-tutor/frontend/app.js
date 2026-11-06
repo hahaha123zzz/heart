@@ -800,6 +800,16 @@ function renderAnswerContent(message) {
   return html;
 }
 let chatRenderer;
+function visualizationNotice(message) {
+  if (message.role !== 'assistant') return '';
+  if (message.visualizationStatus === 'pending') return '<div class="visualization-notice" role="status">正在生成图解…</div>';
+  if (message.visualizationStatus !== 'unavailable') return '';
+  const reason = message.visualizationReason || {};
+  const label = {audit_rejected:'本轮图解未通过核验，未展示图解。', no_template:'当前内容没有合适的图解模板，未展示图解。', no_sources:'缺少可用于图解的教材原文，未展示图解。', model_or_service_error:'图解生成服务暂时不可用，未展示图解。', validation_failed:'本轮图解未通过校验，未展示图解。'}[reason.code] || '本轮图解未生成。';
+  const detail = String(reason.message || '').replace(/^图解内容核验未通过[：:]\s*/, '').slice(0, 800);
+  if (reason.code === 'audit_rejected' && detail) return `<details class="visualization-notice"><summary>${esc(label)}点击查看原因</summary><p>${esc(detail)}</p></details>`;
+  return `<div class="visualization-notice" role="status">${esc(label)}</div>`;
+}
 function renderChat() {
   Workspace.chatChanged();
   const messages=state.chat;
@@ -808,7 +818,7 @@ function renderChat() {
   chatRenderer.render(messages.map((m,index)=>({key:m.renderKey ??= newRequestId(),role:m.role,parts:{
     progress:m.startedAt?renderProgress(m):'',
     object:m.objectLabel?'<small>针对：'+esc(m.objectLabel)+'</small>':'',
-    content:renderAnswerContent(m)+(m.role==='assistant'&&!m.failed?window.LearningCards?.render(m.cardsVerified===false?[]:m.learningCards,{conversationId:m.conversationId})||'':'')+(m.cardNotice?'<p role="status">'+esc(m.cardNotice)+'</p>':''),
+    content:renderAnswerContent(m)+(m.role==='assistant'&&!m.failed?window.LearningCards?.render(m.cardsVerified===false?[]:m.learningCards,{conversationId:m.conversationId})||'':'')+(m.cardNotice?'<p role="status">'+esc(m.cardNotice)+'</p>':'')+visualizationNotice(m),
     references:renderChatReferences(m,index),clarification:renderClarification(m),style:renderStyleSuggestion(m,index),
     memory:m.memorySummary?'<div class="memory-summary">'+esc(m.memorySummary)+'</div>':'',
     figures:(m.role==='assistant'?(m.imageRefs||[]):[]).filter(image=>!m.content?.includes('(media:'+image.id+')')).map(image=>
@@ -867,6 +877,7 @@ async function sendMessage(message, options={}) {
       content:result.reply || "助教暂时没有返回内容。", unpublishedDraft:result.unpublished_draft || '',
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
       cardsVerified:true,learningCards:result.answer_status==='answered'?result.learning_cards:undefined,selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
+      visualizationStatus:result.visualization_status,visualizationReason:result.visualization_reason,
       learningResponse:result.answer_status==='answered'||partial?result.learning_response:undefined,
       compositionResume:partial?{task_id:result.task_id,task_revision:result.task_revision}:undefined,
       blocksCommitted:!!partial,committedContent:partial?partial.reply:undefined,

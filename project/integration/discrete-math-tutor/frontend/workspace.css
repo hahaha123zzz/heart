@@ -83,3 +83,6 @@ body[data-workspace-view=home] .sidebar-library,body[data-workspace-view=learnin
 @keyframes progress-orbit{to{transform:rotate(360deg)}}
 @keyframes progress-fade-in{from{opacity:0;transform:translateY(3px);filter:blur(.4px)}to{opacity:1;transform:none;filter:none}}
 @media(prefers-reduced-motion:reduce){.progress-orbit i{animation:none}.progress-title{animation:none}.progress-chevron{transition:none}}
+.visualization-notice{margin:10px 0 0;padding:7px 10px;border:1px solid #eadfc9;border-radius:6px;background:#fbf8f1;color:#7d6a45;font-size:12px;line-height:1.6}
+.visualization-notice summary{cursor:pointer;font-weight:500}
+.visualization-notice p{margin:6px 0 0;line-height:1.65;white-space:pre-wrap}

@@ -9,20 +9,19 @@ import re
 from typing import TYPE_CHECKING
 
 from knowledge.course import chapters
-from knowledge.course_navigation import _number, intent, outline
+from knowledge.course_navigation import _chapter_match, _number, intent, outline
 from models.input_understanding import GroundedTurn, TurnRoute
 
 if TYPE_CHECKING:
     from models.task_context import TaskContext
 
-_CHAPTER = re.compile(r'第([一二三四五六七八九十零\d]+)章')
 _SECTION = re.compile(r'第([一二三四五六七八九十零\d]+)节')
 # 裸章号/“第一章内容”是范围选择，不是某一节的概念提问。
 _BARE_CHAPTER = re.compile(r'^第([一二三四五六七八九十零\d]+)章(?:的)?(?:内容|主要内容)?[。！？!?]*$')
 # 只认“数量/清单”语义；内容提问（有哪些/是什么）不是文件目录。
 _CATALOG = re.compile(r'(?:几[本份个]|数量|清单|列表).{0,6}(?:教材|文档|资料)|'
                       r'(?:教材|文档|资料).{0,6}(?:几[本份个]|数量|清单|列表)')
-_OUTLINE = re.compile(r'目录|章节结构|有哪些小节|小节结构')
+_OUTLINE = re.compile(r'目录|章节结构|有哪些小节|小节结构|思维导图|导图|知识框架|框架图|结构图|章节框架|整章结构')
 _PERSONAL = re.compile(r'记得我|我的.{0,4}(?:偏好|画像|基础)|我喜欢.{0,4}(?:讲|学)')
 _READER = re.compile(r'跳转|带我到|打开.{0,6}页|定位到|翻到')
 _NO_READER = re.compile(r'(?:不要|不用|不必|别|无需|不需要)(?:再)?(?:执行)?(?:教材)?(?:页面)?(?:的)?'
@@ -54,7 +53,7 @@ def _result(turn: GroundedTurn, *, kind, scope, chapter=None, section=None, targ
 
 
 def _chapter(text: str):
-    match = _CHAPTER.search(text)
+    match = _chapter_match(text)
     if match:
         number = _number(match[1])
         return next((chapter for chapter in chapters() if chapter['id'] == number), None)
@@ -129,6 +128,15 @@ def classify_route(turn: GroundedTurn, context: 'TaskContext') -> TurnRoute:
             return _result(turn, kind='learning_plan', scope='chapter', chapter=chapter['id'],
                 target_id=f"chapter:{chapter['id']}", name=chapter['title'], reason='plan_request')
         return _result(turn, kind='learning_plan', scope='none', reason='plan_request')
+
+    navigation = getattr(context, 'course_navigation', None) or {}
+    if (action in ('explain_content', 'chapter_overview', 'switch_learning_target')
+            and intent(turn.envelope.raw_text) in ('start', 'next', 'topic', 'repeat')
+            and navigation.get('status') == 'ready'):
+        return _result(turn, kind='concept_answer', scope='kp',
+            chapter=navigation['chapter_id'], section=navigation['section_id'],
+            target_id=navigation['id'], name=navigation['title'], query=navigation['title'],
+            mode=navigation['mode'], reason='textbook_point_navigation')
 
     if action == 'compare_content':
         return _result(turn, kind='comparison', scope='kp', target_id=_kp_id(context), reason='compare_action')

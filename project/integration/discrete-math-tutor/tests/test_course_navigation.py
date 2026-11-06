@@ -25,6 +25,15 @@ from models.student_state import StudentState
 
 
 class NavigationTests(unittest.TestCase):
+    def test_natural_continue_moves_one_knowledge_point_in_same_section(self):
+        first = resolve('学习第一章')
+        for message in ('这个我懂了，继续向下讲解吧', '继续讲解', '继续往下讲吧'):
+            with self.subTest(message=message):
+                second = resolve(message, cursor=first)
+                self.assertEqual(second['position'], first['position'] + 1)
+                self.assertEqual(second['section_id'], first['section_id'])
+        self.assertEqual(resolve('开始学习吧', cursor=first)['id'], first['id'])
+
     def test_chapter_aliases_resolve_identically_and_override_reader(self):
         values = [resolve(q, reader_location=ReaderLocation(chapter_id=2, section_id=1)) for q in
                   ('我想要学习教材第一章的内容', '学习第1章', '学习实验心理学概论',

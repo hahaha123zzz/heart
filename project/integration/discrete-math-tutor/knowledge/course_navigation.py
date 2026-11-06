@@ -39,6 +39,16 @@ def _depth(text):
     return 1 if re.match(r'^[一二三四五六七八九十]+、', text) else 2 if text.startswith('(') else 3
 
 
+_CHAPTER = re.compile(r'第([一二三四五六七八九十零\d]+)章')
+_CHAPTER_MAP = re.compile(r'第([一二三四五六七八九十零\d]+)(?:的)?(?:思维导图|导图|知识框架|框架图|结构图|章节框架|整章结构)')
+_SECTION = re.compile(r'第[一二三四五六七八九十零\d]+[节小]')
+
+
+def _chapter_match(text):
+    """Accept ``第一章`` and the shorthand ``第一的思维导图`` as chapter scopes."""
+    return _CHAPTER.search(text) or (None if _SECTION.search(text) else _CHAPTER_MAP.search(text))
+
+
 def outline():
     """目录顺序只来自已发布章/节和正文标题，不生成隐式知识路径。"""
     from knowledge.fixed_book import active
@@ -94,6 +104,11 @@ def intent(message):
                           ('topic', r'(?:下一个?知识点|下一(?:个)?(?:知识点|主题)|下一个内容)')]:
         if re.search(pattern, text):
             return mode
+    if re.fullmatch(r'(?:请)?开始(?:学习|学)(?:吧)?[。！？!\s]*', text):
+        return 'repeat'
+    if re.fullmatch(r'(?:(?:这个|这部分)?(?:我懂了|明白了|懂了|好的|可以|嗯|行)[，,。！？!\s]*)?'
+                    r'(?:请)?(?:继续|接着)(?:向下|往下)?(?:讲解|讲|学习|学)?(?:吧)?[。！？!\s]*', text):
+        return 'next'
     # “我懂了，下一部分/下一步/继续/接下来”是路径推进；无路径时由 resolve 澄清。
     if re.search(r'下一部分|下一步|接下来', text):
         return 'next'
@@ -101,16 +116,18 @@ def intent(message):
                     r'(?:继续|继续学习|继续学|接着学习|接着学|往下学|往下学习)[。！？\s]*', text):
         return 'next'
     # 章节中的具体内容提问仍交给普通识别；章节导学/导览要求才走目录入口。
-    chapter_match = re.search(r'第[一二三四五六七八九十零\d]+章', text)
+    chapter_match = _chapter_match(text)
     named = next((chapter['title'] for chapter in chapters() if chapter['title'] in text), None) if PSYCHOLOGY else None
     # 指向具体小节的问题（“第一章第三节……是什么”）不是整章导览。
-    if (chapter_match or named) and not re.search(r'第[一二三四五六七八九十零\d]+[节小]', text):
+    if chapter_match and not _SECTION.search(text) and not chapter_match.group(0).endswith('章'):
+        return 'overview'
+    if (chapter_match or named) and not _SECTION.search(text):
         suffix = text.split(named, 1)[1] if named else text[chapter_match.end():]
         suffix = re.sub(r'(?:[，,。；;](?:只讲解|只讲|先讲解|直接讲解|直接讲|直接解释|'
                         r'从第一个知识点开始|不要出题|不出题|不要测试|不测试))+[。！？]*$', '', suffix)
         core = re.sub(r'[的了吧呢，,。；;！？!?\s]+', '', suffix)
         if core and re.fullmatch(r'(?:主要|重点|核心|基本|大致|整体|概要|简介|框架|脉络|'
-                                 r'讲什么|学什么|有什么|有哪些|是什么|内容)+', core):
+                                 r'讲什么|学什么|有什么|有哪些|是什么|内容|思维导图|导图|知识框架|框架图|结构图|章节框架|整章结构)+', core):
             return 'overview'
         if re.search(r'学|带我|从头|开始|讲解|介绍', text) and re.fullmatch(
                 r'(?:的|内容|全部|从头|开始|学习|讲解|吧|[，。！？])*', suffix):
@@ -255,7 +272,7 @@ def resolve(message, *, cursor=None, reader_location=None, activity=None):
         # 导览与开始学习落在同一章的首个目录目标；游标模式保持兼容。
         mode = 'start'
         text = ''.join(message.split())
-        match = re.search(r'第([一二三四五六七八九十零\d]+)章', text)
+        match = _chapter_match(text)
         chapter_id = _number(match[1]) if match else None
         if match and not any(u['chapter_id'] == chapter_id for u in units):
             return {'status': 'clarify', 'reply': '教材中没有这一章，请选择现有章节。'}
@@ -268,8 +285,7 @@ def resolve(message, *, cursor=None, reader_location=None, activity=None):
             return {'status': 'clarify', 'reply': '请说明要学习的教材章号或完整章节名称。'}
         target = candidates[0]
     else:
-        current = next((u for u in units if cursor and u['id'] == cursor.get('id')
-                        and u['version'] == cursor.get('version')), None)
+        current = next((u for u in units if cursor and u['id'] == cursor.get('id')), None)
         if current is None and cursor is None and mode in ('section', 'chapter') and reader_location:
             current = next((u for u in units if u['chapter_id'] == reader_location.chapter_id
                             and u['section_id'] == reader_location.section_id), None)
@@ -304,7 +320,8 @@ def resolve(message, *, cursor=None, reader_location=None, activity=None):
 
 
 def validate(target):
-    unit = next((u for u in outline() if u['id'] == target['id'] and u['version'] == target['version']), None)
+    # 旧学习计划可能引用过期目录版本；同一目标仍存在时按当前教材读取，避免整轮问答失败。
+    unit = next((u for u in outline() if u['id'] == target['id']), None)
     if unit is None:
         raise ValueError('教材目录或正文已更新，请重新选择章节')
     if not unit.get('source_valid'):

@@ -139,6 +139,85 @@ class RetrieveCourseTool(BaseTool):
                                     "stub": any(item.get("stub", False) for item in payload)})
 
 
+class LookupFiguresTool(BaseTool):
+    """按当前小节查教材图表索引；索引只用于选择，不返回图片。"""
+
+    definition = ToolDefinition(
+        name="lookup_figures",
+        description=("查看当前章节/小节的教材图表索引，判断本轮回答是否需要引用教材原图或表格。"
+                     "默认只返回当前小节；查询明确写“图3-1/表3-1”时按编号精确查找。"
+                     "需要原图时再调用 retrieve_course(asset_id=...)。"),
+        parameters=(
+            ToolParameter("query", "string", "当前问题或关键词；明确写图号/表号时按编号查找",
+                          required=False, default=""),
+            ToolParameter("chapter_id", "integer", "章号；省略时使用当前学习目标", required=False),
+            ToolParameter("section_id", "integer", "节号；省略时使用当前学习目标", required=False),
+            ToolParameter("limit", "integer", "返回条数，默认8，最多20", required=False, default=8),
+        ),
+    )
+
+    def run(self, arguments: dict[str, Any], context: ToolContext) -> ToolResult:
+        target = context.state.get("learning_target")
+        try:
+            chapter_id = int(arguments["chapter_id"]) if arguments.get("chapter_id") not in (None, "") else None
+        except (TypeError, ValueError):
+            return ToolResult(content="chapter_id 必须是整数。", success=False)
+        try:
+            section_id = int(arguments["section_id"]) if arguments.get("section_id") not in (None, "") else None
+        except (TypeError, ValueError):
+            return ToolResult(content="section_id 必须是整数。", success=False)
+        if context.state.get('textbook_open', True):
+            if chapter_id is None:
+                chapter_id = getattr(target, "chapter_id", None)
+            if section_id is None:
+                section_id = getattr(target, "section_id", None)
+        if chapter_id is None and section_id is None and not str(arguments.get("query") or "").strip():
+            return ToolResult(content="尚未确定当前章节，也没有可检索的问题，无法读取图表索引。", success=False)
+        if section_id is not None and chapter_id is None:
+            return ToolResult(content="按小节查询需要同时提供章号。", success=False)
+        try:
+            limit = max(1, min(20, int(arguments.get("limit", 8))))
+        except (TypeError, ValueError):
+            limit = 8
+        from knowledge.visual_index import format_entries, load_index
+        index = load_index()
+        if not index.entries:
+            return ToolResult(content="教材图表索引尚未生成。", success=False)
+        entries = index.lookup(chapter_id=chapter_id, section_id=section_id,
+                               query=str(arguments.get("query") or ""), limit=limit)
+        if not entries:
+            if section_id is not None and chapter_id is not None:
+                scope = f"第{chapter_id}章第{section_id}节"
+            elif chapter_id is not None:
+                scope = f"第{chapter_id}章"
+            else:
+                scope = "全书"
+            return ToolResult(content=f"{scope}没有匹配的图表索引，不要配图。", metadata={
+                "chapter_id": chapter_id, "section_id": section_id, "count": 0})
+        if section_id is not None and chapter_id is not None:
+            if all(entry.chapter_id == chapter_id for entry in entries) and any(
+                    entry.section_id != section_id for entry in entries):
+                scope = f"第{chapter_id}章（当前节优先，含其他节）"
+            elif all(entry.chapter_id == chapter_id for entry in entries):
+                scope = f"第{chapter_id}章第{section_id}节"
+            else:
+                scope = "全书匹配"
+        elif chapter_id is not None:
+            scope = (f"第{chapter_id}章" if all(entry.chapter_id == chapter_id for entry in entries)
+                     else "全书匹配")
+        else:
+            scope = "全书匹配"
+        lines = [f"当前范围：{scope}（{len(entries)} 条）", format_entries(entries),
+                 "需要原图时调用 retrieve_course(asset_id=...)。状态为“待核”的条目只作线索，引用前用 retrieve_course 核对原文；"
+                 "状态为“缺图”的条目没有 asset_id，不要声称展示了原图。"]
+        return ToolResult(content="\n".join(lines), metadata={
+            "chapter_id": chapter_id, "section_id": section_id,
+            "count": len(entries), "labels": [entry.label for entry in entries],
+            "entries": [{"label": entry.label, "asset_id": entry.asset_id,
+                         "knowledge_points": list(entry.knowledge_points)}
+                        for entry in entries]})
+
+
 class AskUserTool(BaseTool):
     definition = ToolDefinition(
         name="ask_user",
@@ -217,6 +296,10 @@ def build_registry(*, workspace_root: str | Path | None = None,
     names = {"retrieve_course", "ask_user"} | {
         tool.definition.name for tool in extra_tools
     }
+    from knowledge.course_config import PSYCHOLOGY
+    if PSYCHOLOGY:
+        overlay.append(LookupFiguresTool())
+        names.add("lookup_figures")
     scopes: set[str] = set(extra_scopes)
     workspace = Path(workspace_root).resolve() if workspace_root else None
     skills = Path(skills_root).resolve() if skills_root else None
@@ -242,5 +325,5 @@ def build_default_registry(navigation=None):
     return build_registry(allow_workspace=False, allow_skills=False)
 
 
-__all__ = ["AskUserTool", "RetrieveCourseTool", "build_default_registry",
-           "build_registry"]
+__all__ = ["AskUserTool", "LookupFiguresTool", "RetrieveCourseTool",
+           "build_default_registry", "build_registry"]

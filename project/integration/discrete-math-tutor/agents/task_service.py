@@ -302,6 +302,9 @@ class TaskService:
             current_budget.reset(budget_token)
 
     def _run(self, request, executor, progress=None, *, visualization_jobs=None, answer_ready=None):
+        from agents.teaching_skills import current_skill_receipts, current_teaching_skills
+        current_skill_receipts.set(())
+        current_teaching_skills.set('')
         try:
             # 模型未开始前确保账户；后续执行器在task_guard存在时不重建账户。
             if request.account_type == "test": self.tutor.memory.accounts.create_test_account(request.student_id, ttl_hours=24)
@@ -418,6 +421,8 @@ class TaskService:
                     apply_route(context, context.input_understanding.route)
 
             def save_answer(result, *, status=None):
+                if current_skill_receipts.get() and 'teaching_skills' not in result:
+                    result = dict(result, teaching_skills=list(current_skill_receipts.get()))
                 from agents.input_understanding.adapters import final_summary
                 summary = final_summary(context,result)
                 if summary:
@@ -464,14 +469,12 @@ class TaskService:
                           else bool(q5 and q5.is_plan_request(request.message)))
             q5_propose = q5_propose and not plan_continuation
 
-            if (route.get("kind") in ("chapter_overview", "section_overview")
-                    and not plan_continuation):
-                from agents.chapter_overview import run_chapter_overview
-                result = run_chapter_overview(context, request, self.tutor.llm)
-                return save_answer(result)
+            chapter_request = (route.get("kind") in ("chapter_overview", "section_overview")
+                               and not plan_continuation)
 
             q5_binding = None
-            if q5 is not None and context.selection_scope is None:
+            if (q5 is not None and context.selection_scope is None and not chapter_request
+                    and route.get('reason') != 'textbook_point_navigation'):
                 try:
                     def planning_guard():
                         self.repo.guard(task['student_id'],task['session_id'],task['id'],task['revision'],self.tutor.memory.repo)
@@ -726,12 +729,17 @@ class TaskService:
                 if answer_ready is not None:
                     answer_ready(dict(result))
                 guide = None
+                reason = None
                 if progress:
                     progress("visualization", "准备辅助图解", "文字已保存，可先阅读回答")
                 try:
                     for build in visualization_jobs:
                         guard()
-                        guide = build()
+                        built = build()
+                        if isinstance(built, tuple) and len(built) == 2:
+                            guide, reason = built
+                        else:
+                            guide, reason = built, None
                 except TaskConflict:
                     raise
                 except Exception:
@@ -739,7 +747,8 @@ class TaskService:
                     import logging
                     logging.getLogger(__name__).exception("Optional visualization failed")
                 result = dict(result, guided_visualization=guide,
-                    visualization_status="ready" if guide else "unavailable")
+                    visualization_status="ready" if guide else "unavailable",
+                    visualization_reason=reason)
             # 普通问答/选区回答若引用真实教材位置，绑定可接续的目录游标；
             # 绑定只读文件，放在写事务之外，避免持锁做目录解析。
             bound_navigation = None

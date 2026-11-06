@@ -279,14 +279,15 @@ class BaselineRegistryTests(unittest.TestCase):
         from agents.q5_learning import LearningScope
         from agents.q5_tools import q5_tool_instances
         normal = build_registry(allow_skills=False)
-        self.assertEqual(set(normal.names()), {'retrieve_course', 'ask_user'})
+        self.assertEqual(set(normal.names()), {'retrieve_course', 'ask_user', 'lookup_figures'})
         tools = q5_tool_instances(None, LearningScope('s', 'session', 'course'))
         scopes = {s for tool in tools for s in tool.scopes}
         registry = build_registry(extra_tools=tools, extra_scopes=scopes, allow_skills=False)
-        self.assertEqual(len(registry.names()), 11)
+        self.assertEqual(len(registry.names()), 12)
         insert = [t for t in tools if t.definition.name in ('mastery_status', 'mastery_paths')]
         restricted = build_registry(extra_tools=insert, extra_scopes=('learning:read',), allow_skills=False)
-        self.assertEqual(set(restricted.names()), {'retrieve_course', 'ask_user', 'mastery_status', 'mastery_paths'})
+        self.assertEqual(set(restricted.names()), {'retrieve_course', 'ask_user', 'lookup_figures',
+                                                    'mastery_status', 'mastery_paths'})
         self.assertFalse(any('write' in scope for tool in readonly_tools(
             ReadResources(ReadBinding('s', 'session', 'task', 'course', 'r', ()), CourseReadService()))
             for scope in tool.scopes))

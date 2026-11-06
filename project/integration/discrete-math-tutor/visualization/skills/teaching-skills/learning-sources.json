@@ -1,0 +1,1496 @@
+[
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/README.md",
+    "local_file": "universal-diagnostic-tutor/README.md",
+    "sha256": "516b5a4274fafa8d61cfe39d4b9c3502dfcae71d0b19a7d07bd51b75f557fa12",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/README.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/SKILL.md",
+    "local_file": "universal-diagnostic-tutor/SKILL.md",
+    "sha256": "36fdab5efed9f6304496e6c3310086bcf01f75f70c7c07392bdf09f950df555d",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/SKILL.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/adaptive_multiturn_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/adaptive_multiturn_example.md",
+    "sha256": "89d4edca8dc49719231cc3de395684cd13b571b3604fc049c09bbe0980e200b0",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/adaptive_multiturn_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/advanced_derivative_proof_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/advanced_derivative_proof_example.md",
+    "sha256": "8b4e17b38ce3c8dcd5386476a19b46a3334255a58f42de53ced522fe79321338",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/advanced_derivative_proof_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/ai_concept_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/ai_concept_example.md",
+    "sha256": "4774e4ade29cf5950fe111ea268cbdeda336d1aa1fe9db8f6ce7fcd033059947",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/ai_concept_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/autonomous_resource_discovery_linear_algebra_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/autonomous_resource_discovery_linear_algebra_example.md",
+    "sha256": "b5736ca63aca18111ea3d276492ceefdf1059fb2ef2c84ec8b6c4d748a31e40c",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/autonomous_resource_discovery_linear_algebra_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/bad_vs_good_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/bad_vs_good_example.md",
+    "sha256": "4cbbea4e0667546d7172ad747c38d84428ad4f2e06fb5ac738e62877312efce8",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/bad_vs_good_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/brief_study_plan_machine_learning_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/brief_study_plan_machine_learning_example.md",
+    "sha256": "c6996751736e2e2c18ef64226500ac5a55be110f40f13f4629e5793211bced1d",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/brief_study_plan_machine_learning_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/coding_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/coding_example.md",
+    "sha256": "48d4fd660ddf63a7726a87bb2713a8a67772d794f7e42c5b7fed49cc2eeb2d57",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/coding_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/concept_mastery_map_vector_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/concept_mastery_map_vector_example.md",
+    "sha256": "4539b81d8201ebe3b9a34ab859a7f811501a46563710e4e9c6ff9864a9d8b75a",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/concept_mastery_map_vector_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/context_compression_checkpoint_series_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/context_compression_checkpoint_series_example.md",
+    "sha256": "8615290fc5b1c767c2c64a8d0b59143be598a40175259ab132bd1bc4aa37975f",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/context_compression_checkpoint_series_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/context_handoff_linear_algebra_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/context_handoff_linear_algebra_example.md",
+    "sha256": "8dc19836ac6cf94da510400a201f2ac5d41f92a455d009c143bb80f5818e03b8",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/context_handoff_linear_algebra_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/cross_turn_progress_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/cross_turn_progress_example.md",
+    "sha256": "d0b9b4a15d60a1406b2d381f317514fea6a4ed7d56940fa2cee70f4ccde5c5cf",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/cross_turn_progress_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/cryptography_foundation_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/cryptography_foundation_example.md",
+    "sha256": "6750378ce3d659105c78a8480c796512c432b0f2fb5964ee5b061888193549c3",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/cryptography_foundation_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/difficulty_adjustment_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/difficulty_adjustment_example.md",
+    "sha256": "4be09e77de442ca6575f376350d137f80be22ae5b256b17e3f402dd1163df6e0",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/difficulty_adjustment_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/economics_business_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/economics_business_example.md",
+    "sha256": "f5dfff456378856df0044d7a66fa444d894af92471dfdfba8c1a4132b75fe972",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/economics_business_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/error_to_intervention_binary_search_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/error_to_intervention_binary_search_example.md",
+    "sha256": "dc48bf10d3a2399c9e35790e1f77af2990f9d33d033059a07639c919382a15c0",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/error_to_intervention_binary_search_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/exam_pattern_probability_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/exam_pattern_probability_example.md",
+    "sha256": "e0961b99d035e2bc0c3b61bcb9b764013403db0802ed05a95be47e35f4ff7b54",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/exam_pattern_probability_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/exam_prep_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/exam_prep_example.md",
+    "sha256": "e4a1164822a0fd3a51c6c01ca043a683755ca3d5d4d66882b39cd39e3c8aa8c1",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/exam_prep_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/exercise_generation_difficulty_ladder_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/exercise_generation_difficulty_ladder_example.md",
+    "sha256": "bcf1c98c96417c39d1bbc1924707d483d8eebb2915b672001701aaa944ce8d14",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/exercise_generation_difficulty_ladder_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/explanation_compression_gradient_descent_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/explanation_compression_gradient_descent_example.md",
+    "sha256": "1c5bda204bf177cad970f3bd8ab5c31b6d34657c5df33289cbd0b462d4a3c044",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/explanation_compression_gradient_descent_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/finance_boundary_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/finance_boundary_example.md",
+    "sha256": "930766632432b6294b0e704f27ff7b0a06cee5b07baeb19d56dbcdfd41ad6160",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/finance_boundary_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/formal_languages_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/formal_languages_example.md",
+    "sha256": "b39498ad1bb1e0411c252f511768e920fb933155663d5536ead2db8339c77179",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/formal_languages_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/generic_ai_vs_skill_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/generic_ai_vs_skill_example.md",
+    "sha256": "dc50faa985732f1f05cffb313e9f2308f6efa743e7156e2be8c02c9f57bbbd3f",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/generic_ai_vs_skill_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/goal_clarification_machine_learning_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/goal_clarification_machine_learning_example.md",
+    "sha256": "88de0312e969ed162c2754e6aa69d7c3bdf854d64efb38c34babba3220f0669a",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/goal_clarification_machine_learning_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/grading_partial_credit_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/grading_partial_credit_example.md",
+    "sha256": "8f7e66e6a226daa9172ca237016b31d1ed0b49d93d9aa397a8b591a145a05dcd",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/grading_partial_credit_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/health_boundary_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/health_boundary_example.md",
+    "sha256": "b7e685739b963a0c2b5853bba65bd04314d077f8f1dfb4402db0caaf8236c7b9",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/health_boundary_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/humanities_evidence_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/humanities_evidence_example.md",
+    "sha256": "a59e82f4b1bc9dec7dc1522015ee3403f2459cdb077bb45641cc7a1c37e99bfa",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/humanities_evidence_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/humanities_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/humanities_example.md",
+    "sha256": "33ab19d26e0345affe4ebceb890205ce75945855c52d4d965ecf2988c3815fbe",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/humanities_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/interaction_pacing_linear_algebra_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/interaction_pacing_linear_algebra_example.md",
+    "sha256": "2353480b2d698bb2c2dbd283ce39401d4672dc0c73e8f25387021b3181e890ee",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/interaction_pacing_linear_algebra_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/internal_tool_leakage_bad_vs_good_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/internal_tool_leakage_bad_vs_good_example.md",
+    "sha256": "e017f527043cf4bf5ebbb2b565172d6d16163a5de0ea18d414df3c028676d3c7",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/internal_tool_leakage_bad_vs_good_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/intuition_application_gradient_descent_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/intuition_application_gradient_descent_example.md",
+    "sha256": "9229dc574d4eaea842fea3241afe4d5a9719549aadf0c7a6d79b6f5697d5c269",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/intuition_application_gradient_descent_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/know_x_not_y_handoff_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/know_x_not_y_handoff_example.md",
+    "sha256": "bad6376d12fba6f7121c4a9fe433c0cd77229c83a2f9deeaf57a85af3f6db1c7",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/know_x_not_y_handoff_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/knowledge_link_cards_machine_learning_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/knowledge_link_cards_machine_learning_example.md",
+    "sha256": "13ff5e42d32d15491b3861586e80d30ec1030985dfc6233e72a16ae247d4cbc5",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/knowledge_link_cards_machine_learning_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/knowledge_map_linear_algebra_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/knowledge_map_linear_algebra_example.md",
+    "sha256": "508598c0231c84cb50a1b06c4a17e09b985b259174678b344f4f52102b59ee23",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/knowledge_map_linear_algebra_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/knowledge_system_series_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/knowledge_system_series_example.md",
+    "sha256": "5c4323f80026fe6cba7c31c371828831f349799c147761ab7673b7e7ca880b3e",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/knowledge_system_series_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/language_literature_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/language_literature_example.md",
+    "sha256": "a2753c9b8d360a7b0f393aa6902401e58891cff89b63b4a23882c2b517956c87",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/language_literature_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/law_civics_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/law_civics_example.md",
+    "sha256": "cb788a747fc60e4002d5510dcab1ea939af1df77cd415f37c5d483af6d804b00",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/law_civics_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/learner_profile_task_card_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/learner_profile_task_card_example.md",
+    "sha256": "bca43ba1c236b49c67c8ee2f3e1fd6fbc8933b102c804af29ec77e4b75f9ca8e",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/learner_profile_task_card_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/learning_efficiency_graph_theory_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/learning_efficiency_graph_theory_example.md",
+    "sha256": "95fd51e88c5b4430b22bfc32aaec80f8935c751a1689536af8e027cc788c7a0c",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/learning_efficiency_graph_theory_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/learning_path_exam_series_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/learning_path_exam_series_example.md",
+    "sha256": "d1f39d8bbacbaca7a10dc888f3f739c4edd14e883406e55573e1466b46416ece",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/learning_path_exam_series_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/learning_state_card_graph_theory_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/learning_state_card_graph_theory_example.md",
+    "sha256": "66b1562f941174c4b436791deb7fb6aab7c85e1f6ff6bc7dc2d0f1dc19d80b10",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/learning_state_card_graph_theory_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/mastery_signal_linear_algebra_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/mastery_signal_linear_algebra_example.md",
+    "sha256": "8a9e8d56c4da9f13c584a0c64e701bf6033ae58c167514efc21fd66d936fc386",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/mastery_signal_linear_algebra_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/mastery_state_matrix_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/mastery_state_matrix_example.md",
+    "sha256": "8ace28b84b2eed6b34abb95e0fba1e15b47f34d6cc7a02e94e6cd2c0e8b48eef",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/mastery_state_matrix_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/math_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/math_example.md",
+    "sha256": "fbbb878d3f9d2b4752d26ab4cfdee8da5421dfa222c174071cce8517251fabde",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/math_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/math_formatting_good_vs_bad_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/math_formatting_good_vs_bad_example.md",
+    "sha256": "d6cfed348fe8ebca9d1581dbf4e6c6763c8dfa567841c3d26bda40416c9de5a9",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/math_formatting_good_vs_bad_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/mistake_analysis_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/mistake_analysis_example.md",
+    "sha256": "5280c560568063bd1ec0ca37bf83693d2ea49dad95109d4cda918e8c31faaa5b",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/mistake_analysis_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/mistake_analysis_teaching_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/mistake_analysis_teaching_example.md",
+    "sha256": "57227eb0b2d063fade4a58bf673ac70027de917e7ce8373351d2720c8a38f8fd",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/mistake_analysis_teaching_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/mixed_subject_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/mixed_subject_example.md",
+    "sha256": "38b7bdaaed27b7e888da37f463cf433c6023e4835a1678cba826ec533e41d199",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/mixed_subject_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/mode_switching_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/mode_switching_example.md",
+    "sha256": "da2398defc28e438ba554def769862bc6f013a7414b8d2f7cf72f0e16003b4f5",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/mode_switching_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/natural_style_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/natural_style_example.md",
+    "sha256": "344b653f25466a642e698a54a859a5ae81aad6be51b06e08c574d05f7455d0b9",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/natural_style_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/networks_from_zero_source_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/networks_from_zero_source_example.md",
+    "sha256": "dfec396348405ebc2bff1366b26c381ee8de7e829c4aefc23870b4fdfd662fb1",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/networks_from_zero_source_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/next_best_step_series_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/next_best_step_series_example.md",
+    "sha256": "4c38b1aed40aa65fdf62b0897378a7211c46183e2b17f0b7fdbff51680041c41",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/next_best_step_series_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/numerical_analysis_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/numerical_analysis_example.md",
+    "sha256": "e3ff3093786c2b852091b9e1fc1576cc99525584f9730e1da57a50144bb8e5a0",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/numerical_analysis_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/orchestrator_subskill_routing_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/orchestrator_subskill_routing_example.md",
+    "sha256": "df8b4a9a50dc49f10497ae766cf3d1156386dc4f3c54bf1ab43c9f6f6ba806f9",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/orchestrator_subskill_routing_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/practice_ladder_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/practice_ladder_example.md",
+    "sha256": "6e8e3e20798d6b95f3edbd43864aff40fcb4f215155217f091eae519085154f3",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/practice_ladder_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/practice_loop_end_to_end_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/practice_loop_end_to_end_example.md",
+    "sha256": "377f74c6c456206b6a55c194f75f48b66bdad7a59cc7c0148313ed9e2a52e24e",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/practice_loop_end_to_end_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/readiness_pass_fail_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/readiness_pass_fail_example.md",
+    "sha256": "6626364aa9306949b565d2b1b53635fa1ff6a532c6aebc998778853ff022055d",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/readiness_pass_fail_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/resource_augmented_ai_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/resource_augmented_ai_example.md",
+    "sha256": "43e6d950aedb9bb0c54f5e2b9cc6e50de5025684914161048a495b52e13b1841",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/resource_augmented_ai_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/resource_augmented_cs_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/resource_augmented_cs_example.md",
+    "sha256": "911e45f4b8b25b811e6c55e1b4095f6542c91366752cf13099b7d62ef8ea9fa3",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/resource_augmented_cs_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/resource_augmented_exam_pattern_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/resource_augmented_exam_pattern_example.md",
+    "sha256": "8950b8305f0ae5797dfddadaca08e9ed6fc7ef90123ff4953b9c0c6552980bf6",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/resource_augmented_exam_pattern_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/resource_augmented_math_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/resource_augmented_math_example.md",
+    "sha256": "6e6a2f2c56ad628d42664789f07c9db90d4467e1f3bbf259fe38762bd5f9570c",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/resource_augmented_math_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/review_or_advance_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/review_or_advance_example.md",
+    "sha256": "13e4d0fc91d631266834c6413a5efd5605b1768422e25c631d218bf2a2fb14c1",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/review_or_advance_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/science_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/science_example.md",
+    "sha256": "b966f03a3d54b957bba729bf1db6bae01659450da256497d1c572f6ad8cccd7d",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/science_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/source_limited_answer_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/source_limited_answer_example.md",
+    "sha256": "d51cf5eebcd883281649133e29014f7a1a256f1f1f8b3e384b0e662e82aa51c0",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/source_limited_answer_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/source_pack_usage_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/source_pack_usage_example.md",
+    "sha256": "65c83dfb93bcdc2c0675193dd7ceae78c02c4dab8951d14db5b00e0692610cfb",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/source_pack_usage_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/standard_series_convergence_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/standard_series_convergence_example.md",
+    "sha256": "741f4e448151cdb7facaa1613565d090da3b66b29f557f81bf900673074a6263",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/standard_series_convergence_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stateless_recovery_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stateless_recovery_example.md",
+    "sha256": "dcfff20c81682e1159e295fdef4a22e6d133bd9875fdaf8d936786f1031ff7d4",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stateless_recovery_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stem_ai_ml_bridge_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stem_ai_ml_bridge_example.md",
+    "sha256": "b13f76c803839905410f805cf3d05e8adab2482f793935c782003c564fcecf8e",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stem_ai_ml_bridge_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stem_debugging_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stem_debugging_example.md",
+    "sha256": "98d70622823dda8ac8e89a6a8750c347fcf58236032be1a7b38150a4a64cbe27",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stem_debugging_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stem_derivation_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stem_derivation_example.md",
+    "sha256": "815022f992c85b0b5ca3edd47a7afbaf7e4174e1f1ec3aa78fe335b48870fb68",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stem_derivation_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stem_exam_track_series_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stem_exam_track_series_example.md",
+    "sha256": "9260c5b2cb561a2f4e6ba344ae579adfc2a835a2b4138314707b7bfe17c42588",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stem_exam_track_series_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stem_intuition_to_formal_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stem_intuition_to_formal_example.md",
+    "sha256": "4a9825f200ba17fc303c4370607a1ab8be8f6ca8939dffbceb26124b4edad323",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stem_intuition_to_formal_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stem_notation_gap_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stem_notation_gap_example.md",
+    "sha256": "72f31e5b6c972a5e5ecc475b954aabe6f4c534101683aba15902112749728259",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stem_notation_gap_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stem_physics_signal_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stem_physics_signal_example.md",
+    "sha256": "870fcf2b2edd092bf2c751fd699a3489888d1a8eb4a40699ceb52a58ade3c9d3",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stem_physics_signal_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stem_proof_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stem_proof_example.md",
+    "sha256": "e79e55c464b5222d4ca1b057e5e974afacd24d0678d4fcd2a0a0ead5d7994508",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stem_proof_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stem_systems_abstraction_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stem_systems_abstraction_example.md",
+    "sha256": "805f7b2c580d1ded990c9d12894eeefc48ef11bf2551f3748f9ed83b219c7065",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stem_systems_abstraction_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/stem_teaching_sequence_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/stem_teaching_sequence_example.md",
+    "sha256": "9e738ea701635ee99b276ad403da9dd2a52e1caaf0393db98c12eb7a04502497",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/stem_teaching_sequence_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/still_confused_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/still_confused_example.md",
+    "sha256": "169bd07f4793573ee9c5bbc435ed4fa8b467071efa2bc00d8c1af2ef450b6fb3",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/still_confused_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/student_facing_graph_theory_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/student_facing_graph_theory_example.md",
+    "sha256": "0845a7bc7773e7995111bb264e1ffec0b906d33dc5d0ecd300fa779641589636",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/student_facing_graph_theory_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/study_plan_machine_learning_discipline_first_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/study_plan_machine_learning_discipline_first_example.md",
+    "sha256": "2757fa1d099550f938293962600b92f1d33d608ed3436ba73fccb1b3407cc695",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/study_plan_machine_learning_discipline_first_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/topic_scan_linear_algebra_resources_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/topic_scan_linear_algebra_resources_example.md",
+    "sha256": "b250c0e92d94c5e80761f55864e8726bfb890618092d43f07db3c780539294dd",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/topic_scan_linear_algebra_resources_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/transfer_pattern_linear_algebra_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/transfer_pattern_linear_algebra_example.md",
+    "sha256": "bea2ec28bbc5c736afa87cf4ef3594ae7478cad8ff1b7e8ef477ed85190a7b02",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/transfer_pattern_linear_algebra_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/visualization_vector_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/visualization_vector_example.md",
+    "sha256": "fa1abf1b32a91770c3d535d7c6c62f097b70e6bca47ce497113d13ab74c707a1",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/visualization_vector_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/writing_revision_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/writing_revision_example.md",
+    "sha256": "68437fef8e5d7d7208205309e5d1f5d427ef4fd5c94a51cdcf32939ced50244d",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/writing_revision_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/examples/zero_base_vector_example.md",
+    "local_file": "universal-diagnostic-tutor/examples/zero_base_vector_example.md",
+    "sha256": "4a3b835bae9c1608a0cebb135523b3bc25f38c3a252ab898c90cbcf48c4605b2",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/examples/zero_base_vector_example.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/basic_stem_visualization_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/basic_stem_visualization_protocol.md",
+    "sha256": "d4eda1009738a5febd74e0990af58ed59008e68e1e76c1b6db990e369905ee47",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/basic_stem_visualization_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/clarify_and_path.md",
+    "local_file": "universal-diagnostic-tutor/references/clarify_and_path.md",
+    "sha256": "5fcbcc4ad625f1a893d3163826597535d360fadd7d4879c8db4d2b4e7f0de8e5",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/clarify_and_path.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/cognitive_load_budget_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/cognitive_load_budget_protocol.md",
+    "sha256": "a09bec62fcedaa71af68a0c74d6401f500e6e55ebffcf153344b1d4c997be93c",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/cognitive_load_budget_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/continuity.md",
+    "local_file": "universal-diagnostic-tutor/references/continuity.md",
+    "sha256": "137848fff0b5a6550f7c1a5f4ff75814fb023d2b6e9fe31fbb552d9b8d2dfaba",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/continuity.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/exam_patterns.md",
+    "local_file": "universal-diagnostic-tutor/references/exam_patterns.md",
+    "sha256": "8e1ea9ce759de1c6850a91cc3600518d8be692b04d5fd53900923d08e5f7cae1",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/exam_patterns.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/exercise_generation_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/exercise_generation_protocol.md",
+    "sha256": "034adcafefb26241556e481774cb3ed1b0737e455ac0e4223e0bf7101d06f2db",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/exercise_generation_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/explanation_compression_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/explanation_compression_protocol.md",
+    "sha256": "3571da24b0d7900398c9e2726b05897e8f22ccebe6d278a96c2c354723eca4d7",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/explanation_compression_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/feedback.md",
+    "local_file": "universal-diagnostic-tutor/references/feedback.md",
+    "sha256": "0f7a4d79832d8f975700b635ac40d0ec1a2f85511b6e469815035471c14ca525",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/feedback.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/interaction_pacing_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/interaction_pacing_protocol.md",
+    "sha256": "e6096f18e6c4c75a8c564f0c0ac1f2c8fadffc5d3c43ae3755457db302d85d81",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/interaction_pacing_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/intuition_application_bridge_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/intuition_application_bridge_protocol.md",
+    "sha256": "9ca0ce6f9411e5731e4b6ed8023d324d9230d5cba98e940cfbd0abf45a40dd29",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/intuition_application_bridge_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/knowledge_gap_taxonomy.md",
+    "local_file": "universal-diagnostic-tutor/references/knowledge_gap_taxonomy.md",
+    "sha256": "30d9cb9404636f917b4a7f765eef0c9806786634bbcc6270f6903b34147283ed",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/knowledge_gap_taxonomy.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/knowledge_system_mapping_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/knowledge_system_mapping_protocol.md",
+    "sha256": "300b97aa5b4b2712172d8d4ab8b32f536a0496da1381bca11e0f9fcf6866706f",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/knowledge_system_mapping_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/learning_runtime_contract.md",
+    "local_file": "universal-diagnostic-tutor/references/learning_runtime_contract.md",
+    "sha256": "0fd2424ae484cf1b102d58def3aa6069253db6a12892356f39f097b650f375da",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/learning_runtime_contract.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/learning_task_loop_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/learning_task_loop_protocol.md",
+    "sha256": "98ea2726df5a45994b3a33fd5db5cca31970b369d98e8d7f56a87c80c857d967",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/learning_task_loop_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/mastery_and_decision.md",
+    "local_file": "universal-diagnostic-tutor/references/mastery_and_decision.md",
+    "sha256": "db187d49c91a3e42ff78c23e71519f60846b82a0883f7fed67cf8597e61446fb",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/mastery_and_decision.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/math_formatting_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/math_formatting_protocol.md",
+    "sha256": "5ab5af65ec954b62cadda53f58495b2f1ffe6b5dac80a046b80ba9b2ad0534a5",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/math_formatting_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/multiturn_tutoring_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/multiturn_tutoring_protocol.md",
+    "sha256": "3bef9ef65d68962f5f676f0a3e93ec82254ceaf5d6291324ee19375b4bea016a",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/multiturn_tutoring_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/next_best_teaching_step_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/next_best_teaching_step_protocol.md",
+    "sha256": "3ad6280a53a7db565657d5db4d8ab7b74b8d3b1c0dab6496d11cbbf41bf04797",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/next_best_teaching_step_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/no_internal_tool_leakage_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/no_internal_tool_leakage_protocol.md",
+    "sha256": "920b6cbb1e85bb181b89622a27a7c9c979c97e9add5a9d2a75a7c9ae05c3c4fb",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/no_internal_tool_leakage_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/output_formats.md",
+    "local_file": "universal-diagnostic-tutor/references/output_formats.md",
+    "sha256": "ee0dd21350ec4b026d66843e7ba49e319d533af2552a7caa32d58af29933682f",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/output_formats.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/practice_ladder.md",
+    "local_file": "universal-diagnostic-tutor/references/practice_ladder.md",
+    "sha256": "917ad0992da333d827270c8b5e5ba84ef4f27a5f814cafcf85ad9e87d7fff314",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/practice_ladder.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/resources.md",
+    "local_file": "universal-diagnostic-tutor/references/resources.md",
+    "sha256": "7882dd2861bdd0167a8608e948a188e424ee8b073d247eb6f79cb074430356f3",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/resources.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/response_length_calibration.md",
+    "local_file": "universal-diagnostic-tutor/references/response_length_calibration.md",
+    "sha256": "1937572c6a4cd4b39632728813e930d3a3ecd8c147360646f4079823f32a9ef1",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/response_length_calibration.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/routing.md",
+    "local_file": "universal-diagnostic-tutor/references/routing.md",
+    "sha256": "0ae00c9a4bfd6ea9dd36c518063f34df60a1210fc61900ec1085c5e147a2afaf",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/routing.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/skill_pack_invocation_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/skill_pack_invocation_protocol.md",
+    "sha256": "e2c3a700becdc6977235ab4d24ee4a6f8eab0691a1e5e87e41a353f7e52b559b",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/skill_pack_invocation_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/ai_ml_data.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/ai_ml_data.md",
+    "sha256": "ea9944bbabc62b9b1e608602107c945957bb954e1e55669160912e4bfa44265c",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/ai_ml_data.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/crypto_security_addendum.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/crypto_security_addendum.md",
+    "sha256": "c3e5dc66c8a2f7fe40e87ddfa83da4aa300e49195022e4b6ff9b1481535f4a46",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/crypto_security_addendum.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/exam_problem_set_sources.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/exam_problem_set_sources.md",
+    "sha256": "82873d6e32fe84875b4285c745c63184476b0ebc52ebbf40af44a7d096a5f5e7",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/exam_problem_set_sources.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/graphics_multimedia_hci_software.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/graphics_multimedia_hci_software.md",
+    "sha256": "8b3bd2d4adeb0e146f8644b7881302f1cb8abf35d6e8c7067668f719bca8d2a9",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/graphics_multimedia_hci_software.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/math_foundations.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/math_foundations.md",
+    "sha256": "f10faf451d5ec3f6d7d69f9aabfc081208d91474e22c75533ec457216df30d18",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/math_foundations.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/networks_from_zero.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/networks_from_zero.md",
+    "sha256": "650806761851a5d84db0ff1443f812ab7052631d9a46a39bd2c58578d9889f11",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/networks_from_zero.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/numerical_hpc_control.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/numerical_hpc_control.md",
+    "sha256": "340b576f2166b6361b9cd85315ad7c236afadcb05b1b904296186a7eb887d9a0",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/numerical_hpc_control.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/physics_electronics_signals.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/physics_electronics_signals.md",
+    "sha256": "0cf98d089952811533578e26627de447cd754a692b14bc1d9e254b7ef8ae803f",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/physics_electronics_signals.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/programming_and_cs_foundations.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/programming_and_cs_foundations.md",
+    "sha256": "4aa37823b2955650af700e43eb230c19058c0a319a7e61d3a579b2c58001b071",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/programming_and_cs_foundations.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/source_pack_usage_guide.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/source_pack_usage_guide.md",
+    "sha256": "ca9b31353b50b7d3a98f765738fe25e4f245bbbaaf9a96fe7aff2523cf2daa16",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/source_pack_usage_guide.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/source_refresh_maintenance.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/source_refresh_maintenance.md",
+    "sha256": "a219ddbed19ae360a717c1322b09f584d573b69417ca58d33c9f9413684695a0",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/source_refresh_maintenance.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/source_specificity_guidelines.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/source_specificity_guidelines.md",
+    "sha256": "b816c1a2d6fd221806a03d332c236ed1c81b2bb45ff3b4f91e9397a0a4f4f881",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/source_specificity_guidelines.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/systems_networks_security.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/systems_networks_security.md",
+    "sha256": "ca528d0e248cb87928bca02d1fad53e12b9bcb8c87284bd78521dc5d43aa64f5",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/systems_networks_security.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/theory_formal_methods.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/theory_formal_methods.md",
+    "sha256": "3f238e01adf7f447ad08ede334d5380c71f5d9ac57e116b0b5e8657472fe57d8",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/theory_formal_methods.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/source_packs/vr_multimedia_addendum.md",
+    "local_file": "universal-diagnostic-tutor/references/source_packs/vr_multimedia_addendum.md",
+    "sha256": "54a8982cc2ed1f57e69796c6a2684fae7174ca523e864956a2a6491dce5cc6a4",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/source_packs/vr_multimedia_addendum.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/stem_ai_cs_scope.md",
+    "local_file": "universal-diagnostic-tutor/references/stem_ai_cs_scope.md",
+    "sha256": "fc4afecb23a5d85a7a17608826af05e87d01d8e00ca3c0ca7348f4caff863d62",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/stem_ai_cs_scope.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/stem_ask_vs_explain_calibration.md",
+    "local_file": "universal-diagnostic-tutor/references/stem_ask_vs_explain_calibration.md",
+    "sha256": "0027c217443df67d66b5165f5537979d4359ae378d17e99ba39623059f853736",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/stem_ask_vs_explain_calibration.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/stem_natural_adaptive_style.md",
+    "local_file": "universal-diagnostic-tutor/references/stem_natural_adaptive_style.md",
+    "sha256": "057d3f28b287a107b683d06523b1b21cc1bd498c87bdc684d1d3e568f11705f8",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/stem_natural_adaptive_style.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/stem_problem_solving_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/stem_problem_solving_protocol.md",
+    "sha256": "082476a9a817a24f72008e4ba597f3cc5b00ca7adb3fc7d5eecc5aff39cd1bbf",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/stem_problem_solving_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/stem_proof_and_derivation_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/stem_proof_and_derivation_protocol.md",
+    "sha256": "e27b0bae26251fb10e04ee74172e5f0c89fac7c83b26b9f6001339b3fc6e943d",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/stem_proof_and_derivation_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/stem_symbol_notation_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/stem_symbol_notation_protocol.md",
+    "sha256": "3dec9f8903f1521c2575d8be4c1abf4c48318667027431acfac68373f80ed663",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/stem_symbol_notation_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/stem_teaching_sequence.md",
+    "local_file": "universal-diagnostic-tutor/references/stem_teaching_sequence.md",
+    "sha256": "70d0e7e288ff05184bd4dd182f0f25be3d498be49894deb143a8baffa345adce",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/stem_teaching_sequence.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/student_facing_response_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/student_facing_response_protocol.md",
+    "sha256": "9737a6e988368bdac6d35b50b4e79561b383b97923cab5c22e0407c2437ee2c3",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/student_facing_response_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/subject_routing.md",
+    "local_file": "universal-diagnostic-tutor/references/subject_routing.md",
+    "sha256": "fe790cb013dd7dc556b32c7e82f7a957a8b402b7ba0650f75a9f50fad816133f",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/subject_routing.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/subject_teaching_modes.md",
+    "local_file": "universal-diagnostic-tutor/references/subject_teaching_modes.md",
+    "sha256": "90010fdbc5884d45d80d3e3d89f27c25d19cce1f85cf9261466aeab3dc5632b2",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/subject_teaching_modes.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/teacher_like_stop_point_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/teacher_like_stop_point_protocol.md",
+    "sha256": "53b487c0f0357170f9ca2e2ccc68e9c6c676e2a86a24c21636508c233335d1fc",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/teacher_like_stop_point_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/teaching_modes.md",
+    "local_file": "universal-diagnostic-tutor/references/teaching_modes.md",
+    "sha256": "159f4e6ec96c7bc4c41f8f0d2006859984630ff0ea1bad045059677c53900328",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/teaching_modes.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/transfer_pattern_teaching_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/transfer_pattern_teaching_protocol.md",
+    "sha256": "439033f49519a442135ffa13b0d993f73657c3d6f04935e37d4a3af1e493a230",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/transfer_pattern_teaching_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/trigger_mode_matrix.md",
+    "local_file": "universal-diagnostic-tutor/references/trigger_mode_matrix.md",
+    "sha256": "20dd4ff72657b081f4de527029f303de6f4e7e60e1ab88382fba8c6bc6f2b1dc",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/trigger_mode_matrix.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "skills/universal-diagnostic-tutor/references/understanding_check_protocol.md",
+    "local_file": "universal-diagnostic-tutor/references/understanding_check_protocol.md",
+    "sha256": "8db39970888e1e5c1967f855db78f2164a1d87e8e6a202814e7cf7bc91c14788",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/understanding_check_protocol.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+    "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+    "upstream_file": "LICENSE",
+    "local_file": "universal-diagnostic-tutor/LICENSE",
+    "sha256": "a9ca00bcc7a56530a43eeedae4769303f70aef1b9f408594572c39aeb5c3bf84",
+    "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/LICENSE",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/CHANGELOG.md",
+    "local_file": "learn/CHANGELOG.md",
+    "sha256": "40b0006ee4141b6338a5bd6b419428de8758cc521ee7bb4567370e3d92c1e728",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/CHANGELOG.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/LICENSE",
+    "local_file": "learn/LICENSE",
+    "sha256": "1a4a8af11a62628d4fe125e75fd3a3685418145d0f004bca823a0e821cc23e36",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/LICENSE",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/README.md",
+    "local_file": "learn/README.md",
+    "sha256": "f66b7b84d0e7b0d4f7af19f4157a67fdd34b313a61093db47890252dec253ae2",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/README.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/SKILL.md",
+    "local_file": "learn/SKILL.md",
+    "sha256": "15fe4c8a342f0a426919d4651a268013a3bb6df6395f87506da1af2f9abcd923",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/SKILL.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/examples/README.md",
+    "local_file": "learn/examples/README.md",
+    "sha256": "3d628463591dc86906d2d66b5cea0efca31b37c1297b0210f22bb6bc8a9d5311",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/examples/README.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/examples/a-prior-that-looked-harmless.md",
+    "local_file": "learn/examples/a-prior-that-looked-harmless.md",
+    "sha256": "49c0142708724aacd7b19e2d4f34e140d64cac798993e107c7ad0d18d05870ed",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/examples/a-prior-that-looked-harmless.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/examples/where-the-interval-comes-from.md",
+    "local_file": "learn/examples/where-the-interval-comes-from.md",
+    "sha256": "d2e549757c1c335b54cd3d7a48f9761e4dfb399005a24074fa56cc7799e7a31d",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/examples/where-the-interval-comes-from.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/references/code-reading.md",
+    "local_file": "learn/references/code-reading.md",
+    "sha256": "37235b9b423e8b5c4affa32486de444e041b127b595f012f1e243013363b7535",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/code-reading.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/references/create-course.md",
+    "local_file": "learn/references/create-course.md",
+    "sha256": "887f60e128f409f838e9004a4f17bd836e261733ba73d7dbfbb931acbead2e4a",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/create-course.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/references/curate.md",
+    "local_file": "learn/references/curate.md",
+    "sha256": "5ead71eca71b8238024e40a994d69cfc3bff5d1e56cf544ccecd1fefb439ca2e",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/curate.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/references/discord.md",
+    "local_file": "learn/references/discord.md",
+    "sha256": "34a399d724d7ff4e6da88abf075aab883946fd8d69b6bf62ae126f16cbfdad18",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/discord.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/references/freshness.md",
+    "local_file": "learn/references/freshness.md",
+    "sha256": "ef45d7ab551a7383a5dc3916080ce51a7d16945a0fea7dd4ad085906d395cb6c",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/freshness.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/references/lesson-craft.md",
+    "local_file": "learn/references/lesson-craft.md",
+    "sha256": "5cf715fcfe89495be705437d74f175b32a84249cde48757515f5953157b71c69",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/lesson-craft.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/references/notebooks.md",
+    "local_file": "learn/references/notebooks.md",
+    "sha256": "e9014fa948c9868dff5ab7fccadbf157c33d26a9c2baef2e978c56ff47a30b1e",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/notebooks.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "skills/learn/references/progress-schema.md",
+    "local_file": "learn/references/progress-schema.md",
+    "sha256": "aea132ae77cfe20d0e9628bd3e2512e2c8bda8631562d2e9041d6431bae1c0e6",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/progress-schema.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "derwells/learn-skill",
+    "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+    "upstream_file": "LICENSE",
+    "local_file": "learn/LICENSE",
+    "sha256": "1a4a8af11a62628d4fe125e75fd3a3685418145d0f004bca823a0e821cc23e36",
+    "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/LICENSE",
+    "license": "MIT"
+  },
+  {
+    "repo": "Li-Evan/Bloom",
+    "commit": "68788b5e7d3444d92a05c7237f44d1605ff039a8",
+    "upstream_file": "skills/learn-feynman/SKILL.md",
+    "local_file": "learn-feynman/SKILL.md",
+    "sha256": "8c6090cd3183dc5b8c58e671b0f327d7ca0c0bcb05b36130de2ebe62cdd0a38e",
+    "url": "https://raw.githubusercontent.com/Li-Evan/Bloom/68788b5e7d3444d92a05c7237f44d1605ff039a8/skills/learn-feynman/SKILL.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "Li-Evan/Bloom",
+    "commit": "68788b5e7d3444d92a05c7237f44d1605ff039a8",
+    "upstream_file": "LICENSE",
+    "local_file": "learn-feynman/LICENSE",
+    "sha256": "7d574cf3632e7f16c7d8841147df54550ebb9698c4ce54948bb542e41cba5bec",
+    "url": "https://raw.githubusercontent.com/Li-Evan/Bloom/68788b5e7d3444d92a05c7237f44d1605ff039a8/LICENSE",
+    "license": "MIT"
+  },
+  {
+    "repo": "ZeKaiNie/universal-examprep-skill",
+    "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+    "upstream_file": "full/skills/exam-review/SKILL.md",
+    "local_file": "exam-review/references/upstream.md",
+    "sha256": "f37eb02764a1f832521c494b09baec9e57ef35fd3e55adf8653493ad7f04e777",
+    "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/full/skills/exam-review/SKILL.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "ZeKaiNie/universal-examprep-skill",
+    "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+    "upstream_file": "LICENSE",
+    "local_file": "exam-review/LICENSE",
+    "sha256": "21f44893f05104228df2120e9486182f69a564d666ff55cd59720b380fc9f3b1",
+    "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/LICENSE",
+    "license": "MIT"
+  },
+  {
+    "repo": "ZeKaiNie/universal-examprep-skill",
+    "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+    "upstream_file": "full/skills/confusion-tracker/SKILL.md",
+    "local_file": "confusion-tracker/references/upstream.md",
+    "sha256": "77bf715b3bdb2b6684202635706728590dc3213e01047bd6d9cbd474bd5504c2",
+    "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/full/skills/confusion-tracker/SKILL.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "ZeKaiNie/universal-examprep-skill",
+    "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+    "upstream_file": "LICENSE",
+    "local_file": "confusion-tracker/LICENSE",
+    "sha256": "21f44893f05104228df2120e9486182f69a564d666ff55cd59720b380fc9f3b1",
+    "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/LICENSE",
+    "license": "MIT"
+  },
+  {
+    "repo": "baney75/myelinate",
+    "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+    "upstream_file": "references/skill-map.md",
+    "local_file": "teaching-skills/references/skill-map.md",
+    "sha256": "f669212932de94af9c8c5c67d3d45ec4ce4ad7684b6cc191b3e44ec09ce7ddf4",
+    "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/references/skill-map.md",
+    "license": "MIT"
+  },
+  {
+    "repo": "baney75/myelinate",
+    "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+    "upstream_file": "LICENSE",
+    "local_file": "teaching-skills/references/myelinate-LICENSE",
+    "sha256": "a2a5e5e2de85521008e768de36ca9aa69b655838303ef474d7df797039a4dfda",
+    "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/LICENSE",
+    "license": "MIT"
+  }
+]

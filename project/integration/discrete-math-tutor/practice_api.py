@@ -226,9 +226,12 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
     messages=[{'role':'system','content':system},{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]
     if action != 'grade':
         from llm.answer_events import answer_kwargs
-        messages[0]['content'] += '\n本次只输出面向学生的 reply 正文，不输出 JSON 或内部思考。'
+        from agents.teaching_skills import ANSWER_CONTRACT
+        messages[0]['content'] = ANSWER_CONTRACT + '\n只处理 target_parts 指定小题。action=hint 时按 hint_level 只给提示，不给完整答案；explain 可展开解释。原题条件和图像必须忠实保留，无法辨认时不猜。'
         from agents.teaching_skills import prepare_teaching_skills
-        policy, _ = prepare_teaching_skills(main.orchestrator.llm, messages)
+        if q.get('origin') == 'ai_generated':
+            messages[0]['content'] += '\n本题为AI生成且未人工审核，target_parts是题面，教材裁图只作知识依据；不能声称是教材原题或已由教师审核。'
+        policy, skill_receipts = prepare_teaching_skills(main.orchestrator.llm, messages)
         messages.append({'role':'system','content':policy})
         result={'reply':main.orchestrator.llm.chat(messages,temperature=.1,
             max_tokens=min(8000,1800+len(parts)*550),image_paths=resolved['images'],**answer_kwargs())}
@@ -283,7 +286,7 @@ def ai_parts(q,parts,answers,sid,action='grade',level=1,*,task_execution=None,us
             strategy_publication=publish_external_strategy(strategy_context,unified_strategy,reply,
                 source_ids=[resolved['reference'].get('document_id','')])
         return {**({'teaching_strategy_plan':strategy_publication} if strategy_publication else {}),
-            'reply':reply,'guided_visualization':guide,'memory_summary':memories['summary'],'source':q['source'],
+            'teaching_skills':skill_receipts,'reply':reply,'guided_visualization':guide,'memory_summary':memories['summary'],'source':q['source'],
             'question_origin':q.get('origin'),'test_only':q.get('test_only',False),
             'image_refs':resolved['reference']['image_refs'],'pdf_references':grounded_refs,
             'textbook_sources':[f'{s.source}／{s.section}' for s in grounded_bundle.sources] if grounded_bundle else []}

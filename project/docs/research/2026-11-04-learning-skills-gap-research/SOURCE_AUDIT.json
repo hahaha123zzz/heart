@@ -1,0 +1,771 @@
+{
+  "date": "2026-11-04",
+  "mode": "read-only research; no skill installation or application change",
+  "repositories": [
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "branch": "main",
+      "license": "MIT",
+      "stars": 6,
+      "pushed_at": "2026-11-03T03:37:52Z"
+    },
+    {
+      "repo": "bevibing/tutor-skills",
+      "commit": "397110c9fefbc6bd5444277686600aec28063c05",
+      "branch": "main",
+      "license": "MIT",
+      "stars": 1386,
+      "pushed_at": "2026-02-28T14:41:09Z"
+    },
+    {
+      "repo": "calimike74/music-tech-teaching-skills",
+      "commit": "8e8e64353d7028ebca1d79797b542038713c5afa",
+      "branch": "main",
+      "license": "CC-BY-SA-4.0",
+      "stars": 0,
+      "pushed_at": "2026-04-03T12:08:39Z"
+    },
+    {
+      "repo": "derwells/learn-skill",
+      "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+      "branch": "main",
+      "license": "MIT",
+      "stars": 2,
+      "pushed_at": "2026-11-02T03:53:52Z"
+    },
+    {
+      "repo": "Flagrare/llm-tutor",
+      "commit": "a0413d0a8abbba239ee5280d81a7aa853d4b83ea",
+      "branch": "main",
+      "license": "MIT",
+      "stars": 5,
+      "pushed_at": "2026-06-03T15:15:09Z"
+    },
+    {
+      "repo": "HytidelLegend/htd-ai-augmented-education",
+      "commit": "638ae84f97a04474cb63c6098eacfc6c83b813af",
+      "branch": "main",
+      "license": "NOASSERTION",
+      "stars": 491,
+      "pushed_at": "2026-10-04T08:15:43Z",
+      "license_file_read": "CC BY-NC 4.0; GitHub license metadata NOASSERTION"
+    },
+    {
+      "repo": "Li-Evan/Bloom",
+      "commit": "68788b5e7d3444d92a05c7237f44d1605ff039a8",
+      "branch": "main",
+      "license": "MIT",
+      "stars": 300,
+      "pushed_at": "2026-10-20T02:47:46Z"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "branch": "main",
+      "license": "MIT",
+      "stars": 257,
+      "pushed_at": "2026-09-24T18:12:20Z"
+    },
+    {
+      "repo": "ShivamGupta42/course-creator",
+      "commit": "1d6ddf3b6a2970a20b6dafa0895b2f1ed4ae903e",
+      "branch": "main",
+      "license": "MIT",
+      "stars": 4,
+      "pushed_at": "2026-07-19T22:37:42Z"
+    },
+    {
+      "repo": "ZeKaiNie/universal-examprep-skill",
+      "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+      "branch": "main",
+      "license": "MIT",
+      "stars": 366,
+      "pushed_at": "2026-10-27T03:22:18Z"
+    }
+  ],
+  "upstream_files": [
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/README.md",
+      "bytes": 10641,
+      "sha256": "59d05cb8cf6e9c561abc72153f78067bf8c1964d774d2be521433b3148b8a11f",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\README.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/LICENSE",
+      "bytes": 1102,
+      "sha256": "a9ca00bcc7a56530a43eeedae4769303f70aef1b9f408594572c39aeb5c3bf84",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\LICENSE"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "EVALS.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/EVALS.md",
+      "bytes": 22342,
+      "sha256": "7664201730e8c6d079f9dcacd0dbe65aa855d0b076db7a5b7169246ab2fcf827",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\EVALS.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "skills/universal-diagnostic-tutor/SKILL.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/SKILL.md",
+      "bytes": 10903,
+      "sha256": "36fdab5efed9f6304496e6c3310086bcf01f75f70c7c07392bdf09f950df555d",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\skills\\universal-diagnostic-tutor\\SKILL.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "docs/benchmark/evaluation_checklist.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/docs/benchmark/evaluation_checklist.md",
+      "bytes": 20134,
+      "sha256": "43a622dc80f9f91c2b564e5ddd96f259e8fa66a35bdfc45072cbd0d5d455c797",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\docs\\benchmark\\evaluation_checklist.md"
+    },
+    {
+      "repo": "Li-Evan/Bloom",
+      "commit": "68788b5e7d3444d92a05c7237f44d1605ff039a8",
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/Li-Evan/Bloom/68788b5e7d3444d92a05c7237f44d1605ff039a8/README.md",
+      "bytes": 10495,
+      "sha256": "6136170318c77efd7fcc3c6a73bda57b960046935e929866c4c9b9a91116b763",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Li-Evan\\Bloom\\README.md"
+    },
+    {
+      "repo": "Li-Evan/Bloom",
+      "commit": "68788b5e7d3444d92a05c7237f44d1605ff039a8",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/Li-Evan/Bloom/68788b5e7d3444d92a05c7237f44d1605ff039a8/LICENSE",
+      "bytes": 1069,
+      "sha256": "7d574cf3632e7f16c7d8841147df54550ebb9698c4ce54948bb542e41cba5bec",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Li-Evan\\Bloom\\LICENSE"
+    },
+    {
+      "repo": "Li-Evan/Bloom",
+      "commit": "68788b5e7d3444d92a05c7237f44d1605ff039a8",
+      "file": "skills/bloom-tutor/SKILL.md",
+      "url": "https://raw.githubusercontent.com/Li-Evan/Bloom/68788b5e7d3444d92a05c7237f44d1605ff039a8/skills/bloom-tutor/SKILL.md",
+      "bytes": 5701,
+      "sha256": "103eeba620aecd2cd51d00e0a7bcec1a852d5316d18050547a590cf78705718b",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Li-Evan\\Bloom\\skills\\bloom-tutor\\SKILL.md"
+    },
+    {
+      "repo": "Li-Evan/Bloom",
+      "commit": "68788b5e7d3444d92a05c7237f44d1605ff039a8",
+      "file": "skills/learn-feynman/SKILL.md",
+      "url": "https://raw.githubusercontent.com/Li-Evan/Bloom/68788b5e7d3444d92a05c7237f44d1605ff039a8/skills/learn-feynman/SKILL.md",
+      "bytes": 2430,
+      "sha256": "8c6090cd3183dc5b8c58e671b0f327d7ca0c0bcb05b36130de2ebe62cdd0a38e",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Li-Evan\\Bloom\\skills\\learn-feynman\\SKILL.md"
+    },
+    {
+      "repo": "Li-Evan/Bloom",
+      "commit": "68788b5e7d3444d92a05c7237f44d1605ff039a8",
+      "file": "skills/learn-graph/SKILL.md",
+      "url": "https://raw.githubusercontent.com/Li-Evan/Bloom/68788b5e7d3444d92a05c7237f44d1605ff039a8/skills/learn-graph/SKILL.md",
+      "bytes": 2725,
+      "sha256": "73449bcf6083d6131270336c5464064f2e2180b225eae24a753121dde70e68cc",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Li-Evan\\Bloom\\skills\\learn-graph\\SKILL.md"
+    },
+    {
+      "repo": "bevibing/tutor-skills",
+      "commit": "397110c9fefbc6bd5444277686600aec28063c05",
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/bevibing/tutor-skills/397110c9fefbc6bd5444277686600aec28063c05/README.md",
+      "bytes": 10079,
+      "sha256": "8c99ee11f59ec37f7f2fe54f46942d051801a348118ce444cc9c8b9efa840e39",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\bevibing\\tutor-skills\\README.md"
+    },
+    {
+      "repo": "bevibing/tutor-skills",
+      "commit": "397110c9fefbc6bd5444277686600aec28063c05",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/bevibing/tutor-skills/397110c9fefbc6bd5444277686600aec28063c05/LICENSE",
+      "bytes": 1060,
+      "sha256": "0ff5035ab0fd227727981ed95743bf97521ccda391654eeec2466c52bffca21c",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\bevibing\\tutor-skills\\LICENSE"
+    },
+    {
+      "repo": "bevibing/tutor-skills",
+      "commit": "397110c9fefbc6bd5444277686600aec28063c05",
+      "file": "skills/tutor/SKILL.md",
+      "url": "https://raw.githubusercontent.com/bevibing/tutor-skills/397110c9fefbc6bd5444277686600aec28063c05/skills/tutor/SKILL.md",
+      "bytes": 5696,
+      "sha256": "94bd0aec3fbb2f45c1afb27191b3cfc720efabbe4a58732543cc7ed3c543c52c",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\bevibing\\tutor-skills\\skills\\tutor\\SKILL.md"
+    },
+    {
+      "repo": "bevibing/tutor-skills",
+      "commit": "397110c9fefbc6bd5444277686600aec28063c05",
+      "file": "skills/tutor-setup/SKILL.md",
+      "url": "https://raw.githubusercontent.com/bevibing/tutor-skills/397110c9fefbc6bd5444277686600aec28063c05/skills/tutor-setup/SKILL.md",
+      "bytes": 7524,
+      "sha256": "69bf456cc1d889cfcfc47dac06ec621b3ee3ff0a1962575f04611924ee2ef752",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\bevibing\\tutor-skills\\skills\\tutor-setup\\SKILL.md"
+    },
+    {
+      "repo": "ZeKaiNie/universal-examprep-skill",
+      "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/README.md",
+      "bytes": 29095,
+      "sha256": "e25948e88010191181117b3979ce50cac046a23953f27295344a62b9dbda1ba7",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ZeKaiNie\\universal-examprep-skill\\README.md"
+    },
+    {
+      "repo": "ZeKaiNie/universal-examprep-skill",
+      "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/LICENSE",
+      "bytes": 1065,
+      "sha256": "21f44893f05104228df2120e9486182f69a564d666ff55cd59720b380fc9f3b1",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ZeKaiNie\\universal-examprep-skill\\LICENSE"
+    },
+    {
+      "repo": "ZeKaiNie/universal-examprep-skill",
+      "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+      "file": "skills/universal-exam-cram-coach/SKILL.md",
+      "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/skills/universal-exam-cram-coach/SKILL.md",
+      "bytes": 10561,
+      "sha256": "7607b9246c7a8676ebbea2b713f51486ea0e88635d8416a78993758375e2f67f",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ZeKaiNie\\universal-examprep-skill\\skills\\universal-exam-cram-coach\\SKILL.md"
+    },
+    {
+      "repo": "ZeKaiNie/universal-examprep-skill",
+      "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+      "file": "full/skills/exam-tutor/SKILL.md",
+      "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/full/skills/exam-tutor/SKILL.md",
+      "bytes": 21730,
+      "sha256": "b8f41a5ff53de916933fafacf049b469458a2b4418f23c5f2edab3ed3678a2b7",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ZeKaiNie\\universal-examprep-skill\\full\\skills\\exam-tutor\\SKILL.md"
+    },
+    {
+      "repo": "ZeKaiNie/universal-examprep-skill",
+      "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+      "file": "full/skills/confusion-tracker/SKILL.md",
+      "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/full/skills/confusion-tracker/SKILL.md",
+      "bytes": 6572,
+      "sha256": "77bf715b3bdb2b6684202635706728590dc3213e01047bd6d9cbd474bd5504c2",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ZeKaiNie\\universal-examprep-skill\\full\\skills\\confusion-tracker\\SKILL.md"
+    },
+    {
+      "repo": "ZeKaiNie/universal-examprep-skill",
+      "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+      "file": "full/skills/exam-review/SKILL.md",
+      "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/full/skills/exam-review/SKILL.md",
+      "bytes": 4644,
+      "sha256": "f37eb02764a1f832521c494b09baec9e57ef35fd3e55adf8653493ad7f04e777",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ZeKaiNie\\universal-examprep-skill\\full\\skills\\exam-review\\SKILL.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/README.md",
+      "bytes": 16920,
+      "sha256": "99563eb14609245702e0a749e1baebc3caa7fdfea1071ec42283ce584f5f9454",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\README.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/LICENSE",
+      "bytes": 1070,
+      "sha256": "a2a5e5e2de85521008e768de36ca9aa69b655838303ef474d7df797039a4dfda",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\LICENSE"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "SKILL.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/SKILL.md",
+      "bytes": 29065,
+      "sha256": "52175ae3c55d2f36582342b24d9b6173bd9a58334705794f8b1ba0f01d71262f",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\SKILL.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "skills/tutor/SKILL.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/skills/tutor/SKILL.md",
+      "bytes": 37319,
+      "sha256": "1560754af20c9d62c2a9033f7c038a9175e427bacd879963c02d0576da0875e0",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\skills\\tutor\\SKILL.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "skills/teach/SKILL.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/skills/teach/SKILL.md",
+      "bytes": 12010,
+      "sha256": "4df9d70c5627b5b24a7aee90f868d3aa1cbc6a636392eec30ead2524c7199da0",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\skills\\teach\\SKILL.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "skills/verify/SKILL.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/skills/verify/SKILL.md",
+      "bytes": 5395,
+      "sha256": "982f5965e8642dc17d018af8ebefa47b5e36bbc0704fc598076622611880ab3d",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\skills\\verify\\SKILL.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "skills/study-plan/SKILL.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/skills/study-plan/SKILL.md",
+      "bytes": 6216,
+      "sha256": "569d00b67858c83511fb6a5318813afad4bc88fc6e5f37b38747bcf094b08fb6",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\skills\\study-plan\\SKILL.md"
+    },
+    {
+      "repo": "derwells/learn-skill",
+      "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/README.md",
+      "bytes": 7120,
+      "sha256": "902b016d028ef8f63de7cd80f5f755b86fd54200eedb2bb1dd65590bca305e0f",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\derwells\\learn-skill\\README.md"
+    },
+    {
+      "repo": "derwells/learn-skill",
+      "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/LICENSE",
+      "bytes": 1069,
+      "sha256": "1a4a8af11a62628d4fe125e75fd3a3685418145d0f004bca823a0e821cc23e36",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\derwells\\learn-skill\\LICENSE"
+    },
+    {
+      "repo": "derwells/learn-skill",
+      "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+      "file": "skills/learn/SKILL.md",
+      "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/SKILL.md",
+      "bytes": 25268,
+      "sha256": "15fe4c8a342f0a426919d4651a268013a3bb6df6395f87506da1af2f9abcd923",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\derwells\\learn-skill\\skills\\learn\\SKILL.md"
+    },
+    {
+      "repo": "derwells/learn-skill",
+      "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+      "file": "skills/model-check/SKILL.md",
+      "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/model-check/SKILL.md",
+      "bytes": 11030,
+      "sha256": "93b541ee54f657ed4c9105da8aae28d1a22bcb65dda306c30967448a8b7ae16d",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\derwells\\learn-skill\\skills\\model-check\\SKILL.md"
+    },
+    {
+      "repo": "Flagrare/llm-tutor",
+      "commit": "a0413d0a8abbba239ee5280d81a7aa853d4b83ea",
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/Flagrare/llm-tutor/a0413d0a8abbba239ee5280d81a7aa853d4b83ea/README.md",
+      "bytes": 13202,
+      "sha256": "2c6e039d3044fe7ff03e31dea710eef273b11bcb6c255aeca29a2009286166c0",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Flagrare\\llm-tutor\\README.md"
+    },
+    {
+      "repo": "Flagrare/llm-tutor",
+      "commit": "a0413d0a8abbba239ee5280d81a7aa853d4b83ea",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/Flagrare/llm-tutor/a0413d0a8abbba239ee5280d81a7aa853d4b83ea/LICENSE",
+      "bytes": 1065,
+      "sha256": "7612c822a8dcf8e82c244c51be60c7a6e3d941ac7e99151be02fad51394c2a2f",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Flagrare\\llm-tutor\\LICENSE"
+    },
+    {
+      "repo": "Flagrare/llm-tutor",
+      "commit": "a0413d0a8abbba239ee5280d81a7aa853d4b83ea",
+      "file": "plugins/llm-tutor/skills/tutor-start/SKILL.md",
+      "url": "https://raw.githubusercontent.com/Flagrare/llm-tutor/a0413d0a8abbba239ee5280d81a7aa853d4b83ea/plugins/llm-tutor/skills/tutor-start/SKILL.md",
+      "bytes": 16888,
+      "sha256": "e436768b4aaa7978f0bfbbf47f733abd1b0e6c79bb98dd3557de860f284bf164",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Flagrare\\llm-tutor\\plugins\\llm-tutor\\skills\\tutor-start\\SKILL.md"
+    },
+    {
+      "repo": "Flagrare/llm-tutor",
+      "commit": "a0413d0a8abbba239ee5280d81a7aa853d4b83ea",
+      "file": "plugins/llm-tutor/skills/tutor-resume/SKILL.md",
+      "url": "https://raw.githubusercontent.com/Flagrare/llm-tutor/a0413d0a8abbba239ee5280d81a7aa853d4b83ea/plugins/llm-tutor/skills/tutor-resume/SKILL.md",
+      "bytes": 7315,
+      "sha256": "420ce4dd11a6350951139c5e9ffbd6b533bd56dce971f47b5060ac81caaa05b9",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Flagrare\\llm-tutor\\plugins\\llm-tutor\\skills\\tutor-resume\\SKILL.md"
+    },
+    {
+      "repo": "Flagrare/llm-tutor",
+      "commit": "a0413d0a8abbba239ee5280d81a7aa853d4b83ea",
+      "file": "plugins/llm-tutor/skills/tutor-done/SKILL.md",
+      "url": "https://raw.githubusercontent.com/Flagrare/llm-tutor/a0413d0a8abbba239ee5280d81a7aa853d4b83ea/plugins/llm-tutor/skills/tutor-done/SKILL.md",
+      "bytes": 11707,
+      "sha256": "96f2a12ab85613fdca2907f16fde26cc056a0b6560cd9f3760dfae34022b5821",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Flagrare\\llm-tutor\\plugins\\llm-tutor\\skills\\tutor-done\\SKILL.md"
+    },
+    {
+      "repo": "HytidelLegend/htd-ai-augmented-education",
+      "commit": "638ae84f97a04474cb63c6098eacfc6c83b813af",
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/HytidelLegend/htd-ai-augmented-education/638ae84f97a04474cb63c6098eacfc6c83b813af/README.md",
+      "bytes": 8076,
+      "sha256": "4c9fb2fc6d23043bfba922f6a0f11d26e15b494cd554b8b0088cf00682bcfbcb",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\HytidelLegend\\htd-ai-augmented-education\\README.md"
+    },
+    {
+      "repo": "HytidelLegend/htd-ai-augmented-education",
+      "commit": "638ae84f97a04474cb63c6098eacfc6c83b813af",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/HytidelLegend/htd-ai-augmented-education/638ae84f97a04474cb63c6098eacfc6c83b813af/LICENSE",
+      "bytes": 751,
+      "sha256": "1c41bc26eaf91f8bc7447488752d3e0ac3c2371646a5fd52ee7e227cedf28140",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\HytidelLegend\\htd-ai-augmented-education\\LICENSE"
+    },
+    {
+      "repo": "HytidelLegend/htd-ai-augmented-education",
+      "commit": "638ae84f97a04474cb63c6098eacfc6c83b813af",
+      "file": "skills/interactive-tutor/SKILL.md",
+      "url": "https://raw.githubusercontent.com/HytidelLegend/htd-ai-augmented-education/638ae84f97a04474cb63c6098eacfc6c83b813af/skills/interactive-tutor/SKILL.md",
+      "bytes": 44948,
+      "sha256": "95af502721073737959d8a62f0181a5a07ff6c80ca1055eed990763aac52cfe5",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\HytidelLegend\\htd-ai-augmented-education\\skills\\interactive-tutor\\SKILL.md"
+    },
+    {
+      "repo": "HytidelLegend/htd-ai-augmented-education",
+      "commit": "638ae84f97a04474cb63c6098eacfc6c83b813af",
+      "file": "skills/build-curriculum-navigation/SKILL.md",
+      "url": "https://raw.githubusercontent.com/HytidelLegend/htd-ai-augmented-education/638ae84f97a04474cb63c6098eacfc6c83b813af/skills/build-curriculum-navigation/SKILL.md",
+      "bytes": 11012,
+      "sha256": "a0d96bf59e978d61ec31cecf9cd05dbd6d3ea1b56b2b15845a7ec4f4c9fc40c0",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\HytidelLegend\\htd-ai-augmented-education\\skills\\build-curriculum-navigation\\SKILL.md"
+    },
+    {
+      "repo": "HytidelLegend/htd-ai-augmented-education",
+      "commit": "638ae84f97a04474cb63c6098eacfc6c83b813af",
+      "file": "skills/htd-ai-augmented-education/SKILL.md",
+      "url": "https://raw.githubusercontent.com/HytidelLegend/htd-ai-augmented-education/638ae84f97a04474cb63c6098eacfc6c83b813af/skills/htd-ai-augmented-education/SKILL.md",
+      "bytes": 4446,
+      "sha256": "a8fea4c128744019cd8a997c6bf98c86e2069c8229190e58b8b1c5ac4f51aa04",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\HytidelLegend\\htd-ai-augmented-education\\skills\\htd-ai-augmented-education\\SKILL.md"
+    },
+    {
+      "repo": "ShivamGupta42/course-creator",
+      "commit": "1d6ddf3b6a2970a20b6dafa0895b2f1ed4ae903e",
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/ShivamGupta42/course-creator/1d6ddf3b6a2970a20b6dafa0895b2f1ed4ae903e/README.md",
+      "bytes": 5334,
+      "sha256": "fcdb60c2724fa67051bb41abdbbae5f66b29270e86b7ca8fd1d75f7ecb8f1aa9",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ShivamGupta42\\course-creator\\README.md"
+    },
+    {
+      "repo": "ShivamGupta42/course-creator",
+      "commit": "1d6ddf3b6a2970a20b6dafa0895b2f1ed4ae903e",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/ShivamGupta42/course-creator/1d6ddf3b6a2970a20b6dafa0895b2f1ed4ae903e/LICENSE",
+      "bytes": 1101,
+      "sha256": "3038674e01c332c34230adb0e59198ccb9576b7c3b89a2326e3656b9cd944ffa",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ShivamGupta42\\course-creator\\LICENSE"
+    },
+    {
+      "repo": "ShivamGupta42/course-creator",
+      "commit": "1d6ddf3b6a2970a20b6dafa0895b2f1ed4ae903e",
+      "file": "references/tutor-loop.md",
+      "url": "https://raw.githubusercontent.com/ShivamGupta42/course-creator/1d6ddf3b6a2970a20b6dafa0895b2f1ed4ae903e/references/tutor-loop.md",
+      "bytes": 22810,
+      "sha256": "a73b5915a08d0583e62896626b0a32648239cc684f5aacbf8f505caa1f7386f1",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ShivamGupta42\\course-creator\\references\\tutor-loop.md"
+    },
+    {
+      "repo": "ShivamGupta42/course-creator",
+      "commit": "1d6ddf3b6a2970a20b6dafa0895b2f1ed4ae903e",
+      "file": "references/learner-and-knowledge-okf.md",
+      "url": "https://raw.githubusercontent.com/ShivamGupta42/course-creator/1d6ddf3b6a2970a20b6dafa0895b2f1ed4ae903e/references/learner-and-knowledge-okf.md",
+      "bytes": 13634,
+      "sha256": "0eaecd93b47f6a0f7ba19583c8dc66e6b2fd343062f7431dc5a744a03026f367",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ShivamGupta42\\course-creator\\references\\learner-and-knowledge-okf.md"
+    },
+    {
+      "repo": "calimike74/music-tech-teaching-skills",
+      "commit": "8e8e64353d7028ebca1d79797b542038713c5afa",
+      "file": "README.md",
+      "url": "https://raw.githubusercontent.com/calimike74/music-tech-teaching-skills/8e8e64353d7028ebca1d79797b542038713c5afa/README.md",
+      "bytes": 2590,
+      "sha256": "f2755c8c99cfd16b7ceeae500b74b8e2453054afd8928059995875d50e5a8901",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\calimike74\\music-tech-teaching-skills\\README.md"
+    },
+    {
+      "repo": "calimike74/music-tech-teaching-skills",
+      "commit": "8e8e64353d7028ebca1d79797b542038713c5afa",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/calimike74/music-tech-teaching-skills/8e8e64353d7028ebca1d79797b542038713c5afa/LICENSE",
+      "bytes": 20138,
+      "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\calimike74\\music-tech-teaching-skills\\LICENSE"
+    },
+    {
+      "repo": "calimike74/music-tech-teaching-skills",
+      "commit": "8e8e64353d7028ebca1d79797b542038713c5afa",
+      "file": "skills/instructional-design/cognitive-load-analyser/SKILL.md",
+      "url": "https://raw.githubusercontent.com/calimike74/music-tech-teaching-skills/8e8e64353d7028ebca1d79797b542038713c5afa/skills/instructional-design/cognitive-load-analyser/SKILL.md",
+      "bytes": 34324,
+      "sha256": "56b216e5f37214833b356d5064da216ab60faaba7b621de51753939336ec388d",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\calimike74\\music-tech-teaching-skills\\skills\\instructional-design\\cognitive-load-analyser\\SKILL.md"
+    },
+    {
+      "repo": "calimike74/music-tech-teaching-skills",
+      "commit": "8e8e64353d7028ebca1d79797b542038713c5afa",
+      "file": "skills/retrieval-practice/hinge-question-designer/SKILL.md",
+      "url": "https://raw.githubusercontent.com/calimike74/music-tech-teaching-skills/8e8e64353d7028ebca1d79797b542038713c5afa/skills/retrieval-practice/hinge-question-designer/SKILL.md",
+      "bytes": 30382,
+      "sha256": "30565f6e4b779f914f8a11c9eaa561b251d0ede221f9fb2d0357106a0695b156",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\calimike74\\music-tech-teaching-skills\\skills\\retrieval-practice\\hinge-question-designer\\SKILL.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "skills/universal-diagnostic-tutor/references/routing.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/routing.md",
+      "bytes": 10169,
+      "sha256": "0ae00c9a4bfd6ea9dd36c518063f34df60a1210fc61900ec1085c5e147a2afaf",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\skills\\universal-diagnostic-tutor\\references\\routing.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "skills/universal-diagnostic-tutor/references/clarify_and_path.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/clarify_and_path.md",
+      "bytes": 7976,
+      "sha256": "5fcbcc4ad625f1a893d3163826597535d360fadd7d4879c8db4d2b4e7f0de8e5",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\skills\\universal-diagnostic-tutor\\references\\clarify_and_path.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "skills/universal-diagnostic-tutor/references/learning_runtime_contract.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/learning_runtime_contract.md",
+      "bytes": 7621,
+      "sha256": "0fd2424ae484cf1b102d58def3aa6069253db6a12892356f39f097b650f375da",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\skills\\universal-diagnostic-tutor\\references\\learning_runtime_contract.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "skills/universal-diagnostic-tutor/references/multiturn_tutoring_protocol.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/multiturn_tutoring_protocol.md",
+      "bytes": 4587,
+      "sha256": "3bef9ef65d68962f5f676f0a3e93ec82254ceaf5d6291324ee19375b4bea016a",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\skills\\universal-diagnostic-tutor\\references\\multiturn_tutoring_protocol.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "skills/universal-diagnostic-tutor/references/next_best_teaching_step_protocol.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/next_best_teaching_step_protocol.md",
+      "bytes": 3212,
+      "sha256": "3ad6280a53a7db565657d5db4d8ab7b74b8d3b1c0dab6496d11cbbf41bf04797",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\skills\\universal-diagnostic-tutor\\references\\next_best_teaching_step_protocol.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "skills/universal-diagnostic-tutor/references/cognitive_load_budget_protocol.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/cognitive_load_budget_protocol.md",
+      "bytes": 3053,
+      "sha256": "a09bec62fcedaa71af68a0c74d6401f500e6e55ebffcf153344b1d4c997be93c",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\skills\\universal-diagnostic-tutor\\references\\cognitive_load_budget_protocol.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "skills/universal-diagnostic-tutor/references/continuity.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/continuity.md",
+      "bytes": 6341,
+      "sha256": "137848fff0b5a6550f7c1a5f4ff75814fb023d2b6e9fe31fbb552d9b8d2dfaba",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\skills\\universal-diagnostic-tutor\\references\\continuity.md"
+    },
+    {
+      "repo": "SenmuuuuW/universal-diagnostic-tutor-skill",
+      "commit": "075c1895d2559aaa5554e3aab00fd9f83c90fbac",
+      "file": "skills/universal-diagnostic-tutor/references/understanding_check_protocol.md",
+      "url": "https://raw.githubusercontent.com/SenmuuuuW/universal-diagnostic-tutor-skill/075c1895d2559aaa5554e3aab00fd9f83c90fbac/skills/universal-diagnostic-tutor/references/understanding_check_protocol.md",
+      "bytes": 3516,
+      "sha256": "8db39970888e1e5c1967f855db78f2164a1d87e8e6a202814e7cf7bc91c14788",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\SenmuuuuW\\universal-diagnostic-tutor-skill\\skills\\universal-diagnostic-tutor\\references\\understanding_check_protocol.md"
+    },
+    {
+      "repo": "derwells/learn-skill",
+      "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+      "file": "skills/learn/references/lesson-craft.md",
+      "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/lesson-craft.md",
+      "bytes": 3644,
+      "sha256": "5cf715fcfe89495be705437d74f175b32a84249cde48757515f5953157b71c69",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\derwells\\learn-skill\\skills\\learn\\references\\lesson-craft.md"
+    },
+    {
+      "repo": "derwells/learn-skill",
+      "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+      "file": "skills/learn/references/progress-schema.md",
+      "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/progress-schema.md",
+      "bytes": 8876,
+      "sha256": "aea132ae77cfe20d0e9628bd3e2512e2c8bda8631562d2e9041d6431bae1c0e6",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\derwells\\learn-skill\\skills\\learn\\references\\progress-schema.md"
+    },
+    {
+      "repo": "derwells/learn-skill",
+      "commit": "5e1d484e1236f7ec0483852ded3ce989f91afa10",
+      "file": "skills/learn/references/create-course.md",
+      "url": "https://raw.githubusercontent.com/derwells/learn-skill/5e1d484e1236f7ec0483852ded3ce989f91afa10/skills/learn/references/create-course.md",
+      "bytes": 6734,
+      "sha256": "887f60e128f409f838e9004a4f17bd836e261733ba73d7dbfbb931acbead2e4a",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\derwells\\learn-skill\\skills\\learn\\references\\create-course.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "references/learner-record.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/references/learner-record.md",
+      "bytes": 3255,
+      "sha256": "28b2a176f25efbe771f5a7905cd6c93665d50c6d4a37cbb95bb5bba1c6d390a0",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\references\\learner-record.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "references/first-session.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/references/first-session.md",
+      "bytes": 4311,
+      "sha256": "d29b447651b2b2e0ab9a42e709e05b258c32930a2c8e5c304466b9641c2795f9",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\references\\first-session.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "references/skill-map.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/references/skill-map.md",
+      "bytes": 3720,
+      "sha256": "f669212932de94af9c8c5c67d3d45ec4ce4ad7684b6cc191b3e44ec09ce7ddf4",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\references\\skill-map.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "references/evidence.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/references/evidence.md",
+      "bytes": 6237,
+      "sha256": "9265b899137e22727480bb602e6e0436dd0e87df003afb4fb284c007b12b09b0",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\references\\evidence.md"
+    },
+    {
+      "repo": "baney75/myelinate",
+      "commit": "af31bc317bb32fe05e678a53c0e81f6ab4274539",
+      "file": "references/subject-playbooks.md",
+      "url": "https://raw.githubusercontent.com/baney75/myelinate/af31bc317bb32fe05e678a53c0e81f6ab4274539/references/subject-playbooks.md",
+      "bytes": 31833,
+      "sha256": "5140b19c880eb55389cc2c187e00af6fde5f66d34293a3ef64c071f34488b462",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\baney75\\myelinate\\references\\subject-playbooks.md"
+    },
+    {
+      "repo": "bevibing/tutor-skills",
+      "commit": "397110c9fefbc6bd5444277686600aec28063c05",
+      "file": "skills/tutor/references/quiz-rules.md",
+      "url": "https://raw.githubusercontent.com/bevibing/tutor-skills/397110c9fefbc6bd5444277686600aec28063c05/skills/tutor/references/quiz-rules.md",
+      "bytes": 2131,
+      "sha256": "4ecf315341cea0bbed7df74155cbc1b8234c61f3a8f5b5adeb7f0fa11e3f0edd",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\bevibing\\tutor-skills\\skills\\tutor\\references\\quiz-rules.md"
+    },
+    {
+      "repo": "Li-Evan/Bloom",
+      "commit": "68788b5e7d3444d92a05c7237f44d1605ff039a8",
+      "file": "skills/bloom-tutor/references/articles.md",
+      "url": "https://raw.githubusercontent.com/Li-Evan/Bloom/68788b5e7d3444d92a05c7237f44d1605ff039a8/skills/bloom-tutor/references/articles.md",
+      "bytes": 5488,
+      "sha256": "5e746942c0e22e93894efb3b26f4bcec976f49ebff9d060a8da781f32ece14b7",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\Li-Evan\\Bloom\\skills\\bloom-tutor\\references\\articles.md"
+    },
+    {
+      "repo": "ZeKaiNie/universal-examprep-skill",
+      "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+      "file": "full/scripts/update_progress.py",
+      "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/full/scripts/update_progress.py",
+      "bytes": 195116,
+      "sha256": "6eaf69b579bbff5c3bcda9a7477cf29a7a331b4228c68bf0faa1e3caf314dabb",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ZeKaiNie\\universal-examprep-skill\\full\\scripts\\update_progress.py"
+    },
+    {
+      "repo": "ZeKaiNie/universal-examprep-skill",
+      "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+      "file": "full/scripts/lightweight_session.py",
+      "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/full/scripts/lightweight_session.py",
+      "bytes": 266280,
+      "sha256": "a5478b85a9226e74a1e409a42a7d0edbecfdaac194c7fd5270784b28e978db11",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ZeKaiNie\\universal-examprep-skill\\full\\scripts\\lightweight_session.py"
+    },
+    {
+      "repo": "ZeKaiNie/universal-examprep-skill",
+      "commit": "e01d2f7647b0917172ae8ad5fb788b404e977cae",
+      "file": "full/docs/retrieval-evaluation.md",
+      "url": "https://raw.githubusercontent.com/ZeKaiNie/universal-examprep-skill/e01d2f7647b0917172ae8ad5fb788b404e977cae/full/docs/retrieval-evaluation.md",
+      "bytes": 5176,
+      "sha256": "b3f380e5f7eb3f22f1f087ed69f65c074bb36ad9634ce8b10e28d35e56048d6f",
+      "local": "C:\\Users\\free\\AppData\\Local\\Temp\\heart-learning-skills-gap-research-20261104\\upstream\\ZeKaiNie\\universal-examprep-skill\\full\\docs\\retrieval-evaluation.md"
+    }
+  ],
+  "local_files": [
+    {
+      "path": "project/integration/discrete-math-tutor/agents/teaching_skills.py",
+      "sha256": "afb17987359bf9acc9344f9bba910d5a324444f6e852409851e9de6818e2463c"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/chapter_overview.py",
+      "sha256": "6d4da9c66345b86c9b3e3a8c042ac166b4723510298441dc162ae3741ddef4d2"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/course_prompts.py",
+      "sha256": "d6d5b777c1f3ce02282959ece727a87523ba73a61f89865b71de90f3128bdb56"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/task_service.py",
+      "sha256": "2d9dc0814d8644467cbf4361e0888a2c3f6ed38a61f219a5a922600c04617501"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/agent_loop_service.py",
+      "sha256": "0979cfc1df2b95bd73333cfb95645cacb62d517387b5ac745b0f221ea8641a2d"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/response_generator.py",
+      "sha256": "1bde7fd8a481ed54c59697cc954de07d99a8ed750607f9dee65913b7dd4a542c"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/pdf_selection_tutor.py",
+      "sha256": "2d96da517c012389fea0491b87a378b07b297b7c659ef3b2428aaefd0fe4dbc0"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/adaptive_tutoring.py",
+      "sha256": "cfb6d2d5607a5fee04ec619e3d8a1b2d53f109fe1fc482b8966114e9db26d971"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/practice_api.py",
+      "sha256": "a7d2b203a24b8ad339bd68ad4d568124f7138591981b716c35cb0bf27fd61495"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/visualization/skills/teaching-skills/SKILL.md",
+      "sha256": "6bb3bba4058899548beecd0c03d7763e3aded54befdb547a2bf70523090eb5e0"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/misconception_resolver.py",
+      "sha256": "d2853ab80a803c8d5ebaf60472a26cca22543f374c046d9aa7ab3e6f41ac1ef5"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/agents/deeptutor_learning/scheduler.py",
+      "sha256": "aa9330b9b823fc3530e73dd4fdaad339305b550c736fe7c87a4b99bd12d963d5"
+    }
+  ],
+  "coverage": "Core skills and selected references read; other files inspected selectively. Downloaded file count does not imply exhaustive review. Stars are a discovery signal, not educational efficacy.",
+  "discovery": "agent-reach GitHub CLI + find-skills CLI and skills.sh + primary repository sources"
+}

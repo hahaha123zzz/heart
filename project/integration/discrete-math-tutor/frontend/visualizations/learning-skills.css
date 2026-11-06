@@ -1,0 +1,9 @@
+.guided-visualization[data-learning-skill]:not([data-learning-skill=""]) { border-color: transparent; background: transparent; }
+.guided-visualization[data-learning-skill]:not([data-learning-skill=""]) .guided-canvas { background: transparent; }
+.guided-download { margin-top: 1rem; padding: 0; border: 0; background: transparent; color: #386e60; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.guided-visualization[data-learning-skill="visual-explainer"] .guided-explanation { border-left: 2px solid #92aaa3; padding-left: 1rem; }
+.guided-interaction { display: flex; flex-wrap: wrap; gap: .6rem; }
+.guided-interaction p { flex-basis: 100%; color: var(--text-muted, #62716d); line-height: 1.7; }
+.guided-interaction button { padding: .5rem .8rem; border: 1px solid #c9d5d0; border-radius: 1.2rem; background: transparent; color: inherit; cursor: pointer; }
+.guided-interaction button[aria-pressed="true"] { border-color: #386e60; background: #edf4f0; }
+.guided-interaction button:focus-visible { outline: 2px solid #386e60; outline-offset: 3px; }

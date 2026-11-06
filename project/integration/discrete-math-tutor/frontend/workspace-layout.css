@@ -15,6 +15,13 @@
 .conversation-sidebar{min-width:0;height:100%;display:flex;flex-direction:column;overflow:hidden;background:#f8f9fa;border-right:1px solid #e7eaec;padding:0 14px}
 .conversation-sidebar>header{display:flex;align-items:center;height:64px;flex-shrink:0;padding:0 8px;font-size:17px}
 .conversation-sidebar>header strong{font-weight:600}
+.conversation-sidebar>header .icon-button{margin-left:auto;width:32px;height:32px;color:#778188}
+.conversation-sidebar>header .icon-button svg{width:18px;height:18px}
+.sidebar-expand{display:none;width:32px;height:32px;margin-right:2px;color:#778188}
+.sidebar-expand svg{width:18px;height:18px}
+.sidebar-collapsed .chat-panel>.workspace-header>.sidebar-expand{display:inline-flex}
+body.reader-open .sidebar-collapsed .chat-panel>.workspace-header>.sidebar-expand{display:none}
+body.reader-open .sidebar-collapsed #course-view>.workspace-header>.sidebar-expand{display:inline-flex}
 .new-conversation{display:flex;align-items:center;gap:9px;border:0;background:transparent;padding:12px 8px;text-align:left;border-radius:8px;font-size:14px;cursor:pointer}
 .new-conversation:hover{background:#eceff1}
 .new-conversation svg{width:19px;height:19px}
@@ -30,7 +37,12 @@
 .directory-open .sidebar-library{display:flex;flex-direction:column}
 .sidebar-library #course-panel-body{overflow:auto;min-height:0}
 .directory-heading{flex-shrink:0}
-.directory-toggle svg,.reader-toggle svg,[data-reader-close] svg{width:18px;height:18px}
+.directory-toggle{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border:1px solid #e3e7e7;border-radius:6px;background:#fff;color:#495c6a;font-size:11px}
+.directory-toggle svg{width:14px;height:14px}
+.directory-toggle:hover{background:#f5f7f8;color:#28363e}
+.directory-toggle[aria-expanded=true]{background:var(--selected);border-color:#b1c5d4;color:var(--accent)}
+.pdf-toolbar .directory-toggle{margin-left:auto;position:relative;z-index:41}
+.reader-toggle svg,[data-reader-close] svg{width:18px;height:18px}
 .reader-toggle{display:inline-flex;align-items:center;gap:7px;margin-left:auto;padding:7px 10px;border:0;border-radius:7px;background:transparent;color:#657178;font-size:12px;cursor:pointer}
 .reader-toggle:hover{background:#f0f2f3;color:#28363e}
 .chat-panel>.workspace-header{gap:10px;border-bottom:0}

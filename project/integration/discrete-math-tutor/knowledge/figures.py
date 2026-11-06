@@ -184,10 +184,16 @@ def section_figures(chapter_id: int, section_id: int) -> list[dict]:
 
 
 def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -> list[Figure]:
-    """明确图号优先；其余仅按图注/说明匹配，避免泛泛的“图”触发错误图片。"""
+    """明确图号优先；检索到的完整图注也可作为图片线索，避免模型已读到图注却不带原图。"""
     labels = {(int(a), int(b)) for a, b in FIGURE_NUMBER.findall(query)}
+    caption_labels = set()
+    for source in sources:
+        for line in (source.text or "").splitlines()[:2]:
+            match = re.match(r"^\s*图\s*(\d+)\s*[-.．]\s*(\d+)\s", line)
+            if match:
+                caption_labels.add((int(match.group(1)), int(match.group(2))))
     kinds = _visual_kinds()
-    if not labels and not re.search(r'图中|表中|这[张幅个].{0,2}图|原图|原表|插图|曲线|示意图|图片|照片|公式', query):
+    if not labels and not caption_labels and not re.search(r'图中|表中|这[张幅个].{0,2}图|原图|原表|插图|曲线|示意图|图片|照片|公式', query):
         return []
     if labels:
         exact = [figure for figure in load_figures()
@@ -198,6 +204,24 @@ def retrieve_figures(query: str, sources: list[TextbookChunk], limit: int = 2) -
             return exact
         # 明确图号未命中时不以相似图替代。
         return []
+    if caption_labels:
+        # 图注只能证明正文读到了这张图；是否可附原图以已核对索引为准，避免二维码/缺图占位。
+        from knowledge.visual_index import load_index
+        index = load_index()
+        picked = []
+        for chapter, number in sorted(caption_labels):
+            label = f"图{chapter}-{number}"
+            entry = next((item for item in index.entries
+                          if item.chapter_id == chapter and item.label == label), None)
+            if entry is None or not entry.asset_id:
+                continue
+            figure = get_figure(entry.asset_id)
+            if figure is not None and figure.is_valid():
+                picked.append(figure)
+        if picked:
+            return picked[:limit]
+        if index.entries:
+            return []
     # 顶点/边集是用户自定义实例，不能用同主题教材图片代替。
     if not labels and re.search(r'\bv\d+\s*[-−—]\s*v\d+|四节点环', query, re.I):
         return []

@@ -21,6 +21,11 @@ def explicit_chapters(message):
             if (number := _number(value)) is not None}
 
 
+def broad_question(message):
+    """比较或多对象问题不能被单个精确知识点锁死，需要回到本节检索。"""
+    return bool(re.search(r'对比|比较|区别|异同|不同|关系|分别|各自|哪些|几种|分类|共同', message))
+
+
 def question_interjection(message, target):
     """显式点名的新问题只改变本轮读取，不改变教学目标。指代追问留在原目标。"""
     from agents.object_evidence import OBJECT_ID
@@ -102,14 +107,22 @@ class CourseSearch:
     def search(self, *, target, query, limit, preferred_types=()):
         message = self.message_for_retrieval()
         chapters, route_section = self._scope()
+        explicit = explicit_chapters(self.message)
         from agents.object_evidence import requested_objects, read_requested_objects, missing_objects
         object_ids = requested_objects(self.message)
-        # A resolved route owns scope; only a true cross-chapter turn stays a side question.
-        side_question = (bool(object_ids) or len(explicit_chapters(self.message)) > 1
-                         or (self.route is None and question_interjection(self.message, target)))
-        search_target = replace(target, target_id='question', name=message,
-                                chapter_id=next(iter(chapters)) if len(chapters) == 1 else None,
-                                section_id=None, source_scope={}, version='') if side_question else target
+        # 对比/多对象/跨章问题不能锁在单个小节，需要按显式章节或全课程检索。
+        cross_scope = bool(object_ids) or len(explicit) > 1 or broad_question(self.message)
+        # A resolved route owns narrow scope; broad turns still expand to course scope.
+        side_question = (cross_scope or (self.route is None and question_interjection(self.message, target)))
+        if cross_scope:
+            chapter_id = next(iter(explicit)) if len(explicit) == 1 else None
+            search_target = replace(target, target_id='question', name=message,
+                                    chapter_id=chapter_id, section_id=None,
+                                    source_scope={}, version='')
+        else:
+            search_target = replace(target, target_id='question', name=message,
+                                    chapter_id=next(iter(chapters)) if len(chapters) == 1 else None,
+                                    section_id=None, source_scope={}, version='') if side_question else target
         # 页面位置只是检索偏好；只有 Q2 的精确目标/来源指针才是硬范围。
         exact_scope = bool(re.fullmatch(r'ch\d+:s\d+:b\d+', target.target_id) or target.source_scope.get('source_refs'))
         if not exact_scope and not side_question:
@@ -140,7 +153,8 @@ class CourseSearch:
                 exact_id = pointers[0].get('unit_id', '')
                 exact_version = pointers[0].get('version', '')
             multiple = bool(self.coverage and self.coverage.requirements)
-            if not side_question and not multiple and re.fullmatch(r'ch\d+:s\d+:b\d+', exact_id):
+            if (not side_question and not multiple and not broad_question(self.message)
+                    and re.fullmatch(r'ch\d+:s\d+:b\d+', exact_id)):
                 from knowledge.course_navigation import read_target
                 exact = read_target({'id': exact_id, 'version': exact_version})
                 if not exact:
@@ -215,7 +229,8 @@ class CourseSearch:
                 sources = self._covered_sources
             elif self._use_fast_path(query):
                 sources = self._fast_sources(query, target, limit, preferred_types, record,
-                                             chapters, route_section)
+                                             explicit if cross_scope else chapters, route_section,
+                                             course_wide=cross_scope)
                 if sources is None:
                     self._needs_model_selection = True
                     record.update(actual_backend='lightrag', upgraded_from='local_llamaindex', upgrade_reason='low_confidence')
@@ -311,11 +326,15 @@ class CourseSearch:
         return bool(active() and not requirements_for(message)
                     and not re.search(r'全书|跨章|综合|先修|知识体系|关联|关系', message))
 
-    def _fast_sources(self, query, target, limit, preferred_types, record, chapters=None, route_section=None):
+    def _fast_sources(self, query, target, limit, preferred_types, record, chapters=None, route_section=None, course_wide=False):
         from knowledge.local_rag.course_retrieval import retrieve
         explicit = chapters if chapters is not None else explicit_chapters(self.message)
         reader = getattr(self, 'reader_location', None)
-        if self.route is not None and self.route.chapter_id is not None:
+        if course_wide:
+            # 跨章/多概念问题按显式章节检索；没有显式章节时检索全课程。
+            chapter = next(iter(explicit)) if len(explicit) == 1 else None
+            section = None
+        elif self.route is not None and self.route.chapter_id is not None:
             chapter, section = self.route.chapter_id, route_section
         else:
             chapter = next(iter(explicit)) if len(explicit) == 1 else (getattr(reader, 'chapter_id', None) or target.chapter_id)

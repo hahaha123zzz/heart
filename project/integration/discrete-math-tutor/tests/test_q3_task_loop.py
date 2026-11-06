@@ -241,8 +241,6 @@ class TaskLoopPersistenceTests(unittest.TestCase):
         self.tutor.llm = Mock()
         with patch("agents.q5_runtime.q5_enabled", return_value=True), \
              patch("agents.q5_runtime.Q5Runtime", return_value=q5), \
-             patch("agents.chapter_overview.run_chapter_overview",
-                   side_effect=AssertionError("chapter overview must not run")) as overview, \
              patch.dict("os.environ", {"INPUT_UNDERSTANDING_MODE": "active"}):
             first = self.service.run(ChatRequest(student_id="s", request_id="chapter-adjust-text-1",
                 message="帮我制定第一章的学习计划"), self.plain_executor)
@@ -250,7 +248,6 @@ class TaskLoopPersistenceTests(unittest.TestCase):
                 task_id=first["task_id"], task_revision=first["task_revision"],
                 message="把第一章内容调整为重点学第三节"), self.plain_executor)
         q5.adjust_first.assert_called_once()
-        overview.assert_not_called()
         self.assertEqual(second["clarification"]["mode"], "q5_plan")
 
     def test_generic_session_plan_still_uses_session_proposal(self):

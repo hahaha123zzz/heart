@@ -164,6 +164,33 @@ class FixedBookTests(unittest.TestCase):
         self.assertEqual(captured['evidence_ids'][0], 'a')
         self.assertNotIn('duplicate', captured['evidence_ids'])
 
+    def test_rule_selection_keeps_retrieval_score_and_excludes_unrelated_fillers(self):
+        result=fixed_book.select_evidence({'question':'钟毅平是谁','candidates':[
+            {'evidence_id':'body','quote':'钟毅平等研究自我面孔识别。','retrieval_score':.899,'retrieval_source_index':0},
+            {'evidence_id':'reference','quote':'钟毅平,李琎,占友龙,范伟,杨子鹿.(2016).自我面孔识别的ERPs研究.心理学报,48(11),1379-1389.',
+             'retrieval_score':.677,'retrieval_source_index':1},
+            {'evidence_id':'unrelated','quote':'朱湘茹,刘昌.(2008).空间数字反应编码联合效应下冲突适应过程的ERP研究。',
+             'retrieval_score':.677,'retrieval_source_index':1}]})
+        self.assertEqual(result['evidence_ids'],['body','reference'])
+
+    def test_rule_evidence_forwards_scores_from_original_retrieval_sources(self):
+        sources=[SimpleNamespace(location={'retrieval_score':score},to_dict=lambda:{}) for score in (.899,.677)]
+        def choose(llm,question,chunks,index,*,selection_fn):
+            return selection_fn({'question':question,'candidates':[
+                {'evidence_id':'reference','quote':'钟毅平,李琎,占友龙,范伟等研究了面孔识别。','retrieval_source_index':1},
+                {'evidence_id':'body','quote':'钟毅平等研究面孔识别。','retrieval_source_index':0}]})
+        with (patch.object(fixed_book,'active',return_value=SimpleNamespace(citation_path='frozen.sqlite3')),
+              patch('knowledge.lightrag.retrieval.as_textbook_chunk',return_value=None),
+              patch('knowledge.grounded_citations.choose_evidence',side_effect=choose)):
+            result=fixed_book.rule_evidence('钟毅平是谁',sources)
+        self.assertEqual(result['evidence_ids'],['body','reference'])
+
+    def test_rule_selection_retains_verified_target_without_keyword_overlap(self):
+        result=fixed_book.select_evidence({'question':'解释这段','candidates':[
+            {'evidence_id':'selected','quote':'被试应接受全部实验处理水平。','selected_target':True},
+            {'evidence_id':'other','quote':'另一段比较长但是无关的内容不能挤掉用户指定的原文。'}]})
+        self.assertEqual(result['evidence_ids'],['selected'])
+
     def test_fast_router_respects_complex_questions(self):
         from agents.course_search import CourseSearch
         search=CourseSearch(None, message='自变量是什么', llm=None)

@@ -110,12 +110,9 @@ def final_summary(context, result):
         from agents.input_understanding.references import introduced_objects
         context.reference_objects = introduced_objects(turn.context.task_id, str(result.get('reply') or ''))
     value=turn.model_dump()
-    overview = result.get('chapter_overview') or {}
     for frame in value['tasks']:
         done=completed
-        if frame['action'] in ('chapter_overview', 'section_overview'):
-            done = done and bool(overview.get('coverage_ok') and overview.get('content_ok'))
-        elif frame['action']=='resume_pending_question':
+        if frame['action']=='resume_pending_question':
             done=done and bool(result.get('input_resume_question_id') or result.get('publication_mode')=='saved_formative_question')
         elif frame['action']=='submit_student_answer':
             done=done and (result.get('teaching') or {}).get('turn_move')=='answer'

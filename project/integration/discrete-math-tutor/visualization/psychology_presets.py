@@ -193,48 +193,66 @@ def build_method_selection_guide(message, sources, execution, *, turn_id):
 
 
 def build_chapter_map_guide(message, sources, execution, *, turn_id):
-    """从已发布课程目录生成章节包含图；不把目录顺序解释成先修或因果。"""
+    """从已发布课程目录生成章节知识树；目录顺序不解释成先修或因果。"""
     question = ''.join(message.split())
     match = re.search(r'第([一二三四五六七八九十\d]+)章', question)
-    if not match or not re.search(r'梳理|整理|关系|框架|地图|结构', question) or not sources:
+    if not match and not re.search(r'第[一二三四五六七八九十\d]+[节小]', question):
+        match = re.search(r'第([一二三四五六七八九十\d]+)(?:的)?'
+                          r'(?:思维导图|导图|知识框架|框架图|结构图|章节框架|整章结构)', question)
+    if not match or not re.search(r'梳理|整理|关系|框架|地图|结构|思维导图|导图', question) or not sources:
         return None
     number = match.group(1)
     chapter_id = int(number) if number.isdecimal() else '一二三四五六七八九十'.find(number) + 1
     if chapter_id < 1:
         return None
-    targets = getattr(execution, 'targets', [])
-    if getattr(execution, 'target_refs', []) and (not targets or any(
-        target.get('kind') not in ('pdf_selection', 'section') for target in targets
-    )):
-        return None
-    if not any(getattr(source, 'chapter_id', None) == chapter_id for source in sources):
-        return None
-    if any(target.get('kind') == 'section' and not target.get('id', '').startswith(f'section:{chapter_id}:')
-           for target in targets):
-        return None
-
     from knowledge.course import get_chapter
-    from visualization.templates import VisualPlan, render_plan
+    from knowledge.course_navigation import outline
+    from visualization.drawio_render import attach_images
+    from visualization.templates import structure
     chapter = get_chapter(chapter_id)
     if not chapter or not 1 <= len(chapter['sections']) <= 15:
         return None
+
+    def label(value):
+        value = ' '.join(str(value or '').split()) or '知识点'
+        return value[:47] + '…' if len(value) > 48 else value
+
+    units = [unit for unit in outline() if unit['chapter_id'] == chapter_id]
+    by_section = {}
+    for unit in units:
+        by_section.setdefault(unit['section_id'], []).append(unit)
+
     references = [section_reference(chapter_id, section['id']) for section in chapter['sections']]
     root = f'chapter-{chapter_id}'
-    nodes = [{'id': root, 'label': chapter['title']}] + [
-        {'id': f'section-{section["id"]}', 'label': section['title']}
-        for section in chapter['sections']]
-    edges = [{'source': root, 'target': f'section-{section["id"]}', 'label': '目录包含'}
-             for section in chapter['sections']]
-    steps = [{'node': f'section-{section["id"]}',
-              'text': f'这是教材目录中的一节：{section["title"]}。连线仅表示章节包含关系，不代表因果或先修关系。'}
-             for section in chapter['sections']]
-    plan = VisualPlan(template='knowledge_map', title=f'第{chapter_id}章章节结构',
-        source_index=0, evidence_quote=chapter['title'], origin='textbook_example',
-        payload={'nodes': nodes, 'edges': edges, 'steps': steps})
-    frames = render_plan(plan)
-    for frame, section, reference in zip(frames, chapter['sections'], references):
-        frame.update(selection_ref=reference, source_label=section['title'],
-                     visual_origin='textbook_example', evidence_location='section_heading')
-    return _deck(turn_id, plan.title, frames,
+    sections = [{'id': f'section-{section["id"]}', 'label': label(section['title']),
+                 'parent': root} for section in chapter['sections']]
+    overview = structure({'nodes': [{'id': root, 'label': label(f'第{chapter_id}章 {chapter["title"]}'), 'parent': None}]
+                          + sections,
+                          'steps': [{'node': root, 'text': f'本章共{len(chapter["sections"])}节；'
+                                                         '后续按节展开教材知识点。'}]}, tree=True)[0]
+    overview.update(title=f'第{chapter_id}章总览', selection_ref=references[0],
+                    source_label=chapter['sections'][0]['title'],
+                    visual_origin='textbook_example', evidence_location='section_heading')
+    frames = [overview]
+
+    for section, reference in zip(chapter['sections'], references):
+        points = by_section.get(section['id'], [])
+        chunks = [points[i:i + 14] for i in range(0, len(points), 14)] or [[]]
+        for part, chunk in enumerate(chunks, 1):
+            nodes = [{'id': root, 'label': label(f'第{chapter_id}章 {chapter["title"]}'), 'parent': None},
+                     {'id': f'section-{section["id"]}', 'label': label(section['title']), 'parent': root}]
+            nodes += [{'id': f'point-{i}', 'label': label(unit['title']),
+                       'parent': f'section-{section["id"]}'} for i, unit in enumerate(chunk, 1)]
+            suffix = f'（{part}/{len(chunks)}）' if len(chunks) > 1 else ''
+            frame = structure({'nodes': nodes, 'steps': [{
+                'node': f'section-{section["id"]}',
+                'text': f'本节共{len(points)}个知识点；图中是本组{len(chunk)}个。'}]}, tree=True)[0]
+            frame.update(title=f'{section["title"]}{suffix}', selection_ref=reference,
+                         source_label=section['title'], visual_origin='textbook_example',
+                         evidence_location='section_heading')
+            frames.append(frame)
+
+    attach_images(frames)
+    return _deck(turn_id, f'第{chapter_id}章知识结构', frames,
                  [(references[0], chapter['sections'][0]['title'], 'section_heading')],
-                 method='textbook-outline-map', version=f'{chapter_id}:{chapter["title"]}')
+                 method='textbook-outline-map', version=f'{chapter_id}:{chapter["title"]}:{len(units)}')

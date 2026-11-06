@@ -777,7 +777,8 @@ class TutorOrchestrator:
                 'textbook_sources':textbook_sources}) | {'relation_context':relation_location}
         guided_visualization = None
         from visualization.service import rollout_settings,VisualizationService
-        if (PSYCHOLOGY and os.getenv('VISUALIZATION_ON_DEMAND','0')=='1') or (not PSYCHOLOGY and rollout_settings()[0]!='off' and VisualizationService().enabled(student_id)):
+        from visualization.learning_visuals import enabled_for
+        if enabled_for(message) or (not PSYCHOLOGY and rollout_settings()[0]!='off' and VisualizationService().enabled(student_id)):
             try:
                 from visualization.on_demand import build_guide
                 guided_visualization=build_guide(self.llm,message,response,sources,execution,

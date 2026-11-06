@@ -38,6 +38,12 @@ def resolve_tool_purpose(context: TaskContext, message: str) -> str:
 
 
 def _target_from_context(context: TaskContext) -> LearningTarget:
+    route = _turn_route(context)
+    if route and (route.reason == 'textbook_point_navigation'
+                  or route.kind in ('chapter_overview', 'section_overview')):
+        return LearningTarget(target_id=route.target_id or f'chapter:{route.chapter_id}',
+            name=route.name or route.query or context.message, chapter_id=route.chapter_id,
+            section_id=route.section_id, reason='学生本轮指定章节；阅读位置仅作背景')
     if context.input_mode == 'active' and context.activity_target:
         values = dict(context.activity_target, reason='有效待答任务绑定；阅读位置仅作背景')
         return LearningTarget(**values)
@@ -108,16 +114,18 @@ def _default_navigator(target: LearningTarget | None,
             # block first so a generic query cannot pull the answer into a
             # different part of the same section.
             from knowledge.course_navigation import read_target
+            from agents.course_search import broad_question
             is_exact = bool(re.fullmatch(r'ch\d+:s\d+:b\d+', target.target_id))
-            exact = read_target({"id": target.target_id, "version": target.version}) if is_exact else []
+            broad = broad_question(query)
+            exact = read_target({"id": target.target_id, "version": target.version}) if is_exact and not broad else []
             if exact:
                 return [source_from_chunk(chunk, index)
                         for index, chunk in enumerate(exact[:limit])]
             from knowledge.local_rag.course_retrieval import retrieve
-            candidates = retrieve(f"{target.name} {query}".strip(),
+            candidates = retrieve(query if broad else f"{target.name} {query}".strip(),
                                   limit=max(12, limit * 3),
                                   preferred_types=preferred_types)
-            scoped = [chunk for chunk in candidates
+            scoped = candidates if broad else [chunk for chunk in candidates
                       if (target.chapter_id is None
                           or getattr(chunk, "chapter_id", None) == target.chapter_id)
                       and (target.section_id is None
@@ -170,13 +178,24 @@ def _excerpts(sources: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navigation=None, teaching=None, selection_input=None, *, allow_incomplete=False):
+def _allows_model_knowledge(request, *, selection_input=None, chapter_route=False):
+    from agents.object_evidence import requested_objects
+    from knowledge.figures import FIGURE_NUMBER
+    return bool(not chapter_route and selection_input is None
+        and not getattr(request, 'selection', None) and not getattr(request, 'exercise_target', None)
+        and not re.search(r'教材原文|原书怎么说|书上怎么写|按教材|引用原文|第\s*\d+页|原图|具体研究结果|数据结果',request.message)
+        and not requested_objects(request.message) and not FIGURE_NUMBER.search(request.message))
+
+
+def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navigation=None, teaching=None, selection_input=None, *, allow_incomplete=False, allow_model_knowledge=None):
+    if allow_model_knowledge is None:
+        allow_model_knowledge = bool(teaching and teaching.evidence_mode == 'blended')
     def gate(text: str, result: LoopResult) -> tuple[bool, str]:
         if not text.strip():
             return False, "模型没有返回可发布回答。"
         if re.search(r'<\s*/?\s*[｜|]+\s*DSML\s*[｜|]+|<tool_call(?:\s|>)', text, re.IGNORECASE):
             return False, '模型返回了内部工具协议，不能作为教学回答发布。'
-        if not result.sources and (teaching is None or teaching.evidence_mode == "textbook"):
+        if not result.sources and not allow_model_knowledge:
             return False, "本轮没有可核验的教材来源，暂不发布正式回答。"
         if not result.sources and re.search(r"\[\d+\]", text):
             return False, "本轮没有教材引用来源；请移除虚构的引用编号，不要把课堂补充写成教材原文，也不要描述材料覆盖或检索过程。"
@@ -195,8 +214,8 @@ def _publish_gate(orchestrator: Any, request: Any, target: LearningTarget, navig
             if set(coverage.get('covered', [])) - supported:
                 return False, '回答尚未引用双方对象的相关原文；请保留每方实际支持结论的引用，不能只引用其中一方。'
         from knowledge.fixed_book import active
-        if active() and result.sources and not re.search(r'\[\s*\d', text):
-            # 已有教材证据的改述不因缺少重复上标而撤回，也不自动编造引用。
+        if (allow_model_knowledge or active() and result.sources) and not re.search(r'\[\s*\d', text):
+            # 一般知识补充不强挂教材引用；已有教材的自然改述沿用固定教材规则。
             result._publication = {'reply':text,'pdf_references':[],'textbook_sources':[]}
             return True, ''
         if result.sources:
@@ -412,6 +431,13 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     from agents.tools.first_wave_runtime import bind_resources, STRUCTURED_TOOL, structured_gate, skill_catalog
     route = _turn_route(context)
     chapter_route = route is not None and route.kind in ('chapter_overview', 'section_overview')
+    course_cursor = getattr(context, 'course_navigation', None) or {}
+    if selection_input is None and course_cursor.get('status') in ('clarify', 'complete'):
+        release(request.task_id or request.request_id)
+        return {'reply': course_cursor['reply'],
+                'answer_status': 'answered' if course_cursor['status'] == 'complete' else 'clarify',
+                'step_advanced': False, 'course_navigation': course_cursor}
+
     tool_purpose = 'textbook' if selection_input is not None else resolve_tool_purpose(context, request.message)
     if route is not None and route.kind == 'learning_plan' and route.scope == 'chapter' and q5 is None:
         release(request.task_id or request.request_id)
@@ -430,7 +456,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         pass
     current_target = _target_from_state(resume_state) or _target_from_context(context)
     q5_binding = None
-    if q5 is not None and selection_input is None:
+    if (q5 is not None and selection_input is None and not chapter_route
+            and not (route and route.reason == 'textbook_point_navigation')):
         try:
             q5_binding = q5.loop_binding()
         except (ValueError, RuntimeError):
@@ -473,8 +500,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         guard()
     if resume_state and previous:
         context.tutoring = deepcopy((previous.get('context') or {}).get('tutoring') or context.tutoring)
-    # Chapter/selection overview is assembled from the course outline by the
-    # host handler; it must not become a knowledge-point mastery turn.
+    # 章节教学走同一个技能循环，不绑定单知识点的正式掌握状态。
     teaching = (TeachingTurn(context, request, llm or orchestrator.llm, target=target, resume=bool(resume_state))
                 if tutoring_enabled() and tool_purpose == 'textbook' and not chapter_route else None)
     if (teaching and teaching.input_turn and teaching.input_turn.context.pending_question_id
@@ -500,12 +526,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         guard()
     from agents.course_search import explicit_chapters, question_interjection
     chapters = explicit_chapters(request.message)
-    interjection = bool(len(chapters) > 1 or
+    interjection = bool(chapter_route or len(chapters) > 1 or
         (q5_binding and question_interjection(request.message, target))
         or (teaching and teaching.interjection) or tool_purpose != 'textbook')
     root = Path(__file__).resolve().parents[1]
     skills_root = root / "visualization" / "skills"
-    from agents.teaching_skills import enabled as skills_enabled, allowed_skills
+    from agents.teaching_skills import enabled as skills_enabled, allowed_skills, ANSWER_CONTRACT
     from knowledge.course_config import COURSE_ID
     teaching_skills_enabled = skills_enabled(skills_root)
     task_key = re.sub(r"[^A-Za-z0-9_.-]+", "_",
@@ -531,15 +557,24 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         extra_scopes=tuple({'learning:read'} if interjection or host_owned_learning else set((q5_binding or {}).get('scopes') or ())) +
                      tuple({scope for tool in first_tools for scope in tool.scopes}),
     )
+    allow_model_knowledge = tool_purpose == 'textbook' and _allows_model_knowledge(
+        request, selection_input=selection_input, chapter_route=chapter_route)
     budget = reply_budget(request.message)
     system_prompt = build_loop_system_prompt(
         target=target, definitions=registry.definitions(),
+        course_prompt=ANSWER_CONTRACT if teaching_skills_enabled else None,
         teaching_prompt=teaching.instructions() if teaching and not teaching_skills_enabled else "",
-        verified_sources=initial_sources) + "\n" + budget.instructions()
+        verified_sources=initial_sources)
+    if not teaching_skills_enabled:
+        system_prompt += "\n" + budget.instructions()
     from agents.input_understanding.adapters import active_turn
     input_turn = active_turn(context)
     if input_turn:
         system_prompt += '\n' + input_turn.instructions()
+    if route and route.reason == 'textbook_point_navigation':
+        system_prompt += ('\n本轮连续学习的目标是上面指定的单个教材知识点。依主技能把概念、理由和适当例子讲清，'
+                          '不要用整节或整章概要替代当前知识点；涉及其他点只交代必要联系。'
+                          '该知识点尚需展开时可以分轮继续，讲过不代表掌握。')
     typed_queries = [t.query for t in input_turn.tasks if t.action in (
         'explain_content','compare_content','provide_hint','discuss_claim') and t.query] if input_turn else []
     typed_prefetch = bool(input_turn and input_turn.parser == 'model' and len(typed_queries) > 1
@@ -552,7 +587,10 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         from agents.teaching_policy import resolve_teaching_mode, teaching_mode_instructions
         from models.interaction_preferences import style_instructions
         # 当前有效偏好在普通问答中也生效，不依赖Q5本次安排或辅助教学开关。
-        system_prompt += '\n' + style_instructions(context.preferences)
+        if not teaching_skills_enabled:
+            system_prompt += '\n' + style_instructions(context.preferences)
+        else:
+            system_prompt += '\n学生偏好（参考，本轮明确需求优先）：' + str(context.preferences)
         if teaching is None and not teaching_skills_enabled:
             system_prompt += '\n' + teaching_mode_instructions(resolve_teaching_mode(request.message))
     if selection_input is not None:
@@ -597,6 +635,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     if needs_presentation:
         required_tools = tuple(dict.fromkeys((*required_tools, 'teaching_step')))
         system_prompt += '\n学生要求结构化回看：用teaching_step的card_kind生成step_reveal（explanation_steps）或concept_comparison（comparison_labels/comparison_rows）；source_indices只用本轮实际来源，正文由同一份数据生成并核验，无需再次改写。卡片不登记新检查题。'
+    allow_model_knowledge = allow_model_knowledge and not (needs_teaching_question or needs_review_evidence or needs_presentation)
     if interjection:
         system_prompt += '\n本轮是插问，只回答学生当前问题；保留原学习目标，不记录本目标已讲解、掌握或推进路径。'
     system_prompt += '\n页面当前学习目标仅作学习位置参考；具体提问优先，不要把旧小节主题擅自追加到检索词。指定图号先调用 retrieve_course 读取该图及登记原文，不能只检索旧主题便要求学生上传已有原图。'
@@ -623,7 +662,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                        '探索':'准备取证或确认问题', 'sources':'已取得本轮教材原文'}.get(str(text), str(text))
         progress('loop-' + kind, labels.get(kind, '处理中'), detail_text[:300])
 
-    round_tokens = max(1200, budget.max_tokens)
+    from llm.client import answer_max_tokens
+    round_tokens = answer_max_tokens() if teaching_skills_enabled else max(1200, budget.max_tokens)
     tool_seconds = 120  # 共享活动预算还会取剩余时间的较小值。
     loop = LocalAgentLoop(llm or orchestrator.llm, max_round_tokens=round_tokens)
     cancellation = register(request.task_id or request.request_id)
@@ -633,7 +673,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     if navigation.backend is not None and hasattr(navigation.backend, 'cancellation'):
         navigation.backend.cancellation = cancellation
     base_gate = publish_gate or (structured_gate(tool_purpose) if resources and tool_purpose in STRUCTURED_TOOL
-                                 else _publish_gate(orchestrator, request, target, navigation, teaching, selection_input))
+                                 else _publish_gate(orchestrator, request, target, navigation, teaching, selection_input,
+                                               allow_model_knowledge=allow_model_knowledge))
     composer = None
     composition_hint_only = bool(teaching and teaching.strategy == 'hint') or bool(input_turn and (
         any(d.key in ('hint_only', 'no_full_answer') and d.value is True for d in input_turn.directives)
@@ -683,7 +724,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     progressive_execute=None
     if composer is not None and block_streaming_enabled() and composition_runtime and not required_tools and len(composer.plan.blocks)>1:
         from agents.composition_execution import execute_batches
-        partial_gate=publish_gate or _publish_gate(orchestrator,request,target,navigation,teaching,selection_input,allow_incomplete=True)
+        partial_gate=publish_gate or _publish_gate(orchestrator,request,target,navigation,teaching,selection_input,allow_incomplete=True,
+                                                        allow_model_knowledge=allow_model_knowledge)
         def batch_gate(text,outcome,complete):
             return final_gate(text,outcome) if complete else partial_gate(text,outcome)
         def progressive_execute(local_loop,loop_request,outcome,messages,collector):
@@ -709,20 +751,19 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                 task_id=request.task_id or request.request_id,
                 request_id=request.request_id or "",
                 message=request.message, system_prompt=system_prompt, tools=registry,
-                round_max_tokens=round_tokens, requires_evidence=(tool_purpose == 'textbook' and
+                round_max_tokens=round_tokens, requires_evidence=(tool_purpose == 'textbook' and not allow_model_knowledge and
                     (composer is not None or resume_needs_evidence or needs_teaching_question or needs_review_evidence or teaching is None or teaching.evidence_mode != 'blended')),
                 required_tools=required_tools,
                 bound_media_id=next((r.canonical_id for r in input_turn.references
                     if r.kind == 'figure' and r.status == 'resolved' and r.origin == 'history'
                     and any(t.target_ref == r.ref_id for t in input_turn.tasks)),None) if input_turn else None,
                 structured_response=bool(needs_presentation or resources and tool_purpose in STRUCTURED_TOOL and publish_gate is None),
-                answer_ready=((lambda outcome: bool(outcome.sources)) if composer is not None else (lambda outcome: bool(outcome.sources) or
-                    (teaching.evidence_mode == 'blended' and not resume_needs_evidence
-                     and not needs_teaching_question and not needs_review_evidence)) if teaching else None),
+                answer_ready=((lambda outcome: bool(outcome.sources) or allow_model_knowledge)
+                              if tool_purpose == 'textbook' else None),
                 response_composer=composer,
                 composition_execute=progressive_execute,
                 prefetch_query=(prefetch_message if resume_needs_evidence or (tool_purpose == 'textbook' and 'ask_user' not in required_tools and not resume_state and not initial_sources and (
-                    composer is not None or
+                    composer is not None or allow_model_knowledge or
                     typed_prefetch or fallback_prefetch or q5_binding or (context.course_navigation or {}).get("status")=="ready" or
                     (getattr(navigation.backend,"backend",None) is not None and target is not None and
                      (question_interjection(request.message,target) or target.name in request.message)))) else None),
@@ -734,6 +775,12 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                             "skills_root": str(skills_root), "deferred_loader": None,
                             'allowed_skills': allowed_skills(skills_root, resources.binding.course_id if resources else COURSE_ID),
                             'teaching_skills': teaching_skills_enabled,
+                            'allow_model_knowledge': allow_model_knowledge,
+                            'textbook_open': bool(getattr(request, 'reader_location', None) or selection_input is not None),
+                            'reader_location': ((request.reader_location.model_dump()
+                                                 if hasattr(request.reader_location, 'model_dump')
+                                                 else request.reader_location)
+                                                if getattr(request, 'reader_location', None) is not None else None),
                             **({'first_wave': resources} if resources else {}),
                             **((q5_binding or {}).get("tool_state") or {})},
                 publish_gate=final_gate,
@@ -815,7 +862,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         # Preserve the selected-text pipeline's optional diagram integration.
         # Never build an answer-revealing diagram while a check awaits an answer.
         from knowledge.course_config import PSYCHOLOGY
-        if PSYCHOLOGY and os.getenv('VISUALIZATION_ON_DEMAND', '0') == '1':
+        from visualization.learning_visuals import enabled_for
+        if enabled_for(request.message):
             from visualization.on_demand import build_guide, permitted
             if selection_input is not None:
                 visual_execution = selection_input.execution

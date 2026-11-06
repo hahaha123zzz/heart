@@ -117,10 +117,11 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
     for attempt in range(2):
         report('generating-'+str(attempt),'生成讲解' if attempt==0 else '修订讲解','结合教材原图与相关学习记忆')
         from llm.answer_events import answer_kwargs
-        messages=[{'role':'system','content':SYSTEM+'\n'+ANSWER_PRESENTATION+'\n'+budget.instructions()+ '\n' + execution.instructions()+strategy_instructions},
+        from agents.teaching_skills import ANSWER_CONTRACT
+        messages=[{'role':'system','content':ANSWER_CONTRACT + '\n原PDF选区是本轮解释对象；只处理学生所选内容与当前问题，不能猜测看不清的图或公式。'},
             {'role':'user','content':json.dumps(payload,ensure_ascii=False)+'\n待核实质检意见（不是教材依据）：'+feedback}]
         from agents.teaching_skills import prepare_teaching_skills
-        policy, _ = prepare_teaching_skills(tutor.llm, messages)
+        policy, skill_receipts = prepare_teaching_skills(tutor.llm, messages)
         messages.append({'role':'system','content':policy})
         reply=tutor.llm.chat(messages,
             image_paths=resolved['images'],temperature=.2,max_tokens=budget.max_tokens, **answer_kwargs(),
@@ -151,7 +152,8 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
             'textbook_sources':[f'{s.source}／{s.section}' for s in published_sources]}
     guided_visualization=None
     from visualization.service import rollout_settings,VisualizationService
-    if (PSYCHOLOGY and os.getenv('VISUALIZATION_ON_DEMAND','0')=='1') or (not PSYCHOLOGY and rollout_settings()[0]!='off' and VisualizationService().enabled(student_id)):
+    from visualization.learning_visuals import enabled_for
+    if enabled_for(message) or (not PSYCHOLOGY and rollout_settings()[0]!='off' and VisualizationService().enabled(student_id)):
         try:
             from visualization.on_demand import build_guide
             from knowledge.textbook import TextbookChunk
@@ -172,7 +174,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
     if unified_strategy is not None:
         from agents.teaching_strategy import publish_external_strategy
         strategy_publication=publish_external_strategy(context,unified_strategy,reply,source_ids=[reference.get('document_id','')])
-    return {**({'teaching_strategy_plan':strategy_publication} if strategy_publication else {}),'answer_status':'answered','conversation_id':conversation_id,'step_advanced':False,'reply':reply,'selection_ref':reference,'guided_visualization':guided_visualization,'memory_summary':memories['summary'],
+    return {**({'teaching_strategy_plan':strategy_publication} if strategy_publication else {}),'teaching_skills':skill_receipts,'answer_status':'answered','conversation_id':conversation_id,'step_advanced':False,'reply':reply,'selection_ref':reference,'guided_visualization':guided_visualization,'memory_summary':memories['summary'],
             **({'learning_response':learning_response} if learning_response else {}),
             'memory_commit':{'status':'committed','conversation_id':conversation_id},
             'pdf_references':grounded_refs or [],

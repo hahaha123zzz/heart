@@ -165,10 +165,31 @@ class SelectionLoopTests(unittest.TestCase):
         self.assertIsNone(recover_selection([row], request, repo))
 
     def run_loop(self, ctx, model):
-        return run_agent_loop_turn(
-            orchestrator=SimpleNamespace(llm=model, memory=FakeMemory(), quality_checker=None),
-            request=self.request(ctx), context=ctx,
-            resolved=resolve_selection(self.selection), publish_gate=lambda *_: (True, ""))
+        # 旧教学动作协议单独验证；技能准备阶段由下方独立用例覆盖。
+        with patch('agents.teaching_skills.enabled',return_value=False):
+            return run_agent_loop_turn(
+                orchestrator=SimpleNamespace(llm=model, memory=FakeMemory(), quality_checker=None),
+                request=self.request(ctx), context=ctx,
+                resolved=resolve_selection(self.selection), publish_gate=lambda *_: (True, ""))
+
+    def test_selection_survives_premature_retrieval_during_skill_preparation(self):
+        from tests.test_q3_agent_loop import ScriptedLLM,tool_round,final_round
+        model=ScriptedLLM([
+            tool_round(('read_skill',{'name':'teaching-skills'})),
+            tool_round(('read_skill',{'name':'learn'})),
+            tool_round(('retrieve_course',{'query':'这个实验的目的是什么'})),
+            final_round('这个实验通过操纵自变量来测量被试反应。[1]')])
+        with (patch('agents.teaching_skills.enabled',return_value=True),
+              patch('knowledge.pdf_reader.CROPS',Path(self.temp.name)/'crops')):
+            result=run_agent_loop_turn(orchestrator=SimpleNamespace(llm=model,memory=None),
+                request=self.request(self.context()),context=self.context(),resolved=resolve_selection(self.selection))
+        self.assertEqual(result['answer_status'],'answered',result.get('loop_error'))
+        self.assertEqual([row['skill'] for row in result['teaching_skills']],['teaching-skills','learn'])
+        self.assertEqual(result['retrieval_calls'],[])
+        self.assertEqual(model.calls[-1]['tools'],[])
+        self.assertEqual(len(model.calls),4)
+        self.assertTrue(result['pdf_references'])
+        self.assertEqual(result['pdf_references'][0]['evidence']['location_status'],'exact')
 
     def test_selected_text_actually_runs_same_teaching_tool_and_pending_lifecycle(self):
         ctx = self.context()

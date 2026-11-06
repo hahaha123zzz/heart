@@ -23,6 +23,7 @@ Thumbs.db
 
 reader/node_modules/
 knowledge/pdf/crops/
+frontend/visualizations/drawio/
 
 # GPU 运行库与本机验证标记
 .venv-gpu/

@@ -27,6 +27,10 @@ if PSYCHOLOGY:
     }
 
 
+from visualization.learning_visuals import CATALOG as LEARNING_VISUALS
+CATALOG.update(LEARNING_VISUALS)
+
+
 class VisualPlan(BaseModel):
     model_config = ConfigDict(extra='forbid', strict=True)
     template: str = Field(max_length=30)
@@ -90,6 +94,9 @@ def structure(payload, tree=False):
 def render_plan(plan):
     p=plan.payload; name=plan.template
     if name not in CATALOG:raise ValueError('模板不属于当前教材')
+    if name in LEARNING_VISUALS:
+        from visualization.learning_visuals import render
+        return render(name, p)
     if name in {'experiment_flow','variable_map','knowledge_map'}:return structure(p)
     if name=='design_matrix':
         keys(p,['columns','rows','steps']);columns=strings(p['columns'],8);rows=p['rows'];steps=p['steps']

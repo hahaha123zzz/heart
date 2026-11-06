@@ -11,7 +11,7 @@ from knowledge.psychology_retrieval import retrieve
 from knowledge.citation_locations import locate_source
 from unittest.mock import Mock,patch
 from types import SimpleNamespace
-assert set(CATALOG)=={'experiment_flow','variable_map','design_matrix','knowledge_map'}
+assert set(CATALOG)=={'experiment_flow','variable_map','design_matrix','knowledge_map','drawio_relation','visual_explainer','interactive_educator'}
 assert '被试间因素' in read_skill('experimental-design')
 with patch('knowledge.psychology_retrieval.retrieve_hybrid',return_value=[]):
  sources=retrieve('单因素随机区组设计为什么能控制个体差异？',[])

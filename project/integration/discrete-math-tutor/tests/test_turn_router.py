@@ -53,6 +53,24 @@ def bound_claim(message='教材中与他相关的内容有哪些，我想学习'
 
 
 class TurnRouterTests(unittest.TestCase):
+    def test_learning_start_and_continue_keep_concrete_cursor(self):
+        from knowledge.course_navigation import resolve
+        from models.task_context import apply_route
+        first = resolve('学习第一章')
+        for message, cursor in [('我想学习第一章', first),
+                                ('这个我懂了，继续向下讲解吧',
+                                 resolve('继续向下讲解', cursor=first))]:
+            context = TaskContext(student_id='s', session_id='x', message=message,
+                knowledge_point=cursor['title'], input_mode='active', course_navigation=cursor)
+            request = ChatRequest(student_id='s', session_id='x', request_id='r', message=message)
+            turn = understand(context, request)
+            result = classify_route(turn, context)
+            self.assertEqual(result.reason, 'textbook_point_navigation')
+            self.assertEqual(result.target_id, cursor['id'])
+            self.assertEqual(result.query, cursor['title'])
+            apply_route(context, result)
+            self.assertEqual(context.course_navigation['id'], cursor['id'])
+
     def test_figure_explanation_does_not_become_page_navigation(self):
         for message in ('解释刚才那个图', '不要执行教材页面跳转，只解释刚才那个图',
                         '不要跳转或打开页面，说明刚才那个图的步骤'):

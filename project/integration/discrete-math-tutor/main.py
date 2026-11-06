@@ -217,7 +217,8 @@ def _execute_task_turn(request, context, resolved, intercept, guard, progress, *
         return run_agent_loop_turn(orchestrator=orchestrator, request=request, context=context,
             resolved=resolved, guard=guard, progress=progress, previous=previous,
             visualization_jobs=visualization_jobs)
-    if os.getenv("LOCAL_AGENT_LOOP_ENABLED", "0") == "1" and not any(
+    if (os.getenv("LOCAL_AGENT_LOOP_ENABLED", "0") == "1"
+            or (context.turn_route or {}).get('kind') in ('chapter_overview', 'section_overview')) and not any(
             (request.selection, request.exercise_target, explicit_target)):
         from agents.agent_loop_service import run_agent_loop_turn
         return run_agent_loop_turn(orchestrator=orchestrator, request=request,

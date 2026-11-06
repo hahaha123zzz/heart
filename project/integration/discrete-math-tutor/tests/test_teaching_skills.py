@@ -1,10 +1,10 @@
-"""教学技能读取协议的离线回归；本轮按用户要求未执行。"""
+"""教学技能读取协议与准备阶段切换的离线回归。"""
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
-from agents.teaching_skills import prepare_teaching_skills, current_teaching_skills
+from agents.teaching_skills import prepare_teaching_skills, current_teaching_skills, current_skill_receipts, allowed_skills, SKILLS_ROOT
 from agents.tool_protocol import ToolContext
 
 
@@ -37,8 +37,39 @@ class TeachingSkillsTests(unittest.TestCase):
                 self.assertIn('优先于旧教学策略', policy)
                 self.assertEqual(current_teaching_skills.get(), policy)
                 self.assertEqual(len(calls), 3)
+                self.assertEqual(list(current_skill_receipts.get()), receipts)
             finally:
                 current_teaching_skills.reset(token)
+
+    def test_teaching_tool_request_after_skill_reads_finishes_preparation_without_execution(self):
+        from tests.test_q3_agent_loop import ScriptedLLM,tool_round
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            for name in ['teaching-skills','learn']:
+                (root/name).mkdir();(root/name/'SKILL.md').write_text('仅供本地测试的教学指南。',encoding='utf-8')
+            for next_tool in ['retrieve_course','ask_user','teaching_step','unknown_tool']:
+                with self.subTest(tool=next_tool):
+                    model=ScriptedLLM([
+                        tool_round(('read_skill',{'name':'teaching-skills'})),
+                        tool_round(('read_skill',{'name':'learn'})),
+                        tool_round((next_tool,{'query':'selected passage'}))])
+                    events=[]
+                    context=ToolContext(student_id='s',session_id='x',state={
+                        'skills_root':str(root),'allowed_skills':('teaching-skills','learn')},
+                        emit=lambda kind,message,data:events.append((kind,message,data)))
+                    policy,receipts=prepare_teaching_skills(model,[{'role':'user','content':'这个实验的目的是什么'}],context=context)
+                    self.assertEqual([row['skill'] for row in receipts],['teaching-skills','learn'])
+                    self.assertIn('本地测试的教学指南',policy)
+                    self.assertEqual(len(model.calls),3)
+                    self.assertTrue(all(message=='read_skill' for kind,message,_ in events if kind=='tool_call'))
+                    self.assertTrue(any(data.get('deferred_tools')==[next_tool] for _,_,data in events))
+
+    def test_other_tool_before_guide_is_still_rejected(self):
+        from llm.client import LLMError
+        from tests.test_q3_agent_loop import ScriptedLLM,tool_round
+        model=ScriptedLLM([tool_round(('retrieve_course',{'query':'不能跳过指南'}))])
+        with self.assertRaises(LLMError):
+            prepare_teaching_skills(model,[{'role':'user','content':'解释选区'}])
 
     def test_skill_teaching_overrides_old_action_but_keeps_bound_hint_scope(self):
         from agents.quality_checker import QualityChecker
@@ -49,3 +80,8 @@ class TeachingSkillsTests(unittest.TestCase):
         scoped = {'teaching_skills': True, 'truth_table_snapshot': {
             'answer_scope': 'hint', 'formula': 'p∧q'}}
         self.assertTrue(QualityChecker._rule_check('当前行的结果是1', plan, scoped))
+
+    def test_learning_primary_skills_are_available_to_course(self):
+        names = set(allowed_skills(SKILLS_ROOT, 'experimental-psychology-3'))
+        self.assertTrue({'learn', 'universal-diagnostic-tutor', 'learn-feynman',
+                         'exam-review', 'confusion-tracker'} <= names)

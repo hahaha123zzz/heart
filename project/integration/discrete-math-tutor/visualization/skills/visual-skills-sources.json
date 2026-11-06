@@ -1,0 +1,23 @@
+[
+  {
+    "name": "drawio",
+    "repository": "https://github.com/bahayonghang/drawio-skills",
+    "commit": "2aa612ef9d5b65179eeebe7ab33f97f39d2315b4",
+    "license": "MIT",
+    "adaptation": "upstream instructions retained; host data renderer, no arbitrary code execution"
+  },
+  {
+    "name": "visual-explainer",
+    "repository": "https://github.com/nicobailon/visual-explainer",
+    "commit": "3d592addcc1689ea2251ee67991f12f8a30fd2d9",
+    "license": "MIT",
+    "adaptation": "upstream instructions retained; host data renderer, no arbitrary code execution"
+  },
+  {
+    "name": "interactive-educator",
+    "repository": "https://github.com/Wamikmk/interactive-educator",
+    "commit": "f1044a03327771fc892dd89237101660b911897e",
+    "license": "CC-BY-4.0",
+    "adaptation": "upstream instructions retained; host data renderer, no arbitrary code execution"
+  }
+]
