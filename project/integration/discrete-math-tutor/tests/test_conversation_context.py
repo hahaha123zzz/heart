@@ -1,6 +1,6 @@
 """Q1-A/Q1-B：预算化历史、提示词块与连续追问契约。"""
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from agents.conversation_context import build_history, estimate_tokens
 from agents.followup_context import followup_directive
@@ -24,6 +24,13 @@ def history(count):
 
 
 class ConversationContextTests(unittest.TestCase):
+    def setUp(self):
+        async def summary(_agent, **kwargs):
+            yield "[对话摘要]\n第1轮问题：请解释概念1"
+        self.summary_patch = patch("agents.context_runtime.summary_agent.ContextSummaryAgent.stream_llm", summary)
+        self.summary_patch.start()
+        self.addCleanup(self.summary_patch.stop)
+
     def test_budget_keeps_whole_turns_and_summarizes_older_ones(self):
         rows = history(8)
         result = build_history(rows, budget_tokens=60)
@@ -314,7 +321,7 @@ class ExplicitDepthTests(unittest.TestCase):
         self.assertTrue(execution.hint_only)
         self.assertTrue(execution.no_questions)
 
-    def test_generator_hint_forbids_mechanism_conclusion(self):
+    def test_generator_keeps_explicit_hint_and_no_full_answer_scope(self):
         from agents.response_generator import ResponseGenerator
         from agents.task_execution import TaskExecution
         from agents.teaching_planner import TeachingPlan
@@ -326,11 +333,12 @@ class ExplicitDepthTests(unittest.TestCase):
                             action="give_hint", difficulty="easy")
         execution = TaskExecution(learning_intents=["hint"],
                                   answer_constraints=["hint_only", "no_full_answer", "no_questions"])
-        ResponseGenerator(llm).generate(StudentState(), plan, "只给一个简短提示", [],
-                                        task_execution=execution)
+        with patch("agents.teaching_skills.prepare_teaching_skills", return_value=("", [])):
+            ResponseGenerator(llm).generate(StudentState(), plan, "只给一个简短提示", [],
+                                            task_execution=execution)
         system = llm.chat.call_args.args[0][0]["content"]
-        self.assertIn("不得给出机制结论", system)
-        self.assertIn("不得给出完整因果链", system)
+        self.assertIn("hint_only", system)
+        self.assertIn("no_full_answer", system)
 
 
     def test_quality_checker_simplify_followup_targets_previous_explanation(self):
@@ -353,8 +361,9 @@ class ExplicitDepthTests(unittest.TestCase):
         self.assertIn("自变量是研究者操纵的变量", prompt)
 
 
+@patch("agents.teaching_skills.prepare_teaching_skills", return_value=("", []))
 class ResponseGeneratorContextTests(unittest.TestCase):
-    def test_generator_receives_summary_and_all_budgeted_messages(self):
+    def test_generator_receives_summary_and_all_budgeted_messages(self, _skills):
         from agents.response_generator import ResponseGenerator
         from agents.teaching_planner import TeachingPlan
         from models.student_state import StudentState

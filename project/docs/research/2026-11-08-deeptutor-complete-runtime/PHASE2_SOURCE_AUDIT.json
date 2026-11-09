@@ -1,0 +1,62 @@
+{
+  "conclusion": "incomplete",
+  "source_snapshot": {
+    "registered_files": 3764,
+    "declared_patches": 4,
+    "unexpected_hash_drift": 0,
+    "static_candidates": 975,
+    "missing_candidates": 0,
+    "viewer_sources": 16,
+    "viewer_source_drift": 0
+  },
+  "scope": {
+    "builtin_implementations": 100,
+    "hidden_tools": 31,
+    "candidate_tools": 69,
+    "tools_with_execution_evidence": 18,
+    "remaining_without_individual_execution_evidence": 51,
+    "retained_loop_extensions": 8,
+    "hidden_loop_extensions": 6
+  },
+  "fresh_tests": {
+    "modules": [
+      "tests.test_native_tool_policy",
+      "tests.test_native_executor"
+    ],
+    "passed": 12
+  },
+  "archived_http": {
+    "path": ".runtime/native-chat-chain/20261108-215701/report.json",
+    "passed_checks": 19,
+    "rerun_this_audit": false
+  },
+  "reproductions": {
+    "question_projection": {
+      "input_fields": [
+        "response",
+        "summary",
+        "mode"
+      ],
+      "public_fields": [
+        "response"
+      ]
+    },
+    "rag_publication": {
+      "native_sources": 1,
+      "answer_status": "quality_rejected"
+    },
+    "reading_cache": {
+      "first_owner": "A",
+      "second_owner": "B",
+      "first_workspace": "reading-A",
+      "second_workspace": "reading-A",
+      "expected_second_workspace": "reading-B",
+      "same_cached_object": true
+    },
+    "reader_action": {
+      "answer_status": "answered",
+      "answer_event_calls": 0,
+      "reader_actions": null
+    }
+  }
+}

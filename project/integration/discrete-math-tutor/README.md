@@ -125,3 +125,8 @@ python scripts/start_deeptutor.py
 此前实验提供 `/internal/heart/native/start|status|events|reply|cancel`，直接委托 DeepTutorApp 与原生持久化回合。Q0已从 worker 撤下这组接口的注册，并移除示例启用项；设置旧环境变量也不会通过当前 worker 启动这些接口。实验实现及测试保留历史，不作为当前业务入口。
 
 当前仅完成 P1 私有运行时检查点，替身能力验证真实应用层的持久化、多轮上下文、澄清接续、取消、去重、并发隔离和无租约回收。新增原生正文写入 worker 私有 data/users，均为待核验产物；宿主归属/版本/删除/正式发布及页面尚未接通。不要据此开启学生入口或标记真实模型/RAG及质量验收完成。完整计划、契约与检查命令见 `project/docs/research/2026-10-19-deeptutor-conversation-flow/`。
+
+
+## UnifiedContext 完整上下文链路
+
+主聊天和文字选区使用 `agents/context_runtime/` 中迁入的原生上下文构建、模型历史重放、提示词组装和用量统计。任务入口、工具执行、暂停恢复与私有历史保存已接通；既有学生隔离、教材版本和发布核验保持生效。文件对照与边界见 [迁移清单](../../docs/research/2026-11-08-unified-context-migration/FILES.md)，验证见同目录 `VALIDATION.md`。

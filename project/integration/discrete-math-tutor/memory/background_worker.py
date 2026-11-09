@@ -81,7 +81,8 @@ async def memory_lifespan(app):
         # Finish SDK imports before readiness so cold starts do not consume a teaching turn's budget.
         await asyncio.to_thread(import_module, 'openai')
     worker=None
-    if os.getenv("MEMORY_WORKER_ENABLED","1")=="1":
+    from integrations.deeptutor.runtime_config import native_enabled
+    if not native_enabled() and os.getenv("MEMORY_WORKER_ENABLED","1")=="1":
         llm=app.state.memory_llm if os.getenv("MEMORY_REFLECTION_LLM","0")=="1" else None
         worker=MemoryWorker(app.state.memory.repo,llm)
         worker.start()

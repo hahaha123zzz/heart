@@ -77,6 +77,7 @@ class PausedExecutor:
 
 
 @patch.dict('os.environ', {'RESPONSE_COMPOSITION_ENABLED': '0', 'RESPONSE_BLOCK_STREAMING_ENABLED': '0'})
+@patch("agents.teaching_skills.enabled", new=lambda *_args: False)
 class TaskLoopPersistenceTests(unittest.TestCase):
     def test_structured_multi_question_answers_resume_same_loop_and_replay(self):
         llm = ScriptedLLM([

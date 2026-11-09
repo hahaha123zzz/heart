@@ -6,7 +6,7 @@ from database.database import session_scope
 from database.learning_tasks import TaskConflict
 from database.models import TaskRequestRow
 from knowledge.course_config import COURSE_ID
-from .native_contract import NativeTaskCheck
+from .native_contract import NativeTaskCheck, NativeTurnKey
 from .session_bridge import require_bridge_token
 from .task_projection import checked_task
 
@@ -39,7 +39,8 @@ def authorize_native_assessment(payload: NativeTaskCheck):
                 or (student.expires_at is not None and student.expires_at <= now())
                 or (task is not None and (task.student_id != payload.student_id or task.session_id != payload.session_id
                     or task.status == 'cancelled'
-                    or (task.revision != payload.task_revision and task.status != 'expired')))):
+                    or (task.revision != payload.task_revision and task.status != 'expired'
+                        and (task.context or {}).get('native_turn', {}).get('key') != key)))):
             raise HTTPException(409, detail={'code': 'assessment_owner_changed'})
         binding = reference['_native_assessment']
         point = task.knowledge_point if task else reference.get('section_title', '')
@@ -63,8 +64,13 @@ def authorize_native_task(payload: NativeTaskCheck):
     try:
         if payload.course_id != COURSE_ID:
             raise TaskConflict('course_mismatch', '宿主课程不匹配')
+        from database.learning_tasks import LearningTaskRepository
+        current = LearningTaskRepository().get(payload.student_id, payload.session_id, payload.task_id)
+        binding = current.get('context', {}).get('native_turn', {}).get('key')
+        expected = payload.model_dump(include=set(NativeTurnKey.model_fields))
+        revision = current['revision'] if binding == expected else payload.task_revision
         row = checked_task(payload.student_id, payload.session_id, payload.task_id,
-                           payload.task_revision, allow_active=True)
+                           revision, allow_active=True)
         with session_scope() as db:
             receipt = db.scalar(select(TaskRequestRow).where(
                 TaskRequestRow.student_id == payload.student_id, TaskRequestRow.session_id == payload.session_id,

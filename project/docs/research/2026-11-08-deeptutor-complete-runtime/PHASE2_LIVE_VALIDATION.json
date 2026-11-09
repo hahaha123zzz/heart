@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-09",
+  "model": "deepseek-flash",
+  "endpoint": "https://api.deepseek.com",
+  "mock": false,
+  "regression_tests_passed": 38,
+  "all_live_scenarios_passed": false,
+  "phase2_fully_accepted": false,
+  "checks": {
+    "rag_verified_pdf_references": true,
+    "rag_history_restored": true,
+    "public_question_card": true,
+    "question_private_answer_filtered": true,
+    "question_saved_to_host_history": true,
+    "question_history_browser_reload": "not_reached_after_navigation_failure",
+    "fresh_session_reader_page2_and_applied_receipt": true,
+    "question_then_reader_page2": false
+  },
+  "failure": {
+    "expected_pdf_page": 2,
+    "actual_pdf_page": 28,
+    "actual_user_input_received_correctly": true,
+    "description": "上一轮出题后请求只翻到第2页，模型继续讲解并 reader_goto 到第28页；独立阅读会话通过。"
+  },
+  "fixed_in_this_run": [
+    "host_textbook_tools_mount_without_native_kb",
+    "validation_uses_invoking_python_instead_of_hardcoded_incomplete_env"
+  ],
+  "evidence": {
+    "rag": ".runtime\\native-delivery-live\\20261109-080600\\rag.json",
+    "rag_history": ".runtime\\native-delivery-live\\20261109-080600\\rag-history.json",
+    "mixed_browser": ".runtime\\native-delivery-live\\20261109-080600\\browser.json",
+    "isolated_browser": ".runtime\\native-delivery-live\\20261109-081123\\browser.json",
+    "screenshot": ".runtime\\native-delivery-live\\20261109-081123\\delivery.png"
+  },
+  "follow_up": {
+    "report": "PHASE2_MIXED_CHAIN_REPAIR.json",
+    "mixed_chain_passed": true,
+    "phase2_fully_accepted": false
+  }
+}

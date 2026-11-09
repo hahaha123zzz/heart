@@ -120,8 +120,12 @@ class TaskService:
 
     def _read_context(self, request, profile=None, points=None):
         recent = self.repo.recent(request.student_id, request.session_id, limit=12)
-        history = self.tutor.memory.get_history(request.student_id) if request.session_id == "legacy" else [
-            item for row in recent for item in ({"role": "user", "content": row["payload"].get("message", "")},
+        history = self.tutor.memory.get_history(request.student_id, session_id=request.session_id,
+                                               for_context=True)
+        if not isinstance(history, list) or not history:
+            # 旧任务可能未写会话记忆，仍使用同学生、同会话的已完成任务记录。
+            history = [item for row in recent for item in (
+                {"role": "user", "content": row["payload"].get("message", "")},
                 {"role": "assistant", "content": row["result"].get("reply", "")})]
         point = request.learning_goal or (recent[-1]["knowledge_point"] if recent else None) or self.tutor.memory.get_active_goal(request.student_id) or DEFAULT_GOAL
         from agents.selection_loop import enabled as selection_loop_enabled, descriptor, recover_selection

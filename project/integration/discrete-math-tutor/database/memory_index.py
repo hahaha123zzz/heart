@@ -63,7 +63,8 @@ class MemoryIndexRepository:
                 evt = by_conversation.get(row.id)
                 if evt and evt.status in ("rolled_back", "conflict") and row.role == "assistant":
                     continue
-                ref = citations.get(row.id) or {}
+                ref = {key: value for key, value in (citations.get(row.id) or {}).items()
+                       if not key.startswith("_")}
                 point = ref.get("section_title") or (evt.knowledge_point if evt else "")
                 metadata = {"role": row.role, "verification": "assistant_history" if row.role == "assistant" else "student_statement",
                     "event_id": evt.id if evt else None, "selection_ref": ref or None, "figure_ids": figures.get(row.id, [])}

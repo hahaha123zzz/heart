@@ -7,6 +7,7 @@ from models.visualization import VisualizationTarget
 from models.truth_table import TruthTableTarget
 from models.relation import RelationTarget
 from models.interaction_preferences import InteractionPreferences
+from integrations.deeptutor.native_contract import NativeTurnOptions
 
 
 class ClarificationAnswer(BaseModel):
@@ -14,7 +15,7 @@ class ClarificationAnswer(BaseModel):
     text: str = Field(min_length=1, max_length=2000)
 
 
-class ChatRequest(BaseModel):
+class ChatRequest(NativeTurnOptions):
     student_id: str = Field(default="default", min_length=1, max_length=64)
     message: str = Field(min_length=1, max_length=4000)
     learning_goal: str | None = Field(default=None, max_length=200)

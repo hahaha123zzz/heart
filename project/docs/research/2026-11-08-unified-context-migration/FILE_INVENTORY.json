@@ -1,0 +1,485 @@
+{
+  "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "graph_scope": "DeepTutor — agent-native 学习伴侣。两层插件模型：LLM 按需调用的 Tools，以及接管整轮对话的 Capabilities；CLI / WebSocket API / Python SDK 三个入口统一进入 TurnApplicationService，再由 TurnEngine 路由到选定的 capability。本次分析范围为 deeptutor/runtime、capabilities、core 三个目录加上仓库根配置与文档。",
+  "graph_direct_files": 37,
+  "code_reference_files": 61,
+  "ported_modules": 10,
+  "files": [
+    {
+      "source": "deeptutor/agents/_shared/tool_composition.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/_shared/tool_runtime.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/_shared/workspace_prompt.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/chat/capability.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/loop/agent_loop.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/loop/context_budget.py",
+      "graph_direct": false,
+      "code_reference": false,
+      "vendor_matches_d_drive": true,
+      "treatment": "迁入宿主：agents/context_runtime/context_budget.py"
+    },
+    {
+      "source": "deeptutor/agents/loop/pipeline.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/loop/prompt_blocks.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "迁入宿主：agents/context_runtime/prompt_blocks.py"
+    },
+    {
+      "source": "deeptutor/agents/math_animator/capability.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/question/capability.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/question/coordinator.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/question/pipeline.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/research/capability.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/research/pipeline.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/agents/visualize/capability.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/book/agents/source_explorer.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/book/blocks/quiz.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/ask_questions/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/ask_questions/loop.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/audio_overview/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/course_study/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/course_study/mode.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/explore_context/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/explore_context/explorer.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/ima/binding.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/ima/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/marginnote4/binding.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/marginnote4/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/mastery/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/mastery/loop.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/mastery/pipeline.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/obsidian/binding.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/obsidian/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/partner_authoring/binding.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/partner_authoring/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/partner_authoring/tools.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/partner_group/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/partner_group/tools.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/protocol.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "迁入宿主：agents/context_runtime/protocol.py"
+    },
+    {
+      "source": "deeptutor/capabilities/reading/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/reading/mode.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/registry.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/setup/binding.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/setup/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/solve/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/solve/loop.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/subagent/binding.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/capabilities/subagent/capability.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/core/__init__.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/core/capability_protocol.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/core/context.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "迁入宿主：agents/context_runtime/context.py"
+    },
+    {
+      "source": "deeptutor/core/stream.py",
+      "graph_direct": false,
+      "code_reference": false,
+      "vendor_matches_d_drive": true,
+      "treatment": "迁入宿主：agents/context_runtime/stream.py"
+    },
+    {
+      "source": "deeptutor/core/trace.py",
+      "graph_direct": false,
+      "code_reference": false,
+      "vendor_matches_d_drive": true,
+      "treatment": "迁入宿主：agents/context_runtime/trace.py"
+    },
+    {
+      "source": "deeptutor/plugins/runtime.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/runtime/agentic/tool_dispatch.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/runtime/orchestrator.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/runtime/turn_engine.py",
+      "graph_direct": true,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/services/cron/executor.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/services/llm/multimodal.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/services/partners/runtime.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/services/rag/pipelines/pageindex/reasoning.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/services/session/ask_user_trace.py",
+      "graph_direct": false,
+      "code_reference": false,
+      "vendor_matches_d_drive": true,
+      "treatment": "迁入宿主：agents/context_runtime/ask_user_trace.py"
+    },
+    {
+      "source": "deeptutor/services/session/context_builder.py",
+      "graph_direct": false,
+      "code_reference": false,
+      "vendor_matches_d_drive": true,
+      "treatment": "迁入宿主：agents/context_runtime/context_builder.py"
+    },
+    {
+      "source": "deeptutor/services/session/model_history.py",
+      "graph_direct": false,
+      "code_reference": false,
+      "vendor_matches_d_drive": true,
+      "treatment": "迁入宿主：agents/context_runtime/model_history.py"
+    },
+    {
+      "source": "deeptutor/services/session/provider_response_state.py",
+      "graph_direct": false,
+      "code_reference": false,
+      "vendor_matches_d_drive": true,
+      "treatment": "迁入宿主：agents/context_runtime/provider_response_state.py"
+    },
+    {
+      "source": "deeptutor/services/session/turns/executor.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/visualizers/loop_capability.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    },
+    {
+      "source": "deeptutor/visualizers/tool.py",
+      "graph_direct": false,
+      "code_reference": true,
+      "vendor_matches_d_drive": true,
+      "treatment": "保留 vendor 的原生消费者；沿用现有原生能力入口"
+    }
+  ]
+}

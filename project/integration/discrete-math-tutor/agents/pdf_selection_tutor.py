@@ -36,7 +36,7 @@ def explain_selection(tutor, student_id, message, selection, account_type, progr
     title=resolved['section']['title']
     from agents.task_context_builder import TaskContextBuilder
     context = task_context if task_context is not None else TaskContextBuilder().build(student_id=student_id, message=message, knowledge_point=title,
-        history=tutor.memory.get_history(student_id, session_id=session_id), known_points=tutor.memory.list_knowledge_points(student_id),
+        history=tutor.memory.get_history(student_id, session_id=session_id, for_context=True), known_points=tutor.memory.list_knowledge_points(student_id),
         reader_location=reader_location, selection=selection, resolved_selection=resolved,
         session_id=session_id, request_id=request_id)
     report('routing', '理解选区问题', '确认对象与本轮讲解需求')

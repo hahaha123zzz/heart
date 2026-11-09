@@ -1,3 +1,6 @@
 # 固定上游快照中的 PDF 必须保持原字节，避免 Git 自动转换换行。
 project/vendor/DeepTutor/** text=auto eol=lf
 project/vendor/DeepTutor/**/*.pdf -text
+
+# 迁入的上下文源码按固定 LF 保存，保证来源哈希跨平台可复核。
+project/integration/discrete-math-tutor/agents/context_runtime/** text eol=lf

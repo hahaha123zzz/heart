@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 import json
 import threading
 from typing import Any, Callable
+from agents.context_runtime.context import UnifiedContext
 
 
 @dataclass(frozen=True)
@@ -110,6 +111,7 @@ class ToolContext:
 
     source_lock: Any = field(default_factory=threading.RLock, repr=False)
     deadline: float | None = None
+    unified: UnifiedContext | None = field(default=None, repr=False)
 
     def check_cancelled(self) -> None:
         from time import monotonic

@@ -55,7 +55,9 @@ class CompositionExecutionTests(unittest.TestCase):
 
     def execute(self,rounds,*,saved=None,plan=None,cancellation=None,custom_gate=gate):
         model=ScriptedLLM(rounds);states=[];events=[]
-        request=SimpleNamespace(cancellation=cancellation,guard=None,temperature=.2,round_max_tokens=1200,request_id='r')
+        from agents.context_runtime.context import UnifiedContext
+        request=SimpleNamespace(cancellation=cancellation,guard=None,temperature=.2,round_max_tokens=1200,
+                                request_id='r',context=UnifiedContext(language="zh"))
         composer=ResponseComposer(plan or plan_response(target_id='t',strategy='contrast'))
         result=LoopResult(sources=deepcopy(SOURCES))
         for source,reference in zip(result.sources,references(result.sources)):
@@ -233,6 +235,7 @@ class CompositionCheckpointTests(unittest.TestCase):
 
 @patch.dict('os.environ',{'RESPONSE_COMPOSITION_ENABLED':'1','RESPONSE_BLOCK_STREAMING_ENABLED':'1',
     'ADAPTIVE_TUTORING_ENABLED':'0','Q5_LEARNING_ENABLED':'0'})
+@patch("agents.teaching_skills.enabled", new=lambda *_args: False)
 class CompositionFinalizationTests(unittest.TestCase):
     setUp=fixtures.ClarificationTests.setUp
     tearDown=fixtures.ClarificationTests.tearDown

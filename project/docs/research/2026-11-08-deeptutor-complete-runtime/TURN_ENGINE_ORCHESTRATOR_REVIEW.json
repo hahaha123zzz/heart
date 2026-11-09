@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-09",
+  "topic": "TurnEngine and ChatOrchestrator per-turn orchestration",
+  "source_root": "D:\\deeptutor",
+  "related_files": [
+    {
+      "path": "deeptutor/runtime/turn_engine.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/runtime/orchestrator.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/runtime/stream_bus.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/core/capability_protocol.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/core/stream.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/app/container.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/app/service.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/app/facade.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/turn_runtime.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/turns/request_preparer.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/turns/context_assembler.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/turns/executor.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/turns/lifecycle.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/runtime/registry/capability_registry.py",
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/runtime/bootstrap/builtin_capabilities.py",
+      "same_as_D": true
+    }
+  ],
+  "already_in_host_real_main_chain": true,
+  "business_source_changed": false,
+  "tests": {
+    "files": [
+      "tests/runtime/test_orchestrator.py",
+      "tests/core/test_stream_bus.py"
+    ],
+    "source": "D:/deeptutor",
+    "passed": 31,
+    "seconds": 1.1,
+    "real_model": false
+  },
+  "key_boundaries": [
+    "TurnEngine is a thin async-generator adapter; it does not build context or persist",
+    "ChatOrchestrator dispatches context.active_capability or chat; semantic auto-routing is upstream",
+    "Capability.run emits events; AgentLoop/pipeline owns model and tool calls",
+    "The inner StreamBus does not provide durable turn replay; outer runtime assigns canonical seq and persists",
+    "CAPABILITY_COMPLETE is not a database or host-publication receipt",
+    "Closing the orchestrator generator cancels its capability task; merely disconnecting a client subscription does not mean cancelling the durable turn",
+    "ask_user resumes the same turn; mastery_quiz ends its turn and receives the answer in the next turn"
+  ],
+  "host_chain": [
+    "main._run_turn",
+    "NativeTurnExecutor",
+    "NativeTurnBridge",
+    "DeepTutorApp.start_turn",
+    "TurnApplicationService",
+    "TurnRuntimeManager/TurnExecutor",
+    "TurnEngine.execute",
+    "ChatOrchestrator.handle",
+    "Capability.run"
+  ],
+  "migration_conclusion": "Keep the already-reused native engine/orchestrator and their application/runtime chain; remove overlapping self-authored orchestration outside it instead of reimplementing the two classes"
+}

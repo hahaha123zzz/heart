@@ -154,6 +154,9 @@ def execute_batches(loop, request, result, messages, collector, *, composer, gat
                     '\n此前已发布正文只读，不能重复或修改：\n'+composer.render()}]
                 if candidate:prompt.append({'role':'user','content':candidate})
                 collector('progress','生成下一部分讲解',{'blocks':[b.block_id for b in ready]})
+                from agents.turn_context import record_request
+                record_request(request.context, prompt, [], model=getattr(loop.llm, "model", ""),
+                               max_tokens=request.round_max_tokens)
                 response=loop.llm.chat_with_tools(prompt,[],temperature=request.temperature,
                     max_tokens=request.round_max_tokens,timeout=90,tool_choice='none',**answer_kwargs('progress'))
                 result.rounds+=1

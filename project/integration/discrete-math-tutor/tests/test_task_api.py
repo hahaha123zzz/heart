@@ -12,6 +12,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from database import database as db
 from database.models import Base
+import database.q5_learning  # noqa: F401  测试库需包含与生产一致的 Q5 表
 from memory.memory_manager import MemoryManager
 from database.learning_tasks import LearningTaskRepository
 from models.task_understanding import TaskUnderstanding
@@ -21,6 +22,10 @@ from fastapi.testclient import TestClient
 class TaskAPITests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        # 本类只验证宿主 API 边界；固定执行器与检索开关，避免受 .env 或同进程其他测试影响。
+        cls.env_patch = patch.dict(os.environ, DEEPTUTOR_NATIVE_ENABLED="0", LOCAL_AGENT_LOOP_ENABLED="0",
+            SELECTED_TEXT_AGENT_LOOP_ENABLED="0", FIXED_BOOK_RETRIEVAL_ENABLED="0", RAG_RETRIEVAL_ENGINE="legacy")
+        cls.env_patch.start()
         cls.previous = sys.modules.pop("main", None)
         cls.temp = tempfile.TemporaryDirectory()
         cls.engine = create_engine("sqlite:///" + cls.temp.name.replace("\\", "/") + "/api.db", connect_args={"check_same_thread": False})
@@ -39,6 +44,7 @@ class TaskAPITests(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.client.close()
+        cls.env_patch.stop()
         cls.db_patch.stop(); cls.engine.dispose(); cls.temp.cleanup()
         sys.modules.pop("main", None)
         if cls.previous is not None:

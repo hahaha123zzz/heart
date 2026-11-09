@@ -26,10 +26,10 @@ from knowledge.figures import get_figure
 from orchestrator import TutorOrchestrator
 from web_api import router as web_router
 
-from memory.background_worker import memory_lifespan
+from integrations.deeptutor.runtime_config import application_lifespan
 from knowledge.course_config import COURSE_TITLE,COURSE_ID,PSYCHOLOGY
 
-app = FastAPI(title=COURSE_TITLE+" AI 助教", version="0.8.0", lifespan=memory_lifespan)
+app = FastAPI(title=COURSE_TITLE+" AI 助教", version="0.8.0", lifespan=application_lifespan)
 app.include_router(web_router)
 from integrations.deeptutor.router import router as deeptutor_router
 app.include_router(deeptutor_router)
@@ -59,7 +59,7 @@ from agents.intent_policy import IntentPolicy
 IntentPolicy.from_env()
 from visualization.service import rollout_settings
 rollout_settings()
-orchestrator = TutorOrchestrator()
+orchestrator = TutorOrchestrator(load_legacy=os.getenv('DEEPTUTOR_NATIVE_ENABLED', '1') != '1')
 app.state.memory = orchestrator.memory
 app.state.memory_llm = orchestrator.llm
 
@@ -187,14 +187,17 @@ import json
 import threading
 from fastapi.responses import StreamingResponse
 
-_turn_locks = [threading.Lock() for _ in range(64)]
+from database.task_locks import _turn_locks, student_turn_lock
 _running_turns = set()
 
 def _run_turn(request: ChatRequest, progress=None, answer_ready=None, answer_event=None):
-    index = int.from_bytes(hashlib.sha256(request.student_id.encode()).digest()[:2], "big") % len(_turn_locks)
     if progress:
         progress("queued", "等待处理", "请求已接收")
-    with _turn_locks[index]:
+    with student_turn_lock(request.student_id):
+        from integrations.deeptutor.runtime_config import native_enabled
+        if native_enabled():
+            from integrations.deeptutor.native_executor import run_native_turn
+            return run_native_turn(request, orchestrator, progress, answer_event, answer_ready)
         from agents.task_service import TaskService
         jobs = []
         def execute(*args, previous=None, **kwargs):
@@ -402,6 +405,12 @@ def cancel_task(task_id: str, request: TaskCancelRequest):
     from agents import task_cancellation
     task_cancellation.cancel(task_id)
     try:
-        return LearningTaskRepository().cancel(request.student_id, request.session_id, task_id, request.task_revision)
+        repository = LearningTaskRepository()
+        row = repository.get(request.student_id, request.session_id, task_id)
+        if row['revision'] != request.task_revision:
+            raise TaskConflict('task_conflict', '任务版本已变化，请恢复最新任务')
+        from integrations.deeptutor.native_executor import cancel_native_task
+        cancel_native_task(row, 'cancel-' + str(request.task_revision))
+        return repository.cancel(request.student_id, request.session_id, task_id, request.task_revision)
     except TaskConflict as exc:
         return {"reply": str(exc), "answer_status": exc.code, "step_advanced": False}

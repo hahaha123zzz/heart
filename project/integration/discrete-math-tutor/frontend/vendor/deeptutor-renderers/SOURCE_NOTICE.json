@@ -1,0 +1,186 @@
+{
+  "upstream": "DeepTutor",
+  "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "source_root": "project/vendor/DeepTutor/web",
+  "sources": [
+    {
+      "path": "lib/quiz-types.ts",
+      "sha256": "2bdb86e5a85fa09750a1cc1fe4fb76613be403ea943012e7b9eda2c3f771ce8a"
+    },
+    {
+      "path": "lib/mastery-question.ts",
+      "sha256": "67c718f48091428b3d0d167516fd0463fa3b5d529a052fb72adf1c65922991fe"
+    },
+    {
+      "path": "components/visualize/VisualizationViewer.tsx",
+      "sha256": "db039deb92ff468912d818ae1640acc40efc30131655ed78b0614be6ef24686f"
+    },
+    {
+      "path": "components/chat/home/MasteryQuestionCard.tsx",
+      "sha256": "50217228508bdbe7b56477860558af920ebbb05e536507ee15549731ef2f9933"
+    },
+    {
+      "path": "lib/visualize-types.ts",
+      "sha256": "921ec2ff32246510fcc192e85f876134f2a394d5006ab7f96300b3e066de856e"
+    },
+    {
+      "path": "lib/tool-event.ts",
+      "sha256": "850271bbb2526cd873ffec6823a602350312eea2f7a81fce8b4ab4e2ae9ed862"
+    },
+    {
+      "path": "lib/ask-user-state.ts",
+      "sha256": "30998feda329b669bb263dd92ebcba8c5d2842dd9ac20ea225c7adc0fd234568"
+    },
+    {
+      "path": "components/common/InlineMarkdown.tsx",
+      "sha256": "6334a77efbec818b6b194b02f794926a75dc8068125133ade6b1ffa055d7f24d"
+    },
+    {
+      "path": "components/Geogebra.tsx",
+      "sha256": "e5ee4075ab43b6226baec54892df6376f4493e02e5119b696faec5ddd42daffb"
+    },
+    {
+      "path": "components/Mermaid.tsx",
+      "sha256": "14ac1c363ef917c20bec50f12b9034fc927ab18fc1a5cf64815cdbbee57b8d6e"
+    },
+    {
+      "path": "hooks/use-card-submission.ts",
+      "sha256": "aeb22eb0dd46799bd27cf2c341d2642966ebaaff7f4988eb7cb43e1d88444c30"
+    },
+    {
+      "path": "lib/markdown-display.ts",
+      "sha256": "9faca9d8922dc1c620f49b8bbe4629d2a5f02bc52acef268050e824a8a7cab32"
+    },
+    {
+      "path": "lib/quiz-question-type.ts",
+      "sha256": "27fb40aba840650cc6af5835a586b67a47612c33ca8ae85b07c5a50162231358"
+    },
+    {
+      "path": "components/visualize/svg-theme.css",
+      "sha256": "bf84cca40351f0f7378ba9202e2f902cce6f479588ce76ecd4073ffaa33abd20"
+    },
+    {
+      "path": "lib/math-animator-types.ts",
+      "sha256": "61df86cee26b6abcad999660f0d7440e985d369d07471093006c2c2e52f85b64"
+    },
+    {
+      "path": "lib/iframe-html.ts",
+      "sha256": "cbe444d6f9b8d76ddc2651830e03b8728395b67330ac671fb62acd7ca94e17dd"
+    },
+    {
+      "path": "locales/zh/app.json",
+      "sha256": "06c48963520eea58048fee600ac5d82641268824b620f1cfe4bd28f8c0e92133"
+    },
+    {
+      "path": "locales/zh/common.json",
+      "sha256": "83f4a817460a64ec8887ad394734c042c701464d272296d9c773813dbc5cbd24"
+    },
+    {
+      "path": "components/common/RichInlineMarkdown.tsx",
+      "sha256": "11cdb5fc29244accb232bcd51bbaad93504cfceb0330365cf72c0a46f3e1ae2b"
+    },
+    {
+      "path": "lib/theme.ts",
+      "sha256": "de2f495003e4bd1b9aac7cf9d02cc0524299ea98bdef535f5df840072b98c8c0"
+    },
+    {
+      "path": "features/chat/transport/command-delivery.ts",
+      "sha256": "9d46d0b1482bb547404543b0e7d6b715ba18ba01f5db0ae7a54d292d1a12a106"
+    },
+    {
+      "path": "lib/latex-normalize.ts",
+      "sha256": "7f6bfc835433244941e80be0edec1686991557868a52a9637cad37277cc03db8"
+    },
+    {
+      "path": "shared/storage/index.ts",
+      "sha256": "1298393c34c01569ec8f57ca5ff9ea9c2db1e042b7fc8601149aadcc04faf70e"
+    },
+    {
+      "path": "lib/latex-commands.ts",
+      "sha256": "16067b7f776c9148361f55ab1b49e0b1130079b0e3d776208355546158fde811"
+    },
+    {
+      "path": "shared/storage/keys.ts",
+      "sha256": "59e20288e0dd31e646441f7b581ebed829120b45d481cb59d0883ef4e1b623c7"
+    },
+    {
+      "path": "shared/storage/schema.ts",
+      "sha256": "c1e0004b5e301b61f3ec100d7dc66e2b79d6c28f8816ee7d9875c956d1999f6c"
+    },
+    {
+      "path": "shared/storage/store.ts",
+      "sha256": "c60f060628d71cbdb5b485a012cf5835fc943a9905fce847afcfffd665dabcfa"
+    },
+    {
+      "path": "components/math-animator/MathAnimatorViewer.tsx",
+      "sha256": "d37b1dcacccbdb77a37dd365d5a8407044ec084e2fb9b4329607cbfe8e7bd24d"
+    },
+    {
+      "path": "lib/latex.ts",
+      "sha256": "373ad1debc2403ca2b3e04340a71b6fd67fe25cb93884c8e78a6383caf8fefa3"
+    },
+    {
+      "path": "package.json",
+      "sha256": "186febbdee54a14e310b924f7a94bd589b8eb8b0499037311668d6b467f7232e"
+    }
+  ],
+  "assets": [
+    "viewer.js",
+    "2319.bfed950ca204.js",
+    "2112.5f7bb6404ec2.js",
+    "2581.6c7dbfc70021.js",
+    "1242.54cfb1643082.js",
+    "3842.3a863be42353.js",
+    "8098.5bc57fdfd2af.js",
+    "3182.0ab43126aa7a.js",
+    "1472.5b2e744126de.js",
+    "6141.1799bbe6bbf8.js",
+    "2566.c4bc8e3e30f2.js",
+    "8458.f15a7f40e204.js",
+    "933.6ff5926c369f.js",
+    "4408.b6526b4e7d05.js",
+    "6511.3c0ae62d0548.js",
+    "2888.2b1fa3f788e6.js",
+    "8520.2a03740eea31.js",
+    "1414.2396135c4647.js",
+    "3666.51d3b7c92fd7.js",
+    "6305.b526eb90b7ce.js",
+    "8020.f7731e4a7cfb.js",
+    "3202.d3988e1f2fee.js",
+    "2368.e89a279b7ebd.js",
+    "1788.bd0ee47cdfae.js",
+    "4826.60cc58fb562f.js",
+    "1029.c67303fc45a2.js",
+    "7057.117cce9d2fbe.js",
+    "2061.d031afd9bb29.js",
+    "4787.8a85be432673.js",
+    "6597.a1dfd99015e8.js",
+    "7576.726a237afdf4.js",
+    "9809.0c744af924b0.js",
+    "4615.17cc091cf674.js",
+    "9929.f023abd15409.js",
+    "3530.d2779b060153.js",
+    "2210.1ade6a8ef1d2.js",
+    "6005.a56c27def92e.js",
+    "2630.6215e55302bd.js",
+    "1455.68b2bb2c7b97.js",
+    "315.7174da63dd07.js",
+    "85.3e39941704b0.js",
+    "7285.6901f5b84778.js",
+    "6912.5256de33b9af.js",
+    "5207.140dcba47c62.js",
+    "5985.78fb0b77aadd.js",
+    "9558.c4d2b8166206.js",
+    "463.b868da62bd07.js",
+    "5219.a1e70264c51d.js",
+    "2898.cbdb632511f6.js",
+    "8703.f35482ec3cf6.js",
+    "2482.f2909a1f084d.js",
+    "3414.288ba386d9de.js",
+    "2692.c51afb82d424.js",
+    "7978.711671498174.js",
+    "8883.44a6b0498c72.js",
+    "1476.a4d53b2abf7a.js",
+    "745.f578a771fafd.js"
+  ]
+}

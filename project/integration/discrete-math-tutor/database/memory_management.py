@@ -13,6 +13,17 @@ PREFERENCE_KEYS=set(InteractionPreferences.model_fields)
 
 
 class MemoryManagementRepository:
+    @staticmethod
+    def _clear_context_replay(session, student_id):
+        # 用户遗忘或更正记忆后，旧摘要和模型快照不能把失效信息带回上下文。
+        rows = session.scalars(select(PDFCitationRow).join(ConversationRow,
+            ConversationRow.id == PDFCitationRow.conversation_id).where(
+                ConversationRow.student_id == student_id)).all()
+        for row in rows:
+            if any(key in (row.reference or {}) for key in ("_model_turn", "_context_summary")):
+                row.reference = {key: value for key, value in row.reference.items()
+                                 if key not in ("_model_turn", "_context_summary")}
+
     def memory_source_excluded(self, student_id, kind, source_id):
         with session_scope() as session:
             return session.scalar(select(MemoryExclusionRow.id).where(MemoryExclusionRow.student_id==student_id,
@@ -97,6 +108,7 @@ class MemoryManagementRepository:
                     for value in profiles:
                         prefs=dict(value.get("preferences") or {});prefs.pop(key,None);value["preferences"]=prefs
                     snapshot["learner_profiles"]=profiles;setattr(row,field,snapshot)
+            self._clear_context_replay(session, student_id)
             session.add(MemoryChangeRow(student_id=student_id,action="forget_preference",item_key=key))
 
     def dispute_misconception(self, student_id, item_id, note):
@@ -125,6 +137,7 @@ class MemoryManagementRepository:
                 KnowledgeStateRow.knowledge_point==row.knowledge_point))
             if state:
                 state.last_summary="";state.remaining_gap=""
+            self._clear_context_replay(session, student_id)
             session.add(MemoryChangeRow(student_id=student_id,knowledge_point=row.knowledge_point,
                 action="dispute_misconception",item_key=str(item_id)))
             session.flush();self.sync_memory_index(student_id)
@@ -196,6 +209,7 @@ class MemoryManagementRepository:
             session.execute(delete(LearningTaskRow).where(LearningTaskRow.student_id==student_id,
                 LearningTaskRow.knowledge_point==point))
             control.epoch+=1
+            self._clear_context_replay(session, student_id)
             session.add(MemoryChangeRow(student_id=student_id,knowledge_point=point,action="forget_point"))
             session.flush();self.sync_memory_index(student_id)
             return {"ok":True,"point":point,"exercise_records_preserved":True}

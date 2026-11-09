@@ -141,3 +141,46 @@ class DeepTutorBackend:
                            "description": str(manifest.get("description", "")),
                            "model_execution_verified": False})
         return result
+
+    def native_catalog(self, scope):
+        self.timeout = max(self.timeout, 120)
+        return self._post('/internal/heart/native/catalog', scope)
+
+    def native_memory(self, payload):
+        return self._post('/internal/heart/native/memory', payload)
+
+    def native_prepare_reading(self, scope):
+        self.timeout = max(self.timeout, 180)
+        return self._post('/internal/heart/native/reading/prepare', scope)
+
+    def native_start(self, payload):
+        self.timeout = max(self.timeout, 180)
+        return self._post('/internal/heart/native/start', payload)
+
+    def native_status(self, key):
+        return self._post('/internal/heart/native/status', key)
+
+    def native_command(self, key, *, command_id, text=None):
+        return self._post('/internal/heart/native/reply' if text is not None else '/internal/heart/native/cancel',
+                          {**key, 'command_id': command_id, **({'text': text} if text is not None else {})})
+
+    def native_events(self, key, *, after_seq=0):
+        token = os.getenv('DEEPTUTOR_BRIDGE_TOKEN', '')
+        if len(token) < 32:
+            raise BackendUnavailable('DeepTutor 宿主接入凭据未配置')
+        request = Request(self.base_url + '/internal/heart/native/events', method='POST',
+            data=json.dumps({**key, 'after_seq': after_seq}, ensure_ascii=False).encode(),
+            headers={'Content-Type': 'application/json', 'Accept': 'application/x-ndjson',
+                     'X-Heart-Bridge-Token': token})
+        try:
+            with self.opener.open(request, timeout=max(self.timeout, 30)) as response:
+                while line := response.readline(4 * 1024 * 1024 + 1):
+                    if len(line) > 4 * 1024 * 1024:
+                        raise ValueError('原生事件超过限制')
+                    value = json.loads(line)
+                    if (not isinstance(value, dict) or value.get('engine') != 'deeptutor_app'
+                            or not isinstance(value.get('event'), dict)):
+                        raise ValueError('原生事件响应无效')
+                    yield value['event']
+        except (OSError, ValueError) as exc:
+            raise BackendUnavailable('原生事件连接中断；可按原 turn 和游标恢复') from exc

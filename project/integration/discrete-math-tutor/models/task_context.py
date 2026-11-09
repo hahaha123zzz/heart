@@ -1,6 +1,6 @@
 """只允许已校验资源进入任务上下文；不存储新的学生能力判断。"""
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from models.input_understanding import GroundedTurn, ObjectReference, ExecutionDecision, TurnRoute
 
 
@@ -38,8 +38,14 @@ class TaskContext(BaseModel):
     task_revision: int | None = Field(default=None, ge=1)
     message: str = Field(min_length=1, max_length=4000)
     knowledge_point: str = Field(default="", max_length=200)
-    history: list[dict[str, str]] = Field(default_factory=list, max_length=40)
-    history_summary: str = Field(default="", max_length=4000)
+    history: list[dict[str, str]] = Field(default_factory=list)
+    history_summary: str = ""
+    _unified_context = PrivateAttr(default=None)
+
+    @property
+    def unified_context(self):
+        from agents.turn_context import assemble_turn
+        return assemble_turn(self)
     known_points: list[str] = Field(default_factory=list, max_length=20)
     objects: list[TaskObject] = Field(default_factory=list, max_length=4)
     current_object_ids: list[str] = Field(default_factory=list,max_length=4)

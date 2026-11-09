@@ -3,15 +3,17 @@ from contextlib import aclosing, contextmanager
 import asyncio
 import hashlib
 import json
+import logging
 import os
 import secrets
 import sqlite3
+import time
 
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.responses import StreamingResponse
 
 from .generation_bridge import GenerationRequest, model_config
-from .native_contract import NativeTurnKey, NativeTurnStart, NativeTurnCursor, NativeTurnCommand, NativeTurnReply, NativeTaskCheck
+from .native_contract import NativeTurnKey, NativeTurnStart, NativeTurnCursor, NativeTurnCommand, NativeTurnReply, NativeTaskCheck, NativeTurnOptions, NativeScopeRequest, NativeMemoryRequest
 from .session_bridge import require_bridge_token
 
 
@@ -40,7 +42,9 @@ class NativeTurnBridge:
             db.execute('BEGIN IMMEDIATE')
             if 'teaching_style' not in {row[1] for row in db.execute('PRAGMA table_info(native_requests)')}:
                 db.execute("ALTER TABLE native_requests ADD COLUMN teaching_style TEXT NOT NULL DEFAULT '{}'")
-            if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '0') == '1':
+            if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '1') == '1':
+                from .native_history import install_question_history
+                install_question_history()
                 from .learning_tool_adapter import install_learning_tool_factory
                 install_learning_tool_factory(row[0] for row in db.execute('SELECT DISTINCT user_id FROM native_courses'))
 
@@ -78,10 +82,12 @@ class NativeTurnBridge:
         from deeptutor.services.workspace.models import WorkspaceError
         from .learning_tool_adapter import learning_tool_scope
         from .teaching_prompt_adapter import teaching_prompt_scope
+        from .tool_policy import teaching_tool_scope
 
         try:
             with (self.user_scope(entry['user_id']), workspace_context(entry['workspace_id']),
-                  learning_tool_scope(entry), teaching_prompt_scope(entry)):
+                  learning_tool_scope(entry), teaching_prompt_scope(entry),
+                  teaching_tool_scope(json.loads(entry.get('teaching_style') or '{}').get('citation_offset', 0))):
                 yield DeepTutorApp(workspace_id=entry['workspace_id'])
         except WorkspaceError as exc:
             raise HTTPException(409, '原生工作区已不可用') from exc
@@ -117,9 +123,10 @@ class NativeTurnBridge:
             profiles = value['services']['llm']['profiles']
             profiles[:] = [item for item in profiles if item['id'] != profile_id] + [profile]
         catalog.update(update)
-        grant = empty_grant(user_id)
-        grant.update(enabled_tools=[], mcp_tools=[], cli_apps=[], exec_enabled=False)
-        grant['models']['llm'] = [{'profile_id': profile_id, 'model_ids': ['host-model']}]
+        grant = load_grant(user_id) or empty_grant(user_id)
+        models = grant.setdefault('models', {}).setdefault('llm', [])
+        models[:] = [item for item in models if item.get('profile_id') != profile_id] + [
+            {'profile_id': profile_id, 'model_ids': ['host-model']}]
         if load_grant(user_id) != grant: save_grant(user_id, grant)
         return {'user_id': user_id}, {'profile_id': profile_id, 'model_id': 'host-model'}
 
@@ -149,7 +156,7 @@ class NativeTurnBridge:
                 workspace = next((item for item in service.list_workspaces()
                     if item['kind'] == 'workspace' and item['display_name'] == name), None)
                 if workspace is None:
-                    workspace = service.create_workspace(name, resources={'skills': [], 'mcp': [], 'knowledge_bases': []})
+                    workspace = service.create_workspace(name, resources={})
                 workspace_id = workspace['workspace_id']
                 with workspace_context(workspace_id):
                     courses = CourseService()
@@ -157,6 +164,8 @@ class NativeTurnBridge:
                     if course is None:
                         course = courses.create(name=name, instructions='教材正式答案须经宿主原文、版本与引用核验。', default_capability='chat')
                     course_id = course.id
+                    from .course_study import ensure_syllabus
+                    ensure_syllabus(course_id)
                 db.execute('INSERT INTO native_courses VALUES (?, ?, ?, ?)',
                     (binding['user_id'], request.course_id, workspace_id, course_id))
             session_id = 'heart_native_' + digest([binding['user_id'], request.course_id, request.session_id])
@@ -168,13 +177,91 @@ class NativeTurnBridge:
             return {'user_id': binding['user_id'], 'workspace_id': workspace_id,
                 'native_course_id': course_id, 'native_session_id': session_id}
 
+    async def memory(self, request: NativeMemoryRequest):
+        from deeptutor.api.routers import memory as native_memory
+        from deeptutor.services.workspace.context import workspace_context
+        mapped = await self.bind_scope(request)
+        with self.user_scope(mapped['user_id']), workspace_context(mapped['workspace_id']):
+            if request.action == 'overview':
+                return await native_memory.get_overview()
+            if request.action == 'read':
+                return await native_memory.get_doc(request.layer, request.key)
+            if request.action == 'write':
+                return await native_memory.put_doc(request.layer, request.key,
+                    native_memory.DocWriteRequest(content=request.content))
+            return await native_memory.delete_entry(request.layer, request.key, request.entry_id)
+
+    async def catalog(self, request: NativeScopeRequest):
+        from deeptutor.app import DeepTutorApp
+        from deeptutor.capabilities.registry import BUILTIN_LOOP_CAPABILITY_SPECS
+        from deeptutor.tools.builtin_specs import BUILTIN_TOOL_SPECS
+        from deeptutor.tools.builtin import USER_TOGGLEABLE_TOOL_NAMES, CONFIGURABLE_BUILTIN_TOOL_NAMES
+        from deeptutor.services.workspace.context import workspace_context
+        from deeptutor.services.workspace.resources import current_resources, resource_catalog
+        from deeptutor.multi_user.grants import load_grant
+        from .tool_policy import visible, hidden_names, HIDDEN_EXTENSIONS
+        mapped = await self.bind_scope(request)
+        with self.user_scope(mapped['user_id']), workspace_context(mapped['workspace_id']):
+            app = DeepTutorApp(workspace_id=mapped['workspace_id'])
+            resources = current_resources()
+            grant = load_grant(mapped['user_id'])
+            allowed = grant.get('enabled_tools')
+            # 工作区限制为 None 表示不限制；只展示用户确实可用的资源。
+            options = {kind: [item for item in values
+                              if getattr(resources, kind, None) is None
+                              or item['id'] in (getattr(resources, kind) or ())]
+                       for kind, values in resource_catalog(workspace_id=mapped['workspace_id']).items()}
+            manifests = app.capabilities.get_manifests()
+            return {
+                'engine': 'deeptutor_app',
+                # 固定上游 availability 是 slots dataclass，不能读取 __dict__。
+                'capabilities': [{**manifest, 'availability': __import__('dataclasses').asdict(
+                    app.get_capability_availability(manifest['name'], manifests=manifests))}
+                    for manifest in manifests],
+                'tools': [{'name': spec.name, 'class_path': spec.class_path, 'registered': True,
+                    'user_toggleable': spec.name in USER_TOGGLEABLE_TOOL_NAMES,
+                    'context_gated': spec.name in CONFIGURABLE_BUILTIN_TOOL_NAMES,
+                    'allowed_by_grant': allowed is None or spec.name in allowed,
+                    'execution_verified': False} for spec in BUILTIN_TOOL_SPECS if visible(spec.name)],
+                'hidden_tool_count': len(hidden_names()),
+                'extensions': [{'name': spec.name, 'class_path': spec.class_path,
+                                'registered': True, 'execution_verified': False}
+                               for spec in BUILTIN_LOOP_CAPABILITY_SPECS if spec.name not in HIDDEN_EXTENSIONS],
+                'hidden_extension_count': len(HIDDEN_EXTENSIONS),
+                'resources': {**{key: [item['id'] for item in options.get(key, [])]
+                              for key in ('knowledge_bases', 'skills', 'mcp')},
+                              'memory_references': ['recent','profile','scope','preferences','summary']},
+                'resource_options': {key: [{field: item[field] for field in
+                                            ('id', 'name', 'description', 'available') if field in item}
+                                           for item in values] for key, values in options.items()} | {
+                    'memory_references': [{'id':key,'name':label,'available':True} for key,label in (
+                        ('recent','近期记忆'),('profile','个人资料'),('scope','学习范围'),
+                        ('preferences','长期偏好'),('summary','记忆摘要'))]},
+            }
+
+    async def prepare_reading(self, request: NativeScopeRequest):
+        """导入课程教材并返回原生阅读工作区；幂等，供宿主阅读请求预取材料。"""
+        from deeptutor.services.workspace.context import workspace_context
+        from .course_reading import ensure_course_reading
+
+        mapped = await self.bind_scope(request)
+        with self.user_scope(mapped['user_id']), workspace_context(mapped['workspace_id']):
+            return await asyncio.to_thread(ensure_course_reading)
+
     async def start(self, request: NativeTurnStart):
+        from .heart_rag import install_heart_tools
+        install_heart_tools()
         from deeptutor.services.llm.config import reset_scoped_llm_config, set_scoped_llm_config
         from deeptutor.services.session.protocol import ActiveTurnConflict
 
+        _started = time.perf_counter()
+        _timing = logging.getLogger("heart.native_timing")
+        def mark(name):
+            _timing.info("worker_native_start %s request=%s %.3f", name, request.request_id, time.perf_counter() - _started)
         await self.authorize_host(request)
+        mark("authorize")
         # 缺省新字段不改变旧回合的幂等收据。
-        request_digest = digest(request.model_dump(exclude={'teaching_preferences'} if request.teaching_preferences is None else set()))
+        request_digest = digest(request.receipt_payload())
         try:
             previous = self.entry(request)
         except HTTPException as exc:
@@ -188,6 +275,7 @@ class NativeTurnBridge:
         # 只串行登记及原生 admission；模型任务和用户等待不在此锁内。
         async with self.sessions.lock:
             binding, selection = self.account(request, config)
+            mark("account")
             with self.sessions._connect() as db:
                 db.execute('BEGIN IMMEDIATE')
                 mapped = await self._bind(request, binding, db)
@@ -195,6 +283,7 @@ class NativeTurnBridge:
                 from .teaching_prompt_adapter import teaching_snapshot
                 style = teaching_snapshot(request.content, request.teaching_preferences.model_dump(exclude_none=True)
                                           if request.teaching_preferences else None,identity=request)
+                style['citation_offset'] = sum(obj.get('kind') == 'verified_evidence' for obj in request.grounding)
                 db.execute('''INSERT OR IGNORE INTO native_requests
                     (student_id, course_id, session_id, request_id, task_id, task_revision, digest,
                      user_id, workspace_id, native_course_id, native_session_id, submission_id,
@@ -205,6 +294,7 @@ class NativeTurnBridge:
                      submission_id, request.memory_epoch, json.dumps(request.material_versions, sort_keys=True),
                      json.dumps(style, ensure_ascii=False, sort_keys=True)))
             entry = self.entry(request)
+            mark("bind")
             if entry['digest'] != request_digest: raise HTTPException(409, '请求收据发生冲突')
             if not entry['turn_id']:
                 with self.scope(entry) as app:
@@ -214,12 +304,41 @@ class NativeTurnBridge:
                     if turn is None:
                         token = set_scoped_llm_config(config)
                         try:
-                            _, turn = await app.start_turn({'content': request.content,
+                            options = request.model_dump(include=set(NativeTurnOptions.model_fields))
+                            if (request.capability == 'immersive_reading'
+                                    or request.workspace_mode == 'immersive_reading'):
+                                from .course_reading import ensure_course_reading, material_for_chapter
+                                prepared = await asyncio.to_thread(ensure_course_reading)
+                                from deeptutor.services.courses import get_course_service
+                                await asyncio.to_thread(lambda: get_course_service().attach_resource(
+                                    entry['native_course_id'], kind='reading_workspace',
+                                    ref_id=prepared['workspace_id'], label=prepared['course_title']))
+                                viewport = dict(request.reading_viewport or {})
+                                chapter_id = viewport.pop('chapter_id', None)
+                                document_id = viewport.pop('document_id', None)
+                                options['reading_viewport'] = viewport or None
+                                options['reading_workspace_id'] = prepared['workspace_id']
+                                options['reading_material_id'] = options.get('reading_material_id') or \
+                                    material_for_chapter(prepared, chapter_id=chapter_id, document_id=document_id)
+                                options['reading_material_revision'] = options.get('reading_material_revision') or 1
+                            if request.grounding:
+                                notebook_name = 'Heart 本轮材料 · ' + submission_id
+                                notebook = next((item for item in app.list_notebooks()
+                                                 if item['name'] == notebook_name), None)
+                                if notebook is None:
+                                    notebook = app.create_notebook(notebook_name, description='宿主校验后的本轮材料，非模型生成')
+                                    for obj in request.grounding:
+                                        app.add_record(notebook_ids=[notebook['id']], record_type='reading',
+                                            title=obj['title'], user_query=request.content, output=obj['text'],
+                                            metadata={'host_object': obj, 'material_versions': request.material_versions})
+                                options['notebook_references'] = [*options['notebook_references'],
+                                    {'notebook_id': notebook['id'], 'record_ids': []}]
+                            _, turn = await app.start_turn({**options, 'content': request.content,
                                 'capability': request.capability, 'session_id': entry['native_session_id'],
                                 'workspace_id': entry['workspace_id'], 'course_id': entry['native_course_id'],
-                                'client_submission_id': submission_id, 'language': 'zh', 'auto_route': False,
-                                'llm_selection': selection,
-                                'tools': [], 'knowledge_bases': []})
+                                'client_submission_id': submission_id, 'language': 'zh',
+                                'llm_selection': selection})
+                            mark("start_turn")
                         except ActiveTurnConflict as exc:
                             raise HTTPException(409, '该原生会话仍有活跃回合') from exc
                         except RuntimeError as exc:
@@ -233,7 +352,10 @@ class NativeTurnBridge:
                         db.execute('''UPDATE native_requests SET turn_id=?
                             WHERE student_id=? AND course_id=? AND session_id=? AND request_id=?''',
                             (turn['id'], *self._key(request)))
-        return await self.status(request)
+        mark("before_status")
+        result = await self.status(request)
+        mark("status")
+        return result
 
     async def authorize_host(self, request, entry=None):
         from .client import BackendUnavailable, DeepTutorBackend
@@ -283,9 +405,43 @@ class NativeTurnBridge:
             turn = await store.get_turn(entry['turn_id'])
             if turn is None or turn['session_id'] != entry['native_session_id']:
                 raise HTTPException(409, '原生回合数据已失效')
-            return {'engine': 'deeptutor_app', 'turn_id': turn['id'], 'session_id': entry['native_session_id'],
-                'workspace_id': entry['workspace_id'], 'status': turn['status'], 'last_seq': turn['last_seq'],
+            output = {}
+            if turn['status'] in ('completed', 'failed', 'cancelled'):
+                messages = await store.get_messages(entry['native_session_id'])
+                message = next((m for m in messages if str(m.get('id')) == str(turn.get('assistant_message_id'))), None)
+                output['reply'] = str(message.get('content') or '') if message else ''
+                events = await store.get_turn_events(entry['turn_id'])
+                result = next((e.get('metadata') or {} for e in reversed(events) if e.get('type') == 'result'), {})
+                from .native_reader import reader_actions
+                output['reader_actions'] = await asyncio.to_thread(reader_actions, events) if turn['status'] == 'completed' else []
+                from .native_delivery import public_mastery_events
+                output['mastery_events'] = public_mastery_events(events)
+                output['result'] = result
+                output['sources'] = [s for e in events if e.get('type') == 'sources'
+                                     for s in (e.get('metadata') or {}).get('sources', [])]
+            return {**output, 'engine': 'deeptutor_app', 'turn_id': turn['id'], 'session_id': entry['native_session_id'],
+                'workspace_id': entry['workspace_id'], 'capability': turn['capability'],
+                'status': turn['status'], 'last_seq': turn['last_seq'],
                 'publication_state': 'pending_verification'}
+
+    async def artifact(self, request):
+        from fastapi.responses import FileResponse
+        from deeptutor.services.workspace import get_content_workspace_service
+        entry = self.entry(request)
+        await self.authorize_assessment(request, entry)
+        with self.scope(entry) as app:
+            events = await app.container.store_provider.get().get_turn_events(entry['turn_id'])
+            items = [item for e in events if e.get('type') == 'sources'
+                     for item in (e.get('metadata') or {}).get('sources', []) if item.get('type') == 'workspace_item']
+            items += [item for e in events if e.get('type') == 'result'
+                      for item in (e.get('metadata') or {}).get('workspace_items', [])]
+            if not any(item.get('workspace_item_id') == request.item_id
+                       and item.get('workspace_id') == entry['workspace_id'] for item in items):
+                raise HTTPException(404, '文件不属于当前原生回合')
+            path, item = get_content_workspace_service().resolve_published_item(entry['workspace_id'], request.item_id)
+            return FileResponse(path, media_type=item.mime_type, filename=item.filename,
+                headers={'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, no-store',
+                    'Content-Security-Policy': "sandbox; default-src 'none'; img-src data: blob:; media-src 'self' blob:; style-src 'unsafe-inline'"})
 
     async def events(self, request):
         entry = self.entry(request)
@@ -314,15 +470,22 @@ class NativeTurnBridge:
 
 
 def require_native_enabled():
-    if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '0') != '1':
+    if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '1') != '1':
         raise HTTPException(503, '完整原生运行时尚未开放')
 
 
 def install_native_bridge(app, sessions):
     bridge = NativeTurnBridge(sessions)
     router = APIRouter(prefix='/internal/heart/native', dependencies=[Depends(require_bridge_token), Depends(require_native_enabled)])
+    router.add_api_route('/catalog', bridge.catalog, methods=['POST'], response_model=None)
+    router.add_api_route('/memory', bridge.memory, methods=['POST'], response_model=None)
+    router.add_api_route('/reading/prepare', bridge.prepare_reading, methods=['POST'], response_model=None)
     router.add_api_route('/start', bridge.start, methods=['POST'], response_model=None)
     router.add_api_route('/status', bridge.status, methods=['POST'], response_model=None)
+    from .native_contract import NativeArtifactRequest
+    @router.post('/artifact')
+    async def artifact(payload: NativeArtifactRequest): return await bridge.artifact(payload)
+
     from .assessment_api import install_assessment_api
     install_assessment_api(router, bridge)
 

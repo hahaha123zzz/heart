@@ -29,6 +29,18 @@ def prepare(home: Path, port: int) -> None:
     os.chdir(home)
 
 
+def use_cpu_inference_when_needed() -> None:
+    """worker 通常装 CPU 版 onnxruntime；从宿主继承的 CUDA 设备必须显式降级。"""
+    try:
+        import onnxruntime as ort
+    except ImportError:
+        return
+    if "CUDAExecutionProvider" in ort.get_available_providers():
+        return
+    os.environ["RAG_EMBED_DEVICE"] = "cpu"
+    os.environ["RAG_RERANK_DEVICE"] = "cpu"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=18001)
@@ -38,6 +50,7 @@ def main() -> None:
     from dotenv import load_dotenv
     load_dotenv(HOST_ROOT / ".env", override=False)
     prepare(args.home, args.port)
+    use_cpu_inference_when_needed()
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
     import deeptutor
@@ -48,7 +61,7 @@ def main() -> None:
     set_mode(RunMode.SERVER)
     from deeptutor.api.main import app
     # worker 按文件路径启动；宿主目录只用于加载适配层，上游仍来自固定副本。
-    sys.path.append(str(HOST_ROOT))
+    sys.path.insert(0, str(HOST_ROOT))
     from integrations.deeptutor.boundary import HostBridgeBoundary
     from integrations.deeptutor.session_bridge import install_session_bridge
     from integrations.deeptutor.turn_bridge import install_turn_bridge
@@ -60,9 +73,11 @@ def main() -> None:
     install_generation_bridge(app)
     install_agentic_bridge(app)
     install_knowledge_bridge(app, args.home.resolve())
-    if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '0') == '1':
+    if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '1') == '1':
         from integrations.deeptutor.native_bridge import install_native_bridge
         install_native_bridge(app, sessions)
+        from integrations.deeptutor.heart_rag import warm_retrieval
+        warm_retrieval()
     app.add_middleware(HostBridgeBoundary)
     uvicorn.run(app, host="127.0.0.1", port=args.port,
                 proxy_headers=False, access_log=False)

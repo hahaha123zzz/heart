@@ -15,6 +15,7 @@ from knowledge.citation_locations import complete_pdf_references
 
 import re
 import os
+from threading import RLock
 from uuid import uuid4
 from memory.evidence_policy import assess_attempt, project_state
 from typing import Any, Dict, Optional
@@ -65,25 +66,44 @@ class TutorOrchestrator:
         self,
         llm: Optional[LLMClient] = None,
         memory: Optional[MemoryManager] = None,
+        *, load_legacy: bool = True,
     ) -> None:
         self.llm = llm or LLMClient()
         self.memory = memory or MemoryManager()
         init_db()  # 幂等建表，保证任何入口都能直接用
         self.cleared_test_accounts = self.memory.accounts.cleanup_after_code_update()
-        self.context_sufficiency = ContextSufficiency(self.llm,system=GATE) if PSYCHOLOGY else ContextSufficiency(self.llm)
-        self.conversation_router = ConversationRouter(self.llm)
-        self.lesson_planner = LessonPlanner(self.llm)
-        self.evidence_extractor = EvidenceExtractor(self.llm)
-        self.misconception_resolver = MisconceptionResolver(self.llm)
-        self.state_analyzer = StateAnalyzer()
-        self.teaching_planner = TeachingPlanner(self.llm)
-        self.strategy_router = StrategyRouter(self.llm)
-        self.question_designer = QuestionDesigner(self.llm)
-        self.response_generator = ResponseGenerator(self.llm)
-        self.quality_checker = QualityChecker(self.llm)
-        self.state_updater = StateUpdater(self.llm)
-        self.tutor_error_detector = TutorErrorDetector()
-        self.textbook_chunks = load_textbook()
+        self._legacy_lock = RLock()
+        if load_legacy:
+            self._initialize_legacy()
+
+    _legacy_attributes = frozenset(('context_sufficiency', 'conversation_router', 'lesson_planner', 'evidence_extractor', 'misconception_resolver', 'state_analyzer', 'teaching_planner', 'strategy_router', 'question_designer', 'response_generator', 'quality_checker', 'state_updater', 'tutor_error_detector', 'textbook_chunks'))
+
+    def __getattr__(self, name):
+        if name not in self._legacy_attributes:
+            raise AttributeError(name)
+        self._initialize_legacy()
+        return self.__dict__[name]
+
+    def _initialize_legacy(self):
+        # 尚未迁移的旧入口首次使用时装配；原生聊天不初始化旧教学组件。
+        with self._legacy_lock:
+            if self.__dict__.get('_legacy_initialized', False):
+                return
+            self.context_sufficiency = ContextSufficiency(self.llm,system=GATE) if PSYCHOLOGY else ContextSufficiency(self.llm)
+            self.conversation_router = ConversationRouter(self.llm)
+            self.lesson_planner = LessonPlanner(self.llm)
+            self.evidence_extractor = EvidenceExtractor(self.llm)
+            self.misconception_resolver = MisconceptionResolver(self.llm)
+            self.state_analyzer = StateAnalyzer()
+            self.teaching_planner = TeachingPlanner(self.llm)
+            self.strategy_router = StrategyRouter(self.llm)
+            self.question_designer = QuestionDesigner(self.llm)
+            self.response_generator = ResponseGenerator(self.llm)
+            self.quality_checker = QualityChecker(self.llm)
+            self.state_updater = StateUpdater(self.llm)
+            self.tutor_error_detector = TutorErrorDetector()
+            self.textbook_chunks = load_textbook()
+            self._legacy_initialized = True
 
     def handle_turn(
         self,
@@ -115,7 +135,7 @@ class TutorOrchestrator:
         # 0) Conversation Router：判断学生这一轮在做什么 / 在聊什么
         metadata = getattr(task_context, "history_summary", "") if task_context is not None else ""
         session_id = getattr(task_context, "session_id", None) if task_context is not None else None
-        raw_history = task_context.history if task_context is not None else self.memory.get_history(student_id, session_id=session_id)
+        raw_history = task_context.history if task_context is not None else self.memory.get_history(student_id, session_id=session_id, for_context=True)
         if task_context is not None:
             history = raw_history
             history_summary = metadata

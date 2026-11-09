@@ -1,0 +1,348 @@
+{
+  "date": "2026-11-09",
+  "scope": "static_source_graph_architecture_audit_no_runtime_changes",
+  "upstream_root": "D:\\deeptutor",
+  "graph_project": {
+    "name": "deeptutor",
+    "languages": [
+      "python",
+      "yaml",
+      "markdown",
+      "dockerfile",
+      "json",
+      "toml"
+    ],
+    "frameworks": [
+      "FastAPI",
+      "Pydantic"
+    ],
+    "description": "DeepTutor — agent-native 学习伴侣。两层插件模型：LLM 按需调用的 Tools，以及接管整轮对话的 Capabilities；CLI / WebSocket API / Python SDK 统一进入 TurnApplicationService，再由 TurnEngine 路由到选定的 capability。全项目（不含 web 前端与 tests）。",
+    "analyzedAt": "2026-11-09T00:46:15.460Z",
+    "gitCommitHash": "6cf793bd868ba5ecbe64722936d4be8fab5a01df"
+  },
+  "graph_nodes": 19123,
+  "graph_edges": 38026,
+  "graph_drift": "D HEAD matches graph commit; services/llm/factory.py has local change, inspected separately",
+  "coverage": [
+    {
+      "path": "deeptutor/app/container.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/context_builder.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/model_history.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/source_inventory.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/turns/executor.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/turns/request_preparer.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/session/sqlite_store.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/llm/factory.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/llm/provider_factory.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/memory/store.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/memory/consolidator/__init__.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/learning_journal/__init__.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/services/learning_journal/store.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/multi_user/learner_profile.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/capabilities/mastery/pipeline.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/learning/service.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/learning/storage.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/learning/policy.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": false
+    },
+    {
+      "path": "deeptutor/learning/grading.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/learning/scheduler.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/learning/assessment.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/reading/_grounding.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/reading/service.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/capabilities/reading/tools.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    },
+    {
+      "path": "deeptutor/tools/ask_user.py",
+      "source_exists": true,
+      "vendored": true,
+      "same_as_D": true
+    }
+  ],
+  "matrix": [
+    {
+      "part": "主协调器及旧 agents 初始化",
+      "coverage": "native_main_chain_already_replaces",
+      "old": [
+        "main.py:TutorOrchestrator",
+        "orchestrator.py:TutorOrchestrator.__init__"
+      ],
+      "native": [
+        "deeptutor/app/container.py",
+        "deeptutor/app/facade.py"
+      ],
+      "remaining": "先迁练习提示/批改入口，再取消主服务强制初始化旧组件；宿主账号和发布服务独立注入。"
+    },
+    {
+      "part": "上下文与历史",
+      "coverage": "native_bundle_replaces_generic_logic_with_resource_adapter",
+      "old": [
+        "agents/task_context_builder.py",
+        "agents/turn_context.py",
+        "agents/conversation_context.py"
+      ],
+      "native": [
+        "deeptutor/services/session/turns/request_preparer.py",
+        "deeptutor/services/session/turns/executor.py",
+        "deeptutor/services/session/context_builder.py",
+        "deeptutor/services/session/model_history.py",
+        "deeptutor/services/session/source_inventory.py"
+      ],
+      "remaining": "保留宿主教材选区/习题小题/交互图版本校验，转为原生 grounding/reading references，不再创建宿主旧 UnifiedContext。"
+    },
+    {
+      "part": "模型客户端",
+      "coverage": "native_provider_and_bridge_can_replace",
+      "old": [
+        "llm/client.py",
+        "main.py:app.state.memory_llm"
+      ],
+      "native": [
+        "deeptutor/services/llm/config.py",
+        "deeptutor/services/llm/provider_factory.py",
+        "deeptutor/services/llm/factory.py"
+      ],
+      "remaining": "统一通过已有隔离 worker 和 generation bridge；迁移 chat/chat_json/tool-call/image 调用及错误契约。"
+    },
+    {
+      "part": "教学策略与偏好",
+      "coverage": "native_behavior_replaces_custom_algorithm_with_preference_mapping",
+      "old": [
+        "agents/teaching_policy.py",
+        "agents/teaching_strategy.py",
+        "agents/task_execution.py",
+        "models/interaction_preferences.py"
+      ],
+      "native": [
+        "deeptutor/agents/loop/prompt_blocks.py",
+        "deeptutor/capabilities/mastery/pipeline.py",
+        "deeptutor/capabilities/mastery/prompts/zh/mastery_loop.yaml",
+        "deeptutor/multi_user/learner_profile.py",
+        "deeptutor/learning/models.py"
+      ],
+      "remaining": "可改用原生 persona/profile/mastery；原生不是宿主13策略算法的等价实现，7维数值偏好需字段映射或同步调整界面。"
+    },
+    {
+      "part": "对话记忆和学习记忆",
+      "coverage": "native_stores_replace_after_schema_and_api_migration",
+      "old": [
+        "memory/memory_manager.py",
+        "database/repository.py"
+      ],
+      "native": [
+        "deeptutor/services/session/sqlite_store.py",
+        "deeptutor/services/memory/store.py",
+        "deeptutor/services/memory/consolidator",
+        "deeptutor/services/learning_journal/store.py",
+        "deeptutor/learning/service.py",
+        "deeptutor/learning/storage.py"
+      ],
+      "remaining": "会话、长期偏好、学习日志、正式学习证据分别迁入对应原生存储；保留用户确认来源、删除失效语义、历史公开字段过滤。"
+    },
+    {
+      "part": "练习提示/讲解/AI批改",
+      "coverage": "native_capabilities_require_explicit_host_practice_adapter",
+      "old": [
+        "practice_api.py:ai_parts",
+        "practice_api.py:run_submission",
+        "practice_api.py:help_question"
+      ],
+      "native": [
+        "deeptutor/capabilities/solve",
+        "deeptutor/agents/question",
+        "deeptutor/learning/grading.py",
+        "deeptutor/learning/assessment.py",
+        "deeptutor/learning/service.py"
+      ],
+      "remaining": "当前练习接口仍直接调用旧 LLM/quality_checker；需绑定当前小题、图像、rubric 和提交 ID 后接原生能力，不能只替换客户端。"
+    },
+    {
+      "part": "运行时任务与宿主权限",
+      "coverage": "partial_runtime_overlap_host_authority_required",
+      "old": [
+        "database/learning_tasks.py",
+        "integrations/deeptutor/task_projection.py",
+        "integrations/deeptutor/native_authorization.py"
+      ],
+      "native": [
+        "deeptutor/services/session/sqlite_store.py",
+        "deeptutor/services/session/turns/request_preparer.py",
+        "deeptutor/runtime/coordination"
+      ],
+      "remaining": "原生已覆盖submission幂等、事件重放、租约和fencing；宿主student/session/task revision/memory_epoch/material_versions校验没有同一契约，合并状态前仍需权限薄层。"
+    },
+    {
+      "part": "教材引用发布",
+      "coverage": "not_equivalent_keep_host_evidence_gate",
+      "old": [
+        "agents/agent_loop_service.py:_publish_gate",
+        "knowledge/grounded_citations.py",
+        "integrations/deeptutor/native_grounding.py"
+      ],
+      "native": [
+        "deeptutor/reading/service.py:verify_quote",
+        "deeptutor/reading/_grounding.py",
+        "deeptutor/agents/research/utils/citation_manager.py"
+      ],
+      "remaining": "保留版本、原文块、PDF矩形与引用编号核验；可将门禁及纯数据类型从旧agents移到独立宿主模块；_publish_gate当前没有读取orchestrator。"
+    },
+    {
+      "part": "正式掌握度与评分",
+      "coverage": "native_domain_already_used_preserve_review_authority",
+      "old": [
+        "integrations/deeptutor/assessment_store.py",
+        "integrations/deeptutor/learning_write_guard.py",
+        "memory/evidence_policy.py"
+      ],
+      "native": [
+        "deeptutor/learning/service.py",
+        "deeptutor/learning/storage.py",
+        "deeptutor/learning/policy.py",
+        "deeptutor/learning/mastery.py",
+        "deeptutor/learning/grading.py",
+        "deeptutor/learning/scheduler.py"
+      ],
+      "remaining": "原生主体已在用；宿主审核题目/评分依据/版本/受助排除仍需保留。vendor policy有已声明独立证据补丁，不能用D原文件直接覆盖掉。"
+    },
+    {
+      "part": "阅读动作及问题卡契约",
+      "coverage": "native_tools_already_used_keep_thin_ui_mapping",
+      "old": [
+        "agents/tools/first_wave_runtime.py:ReaderGotoTool",
+        "agents/ask_user_contract.py"
+      ],
+      "native": [
+        "deeptutor/capabilities/reading/tools.py",
+        "deeptutor/reading/store.py",
+        "deeptutor/tools/ask_user.py"
+      ],
+      "remaining": "工具主体已原生；宿主保留document/version/task绑定、SSE动作和页面回执，问题卡可用原生验证结果做字段投影，避免跨隔离环境直接导入。"
+    }
+  ],
+  "newly_identified_legacy_entry": "practice_api.ai_parts (help_question/run_submission)",
+  "key_findings": [
+    "native source already vendored; invocation and domain data mappings remain",
+    "native ContextBuilder handles history; TurnExecutor constructs full UnifiedContext",
+    "_publish_gate has no reads of its orchestrator argument",
+    "native reading quote verification and research citation metadata do not replace full host evidence publication",
+    "old orchestrator initialization remains unconditional although main chat routes native"
+  ],
+  "implementation_performed": false,
+  "runtime_validation_performed": false
+}
