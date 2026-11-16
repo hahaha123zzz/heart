@@ -107,6 +107,7 @@ def temp_engine(create_all: bool = True) -> Iterator[object]:
 
     with temp_databases() as env:
         os.environ.update(env)
+        os.environ["MEM0_ENABLED"] = "0"
         engine = create_engine(env["COURSE_DATABASE_URL"], future=True)
         try:
             if create_all:
