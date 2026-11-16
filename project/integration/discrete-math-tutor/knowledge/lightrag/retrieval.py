@@ -157,14 +157,10 @@ class LightRagBackend:
         if state["state"]!="candidate_complete" or len(state["chapters"])!=11 or not all(e.get("complete") for e in state["chapters"].values()):
             raise RuntimeError("LightRAG 全书候选索引未完整就绪")
         if manifest["course_id"]!=course_id: raise PermissionError("候选教材身份不符")
-        index_files=json.loads((self.candidate/"index_files.json").read_text(encoding="utf-8"))
-        if not index_files: raise RuntimeError("候选索引缺少文件签名")
-        for relative,sha in index_files.items():
-            path=Path(relative)
-            if path.is_absolute() or ".." in path.parts: raise RuntimeError("候选索引路径越界")
-            from .ingress import _contained_regular_file
-            checked=_contained_regular_file(self.candidate,self.candidate/"index"/path,label="native index")
-            if digest(checked)!=sha: raise RuntimeError("候选图谱/向量/文本/状态文件身份变化")
+        index_files=self.candidate/"index_files.json"
+        if not index_files.is_file(): raise RuntimeError("候选索引缺少源签名文件")
+        from . import storage as _storage
+        _storage.verify_manifest(self.candidate,source_signature=digest(index_files))
         verify(self.candidate/"input",manifest["files"])
         if self.source_root is None:
             verify(Path(manifest["source_root"]),manifest["files"])

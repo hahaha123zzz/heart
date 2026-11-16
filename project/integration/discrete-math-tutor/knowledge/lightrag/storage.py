@@ -92,6 +92,92 @@ def _pg_connect():
     )
 
 
+MANIFEST_TABLE = "lightrag_index_manifest"
+INDEX_TABLES = (
+    "LIGHTRAG_DOC_FULL",
+    "LIGHTRAG_DOC_CHUNKS",
+    "LIGHTRAG_FULL_ENTITIES",
+    "LIGHTRAG_FULL_RELATIONS",
+    "LIGHTRAG_ENTITY_CHUNKS",
+    "LIGHTRAG_RELATION_CHUNKS",
+    "LIGHTRAG_LLM_CACHE",
+    "LIGHTRAG_DOC_STATUS",
+    "LIGHTRAG_VDB_CHUNKS",
+    "LIGHTRAG_VDB_ENTITY",
+    "LIGHTRAG_VDB_RELATION",
+)
+
+
+def _ensure_manifest_table(conn) -> None:
+    conn.execute(
+        f"CREATE TABLE IF NOT EXISTS {MANIFEST_TABLE} ("
+        "workspace TEXT NOT NULL, namespace TEXT NOT NULL, row_count BIGINT NOT NULL, "
+        "id_sha256 TEXT NOT NULL, source_signature TEXT NOT NULL DEFAULT '', "
+        "imported_at TIMESTAMPTZ NOT NULL DEFAULT now(), PRIMARY KEY (workspace, namespace))"
+    )
+
+
+def table_fingerprint(conn, workspace: str, namespace: str) -> dict[str, Any]:
+    if namespace not in INDEX_TABLES:
+        raise ValueError(f"未知的 LightRAG 索引表: {namespace}")
+    row = conn.execute(
+        f"SELECT count(*), encode(sha256(convert_to(coalesce(string_agg(id, '|' ORDER BY id), ''), 'UTF8')), 'hex') "
+        f"FROM {namespace} WHERE workspace = %s",
+        (workspace,),
+    ).fetchone()
+    return {"row_count": int(row[0]), "id_sha256": str(row[1] or "")}
+
+
+def write_manifest(root_dir: Path, entries: dict[str, dict[str, Any]], *, source_signature: str) -> None:
+    workspace = _workspace(Path(root_dir))
+    with _pg_connect() as conn:
+        _ensure_manifest_table(conn)
+        for namespace, entry in entries.items():
+            if namespace not in INDEX_TABLES:
+                raise ValueError(f"未知的 LightRAG 索引表: {namespace}")
+            conn.execute(
+                f"INSERT INTO {MANIFEST_TABLE} (workspace, namespace, row_count, id_sha256, source_signature) "
+                "VALUES (%s, %s, %s, %s, %s) "
+                "ON CONFLICT (workspace, namespace) DO UPDATE SET row_count = EXCLUDED.row_count, "
+                "id_sha256 = EXCLUDED.id_sha256, source_signature = EXCLUDED.source_signature, imported_at = now()",
+                (workspace, namespace, int(entry["row_count"]), str(entry["id_sha256"]), source_signature),
+            )
+
+
+def read_manifest(root_dir: Path) -> dict[str, dict[str, Any]]:
+    import psycopg
+
+    workspace = _workspace(Path(root_dir))
+    try:
+        with _pg_connect() as conn:
+            _ensure_manifest_table(conn)
+            rows = conn.execute(
+                f"SELECT namespace, row_count, id_sha256, source_signature FROM {MANIFEST_TABLE} WHERE workspace = %s",
+                (workspace,),
+            ).fetchall()
+    except psycopg.errors.UndefinedTable:
+        return {}
+    return {
+        row[0]: {"row_count": int(row[1]), "id_sha256": str(row[2]), "source_signature": str(row[3])}
+        for row in rows
+    }
+
+
+def verify_manifest(root_dir: Path, *, source_signature: str) -> dict[str, dict[str, Any]]:
+    entries = read_manifest(root_dir)
+    if not entries:
+        raise RuntimeError("候选索引缺少 PostgreSQL 清单")
+    workspace = _workspace(Path(root_dir))
+    with _pg_connect() as conn:
+        for namespace, entry in entries.items():
+            if entry["source_signature"] != source_signature:
+                raise RuntimeError("候选索引清单与源签名不一致")
+            current = table_fingerprint(conn, workspace, namespace)
+            if current["row_count"] != entry["row_count"]:
+                raise RuntimeError(f"候选索引 {namespace} 行数变化")
+    return entries
+
+
 def has_output(root_dir: Path | None) -> bool:
     """True when LightRAG has at least one successfully indexed document."""
     if root_dir is None:
