@@ -334,6 +334,7 @@ class SpeedTests(unittest.TestCase):
                 stack.enter_context(patch.object(retrieval,'rank_sources',return_value=[]))
                 stack.enter_context(patch('knowledge.lightrag.paths.bind_candidate_sidecars',return_value={}))
                 stack.enter_context(patch('knowledge.lightrag.course_input.visual_inventory',return_value=({},[],{})))
+                stack.enter_context(patch('knowledge.lightrag.storage.verify_manifest',return_value={}))
                 checks=stack.enter_context(patch.object(backend,'validate',wraps=backend.validate))
                 host_checks=stack.enter_context(patch.object(retrieval,'verify_active',wraps=verify_active))
                 if tamper:

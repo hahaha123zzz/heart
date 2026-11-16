@@ -1,4 +1,4 @@
-"""按已确认大纲运行研究，取得正文。"""
+﻿"""按已确认大纲运行研究，取得正文。"""
 import json
 import sys
 from pathlib import Path
@@ -24,8 +24,9 @@ def call(path: str, body: dict, timeout: int = 1800) -> dict:
 
 response = call("/api/chat", {
     "student_id": student, "account_type": "test", "session_id": "research",
-    "request_id": "research-8", "message": "请按已确认的大纲开始研究自变量控制这个子主题。",
+    "request_id": "research-14", "message": "请按已确认的大纲开始研究自变量控制这个子主题。",
     "capability": "deep_research",
+    "knowledge_bases": ["experimental-psychology-3-lightrag"],
     "config": {"mode": "notes", "depth": "manual", "manual_subtopics": 1,
                "manual_max_iterations": 1, "confirmed_outline": outline},
 })

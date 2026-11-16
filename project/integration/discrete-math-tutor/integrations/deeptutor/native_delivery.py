@@ -93,3 +93,49 @@ def public_mastery_events(events):
         if selected:
             output.append({'type':'tool_result','metadata':{'tool_metadata':selected}})
     return output
+
+
+def research_validation_text(text, sources, events):
+    """原生报告的一条研究引用可含多段原文；只在核验视图展开，保留原版报告。"""
+    import re
+    by_id = {item['source_id']:item['index'] for item in sources}
+    groups = {row['anchor']:row['source_ids'] for row in events if row.get('type') == 'heart_research_citation'}
+    def expand(match):
+        ids = groups.get(match[2])
+        if ids and all(value in by_id for value in ids):
+            return ''.join(f'[{by_id[value]}]' for value in dict.fromkeys(ids))
+        # 原生研究引用组缺失时，保留模型已显示的编号，交给后续来源门禁核对。
+        number = int(match[1])
+        if number in set(by_id.values()):
+            return f'[{number}]'
+        import logging
+        logging.getLogger(__name__).warning(
+            'research anchor missing anchor=%s number=%s groups=%s sources=%s',
+            match[2], number, list(groups)[:8], list(by_id)[:8])
+        raise ValueError('研究引用未绑定本轮核验原文')
+    cleaned = re.sub(r'\[(\d+)\]\(#(ref-[a-z0-9_-]+) "citation"\)', expand, text)
+    cleaned = re.sub(
+        r'\[(\d+(?:\s*[,，、]\s*\d+)+)\]',
+        lambda match: ''.join(f'[{number}]' for number in re.findall(r'\d+', match.group(1))),
+        cleaned,
+    )
+    return re.sub(r'\[(\d+)\s+[^\]]*\]', r'[\1]', cleaned)
+
+
+def research_publication(text, publication, sources):
+    """保持原生引用锚点，只把原文入口接到现有版本核验后的PDF引用。"""
+    import re
+    def identity(evidence):
+        values = tuple(evidence.get(key) for key in ('document_id','document_version','source_block_id',
+            'block_start','block_end','media_kind'))
+        return values + ((evidence.get('evidence_id'),) if evidence.get('media_kind') == 'image' else ()) + (
+            (evidence.get('page'), evidence.get('evidence_id')) if evidence.get('source_block_id') is None else ())
+    references = publication.get('pdf_references') or []
+    mapped = {identity(ref['evidence']):ref['source_index']+1 for ref in references}
+    indices = {source['index']:mapped.get(identity(source['location']['evidence'])) for source in sources}
+    def link(match):
+        number = indices.get(int(match[1]))
+        if number is None:
+            raise ValueError('研究原文入口没有对应的正式引用')
+        return '#heart-source-' + str(number)
+    return {**publication, 'reply':re.sub(r'#heart-source-(\d+)', link, text)}
