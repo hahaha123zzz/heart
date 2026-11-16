@@ -27,6 +27,24 @@ def maintenance_url() -> str:
     return os.environ.get("TEST_POSTGRES_URL", DEFAULT_URL)
 
 
+def admin_url() -> str:
+    return os.environ.get("TEST_POSTGRES_ADMIN_URL", maintenance_url())
+
+
+def _psycopg_url(base, database: str) -> str:
+    user = quote(base.username or "", safe="")
+    password = quote(base.password or "", safe="")
+    auth = f"{user}:{password}@" if password else f"{user}@"
+    return f"postgresql://{auth}{base.hostname}:{base.port or 5432}/{database}"
+
+
+def _ensure_extensions(names: list[str]) -> None:
+    base = _split(admin_url())
+    for name in names:
+        with psycopg.connect(_psycopg_url(base, name), autocommit=True) as conn:
+            conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
+
+
 def _split(url: str):
     return urlsplit(url)
 
@@ -64,6 +82,7 @@ def temp_databases(prefix: str = "heart_test") -> Iterator[dict]:
     rag = f"{prefix}_rag_{suffix}"
     names = [business, course, rag]
     _create(maintenance_url(), names)
+    _ensure_extensions(names)
     env = {
         "DATABASE_URL": _sqlalchemy_url(base, business),
         "COURSE_DATABASE_URL": _sqlalchemy_url(base, course),
