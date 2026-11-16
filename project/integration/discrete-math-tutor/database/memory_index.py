@@ -6,7 +6,8 @@ import re
 from sqlalchemy import select, text
 from database.database import session_scope
 from database.models import (Student, MemoryDocumentRow, ConversationRow, PDFCitationRow,
-    FigureCitationRow, EvidenceRow, EventEvidenceRow, LearningEventRow, ExerciseSubmissionRow, MemoryExclusionRow)
+    FigureCitationRow, EvidenceRow, EventEvidenceRow, LearningEventRow, ExerciseSubmissionRow, MemoryExclusionRow,
+    MemoryControlRow)
 
 
 def memory_terms(value):
@@ -16,23 +17,13 @@ def memory_terms(value):
     return words - {"什么", "如何", "为什么", "怎么", "可以", "这个", "一下", "教材", "解释", "学习", "内容", "用户", "学生"}
 
 
-def _fts(session):
-    if session.bind.dialect.name != "sqlite":
-        return False
-    existed = session.scalar(text("SELECT 1 FROM sqlite_master WHERE name='memory_documents_fts'"))
-    try:
-        session.execute(text("CREATE VIRTUAL TABLE IF NOT EXISTS memory_documents_fts USING fts5(index_text, content='memory_documents', content_rowid='id')"))
-        session.execute(text("CREATE TRIGGER IF NOT EXISTS memory_documents_ai AFTER INSERT ON memory_documents BEGIN INSERT INTO memory_documents_fts(rowid,index_text) VALUES(new.id,new.index_text); END"))
-        session.execute(text("CREATE TRIGGER IF NOT EXISTS memory_documents_ad AFTER DELETE ON memory_documents BEGIN INSERT INTO memory_documents_fts(memory_documents_fts,rowid,index_text) VALUES('delete',old.id,old.index_text); END"))
-        session.execute(text("CREATE TRIGGER IF NOT EXISTS memory_documents_au AFTER UPDATE OF index_text ON memory_documents BEGIN INSERT INTO memory_documents_fts(memory_documents_fts,rowid,index_text) VALUES('delete',old.id,old.index_text); INSERT INTO memory_documents_fts(rowid,index_text) VALUES(new.id,new.index_text); END"))
-        if not existed:
-            session.execute(text("INSERT INTO memory_documents_fts(memory_documents_fts) VALUES('rebuild')"))
-        return True
-    except Exception as exc:
-        # 只允许缺少 FTS5 能力时降级；其他数据库故障不能吞掉。
-        if "no such module: fts5" in str(exc):
-            return False
-        raise
+def ensure_search_index(engine):
+    """PostgreSQL 中文二元组的全文索引；建表后调用一次。"""
+    with engine.begin() as connection:
+        connection.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_memory_documents_tsv "
+            "ON memory_documents USING gin (to_tsvector('simple', index_text))"
+        ))
 
 
 class MemoryIndexRepository:
@@ -41,7 +32,8 @@ class MemoryIndexRepository:
         with session_scope(immediate=True) as session:
             if session.get(Student, student_id) is None:
                 return
-            _fts(session)
+            epochs={row.knowledge_point:row.epoch for row in session.scalars(
+                select(MemoryControlRow).where(MemoryControlRow.student_id==student_id)).all()}
             events = session.scalars(select(LearningEventRow).where(LearningEventRow.student_id == student_id)).all()
             by_conversation = {}
             by_submission = {}
@@ -103,6 +95,8 @@ class MemoryIndexRepository:
                 sources.append(("exercise",row.id,evt.knowledge_point if evt else "",body,metadata,row.created_at))
             excluded={(r.source_kind,r.source_id) for r in session.scalars(select(MemoryExclusionRow).where(MemoryExclusionRow.student_id==student_id))}
             sources=[source for source in sources if (source[0],source[1]) not in excluded]
+            for source in sources:
+                source[4]["epoch"]=epochs.get(source[2] or "",0)
             old={(r.source_kind,r.source_id):r for r in session.scalars(select(MemoryDocumentRow).where(MemoryDocumentRow.student_id == student_id))}
             seen=set()
             for kind, sid, point, content, metadata, created in sources:
@@ -110,6 +104,7 @@ class MemoryIndexRepository:
                 digest=hashlib.sha256(json.dumps([point,content,metadata],sort_keys=True,ensure_ascii=False).encode()).hexdigest()
                 row=old.get(key)
                 if row is not None and row.content_hash == digest:
+                    row.active=True
                     continue
                 if row is None:
                     row=MemoryDocumentRow(student_id=student_id,source_kind=kind,source_id=sid)
@@ -117,13 +112,15 @@ class MemoryIndexRepository:
                 row.knowledge_point=point or "";row.content=content;row.source_metadata=metadata
                 row.index_text=" ".join(sorted(memory_terms((point or "")+" "+content)))
                 row.content_hash=digest;row.created_at=created;row.embedding=[];row.embedding_model=""
+                row.active=True
             for key,row in old.items():
                 if key not in seen:
-                    session.delete(row)
+                    row.active=False
 
     def memory_documents(self, student_id):
         with session_scope() as session:
-            rows=session.scalars(select(MemoryDocumentRow).where(MemoryDocumentRow.student_id == student_id)).all()
+            rows=session.scalars(select(MemoryDocumentRow).where(
+                MemoryDocumentRow.student_id == student_id, MemoryDocumentRow.active)).all()
             return [self._memory_doc(r) for r in rows]
 
     @staticmethod
@@ -138,11 +135,15 @@ class MemoryIndexRepository:
         if not terms:
             return [],"none"
         with session_scope() as session:
-            if session.bind.dialect.name == "sqlite" and session.scalar(text("SELECT 1 FROM sqlite_master WHERE name='memory_documents_fts'")):
-                match=" OR ".join('"'+t+'"' for t in terms)
-                rows=session.execute(text("SELECT d.id FROM memory_documents_fts JOIN memory_documents d ON d.id=memory_documents_fts.rowid WHERE memory_documents_fts MATCH :query AND d.student_id=:student ORDER BY bm25(memory_documents_fts) LIMIT :limit"),
-                    {"query":match,"student":student_id,"limit":limit}).all()
-                return [r[0] for r in rows],"fts5"
+            match=" | ".join(terms)
+            rows=session.execute(text(
+                "SELECT id FROM memory_documents WHERE student_id=:student AND active "
+                "AND to_tsvector('simple', index_text) @@ to_tsquery('simple', :query) "
+                "ORDER BY ts_rank_cd(to_tsvector('simple', index_text), to_tsquery('simple', :query)) DESC "
+                "LIMIT :limit"),
+                {"query":match,"student":student_id,"limit":limit}).all()
+            if rows:
+                return [r[0] for r in rows],"postgres_tsvector"
         target=set(terms)
         ranked=sorted(((len(target & memory_terms(d["point"]+d["content"])),d["id"]) for d in self.memory_documents(student_id)),reverse=True)
         return [sid for score,sid in ranked[:limit] if score],"lexical_fallback"

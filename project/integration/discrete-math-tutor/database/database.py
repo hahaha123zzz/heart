@@ -72,6 +72,9 @@ def init_db() -> None:
     from database.preference_value_migration import migrate_preference_values
 
     migrate_preference_values(engine)
+    from database.memory_index import ensure_search_index
+
+    ensure_search_index(engine)
 
 
 @contextmanager

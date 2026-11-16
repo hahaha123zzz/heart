@@ -22,6 +22,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -318,6 +319,9 @@ class MemoryDocumentRow(Base):
     embedding_model: Mapped[str] = mapped_column(String(128), default="")
     embedding: Mapped[list] = mapped_column(JSON, default=list)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+    active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"), index=True)
+    mem0_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    mem0_synced_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
 
 
 class MisconceptionObservationRow(Base):
