@@ -58,3 +58,13 @@ pg_restore -U heart -d heart_psychology_restore backup-psychology.dump
 ```
 
 `mem0` 的 `history.sqlite` 不属于 PG 备份范围，可从卡片表重建，不参与证据链。
+
+## 本机中文路径
+
+`E:\项目\...` 下的模型缓存和 candidate 在部分进程里会因编码/非 ASCII 路径解析失败。本机用一个 ASCII junction 规避：
+
+```powershell
+New-Item -ItemType Junction -Path E:\heart-runtime -Target E:\项目\heart\.runtime
+```
+
+`.env` 中的 `LIGHTRAG_CANDIDATE_PATH`、`FASTEMBED_CACHE_PATH`、`LIGHTRAG_EMBED_SNAPSHOT`、`RAG_RERANK_SNAPSHOT`、`DEEPTUTOR_HOME` 指向 `E:\heart-runtime\...`。`LIGHTRAG_QUERY_ENV_FILE` 指向一个只含官方 DeepSeek 地址与 key 的 `deepseek-query.env`；不要把它指向含代理地址的文件。

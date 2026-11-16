@@ -37,6 +37,8 @@ from integrations.deeptutor.recovery_router import router as turn_recovery_route
 app.include_router(turn_recovery_router)
 from integrations.deeptutor.native_authorization import router as native_authorization_router
 app.include_router(native_authorization_router)
+from integrations.deeptutor.course_search_api import router as course_search_router
+app.include_router(course_search_router)
 from practice_api import router as practice_router, recover_interrupted_submissions
 app.include_router(practice_router)
 from memory_api import router as memory_router
@@ -94,6 +96,11 @@ def health():
                        "startup_seconds": getattr(fixed, 'start_seconds', None)},
         "memory_worker": app.state.memory_worker.status() if getattr(app.state, "memory_worker", None) else {"enabled": False, "running": False},
     }
+
+
+@app.get("/login", include_in_schema=False)
+def login_page():
+    return FileResponse(FRONTEND_DIR / 'login.html')
 
 
 @app.get("/", include_in_schema=False)
@@ -197,7 +204,14 @@ def _run_turn(request: ChatRequest, progress=None, answer_ready=None, answer_eve
         from integrations.deeptutor.runtime_config import native_enabled
         if native_enabled():
             from integrations.deeptutor.native_executor import run_native_turn
-            return run_native_turn(request, orchestrator, progress, answer_event, answer_ready)
+            result = run_native_turn(request, orchestrator, progress, answer_event, answer_ready)
+            # 原生回合也把账本同步成卡片，后台再写 mem0；失败不改变回答结果。
+            try:
+                orchestrator.memory.repo.sync_memory_index(request.student_id)
+            except Exception:
+                import logging
+                logging.getLogger(__name__).warning("native turn memory sync failed", exc_info=True)
+            return result
         from agents.task_service import TaskService
         jobs = []
         def execute(*args, previous=None, **kwargs):

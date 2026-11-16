@@ -118,8 +118,13 @@ def _embedder(model_name: str):
 
 @lru_cache(maxsize=2)
 def _embedder_on_device(model_name: str, device: str):
+    import os
     from fastembed import TextEmbedding
-    model = TextEmbedding(model_name=model_name, **prepare_onnx(device))
+    kwargs = prepare_onnx(device)
+    snapshot = os.getenv("LIGHTRAG_EMBED_SNAPSHOT")
+    if snapshot:
+        kwargs["specific_model_path"] = snapshot
+    model = TextEmbedding(model_name=model_name, **kwargs)
     verify_device(model, device)
     record_session("embedding", model, device)
     _loaded_embedders[(model_name, device)] = model
@@ -137,7 +142,12 @@ def _reranker_on_device(model_name: str, device: str):
         from FlagEmbedding import FlagReranker
         return "flag", FlagReranker(model_name, use_fp16=False, devices=device)
     from fastembed.rerank.cross_encoder import TextCrossEncoder
-    model = TextCrossEncoder(model_name=model_name, threads=4, **prepare_onnx(device))
+    import os
+    kwargs = prepare_onnx(device)
+    snapshot = os.getenv("RAG_RERANK_SNAPSHOT")
+    if snapshot:
+        kwargs["specific_model_path"] = snapshot
+    model = TextCrossEncoder(model_name=model_name, threads=4, **kwargs)
     verify_device(model, device)
     record_session("reranker", model, device)
     return "fastembed", model
