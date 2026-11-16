@@ -68,3 +68,15 @@ New-Item -ItemType Junction -Path E:\heart-runtime -Target E:\项目\heart\.runt
 ```
 
 `.env` 中的 `LIGHTRAG_CANDIDATE_PATH`、`FASTEMBED_CACHE_PATH`、`LIGHTRAG_EMBED_SNAPSHOT`、`RAG_RERANK_SNAPSHOT`、`DEEPTUTOR_HOME` 指向 `E:\heart-runtime\...`。`LIGHTRAG_QUERY_ENV_FILE` 指向一个只含官方 DeepSeek 地址与 key 的 `deepseek-query.env`；不要把它指向含代理地址的文件。
+
+## 远程 ECS（未执行）
+
+`deploy/provision_heart.sh` 目前仍是 SQLite 时代的安装脚本，不包含 PostgreSQL/pgvector。切远程前需要：
+
+1. 安装 PostgreSQL 16+ 与 `postgresql-16-pgvector`（或源码编译）。
+2. 创建 `heart`、`heart_psychology`、`heart_rag` 三个库，并在业务库与教材库执行 `CREATE EXTENSION vector`。
+3. 把 `.env` 改为 `postgresql+psycopg://...`；模型缓存与 `DEEPTUTOR_HOME` 放到 ASCII 路径。
+4. 用本机 `pg_dump` 导出 `heart_psychology` 与 `heart_rag`，远端 `pg_restore`。
+5. 远端 2C2G 仍按 README 关闭固定教材/LightRAG；启用前需要升配。
+
+以上步骤没有在远程执行，也没有改动 `provision_heart.sh`。
