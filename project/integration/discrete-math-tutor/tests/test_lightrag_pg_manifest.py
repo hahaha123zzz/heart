@@ -39,3 +39,20 @@ def test_manifest_roundtrip(tmp_path):
         )
         rows = storage.read_manifest(tmp_path)
         assert rows["LIGHTRAG_DOC_CHUNKS"] == {"row_count": 0, "id_sha256": "x", "source_signature": "sig"}
+
+
+def test_verify_manifest_allows_llm_cache_growth(tmp_path):
+    with temp_databases() as env:
+        os.environ.update(env)
+        (tmp_path / "meta.json").write_text(json.dumps({"workspace": "ws"}), encoding="utf-8")
+        url = env["POSTGRES_DATABASE_URL"].replace("postgresql+psycopg://", "postgresql://")
+        with psycopg.connect(url) as conn:
+            conn.execute("CREATE TABLE lightrag_llm_cache (workspace TEXT, id TEXT)")
+            conn.execute("INSERT INTO lightrag_llm_cache VALUES ('ws','a')")
+        from knowledge.lightrag import storage
+
+        storage.write_manifest(tmp_path, {"LIGHTRAG_LLM_CACHE": {"row_count": 1, "id_sha256": "x"}},
+                               source_signature="sig")
+        with psycopg.connect(url) as conn:
+            conn.execute("INSERT INTO lightrag_llm_cache VALUES ('ws','b')")
+        storage.verify_manifest(tmp_path, source_signature="sig")

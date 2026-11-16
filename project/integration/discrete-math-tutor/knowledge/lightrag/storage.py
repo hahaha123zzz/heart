@@ -173,6 +173,11 @@ def verify_manifest(root_dir: Path, *, source_signature: str) -> dict[str, dict[
             if entry["source_signature"] != source_signature:
                 raise RuntimeError("候选索引清单与源签名不一致")
             current = table_fingerprint(conn, workspace, namespace)
+            if namespace == "LIGHTRAG_LLM_CACHE":
+                # 查询会写关键词/查询缓存；只要求不少于导入基线。
+                if current["row_count"] < entry["row_count"]:
+                    raise RuntimeError("候选索引 LLM 缓存行数减少")
+                continue
             if current["row_count"] != entry["row_count"]:
                 raise RuntimeError(f"候选索引 {namespace} 行数变化")
     return entries
