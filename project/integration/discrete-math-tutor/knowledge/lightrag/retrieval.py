@@ -160,7 +160,7 @@ class LightRagBackend:
         index_files=self.candidate/"index_files.json"
         if not index_files.is_file(): raise RuntimeError("候选索引缺少源签名文件")
         from . import storage as _storage
-        _storage.verify_manifest(self.candidate,source_signature=digest(index_files))
+        _storage.verify_manifest(self.candidate/"index",source_signature=digest(index_files))
         verify(self.candidate/"input",manifest["files"])
         if self.source_root is None:
             verify(Path(manifest["source_root"]),manifest["files"])
