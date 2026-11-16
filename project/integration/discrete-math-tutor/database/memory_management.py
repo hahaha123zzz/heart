@@ -209,6 +209,7 @@ class MemoryManagementRepository:
             session.execute(delete(LearningTaskRow).where(LearningTaskRow.student_id==student_id,
                 LearningTaskRow.knowledge_point==point))
             control.epoch+=1
+            self.expire_cards(student_id, point, control.epoch)
             self._clear_context_replay(session, student_id)
             session.add(MemoryChangeRow(student_id=student_id,knowledge_point=point,action="forget_point"))
             session.flush();self.sync_memory_index(student_id)

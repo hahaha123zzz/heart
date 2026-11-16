@@ -117,6 +117,21 @@ class MemoryIndexRepository:
                 if key not in seen:
                     row.active=False
 
+    def expire_cards(self, student_id, point=None, epoch=None):
+        """删除/更正后让旧卡片失效；mem0 由后台同步删除。"""
+        with session_scope(immediate=True) as session:
+            query = select(MemoryDocumentRow).where(
+                MemoryDocumentRow.student_id == student_id, MemoryDocumentRow.active)
+            if point:
+                query = query.where(MemoryDocumentRow.knowledge_point == point)
+            changed = 0
+            for row in session.scalars(query).all():
+                if epoch is not None and int((row.source_metadata or {}).get("epoch", 0)) >= int(epoch):
+                    continue
+                row.active = False
+                changed += 1
+            return changed
+
     def memory_documents(self, student_id):
         with session_scope() as session:
             rows=session.scalars(select(MemoryDocumentRow).where(
