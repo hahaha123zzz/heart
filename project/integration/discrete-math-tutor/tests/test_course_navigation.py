@@ -4,8 +4,8 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
+from tests.pg_support import temp_engine
 from agents.task_service import TaskService
 from database import database as db
 from database.learning_tasks import LearningTaskRepository
@@ -202,12 +202,8 @@ class NavigationTests(unittest.TestCase):
 class NavigationTaskTests(unittest.TestCase):
     def setUp(self):
         import database.q5_learning
-        self.temp = tempfile.TemporaryDirectory()
-        self.engine = create_engine('sqlite:///' + self.temp.name.replace('\\', '/') + '/test.db')
-        @event.listens_for(self.engine, 'connect')
-        def fk(connection, _):
-            connection.execute('PRAGMA foreign_keys=ON')
-        Base.metadata.create_all(self.engine)
+        self._pg = temp_engine()
+        self.engine = self._pg.__enter__()
         self.factory = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
         self.patch = patch.object(db, 'SessionLocal', self.factory)
         self.patch.start()
@@ -218,8 +214,7 @@ class NavigationTaskTests(unittest.TestCase):
 
     def tearDown(self):
         self.patch.stop()
-        self.engine.dispose()
-        self.temp.cleanup()
+        self._pg.__exit__(None, None, None)
 
     def run_turn(self, message, request_id, *, status='answered', after_start=None, session_id='tab',
                  result_extra=None, **kwargs):

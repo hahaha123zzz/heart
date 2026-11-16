@@ -4,9 +4,10 @@ from types import SimpleNamespace
 from uuid import uuid4
 from unittest.mock import Mock, patch
 
-from sqlalchemy import create_engine, event, select, func
+from sqlalchemy import select, func
 from sqlalchemy.orm import sessionmaker
 from database import database as db
+from tests.pg_support import temp_engine
 from database.models import Base, LearningEventRow, EventEvidenceRow, MemoryRevisionRow, EvidenceRow, ConversationRow
 from memory.memory_manager import MemoryManager
 from memory.evidence_policy import EvidenceDecision, assess_attempt, project_state
@@ -18,11 +19,8 @@ from agents.evidence_extractor import MisconceptionHypothesis
 
 class MemoryEventTests(unittest.TestCase):
     def setUp(self):
-        self.engine = create_engine("sqlite:///:memory:")
-        @event.listens_for(self.engine, "connect")
-        def fk(connection, _):
-            connection.execute("PRAGMA foreign_keys=ON")
-        Base.metadata.create_all(self.engine)
+        self._pg = temp_engine()
+        self.engine = self._pg.__enter__()
         self.factory = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
         self.patch = patch.object(db, "SessionLocal", self.factory)
         self.patch.start()
@@ -36,7 +34,7 @@ class MemoryEventTests(unittest.TestCase):
 
     def tearDown(self):
         self.patch.stop()
-        self.engine.dispose()
+        self._pg.__exit__(None, None, None)
 
     def count(self, model):
         with self.factory() as session:

@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from sqlalchemy import create_engine, event
+from tests.pg_support import temp_engine
 from sqlalchemy.orm import sessionmaker
 
 from database import database as db
@@ -21,15 +21,8 @@ class Q3EntrypointTests(unittest.TestCase):
     def setUpClass(cls):
         cls.previous = sys.modules.pop("main", None)
         cls.temp = tempfile.TemporaryDirectory()
-        cls.engine = create_engine(
-            "sqlite:///" + cls.temp.name.replace("\\", "/") + "/entry.db",
-            connect_args={"check_same_thread": False})
-
-        @event.listens_for(cls.engine, "connect")
-        def fk(connection, _):
-            connection.execute("PRAGMA foreign_keys=ON")
-
-        Base.metadata.create_all(cls.engine)
+        cls._pg = temp_engine()
+        cls.engine = cls._pg.__enter__()
         cls.db_patch = patch.object(
             db, "SessionLocal",
             sessionmaker(bind=cls.engine, autoflush=False, expire_on_commit=False))
@@ -44,7 +37,7 @@ class Q3EntrypointTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.db_patch.stop(); cls.engine.dispose(); cls.temp.cleanup()
+        cls.db_patch.stop(); cls._pg.__exit__(None, None, None); cls.temp.cleanup()
         sys.modules.pop("main", None)
         if cls.previous is not None:
             sys.modules["main"] = cls.previous

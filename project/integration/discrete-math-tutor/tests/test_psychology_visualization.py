@@ -1,6 +1,7 @@
 import json,os,subprocess,sys,tempfile,unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
+from tests.pg_support import temp_databases
 
 class PsychologyVisualizationTests(unittest.TestCase):
     def test_templates_generation_and_validation_reuse_existing_deck(self):
@@ -48,8 +49,8 @@ try:render_plan(plan('euler',{}));raise AssertionError('心理学目录接受旧
 except ValueError:pass
 print('PASS: 心理学三种模板、自动生成与来源绑定、分步高亮、提示保护及无效参数拒绝')
 '''
-        with tempfile.TemporaryDirectory() as directory:
-            env=os.environ|{'TUTOR_COURSE':'experimental-psychology-3','VISUALIZATION_ON_DEMAND':'1','DATABASE_URL':'sqlite:///'+str(Path(directory)/'test.db')}
+        with temp_databases() as pg:
+            env=os.environ|pg|{'TUTOR_COURSE':'experimental-psychology-3','VISUALIZATION_ON_DEMAND':'1'}
             result=subprocess.run([sys.executable,'-X','utf8','-c',script],cwd=ROOT,env=env,text=True,capture_output=True,encoding='utf-8',timeout=30)
             self.assertEqual(result.returncode,0,result.stdout+'\n'+result.stderr)
 

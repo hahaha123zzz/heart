@@ -222,15 +222,15 @@ class FirstWaveIntegration(TextbookResourceFixture):
 class ReaderReceiptTests(TextbookResourceFixture):
     def setUp(self):
         super().setUp()
-        from sqlalchemy import create_engine
         from sqlalchemy.orm import sessionmaker
         from database import database as db
         from database.models import Base, Student, LearningTaskRow, TaskRequestRow
         from database.learning_tasks import now
         from datetime import timedelta
-        self.engine = create_engine('sqlite:///' + str(self.root / 'receipt.db'))
-        self.addCleanup(self.engine.dispose)
-        Base.metadata.create_all(self.engine)
+        from tests.pg_support import temp_engine
+        self._pg = temp_engine()
+        self.engine = self._pg.__enter__()
+        self.addCleanup(self._pg.__exit__, None, None, None)
         self.enterContext(patch.object(db, 'SessionLocal', sessionmaker(bind=self.engine)))
         self.action = ReaderGotoTool(2).run(self.pages(page=2), self.context).metadata['data']['action']
         with db.session_scope() as session:

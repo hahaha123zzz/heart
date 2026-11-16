@@ -94,10 +94,10 @@ class MemoryManagementTests(unittest.TestCase):
         self.assertEqual(reader.read('s', 'preferences')['known'], {'answer_length': .5})
 
     def test_preference_value_migration_preserves_unknown_history(self):
-        from sqlalchemy import create_engine, inspect, text
+        from sqlalchemy import inspect, text
         from database.preference_value_migration import migrate_preference_values
-        engine = create_engine('sqlite:///:memory:')
-        try:
+        from tests.pg_support import temp_engine
+        with temp_engine(create_all=False) as engine:
             with engine.begin() as connection:
                 connection.execute(text('CREATE TABLE memory_changes (id INTEGER PRIMARY KEY, item_key VARCHAR(128))'))
                 connection.execute(text("INSERT INTO memory_changes (id, item_key) VALUES (1, 'answer_length')"))
@@ -106,8 +106,6 @@ class MemoryManagementTests(unittest.TestCase):
             self.assertIn('confirmed_value', {c['name'] for c in inspect(engine).get_columns('memory_changes')})
             with engine.connect() as connection:
                 self.assertIsNone(connection.execute(text('SELECT confirmed_value FROM memory_changes')).scalar())
-        finally:
-            engine.dispose()
 
     def test_preferences_have_explicit_source_and_clear_old_snapshots(self):
         self.memory.set_preferences("s",{"answer_length":1})
@@ -240,6 +238,7 @@ class MemoryManagementTests(unittest.TestCase):
         # 本测试关注删除竞态；旧离散数学选区夹具没有心理学引用索引所需的 record。
         with patch("agents.pdf_selection_tutor.resolve_selection",return_value=resolved), \
              patch("knowledge.grounded_citations.settings",return_value=None), \
+             patch("agents.teaching_skills.prepare_teaching_skills",return_value=("",[])), \
              patch("memory.retrieval._model",return_value=(None,None)):
             result=explain_selection(tutor,"s","解释选区",selection,"production")
         tutor.llm.chat.assert_called_once()

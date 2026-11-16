@@ -49,7 +49,7 @@ class MemoryManagementRepository:
         points=self.list_learning_points(student_id)
         with session_scope() as session:
             event_points=session.scalars(select(LearningEventRow.knowledge_point).where(LearningEventRow.student_id==student_id)).all()
-            indexed_points=session.scalars(select(MemoryDocumentRow.knowledge_point).where(MemoryDocumentRow.student_id==student_id)).all()
+            indexed_points=session.scalars(select(MemoryDocumentRow.knowledge_point).where(MemoryDocumentRow.student_id==student_id,MemoryDocumentRow.active)).all()
             task_points=session.scalars(select(LearningTaskRow.knowledge_point).where(LearningTaskRow.student_id==student_id)).all()
             visualization_points=session.scalars(select(VisualizationRow.knowledge_point).where(VisualizationRow.student_id==student_id)).all()
             visualization_points += session.scalars(select(TruthTableRow.knowledge_point).where(TruthTableRow.student_id==student_id)).all()

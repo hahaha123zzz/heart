@@ -22,6 +22,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import json
 import logging
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -67,33 +68,41 @@ def _store_root(root_dir: Path) -> Path:
     return candidate if candidate.is_dir() else root
 
 
+def _workspace(root_dir: Path) -> str:
+    meta = _read_meta(Path(root_dir)) or {}
+    workspace = str(meta.get("workspace") or "").strip()
+    if workspace:
+        return workspace
+    from .engine import workspace_for
+
+    return workspace_for(Path(root_dir))
+
+
+def _pg_connect():
+    """LightRAG 文档状态所在库；只读就绪与错误摘要。"""
+    import psycopg
+
+    return psycopg.connect(
+        host=os.getenv("POSTGRES_HOST", "127.0.0.1"),
+        port=int(os.getenv("POSTGRES_PORT", "5432")),
+        user=os.getenv("POSTGRES_USER", ""),
+        password=os.getenv("POSTGRES_PASSWORD", ""),
+        dbname=os.getenv("POSTGRES_DATABASE", ""),
+        connect_timeout=10,
+    )
+
+
 def has_output(root_dir: Path | None) -> bool:
     """True when LightRAG has at least one successfully indexed document."""
     if root_dir is None:
         return False
-    root = _store_root(Path(root_dir))
-    if not root.is_dir():
-        return False
-
-    status_signal = _doc_status_has_success(root)
-    if status_signal is not None:
-        return status_signal
-
-    for pattern in _OUTPUT_GLOBS:
-        for path in root.glob(pattern):
-            try:
-                if path.is_file() and path.stat().st_size > 2:
-                    return True
-            except OSError:
-                continue
-    return False
-
-
-def _doc_status_has_success(root_dir: Path) -> bool | None:
-    payload = _read_doc_status(root_dir)
+    payload = _read_doc_status(Path(root_dir))
     if not payload:
-        return None
+        return False
+    return bool(_doc_status_has_success(payload))
 
+
+def _doc_status_has_success(payload: dict[str, Any]) -> bool:
     saw_failure = False
     for item in payload.values():
         if not isinstance(item, dict):
@@ -151,16 +160,22 @@ def document_error(root_dir: Path | None, doc_id: str) -> str:
 
 
 def _read_doc_status(root_dir: Path) -> dict[str, Any] | None:
-    path = root_dir / _DOC_STATUS_FILENAME
-    if not path.exists():
-        return None
+    workspace = _workspace(root_dir)
     try:
-        with open(path, encoding="utf-8") as handle:
-            payload = json.load(handle)
-        return payload if isinstance(payload, dict) else None
-    except Exception as exc:
-        logger.warning("Failed to read LightRAG doc status %s: %s", path, exc)
+        import psycopg
+
+        with _pg_connect() as conn:
+            rows = conn.execute(
+                "SELECT id, status, chunks_list, error_msg, file_path, content_summary, chunks_count "
+                "FROM lightrag_doc_status WHERE workspace = %s",
+                (workspace,),
+            ).fetchall()
+    except psycopg.errors.UndefinedTable:
         return None
+    if not rows:
+        return None
+    keys = ("status", "chunks_list", "error_msg", "file_path", "content_summary", "chunks_count")
+    return {row[0]: dict(zip(keys, row[1:])) for row in rows}
 
 
 def has_any_doc_status(root_dir: Path | None) -> bool:

@@ -295,39 +295,37 @@ class BaselineRegistryTests(unittest.TestCase):
 
 class MemoryReadTests(unittest.TestCase):
     def test_existing_profile_confirmation_delete_and_zero_writes(self):
-        from sqlalchemy import create_engine, event
+        from sqlalchemy import event
         from sqlalchemy.orm import sessionmaker
         from database import database as db
         from database.models import Base, Student, LearnerProfileRow, MemoryChangeRow
         from memory.memory_manager import MemoryManager
         from memory.readonly_context import ReadonlyMemoryContext
-        with tempfile.TemporaryDirectory() as root:
-            engine = create_engine('sqlite:///' + str(Path(root) / 'isolated.db'))
-            try:
-                Base.metadata.create_all(engine)
-                with patch.object(db, 'SessionLocal', sessionmaker(bind=engine)):
-                    with db.session_scope() as s:
-                        s.add_all([Student(student_id='s', account_type='test'), Student(student_id='other', account_type='test')])
-                        s.flush()
-                        s.add_all([LearnerProfileRow(student_id='s', preferences={'answer_length': .2, 'example_density': .9}),
-                            LearnerProfileRow(student_id='other', preferences={'answer_length': .9}),
-                            MemoryChangeRow(student_id='s', action='set_preference', item_key='answer_length', confirmed_value=.2)])
-                    statements = []
-                    event.listen(engine, 'before_cursor_execute', lambda conn, cursor, sql, *rest: statements.append(sql))
-                    binding = ReadBinding('s', 'session', 'task', 'course', 'r', ())
-                    resource = ReadResources(binding, memory=ReadonlyMemoryContext(MemoryManager()))
-                    ctx = ToolContext('s', 'session', task_id='task', state={'first_wave': resource})
-                    result = ReadMemoryTool().run({}, ctx)
-                    self.assertTrue(result.success, result.content)
-                    self.assertEqual(result.metadata['data']['known'], {'answer_length': .2})
-                    self.assertEqual(result.sources, [])
-                    self.assertEqual(ReadMemoryTool().run({'section': 'profile'}, ctx).metadata['data']['known'], {})
-                    self.assertTrue(all(sql.lstrip().upper().startswith('SELECT') for sql in statements), statements)
-                    self.assertFalse(ReadMemoryTool().run({'student_id': 'other'}, ctx).success)
-                    self.assertFalse(ReadMemoryTool().run({'section': 'recent'}, ctx).success)
-                    with db.session_scope() as s:
-                        s.get(LearnerProfileRow, 's').preferences = {}
-                    self.assertEqual(ReadMemoryTool().run({}, ctx).metadata['data']['known'], {})
+        from tests.pg_support import temp_engine
+        with temp_engine() as engine:
+            with patch.object(db, 'SessionLocal', sessionmaker(bind=engine)):
+                with db.session_scope() as s:
+                    s.add_all([Student(student_id='s', account_type='test'), Student(student_id='other', account_type='test')])
+                    s.flush()
+                    s.add_all([LearnerProfileRow(student_id='s', preferences={'answer_length': .2, 'example_density': .9}),
+                        LearnerProfileRow(student_id='other', preferences={'answer_length': .9}),
+                        MemoryChangeRow(student_id='s', action='set_preference', item_key='answer_length', confirmed_value=.2)])
+                statements = []
+                event.listen(engine, 'before_cursor_execute', lambda conn, cursor, sql, *rest: statements.append(sql))
+                binding = ReadBinding('s', 'session', 'task', 'course', 'r', ())
+                resource = ReadResources(binding, memory=ReadonlyMemoryContext(MemoryManager()))
+                ctx = ToolContext('s', 'session', task_id='task', state={'first_wave': resource})
+                result = ReadMemoryTool().run({}, ctx)
+                self.assertTrue(result.success, result.content)
+                self.assertEqual(result.metadata['data']['known'], {'answer_length': .2})
+                self.assertEqual(result.sources, [])
+                self.assertEqual(ReadMemoryTool().run({'section': 'profile'}, ctx).metadata['data']['known'], {})
+                self.assertTrue(all(sql.lstrip().upper().startswith('SELECT') for sql in statements), statements)
+                self.assertFalse(ReadMemoryTool().run({'student_id': 'other'}, ctx).success)
+                self.assertFalse(ReadMemoryTool().run({'section': 'recent'}, ctx).success)
+                with db.session_scope() as s:
+                    s.get(LearnerProfileRow, 's').preferences = {}
+                self.assertEqual(ReadMemoryTool().run({}, ctx).metadata['data']['known'], {})
             finally:
                 engine.dispose()
 

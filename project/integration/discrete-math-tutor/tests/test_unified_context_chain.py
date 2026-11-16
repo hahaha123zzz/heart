@@ -241,11 +241,10 @@ class UnifiedContextPersistenceTests(unittest.TestCase):
         from database.models import Base
         import database.q5_learning
         from memory.memory_manager import MemoryManager
-        self.temp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.temp.cleanup)
-        self.engine = create_engine("sqlite:///" + self.temp.name.replace("\\", "/") + "/context.db")
-        self.addCleanup(self.engine.dispose)
-        Base.metadata.create_all(self.engine)
+        from tests.pg_support import temp_engine
+        self._pg = temp_engine()
+        self.engine = self._pg.__enter__()
+        self.addCleanup(self._pg.__exit__, None, None, None)
         database_patch = patch.object(db, "SessionLocal", sessionmaker(bind=self.engine, expire_on_commit=False))
         database_patch.start(); self.addCleanup(database_patch.stop)
         self.memory = MemoryManager(); self.memory.ensure_student("s", account_type="test")

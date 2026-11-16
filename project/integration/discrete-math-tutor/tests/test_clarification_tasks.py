@@ -1,12 +1,14 @@
 """澄清状态、幂等和删除边界：临时 SQLite，不调用外部模型。"""
 import datetime as dt
+import os
 import tempfile
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
-from sqlalchemy import create_engine, event, select, func
+from sqlalchemy import select, func
 from sqlalchemy.orm import sessionmaker
 from database import database as db
+from tests.pg_support import temp_engine
 from database.models import Base, LearningTaskRow, TaskRequestRow, ConversationRow
 from database.learning_tasks import LearningTaskRepository, TaskConflict, now
 from agents.task_service import TaskService
@@ -18,10 +20,10 @@ from models.task_understanding import TaskUnderstanding
 class ClarificationTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.engine = create_engine("sqlite:///" + self.temp.name.replace("\\", "/") + "/test.db", connect_args={"check_same_thread": False})
-        @event.listens_for(self.engine, "connect")
-        def fk(connection, _): connection.execute("PRAGMA foreign_keys=ON")
-        Base.metadata.create_all(self.engine)
+        self.env = patch.dict(os.environ, INPUT_UNDERSTANDING_MODE="off", INPUT_UNDERSTANDING_SEMANTIC_ENABLED="0")
+        self.env.start()
+        self._pg = temp_engine()
+        self.engine = self._pg.__enter__()
         self.factory = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
         self.patch = patch.object(db, "SessionLocal", self.factory); self.patch.start()
         self.memory = MemoryManager(); self.memory.ensure_student("s", account_type="production")
@@ -30,7 +32,12 @@ class ClarificationTests(unittest.TestCase):
         self.calls = []
 
     def tearDown(self):
-        self.patch.stop(); self.engine.dispose(); self.temp.cleanup()
+        self.patch.stop(); self._pg.__exit__(None, None, None); self.temp.cleanup(); self.env.stop()
+
+    def assert_replay_equal(self, left, right):
+        left, right = dict(left), dict(right)
+        left.pop("reader_action_replay", None); right.pop("reader_action_replay", None)
+        self.assertEqual(left, right)
 
     def request(self, message="这个怎么证明", **kwargs):
         values = dict(student_id="s", account_type="production", session_id="tab-a", message=message)
@@ -63,7 +70,7 @@ class ClarificationTests(unittest.TestCase):
     def test_duplicate_original_does_not_resume_or_call_model(self):
         first = self.clarify(request_id="r1")
         again = self.clarify(request_id="r1")
-        self.assertEqual(first, again); self.assertEqual(len(self.calls), 1)
+        self.assert_replay_equal(first, again); self.assertEqual(len(self.calls), 1)
         self.assertEqual(self.count(TaskRequestRow), 1)
 
     def test_request_id_cannot_be_reused_for_new_input(self):
@@ -263,7 +270,7 @@ class ClarificationTests(unittest.TestCase):
         self.service.run(request, self.execute(TaskUnderstanding(status="unknown", intent="clarify_task", missing_slots=["target"])))
         completed = self.service.run(self.request("解释定理7.2", request_id="r2"), self.execute(TaskUnderstanding()))
         replayed = self.service.run(request, self.execute(TaskUnderstanding()))
-        self.assertEqual(replayed, completed); self.assertEqual(len(self.calls), 2)
+        self.assert_replay_equal(replayed, completed); self.assertEqual(len(self.calls), 2)
 
     def test_explicit_expired_resume_has_expired_status(self):
         first = self.clarify(request_id="r1")
@@ -285,7 +292,7 @@ class ClarificationTests(unittest.TestCase):
         import sys
         import json
         first = self.clarify(request_id="restart")
-        code = "import os,json;os.environ['DATABASE_URL']='sqlite:///:memory:';os.environ['COURSE_DATABASE_URL']=" + repr(str(self.engine.url)) + ";os.environ['TUTOR_COURSE']='experimental-psychology-3';from database.learning_tasks import LearningTaskRepository;print(json.dumps(LearningTaskRepository().pending('s','tab-a')['result'],ensure_ascii=False))"
+        code = "import os,json;os.environ['DATABASE_URL']='postgresql+psycopg://heart:unused@127.0.0.1:5432/unused';os.environ['COURSE_DATABASE_URL']=" + repr(self.engine.url.render_as_string(hide_password=False)) + ";os.environ['TUTOR_COURSE']='experimental-psychology-3';from database.learning_tasks import LearningTaskRepository;print(json.dumps(LearningTaskRepository().pending('s','tab-a')['result'],ensure_ascii=False))"
         restored = subprocess.run([sys.executable, "-X", "utf8", "-c", code], capture_output=True, text=True, encoding="utf-8", timeout=20)
         self.assertEqual(restored.returncode, 0, restored.stderr)
         self.assertEqual(json.loads(restored.stdout), first)

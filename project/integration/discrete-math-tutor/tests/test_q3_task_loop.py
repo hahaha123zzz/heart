@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from sqlalchemy import create_engine, event
+from tests.pg_support import temp_engine
 from sqlalchemy.orm import sessionmaker
 
 from agents.task_service import TaskService
@@ -335,16 +335,8 @@ class TaskLoopPersistenceTests(unittest.TestCase):
 
     def setUp(self):
         import database.q5_learning  # 与正式 init_db 一致，先登记完整 schema。
-        self.temp = tempfile.TemporaryDirectory()
-        self.engine = create_engine(
-            "sqlite:///" + self.temp.name.replace("\\", "/") + "/q3.db",
-            connect_args={"check_same_thread": False})
-
-        @event.listens_for(self.engine, "connect")
-        def fk(connection, _):
-            connection.execute("PRAGMA foreign_keys=ON")
-
-        Base.metadata.create_all(self.engine)
+        self._pg = temp_engine()
+        self.engine = self._pg.__enter__()
         self.db_patch = patch.object(
             db, "SessionLocal",
             sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False))
@@ -362,8 +354,7 @@ class TaskLoopPersistenceTests(unittest.TestCase):
 
     def tearDown(self):
         self.db_patch.stop()
-        self.engine.dispose()
-        self.temp.cleanup()
+        self._pg.__exit__(None, None, None)
 
     def test_pause_then_resume_uses_same_task_and_raw_answer(self):
         executor = PausedExecutor()

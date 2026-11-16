@@ -8,9 +8,9 @@ import sys
 import unittest
 from unittest.mock import Mock, patch
 import tempfile
-from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from database import database as db
+from tests.pg_support import temp_engine
 from database.models import Base
 import database.q5_learning  # noqa: F401  测试库需包含与生产一致的 Q5 表
 from memory.memory_manager import MemoryManager
@@ -28,10 +28,8 @@ class TaskAPITests(unittest.TestCase):
         cls.env_patch.start()
         cls.previous = sys.modules.pop("main", None)
         cls.temp = tempfile.TemporaryDirectory()
-        cls.engine = create_engine("sqlite:///" + cls.temp.name.replace("\\", "/") + "/api.db", connect_args={"check_same_thread": False})
-        @event.listens_for(cls.engine, "connect")
-        def fk(connection, _): connection.execute("PRAGMA foreign_keys=ON")
-        Base.metadata.create_all(cls.engine)
+        cls._pg = temp_engine()
+        cls.engine = cls._pg.__enter__()
         cls.db_patch = patch.object(db, "SessionLocal", sessionmaker(bind=cls.engine, autoflush=False, expire_on_commit=False))
         cls.db_patch.start()
         cls.tutor = Mock()
@@ -45,7 +43,7 @@ class TaskAPITests(unittest.TestCase):
     def tearDownClass(cls):
         cls.client.close()
         cls.env_patch.stop()
-        cls.db_patch.stop(); cls.engine.dispose(); cls.temp.cleanup()
+        cls.db_patch.stop(); cls._pg.__exit__(None, None, None); cls.temp.cleanup()
         sys.modules.pop("main", None)
         if cls.previous is not None:
             sys.modules["main"] = cls.previous

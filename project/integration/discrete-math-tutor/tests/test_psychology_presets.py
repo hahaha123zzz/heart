@@ -7,6 +7,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+from tests.pg_support import temp_databases
 COMMON = '''
 import json
 from pathlib import Path
@@ -32,11 +33,9 @@ cases=[('请结合教材解释自变量和因变量的区别，并说明额外�
 
 class PsychologyPresetTests(unittest.TestCase):
     def run_script(self, body):
-        with tempfile.TemporaryDirectory() as directory:
-            env = os.environ | {'TUTOR_COURSE': 'experimental-psychology-3', 'LLM_MOCK': '1',
-                                'VISUALIZATION_ON_DEMAND': '1',
-                                'DATABASE_URL': 'sqlite:///' + str(Path(directory) / 'isolated.db')}
-            env.pop('COURSE_DATABASE_URL', None)
+        with temp_databases() as pg:
+            env = os.environ | pg | {'TUTOR_COURSE': 'experimental-psychology-3', 'LLM_MOCK': '1',
+                                'VISUALIZATION_ON_DEMAND': '1'}
             result = subprocess.run([sys.executable, '-X', 'utf8', '-c', COMMON + body],
                                     cwd=ROOT, env=env, capture_output=True, text=True,
                                     encoding='utf-8', timeout=30)

@@ -150,8 +150,8 @@ class PublicationTests(unittest.TestCase):
         from models.task_understanding import TaskUnderstanding
         reply,sources,refs=self.bundle().publish('必要条件[1]')
         reference=refs[0]['selection_ref']|{'pdf_references':refs,'textbook_sources':['fixture.docx／条件']}
-        engine=create_engine('sqlite:///'+str(self.root/'history.sqlite3').replace('\\','/'))
-        Base.metadata.create_all(engine)
+        from tests.pg_support import temp_engine
+        _pg=temp_engine();engine=_pg.__enter__()
         calls=[]
         try:
             with patch.object(db,'SessionLocal',sessionmaker(bind=engine,expire_on_commit=False)):
@@ -174,7 +174,7 @@ class PublicationTests(unittest.TestCase):
                 self.assertEqual(stale['pdf_references'][0]['evidence']['location_status'],'stale')
                 self.assertEqual(memory.repo.get_conversation_with_figures('publication')[-1]['selection_ref'],reference)
         finally:
-            engine.dispose()
+            _pg.__exit__(None,None,None)
 
 
 if __name__=='__main__':
