@@ -243,3 +243,10 @@ ISOLATION_OK
   3. 部署 V/web 的 Next 生产构建（独立 systemd 服务）；
   4. Caddy 将 `/ws` 与 `/api/*` 直转 18001 并注入 `x-heart-bridge-token`，其余路径转 Next。
 - 结论：**当前不具备可执行的上线/回退演练**；脚本已改为“缺失即拒绝”，不会静默用 SQLite 部署。
+
+## 18. 最终门禁（2026-11-17）
+
+- `npm run typecheck`：EXIT=0。
+- `npm run build`：EXIT=0。
+- `npx vitest run --no-file-parallelism`：**631/634 通过**；3 个失败集中在 `epub-display-preferences`（超时）与 `settings-unified-draft`（超时/未保存态），另报 2 个 vitest worker 启动超时。两项单独重跑 **21/21 通过（5.8s）**，确认为高负载下的环境抖动，与本轮改动无关（本轮前端只新增 `features/heart/*`、导航与路由，未触碰 epub/settings 逻辑）。
+- 结论：功能门禁通过；单测需在低负载下重跑或放宽 testTimeout，才可作为稳定判据。
