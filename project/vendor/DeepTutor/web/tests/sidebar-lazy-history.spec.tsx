@@ -68,16 +68,12 @@ it("loads conversation history while navigation remains usable, then preserves s
   );
   expect(container.querySelector('[aria-busy="true"]')).toBeInTheDocument();
   expect(screen.queryByRole("link", { name: "Co-Writer" })).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: /More/ }));
-  expect(screen.getByRole("link", { name: "Co-Writer" })).toHaveAttribute(
-    "href",
-    "/co-writer",
-  );
+  expect(screen.queryByRole("button", { name: /More/ })).toBeNull();
 
   const history = await screen.findByText("Retained session");
   const scroller = history.closest(".overflow-y-auto");
   expect(scroller).toContainElement(
-    screen.getByRole("link", { name: "Partners" }),
+    screen.getByRole("link", { name: "Personalized Learning" }),
   );
   expect(scroller).not.toContainElement(
     screen.getByRole("link", { name: "Home" }),
@@ -109,7 +105,7 @@ it("keeps Home pinned even when a previous layout folded it into More", () => {
   localStorage.setItem(
     "deeptutor.sidebar.navLayout",
     JSON.stringify({
-      order: ["/partners", "/chat", "/space"],
+      order: ["/learning", "/chat"],
       collapsed: ["/chat"],
     }),
   );

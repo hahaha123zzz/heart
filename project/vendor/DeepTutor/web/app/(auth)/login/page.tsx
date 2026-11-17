@@ -2,9 +2,8 @@
 
 import { Suspense, useCallback, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { login, fetchAuthStatus, checkIsFirstUser } from "@/lib/auth";
+import { login, fetchAuthStatus } from "@/lib/auth";
 import {
   inheritLoginHash,
   normalizeInternalReturnPath,
@@ -36,12 +35,7 @@ function LoginPageContent() {
     fetchAuthStatus().then((status) => {
       if (status?.authenticated) {
         router.replace(resolvedNext());
-        return;
       }
-      // No users registered yet — send straight to the registration page
-      checkIsFirstUser().then((first) => {
-        if (first) router.replace("/register");
-      });
     });
   }, [router, resolvedNext]);
 
@@ -151,16 +145,6 @@ function LoginPageContent() {
           </button>
         </form>
       </div>
-
-      <p className="mt-6 text-center text-sm text-[var(--muted-foreground)]">
-        {t("Don't have an account?")}{" "}
-        <Link
-          href="/register"
-          className="text-[var(--primary)] hover:underline font-medium"
-        >
-          {t("Create one")}
-        </Link>
-      </p>
 
       <p className="mt-3 text-center text-xs text-[var(--muted-foreground)]">
         {t("DeepTutor · Agent-Native Learning")}

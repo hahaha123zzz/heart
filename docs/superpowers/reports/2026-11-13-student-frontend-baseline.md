@@ -155,3 +155,12 @@ content_chars 816；usage total_tokens 20870
 - `scripts/provision_student_reading.py`：逐账号登录 → 若库里无同名材料则**临时**放开上传 → 导入 → 立刻收回，并把该账号的 `learning_policy.reading.material_ids` 写成自己的 material id。10 个账号全部 `policy_changed=True`。
 - 验收：student01 的 `/api/auth/status` 返回 `reading: {allow_upload:false, material_ids:["f0ed04bd1d9c43d9"]}`；`/api/reading/library/materials` 返回该教材（status=ready）。政策生效后重跑 `check_vendor_ws.py` 仍 `done/completed`（984 事件、816 字符）。
 - 白灰主题：默认主题是 `.theme-snow`（不是 `:root`）。已把其 `--background #f7f8f9`、`--primary #2f3437`、`--border #e3e5e8`、`--ring #9aa0a6`，`:root` 同步；浏览器计算值已确认 `#f7f8f9 / #2f3437 / #e3e5e8`。这是品牌差异，不随上游合并，故不写入 LOCAL_PATCHES。
+
+## 10. 2026-11-17 路由裁剪（任务 3）
+
+- 删除：`(admin)`、`(workspace)/{partners,kanban,co-writer,whisper}`、`(auth)/register`、`(utility)/{agents,space,session-handoff}`、`features/co-writer`。
+- 导航收敛为 `/chat` + `/learning`，`/settings` 保留；登录页去掉注册跳转与链接。
+- 验证：`npm run typecheck` EXIT=0；`npm run build` EXIT=0，路由表只剩 `chat / learning/** / login / memory/** / notebooks / profile / settings`。
+- 被删地址实测 404：`/partners`、`/register`、`/space`、`/kanban`、`/agents`、`/session-handoff`；`/` 仍 307 到 `/chat`，`/login`、`/chat`、`/learning`、`/settings` 均 200。
+- 测试：删除 7 个测已删路由的 spec；`learner-navigation`、`sidebar-defaults`、`sidebar-lazy-history` 更新为新导航后 13/13 通过。全量 vitest 在并行下大量 5–16s 超时（同一批单独跑全过），改用 `--no-file-parallelism` 作为门禁。
+- 死代码保留：`components/partners`、`lib/partners-api.ts`、`components/space`（79/51 处引用，牵涉 memory 与 hooks），不再有可访问路由。
