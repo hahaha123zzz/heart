@@ -202,3 +202,12 @@ ISOLATION_OK
   - `/memory` 200，`/memory/l1` 404。
 - 备注：PowerShell 5.1 直接发中文 JSON 会按 Latin-1 编码变成 `?`，验收时改用 UTF-8 字节；测试残留已删除。
 - 未做：记忆页尚未接入“设置里的偏好唯一来源”核对（任务 7 的剩余项）。
+
+## 14. 2026-11-17 教材知识图谱（决定 32 的第一步）
+
+- 宿主接口：`graph_api.py` → `GET /api/graph/subgraph?chapter=&q=&limit=`（limit ≤ 200），只读 `heart_rag` 的 `lightrag_graph_nodes/edges`，按 `properties->>'file_path' = chapter_NN.generated.pdf` 限定章节，返回节点（id/type/description/chapter）、边（source/target/weight/description）与 `truncated`。
+- 鉴权：校验厂家 `dt_token`（HS256，标准库实现，密钥读 `<home>/data/system/auth/auth_secret`）；匿名 401。不返回任何学生成绩。
+- 代理：`web/proxy.ts` 把 `/api/graph/*` 直接 rewrite 到 `HEART_API_BASE_URL`（默认 `http://127.0.0.1:8000`），其余 `/api/*` 仍走厂家。
+- 前端：`/learning/graph`（`features/heart/KnowledgeGraph.tsx`，cytoscape，章节选择、搜索、节点详情、截断提示）；侧栏“知识图谱”入口；节点详情显示实体类型与教材描述，并提供“去学习/去练习”，掌握状态明确写“尚未评估”。
+- 验收（经 `:3000`）：匿名 401；`chapter=8&limit=40` → 40 节点 / 36 边 / `truncated=true`；节点带 `type` 与中文描述。
+- 未做：实体↔知识点映射（需人工确认候选）与掌握状态叠加；这两项依赖“结果同步”，否则图谱只能显示教材结构。

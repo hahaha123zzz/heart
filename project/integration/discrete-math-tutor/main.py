@@ -33,6 +33,8 @@ app = FastAPI(title=COURSE_TITLE+" AI 助教", version="0.8.0", lifespan=applica
 app.include_router(web_router)
 from auth_api import router as auth_router
 app.include_router(auth_router)
+from graph_api import router as graph_router
+app.include_router(graph_router)
 from integrations.deeptutor.router import router as deeptutor_router
 app.include_router(deeptutor_router)
 from integrations.deeptutor.recovery_router import router as turn_recovery_router

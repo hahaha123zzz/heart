@@ -3,6 +3,7 @@ import {
   GraduationCap,
   House,
   KeyRound,
+  Network,
   Settings,
   type LucideIcon,
 } from 'lucide-react'
@@ -53,6 +54,12 @@ export const PRIMARY_NAV: NavEntry[] = [
 
 export const SECONDARY_NAV: NavEntry[] = [
   { href: '/settings', label: 'Settings', icon: Settings },
+  {
+    href: '/learning/graph',
+    label: '知识图谱',
+    icon: Network,
+    surfaces: ['reading', 'chat'],
+  },
   {
     href: '/settings/model',
     label: '我的模型',
