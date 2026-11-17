@@ -99,7 +99,30 @@ def require_student(dt_token: str | None = Cookie(default=None, alias="dt_token"
         raise HTTPException(401, "凭证内容无效") from None
     if float(claims.get("exp") or 0) < time.time():
         raise HTTPException(401, "登录已过期")
-    return str(claims.get("username") or "")
+    return str(claims.get("username") or claims.get("sub") or "")
+
+
+def _mastery_for(student: str, kcs: set[str]) -> dict[str, dict]:
+    if not kcs:
+        return {}
+    from database.database import engine
+
+    with engine.connect() as conn:
+        rows = conn.execute(text(
+            "select knowledge_point, content from evidence "
+            "where student_id = :student and evidence_type = 'practice' "
+            "and knowledge_point = any(:kcs)"),
+            {"student": student, "kcs": sorted(kcs)}).all()
+    stats: dict[str, dict] = {}
+    for knowledge_point, content in rows:
+        try:
+            correct = bool(json.loads(content or "{}").get("correct"))
+        except ValueError:
+            correct = False
+        entry = stats.setdefault(knowledge_point, {"assessed": 0, "correct": 0})
+        entry["assessed"] += 1
+        entry["correct"] += 1 if correct else 0
+    return stats
 
 
 @router.get("/subgraph")
@@ -142,6 +165,7 @@ def subgraph(
                     "description": str((props or {}).get("description") or ""),
                 })
     entity_map, names = _kc_lookup()
+    mastery = _mastery_for(student, {kc for row in rows for kc in entity_map.get(row[0], [])})
     nodes = [{
         "id": row[0],
         "type": str((row[1] or {}).get("entity_type") or ""),
@@ -149,6 +173,9 @@ def subgraph(
         "chapter": str((row[1] or {}).get("file_path") or ""),
         "kc_ids": entity_map.get(row[0], []),
         "kc_names": [names[kc] for kc in entity_map.get(row[0], []) if kc in names],
+        "mastery": [{"kc_id": kc, **mastery.get(kc, {"assessed": 0, "correct": 0})}
+                    for kc in entity_map.get(row[0], [])],
+        "assessed": any(mastery.get(kc, {}).get("assessed") for kc in entity_map.get(row[0], [])),
     } for row in rows]
     return {"nodes": nodes, "edges": edges, "truncated": truncated,
             "total_returned": len(nodes), "chapter": chapter}

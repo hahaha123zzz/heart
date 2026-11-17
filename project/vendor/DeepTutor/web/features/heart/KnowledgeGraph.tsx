@@ -9,7 +9,10 @@ interface GraphNode {
   type: string;
   description: string;
   chapter: string;
+  kc_ids: string[];
   kc_names: string[];
+  mastery: { kc_id: string; assessed: number; correct: number }[];
+  assessed: boolean;
 }
 
 interface GraphEdge {
@@ -181,9 +184,23 @@ export default function KnowledgeGraph() {
                   去练习
                 </Link>
               </div>
-              <p className="text-xs text-[var(--muted-foreground)]">
-                掌握状态：尚未评估（等结果同步接入后显示）。
-              </p>
+              {selected.mastery?.length > 0 && (
+                <div className="space-y-1 text-[var(--muted-foreground)]">
+                  <p>掌握状态：</p>
+                  <ul className="space-y-1">
+                    {selected.mastery.map((item) => {
+                      const name = selected.kc_names?.[selected.kc_ids.indexOf(item.kc_id)] ?? item.kc_id;
+                      return (
+                        <li key={item.kc_id}>
+                          {name}：{item.assessed > 0
+                            ? `已评估（${item.correct}/${item.assessed} 正确）`
+                            : "尚未评估"}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
             </div>
           ) : (
             <p className="text-sm text-[var(--muted-foreground)]">点击节点查看详情。</p>

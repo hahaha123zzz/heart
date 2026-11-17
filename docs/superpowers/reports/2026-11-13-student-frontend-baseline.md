@@ -221,3 +221,12 @@ ISOLATION_OK
 - 图谱接口节点新增 `kc_ids` / `kc_names`；图谱页章节选择改为 1–11，节点详情显示知识点。
 - 注意：`knowledge/courses/` 被 `.gitignore` 忽略，两个映射 JSON 只在本机；脚本已提交，换机器按 `build_kc_registry.py` → `build_entity_kc_map.py` 重生成；接口在文件缺失时降级为空映射，不 500。
 - 说明：掌握状态仍显示“尚未评估”，因为还没有 evidence；结果同步是下一步，且需要先把“厂家题目 → 我们的 KC”对齐。
+
+## 16. 2026-11-17 练习题库、作答同步与掌握叠加
+
+- 题库来源：H 没有《实验心理学》题库（`practice_api.catalog()` 返回空），因此用 `scripts/generate_practice_candidates.py` 按 37 个 KC 逐节生成候选题：**56 道**（11 章；单选 36 / 判断 20），每道必须带原文 `evidence` 且校验为该节原文子串，`status=candidate`、`origin=ai_generated`；用户审阅后 `--mark-approved`。
+- 导入：`scripts/import_practice_candidates.py` → 每个学生 `POST /api/question-notebook/practice/import/preview` + `commit`，10 个账号各 `created: 56`。CSV 的 `tags` 落成厂家 notebook 分类 `kc-*`。
+- 作答：厂家 `check` 只判定不落库；`review` 才持久化，写入 `practice_review_events.outcome_json`（含 `correct`）与 `practice_review_state`（间隔/到期），**不写** `assessment_attempts`。
+- 同步：`scripts/sync_practice_evidence.py` 读 `practice_review_events` → 按分类取 `kc-*` → 写 H `evidence`（`evidence_type=practice`，content 含 entry_id/request_id/rating/correct），按 `request_id` 幂等。
+- 事故与修正：首版按 `notebook_entries.attempt_count>0` 同步，把**导入即 attempt_count=1 / result=ungraded** 的 560 条当成作答，写入了 560 条错误证据；已全部删除（`evidence` 恢复为 0）并改为只读 review 事件。现库中仅 1 条真实证据：student01 / `kc-1-1` / correct。
+- 掌握叠加：`graph_api.py` 按当前学生查 `evidence`，节点返回 `mastery[{kc_id, assessed, correct}]` 与 `assessed`；图谱页显示“已评估（1/1 正确）”或“尚未评估”，不擅自发明掌握阈值。
