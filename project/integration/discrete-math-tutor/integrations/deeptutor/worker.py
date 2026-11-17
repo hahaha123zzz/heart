@@ -70,12 +70,14 @@ def main() -> None:
     from integrations.deeptutor.generation_bridge import install_generation_bridge
     from integrations.deeptutor.agentic_bridge import install_agentic_bridge
     from integrations.deeptutor.heart_model_api import install_heart_model
+    from integrations.deeptutor.heart_memory_api import install_heart_memory
     from integrations.deeptutor.knowledge_bridge import install_knowledge_bridge
     sessions = install_session_bridge(app, args.home)
     install_turn_bridge(app, sessions)
     install_generation_bridge(app)
     install_agentic_bridge(app)
     install_heart_model(app, args.home)
+    install_heart_memory(app)
     install_knowledge_bridge(app, args.home.resolve())
     if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '1') == '1':
         from integrations.deeptutor.native_bridge import install_native_bridge

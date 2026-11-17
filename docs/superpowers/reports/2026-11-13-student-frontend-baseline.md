@@ -186,3 +186,19 @@ ISOLATION_OK
 - 前端：`/settings/model`，侧栏“我的模型”入口（学生可见）。
 - 验收（经 `:3000`）：`before {"configured":false}` → PUT `{"configured":true,"api_key_masked":"••••1234"}` → GET 返回 base_url/model/updated_at → DELETE `{"configured":false}`；catalog 出现 `heart-student-u_8186fbcaed` 且 grant 指向它。
 - 取舍：删除 Key 后按决定 29 不回退共享 Key；本机为继续演示已重新授予宿主 profile（`assign_vendor_model.py`），学生一旦配置自己的 Key，其 grant 会被替换为个人 profile。
+
+## 13. 2026-11-17 记忆页改造（决定 30/31）
+
+- 后端：`integrations/deeptutor/heart_memory_api.py`，worker 挂载 `/api/heart/memory`：
+  - `GET` 返回 `{preferences, profile}`，只取 L3 的 `preferences` 与 `profile` 条目；
+  - `POST /preference` 走引擎 `write_preference(op="add")`（自带去重与原子写），ref 用合法的短名 `chat`；
+  - `DELETE /{kind}/{entry_id}` 只允许 `preference|profile` 两类。
+- 前端：`/memory` 改为 `features/heart/StudentMemory.tsx`（自然语言卡片、添加偏好、逐条删除）；删除 `/memory/{l1,l2,l3,graph,resolve}`，内部层级不可达。
+- 验收：
+  - `GET` → `{"preferences":[],"profile":[]}`；
+  - 添加“讲题时多举例子，先给结论再展开” → 写入 `…/memory/L3/preferences.md`（中文完整，`[^1]: chat`）；
+  - 重复添加返回同一 `entry_id`（去重生效）；
+  - 删除 → 列表回空；
+  - `/memory` 200，`/memory/l1` 404。
+- 备注：PowerShell 5.1 直接发中文 JSON 会按 Latin-1 编码变成 `?`，验收时改用 UTF-8 字节；测试残留已删除。
+- 未做：记忆页尚未接入“设置里的偏好唯一来源”核对（任务 7 的剩余项）。
