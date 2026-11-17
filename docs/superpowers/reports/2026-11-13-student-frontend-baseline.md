@@ -148,3 +148,10 @@ content_chars 816；usage total_tokens 20870
 - 学生仍用共享的宿主模型；自带 Key 的自建设置页未做。
 - 生产环境 Next 不支持 WS 升级，`/ws` 与 `/api/*` 必须由 Caddy 直接转给 18001。
 - 未做两个账号的并发隔离与浏览器 UI 视觉验收。
+
+## 9. 2026-11-17 固定教材与白灰主题
+
+- 厂家阅读材料按用户隔离，材料本体去重共享：admin 上传 `textbook.docx` 得到 `f0ed04bd1d9c43d9`（132 节、396783 字、render_mode=text、extractor=docx）。
+- `scripts/provision_student_reading.py`：逐账号登录 → 若库里无同名材料则**临时**放开上传 → 导入 → 立刻收回，并把该账号的 `learning_policy.reading.material_ids` 写成自己的 material id。10 个账号全部 `policy_changed=True`。
+- 验收：student01 的 `/api/auth/status` 返回 `reading: {allow_upload:false, material_ids:["f0ed04bd1d9c43d9"]}`；`/api/reading/library/materials` 返回该教材（status=ready）。政策生效后重跑 `check_vendor_ws.py` 仍 `done/completed`（984 事件、816 字符）。
+- 白灰主题：默认主题是 `.theme-snow`（不是 `:root`）。已把其 `--background #f7f8f9`、`--primary #2f3437`、`--border #e3e5e8`、`--ring #9aa0a6`，`:root` 同步；浏览器计算值已确认 `#f7f8f9 / #2f3437 / #e3e5e8`。这是品牌差异，不随上游合并，故不写入 LOCAL_PATCHES。

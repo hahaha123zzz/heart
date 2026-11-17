@@ -88,26 +88,26 @@
      keep bg essentially white, save the visible warmth for accents. */
   :root {
     color-scheme: light;
-    --background: #fdfcf9;
-    --foreground: #1c1816;
+    --background: #f7f8f9;
+    --foreground: #1f2328;
     --card: #ffffff;
-    --card-foreground: #1c1816;
+    --card-foreground: #1f2328;
     --popover: #ffffff;
-    --popover-foreground: #1c1816;
-    --primary: #b0501e;
+    --popover-foreground: #1f2328;
+    --primary: #2f3437;
     --primary-foreground: #ffffff;
-    --secondary: #f5f2ea;
-    --secondary-foreground: #1c1816;
-    --muted: #f1ede2;
-    --muted-foreground: #6d645a;
-    --accent: #ece7d8;
-    --accent-foreground: #1c1816;
+    --secondary: #f0f1f3;
+    --secondary-foreground: #1f2328;
+    --muted: #eef0f2;
+    --muted-foreground: #6b7280;
+    --accent: #e9ebee;
+    --accent-foreground: #1f2328;
     --destructive: #c53a2c;
     --destructive-foreground: #ffffff;
-    --border: #e6decc;
-    --input: #e6decc;
-    --ring: #b0501e;
-    --overlay: rgba(28, 24, 22, 0.42);
+    --border: #e3e5e8;
+    --input: #e3e5e8;
+    --ring: #9aa0a6;
+    --overlay: rgba(17, 24, 39, 0.45);
     --success: #237a4b;
     --success-foreground: #14532d;
     --success-surface: #ecf8f0;
@@ -118,7 +118,7 @@
     --info-foreground: #1e3a8a;
     --info-surface: #eff6ff;
     --surface-raised: #ffffff;
-    --shadow-raised: 0 16px 40px rgba(69, 49, 31, 0.12);
+    --shadow-raised: 0 16px 40px rgba(15, 23, 42, 0.10);
   }
 
   /* Dark — warm near-black, same terracotta family as Cream. */
@@ -163,26 +163,26 @@
      in the spirit of Codex/ChatGPT chrome. */
   .theme-snow {
     color-scheme: light;
-    --background: #ffffff;
-    --foreground: #0d0d0d;
+    --background: #f7f8f9;
+    --foreground: #1f2328;
     --card: #ffffff;
-    --card-foreground: #0d0d0d;
+    --card-foreground: #1f2328;
     --popover: #ffffff;
-    --popover-foreground: #0d0d0d;
-    --primary: #2563eb;
+    --popover-foreground: #1f2328;
+    --primary: #2f3437;
     --primary-foreground: #ffffff;
-    --secondary: #f7f7f7;
-    --secondary-foreground: #0d0d0d;
-    --muted: #f2f2f2;
-    --muted-foreground: #6e6e6e;
-    --accent: #ececec;
-    --accent-foreground: #0d0d0d;
+    --secondary: #f0f1f3;
+    --secondary-foreground: #1f2328;
+    --muted: #eef0f2;
+    --muted-foreground: #6b7280;
+    --accent: #e9ebee;
+    --accent-foreground: #1f2328;
     --destructive: #d92d20;
     --destructive-foreground: #ffffff;
-    --border: #e5e5e5;
-    --input: #e5e5e5;
-    --ring: #2563eb;
-    --overlay: rgba(0, 0, 0, 0.4);
+    --border: #e3e5e8;
+    --input: #e3e5e8;
+    --ring: #9aa0a6;
+    --overlay: rgba(17, 24, 39, 0.45);
     --success: #16794b;
     --success-foreground: #14532d;
     --success-surface: #ecfdf3;
