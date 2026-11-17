@@ -124,3 +124,27 @@ PG 迁移刻意不动 vendor，因此以下仍是 SQLite，备份与回退必须
 - 仍需在任务 2 前补齐：登录方案（待用户选择）、旧基线测试归因、部署脚本 PG 步骤。
 - 不阻塞任务 1：白灰截图可以在 V/web 连上 H 之后补拍。
 
+
+## 8. 2026-11-17 厂家接管验证（方案 B）
+
+已完成并联调通过的三步：
+
+1. **厂家认证打开**：`scripts/enable_vendor_auth.py` → `auth.json` 的 `enabled=true, cookie_secure=false`。设置目录 `E:\项目\heart\.runtime\deeptutor\data\user\settings`。
+2. **账号**：`scripts/init_vendor_accounts.py`（用 `.venv-deeptutor`，bcrypt 只装在该环境）建 1 个 `admin` + 10 个 `student01..10`，幂等；明文只写 `.runtime/vendor-accounts.txt`。用户库真实路径：`.runtime/deeptutor/data/system/auth/users.json`（不带 `DEEPTUTOR_HOME` 运行会误写到 `H/data/system/auth/users.json`，脚本已打印 `users_store` 以便核对）。
+3. **代理与模型**：`V/web/lib/backend-forward.ts` 转发时注入 `x-heart-bridge-token`（补丁 `LOCAL_PATCHES/heart-bridge-token-forward.patch`）；V/web 以 `DEEPTUTOR_API_BASE_URL=http://127.0.0.1:18001` 启动。`scripts/assign_vendor_model.py` 把宿主 `heart-host` profile 授予 10 个学生（学生自带 Key 接入前的过渡，决定 29）。
+
+验收证据（`scripts/check_vendor_ws.py`，经 `:3000` 代理）：
+
+```
+login(student01) -> dt_token
+WS /ws start_turn -> done status=completed
+events 984；types: content, thinking, tool_call, tool_result, progress, session, stage_start, stage_end, result, done
+content_chars 816；usage total_tokens 20870
+```
+
+已知缺口：
+
+- `learning_policy` 目前为 null（`learner` preset 没有下发教材白名单），固定教材/禁上传尚未生效。
+- 学生仍用共享的宿主模型；自带 Key 的自建设置页未做。
+- 生产环境 Next 不支持 WS 升级，`/ws` 与 `/api/*` 必须由 Caddy 直接转给 18001。
+- 未做两个账号的并发隔离与浏览器 UI 视觉验收。
