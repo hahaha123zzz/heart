@@ -9,6 +9,7 @@ interface GraphNode {
   type: string;
   description: string;
   chapter: string;
+  kc_names: string[];
 }
 
 interface GraphEdge {
@@ -18,7 +19,7 @@ interface GraphEdge {
   description: string;
 }
 
-const CHAPTERS = Array.from({ length: 16 }, (_, index) => index + 1);
+const CHAPTERS = Array.from({ length: 11 }, (_, index) => index + 1);
 
 export default function KnowledgeGraph() {
   const [chapter, setChapter] = useState(2);
@@ -163,6 +164,11 @@ export default function KnowledgeGraph() {
               <h2 className="text-base font-semibold text-[var(--foreground)]">{selected.id}</h2>
               {selected.type && (
                 <p className="text-[var(--muted-foreground)]">类型：{selected.type}</p>
+              )}
+              {selected.kc_names?.length > 0 && (
+                <p className="text-[var(--muted-foreground)]">
+                  知识点：{selected.kc_names.join("、")}
+                </p>
               )}
               <p className="whitespace-pre-wrap text-[var(--foreground)]">
                 {selected.description || "暂无说明。"}

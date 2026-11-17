@@ -28,6 +28,24 @@ _engine = None
 
 WORKSPACE = os.getenv("LIGHTRAG_WORKSPACE", "deeptutor_426733019d24d665")
 MAX_NODES = 200
+COURSE_DIR = Path(__file__).resolve().parent / "knowledge" / "courses" / "experimental-psychology-3"
+_kc_entity: dict[str, list[str]] | None = None
+_kc_names: dict[str, str] | None = None
+
+
+def _kc_lookup() -> tuple[dict[str, list[str]], dict[str, str]]:
+    global _kc_entity, _kc_names
+    if _kc_entity is None or _kc_names is None:
+        try:
+            mapping = json.loads(
+                (COURSE_DIR / "kc_entity_map.json").read_text(encoding="utf-8"))
+            registry = json.loads(
+                (COURSE_DIR / "kc_registry_full.json").read_text(encoding="utf-8"))
+            _kc_entity = {row["entity"]: row["kc_ids"] for row in mapping.get("mappings") or []}
+            _kc_names = {item["id"]: item["name"] for item in registry["knowledge_components"]}
+        except (OSError, ValueError):
+            _kc_entity, _kc_names = {}, {}
+    return _kc_entity, _kc_names
 
 
 def _rag_engine():
@@ -123,11 +141,14 @@ def subgraph(
                     "weight": float((props or {}).get("weight") or 1.0),
                     "description": str((props or {}).get("description") or ""),
                 })
+    entity_map, names = _kc_lookup()
     nodes = [{
         "id": row[0],
         "type": str((row[1] or {}).get("entity_type") or ""),
         "description": str((row[1] or {}).get("description") or ""),
         "chapter": str((row[1] or {}).get("file_path") or ""),
+        "kc_ids": entity_map.get(row[0], []),
+        "kc_names": [names[kc] for kc in entity_map.get(row[0], []) if kc in names],
     } for row in rows]
     return {"nodes": nodes, "edges": edges, "truncated": truncated,
             "total_returned": len(nodes), "chapter": chapter}

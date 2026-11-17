@@ -211,3 +211,13 @@ ISOLATION_OK
 - 前端：`/learning/graph`（`features/heart/KnowledgeGraph.tsx`，cytoscape，章节选择、搜索、节点详情、截断提示）；侧栏“知识图谱”入口；节点详情显示实体类型与教材描述，并提供“去学习/去练习”，掌握状态明确写“尚未评估”。
 - 验收（经 `:3000`）：匿名 401；`chapter=8&limit=40` → 40 节点 / 36 边 / `truncated=true`；节点带 `type` 与中文描述。
 - 未做：实体↔知识点映射（需人工确认候选）与掌握状态叠加；这两项依赖“结果同步”，否则图谱只能显示教材结构。
+
+## 15. 2026-11-17 知识点扩全与实体映射
+
+- 用户确认：**全部采用**按节生成的 37 个知识点（11 章）。来源：`manifest.json` 的章节/section，每节一个 KC，`status=candidate`，`scripts/build_kc_registry.py` 生成 `kc_registry_full.json`（20077 B）。人工审阅过的 `kc_registry.json`（第 1 章 4 条）保持不变。
+- 实体映射：`scripts/build_entity_kc_map.py` 用 chunk `heading` 归一化后与 KC 名**精确匹配**（不做相似度），`kc_entity_map.json`（817 KB）：
+  - 已映射实体 **7047 / 7138**，未映射 91；
+  - 已映射 chunk 1195，未匹配 heading 11。
+- 图谱接口节点新增 `kc_ids` / `kc_names`；图谱页章节选择改为 1–11，节点详情显示知识点。
+- 注意：`knowledge/courses/` 被 `.gitignore` 忽略，两个映射 JSON 只在本机；脚本已提交，换机器按 `build_kc_registry.py` → `build_entity_kc_map.py` 重生成；接口在文件缺失时降级为空映射，不 500。
+- 说明：掌握状态仍显示“尚未评估”，因为还没有 evidence；结果同步是下一步，且需要先把“厂家题目 → 我们的 KC”对齐。
