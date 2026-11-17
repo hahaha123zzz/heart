@@ -230,3 +230,16 @@ ISOLATION_OK
 - 同步：`scripts/sync_practice_evidence.py` 读 `practice_review_events` → 按分类取 `kc-*` → 写 H `evidence`（`evidence_type=practice`，content 含 entry_id/request_id/rating/correct），按 `request_id` 幂等。
 - 事故与修正：首版按 `notebook_entries.attempt_count>0` 同步，把**导入即 attempt_count=1 / result=ungraded** 的 560 条当成作答，写入了 560 条错误证据；已全部删除（`evidence` 恢复为 0）并改为只读 review 事件。现库中仅 1 条真实证据：student01 / `kc-1-1` / correct。
 - 掌握叠加：`graph_api.py` 按当前学生查 `evidence`，节点返回 `mastery[{kc_id, assessed, correct}]` 与 `assessed`；图谱页显示“已评估（1/1 正确）”或“尚未评估”，不擅自发明掌握阈值。
+
+## 17. 2026-11-17 部署与回退
+
+- `deploy/deploy_heart.py` 不再写死 `DATABASE_URL=sqlite:///./ai_tutor.db`：现在要求 `HEART_DATABASE_URL` 与 `HEART_COURSE_DATABASE_URL` 均为 `postgresql://...`，否则直接退出并提示缺失项。
+- 部署前自动备份：`/opt/heart/app` → `/opt/heart/app.prev`（覆盖上一版，保留一整份）。
+- 回退命令（已验证语法，未在服务器执行）：
+  `rm -rf /opt/heart/app && cp -a /opt/heart/app.prev /opt/heart/app && systemctl restart heart-tutor`
+- 仍未自动化、也未执行（远端基础设施）：
+  1. 服务器安装 PG 18 + pgvector，建 `heart` / `heart_psychology` / `heart_rag` 三库；
+  2. 部署 18001 worker（`.venv-deeptutor`）与 `DEEPTUTOR_BRIDGE_TOKEN`；
+  3. 部署 V/web 的 Next 生产构建（独立 systemd 服务）；
+  4. Caddy 将 `/ws` 与 `/api/*` 直转 18001 并注入 `x-heart-bridge-token`，其余路径转 Next。
+- 结论：**当前不具备可执行的上线/回退演练**；脚本已改为“缺失即拒绝”，不会静默用 SQLite 部署。
