@@ -2,6 +2,7 @@ import { LEARNING_HUB } from '@/lib/learning-routes'
 import {
   GraduationCap,
   House,
+  KeyRound,
   Settings,
   type LucideIcon,
 } from 'lucide-react'
@@ -50,7 +51,15 @@ export const PRIMARY_NAV: NavEntry[] = [
   },
 ]
 
-export const SECONDARY_NAV: NavEntry[] = [{ href: '/settings', label: 'Settings', icon: Settings }]
+export const SECONDARY_NAV: NavEntry[] = [
+  { href: '/settings', label: 'Settings', icon: Settings },
+  {
+    href: '/settings/model',
+    label: '我的模型',
+    icon: KeyRound,
+    surfaces: ['chat'],
+  },
+]
 
 export const DEFAULT_COLLAPSED_NAV = PRIMARY_NAV.filter(entry => entry.defaultCollapsed).map(
   entry => entry.href

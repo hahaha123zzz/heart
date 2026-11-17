@@ -62,22 +62,29 @@ def main() -> None:
     from deeptutor.api.main import app
     # worker 按文件路径启动；宿主目录只用于加载适配层，上游仍来自固定副本。
     sys.path.insert(0, str(HOST_ROOT))
+    from integrations.deeptutor.wsl_sandbox import install as install_wsl_sandbox
+    install_wsl_sandbox()
     from integrations.deeptutor.boundary import HostBridgeBoundary
     from integrations.deeptutor.session_bridge import install_session_bridge
     from integrations.deeptutor.turn_bridge import install_turn_bridge
     from integrations.deeptutor.generation_bridge import install_generation_bridge
     from integrations.deeptutor.agentic_bridge import install_agentic_bridge
+    from integrations.deeptutor.heart_model_api import install_heart_model
     from integrations.deeptutor.knowledge_bridge import install_knowledge_bridge
     sessions = install_session_bridge(app, args.home)
     install_turn_bridge(app, sessions)
     install_generation_bridge(app)
     install_agentic_bridge(app)
+    install_heart_model(app, args.home)
     install_knowledge_bridge(app, args.home.resolve())
     if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '1') == '1':
         from integrations.deeptutor.native_bridge import install_native_bridge
         install_native_bridge(app, sessions)
         from integrations.deeptutor.heart_rag import warm_retrieval
         warm_retrieval()
+    from integrations.deeptutor.warmup import install_worker_warmup, warm_worker
+    warm_worker()
+    install_worker_warmup(app)
     app.add_middleware(HostBridgeBoundary)
     uvicorn.run(app, host="127.0.0.1", port=args.port,
                 proxy_headers=False, access_log=False)

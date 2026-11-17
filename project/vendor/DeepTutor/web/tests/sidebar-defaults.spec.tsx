@@ -22,7 +22,10 @@ it("new profiles see two primary entries and no folded features", () => {
   expect(resolved.visible).toEqual(["/chat", "/learning"]);
   expect(resolved.collapsed).toEqual([]);
   expect(resolved.customized).toBe(false);
-  expect(SECONDARY_NAV.map(item => item.href)).toEqual(["/settings"]);
+  expect(SECONDARY_NAV.map(item => item.href)).toEqual([
+    "/settings",
+    "/settings/model",
+  ]);
 });
 
 it("storage round trips an intentionally expanded layout without reapplying defaults", () => {

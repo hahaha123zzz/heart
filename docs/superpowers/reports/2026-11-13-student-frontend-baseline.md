@@ -176,3 +176,13 @@ student02 sees it: False (n=0)
 student02 GET session -> 404
 ISOLATION_OK
 ```
+
+## 12. 2026-11-17 学生自带模型 Key
+
+- 后端：`integrations/deeptutor/heart_model_api.py`，由 worker 挂载为 `/api/heart/model`（GET/PUT/DELETE，走厂家 `require_auth`）。
+- 存储：`<home>/data/system/heart-model/<user_id>.json`，Key 为 Fernet 密文（密钥 `.secret`，同目录）；读取只返回末四位。
+- 校验：`https` + 非回环/私网/链路本地/保留地址，且 URL 不含凭据。`http://127.0.0.1:11434` → 400。
+- 生效方式：保存时把 `heart-student-<user_id 前 12 位>` profile 写进 `model_catalog.json`，并把该学生 grant 的 `models.llm` **只**指向它；删除时移除 profile 与授权。
+- 前端：`/settings/model`，侧栏“我的模型”入口（学生可见）。
+- 验收（经 `:3000`）：`before {"configured":false}` → PUT `{"configured":true,"api_key_masked":"••••1234"}` → GET 返回 base_url/model/updated_at → DELETE `{"configured":false}`；catalog 出现 `heart-student-u_8186fbcaed` 且 grant 指向它。
+- 取舍：删除 Key 后按决定 29 不回退共享 Key；本机为继续演示已重新授予宿主 profile（`assign_vendor_model.py`），学生一旦配置自己的 Key，其 grant 会被替换为个人 profile。
