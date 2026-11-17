@@ -164,3 +164,15 @@ content_chars 816；usage total_tokens 20870
 - 被删地址实测 404：`/partners`、`/register`、`/space`、`/kanban`、`/agents`、`/session-handoff`；`/` 仍 307 到 `/chat`，`/login`、`/chat`、`/learning`、`/settings` 均 200。
 - 测试：删除 7 个测已删路由的 spec；`learner-navigation`、`sidebar-defaults`、`sidebar-lazy-history` 更新为新导航后 13/13 通过。全量 vitest 在并行下大量 5–16s 超时（同一批单独跑全过），改用 `--no-file-parallelism` 作为门禁。
 - 死代码保留：`components/partners`、`lib/partners-api.ts`、`components/space`（79/51 处引用，牵涉 memory 与 hooks），不再有可访问路由。
+
+## 11. 2026-11-17 账号隔离验收
+
+`scripts/check_account_isolation.py`（经 `:3000` 代理，两个真实学生账号）：
+
+```
+created=unified_1794878685345_8f665d7c
+student01 sees it: True (n=2)
+student02 sees it: False (n=0)
+student02 GET session -> 404
+ISOLATION_OK
+```
