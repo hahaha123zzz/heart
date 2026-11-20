@@ -241,10 +241,8 @@ class TutorOrchestrator:
                           '按教材标题顺序逐点学习；本轮先说明当前位置，再讲该目标，不一次讲完整章，不宣称学生已经掌握。')}]
         query = (navigation['section_title'] + ' ' + navigation['title'] if navigation else
                  execution.retrieval_query if execution.target_refs else self._retrieval_query(message, point, routing, history))
-        citation_path=None
-        if PSYCHOLOGY:
-            from knowledge.grounded_citations import settings as citation_settings,choose_evidence
-            citation_path=citation_settings()
+        from knowledge.grounded_citations import settings as citation_settings,choose_evidence
+        citation_path=citation_settings()
         if citation_path and history and (routing.needs_context or is_self_report_understood(message)):
             # 历史只补检索指代，最终证据仍须来自当前版本教材；章节名不能代替刚才的具体对象。
             query+='\n最近对话所指内容（仅作检索线索）：'+re.sub(r'\[\d+\]','', '\n'.join(row['content'] for row in history[-4:]))[-1800:]
@@ -383,20 +381,19 @@ class TutorOrchestrator:
             }
         grounded_bundle = None
         grounded_references = None
-        if PSYCHOLOGY:
-            if citation_path:
-                report('citation-selection','选择支持原文','从检索上下文中选择可逐项核验的细粒度证据')
-                try:
-                    grounded_bundle=choose_evidence(self.llm,evidence_question,sources,citation_path,history=history)
-                    sources=grounded_bundle.sources
-                    evidence=[{'id':str(i),'source':s.source,'section':s.section,'text':s.text} for i,s in enumerate(sources,1)]
-                    pdf_supplement=None
-                except (ValueError,LLMError,OSError):
-                    reply='本次未能确认可靠的教材引用证据，请缩小问题范围或选中教材原文后重试。'
-                    save_exchange(reply)
-                    return {'reply':reply,'answer_status':'quality_rejected','step_advanced':False,
-                        'quality':{'passed':False,'issues':['引用证据选择未完成'],'suggestions':''},
-                        'textbook_sources':[],'pdf_references':[],'image_refs':[]}
+        if citation_path:
+            report('citation-selection','选择支持原文','从检索上下文中选择可逐项核验的细粒度证据')
+            try:
+                grounded_bundle=choose_evidence(self.llm,evidence_question,sources,citation_path,history=history)
+                sources=grounded_bundle.sources
+                evidence=[{'id':str(i),'source':s.source,'section':s.section,'text':s.text} for i,s in enumerate(sources,1)]
+                pdf_supplement=None
+            except (ValueError,LLMError,OSError):
+                reply='本次未能确认可靠的教材引用证据，请缩小问题范围或选中教材原文后重试。'
+                save_exchange(reply)
+                return {'reply':reply,'answer_status':'quality_rejected','step_advanced':False,
+                    'quality':{'passed':False,'issues':['引用证据选择未完成'],'suggestions':''},
+                    'textbook_sources':[],'pdf_references':[],'image_refs':[]}
         excerpts = format_excerpts(sources)
         figure_context = format_figure_context(figures)
         if pdf_supplement:
@@ -460,21 +457,7 @@ class TutorOrchestrator:
 
         # 2) 教学计划（State + Profile + Plan 三方决策）
         curriculum_done = bool(lesson_plan and lesson_plan.status == "completed")
-        from agents.adaptive_tutoring import enabled as unified_teaching_enabled
-        unified_strategy = None
-        strategy_context = task_context
-        if unified_teaching_enabled():
-            from agents.teaching_strategy import decide_for_context, align_legacy_plan
-            if strategy_context is None:
-                from models.task_context import TaskContext
-                strategy_context = TaskContext(student_id=student_id,request_id=event_id,
-                    message=message,knowledge_point=point,preferences=dict(profile.preferences))
-            unified_strategy = decide_for_context(strategy_context,execution,
-                assessment={'verdict':answer_diagnosis.verdict} if answer_diagnosis and diagnose_answer else None)
-            plan = TeachingPlan(goal='回应当前目标：'+point,strategy=unified_strategy.primary_strategy,
-                action='explain',difficulty='medium')
-            align_legacy_plan(unified_strategy,plan)
-        elif not direct_answer:
+        if not direct_answer:
             plan = self.teaching_planner.plan(
                 state, goal, current_step, curriculum_done, profile
             )
@@ -482,9 +465,7 @@ class TutorOrchestrator:
         # 2.2) Strategy Router：按学生 move + 状态 + 画像选本轮教学动作
         profile = self.memory.get_profile(student_id, point=point, difficulty=plan.difficulty, hint_level=plan.hint_level)
         recent_moves = self.memory.get_recent_moves(student_id)
-        if unified_strategy is not None:
-            move = InstructionalMove(instructional_move=unified_strategy.primary_strategy,action=plan.action)
-        elif not direct_answer:
+        if not direct_answer:
             move = self.strategy_router.select(
                 routing.student_move,
                 routing.move_status,
@@ -578,16 +559,6 @@ class TutorOrchestrator:
             lesson_text = "本轮围绕学生当前作答或困难反馈，课程进度仅作背景，不扩大到下一知识点。\n本轮反馈（诊断为暂定资料，不是新教材事实）：" + json.dumps(answer_feedback, ensure_ascii=False)
             check_context["answer_feedback"] = answer_feedback
             check_context["recent_moves"] = (recent_moves + [move.instructional_move])[-3:]
-        if unified_strategy is not None:
-            from agents.teaching_strategy import align_legacy_plan, strategy_prompt
-            align_legacy_plan(unified_strategy,plan,move)
-            if unified_strategy.interaction_boundary!='wait_for_student':
-                direct_content_question=True
-                question_spec=None
-                if answer_feedback.get('mode')=='check_self_report':
-                    answer_feedback={}
-                    check_context.pop('answer_feedback',None)
-            lesson_text += strategy_prompt(unified_strategy,selector_tool=False)
         if answer_feedback.get("mode") == "check_self_report":
             plan.goal = "围绕上一轮讲解的一个要点检查理解"
             check_context["feedback_target"] = previous_reply[:1200]
@@ -777,8 +748,7 @@ class TutorOrchestrator:
                 'textbook_sources':textbook_sources}) | {'relation_context':relation_location}
         guided_visualization = None
         from visualization.service import rollout_settings,VisualizationService
-        from visualization.learning_visuals import enabled_for
-        if enabled_for(message) or (not PSYCHOLOGY and rollout_settings()[0]!='off' and VisualizationService().enabled(student_id)):
+        if (PSYCHOLOGY and os.getenv('VISUALIZATION_ON_DEMAND','0')=='1') or (not PSYCHOLOGY and rollout_settings()[0]!='off' and VisualizationService().enabled(student_id)):
             try:
                 from visualization.on_demand import build_guide
                 guided_visualization=build_guide(self.llm,message,response,sources,execution,
@@ -790,11 +760,6 @@ class TutorOrchestrator:
         if guided_visualization:
             stored_reference=(stored_reference or {'pdf_references':pdf_references,
                 'textbook_sources':textbook_sources}) | {'guided_visualization':guided_visualization}
-        from agents.response_composition_adapters import published_snapshot, snapshot_kind
-        learning_response = published_snapshot(reply=response, response_id=event_id, target_id=point,
-            semantic_type=snapshot_kind(teaching_plan=plan, execution=execution))
-        if learning_response:
-            stored_reference = {**(stored_reference or {}), 'learning_response':learning_response}
         memory_commit = self.memory.commit_learning_turn(
             student_id=student_id, point=point, event_id=event_id, expected_token=expected_token, expected_epoch=expected_epoch,
             message=message, reply=response, state=state, lesson_plan=None if direct_answer else lesson_plan, decision=decision,
@@ -821,16 +786,9 @@ class TutorOrchestrator:
         elif memory_commit["status"] == "committed":
             self.memory.push_recent_move(student_id, move.instructional_move)
 
-        strategy_publication = None
-        if unified_strategy is not None:
-            from agents.teaching_strategy import publish_external_strategy
-            strategy_publication = publish_external_strategy(strategy_context,unified_strategy,response,
-                source_ids=[e.get('evidence_id','') for e in grounded_bundle.evidence] if grounded_bundle else [])
         return {
             "reply": response,
-            **({'learning_response':learning_response} if learning_response else {}),
             "answer_status": "answered",
-            **({'teaching_strategy_plan':strategy_publication} if strategy_publication else {}),
             "response_path": "direct_answer" if direct_answer else "tutoring",
             "memory_commit": memory_commit,
             "conversation_id": memory_commit.get("conversation_id"),

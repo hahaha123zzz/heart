@@ -22,6 +22,11 @@ from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
 INDEX = PSYCHOLOGY_DIR/'rag_index.sqlite3' if PSYCHOLOGY else Path(__file__).resolve().parent / "rag_index_v2.sqlite3"
 REFERENCE = re.compile(r"(?:图|表|定理|定义|例|公式)\s*\d+(?:[.．-]\d+)?")
 SYMBOL_EXPRESSION = re.compile(r"[A-Za-z][A-Za-z0-9]*(?:[∧∨→↔][A-Za-z][A-Za-z0-9]*)+")
+QUOTED_PHRASE = re.compile(r"[“「\"]([^”」\"]{2,120})[”」\"]")
+OBJECT_QUESTION = re.compile(
+    r"(?:问|请问|对于|关于)?\s*([^，。！？；\n]{2,80}?)\s*的?\s*(?:组成对象|元素)"
+    r"\s*(?:是谁|是什么|有哪些|是哪些)"
+)
 
 
 def _reference_present(text: str, refs: set[str]) -> bool:
@@ -172,18 +177,23 @@ def _primary_unit(row, refs: set[str]) -> bool:
 
 def _select_ranked(db: sqlite3.Connection, ranked: list, terms: frozenset[str],
                    limit: int, *, cross_chapter: bool, refs: set[str] | None = None,
-                   preferred_types=(), focus_aliases=(), trace=None) -> list[TextbookChunk]:
+                   preferred_types=(), focus_aliases=(), section_hints=(), trace=None) -> list[TextbookChunk]:
     refs=refs or set()
+    def pinned(row):
+        return bool(section_hints and any(row["section"].lstrip().startswith(hint)
+                                          for hint in section_hints))
     # 稳定分层，不调整模型分数，也不把被门槛拒绝的候选重新放回。
-    ranked=sorted(ranked,key=lambda item:not _primary_unit(item[1],refs))
+    ranked=sorted(ranked,key=lambda item:(not pinned(item[1]),not _primary_unit(item[1],refs)))
     from knowledge.task_ranking import prefer_task_units, unit_types
     def concept_primary(row):
         # 已通过门槛的结构化定义/定理，与明确概念小节关联；不把绘图邻文当正文。
         return bool(row['section_id'] is not None and unit_types(row) & {'definition','theorem'}
                     and any(len(alias)>=3 and alias in row['section'] for alias in focus_aliases))
-    ranked=sorted(ranked,key=lambda item:(not _primary_unit(item[1],refs),not concept_primary(item[1])))
+    ranked=sorted(ranked,key=lambda item:(not pinned(item[1]),not _primary_unit(item[1],refs),
+                                          not concept_primary(item[1])))
     before = [row["id"] for _, row in ranked]
     ranked = prefer_task_units(ranked, preferred_types, is_primary=lambda row: _primary_unit(row, refs))
+    ranked = sorted(ranked,key=lambda item:(not pinned(item[1]),-item[0]))
     if trace is not None and preferred_types:
         trace["task_ranking"] = {"preferred_types": list(preferred_types), "before": before,
             "after": [row["id"] for _, row in ranked],
@@ -261,6 +271,7 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
     concepts = [] if psychology else matched_aliases(query)
     terms = terms_for(search_query)
     refs = {re.sub(r"\s+", "", match.group()).replace("．", ".") for match in REFERENCE.finditer(query)}
+    section_hints = set(re.findall(r"(?<!\d)(\d+(?:\.\d+){1,3})(?!\d)", search_query))
     expressions = set() if psychology else {match.group().lower() for match in SYMBOL_EXPRESSION.finditer(normalize_formula(query))}
     if not terms and not refs and not expressions:
         return []
@@ -313,9 +324,24 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
             concept_ids = list(dict.fromkeys(concept_ids))
             for rank, chunk_id in enumerate(concept_ids, 1):
                 scores[chunk_id] = scores.get(chunk_id, 0.0) + 1 / (60 + rank)
+            phrases = QUOTED_PHRASE.findall(query)
+            for match in OBJECT_QUESTION.finditer(query):
+                phrase = re.sub(r"^\s*(?:问|请问|对于|关于)\s*", "", match.group(1))
+                phrase = phrase.strip("“”「」\"' ")
+                if phrase:
+                    phrases.append(phrase)
+            phrases = list(dict.fromkeys(re.sub(r"\s+", "", phrase) for phrase in phrases))
+            exact_phrase_ids = []
+            if phrases:
+                for row in db.execute("SELECT id,text FROM chunks"):
+                    compact = re.sub(r"\s+", "", row["text"])
+                    if any(phrase in compact for phrase in phrases):
+                        exact_phrase_ids.append(row["id"])
+                        scores[row["id"]] = scores.get(row["id"], 0.0) + 0.5
             if trace is not None:
                 trace.update(concept_ids=concept_ids, formula_ids=formula_ids,
-                             formula_templates=sorted(formula_keys), search_query=search_query)
+                             formula_templates=sorted(formula_keys), search_query=search_query,
+                             quoted_phrases=phrases, exact_phrase_ids=exact_phrase_ids)
 
             model_name, vectors = _vectors(str(index), index.stat().st_mtime_ns)
             best_dense_score = None
@@ -377,6 +403,9 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
             ranked = []
             for row in candidates:
                 score = scores[row["id"]]
+                if any(row["section"].lstrip().startswith(hint) for hint in section_hints):
+                    # 查询扩展或用户明确写出的章节编号是结构定位信号，不替代原文门槛。
+                    score += 0.2
                 if chapter_hint and row["chapter_id"] == chapter_hint:
                     score += 0.01
                 if row["kind"] == requested_kind:
@@ -415,6 +444,12 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
                         score -= 0.06
                 ranked.append((score, row))
             ranked.sort(key=lambda item: item[0], reverse=True)
+            if section_hints:
+                pinned_candidates = [(score, row) for score, row in ranked
+                                     if any(row["section"].lstrip().startswith(hint)
+                                            for hint in section_hints)]
+                if pinned_candidates:
+                    ranked = pinned_candidates
             if trace is not None:
                 trace["ranked"] = [{"id": row["id"], "score": score} for score, row in ranked]
             matched_resource = False
@@ -504,7 +539,8 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
 
             selected = _select_ranked(db, ranked, terms, limit, cross_chapter=reranked, refs=refs,
                                       preferred_types=preferred_types,
-                                      focus_aliases=tuple(alias for _, aliases in concepts for alias in aliases),trace=trace)
+                                      focus_aliases=tuple(alias for _, aliases in concepts for alias in aliases),
+                                      section_hints=section_hints,trace=trace)
             if trace is not None:
                 trace["selected"] = [hit.chunk_id for hit in selected]
                 trace["primary_unit_ids"] = [row["id"] for _,row in ranked if _primary_unit(row,refs)]
