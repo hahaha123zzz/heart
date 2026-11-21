@@ -9,6 +9,7 @@ import re
 import sqlite3
 from array import array
 from contextlib import closing
+from difflib import SequenceMatcher
 from functools import lru_cache
 from pathlib import Path
 
@@ -27,6 +28,18 @@ OBJECT_QUESTION = re.compile(
     r"(?:问|请问|对于|关于)?\s*([^，。！？；\n]{2,80}?)\s*的?\s*(?:组成对象|元素)"
     r"\s*(?:是谁|是什么|有哪些|是哪些)"
 )
+FOCUS_BEFORE_DE = re.compile(r"(?:问|请问|对于|关于)?\s*([^的，。！？；\n]{2,40})\s*的")
+FUZZY_GENERIC = re.compile(
+    r"什么条件(?:下)?|什么时候|什么|怎样|如何|为什么|为何|是否|请问|问|"
+    r"组成对[相像]|组成对象|是谁|是什么|有哪些|是哪些|这一集合|集合中的?"
+)
+SEMANTIC_TERMS = (
+    "正整数", "负整数", "非负整数", "非正整数", "自然数", "整数",
+    "有限集", "无限集", "空集", "全集", "真子集", "子集",
+    "合取", "析取", "否定", "充分必要", "充分", "必要", "当且仅当",
+    "单射", "满射", "双射", "有向边", "无向边", "连通", "无圈",
+    "自反", "反自反", "对称", "反对称", "传递",
+)
 
 
 def _reference_present(text: str, refs: set[str]) -> bool:
@@ -41,6 +54,79 @@ def _fuse_rankings(prior: list, reranked: list) -> list:
     fused = [(1 / (60 + rank) + 1 / (60 + prior_rank[row["id"]]), row)
              for rank, (_, row) in enumerate(reranked, 1)]
     return sorted(fused, key=lambda item: item[0], reverse=True)
+
+
+def _compact_fuzzy(value: str) -> str:
+    return re.sub(r"[\s“”「」\"'，。！？；：,.!?;:()（）]+", "", value)
+
+
+def _fuzzy_focus(query: str) -> str:
+    candidates = [
+        phrase.strip() for phrase in QUOTED_PHRASE.findall(query)
+    ]
+    candidates += [
+        match.group(1).strip() for match in OBJECT_QUESTION.finditer(query)
+    ]
+    if not candidates:
+        match = FOCUS_BEFORE_DE.search(query)
+        if match:
+            candidates.append(match.group(1).strip())
+    if not candidates:
+        candidates.append(query)
+    for candidate in candidates:
+        cleaned = FUZZY_GENERIC.sub("", candidate)
+        cleaned = _compact_fuzzy(cleaned)
+        if 2 <= len(cleaned) <= 40:
+            return cleaned
+    return ""
+
+
+def _protected_terms(value: str) -> set[str]:
+    compact = _compact_fuzzy(value)
+    return {term for term in SEMANTIC_TERMS if term in compact}
+
+
+def _damerau_similarity(left: str, right: str) -> float:
+    """Normalize edit distance and count one adjacent swap as one edit."""
+    rows, cols = len(left) + 1, len(right) + 1
+    matrix = [[0] * cols for _ in range(rows)]
+    for row in range(rows):
+        matrix[row][0] = row
+    for col in range(cols):
+        matrix[0][col] = col
+    for row in range(1, rows):
+        for col in range(1, cols):
+            cost = 0 if left[row - 1] == right[col - 1] else 1
+            matrix[row][col] = min(
+                matrix[row - 1][col] + 1,
+                matrix[row][col - 1] + 1,
+                matrix[row - 1][col - 1] + cost,
+            )
+            if (row > 1 and col > 1 and left[row - 1] == right[col - 2]
+                    and left[row - 2] == right[col - 1]):
+                matrix[row][col] = min(matrix[row][col], matrix[row - 2][col - 2] + 1)
+    return 1 - matrix[-1][-1] / max(len(left), len(right), 1)
+
+
+def _fuzzy_score(focus: str, candidate: str) -> float:
+    if not focus or not candidate:
+        return 0.0
+    if _protected_terms(focus) - _protected_terms(candidate):
+        return 0.0
+    matcher = SequenceMatcher(None, focus, candidate, autojunk=False)
+    longest = matcher.find_longest_match(0, len(focus), 0, len(candidate))
+    coverage = longest.size / len(focus)
+    start = max(0, longest.b - longest.a)
+    windows = (
+        candidate[start:start + len(focus)],
+        candidate[max(0, start - 1):max(0, start - 1) + len(focus)],
+        candidate[start:start + len(focus) + 1],
+    )
+    return max(
+        matcher.ratio(),
+        coverage,
+        *[_damerau_similarity(focus, window) for window in windows if window],
+    )
 
 
 def _chapter_hint(query: str, psychology=False) -> int | None:
@@ -338,10 +424,28 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
                     if any(phrase in compact for phrase in phrases):
                         exact_phrase_ids.append(row["id"])
                         scores[row["id"]] = scores.get(row["id"], 0.0) + 0.5
+            fuzzy_focus = _fuzzy_focus(query) if re.search(r"对象|元素|组成", query) else ""
+            fuzzy_ids = []
+            if fuzzy_focus and not exact_phrase_ids:
+                for row in db.execute("SELECT id,section,text FROM chunks"):
+                    sentence_candidates = [
+                        value for value in re.split(r"(?<=[。！？；])|\n+", row["text"])
+                        if len(_compact_fuzzy(value)) >= 2
+                    ][:24]
+                    best = max(
+                        [_fuzzy_score(fuzzy_focus, _compact_fuzzy(row["section"])),
+                         *[_fuzzy_score(fuzzy_focus, _compact_fuzzy(value))
+                           for value in sentence_candidates]],
+                        default=0.0,
+                    )
+                    if best >= 0.78:
+                        fuzzy_ids.append(row["id"])
+                        scores[row["id"]] = scores.get(row["id"], 0.0) + 0.35 * best
             if trace is not None:
                 trace.update(concept_ids=concept_ids, formula_ids=formula_ids,
                              formula_templates=sorted(formula_keys), search_query=search_query,
-                             quoted_phrases=phrases, exact_phrase_ids=exact_phrase_ids)
+                             quoted_phrases=phrases, exact_phrase_ids=exact_phrase_ids,
+                             fuzzy_focus=fuzzy_focus, fuzzy_ids=fuzzy_ids)
 
             model_name, vectors = _vectors(str(index), index.stat().st_mtime_ns)
             best_dense_score = None

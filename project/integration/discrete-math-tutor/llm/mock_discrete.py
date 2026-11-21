@@ -90,7 +90,7 @@ def _textbook_answer(question: str, excerpts: list[tuple[int, str, str]]) -> str
     chosen = [(best_number, best_sentence)]
     comparison = bool(re.search(r"比较|区别|不同|分别|各自|异同", question))
     # 单点事实默认只给一句，避免把相邻小节或同章练习带进答案。
-    if len(best_sentence) < 90 or comparison:
+    if comparison:
         second = next((
             (number, sentence) for score, number, sentence in ranked[1:]
             if number == best_number and score >= best_score * 0.55
