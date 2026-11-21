@@ -44,6 +44,7 @@ from knowledge.hybrid_retrieval import expand_section_context, retrieve_hybrid
 from knowledge.pdf_evidence import enrich_sources
 from knowledge.proof_units import expand_proof_sources
 from knowledge.query_understanding import understand as understand_query
+from knowledge.answer_release import decision as release_decision
 from memory.memory_manager import MemoryManager
 from knowledge.course_config import DEFAULT_GOAL,PSYCHOLOGY
 from agents.course_prompts import GATE
@@ -58,6 +59,17 @@ def retrieve_course(query,chunks,**kwargs):
             from integrations.deeptutor.knowledge_client import supplement
             result = supplement(query, result, limit=kwargs.get("limit", 6))
         return result
+    student_id = str(kwargs.pop("student_id", ""))
+    account_type = str(kwargs.pop("account_type", "production"))
+    release = release_decision(
+        "query_understanding",
+        student_id=student_id,
+        account_type=account_type,
+    )
+    if not release.active:
+        if release.shadow:
+            understand_query(query)
+        return retrieve_hybrid(query, chunks, **kwargs)
     understanding = understand_query(query)
     return expand_section_context(
         retrieve_hybrid(understanding.retrieval_query, chunks, **kwargs)
@@ -273,7 +285,8 @@ class TutorOrchestrator:
             sources = read_target(navigation)
         else:
             sources = retrieve_course(message if resource_query and not execution.target_refs else query, self.textbook_chunks,
-                                      limit=6 if PSYCHOLOGY else 3, preferred_types=execution.retrieval_types())
+                                      limit=6 if PSYCHOLOGY else 3, preferred_types=execution.retrieval_types(),
+                                      student_id=student_id, account_type=account_type)
         if is_stuck(message) and sources:
             chapter = sources[0].source
             basics = [

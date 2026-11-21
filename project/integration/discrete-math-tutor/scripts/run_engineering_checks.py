@@ -30,6 +30,9 @@ GROUPS = {
         "tests.test_answer_ranking",
         "tests.test_mock_replies",
     ],
+    "release_guard": [
+        "tests.test_answer_release",
+    ],
 }
 
 
