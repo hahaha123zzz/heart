@@ -96,6 +96,45 @@ def _parts(text, target=160, maximum=260):
         yield current.strip(),current_start,current_end
 
 
+def _exact_quote_variants(quote, start, folded, focus=""):
+    """OCR 整句不一致时，退到仍能在原页精确核对的相邻短语。"""
+    if folded is None or normalized(quote) in folded:
+        yield quote, start
+        return
+    normalized_focus = normalized(focus)
+    focus_terms = {
+        normalized_focus[index:index + size]
+        for size in (3, 4)
+        for index in range(max(0, len(normalized_focus) - size + 1))
+    }
+    if not any(term in normalized(quote) for term in focus_terms):
+        return
+    clauses = list(re.finditer(r"[^，、：,:；;\n]+[，、：,:；;]?", quote))
+    variants = {}
+    for size in (1, 2, 3):
+        for index in range(len(clauses) - size + 1):
+            left = clauses[index].start()
+            right = clauses[index + size - 1].end()
+            fragment = quote[left:right].strip()
+            if len(normalized(fragment)) < 8 or normalized(fragment) not in folded:
+                continue
+            variants[(left, right)] = fragment
+
+    def focus_score(fragment):
+        normalized_fragment = normalized(fragment)
+        return sum(
+            len(normalized_focus[index:index + size])
+            for size in (2, 3, 4)
+            for index in range(max(0, len(normalized_focus) - size + 1))
+            if normalized_focus[index:index + size] in normalized_fragment
+        )
+
+    for (left, right), fragment in sorted(
+        variants.items(), key=lambda item: (-focus_score(item[1]), item[0][0] - item[0][1])
+    )[:2]:
+        yield fragment, start + left
+
+
 def claims_for(response):
     """相邻编号共享同一结论；保存原始文本范围供复核，编号不充当永久ID。"""
     claims=[];cursor=0
@@ -277,26 +316,32 @@ def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=Non
                 if normalized(quote) not in normalized(source_text):continue
                 document=index.document(record['document_id'],record['version'])
                 folded=document.get('folded')
-                if folded is not None and normalized(quote) not in folded:continue
-                # 心理学正式教材有逐块索引；其他课程直接按当前 PDF 原文唯一匹配。
-                block_id=(source.block_start if record.get('course_id')=='experimental-psychology-3'
-                          and source.kind!='table' else None)
-                located=index.locate(record['document_id'],record['version'],quote,block_id=block_id)
-                if located['status']!='exact' and block_id is not None:
-                    located=index.locate(record['document_id'],record['version'],quote)
-                key=hashlib.sha256(json.dumps([record['document_id'],record['version'],block_id,start,end,quote],ensure_ascii=False).encode()).hexdigest()
-                if key in seen:continue
-                seen.add(key)
-                exact=located['status']=='exact'
-                item={'evidence_id':key,'retrieval_source_id':str(source.chunk_id or source_index),'retrieval_source_index':source_index,
-                    'document_id':record['document_id'],'document_version':record['version'],'source_block_id':block_id,
-                    'section_id':source.section_id,'block_start':start,'block_end':end,'quote':quote,
-                    'selected_target':bool(selection and normalized(quote) in normalized(selection['text'])),
-                    'location_status':'exact' if exact else 'section','rects':located.get('rects',[]),
-                    'degradation_reason':None if exact else located['status']}
-                candidates.append((item,replace(source,text=quote,page=None,
-                    evidence_id=key,source_spans=({'block_id':block_id,'block_start':start,'block_end':end,
-                        'text_start':0,'text_end':len(quote)},) if block_id is not None else ())))
+                for grounded_quote,grounded_start in _exact_quote_variants(quote,start,folded,message):
+                    grounded_end=grounded_start+len(grounded_quote)
+                    # 心理学正式教材有逐块索引；其他课程直接按当前 PDF 原文唯一匹配。
+                    block_id=(source.block_start if record.get('course_id')=='experimental-psychology-3'
+                              and source.kind!='table' else None)
+                    located=index.locate(record['document_id'],record['version'],grounded_quote,block_id=block_id)
+                    if located['status']!='exact' and block_id is not None:
+                        located=index.locate(record['document_id'],record['version'],grounded_quote)
+                    key=hashlib.sha256(json.dumps([
+                        record['document_id'],record['version'],block_id,grounded_start,grounded_end,grounded_quote
+                    ],ensure_ascii=False).encode()).hexdigest()
+                    if key in seen:continue
+                    seen.add(key)
+                    exact=located['status']=='exact'
+                    item={'evidence_id':key,'retrieval_source_id':str(source.chunk_id or source_index),
+                        'retrieval_source_index':source_index,'document_id':record['document_id'],
+                        'document_version':record['version'],'source_block_id':block_id,
+                        'section_id':source.section_id,'block_start':grounded_start,'block_end':grounded_end,
+                        'quote':grounded_quote,
+                        'selected_target':bool(selection and normalized(grounded_quote) in normalized(selection['text'])),
+                        'location_status':'exact' if exact else 'section','rects':located.get('rects',[]),
+                        'degradation_reason':None if exact else located['status']}
+                    candidates.append((item,replace(source,text=grounded_quote,page=None,
+                        evidence_id=key,source_spans=({'block_id':block_id,'block_start':grounded_start,
+                            'block_end':grounded_end,'text_start':0,'text_end':len(grounded_quote)},
+                        ) if block_id is not None else ())))
     finally:index.close()
     if not candidates:
         if coverage is not None:
@@ -319,19 +364,43 @@ def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=Non
     elif llm is None or getattr(llm,'mock',False):
         from knowledge.textbook import terms_for
         from knowledge.concept_aliases import expand_query
-        query_terms=terms_for(expand_query(message))
+        from knowledge.answer_ranking import score_sentence, sentences
+        expanded_message=expand_query(message)
+        query_terms=terms_for(expanded_message)
+        section_hints=set(re.findall(r"(?<!\d)(\d+(?:\.\d+){1,3})(?!\d)",expanded_message))
         ranked=[]
         for order,(item,source) in enumerate(candidates):
             quote_terms=terms_for(item['quote']+" "+source.section)
             overlap=query_terms & quote_terms
             section_overlap=query_terms & terms_for(source.section)
+            answer_score=max((
+                score_sentence(message,source.section,sentence,evidence_rank=order+1)
+                for sentence in sentences(item['quote'])
+            ),default=0)
             score=((1000 if item['selected_target'] else 0)
+                   +(240 if any(source.section.lstrip().startswith(hint) for hint in section_hints) else 0)
                    +3*sum(len(term) for term in section_overlap)
-                   +sum(len(term) for term in overlap))
-            if overlap or item['selected_target']:
+                   +4*answer_score)
+            if overlap or item['selected_target'] or answer_score >= 4:
                 ranked.append((score,-order,item['evidence_id']))
         ranked.sort(reverse=True)
-        selected_ids=[key for _,_,key in ranked[:4]]
+        candidate_by_id={item['evidence_id']:item for item,_ in candidates}
+        selected_ids=[]
+        per_source={}
+        # 先保证不同相关小节各有一条依据，再补同一小节的第二句，避免长小节挤掉另一半条件。
+        for _,_,key in ranked:
+            source_index=candidate_by_id[key]['retrieval_source_index']
+            if per_source.get(source_index,0)>=1:continue
+            selected_ids.append(key)
+            per_source[source_index]=per_source.get(source_index,0)+1
+            if len(selected_ids)>=4:break
+        for _,_,key in ranked:
+            if len(selected_ids)>=4:break
+            if key in selected_ids:continue
+            source_index=candidate_by_id[key]['retrieval_source_index']
+            if per_source.get(source_index,0)>=2:continue
+            selected_ids.append(key)
+            per_source[source_index]=per_source.get(source_index,0)+1
         if coverage is not None:
             result={'evidence_ids':selected_ids,
                     'reason':'离线规则按问题词项选择直接原文' if selected_ids else '离线规则未找到直接支持原文'}

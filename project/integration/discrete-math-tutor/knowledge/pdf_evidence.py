@@ -77,8 +77,15 @@ def _supplement(source, index, query=None):
     if requested and not target: return None
     requested_unit=bool(target and (target.group(1)=='表' or re.search(r'证明|反证|解释|为什么|为何|推导|说明',query or '')))
     requested_set_formula = bool(re.search(r'[∈∉⊆⊂⊇⊃∩∪]',query or ''))
+    requested_formula = bool(re.search(r'[=＝∧∨¬→↔]|公式|表达式|真值表',query or ''))
     numbered_set_text = requested_set_formula and getattr(source,'kind','')=='text' and REFERENCE.search(source.text)
-    if not chapter or not section_id or not (needs_pdf(source) or numbered_set_text or requested_unit): return None
+    direct_formula = getattr(source,'kind','')=='formula' or any(
+        str(asset).startswith('formula-') for asset in getattr(source,'asset_ids',()))
+    placeholder_formula = '[公式或对象]' in source.text and requested_formula
+    if not chapter or not section_id or not (
+        direct_formula or placeholder_formula or numbered_set_text or requested_unit
+    ):
+        return None
     record=document_for_chapter(chapter)
     if not record or Path(source.source).stem != Path(record['source']).stem: return None
     sections=record['sections']
@@ -132,7 +139,11 @@ def _supplement(source, index, query=None):
     if resolved['section']['id'] != section_id: return None
     reference=resolved['reference']|{'origin':'retrieval'}
     pages=sorted({r['page'] for r in rects})
-    replacement='[原 PDF 补充证据，第'+ '、'.join(map(str,pages)) +'页；公式以随附原图为准]\n'+resolved['text']
+    replacement=(
+        '[原 PDF 补充证据，第'+ '、'.join(map(str,pages))
+        +'页；公式以随附原图为准]\n'+resolved['text']
+        +'\n[原始检索上下文]\n'+source.text
+    )
     return replace(source,text=replacement,terms=terms_for(replacement),page=pages[0]),PdfSupplement(
         images=resolved['images'],reference=reference,pages=pages,source_index=index,
         anchor_method=('table_caption' if target.group(1)=='表' else 'numbered_unit') if requested_unit else 'numbered_reference_or_body_phrase')

@@ -46,17 +46,31 @@ def structural_terms(query: str) -> list[str]:
     """
     additions: list[str] = []
     if re.search(r"有序对|有序组|序偶", query):
-        additions.append("有序对 笛卡儿积 二元组")
+        additions.append("第1章 1.2.3 集合的笛卡儿积 有序对 二元组")
+    if re.search(r"数学归纳", query):
+        additions.append("第2章 2.1.2 数学归纳原理 归纳假设 归纳步骤")
+    if re.search(r"乘法原理|加法原理", query):
+        additions.append("第3章 3.1.1 加法原理和乘法原理")
     if re.search(r"[A-Za-z][A-Za-z0-9]*∧[A-Za-z]|合取", query):
         additions.append("第4章 4.1.2 逻辑联结词 合取")
+    if re.search(r"命题.{0,8}否定|否定.{0,8}命题|否定.{0,8}真值", query):
+        additions.append("第4章 4.1.2 逻辑联结词 否定 真值")
+    if re.search(r"个体域|全称命题", query):
+        additions.append("第5章 5.2.1 谓词公式的真值规定 个体域 真值")
+    if re.search(r"证明.{0,8}演绎|演绎.{0,8}证明", query):
+        additions.append("第6章 6.1.2 系统内的推理：证明与演绎 前提")
+    if re.search(r"邻接矩阵", query):
+        additions.append("第7章 7.4.1 邻接矩阵 顶点 边")
     if re.search(r"连通.{0,4}无圈|无圈.{0,4}连通", query) and "树" in query:
         additions.append("第8章 8.3.1 树的基本概念 连通 无圈")
     elif "树" in query:
         additions.append("第8章 树 基本概念")
+    if re.search(r"反对称", query):
+        additions.append("第9章 9.1.3 关系的基本特性 反对称")
     if re.search(r"函数.{0,4}复合|复合函数|f\s*[○∘]\s*g", query):
-        additions.append("函数的合成 复合函数 应用次序")
-    if re.search(r"命题.{0,6}否定|否定.{0,6}真值", query):
-        additions.append("否定 逻辑联结词 真值")
+        additions.append("第10章 10.1.3 函数的合成 复合函数 应用次序")
+    if re.search(r"单射|满射|双射", query):
+        additions.append("第10章 10.2.1 单射的、满射的和双射的函数")
     return additions
 
 

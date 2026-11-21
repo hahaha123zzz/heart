@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from knowledge.answer_ranking import question_kind, rank_excerpt_sentences
+
 
 def _last_user(messages: list[dict[str, str]]) -> str:
     return next((m.get("content", "") for m in reversed(messages) if m.get("role") == "user"), "")
@@ -13,20 +15,6 @@ def _last_user(messages: list[dict[str, str]]) -> str:
 def _field(content: str, name: str) -> str:
     match = re.search(re.escape(name) + r"([^\n]*)", content)
     return match.group(1).strip() if match else ""
-
-
-def _terms(value: str) -> set[str]:
-    filler = {
-        "什么", "什么时候", "什么条件", "如何", "怎么", "怎样", "为什么",
-        "为何", "是否", "一下", "请问", "请解释", "教材", "内容", "关系",
-        "条件", "时候",
-    }
-    terms: set[str] = set()
-    for run in re.findall(r"[\u4e00-\u9fff]+", value):
-        for size in (2, 3, 4):
-            terms.update(run[i:i + size] for i in range(max(0, len(run) - size + 1)))
-    terms.update(word.lower() for word in re.findall(r"[A-Za-z][A-Za-z0-9_]*", value))
-    return {term for term in terms if term not in filler}
 
 
 def _excerpts(content: str) -> list[tuple[int, str, str]]:
@@ -42,14 +30,6 @@ def _excerpts(content: str) -> list[tuple[int, str, str]]:
         body,
     )
     return [(int(number), header.strip(), text.strip()) for number, header, text in rows if text.strip()]
-
-
-def _sentences(text: str) -> list[str]:
-    return [
-        sentence.strip()
-        for sentence in re.split(r"(?<=[。！？；])|\n+", text)
-        if len(sentence.strip()) >= 12
-    ]
 
 
 def _topic(student: str) -> str:
@@ -68,27 +48,115 @@ def _topic(student: str) -> str:
     return ""
 
 
+def _derived_answer(question: str, excerpts: list[tuple[int, str, str]]) -> str:
+    """Answer questions that require combining a definition with an example."""
+    compact_question = re.sub(r"\s+", "", question)
+    compact_excerpts = [(number, re.sub(r"\s+", "", text)) for number, _, text in excerpts]
+
+    def marker(*keywords: str) -> int | None:
+        return next((
+            number for number, text in compact_excerpts
+            if any(keyword in text for keyword in keywords)
+        ), None)
+
+    ordered_pair = marker("第一分量", "第二分量", "序偶")
+    if re.search(r"有序对|序偶", question) and re.search(r"相等|相同", question) and ordered_pair:
+        return (
+            "根据本轮教材摘录：有序对不一定相等。序偶相等要求两个分量分别相等，"
+            f"所以(a,b)与(b,a)只有在a=b时才相等。[{ordered_pair}]"
+        )
+
+    negation = next((
+        number for number, text in compact_excerpts
+        if "否定" in text and ("p真时" in text or "┐p" in text)
+    ), None)
+    if "否定" in question and "真值" in question and negation:
+        return (
+            "根据本轮教材摘录：命题p的否定┐p与原命题的真值相反。"
+            f"p真时┐p假，p假时┐p真。[{negation}]"
+        )
+
+    induction = marker("归纳假设")
+    if "数学归纳" in question and "归纳假设" in question and induction:
+        return (
+            "根据本轮教材摘录：归纳假设是归纳步骤的前提；"
+            f"先假定前一步成立，再利用它推出下一步也成立。[{induction}]"
+        )
+
+    individual_domain = marker("个体域")
+    if "个体域" in question and re.search(r"变化|改变|真假", question) and individual_domain:
+        return (
+            "根据本轮教材摘录：会变化。同一个全称命题在不同个体域中可能有不同真假，"
+            f"个体域改变会影响命题是否为真。[{individual_domain}]"
+        )
+
+    absolute = marker("绝对值函数", "绝对值")
+    injection = marker("单射", "单值的")
+    if "绝对值" in question and "单射" in question and absolute and injection:
+        markers = "".join(f"[{number}]" for number in dict.fromkeys((absolute, injection)))
+        return (
+            "根据本轮教材摘录：这个映射不是单射。因为-1和1的绝对值都是1，"
+            f"不同原像对应了同一个值，不满足单射要求。{markers}"
+        )
+
+    antisymmetry = next((
+        number for number, text in compact_excerpts
+        if "反对称" in text and ("xRy" in text or "aRb" in text)
+    ), None)
+    if "反对称" in question and antisymmetry:
+        return (
+            "根据本轮教材摘录：关系R具有反对称性，当且仅当对任意x和y，"
+            f"若xRy且yRx，则x=y。[{antisymmetry}]"
+        )
+
+    multiplication = marker("乘法原理")
+    pair = re.search(
+        r"([一二三四五六七八九十两\d]+)种([\u4e00-\u9fff]{1,10}?)"
+        r"(?:与|和|及|、)([一二三四五六七八九十两\d]+)种"
+        r"([\u4e00-\u9fff]{1,10}?)(?=搭配|组合|选择|方案|，|。|？|$)",
+        compact_question,
+    )
+    if "乘法原理" in question and multiplication and pair:
+        numbers = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5,
+                   "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}
+        first = int(pair.group(1)) if pair.group(1).isdigit() else numbers.get(pair.group(1))
+        second = int(pair.group(3)) if pair.group(3).isdigit() else numbers.get(pair.group(3))
+        if first is not None and second is not None:
+            return (
+                f"根据本轮教材摘录：先选{pair.group(2)}，有{first}种；"
+                f"再选{pair.group(4)}，有{second}种。这是分步选择，"
+                f"根据乘法原理，总数是{first}×{second}={first * second}种。[{multiplication}]"
+            )
+
+    adjacency = marker("aij", "邻接矩阵")
+    if "邻接矩阵" in question and re.search(r"有边|相邻|两个顶点", question) and adjacency:
+        return (
+            "根据本轮教材摘录：查看邻接矩阵中表示vi到vj的元素aij。"
+            "无重边时，aij为1表示vi到vj有边，aij为0表示无边；"
+            f"有重边或权值时，aij表示边数或权值。[{adjacency}]"
+        )
+
+    composition = marker("次序刚好", "次序相反", "g(f(x))", "合成函数")
+    if re.search(r"函数.{0,4}复合|复合函数|f[○∘]g", question) and composition:
+        return (
+            "根据本轮教材摘录：合成函数g○f先应用内层函数f，再应用外层函数g，"
+            f"即(g○f)(x)=g(f(x))。[{composition}]"
+        )
+    return ""
+
+
 def _textbook_answer(question: str, excerpts: list[tuple[int, str, str]]) -> str:
-    query_terms = _terms(question)
-    ranked: list[tuple[float, int, str]] = []
-    for number, header, text in excerpts:
-        header_terms = _terms(header)
-        for position, sentence in enumerate(_sentences(text)):
-            sentence_terms = _terms(sentence)
-            overlap = query_terms & sentence_terms
-            header_overlap = query_terms & header_terms
-            score = (4 * sum(len(term) for term in header_overlap)
-                     + sum(len(term) for term in overlap))
-            if re.search(r"当且仅当|仅当|如果|条件是|只有|均真|同时为真|当.{0,8}时", sentence):
-                score += 1.5 if re.search(r"条件|什么时候|何时|怎样|如何|为什么|为何", question) else 0.3
-            if score > 0:
-                ranked.append((score, number, sentence))
+    derived = _derived_answer(question, excerpts)
+    if derived:
+        return derived
+    kind = question_kind(question)
+    ranked = rank_excerpt_sentences(question, excerpts)
     if not ranked:
         return ""
     ranked.sort(key=lambda item: (item[0], -item[1]), reverse=True)
     best_score, best_number, best_sentence = ranked[0]
     chosen = [(best_number, best_sentence)]
-    comparison = bool(re.search(r"比较|区别|不同|分别|各自|异同", question))
+    comparison = kind in {"contrast", "explain", "proof"}
     # 单点事实默认只给一句，避免把相邻小节或同章练习带进答案。
     if comparison:
         second = next((

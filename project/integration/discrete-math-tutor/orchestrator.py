@@ -40,7 +40,7 @@ from database.database import init_db
 from llm.client import LLMClient,LLMError
 from knowledge.figures import FIGURE_NUMBER, format_figure_context, retrieve_figures
 from knowledge.textbook import format_excerpts, load_textbook, retrieve
-from knowledge.hybrid_retrieval import retrieve_hybrid
+from knowledge.hybrid_retrieval import expand_section_context, retrieve_hybrid
 from knowledge.pdf_evidence import enrich_sources
 from knowledge.proof_units import expand_proof_sources
 from memory.memory_manager import MemoryManager
@@ -57,7 +57,7 @@ def retrieve_course(query,chunks,**kwargs):
             from integrations.deeptutor.knowledge_client import supplement
             result = supplement(query, result, limit=kwargs.get("limit", 6))
         return result
-    return retrieve_hybrid(query,chunks,**kwargs)
+    return expand_section_context(retrieve_hybrid(query,chunks,**kwargs))
 
 
 class TutorOrchestrator:
@@ -253,7 +253,7 @@ class TutorOrchestrator:
             sources = read_target(navigation)
         else:
             sources = retrieve_course(message if resource_query and not execution.target_refs else query, self.textbook_chunks,
-                                      limit=6 if PSYCHOLOGY else 2, preferred_types=execution.retrieval_types())
+                                      limit=6 if PSYCHOLOGY else 3, preferred_types=execution.retrieval_types())
         if is_stuck(message) and sources:
             chapter = sources[0].source
             basics = [

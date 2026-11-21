@@ -9,6 +9,7 @@ import re
 import sqlite3
 from array import array
 from contextlib import closing
+from dataclasses import replace
 from difflib import SequenceMatcher
 from functools import lru_cache
 from pathlib import Path
@@ -315,6 +316,79 @@ def _select_ranked(db: sqlite3.Connection, ranked: list, terms: frozenset[str],
     return selected
 
 
+def expand_section_context(
+    sources: list[TextbookChunk],
+    *,
+    max_chars: int = 2600,
+    index_path: Path | None = None,
+) -> list[TextbookChunk]:
+    """Add the selected section's neighboring chunks before answer selection.
+
+    The first-stage retriever returns compact chunks. Answer generation needs
+    enough neighboring prose to reach a definition, condition, comparison or
+    conclusion without changing the selected section identity.
+    """
+    if PSYCHOLOGY or not sources:
+        return sources
+    path = INDEX if index_path is None else index_path
+    if not path.is_file():
+        return sources
+    expanded = list(sources)
+    with closing(sqlite3.connect(path)) as db:
+        db.row_factory = sqlite3.Row
+        for source_index, source in enumerate(sources):
+            if not source.chapter_id or source.section_id is None or not source.chunk_id:
+                continue
+            rows = db.execute(
+                "SELECT id,text FROM chunks WHERE chapter_id=? AND section_id=? ORDER BY id",
+                (source.chapter_id, source.section_id),
+            ).fetchall()
+            if len(rows) <= 1:
+                continue
+            position = next((i for i, row in enumerate(rows) if row["id"] == source.chunk_id), None)
+            if position is None:
+                continue
+            total = sum(len(row["text"]) for row in rows)
+            if total <= max_chars:
+                selected_rows = rows
+            elif position >= 2:
+                # 超长小节保留开头定义，再补命中附近内容，避免只看到后半段解释。
+                def clipped(value: str, limit: int) -> str:
+                    if len(value) <= limit:
+                        return value
+                    head = value[:limit]
+                    boundary = max(head.rfind(mark) for mark in "。！？；\n")
+                    return head[:boundary + 1] if boundary >= limit // 2 else head
+
+                head = clipped(rows[0]["text"].strip(), max_chars // 2)
+                nearby = "\n".join(
+                    row["text"].strip() for row in rows[max(0, position - 1):position + 1]
+                )
+                text = head + "\n" + clipped(nearby, max_chars - len(head) - 1)
+                if len(text) > len(source.text):
+                    expanded[source_index] = replace(source, text=text, terms=terms_for(text))
+                continue
+            else:
+                start = max(0, position - 2)
+                selected_rows = []
+                used = 0
+                for row in rows[start:]:
+                    cost = len(row["text"]) + 1
+                    if selected_rows and used + cost > max_chars:
+                        break
+                    selected_rows.append(row)
+                    used += cost
+                if position < start or not any(row["id"] == source.chunk_id for row in selected_rows):
+                    selected_rows = [rows[position]]
+            if len(selected_rows) <= 1:
+                continue
+            texts = list(dict.fromkeys(row["text"].strip() for row in selected_rows if row["text"].strip()))
+            text = "\n".join(texts)[:max_chars]
+            if len(text) > len(source.text):
+                expanded[source_index] = replace(source, text=text, terms=terms_for(text))
+    return expanded
+
+
 def _lexical_supported(db: sqlite3.Connection, query: str, rows: list[sqlite3.Row],
                        refs: set[str], expressions: set[str]) -> bool:
     """无向量时要求候选至少含有可核对的词面线索。"""
@@ -548,12 +622,6 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
                         score -= 0.06
                 ranked.append((score, row))
             ranked.sort(key=lambda item: item[0], reverse=True)
-            if section_hints:
-                pinned_candidates = [(score, row) for score, row in ranked
-                                     if any(row["section"].lstrip().startswith(hint)
-                                            for hint in section_hints)]
-                if pinned_candidates:
-                    ranked = pinned_candidates
             if trace is not None:
                 trace["ranked"] = [{"id": row["id"], "score": score} for score, row in ranked]
             matched_resource = False
