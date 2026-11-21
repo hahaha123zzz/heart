@@ -146,6 +146,10 @@ def summarize(rows: list[dict]) -> dict:
     for row in in_scope:
         categories[row["category"]].append(row)
     return {
+        "total_scenarios": len({
+            row.get("scenario_id") or row.get("id") or f"row-{index}"
+            for index, row in enumerate(rows)
+        }),
         "total_cases": len(rows),
         "in_scope_cases": len(in_scope),
         "out_of_scope_cases": len(refused),
@@ -168,31 +172,75 @@ def summarize(rows: list[dict]) -> dict:
     }
 
 
-def evaluate(cases_path: Path, base_url: str, student_prefix: str) -> dict:
+def expand_turns(question_case: dict) -> list[dict]:
+    turns = question_case.get("turns")
+    if not turns:
+        return [{**question_case, "scenario_id": question_case["id"], "turn_index": 1}]
+    inherited = {
+        key: value for key, value in question_case.items()
+        if key not in {"turns", "id", "question", "answer_groups", "expect_refusal"}
+    }
+    return [
+        {
+            **inherited,
+            **turn,
+            "id": f"{question_case['id']}-t{index}",
+            "scenario_id": question_case["id"],
+            "turn_index": index,
+        }
+        for index, turn in enumerate(turns, 1)
+    ]
+
+
+def evaluate(
+    cases_path: Path,
+    base_url: str,
+    student_prefix: str,
+    *,
+    dry_run: bool = False,
+) -> dict:
     raw_cases = cases_path.read_bytes()
     dataset = json.loads(raw_cases)
     cases = dataset["cases"]
     stamp = datetime.now().strftime("%Y%m%d%H%M%S")
     student_id = f"{student_prefix}-{stamp}"[:64]
+    turns = [(case, turn) for case in cases for turn in expand_turns(case)]
+    metadata = {
+        "schema": "answer-accuracy-report-v1",
+        "created_at": datetime.now().astimezone().isoformat(),
+        "dataset": dataset.get("dataset"),
+        "dataset_note": dataset.get("note"),
+        "cases_file": str(cases_path),
+        "cases_sha256": hashlib.sha256(raw_cases).hexdigest(),
+        "index_sha256": _sha256(DEFAULT_INDEX),
+        "pdf_manifest_sha256": _sha256(DEFAULT_PDF_MANIFEST),
+        "scenario_count": len(cases),
+        "turn_count": len(turns),
+        "dry_run": dry_run,
+    }
+    if dry_run:
+        return metadata
     health = _request(base_url, "GET", "/health")
     _request(base_url, "POST", "/api/accounts/test", {"student_id": student_id, "ttl_hours": 2})
     rows = []
     started = time.perf_counter()
     try:
-        for case in cases:
+        for case, turn in turns:
             turn_started = time.perf_counter()
             response = _request(base_url, "POST", "/api/chat", {
                 "student_id": student_id,
-                "message": case["question"],
+                "message": turn["question"],
                 "account_type": "test",
-                "session_id": f"accuracy-{stamp}-{case['id']}",
+                "session_id": f"accuracy-{stamp}-{turn['scenario_id']}",
             })
-            score = score_response(case, response)
+            score = score_response(turn, response)
             rows.append({
-                "id": case["id"],
-                "question": case["question"],
-                "category": case["category"],
-                "expect_refusal": bool(case.get("expect_refusal")),
+                "id": turn["id"],
+                "scenario_id": turn["scenario_id"],
+                "turn_index": turn["turn_index"],
+                "question": turn["question"],
+                "category": turn["category"],
+                "expect_refusal": bool(turn.get("expect_refusal")),
                 **score,
                 "status": response.get("answer_status"),
                 "knowledge_point": response.get("knowledge_point"),
@@ -206,15 +254,7 @@ def evaluate(cases_path: Path, base_url: str, student_prefix: str) -> dict:
             _request(base_url, "DELETE", f"/api/accounts/test/{student_id}")
         except RuntimeError:
             pass
-    return {
-        "schema": "answer-accuracy-report-v1",
-        "created_at": datetime.now().astimezone().isoformat(),
-        "dataset": dataset.get("dataset"),
-        "dataset_note": dataset.get("note"),
-        "cases_file": str(cases_path),
-        "cases_sha256": hashlib.sha256(raw_cases).hexdigest(),
-        "index_sha256": _sha256(DEFAULT_INDEX),
-        "pdf_manifest_sha256": _sha256(DEFAULT_PDF_MANIFEST),
+    return metadata | {
         "service_health": health,
         "elapsed_seconds": round(time.perf_counter() - started, 2),
         "summary": summarize(rows),
@@ -222,7 +262,22 @@ def evaluate(cases_path: Path, base_url: str, student_prefix: str) -> dict:
     }
 
 
+def _format_rate(value: float | None) -> str:
+    return "N/A" if value is None else f"{value:.1%}"
+
+
 def write_markdown(report: dict, path: Path) -> None:
+    if report.get("dry_run"):
+        path.write_text(
+            "# Answer Accuracy Dataset Freeze\n\n"
+            f"- Dataset: `{report['dataset']}`\n"
+            f"- Cases SHA-256: `{report['cases_sha256']}`\n"
+            f"- Index SHA-256: `{report['index_sha256']}`\n"
+            f"- Scenarios: {report['scenario_count']}\n"
+            f"- Turns: {report['turn_count']}\n",
+            encoding="utf-8",
+        )
+        return
     summary = report["summary"]
     lines = [
         "# Answer Accuracy Report",
@@ -235,14 +290,14 @@ def write_markdown(report: dict, path: Path) -> None:
         "",
         "| Metric | Result |",
         "| --- | ---: |",
-        f"| Retrieval Hit | {summary['retrieval_hit_rate']:.1%} |",
-        f"| Answer Accuracy (in-scope) | {summary['answer_accuracy']:.1%} |",
-        f"| Citation Support (heuristic) | {summary['citation_support_rate']:.1%} |",
-        f"| False Refusal | {summary['false_refusal_rate']:.1%} |",
-        f"| Unsupported Answer | {summary['unsupported_answer_rate']:.1%} |",
-        f"| Out-of-scope Refusal | {summary['out_of_scope_refusal_accuracy']:.1%} |",
+        f"| Retrieval Hit | {_format_rate(summary['retrieval_hit_rate'])} |",
+        f"| Answer Accuracy (in-scope) | {_format_rate(summary['answer_accuracy'])} |",
+        f"| Citation Support (heuristic) | {_format_rate(summary['citation_support_rate'])} |",
+        f"| False Refusal | {_format_rate(summary['false_refusal_rate'])} |",
+        f"| Unsupported Answer | {_format_rate(summary['unsupported_answer_rate'])} |",
+        f"| Out-of-scope Refusal | {_format_rate(summary['out_of_scope_refusal_accuracy'])} |",
         f"| Invalid Citations | {summary['invalid_citation_count']} |",
-        f"| Overall Answer Accuracy | {summary['overall_answer_accuracy']:.1%} |",
+        f"| Overall Answer Accuracy | {_format_rate(summary['overall_answer_accuracy'])} |",
         "",
         "Citation support is a deterministic evidence-alignment check, not a semantic-entailment model.",
     ]
@@ -255,12 +310,17 @@ if __name__ == "__main__":
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--student-prefix", default="answer-accuracy")
+    parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
-    report = evaluate(args.cases, args.base_url, args.student_prefix)
+    report = evaluate(args.cases, args.base_url, args.student_prefix, dry_run=args.dry_run)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     markdown = args.output.with_suffix(".md")
     write_markdown(report, markdown)
-    print(json.dumps(report["summary"], ensure_ascii=False, indent=2))
+    print(json.dumps(report.get("summary", {
+        "scenarios": report["scenario_count"],
+        "turns": report["turn_count"],
+        "cases_sha256": report["cases_sha256"],
+    }), ensure_ascii=False, indent=2))
     print(f"JSON: {args.output}")
     print(f"Markdown: {markdown}")

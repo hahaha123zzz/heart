@@ -1,6 +1,6 @@
 import unittest
 
-from scripts.evaluate_answer_accuracy import score_response, summarize
+from scripts.evaluate_answer_accuracy import expand_turns, score_response, summarize
 
 
 class AnswerAccuracyEvalTests(unittest.TestCase):
@@ -59,6 +59,19 @@ class AnswerAccuracyEvalTests(unittest.TestCase):
             **score,
         }])
         self.assertEqual(summary["out_of_scope_refusal_accuracy"], 1.0)
+
+    def test_multi_turn_case_expands_with_stable_scenario_identity(self):
+        turns = expand_turns({
+            "id": "m01",
+            "category": "multiturn",
+            "section": "集合及其元素",
+            "turns": [
+                {"question": "第一轮", "answer_groups": [["集合"]]},
+                {"question": "第二轮", "answer_groups": [["元素"]]},
+            ],
+        })
+        self.assertEqual([turn["id"] for turn in turns], ["m01-t1", "m01-t2"])
+        self.assertEqual({turn["scenario_id"] for turn in turns}, {"m01"})
 
 
 if __name__ == "__main__":

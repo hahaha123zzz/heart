@@ -1,0 +1,435 @@
+{
+  "schema": "e2e-answer-accuracy-v1",
+  "dataset": "independent-engineering-holdout-v1",
+  "note": "Frozen engineering holdout. It has not been used for tuning and still requires independent teacher review before making educational-quality claims.",
+  "cases": [
+    {
+      "id": "h01",
+      "question": "集合 A 是集合 B 的子集，需要满足什么条件？",
+      "category": "definition",
+      "chapter": 1,
+      "section": "外延性公理与子集合",
+      "answer_groups": [["子集"], ["所有元素", "每一元素", "A 中"], ["B", "属于"]]
+    },
+    {
+      "id": "h02",
+      "question": "一个集合的幂集由哪些集合组成？",
+      "category": "definition",
+      "chapter": 1,
+      "section": "幂集运算和广义并、交运算",
+      "answer_groups": [["幂集"], ["所有子集", "全部子集"]]
+    },
+    {
+      "id": "h03",
+      "question": "集合 A 与 B 的笛卡儿积包含哪些对象？",
+      "category": "definition",
+      "chapter": 1,
+      "section": "集合的笛卡儿积",
+      "answer_groups": [["笛卡儿积"], ["有序对", "有序组", "a,b", "a, b"]]
+    },
+    {
+      "id": "h04",
+      "question": "鸽笼原理的基本形式说明了什么？",
+      "category": "definition",
+      "chapter": 2,
+      "section": "鸽笼原理的基本形式",
+      "answer_groups": [["鸽笼", "抽屉"], ["至少"], ["两", "2"]]
+    },
+    {
+      "id": "h05",
+      "question": "什么是重言式？",
+      "category": "definition",
+      "chapter": 4,
+      "section": "重言式",
+      "answer_groups": [["重言式"], ["永真", "恒真", "任何指派", "所有指派"]]
+    },
+    {
+      "id": "h06",
+      "question": "图中的一个顶点的度是怎样定义的？",
+      "category": "definition",
+      "chapter": 7,
+      "section": "结点的度",
+      "answer_groups": [["度"], ["关联", "相邻", "连接"], ["边"]]
+    },
+    {
+      "id": "h07",
+      "question": "二分图的顶点集合具有什么特点？",
+      "category": "definition",
+      "chapter": 8,
+      "section": "二分图的基本概念",
+      "answer_groups": [["二分图"], ["两个"], ["顶点"], ["内部无边", "没有边", "各自"]]
+    },
+    {
+      "id": "h08",
+      "question": "一个关系成为等价关系必须满足哪些性质？",
+      "category": "definition",
+      "chapter": 9,
+      "section": "等价关系与等价类",
+      "answer_groups": [["等价关系"], ["自反"], ["对称"], ["传递"]]
+    },
+    {
+      "id": "h09",
+      "question": "函数 f:A→B 什么时候是满射？",
+      "category": "definition",
+      "chapter": 10,
+      "section": "单射的、满射的和双射的函数",
+      "answer_groups": [["满射"], ["B"], ["每个", "每一", "所有"], ["像", "对应"]]
+    },
+    {
+      "id": "p01",
+      "question": "结构归纳原理为什么能证明递归定义对象的性质？",
+      "category": "proof",
+      "chapter": 2,
+      "section": "结构归纳原理",
+      "answer_groups": [["结构归纳"], ["基础"], ["归纳"]]
+    },
+    {
+      "id": "p02",
+      "question": "数学归纳法证明中，起始情形和归纳步骤分别起什么作用？",
+      "category": "proof",
+      "chapter": 2,
+      "section": "数学归纳原理",
+      "answer_groups": [["数学归纳"], ["起始", "基础"], ["归纳假设", "归纳步骤"]]
+    },
+    {
+      "id": "p03",
+      "question": "两个有限集合的包含排斥公式为什么要减去交集大小？",
+      "category": "proof",
+      "chapter": 3,
+      "section": "包含排斥原理",
+      "answer_groups": [["包含排斥"], ["交集"], ["重复", "减", "多算"]]
+    },
+    {
+      "id": "p04",
+      "question": "形式系统中的证明为什么必须使用系统允许的前提和推理规则？",
+      "category": "proof",
+      "chapter": 6,
+      "section": "系统内的推理：证明与演绎",
+      "answer_groups": [["证明"], ["前提"], ["推理规则", "规则"]]
+    },
+    {
+      "id": "p05",
+      "question": "自然推理形式系统 ND 中，引入规则和消去规则各有什么用途？",
+      "category": "proof",
+      "chapter": 6,
+      "section": "自然推理形式系统ND",
+      "answer_groups": [["自然推理", "ND"], ["引入"], ["消去"]]
+    },
+    {
+      "id": "p06",
+      "question": "为什么连通且无回路的图可以称为树？",
+      "category": "proof",
+      "chapter": 8,
+      "section": "树的基本概念",
+      "answer_groups": [["树"], ["连通"], ["无回路", "无圈"]]
+    },
+    {
+      "id": "f01",
+      "question": "并集的补集与各集合补集的交集有什么关系？",
+      "category": "formula",
+      "chapter": 1,
+      "section": "并、交、差、补运算",
+      "answer_groups": [["补"], ["并"], ["交"], ["等于", "="]]
+    },
+    {
+      "id": "f02",
+      "question": "两个有限集合的包含排斥公式怎么写？",
+      "category": "formula",
+      "chapter": 3,
+      "section": "包含排斥原理",
+      "answer_groups": [["A∪B"], ["A"], ["B"], ["A∩B"]]
+    },
+    {
+      "id": "f03",
+      "question": "从 n 个不同元素中取 r 个进行排列的公式是什么？",
+      "category": "formula",
+      "chapter": 3,
+      "section": "排列的计数",
+      "answer_groups": [["排列"], ["n!"], ["n-r", "n−r"]]
+    },
+    {
+      "id": "f04",
+      "question": "从 n 个不同元素中取 r 个的组合数公式是什么？",
+      "category": "formula",
+      "chapter": 3,
+      "section": "组合的计数",
+      "answer_groups": [["组合"], ["r!"], ["n-r", "n−r"]]
+    },
+    {
+      "id": "f05",
+      "question": "主析取范式由哪一类项组成？",
+      "category": "formula",
+      "chapter": 4,
+      "section": "主析取范式与主合取范式",
+      "answer_groups": [["主析取范式"], ["极小项"]]
+    },
+    {
+      "id": "f06",
+      "question": "谓词公式的前束范式把量词放在什么位置？",
+      "category": "formula",
+      "chapter": 5,
+      "section": "谓词公式的前束范式",
+      "answer_groups": [["前束范式"], ["量词"], ["前面", "最前"]]
+    },
+    {
+      "id": "f07",
+      "question": "连通平面图的欧拉公式是什么？",
+      "category": "formula",
+      "chapter": 8,
+      "section": "欧拉公式和库拉托夫斯基定理",
+      "answer_groups": [["V", "顶点"], ["E", "边"], ["F", "面"], ["2"]]
+    },
+    {
+      "id": "f08",
+      "question": "有限集合的基数与元素个数是什么关系？",
+      "category": "formula",
+      "chapter": 10,
+      "section": "有限集和无限集的基数",
+      "answer_groups": [["基数"], ["元素个数", "元素的数量"]]
+    },
+    {
+      "id": "a01",
+      "question": "含三个元素的集合一共有多少个子集？",
+      "category": "application",
+      "chapter": 1,
+      "section": "幂集运算和广义并、交运算",
+      "answer_groups": [["8"]]
+    },
+    {
+      "id": "a02",
+      "question": "四个球放进三个盒子，鸽笼原理能保证什么？",
+      "category": "application",
+      "chapter": 2,
+      "section": "鸽笼原理的基本形式",
+      "answer_groups": [["至少"], ["一个盒子", "某盒"], ["两个", "2"]]
+    },
+    {
+      "id": "a03",
+      "question": "从五个人中选出前三名并排顺序，有多少种结果？",
+      "category": "application",
+      "chapter": 3,
+      "section": "排列的计数",
+      "answer_groups": [["60"]]
+    },
+    {
+      "id": "a04",
+      "question": "从五个人中选两个人组成小组，有多少种选法？",
+      "category": "application",
+      "chapter": 3,
+      "section": "组合的计数",
+      "answer_groups": [["10"]]
+    },
+    {
+      "id": "a05",
+      "question": "含 n 个命题变元的真值表有多少行？",
+      "category": "application",
+      "chapter": 4,
+      "section": "命题公式",
+      "answer_groups": [["2^n", "2的n次方", "2ⁿ"], ["行"]]
+    },
+    {
+      "id": "a06",
+      "question": "一个图的所有顶点度数之和等于什么？",
+      "category": "application",
+      "chapter": 7,
+      "section": "结点的度",
+      "answer_groups": [["度数"], ["2|E|", "两倍", "二倍"], ["边"]]
+    },
+    {
+      "id": "a07",
+      "question": "一棵有 n 个顶点的树有多少条边？",
+      "category": "application",
+      "chapter": 8,
+      "section": "树的基本概念",
+      "answer_groups": [["n-1", "n−1"], ["边"]]
+    },
+    {
+      "id": "a08",
+      "question": "整数按除以 3 的余数分类，会得到几个等价类？",
+      "category": "application",
+      "chapter": 9,
+      "section": "等价关系与等价类",
+      "answer_groups": [["3"], ["等价类"]]
+    },
+    {
+      "id": "q01",
+      "question": "集合中的元素写两遍会改变这个集合吗？",
+      "category": "paraphrase",
+      "chapter": 1,
+      "section": "外延性公理与子集合",
+      "answer_groups": [["不会", "不改变"], ["元素", "相同"]]
+    },
+    {
+      "id": "q02",
+      "question": "描述法怎样表示一个集合？",
+      "category": "paraphrase",
+      "chapter": 1,
+      "section": "集合的表示",
+      "answer_groups": [["描述法"], ["性质"], ["满足"]]
+    },
+    {
+      "id": "q03",
+      "question": "什么情况用加法原理，什么情况用乘法原理？",
+      "category": "paraphrase",
+      "chapter": 3,
+      "section": "加法原理和乘法原理",
+      "answer_groups": [["加法"], ["互斥", "分类"], ["乘法"], ["分步"]]
+    },
+    {
+      "id": "q04",
+      "question": "重言式与矛盾式在真值上有什么区别？",
+      "category": "paraphrase",
+      "chapter": 4,
+      "section": "重言式",
+      "answer_groups": [["重言式"], ["真"], ["矛盾式"], ["假"]]
+    },
+    {
+      "id": "q05",
+      "question": "量词的辖域在谓词公式中指什么范围？",
+      "category": "paraphrase",
+      "chapter": 5,
+      "section": "量词及其辖域",
+      "answer_groups": [["量词"], ["辖域"], ["作用范围", "作用", "约束范围"]]
+    },
+    {
+      "id": "q06",
+      "question": "无向图的邻接矩阵有什么对称特点？",
+      "category": "paraphrase",
+      "chapter": 7,
+      "section": "邻接矩阵",
+      "answer_groups": [["邻接矩阵"], ["对称"]]
+    },
+    {
+      "id": "q07",
+      "question": "一个图的补图是怎样得到的？",
+      "category": "paraphrase",
+      "chapter": 7,
+      "section": "子图、补图及图同构",
+      "answer_groups": [["补图"], ["边"], ["没有", "不存在", "相反"]]
+    },
+    {
+      "id": "q08",
+      "question": "单射和满射的差别是什么？",
+      "category": "paraphrase",
+      "chapter": 10,
+      "section": "单射的、满射的和双射的函数",
+      "answer_groups": [["单射"], ["不同", "唯一"], ["满射"], ["每个", "所有", "值域"]]
+    },
+    {
+      "id": "m01",
+      "category": "multiturn",
+      "chapter": 1,
+      "section": "外延性公理与子集合",
+      "turns": [
+        {"question": "子集和真子集有什么区别？", "answer_groups": [["子集"], ["真子集"], ["不相等", "不等于", "缺少"]]},
+        {"question": "空集是不是任何集合的子集？", "answer_groups": [["空集"], ["子集"], ["任何", "所有"]]}
+      ]
+    },
+    {
+      "id": "m02",
+      "category": "multiturn",
+      "chapter": 2,
+      "section": "鸽笼原理的基本形式",
+      "turns": [
+        {"question": "鸽笼原理中的两个数量关系是什么？", "answer_groups": [["对象", "鸽子"], ["盒子", "鸽笼"], ["多", "超过"]]},
+        {"question": "五个对象放进四个盒子会怎样？", "answer_groups": [["至少"], ["一个盒子"], ["两个", "2"]]}
+      ]
+    },
+    {
+      "id": "m03",
+      "category": "multiturn",
+      "chapter": 4,
+      "section": "重言式",
+      "turns": [
+        {"question": "重言式对任何指派都取什么真值？", "answer_groups": [["重言式"], ["真"]]},
+        {"question": "那矛盾式对任何指派都取什么真值？", "answer_groups": [["矛盾式"], ["假"]]}
+      ]
+    },
+    {
+      "id": "m04",
+      "category": "multiturn",
+      "chapter": 7,
+      "section": "结点的度",
+      "turns": [
+        {"question": "单个顶点的度数表示什么？", "answer_groups": [["度"], ["边"], ["连接", "关联", "相邻"]]},
+        {"question": "所有顶点度数相加为什么一定是偶数？", "answer_groups": [["边"], ["两次", "两遍", "2"], ["偶数"]]}
+      ]
+    },
+    {
+      "id": "m05",
+      "category": "multiturn",
+      "chapter": 10,
+      "section": "单射的、满射的和双射的函数",
+      "turns": [
+        {"question": "单射要求不同的原像对应什么？", "answer_groups": [["单射"], ["不同"], ["值", "像"]]},
+        {"question": "再要求值域中的每个元素都被取到，会得到什么函数？", "answer_groups": [["双射"], ["满射"], ["单射"]]}
+      ]
+    },
+    {
+      "id": "o01",
+      "question": "量子纠缠是怎样实现超光速通信的？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "o02",
+      "question": "合同违约后怎样计算精神损害赔偿？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "o03",
+      "question": "CRISPR 如何修改人类胚胎基因？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "o04",
+      "question": "热力学第二定律为什么规定熵会增加？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "o05",
+      "question": "怎样用 K 线图判断下个月股票价格？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "o06",
+      "question": "法语中的虚拟式在什么从句中使用？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "o07",
+      "question": "篮球区域联防如何破解？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "o08",
+      "question": "酸面团面包怎样培养天然酵母？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "o09",
+      "question": "个人所得税专项附加扣除怎样申报？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "o10",
+      "question": "台风路径应该如何根据卫星云图预测？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "o11",
+      "question": "贝多芬第九交响曲的和声结构是什么？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    }
+  ]
+}
