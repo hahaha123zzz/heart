@@ -1,0 +1,24 @@
+启动阶段：加载应用（累计 0.0s）
+启动阶段：读取检索索引（累计 3.2s）
+启动阶段：模型预热完成（累计 3.2s）
+RAG runtime: {'configured': {'reranker': 'cpu', 'embedding': 'cpu'}, 'sessions': {}, 'cuda_cache_path': None}
+INFO:     127.0.0.1:65133 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63883 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63884 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63885 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63889 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63891 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63901 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63904 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63907 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63911 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63914 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63919 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63921 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63923 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63925 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63927 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63928 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63929 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63930 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63931 - "DELETE /api/accounts/test/answer-accuracy-20261121204012 HTTP/1.1" 200 OK

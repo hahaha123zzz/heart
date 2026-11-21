@@ -1,0 +1,1240 @@
+{
+  "index": "C:\\Users\\zzq\\Desktop\\heart-test-data-20261031-94ba9ca\\project\\integration\\discrete-math-tutor\\knowledge\\rag_index_v2.sqlite3",
+  "index_exists": true,
+  "cases_file": "tests\\data\\rag_blind_reranker_2026_10_10.json",
+  "cases_sha256": "4da09bbc2bbe918ea7dd0d69a37c4618110d467918c512ec6aac3fe16b8666f8",
+  "cases": 16,
+  "rerank_model": "",
+  "methods": {
+    "baseline": {
+      "positive_total": 12,
+      "hit_at_2": 6,
+      "hit_at_3": 7,
+      "out_of_scope_with_evidence": 4,
+      "out_of_scope_total": 4,
+      "elapsed_seconds": 0.2,
+      "median_latency_ms": 13.3,
+      "categories": {
+        "definition": {
+          "total": 3,
+          "hit_at_2": 1
+        },
+        "proof": {
+          "total": 2,
+          "hit_at_2": 2
+        },
+        "application": {
+          "total": 2,
+          "hit_at_2": 1
+        },
+        "formula": {
+          "total": 3,
+          "hit_at_2": 1
+        },
+        "paraphrase": {
+          "total": 2,
+          "hit_at_2": 1
+        }
+      },
+      "rows": [
+        {
+          "id": "c01",
+          "question": "有序对 (a,b) 与 (b,a) 一定相等吗？",
+          "category": "definition",
+          "expected_chapter": 1,
+          "expected_sections": [
+            "集合的笛卡儿积"
+          ],
+          "expected_kind": null,
+          "latency_ms": 13.7,
+          "has_evidence": true,
+          "hit_at_2": false,
+          "hit_at_3": false,
+          "hits": [
+            {
+              "chapter": 9,
+              "section": "9.3.1  序关系和有序集",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": null,
+              "excerpt": "* 9.3.2  良基性与良序集，完备序集\n定义9.19  设<A，R>为有序集（或半序集）。\n（1）称<A，R>是良基的（well founded），如果A的任何非空子集都有关于R的极小元。\n（2）称<A，R>是全序的（totally ordered），如果对任意不同的x，y(A，或者xRy或者yRx；即A为一链。\n（3）称<A，R>为良序集（well ordered set），如果<A，R>是全序的、良基的。\n显然，若<A，R>为有"
+            },
+            {
+              "chapter": 9,
+              "section": "9.3.1  序关系和有序集",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": null,
+              "excerpt": "定义9.14  设R是集合A上的二元关系，称R为序关系（ordered relations），如果R是自反、反对称、传递的。如果集合A上有序关系R，则称A为有序集（ordered sets），用序偶<A，R>表示之。\n很容易判定，数集上的≤关系为一典型的序关系。因此为简明，我们今后用记号≤表示一般的序关系，从而<A，≤>表示一般的有序集。\n例 9.17\n（1）实数集R上的“≤关系”为一序关系，<R, ≤>表示一个有序集。实数集R上的“("
+            },
+            {
+              "chapter": 8,
+              "section": "8.1.1 二分图的基本概念",
+              "kind": "text",
+              "source": "第8章特殊图（新）.txt",
+              "page": null,
+              "excerpt": "定义8.1  无向图G = <V，E>称为二分图（bipartite graph），如果有非空集合X，Y使X∪Y = V，X∩Y = (，且对每一e(E，都有e = {x, y}，x(X，y(Y。此时常用<X，E，Y>表示二分图G。若对X中任一x及Y中任一y恰有一边e(E，使e = {x, y}, 则称G为完全二分图（complete bipartite graph）。当(X( = m，(Y( = n时，完全二分图G记为Km,n。\n例8"
+            }
+          ]
+        },
+        {
+          "id": "c02",
+          "question": "用数学归纳法证明命题时，归纳假设如何用于下一步？",
+          "category": "proof",
+          "expected_chapter": 2,
+          "expected_sections": [
+            "数学归纳原理"
+          ],
+          "expected_kind": null,
+          "latency_ms": 16.4,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 2,
+              "section": "2.1.2数学归纳原理",
+              "kind": "text",
+              "source": "第2章两个数学基本原理（新）.txt",
+              "page": null,
+              "excerpt": "（2） 归纳过程：对任意k(≧0)假设P(i)真（k > i ≧ 0）（归纳假设：“0,1,…,k-1均满足性质P”）时，推出 P(k)真（k也满足性质 P）。\n（3） 结论：所有自然数具有性质P\n例2.6  有数目相等的两堆棋子(每一堆中棋子数目均为n)，甲、乙两人玩取棋子游戏。规定两人轮流取子，每次必须至少取一子，不能不取，也不能一次分别在两堆中取子，取得最后一枚棋子者为胜者。求证：后取者必胜。\n证 设甲为先取者，乙为后取者。对每一"
+            },
+            {
+              "chapter": 2,
+              "section": "2.1.2数学归纳原理",
+              "kind": "text",
+              "source": "第2章两个数学基本原理（新）.txt",
+              "page": null,
+              "excerpt": "归纳推理中，假定P(k)真而证明P(k+1)成立的过程中，k必须是“任意的”。例 2.7中，我们也是先考虑到k2≧2k +1并非对任意k成立，才察觉归纳基础的不充分。下面的例子更好地说明了这一点。\n例2.8 下列命题和证明是错误的：\n命题：任意n条直线必重合于同一条直线。\n证明：n = l时显然命题真。\n设 n = k时命题成立，即k条直线重合于同一条直线。现考虑n = k + 1，即有k+1条直线：l1，l2，…，lk，lk+1。据归"
+            },
+            {
+              "chapter": 3,
+              "section": "3.4.2 递归关系的求解",
+              "kind": "text",
+              "source": "第3章 计数（新）.txt",
+              "page": null,
+              "excerpt": "故  EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]    EMBED Equation.3    [公式或对象]  ，也就是说，每次所作长方形均相似于前次所作长方形，因而均相似于长方形  EMBED Equation.3    [公式或对象]  。\n图7.1\n练习3.4\n1．用以下方式解下列递归关系式：先"
+            }
+          ]
+        },
+        {
+          "id": "c03",
+          "question": "三种饮料与四种主食搭配，为什么使用乘法原理？",
+          "category": "application",
+          "expected_chapter": 3,
+          "expected_sections": [
+            "加法原理和乘法原理"
+          ],
+          "expected_kind": null,
+          "latency_ms": 11.8,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 3,
+              "section": "3.1.1 加法原理和乘法原理",
+              "kind": "text",
+              "source": "第3章 计数（新）.txt",
+              "page": null,
+              "excerpt": "加法原理：若事件的有限集合  EMBED Equation.3    [公式或对象]  ，且  EMBED Equation.3    [公式或对象]  两两不相交，那么\nEMBED Equation.3    [公式或对象]\n也就是说，如果事件集合S可以分为两两不相交的子集S1,…,Sn，那么要对S中事件计数时，可对子集S1,…,Sn分别计数，然后相加来求得。\n加法原理的另一个说法是：n个独立事件分别有a1，…，an种方式发生，那么这"
+            },
+            {
+              "chapter": 3,
+              "section": "3.1.1 加法原理和乘法原理",
+              "kind": "text",
+              "source": "第3章 计数（新）.txt",
+              "page": null,
+              "excerpt": "例3.1（1）从上海直达天津可以乘坐汽车、火车和飞机旅行。已知每天汽车有3个班次，火车有4个班次，飞机有2个班次，问每天从上海直达到天津有多少种旅行方式？\n（2）从上海直达天津可以乘坐汽车、火车和飞机旅行，已知汽车有3个班次，火车有4个班次，飞机有2个班次。从天津直达大连可以乘坐轮船和飞机旅行，已知轮船有2个班次，飞机有3个班次。问从上海经天津到大连有多少种旅行方式？\n解.（1）从上海直达到天津有3 + 4 + 2 = 9种旅行方式（加"
+            },
+            {
+              "chapter": 2,
+              "section": "2.1.1结构归纳原理",
+              "kind": "text",
+              "source": "第2章两个数学基本原理（新）.txt",
+              "page": null,
+              "excerpt": "设集合A是归纳定义的集合，现欲证A中所有元素具有性质P；若将“元素x具有性质P”表示为P(x)，即欲证:对任意x(A有P(x)真。常可用如下模式进行证明：\n（1）（归纳基础）证明：集合A定义的基础条款中规定的基本元素x均使P(x)真。\n（2）（归纳推理）证明：集合A定义的归纳条款是“保性质P的”。即在假设归纳条款中已确定元素x1,…, xn使P(xi) 真 (i = 1,2,…,n)的前提下，证明用归纳条款中的操作g所确定的元素g(x1"
+            }
+          ]
+        },
+        {
+          "id": "c04",
+          "question": "命题的否定与原命题在真值上有什么关系？",
+          "category": "formula",
+          "expected_chapter": 4,
+          "expected_sections": [
+            "逻辑联结词"
+          ],
+          "expected_kind": null,
+          "latency_ms": 15.8,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 4,
+              "section": "4.1.2  逻辑联结词",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": null,
+              "excerpt": "表4.5规定的蕴涵词称为实质蕴涵(substantive implication)，因为它不要求p→q中的p，q有什么关系，只要p，q为命题，p→q就有意义。例如“如果2+2=5，那么雪是黑的”，就是一个有意义的命题，且据定义其值为“真”。蕴涵词的这种规定形式，在讨论数学问题和逻辑问题时是正确的、充分的、方便的。回忆定理1.4“对任何集合A，( ( A”的证明：因为没有任何对象x,x((（x((为假），故x((蕴涵x(A为真，即( ( "
+            },
+            {
+              "chapter": 4,
+              "section": "4.1.2  逻辑联结词",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": null,
+              "excerpt": "今后“联结词”一词均指逻辑联结词及其符号表示。逻辑代数中，重要的联结词有5个，它们已在例4.2中出现过。\n否定词(negation)“并非”（not），用符号 ┐表示。设p表示一命题，那么┐p表示命题p的否定。p真时┐p假，而p假时┐p真。┐p读作“并非p”或“非p”。今后我们用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。表4.1规定了否定词 ┐的意义，表示┐p的真值状"
+            },
+            {
+              "chapter": 9,
+              "section": "9.3.1  序关系和有序集",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": null,
+              "excerpt": "例9.25 在真值集{0，l}中加入元素(，称为无定义值，并在{0，l，(}上定义偏序≤：\na≤b当且仅当a＝(或a＝b\n显然<{0，l，(}，≤>为一完备序集，它在计算机形式语义学中有重要应用。\n像例9.25中那样，在一已知集合（原本无序）中引入最小元，并如上定义序关系，所构成的有序集或半序集称为平序集（flat ordered set）或平半序集（flat partial ordered set）。\n定义9.21  设{<Ai, R"
+            }
+          ]
+        },
+        {
+          "id": "c05",
+          "question": "个体域改变时，同一个全称命题的真假会变化吗？",
+          "category": "paraphrase",
+          "expected_chapter": 5,
+          "expected_sections": [
+            "谓词公式的真值规定"
+          ],
+          "expected_kind": null,
+          "latency_ms": 15.9,
+          "has_evidence": true,
+          "hit_at_2": false,
+          "hit_at_3": false,
+          "hits": [
+            {
+              "chapter": 4,
+              "section": "4.1.1  命题",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": null,
+              "excerpt": "逻辑学把“对事物作出判断的陈述句”称作命题（propositions），当判断正确或符合客观实际时，称该命题真（true），否则称该命题假（false）。“真、假”常被称为命题的真值。古典逻辑认为，命题或真、或假，但不能兼而有之（我们也遵循此约定），这就是逻辑学的一个基本假设——排中律。非经典逻辑，如直觉主义逻辑、多值逻辑不接受排中律，本书对它们不作讨论。\n例4.1  考虑下列语句：\n（1）雪是白的。\n（2）2+2=5\n（3）3是偶数并"
+            },
+            {
+              "chapter": 6,
+              "section": "6.1.2  系统内的推理：证明与演绎",
+              "kind": "text",
+              "source": "第6章形式系统（新）.txt",
+              "page": null,
+              "excerpt": "{┐┐A, ┐A}├┐┐A且{┐┐A,┐A}├┐A\n因此由归谬定理得{┐┐A}├A。\n由于已证├┐┐A→A，故已有├┐┐┐A→┐A。此外，（┐┐┐A→┐A）→（A→┐┐A）为公理A3，因而可用分离规则得├A→┐┐A 。\n定理6.6（穷举定理）对任何公式集，公式A，B，若(；┐A├B，(；A├B，则(├B。\n由(A∨B)∧(A→C)∧(B→C)┝ C（穷举推理）和完备性定理，本定理也不难理解。\n例6.6对任何公式A，B，C，求证\n├ (A"
+            },
+            {
+              "chapter": 4,
+              "section": "4.1.1  命题",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": null,
+              "excerpt": "（10）也不是命题，因为习惯上   EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  表示变元，它们不是确定的对象，从而（10）没有确定的真值。只有当  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  取得确定的值时，（10）才成为命题，才有相应的真值。\n（11）不是命题，因为当它成立时，将导"
+            }
+          ]
+        },
+        {
+          "id": "c06",
+          "question": "证明与演绎在是否允许额外前提上有何区别？",
+          "category": "proof",
+          "expected_chapter": 6,
+          "expected_sections": [
+            "系统内的推理：证明与演绎"
+          ],
+          "expected_kind": null,
+          "latency_ms": 13.3,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 6,
+              "section": "6.1.2  系统内的推理：证明与演绎",
+              "kind": "text",
+              "source": "第6章形式系统（新）.txt",
+              "page": null,
+              "excerpt": "定义6.2  公式序列A1,A2,…,Am称为Am的一个证明（proof），如果Ai(1≤i≤m)或者是公理，或者由Aj1…,Ajk(j1,…,jk(i)用推理规则推得。当这样的证明存在时，称Am为系统的定理（theorems），记为├*Am, ( (为所讨论的系统名),或简记为├Am 。\n定义6.3设(为一公式集合。公式序列A1,A2,…,Am称为Am的以(为前提的演绎（diduction），如果Ai(1≤i≤m)或者是 ( 中公式，"
+            },
+            {
+              "chapter": 6,
+              "section": "6.1.2  系统内的推理：证明与演绎",
+              "kind": "text",
+              "source": "第6章形式系统（新）.txt",
+              "page": null,
+              "excerpt": "（1）公式序列A1,A2,…,Am称为Am的一个证明，如果Ai(1≤i≤m)或者是        ，或者由Aj1…,Ajk(j1,…,jk(i)用              推得。当这样的证明存在时，称Am为系统的      ，\n记为             。\n（2）公式序列A1,A2,…,Am称为Am的以(为前提的演绎，如果Ai(1≤i≤m)或者是       ，或者是               ，或者由Aj1…,Ajk(j1,…"
+            },
+            {
+              "chapter": 4,
+              "section": "4.2.2  逻辑等价式和逻辑蕴涵式",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": null,
+              "excerpt": "A┝┥A1∨A2┝┥┐A1* (┐p1／p1，…，┐pn／pn)∨┐A2* (┐p1／p1，…，┐pn／pn)\n（归纳假设）\n┝┥┐(A1* (┐p1／p1，…，┐pn／pn)∧A2* (┐p1／p1，…，┐pn／pn))\n┝┥┐(A1*∧A2* )(┐p1／p1，…，┐pn／pn)\n┝┥┐(A1∨A2) * (┐p1／p1，…，┐pn／pn)\n┝┥┐A*(┐p1／p1，…，┐pn／pn)\n（2.3）若A为A1∧A2，证明与（2.2）相"
+            }
+          ]
+        },
+        {
+          "id": "c07",
+          "question": "怎样从邻接矩阵判断两个顶点之间有边？",
+          "category": "paraphrase",
+          "expected_chapter": 7,
+          "expected_sections": [
+            "邻接矩阵"
+          ],
+          "expected_kind": null,
+          "latency_ms": 13.4,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 8,
+              "section": "8.2.2  欧拉公式和库拉托夫斯基定理",
+              "kind": "text",
+              "source": "第8章特殊图（新）.txt",
+              "page": null,
+              "excerpt": "对偶图有许多性质，我们关心的是：\n（1）图G的面与G*的顶点一一对应，且G中面的度等于G*中对应顶点的度 。\n（2）G中两个面有公共边界，当且仅当G*中对应顶点之间有边关联。\n（3）G为平面图当且仅当G*为平面图。\n因此，对于图的面着色问题，可以通过研究其对偶图的顶点着色问题来解决。以下讨论图的顶点着色问题。先推广定义7.20中的2-着色概念。\n定义8.8  无自环图G称为可k-着色的（k-chromatic），如果可用k种颜色给G的所"
+            },
+            {
+              "chapter": 7,
+              "section": "7.4.1 邻接矩阵",
+              "kind": "text",
+              "source": "第7章图（新）.txt",
+              "page": null,
+              "excerpt": "邻接矩阵多用于有向图，但也适用于无向图。我们仅对无重边的有向图立论，其结论均可移植于简单无向图。\n定义7.22  设G =<V，E>为一无重边的有向图。其中V={v1,v2,…,vn}，那么n(n矩阵A = [aij]，\nEMBED Equation.3    [公式或对象]\n称为图G的邻接矩阵（adjacency matrix），记为A[G]\n例7.16\n（1）零图的邻接矩阵为零矩阵。\n（2）一图的每个顶点以且仅以环为关联的边,那么该"
+            },
+            {
+              "chapter": 8,
+              "section": "8.3.1  树的基本概念",
+              "kind": "text",
+              "source": "第8章特殊图（新）.txt",
+              "page": null,
+              "excerpt": "设顶点数为n – 1 的满足题设的图无回路，考虑顶点数为n的图T。去掉T的一悬挂点（同定理9.15的证明可证，T至少有两个悬挂点）构成T’。显然T’仍连通，且m’= m –1 = n – 2 = n’ – 1 ，因此由归纳假设T’无回路。在T’上加回所删去的悬挂点得T，故T亦无回路。\n再证（3）的第二部分，设在T的顶点vi, vj间添加边e。由于T连通，故原本有vi到vj的通路，此通路连同边e构成T∪{e}的一条回路。若此回路不唯一，那"
+            }
+          ]
+        },
+        {
+          "id": "c08",
+          "question": "连通无圈图为何是一棵树？",
+          "category": "definition",
+          "expected_chapter": 8,
+          "expected_sections": [
+            "树的基本概念"
+          ],
+          "expected_kind": null,
+          "latency_ms": 10.3,
+          "has_evidence": true,
+          "hit_at_2": false,
+          "hit_at_3": false,
+          "hits": [
+            {
+              "chapter": 8,
+              "section": "8.3.3  根树",
+              "kind": "text",
+              "source": "第8章特殊图（新）.txt",
+              "page": null,
+              "excerpt": "7．一棵树有n2个2度顶点，有n2个2度顶点，……, 有nk个k度顶点，问：它有几个1度的顶点。\n8．给出图8.35的最小生成树，并写出关于这一生成树的枝割集系和弦回路系。\n图8.35\n9. 判断下列断言的真假：\n（1）连通无向图G的任何边，都是G的某一棵生成树的枝。\n（2）连通无向图G的任何边，都是G的某一棵生成树的弦。\n10．设G为连通无向图，证明：\n（1）G的任一生成树T的关于G的补G – T 中不含有G的割集。\n（2）G的任一割"
+            },
+            {
+              "chapter": 8,
+              "section": "8.3.2 生成树",
+              "kind": "text",
+              "source": "第8章特殊图（新）.txt",
+              "page": null,
+              "excerpt": "由上面的讨论我们知道，树是一种结构“很优秀”，也是“最经济”的特殊图，但有的连通图不是树，而由树的特性使我们想到，一个连通图G的“最小连通生成子图”应当是一棵树，即生成子图构成的树。这棵树对图G很重要，我们常称为图G的生成树。\n定义8.10  图T称为无向图G的生成树（spanning tree），如果T为G的生成子图且T为树。\n定理8.17  任一连通图G都至少有一棵生成树。\n证  若G无回路，则G本身为一树。若G有回路。则删去回路上"
+            },
+            {
+              "chapter": 7,
+              "section": "7.3.2  哈密顿图及哈密顿通路",
+              "kind": "text",
+              "source": "第7章图（新）.txt",
+              "page": null,
+              "excerpt": "Ｃ、既是基本回路也是简单回路\t\tＤ、即非基本回路也非简单回路\n（2）哈密尔顿回路是（　　）\nＡ、路径　　\t\t\t            Ｂ、简单回路\nＣ、既是基本回路也是简单回路\t\tＤ、即非基本回路也非简单回路\n（3）设Ｇ＝（ｎ，ｍ）是欧拉图，则ｎ，ｍ有关系（　　）\nＡ、ｎ＝ｍ\t\t\t\t    Ｂ、ｎ．ｍ的奇偶性必相同\nC、ｎ，ｍ的奇偶性必相反\t\tＤ、ｎ，ｍ的奇偶性既可相同也可相反\n2、填空题\n（1）无向图G有一条欧拉通路，当且仅当\n（2）"
+            }
+          ]
+        },
+        {
+          "id": "c09",
+          "question": "一个关系什么时候具有反对称性？",
+          "category": "definition",
+          "expected_chapter": 9,
+          "expected_sections": [
+            "关系的基本特性"
+          ],
+          "expected_kind": null,
+          "latency_ms": 15.1,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 9,
+              "section": "9.1.3 关系的基本特性",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": null,
+              "excerpt": "关系R总可看作A(B上的关系，它与R具有完全相同的序偶，用对它的讨论代替对R的讨论无损于问题的本质。\n定义9.5 设R是A上的二元关系。\n称R是自反的（reflexive），如果对任意x(A，均有xRx 。即,\nR自反 当且仅当 (x(x(A→xRx)\n称R是反自反的（irreflexive）,如果对任意x(A，xRx均不成立．即,\nR反自反 当且仅当 (x(x(A→┐xRx)\n称R是对称的（Symmetic），如果对任意x,y(A，x"
+            },
+            {
+              "chapter": 9,
+              "section": "9.1.3 关系的基本特性",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": null,
+              "excerpt": "故R2 ( R 。反之，设R2 ( R 。为证R传递，设有xRy, yRz 。据此有x R2z 。由R2 ( R，知xRz 。传递性得证。因而，MR2 ≤MR，即MR2 各分量不大于MR对应分量。\n已知某些关系同时具有某一性质，对它们作关系运算后的结果是否仍具有这一性质，是一个令人关注的问题。如果是，我们称该性质对这一运算封闭。现在我们来讨论五大特性对基本关系运算的封闭性。\n定理9.9 设R，S均为A上二元关系。\n（1）五大特性对交运算"
+            },
+            {
+              "chapter": 10,
+              "section": "10.1.3  函数的合成",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "作为关系，函数合成的讨论是顺理成章的。\n定义10.6  设f:X→Y，g:Y→Z，那么称f○g为函数f和g的合成函数。\nf○g为X到Z的一个关系是显然的，但它是否是X到Z的函数呢？也就是说，定义10.6  是否是良定的呢？下述定理作了肯定的回答。\n定理10.3  设f:X→Y，g:Y→Z，那么合成关系f○g为X到Z的函数。\n证  首先证明Dom(f○g) =X。对任一x(X，有y(Y，使<x,y>(f；对这一y，有z(Z，使得<y,z>"
+            }
+          ]
+        },
+        {
+          "id": "c10",
+          "question": "函数复合 f○g 中两个函数的应用次序是什么？",
+          "category": "formula",
+          "expected_chapter": 10,
+          "expected_sections": [
+            "函数的合成"
+          ],
+          "expected_kind": null,
+          "latency_ms": 13.6,
+          "has_evidence": true,
+          "hit_at_2": false,
+          "hit_at_3": false,
+          "hits": [
+            {
+              "chapter": 10,
+              "section": "10.3  函数的逆",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "函数作为关系可以求取它的逆。对f：X→Y，f~(Y(X为f的逆关系，那么是否f~一定是Y到X的函数呢？回答是否定的。容易明白，当f不是单射时，则f~无法满足单值性，而当f不是满射时，无法满足Dom(f~) = Y。因此，当f不是双射时， f~就不再是一个函数了。但是，\n定理10.14  若f：X→Y为一双射，则关系f的逆关系f~为Y到X的函数，记为f -1 ,且f -1：Y→X也为一双射。\n证  我们只证f -1为一函数，而把f -1为"
+            },
+            {
+              "chapter": 10,
+              "section": "10.1.1函数的基本概念",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "（4）当X＝(时，X到Y的空关系为一函数，称为空函数。当X ( (时，X到Y的空关系不是一个函数。\n（5）Add:N→N，y = Add (x1,x2) = x1+x2为自然数集上的二元加函数。\n通常用以下三种方法规定函数：\n（1）列表法：由于函数具有“单值性”，即对任一自变量有唯一确定的函数值，因此可将其序偶排列成一个表，将自变量与函数值一一对应起来。列表法一般适用于定义域为有限集合的情况。\n（2） 图标法：用笛卡儿平面上点的集合表示"
+            },
+            {
+              "chapter": 5,
+              "section": "5.2.2  谓词演算永真式",
+              "kind": "text",
+              "source": "第5章逻辑代数（下）（新）.txt",
+              "page": null,
+              "excerpt": "相反的逻辑蕴涵却是不成立的。为证明这一点，我们只要举出一个个体域和一种解释，它们使(x (A(x)∨B(x))真，却使(x A(x)∨(x B(x)为假。令D为整数集，A(x)表示“x是偶数”，B(x)表示“x是奇数”。这时显然(x (A(x)∨B(x))真，但(x A(x)假，(x B(x)也假，从而(x A(x)∨(x B(x)假。\n上文指出的证明逻辑蕴涵式“甲┝乙”不能成立的方法十分重要，即只要给出一个个体域、一种解释和对自由变元"
+            }
+          ]
+        },
+        {
+          "id": "c11",
+          "question": "A∧B 在什么条件下取真？",
+          "category": "formula",
+          "expected_chapter": 4,
+          "expected_sections": [
+            "逻辑联结词"
+          ],
+          "expected_kind": null,
+          "latency_ms": 9.3,
+          "has_evidence": true,
+          "hit_at_2": false,
+          "hit_at_3": false,
+          "hits": [
+            {
+              "chapter": 9,
+              "section": "9.3.1  序关系和有序集",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": null,
+              "excerpt": "12、设R是集合S上的关系，S'(S，定义S'上的关系R'如下：\nR'＝R∩(S'(S'）\n确定下述各断言的真假：\n（l）如果R传递，则R'传递。\n（2）如果R为序关系，则R'也是序关系。\n（3）如果<S, R>为全序集，则<S', R'>，也是全序集。\n（4）如果<S, R>为良序集，则<S', R'>，也是良序集。\n13、设<A, ≤>为一有限全序集，( A (≧2，R是A(A上的关系，根据R下列各定义，确定<A(A, R>是否为半"
+            },
+            {
+              "chapter": 10,
+              "section": "10.1.4  函数的递归定义",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "10、设f：X→Y，A(X，B(X，求证：\n（1）f(A= f∩(A (Ran(f))\n（2）f(A(B= f(A (f(B\n11、令B[A] = {f ( f为A到B的偏函数}，问：集合A和B满足什么条件时\nBA = B[A]\n12、考虑下列实数集上的函数：\nf(x) = 2x2+1，g(x) = -x+7，h(x) = 2x，k(x) = sinx\n求 g○f，f○g，f○f，g○g，f○h，f○k，k○h的解析式。\n13、设X= "
+            },
+            {
+              "chapter": 10,
+              "section": "10.2.1 单射的、满射的和双射的函数",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "证明请读者来完成。\n练习10.2\n1、设f：X→Y，X，Y为有限集合。\n（1）若( X ( < ( Y (，f可能是满射吗？为什么？\n（2）若( X ( > ( Y (，f可能是单射吗？为什么？\n（3）若X = (，f可能是单射吗？可能是满射吗？\n（4）X与Y满足什么条件时，f可能是满射？单射？双射？\n（5）思考你对（4）给出的条件，在X，Y为无限集时还适用吗？\n2、证明定理10.5之（2），（3）。\n3、证明：存在一个从集合X到它的幂"
+            }
+          ]
+        },
+        {
+          "id": "c12",
+          "question": "若给每个整数对应其绝对值，这个映射是否单射？",
+          "category": "application",
+          "expected_chapter": 10,
+          "expected_sections": [
+            "单射的、满射的和双射的函数"
+          ],
+          "expected_kind": null,
+          "latency_ms": 12.2,
+          "has_evidence": true,
+          "hit_at_2": false,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 9,
+              "section": "9.2.2  等价关系与划分",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": null,
+              "excerpt": "9、设R为A上二元关系，且Dom(R)＝A。若R○R~○R = R，证明R○R~和R~○R都是A上的等价关系。\n10、设R为A上的等价关系，证明：\nR¯○R＝R○R¯＝R¯\n11、设{A1，…，Am}为集合A的划分，证明：对任意集合B，{A1(B，A2(B，…，Am(B} - {(}必为集合A(B的划分。\n12、设A={1，2，3，4，5，6}，A有划分\nπ1 = {{1，2，3}，{4，5，6}}\nπ2 = {{1，2}，{3，4}，"
+            },
+            {
+              "chapter": 10,
+              "section": "10.1.1函数的基本概念",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "（4）当X＝(时，X到Y的空关系为一函数，称为空函数。当X ( (时，X到Y的空关系不是一个函数。\n（5）Add:N→N，y = Add (x1,x2) = x1+x2为自然数集上的二元加函数。\n通常用以下三种方法规定函数：\n（1）列表法：由于函数具有“单值性”，即对任一自变量有唯一确定的函数值，因此可将其序偶排列成一个表，将自变量与函数值一一对应起来。列表法一般适用于定义域为有限集合的情况。\n（2） 图标法：用笛卡儿平面上点的集合表示"
+            },
+            {
+              "chapter": 10,
+              "section": "10.2.1 单射的、满射的和双射的函数",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "由于习惯上把置换的合成写得与一般函数合成次序相反，因而置换的合成的书写又回到了关系合成的书写次序。这种“返祖”的原因是，置换的表示方式与关系的序偶集合表示形式接近，这种书写次序便于进行合成运算。\n显然，对任一集合X上的任一置换p，\np○i = i○p = p\n例10.12  设X= {1,2,3,4},   EMBED Equation.3    [公式或对象]  为X上置换，\nEMBED Equation.3    [公式或对象]\n那"
+            }
+          ]
+        },
+        {
+          "id": "c13",
+          "question": "怎样用 Transformer 做机器翻译？",
+          "category": "out_of_scope",
+          "expected_chapter": null,
+          "expected_sections": [],
+          "expected_kind": null,
+          "latency_ms": 8.4,
+          "has_evidence": true,
+          "hit_at_2": null,
+          "hit_at_3": null,
+          "hits": [
+            {
+              "chapter": 7,
+              "section": "7.2.2  连通性",
+              "kind": "text",
+              "source": "第7章图（新）.txt",
+              "page": null,
+              "excerpt": "4、证明：在简单无向图G中，从结点u到结点v,如果既有奇数长度的通路又有偶数长度的通路，那么G中必有一奇数长度的回路。\n5、证明：若简单无向图G是不连通的，那么G的补图G¯必定是连通的。\n6、给出图7.15中有向图的强分图，单向分图和弱分图。\n图7.15\n7、有7人a，b，c，d，e，f，g分别精通下列语言，问他们7人是否可以自由交谈（必要时借助他人作翻译）。\na 精通英语。\nb 精通汉语和英语。\nc 精通英语、俄语和意大利语。\nd 精"
+            },
+            {
+              "chapter": 5,
+              "section": "5.3  谓词公式的前束范式",
+              "kind": "text",
+              "source": "第5章逻辑代数（下）（新）.txt",
+              "page": null,
+              "excerpt": "在定理的机器证明中，需要消除谓词公式中的量词，因而需要将谓词公式中的量词前束化，即把公式中的量词均提取到公式的前部。\n定义5.7  公式A’称为公式A的前束范式（prenex normal forms），如果A┝┥A’，且A’形如\nQ1x1…QnxnB\n其中Q1,…,Qn为量词 ( 或 (, B称为母式，B中无量词。当B为合取（析取）范式时，A’称为A的前束合取（析取）范式。\n对任何谓词公式均可作出其前束范式，因为我们总可以利用各组逻辑"
+            },
+            {
+              "chapter": 10,
+              "section": "10.3  函数的逆",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "（2） 设x为X中任一元素，f(x) = y，那么x = f -1(y)。由于f -1○ f(x)＝f -1(f (x)) = f -1(y) = x，故f -1○ f = EX 。同理可证f ○ f -1 = EY 。\n定理 10.16  设f：X→Y，g：Y→Z都是可逆的，那么g○f也是可逆的，且\n(g○f) –1 = f -1○g–1\n证明留作练习。\n我们已经强调，非双射函数不是可逆的，它没有逆函数。但是，对某些这样的函数，仍可找"
+            }
+          ]
+        },
+        {
+          "id": "c14",
+          "question": "糖尿病如何使用胰岛素治疗？",
+          "category": "out_of_scope",
+          "expected_chapter": null,
+          "expected_sections": [],
+          "expected_kind": null,
+          "latency_ms": 9.1,
+          "has_evidence": true,
+          "hit_at_2": null,
+          "hit_at_3": null,
+          "hits": [
+            {
+              "chapter": 1,
+              "section": "1.3.1集合的归纳定义",
+              "kind": "text",
+              "source": "第1章集合代数(新).txt",
+              "page": null,
+              "excerpt": "前面已经提到，集合有三种表示方式，其中之一是归纳定义（inductive definition）。现在我们要来介绍什么是集合的归纳定义。\n集合的归纳定义由三部分组成:\n（1）基础条款：规定待定义集合以某些元素为其基本成员，集合的其它元素可以从它们出发逐步确定。\n（2）归纳条款：规定由已确定的集合元素去进一步确定其它元素的规则。于是，可以从基本元素出发，反复运用这些规则来确认待定义集合的所有成员。\n（3）终极条款：规定待定义集合只含有（l"
+            },
+            {
+              "chapter": 2,
+              "section": "2.1.1结构归纳原理",
+              "kind": "text",
+              "source": "第2章两个数学基本原理（新）.txt",
+              "page": null,
+              "excerpt": "设集合A是归纳定义的集合，现欲证A中所有元素具有性质P；若将“元素x具有性质P”表示为P(x)，即欲证:对任意x(A有P(x)真。常可用如下模式进行证明：\n（1）（归纳基础）证明：集合A定义的基础条款中规定的基本元素x均使P(x)真。\n（2）（归纳推理）证明：集合A定义的归纳条款是“保性质P的”。即在假设归纳条款中已确定元素x1,…, xn使P(xi) 真 (i = 1,2,…,n)的前提下，证明用归纳条款中的操作g所确定的元素g(x1"
+            },
+            {
+              "chapter": 4,
+              "section": "4.1.2  逻辑联结词",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": null,
+              "excerpt": "表4.5规定的蕴涵词称为实质蕴涵(substantive implication)，因为它不要求p→q中的p，q有什么关系，只要p，q为命题，p→q就有意义。例如“如果2+2=5，那么雪是黑的”，就是一个有意义的命题，且据定义其值为“真”。蕴涵词的这种规定形式，在讨论数学问题和逻辑问题时是正确的、充分的、方便的。回忆定理1.4“对任何集合A，( ( A”的证明：因为没有任何对象x,x((（x((为假），故x((蕴涵x(A为真，即( ( "
+            }
+          ]
+        },
+        {
+          "id": "c15",
+          "question": "股票的市盈率如何用于估值？",
+          "category": "out_of_scope",
+          "expected_chapter": null,
+          "expected_sections": [],
+          "expected_kind": null,
+          "latency_ms": 9.4,
+          "has_evidence": true,
+          "hit_at_2": null,
+          "hit_at_3": null,
+          "hits": [
+            {
+              "chapter": 10,
+              "section": "10.1.1函数的基本概念",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "定义10.1  设X，Y为集合，称f为X到Y的函数（functions），记为f：X→Y，如果f为X到Y的关系（f (X(Y），且对每一x(X，都有唯一的y(Y，使<x,y>(f 。当X=X1(…(Xn时，称f为n元函数。函数也称映射（mapping）或变换（transformation）。\n换言之，函数是特殊的关系，它满足\n（1）前域与定义域重合。\n（2）若<x,y>(f，<x,y’>(f，则y＝y’（单值性）。\n根据函数的上述第二个"
+            },
+            {
+              "chapter": 10,
+              "section": "10.1.3  函数的合成",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "作为关系，函数合成的讨论是顺理成章的。\n定义10.6  设f:X→Y，g:Y→Z，那么称f○g为函数f和g的合成函数。\nf○g为X到Z的一个关系是显然的，但它是否是X到Z的函数呢？也就是说，定义10.6  是否是良定的呢？下述定理作了肯定的回答。\n定理10.3  设f:X→Y，g:Y→Z，那么合成关系f○g为X到Z的函数。\n证  首先证明Dom(f○g) =X。对任一x(X，有y(Y，使<x,y>(f；对这一y，有z(Z，使得<y,z>"
+            },
+            {
+              "chapter": 1,
+              "section": "第1章 集合代数",
+              "kind": "text",
+              "source": "第1章集合代数(新).txt",
+              "page": null,
+              "excerpt": "集合论是一门研究数学基础的学科，它试图从一个比“数”更简单的概念——集合(sets)出发，定义数及其运算，进而发展到整个数学。集合理论产生于16世纪末。当时，只是由于微积分学的需要，人们仅对数集进行研究。19世纪末，康托尔（Georg Cantor 1845一1918年，德国数学家）对任意对象的集合进行了系统的研究。康托尔被公认为集合理论的创始人。[2]\n人们称康托尔开创的集合理论为朴素集合论，因为他没有对集合论作完全公理化的描述，从而"
+            }
+          ]
+        },
+        {
+          "id": "c16",
+          "question": "动量守恒定律适用于什么条件？",
+          "category": "out_of_scope",
+          "expected_chapter": null,
+          "expected_sections": [],
+          "expected_kind": null,
+          "latency_ms": 10.3,
+          "has_evidence": true,
+          "hit_at_2": null,
+          "hit_at_3": null,
+          "hits": [
+            {
+              "chapter": 10,
+              "section": "10.2.1 单射的、满射的和双射的函数",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "证明请读者来完成。\n练习10.2\n1、设f：X→Y，X，Y为有限集合。\n（1）若( X ( < ( Y (，f可能是满射吗？为什么？\n（2）若( X ( > ( Y (，f可能是单射吗？为什么？\n（3）若X = (，f可能是单射吗？可能是满射吗？\n（4）X与Y满足什么条件时，f可能是满射？单射？双射？\n（5）思考你对（4）给出的条件，在X，Y为无限集时还适用吗？\n2、证明定理10.5之（2），（3）。\n3、证明：存在一个从集合X到它的幂"
+            },
+            {
+              "chapter": 10,
+              "section": "10.1.4  函数的递归定义",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": null,
+              "excerpt": "10、设f：X→Y，A(X，B(X，求证：\n（1）f(A= f∩(A (Ran(f))\n（2）f(A(B= f(A (f(B\n11、令B[A] = {f ( f为A到B的偏函数}，问：集合A和B满足什么条件时\nBA = B[A]\n12、考虑下列实数集上的函数：\nf(x) = 2x2+1，g(x) = -x+7，h(x) = 2x，k(x) = sinx\n求 g○f，f○g，f○f，g○g，f○h，f○k，k○h的解析式。\n13、设X= "
+            },
+            {
+              "chapter": 4,
+              "section": "4.4.2  主析取范式与主合取范式",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": null,
+              "excerpt": "证明联结词组不完备还可用下述方法：选取一个已知的不完备联结词组（例如）{┐, (}，证明这组联结词（甲）可表示待证联结词组（乙）中的每一个。如果成功，那么可确定待证联结词组（乙）不完备。因为不然的话，（乙）是完备的，会导出已知的不完备联结词组（甲）是完备的，产生矛盾。\n练习4.3\n1、选择题\n（1）命题公式﹁(P∧Q)→R的弄真指派是（  ）\nA. 000, 001, 110    B. 001, 011, 101, 110, 111 "
+            }
+          ]
+        }
+      ]
+    },
+    "hybrid": {
+      "positive_total": 12,
+      "hit_at_2": 11,
+      "hit_at_3": 12,
+      "out_of_scope_with_evidence": 0,
+      "out_of_scope_total": 4,
+      "elapsed_seconds": 0.26,
+      "median_latency_ms": 15.7,
+      "categories": {
+        "definition": {
+          "total": 3,
+          "hit_at_2": 3
+        },
+        "proof": {
+          "total": 2,
+          "hit_at_2": 2
+        },
+        "application": {
+          "total": 2,
+          "hit_at_2": 2
+        },
+        "formula": {
+          "total": 3,
+          "hit_at_2": 2
+        },
+        "paraphrase": {
+          "total": 2,
+          "hit_at_2": 2
+        }
+      },
+      "rows": [
+        {
+          "id": "c01",
+          "question": "有序对 (a,b) 与 (b,a) 一定相等吗？",
+          "category": "definition",
+          "expected_chapter": 1,
+          "expected_sections": [
+            "集合的笛卡儿积"
+          ],
+          "expected_kind": null,
+          "latency_ms": 42.6,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 1,
+              "section": "1.2.3集合的笛卡儿积",
+              "kind": "text",
+              "source": "第1章集合代数(新).txt",
+              "page": 18,
+              "excerpt": "定义1.9 设  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  为任意对象，称集合  EMBED Equation.3    [公式或对象]  为二元有序组，或序偶（ordered pairs），简记为  EMBED Equation.3    [公式或对象]  。称  EMBED Equation.3    [公式或对象]  为  EMBED Equation"
+            },
+            {
+              "chapter": 9,
+              "section": "9.3.1  序关系和有序集",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": 31,
+              "excerpt": "定义9.14  设R是集合A上的二元关系，称R为序关系（ordered relations），如果R是自反、反对称、传递的。如果集合A上有序关系R，则称A为有序集（ordered sets），用序偶<A，R>表示之。\n很容易判定，数集上的≤关系为一典型的序关系。因此为简明，我们今后用记号≤表示一般的序关系，从而<A，≤>表示一般的有序集。\n例 9.17\n（1）实数集R上的“≤关系”为一序关系，<R, ≤>表示一个有序集。实数集R上的“("
+            },
+            {
+              "chapter": 1,
+              "section": "1.2  集合运算",
+              "kind": "text",
+              "source": "第1章集合代数(新).txt",
+              "page": 10,
+              "excerpt": "集合运算指以集合为运算对象、以集合为值的运算。\n本书中的符号“(”表示术语“当且仅当”（if and only if），“(” 表示术语“当(则(”（if ( then(）。"
+            }
+          ]
+        },
+        {
+          "id": "c02",
+          "question": "用数学归纳法证明命题时，归纳假设如何用于下一步？",
+          "category": "proof",
+          "expected_chapter": 2,
+          "expected_sections": [
+            "数学归纳原理"
+          ],
+          "expected_kind": null,
+          "latency_ms": 19.8,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 2,
+              "section": "2.1.2数学归纳原理",
+              "kind": "text",
+              "source": "第2章两个数学基本原理（新）.txt",
+              "page": 5,
+              "excerpt": "EMBED Equation.3    [公式或对象]\nEMBED Equation.3    [公式或对象]\nEMBED Equation.3    [公式或对象]\nEMBED Equation.3    [公式或对象]\n因此n = 3时式（2--1）得证。\n设n = k时式（2--1）对一切u≧3成立,即  EMBED Equation.3    [公式或对象]  。那么n = k+1时，\nEMBED Equation.3    ["
+            },
+            {
+              "chapter": 2,
+              "section": "第2章 两个常用数学基本原理",
+              "kind": "text",
+              "source": "第2章两个数学基本原理（新）.txt",
+              "page": 1,
+              "excerpt": "本章和第一章一样是今后学习的必要的数学准备，介绍两个最常用的数学基本原理：归纳原理和鸽笼原理，它们也是进行理论研究的基本工具。"
+            },
+            {
+              "chapter": 2,
+              "section": "2.1.1结构归纳原理",
+              "kind": "text",
+              "source": "第2章两个数学基本原理（新）.txt",
+              "page": 3,
+              "excerpt": "设集合A是归纳定义的集合，现欲证A中所有元素具有性质P；若将“元素x具有性质P”表示为P(x)，即欲证:对任意x(A有P(x)真。常可用如下模式进行证明：\n（1）（归纳基础）证明：集合A定义的基础条款中规定的基本元素x均使P(x)真。\n（2）（归纳推理）证明：集合A定义的归纳条款是“保性质P的”。即在假设归纳条款中已确定元素x1,…, xn使P(xi) 真 (i = 1,2,…,n)的前提下，证明用归纳条款中的操作g所确定的元素g(x1"
+            }
+          ]
+        },
+        {
+          "id": "c03",
+          "question": "三种饮料与四种主食搭配，为什么使用乘法原理？",
+          "category": "application",
+          "expected_chapter": 3,
+          "expected_sections": [
+            "加法原理和乘法原理"
+          ],
+          "expected_kind": null,
+          "latency_ms": 14.0,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 3,
+              "section": "3.1.1 加法原理和乘法原理",
+              "kind": "text",
+              "source": "第3章 计数（新）.txt",
+              "page": 3,
+              "excerpt": "加法原理：若事件的有限集合  EMBED Equation.3    [公式或对象]  ，且  EMBED Equation.3    [公式或对象]  两两不相交，那么\nEMBED Equation.3    [公式或对象]\n也就是说，如果事件集合S可以分为两两不相交的子集S1,…,Sn，那么要对S中事件计数时，可对子集S1,…,Sn分别计数，然后相加来求得。\n加法原理的另一个说法是：n个独立事件分别有a1，…，an种方式发生，那么这"
+            },
+            {
+              "chapter": 3,
+              "section": "3.1  计数基本原理",
+              "kind": "text",
+              "source": "第3章 计数（新）.txt",
+              "page": 2,
+              "excerpt": "计数基本原理包括加法原理和乘法原理，是高中阶段数学课程中的学习内容，我们只作简要回顾。"
+            },
+            {
+              "chapter": 3,
+              "section": "3.1.2包含排斥原理",
+              "kind": "text",
+              "source": "第3章 计数（新）.txt",
+              "page": 4,
+              "excerpt": "(  EMBED Equation.3    [公式或对象]  ( =   EMBED Equation.3    [公式或对象]  （个）\n练习3.1\n选择题\n(1) 加法原理的适用范围是(  )\nA. 事件之间是相容的，独立的；\nB. 事件之间是不相容的，不独立；\nC. 事件之间相互独立，但不相容；\nD. 事件之间不独立，但相容；\n(2) 乘法原理的适用范围是（ ）\nA. 步骤间是相依的，步骤内的方式不独立；\nB. 步骤间是相依的，"
+            }
+          ]
+        },
+        {
+          "id": "c04",
+          "question": "命题的否定与原命题在真值上有什么关系？",
+          "category": "formula",
+          "expected_chapter": 4,
+          "expected_sections": [
+            "逻辑联结词"
+          ],
+          "expected_kind": null,
+          "latency_ms": 19.3,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 4,
+              "section": "4.1.2  逻辑联结词",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": 4,
+              "excerpt": "今后“联结词”一词均指逻辑联结词及其符号表示。逻辑代数中，重要的联结词有5个，它们已在例4.2中出现过。\n否定词(negation)“并非”（not），用符号 ┐表示。设p表示一命题，那么┐p表示命题p的否定。p真时┐p假，而p假时┐p真。┐p读作“并非p”或“非p”。今后我们用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。表4.1规定了否定词 ┐的意义，表示┐p的真值状"
+            },
+            {
+              "chapter": 9,
+              "section": "9.3.1  序关系和有序集",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": 31,
+              "excerpt": "证明是显然的。\n例9.25 在真值集{0，l}中加入元素(，称为无定义值，并在{0，l，(}上定义偏序≤：\na≤b当且仅当a＝(或a＝b\n显然<{0，l，(}，≤>为一完备序集，它在计算机形式语义学中有重要应用。\n像例9.25中那样，在一已知集合（原本无序）中引入最小元，并如上定义序关系，所构成的有序集或半序集称为平序集（flat ordered set）或平半序集（flat partial ordered set）。\n定义9.21  "
+            },
+            {
+              "chapter": 9,
+              "section": "9.2.2  等价关系与划分",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": 24,
+              "excerpt": "若i是偶数，则有整数m，使x－y=2m，从而<x，y>(R1(t(R1∪R2)；若i是奇数，则有整数m，使x－y＝m·2＋3。于是可取整数u＝y＋3，使x－u＝m·2，u－y=3。这样<x，u>(R1，<u，y>(R2，亦即<x，y>(R1◦R2。由于R1◦R2((R1∪R2)2 ( t(R1∪R2)，因此<x，y>(t(R1∪R2)。\n综上所述，R4＝t(R1∪R2)，π4=π1+π2。\n最后我们介绍一个常用的术语。\n定义9.13  "
+            }
+          ]
+        },
+        {
+          "id": "c05",
+          "question": "个体域改变时，同一个全称命题的真假会变化吗？",
+          "category": "paraphrase",
+          "expected_chapter": 5,
+          "expected_sections": [
+            "谓词公式的真值规定"
+          ],
+          "expected_kind": null,
+          "latency_ms": 15.7,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 5,
+              "section": "5.2.1  谓词公式的真值规定",
+              "kind": "text",
+              "source": "第5章逻辑代数（下）（新）.txt",
+              "page": 13,
+              "excerpt": "1\t1\n1\t0\n1\nD2\tx是质数\n（I1）\t3\n5\t1\n1\t1\n1\t1\n1\t\t\tx是合数\n（I2）\t3\n5\t0\n0\t0\n0\t1\n1\n因此，为了讨论谓词公式的真值，进而讨论谓词演算永真公式，我们需要下列多个层次的真值概念。\n定义5.2  给定个体域D及公式A中各谓词符号的解释I，如果A中个体变元x1,…,xn分别取值u1,…,un时A真，则称A在u1,…,un处真；当x1,…,xn无论取D中怎样的个体u1 ,…,un，A在u1 ,…,u"
+            },
+            {
+              "chapter": 4,
+              "section": "4.1.1  命题",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": 2,
+              "excerpt": "只有当  EMBED Equation.3    [公式或对象]  ，  EMBED Equation.3    [公式或对象]  取得确定的值时，（10）才成为命题，才有相应的真值。\n（11）不是命题，因为当它成立时，将导出“我”既不能给自己刮胡子，又不能不给自己刮胡子的矛盾的结论。它是一个悖论（著名的理发师悖论），即一种自相矛盾的病态语句,我们不承认此类语句作出了适当的判断。\n由于（12）对本身的真假作了否定的判断，从而对（12）真"
+            },
+            {
+              "chapter": 5,
+              "section": "5.2.3  关于永真式的几个基本原理",
+              "kind": "text",
+              "source": "第5章逻辑代数（下）（新）.txt",
+              "page": 17,
+              "excerpt": "B．(x(P(x)∨Q(x)) ┝┥(xP(x)∨(xQ(x)\nC．(x(P(x)∧Q(x)) ┝┥(xP(x)∧((x)Q(x)\nD．(x(P(x)∧Q) ┝┥(xP(x)∧Q\n2、填空题\n（1）取个体域为整数集，给定下列公式：\n(a) (x(y(x(y=0)\t\t(b) (x(y(x(y=1)\n(c) (x(y(x(y=2)\t\t(d) (x(y(z(x-y=z)\n(e) (x(y x-y=-y+x\t\t(f) (x(y(x(y=y)\n("
+            }
+          ]
+        },
+        {
+          "id": "c06",
+          "question": "证明与演绎在是否允许额外前提上有何区别？",
+          "category": "proof",
+          "expected_chapter": 6,
+          "expected_sections": [
+            "系统内的推理：证明与演绎"
+          ],
+          "expected_kind": null,
+          "latency_ms": 14.0,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 6,
+              "section": "6.1.2  系统内的推理：证明与演绎",
+              "kind": "text",
+              "source": "第6章形式系统（新）.txt",
+              "page": 3,
+              "excerpt": "（1）(x A(x,y)                                 前提\n（2）(y (x A(x,y)                              对（1）用定理6.7\n（3）(y (x A(x,y)→(x A(x,x)                    公理\n（4）(x A(x,x)                                 对（2），（3）用分离规则\n6、模仿定理6.7"
+            },
+            {
+              "chapter": 6,
+              "section": "6.2 自然推理形式系统ND",
+              "kind": "text",
+              "source": "第6章形式系统（新）.txt",
+              "page": 9,
+              "excerpt": "要解答本问题，需确定在上述前提下可否推出结论 ┐q，即 (├ ┐q是否成立。下列推理表明，答案是肯定的，(├ ┐q的演绎序列如下：\n（1）(├ p→(┐q∨(r∧s))                             公理\n（2）(├ p                                          公理\n（3）(├ ┐q∨(r∧s)                                 →消除规则"
+            },
+            {
+              "chapter": 6,
+              "section": "第6章  形式系统与推理技术",
+              "kind": "text",
+              "source": "第6章形式系统（新）.txt",
+              "page": 1,
+              "excerpt": "读者已经看到，逻辑代数的确揭示了人类思维的基本规律，例如┝A∨┐A（排中律），┝┐(A∧┐A)（矛盾律），A∧(A→B)┝ B（假言推理），A→(B∧┐B)┝┐A（归谬推理），(A∨B)∧(A→C)∧(B→C)┝C（穷举推理）; 逻辑代数还提供了真值计算、代入、替换、对偶等演算手段，可用于对其它思维规律的探求。但是，这与数理逻辑所追求的形式化、公理化的目标相去甚远。\n20世纪初，数理逻辑研究的一个重要目的在于建立一个严密的公理化符号体系"
+            }
+          ]
+        },
+        {
+          "id": "c07",
+          "question": "怎样从邻接矩阵判断两个顶点之间有边？",
+          "category": "paraphrase",
+          "expected_chapter": 7,
+          "expected_sections": [
+            "邻接矩阵"
+          ],
+          "expected_kind": null,
+          "latency_ms": 14.4,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 7,
+              "section": "7.4.1 邻接矩阵",
+              "kind": "text",
+              "source": "第7章图（新）.txt",
+              "page": 23,
+              "excerpt": "EMBED Equation.3    [公式或对象]                    (8-5)\n其中  EMBED Equation.3    [公式或对象]  表示从vi到vk有  EMBED Equation.3    [公式或对象]  条长度为l的拟路径。而\nEMBED Equation.3    [公式或对象]\nEMBED Equation.3    [公式或对象]  表示从vi经由vk到vj的长度为l+1的拟路径数目"
+            },
+            {
+              "chapter": 7,
+              "section": "7.4.2  路径矩阵与可达性矩阵",
+              "kind": "text",
+              "source": "第7章图（新）.txt",
+              "page": 26,
+              "excerpt": "设n个顶点的图G的邻接矩阵为A，∨及·表示如下定义的矩阵运算。若A＝[  EMBED Equation.3    [公式或对象]  ]，C = [  EMBED Equation.3    [公式或对象]  ]，则\nA∨C = [  EMBED Equation.3    [公式或对象]  ]       EMBED Equation.3    [公式或对象]  =  EMBED Equation.3    [公式或对象]    EMB"
+            },
+            {
+              "chapter": 7,
+              "section": "7.1.3  子图、补图及图同构",
+              "kind": "text",
+              "source": "第7章图（新）.txt",
+              "page": 6,
+              "excerpt": "Ｃ、（０，１，３，３，３）　　Ｄ、（１，３，４，４，５）\n（4）图Ｇ和Ｇ＇的结点和边分别存在一一对应的关系是Ｇ和Ｇ＇同构的（　）\nＡ、充分条件　　　　　　　Ｂ、必要条件\nＣ、充要条件　　　　　　　Ｄ、既不充分也不必要条件\n（5）Ｋ４中含３条边的不同构的生成子图有（　　）\nＡ、１个　　Ｂ、３个　　　Ｃ、４个　　　Ｄ、２个\n（6）若简单图Ｇ与其补图G¯同构，称Ｇ为自补图。则含５个结点不同构的\n无向自补图的个数为（　　）\nＡ、０　　　　Ｂ、１"
+            }
+          ]
+        },
+        {
+          "id": "c08",
+          "question": "连通无圈图为何是一棵树？",
+          "category": "definition",
+          "expected_chapter": 8,
+          "expected_sections": [
+            "树的基本概念"
+          ],
+          "expected_kind": null,
+          "latency_ms": 14.6,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 8,
+              "section": "8.3.1  树的基本概念",
+              "kind": "text",
+              "source": "第8章特殊图（新）.txt",
+              "page": 14,
+              "excerpt": "树还有下列5种等价定义形式。\n定理8.16  命题“（n，m）图T为树”与下列5命题中的每一命题等价：\n（1）T无回路且m = n – 1 。\n（2）T连通且m = n – 1 。\n（3）T无回路，但任意添加边时，T中产生唯一的一条回路。\n（4）T连通，但删去任一边时便不再连通（T的每一边均为割边）。\n（5）任意两个不同顶点之间有且仅有一条通路。\n证 记“T为树”即“T连通无回路”为命题（0）。为证（0）与（1），（2），（3），（4）"
+            },
+            {
+              "chapter": 7,
+              "section": "7.1.1  图的基本概念",
+              "kind": "text",
+              "source": "第7章图（新）.txt",
+              "page": 2,
+              "excerpt": "定义7.1  图（graph）G由两个部分所组成：\n（1）非空集合V(G)，称为图G的结点集，其成员称为结点或顶点（nodes or vertices）。结点用拉丁字母或希腊字母来表示。\n（2）多重集合 E(G)，称为图G的边集，其成员称为边(edges)。边用结点的序偶和结点的两元素多重集表示。结点序偶表示的边称为有向边（directed edges），两元素多重集表示的边称为无向边（indirected edges）。\n当图的边均为"
+            },
+            {
+              "chapter": 9,
+              "section": "9.1.1 关系的基本概念",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": 2,
+              "excerpt": "关系图直观清晰形象，是分析关系性质的方便形式，但是对它不便于进行运算。我们知道关系图是一个有向图，有向图又有一种便于运算的、直观鲜明的表示形式——矩阵，因此矩阵也被用于表示二元关系，称为关系矩阵（matrix of relation）。设R ( A(B，A =｛a1 , … ,am｝,B =｛b1 , … ,bn｝，那么R的关系矩阵MR为一m(n矩阵，它的第i , j分量cij只取值0或1，而\ncij＝1当且仅当 ai Rbj；cij＝"
+            }
+          ]
+        },
+        {
+          "id": "c09",
+          "question": "一个关系什么时候具有反对称性？",
+          "category": "definition",
+          "expected_chapter": 9,
+          "expected_sections": [
+            "关系的基本特性"
+          ],
+          "expected_kind": null,
+          "latency_ms": 19.3,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 9,
+              "section": "9.1.3 关系的基本特性",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": 10,
+              "excerpt": "可是值得注意的是，当 A＝(时（这时A上只有一个关系(），A上空关系既是自反的，又是反自反的，因为A＝(使两者定义的前提恒假。\n（2）R4＝｛<1，3>，<3，1>，<1，2>，<1，1>｝不是对称的；R5＝｛<1，2>，<2，1>｝\n是对称的；R6＝｛<1，2>，<1，3>｝是反对称的。其实R4既不是对称的，也不是反对称的。特别有意思的是，存在既对称又反对称的二元关系，例如A上的相等关系EA或任一R( EA。\n（3）R7＝｛<1，2>"
+            },
+            {
+              "chapter": 9,
+              "section": "9.1.4  关系特性闭包",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": 13,
+              "excerpt": "xR4y(x(y\nxR5y(x = yk (k是整数)\n用Y(yes)和N(no)填写表9.2\n表9.2\n自反\t反自反\t对称\t反对称\t传递\t\tR1\t\t\t\t\t\t\tR2\t\t\t\t\t\t\tR3\t\t\t\t\t\t\tR4\t\t\t\t\t\t\tR5\t\t\t\t\t\t\t11、（1）设R是A上的二元关系, R自反(反自反,对称,反对称,传递), B(A, 试问R(B(B是否依然是自反(反自反,对称,反对称,传递)的。\n（2）试举例说明：反对称性与传递性对并运算不封闭。\n（3）"
+            },
+            {
+              "chapter": 9,
+              "section": "9.3.1  序关系和有序集",
+              "kind": "text",
+              "source": "第9章关系（新）.txt",
+              "page": 31,
+              "excerpt": "B的最大元为g。\nB的极大元为g。\nB的最小元为b。\nB的极小元也为b。\n（2）B={ b, c, d, e, f, g}\nB无最大元和最小元。\nB的极大元是f,g；极小元是b,c。\n（3）B={a, c, d }\nB无最大元，其最小元为a。\nB的极大元为c,d，极小元为a。\n（4）B={ d , e }\nB无最大元，也无最小元。\nB的极大元是d, e，极小元也是d, e。\n图9.10\n定理9.23  设<A, ≤>为有序集，B ( A"
+            }
+          ]
+        },
+        {
+          "id": "c10",
+          "question": "函数复合 f○g 中两个函数的应用次序是什么？",
+          "category": "formula",
+          "expected_chapter": 10,
+          "expected_sections": [
+            "函数的合成"
+          ],
+          "expected_kind": null,
+          "latency_ms": 19.2,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 10,
+              "section": "10.1.3  函数的合成",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": 7,
+              "excerpt": "因对任意x(Dom(f )，\nh○(g○f)(x) = h ((g○f)(x))\n= h (g(f (x))\n= (h○g) (f (x))\n= (h○g)○f (x)\n函数合成的下列性质是明显的:\n对f : X→Y ,\nf○EX = EY○f = f\n由于函数的合成满足结合律，n个函数f的合成可记为fn，常称为f的n次迭代。显然\nEMBED Equation.3    [公式或对象]\n例10.8\n（1）设f为N上的后继函数，即f(x)"
+            },
+            {
+              "chapter": 10,
+              "section": "10.1 函数及函数的合成",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": 2,
+              "excerpt": "这一小节介绍离散对象之间函数关系的一般概念、表示形式和函数之间的合成运算（操作）。"
+            },
+            {
+              "chapter": 10,
+              "section": "10.1.1函数的基本概念",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": 3,
+              "excerpt": "定义10.2  设f:A→B，g:C→D，称函数f等于g, 记为f = g，如果A = C，B＝D，且对每一x(A，\nf(x)＝g(x) 。\n称函数f包含于g，记为f ( g，如果A ( C，B＝D，且对每一x(A，f(x)＝g(x) 。\n定义中B＝D的要求不是本质的，或者说是无关紧要的。\n定理10.1  设( X ( = m，( Y ( = n，那么{f ( f: X→Y}的基数为nm 。即共有nm个X到Y的函数。\n证  设X={x1"
+            }
+          ]
+        },
+        {
+          "id": "c11",
+          "question": "A∧B 在什么条件下取真？",
+          "category": "formula",
+          "expected_chapter": 4,
+          "expected_sections": [
+            "逻辑联结词"
+          ],
+          "expected_kind": null,
+          "latency_ms": 18.6,
+          "has_evidence": true,
+          "hit_at_2": false,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 4,
+              "section": "4.2.2  逻辑等价式和逻辑蕴涵式",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": 15,
+              "excerpt": "为此设(为弄假(A∨B)→C的任一指派，那么( (A∨B)=1，( (C)=0。当( (A)=1，( (C)=0时，( (A→C)=0，进而有( ((A→C)∧(B→C))=0；当( (B)=1，( (C)=0时，( (B→C)=0，从而也有( ((A→C)∧(B→C))=0，即(弄假(A→C)∧(B→C)。于是(A→C)∧(B→C)┝ (A∨B)→C得证。\n总之，(A∨B)→C┝┥(A→C)∧(B→C)\n例4.15  同例4.14, "
+            },
+            {
+              "chapter": 4,
+              "section": "4.1.3  命题公式",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": 7,
+              "excerpt": "符号化过程的最基本步骤是，用拉丁字母p，q，r，s等表示具体命题，用f，t表示两个特殊的常命题：常真命题和常假命题，p，q，r，s，f，t统称为命题常元（proposition constant）。深入的讨论还需要引入命题变元（proposition variable）的概念，它们是以“真、假”或“1，0”为取值范围的变元，为简单计，命题变元仍用p，q，r，s（但不使用f，t）等表示。相同符号的不同意义，容易从上下文来区别，在未指出符号"
+            },
+            {
+              "chapter": 4,
+              "section": "4.1.2  逻辑联结词",
+              "kind": "text",
+              "source": "第4章逻辑代数（新）.txt",
+              "page": 4,
+              "excerpt": "1\t\t    例4.4  如果p表示命题“你去了学校”q表示命题“我去了工厂”，那么p∧q表示命题“你去了学校并且我去了工厂”。p∧q为真，当且仅当你、我分别去了学校和工厂。\n析取词(disjunction)“或”（or）用符号∨表示。设p，q表示两命题，那么p∨q表示p和q的析取，即当p和q有一为真时，p∨q为真，只有当p和q均假时p∨q为假。p∨q读作“p或者q”，“p或q”。析取词∨的意义及复合命题p∨q的真值状况由表4.3描述。"
+            }
+          ]
+        },
+        {
+          "id": "c12",
+          "question": "若给每个整数对应其绝对值，这个映射是否单射？",
+          "category": "application",
+          "expected_chapter": 10,
+          "expected_sections": [
+            "单射的、满射的和双射的函数"
+          ],
+          "expected_kind": null,
+          "latency_ms": 14.6,
+          "has_evidence": true,
+          "hit_at_2": true,
+          "hit_at_3": true,
+          "hits": [
+            {
+              "chapter": 10,
+              "section": "10.2.1 单射的、满射的和双射的函数",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": 12,
+              "excerpt": "定理10.10  设<X, ≤1>，<Y, ≤2>为有序集，L(X为X中的≤1链，f：X→Y为单调映射，那么f ’(L)为Y中的≤2链。\n证明同样是简单的。\n定义10.11  设<X, ≤1>，<Y, ≤2>为完备序集，称f：X→Y为连续映射（continuous mapping），如果对X中每一≤1链L，f ’(L)的上确界sup f ’(L)存在且等于f(supL)(supL为L的上确界)。\n定理10.11  设<X, ≤1>，<Y"
+            },
+            {
+              "chapter": 10,
+              "section": "10.1.1函数的基本概念",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": 3,
+              "excerpt": "（4）当X＝(时，X到Y的空关系为一函数，称为空函数。当X ( (时，X到Y的空关系不是一个函数。\n（5）Add:N→N，y = Add (x1,x2) = x1+x2为自然数集上的二元加函数。\n通常用以下三种方法规定函数：\n（1）列表法：由于函数具有“单值性”，即对任一自变量有唯一确定的函数值，因此可将其序偶排列成一个表，将自变量与函数值一一对应起来。列表法一般适用于定义域为有限集合的情况。\n（2） 图标法：用笛卡儿平面上点的集合表示"
+            },
+            {
+              "chapter": 10,
+              "section": "第10章   函    数",
+              "kind": "text",
+              "source": "第10章函数（新）.txt",
+              "page": 1,
+              "excerpt": "函数是大多数读者耳熟能详的一个重要概念。在初中数学中，函数定义为“对自变量每一确定值都有一确定的值与之对应”的因变量；在高中数学中，函数又被定义为两个集合的元素之间的映射。现在，我们要对后一个定义作进一步的深化，像处理关系那样,用一个集合来具体规定映射，称这个集合为函数，从而将函数归结为集合、归结为关系的特例来研究。\n函数概念是最基本的数学概念之一，也是最重要的数学工具。本章除了介绍离散对象之间的函数关系的一般概念、表示形式和主要性质外"
+            }
+          ]
+        },
+        {
+          "id": "c13",
+          "question": "怎样用 Transformer 做机器翻译？",
+          "category": "out_of_scope",
+          "expected_chapter": null,
+          "expected_sections": [],
+          "expected_kind": null,
+          "latency_ms": 4.1,
+          "has_evidence": false,
+          "hit_at_2": null,
+          "hit_at_3": null,
+          "hits": []
+        },
+        {
+          "id": "c14",
+          "question": "糖尿病如何使用胰岛素治疗？",
+          "category": "out_of_scope",
+          "expected_chapter": null,
+          "expected_sections": [],
+          "expected_kind": null,
+          "latency_ms": 16.3,
+          "has_evidence": false,
+          "hit_at_2": null,
+          "hit_at_3": null,
+          "hits": []
+        },
+        {
+          "id": "c15",
+          "question": "股票的市盈率如何用于估值？",
+          "category": "out_of_scope",
+          "expected_chapter": null,
+          "expected_sections": [],
+          "expected_kind": null,
+          "latency_ms": 13.7,
+          "has_evidence": false,
+          "hit_at_2": null,
+          "hit_at_3": null,
+          "hits": []
+        },
+        {
+          "id": "c16",
+          "question": "动量守恒定律适用于什么条件？",
+          "category": "out_of_scope",
+          "expected_chapter": null,
+          "expected_sections": [],
+          "expected_kind": null,
+          "latency_ms": 2.8,
+          "has_evidence": false,
+          "hit_at_2": null,
+          "hit_at_3": null,
+          "hits": []
+        }
+      ]
+    }
+  }
+}

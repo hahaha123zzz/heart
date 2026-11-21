@@ -1,0 +1,86 @@
+启动阶段：加载应用（累计 0.0s）
+启动阶段：读取检索索引（累计 3.0s）
+启动阶段：模型预热完成（累计 3.0s）
+RAG runtime: {'configured': {'reranker': 'cpu', 'embedding': 'cpu'}, 'sessions': {}, 'cuda_cache_path': None}
+INFO:     127.0.0.1:60372 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60373 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60374 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60377 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55024 - "DELETE /api/accounts/test/positive-int-final-20261120 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55025 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58262 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58262 - "GET /api/course/chapters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57738 - "GET /api/course/reading-map HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57738 - "GET /hybridaction/zybTrackerStatisticsAction?data=%7B%7D&__callback__=__cb__zybTrackerStatisticsAction__a207e2ad_708b_4d4c_b162_a527c0b0e922__0 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57738 - "GET /api/course/chapters/1/sections/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57738 - "GET /hybridaction/zybTrackerStatisticsAction?data=%7B%7D&__callback__=__cb__zybTrackerStatisticsAction__d8e586cc_52bb_4865_8c9d_847fad1c19a9__1 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57738 - "GET /api/students/demo-707e4615-80a0-444a-931d-3ee4897f90fb/conversation?session_id=2a80aa11-1a55-4a93-ae08-452206813775 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57738 - "GET /api/chat/tasks/pending?student_id=demo-707e4615-80a0-444a-931d-3ee4897f90fb&session_id=2a80aa11-1a55-4a93-ae08-452206813775 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57738 - "GET /api/course/session-plan?student_id=demo-707e4615-80a0-444a-931d-3ee4897f90fb&session_id=2a80aa11-1a55-4a93-ae08-452206813775 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57738 - "GET /api/relations?student_id=demo-707e4615-80a0-444a-931d-3ee4897f90fb&session_id=2a80aa11-1a55-4a93-ae08-452206813775 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57738 - "GET /api/truth-tables?student_id=demo-707e4615-80a0-444a-931d-3ee4897f90fb&session_id=2a80aa11-1a55-4a93-ae08-452206813775 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58262 - "GET /api/visualizations?student_id=demo-707e4615-80a0-444a-931d-3ee4897f90fb&session_id=2a80aa11-1a55-4a93-ae08-452206813775 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57738 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:58554 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58262 - "GET /api/students/demo-707e4615-80a0-444a-931d-3ee4897f90fb/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64821 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:58262 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:58262 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:58262 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:59624 - "GET /api/chat/tasks/pending?student_id=demo-707e4615-80a0-444a-931d-3ee4897f90fb&session_id=a7345cbe-dd96-4a55-af26-5f6d67e04484 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59624 - "GET /api/course/session-plan?student_id=demo-707e4615-80a0-444a-931d-3ee4897f90fb&session_id=a7345cbe-dd96-4a55-af26-5f6d67e04484 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64780 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64780 - "GET /api/students/demo-707e4615-80a0-444a-931d-3ee4897f90fb/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57514 - "GET /api/students/demo-707e4615-80a0-444a-931d-3ee4897f90fb/preferences HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49701 - "POST /api/course/citation-state HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49701 - "GET /api/course/chapters/1/sections/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64863 - "POST /api/course/citation-state HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64863 - "GET /api/course/chapters/1/sections/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59998 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59998 - "GET /static/styles.css?v=20261016-grounding HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:61480 - "GET /static/workspace.css?v=20261014-course-swap HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64988 - "GET /static/visualizations/presets.css?v=20261015-psychophysics HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55990 - "GET /static/tutor-markdown/tutor-markdown.css?v=20261019-markdown HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64508 - "GET /static/learning-cards.css?v=20261029-ta4 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52431 - "GET /static/pdf-reader/reader.css?v=20261011-workspace HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59998 - "GET /static/pdf-reader/reader.js?v=20261019-markdown HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59998 - "GET /static/workspace.js?v=20261014-course-swap HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55990 - "GET /static/learning-cards.js?v=20261028-ta3 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:61480 - "GET /static/visualizations/graph.js?v=20261013-relation HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59998 - "GET /static/vendor/cytoscape/cytoscape.min.js?v=3.33.1 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64988 - "GET /static/chat-renderer.js?v=20261019-markdown HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64508 - "GET /static/learning-review.js?v=20261029-ta4 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52431 - "GET /static/tutor-markdown/tutor-markdown.js?v=20261019-markdown HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59998 - "GET /static/visualizations/relation-closure.js?v=20261013-closure HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52431 - "GET /static/visualizations/relation.js?v=20261013-closure HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:61480 - "GET /static/visualizations/truth-table.js?v=20261013-relation HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64508 - "GET /static/visualizations/psychology.js?v=20261015-psychophysics HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64988 - "GET /static/visualizations/guided.js?v=20261015-psychophysics HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64988 - "GET /static/mathlive/mathlive.min.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55990 - "GET /static/interaction-style.js?v=20261016-consent HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64508 - "GET /static/reader-actions.js?v=20261024-tools HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59998 - "GET /static/app.js?v=20261029-ta5 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:61480 - "GET /static/ask-user-form.js?v=20261029-ta5 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52431 - "GET /static/chat-transport.js?v=20261024-tools HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59998 - "GET /static/practice.js?v=20261014-course-swap HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59998 - "GET /api/course/chapters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52431 - "GET /api/course/reading-map HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52431 - "GET /api/course/chapters/1/sections/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52431 - "GET /api/students/demo-706ab8ec-3869-4ddf-8201-613c2dde821a/conversation?session_id=821a77e6-a46e-41a2-bddf-c24ab286ee36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52431 - "GET /static/pdf-reader/pdf.worker.min.mjs HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52431 - "GET /api/chat/tasks/pending?student_id=demo-706ab8ec-3869-4ddf-8201-613c2dde821a&session_id=821a77e6-a46e-41a2-bddf-c24ab286ee36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52431 - "GET /api/course/session-plan?student_id=demo-706ab8ec-3869-4ddf-8201-613c2dde821a&session_id=821a77e6-a46e-41a2-bddf-c24ab286ee36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52431 - "GET /api/relations?student_id=demo-706ab8ec-3869-4ddf-8201-613c2dde821a&session_id=821a77e6-a46e-41a2-bddf-c24ab286ee36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52431 - "GET /api/truth-tables?student_id=demo-706ab8ec-3869-4ddf-8201-613c2dde821a&session_id=821a77e6-a46e-41a2-bddf-c24ab286ee36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52431 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:59998 - "GET /api/visualizations?student_id=demo-706ab8ec-3869-4ddf-8201-613c2dde821a&session_id=821a77e6-a46e-41a2-bddf-c24ab286ee36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59998 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:61480 - "GET /api/students/demo-706ab8ec-3869-4ddf-8201-613c2dde821a/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64508 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:64508 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:64508 - "GET /static/pdf-reader/pdf_viewer-BWxtOeWC.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52431 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:64508 - "GET /api/pdf/documents/chapter-01/file HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:60522 - "POST /api/pdf/selection/preview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59131 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59131 - "GET /api/students/demo-706ab8ec-3869-4ddf-8201-613c2dde821a/dashboard HTTP/1.1" 200 OK

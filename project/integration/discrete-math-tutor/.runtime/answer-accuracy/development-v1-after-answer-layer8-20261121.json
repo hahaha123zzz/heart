@@ -1,0 +1,2450 @@
+{
+  "schema": "answer-accuracy-report-v1",
+  "created_at": "2026-11-21T20:42:39.080622+08:00",
+  "dataset": "development-v1",
+  "dataset_note": "Development regression set. Do not describe it as an independent blind set.",
+  "cases_file": "C:\\Users\\zzq\\Desktop\\heart-test-data-20261031-94ba9ca\\project\\integration\\discrete-math-tutor\\tests\\data\\e2e_answer_accuracy_v1.json",
+  "cases_sha256": "09202b8eef594e28e51999312ba9fec767c060c9cbb708a107b8bd47e9c5a556",
+  "index_sha256": "6b7c8ea73464480ed8742a955d1c0f623d2dd08e34ca5f8fe315c544f3cb72f6",
+  "pdf_manifest_sha256": "306a04b5baf0cbf410076431729b963d48cbd105496d05903a429a411ca9c9fa",
+  "scenario_count": 16,
+  "turn_count": 16,
+  "dry_run": false,
+  "service_health": {
+    "status": "ok",
+    "course_id": "discrete-math",
+    "version": "0.8.0",
+    "mock_mode": true,
+    "purged_expired_accounts": 0,
+    "rag_runtime": {
+      "configured": {
+        "reranker": "cpu",
+        "embedding": "cpu"
+      },
+      "sessions": {},
+      "cuda_cache_path": null
+    },
+    "fixed_book": {
+      "enabled": false,
+      "ready": false,
+      "startup_seconds": null
+    },
+    "memory_worker": {
+      "enabled": true,
+      "running": true,
+      "generation_mode": "rule"
+    }
+  },
+  "elapsed_seconds": 30.68,
+  "summary": {
+    "total_scenarios": 16,
+    "total_cases": 16,
+    "in_scope_cases": 12,
+    "out_of_scope_cases": 4,
+    "retrieval_hit_rate": 1.0,
+    "answer_accuracy": 1.0,
+    "citation_support_rate": 0.5833,
+    "false_refusal_rate": 0.0,
+    "unsupported_answer_rate": 0.0,
+    "out_of_scope_refusal_accuracy": 1.0,
+    "invalid_citation_count": 0,
+    "overall_answer_accuracy": 1.0,
+    "categories": {
+      "application": {
+        "cases": 2,
+        "answer_accuracy": 1.0,
+        "retrieval_hit_rate": 1.0
+      },
+      "definition": {
+        "cases": 3,
+        "answer_accuracy": 1.0,
+        "retrieval_hit_rate": 1.0
+      },
+      "formula": {
+        "cases": 3,
+        "answer_accuracy": 1.0,
+        "retrieval_hit_rate": 1.0
+      },
+      "paraphrase": {
+        "cases": 2,
+        "answer_accuracy": 1.0,
+        "retrieval_hit_rate": 1.0
+      },
+      "proof": {
+        "cases": 2,
+        "answer_accuracy": 1.0,
+        "retrieval_hit_rate": 1.0
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "c01",
+      "scenario_id": "c01",
+      "turn_index": 1,
+      "question": "有序对 (a,b) 与 (b,a) 一定相等吗？",
+      "category": "definition",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "集合",
+      "reply": "根据本轮教材摘录：有序对不一定相等。序偶相等要求两个分量分别相等，所以(a,b)与(b,a)只有在a=b时才相等。[1]",
+      "textbook_sources": [
+        "第1章集合代数(新).txt／1.2.3集合的笛卡儿积"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-01",
+            "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 27,
+                "x1": 0.8762758665966387,
+                "y1": 0.133983654538696,
+                "x2": 0.8932422531512605,
+                "y2": 0.14672890807670538
+              },
+              {
+                "page": 27,
+                "x1": 0.07513025210084033,
+                "y1": 0.14495120819164284,
+                "x2": 0.8312607442391018,
+                "y2": 0.15769646172965224
+              },
+              {
+                "page": 27,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.9215186613707983,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 27,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.20301512287043724,
+                "y2": 0.17963149654723687
+              }
+            ],
+            "text": "\n\n称\nEMBED Equation.3    [公式或对象]  为  EMBED Equation.3    [公式或对象]  的第一分量，称  EMBED Equation.3\n[公式或对象]  为第二分量。注意，第一、二分量可以相同，约定  EMBED Equation.3    [公式或对象]  =  EMBED Equation.3\n   [公式或对象]  。\n\n\n\n\n\n",
+            "chapter_id": 1,
+            "section_id": 8,
+            "section_title": "1.2.3集合的笛卡儿积",
+            "source": "第1章集合代数(新).txt",
+            "image_refs": [
+              {
+                "id": "063df3ba5ef0abd3cf066ef2ca4dae77f762ad747837e9f0c21aa6b60f5b503e",
+                "image_url": "/api/pdf/crops/063df3ba5ef0abd3cf066ef2ca4dae77f762ad747837e9f0c21aa6b60f5b503e/image",
+                "label": "教材第 27 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "f828f043f65c891c918d043632fdcad7f68f290a6f2deca815f7a982b8b4b48f",
+            "quote": "称  EMBED Equation.3    [公式或对象]  为  EMBED Equation.3    [公式或对象]  的第一分量，称  EMBED Equation.3    [公式或对象]  为第二分量。注意，第一、二分量可以相同，约定  EMBED Equation.3    [公式或对象]  =  EMBED Equation.3    [公式或对象]  。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 27,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "f828f043f65c891c918d043632fdcad7f68f290a6f2deca815f7a982b8b4b48f",
+            "retrieval_source_id": "ch1-s8-p0-w0",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-01",
+            "document_version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "source_block_id": null,
+            "section_id": 8,
+            "block_start": 171,
+            "block_end": 359,
+            "quote": "称  EMBED Equation.3    [公式或对象]  为  EMBED Equation.3    [公式或对象]  的第一分量，称  EMBED Equation.3    [公式或对象]  为第二分量。注意，第一、二分量可以相同，约定  EMBED Equation.3    [公式或对象]  =  EMBED Equation.3    [公式或对象]  。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              27
+            ],
+            "page": 27,
+            "selections": [
+              {
+                "document_id": "chapter-01",
+                "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 27,
+                    "x1": 0.8762758665966387,
+                    "y1": 0.133983654538696,
+                    "x2": 0.8932422531512605,
+                    "y2": 0.14672890807670538
+                  },
+                  {
+                    "page": 27,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.14495120819164284,
+                    "x2": 0.8312607442391018,
+                    "y2": 0.15769646172965224
+                  },
+                  {
+                    "page": 27,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.9215186613707983,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 27,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.20301512287043724,
+                    "y2": 0.17963149654723687
+                  }
+                ],
+                "text": "\n\n称\nEMBED Equation.3    [公式或对象]  为  EMBED Equation.3    [公式或对象]  的第一分量，称  EMBED Equation.3\n[公式或对象]  为第二分量。注意，第一、二分量可以相同，约定  EMBED Equation.3    [公式或对象]  =  EMBED Equation.3\n   [公式或对象]  。\n\n\n\n\n\n",
+                "chapter_id": 1,
+                "section_id": 8,
+                "section_title": "1.2.3集合的笛卡儿积",
+                "source": "第1章集合代数(新).txt",
+                "image_refs": [
+                  {
+                    "id": "063df3ba5ef0abd3cf066ef2ca4dae77f762ad747837e9f0c21aa6b60f5b503e",
+                    "image_url": "/api/pdf/crops/063df3ba5ef0abd3cf066ef2ca4dae77f762ad747837e9f0c21aa6b60f5b503e/image",
+                    "label": "教材第 27 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：有序对不一定相等。序偶相等要求两个分量分别相等，所以(a,b)与(b,a)只有在a=b时才相等。",
+                "start": 0,
+                "end": 57,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 4725.4
+    },
+    {
+      "id": "c02",
+      "scenario_id": "c02",
+      "turn_index": 1,
+      "question": "用数学归纳法证明命题时，归纳假设如何用于下一步？",
+      "category": "proof",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": true,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "逻辑代数",
+      "reply": "根据本轮教材摘录：归纳假设是归纳步骤的前提；先假定前一步成立，再利用它推出下一步也成立。[1]",
+      "textbook_sources": [
+        "第2章两个数学基本原理（新）.txt／2.1.2数学归纳原理"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-02",
+            "version": "9f55171a8eb4776ee94c2e06b68867e90ed427533eb8b1e5cbb7ae7919b50cab",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.8352679843421743,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.33718066713990286,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.3447008395154937,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.3091596320657169,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.5343975409499737,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.6802186330586921,
+                "y2": 0.2454367459766089
+              }
+            ],
+            "text": "\n\n\n\n\n\n（2） 归纳过程：对任意k(≧0)假设P(k)真（归纳假设“k满足性质P”）时,推出 P(k＋l)真（k＋l也满足性质 P）。\n（3） 结论：所有自然数具有性质P。\n例2.2用归纳法证明：对任意自然数n有\nEMBED Equation.3    [公式或对象]\n证 ⅰ）归纳基础：当n = 0时，  EMBED Equation.3    [公式或对象]\nⅱ）归纳过程：设当n = k时，  EMBED Equation.3    [公式或对象]  ,那么当n = k +1时，\n\n\n\n\n\n\n\n",
+            "chapter_id": 2,
+            "section_id": 4,
+            "section_title": "2.1.2数学归纳原理",
+            "source": "第2章两个数学基本原理（新）.txt",
+            "image_refs": [
+              {
+                "id": "cd111544a9cf8d7ac88bafb8ebab84230a545880023a7afc169c7af1a8c0c323",
+                "image_url": "/api/pdf/crops/cd111544a9cf8d7ac88bafb8ebab84230a545880023a7afc169c7af1a8c0c323/image",
+                "label": "教材第 6 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "9f096f4b22042f02a0a711ea35acfc168524741dc195036a897548fc1063daa7",
+            "quote": "（2） 归纳过程：对任意k(≧0)假设P(k)真（归纳假设“k满足性质P”）时,推出 P(k＋l)真（k＋l也满足性质 P）。\n（3） 结论：所有自然数具有性质P。\n例2.2用归纳法证明：对任意自然数n有\nEMBED Equation.3    [公式或对象]\n证 ⅰ）归纳基础：当n = 0时，  EMBED Equation.3    [公式或对象]\nⅱ）归纳过程：设当n = k时，  EMBED Equation.3    [公式或对象]  ,那么当n = k +1时，",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 6,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "9f096f4b22042f02a0a711ea35acfc168524741dc195036a897548fc1063daa7",
+            "retrieval_source_id": "ch2-s4-p0-w3",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-02",
+            "document_version": "9f55171a8eb4776ee94c2e06b68867e90ed427533eb8b1e5cbb7ae7919b50cab",
+            "source_block_id": null,
+            "section_id": 4,
+            "block_start": 161,
+            "block_end": 400,
+            "quote": "（2） 归纳过程：对任意k(≧0)假设P(k)真（归纳假设“k满足性质P”）时,推出 P(k＋l)真（k＋l也满足性质 P）。\n（3） 结论：所有自然数具有性质P。\n例2.2用归纳法证明：对任意自然数n有\nEMBED Equation.3    [公式或对象]\n证 ⅰ）归纳基础：当n = 0时，  EMBED Equation.3    [公式或对象]\nⅱ）归纳过程：设当n = k时，  EMBED Equation.3    [公式或对象]  ,那么当n = k +1时，",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              6
+            ],
+            "page": 6,
+            "selections": [
+              {
+                "document_id": "chapter-02",
+                "version": "9f55171a8eb4776ee94c2e06b68867e90ed427533eb8b1e5cbb7ae7919b50cab",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.8352679843421743,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.33718066713990286,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.3447008395154937,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.3091596320657169,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.5343975409499737,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.6802186330586921,
+                    "y2": 0.2454367459766089
+                  }
+                ],
+                "text": "\n\n\n\n\n\n（2） 归纳过程：对任意k(≧0)假设P(k)真（归纳假设“k满足性质P”）时,推出 P(k＋l)真（k＋l也满足性质 P）。\n（3） 结论：所有自然数具有性质P。\n例2.2用归纳法证明：对任意自然数n有\nEMBED Equation.3    [公式或对象]\n证 ⅰ）归纳基础：当n = 0时，  EMBED Equation.3    [公式或对象]\nⅱ）归纳过程：设当n = k时，  EMBED Equation.3    [公式或对象]  ,那么当n = k +1时，\n\n\n\n\n\n\n\n",
+                "chapter_id": 2,
+                "section_id": 4,
+                "section_title": "2.1.2数学归纳原理",
+                "source": "第2章两个数学基本原理（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "cd111544a9cf8d7ac88bafb8ebab84230a545880023a7afc169c7af1a8c0c323",
+                    "image_url": "/api/pdf/crops/cd111544a9cf8d7ac88bafb8ebab84230a545880023a7afc169c7af1a8c0c323/image",
+                    "label": "教材第 6 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：归纳假设是归纳步骤的前提；先假定前一步成立，再利用它推出下一步也成立。",
+                "start": 0,
+                "end": 44,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 1571.6
+    },
+    {
+      "id": "c03",
+      "scenario_id": "c03",
+      "turn_index": 1,
+      "question": "三种饮料与四种主食搭配，为什么使用乘法原理？",
+      "category": "application",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "计数",
+      "reply": "根据本轮教材摘录：先选饮料，有3种；再选主食，有4种。这是分步选择，根据乘法原理，总数是3×4=12种。[1]",
+      "textbook_sources": [
+        "第3章 计数（新）.txt／3.1.1 加法原理和乘法原理"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-03",
+            "version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.8830555368631827,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.13546134782037816,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.91960287552521,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.2677268907563025,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.3091596320657169,
+                "y2": 0.23446919232366203
+              }
+            ],
+            "text": "\n\n\n\n\n\n加法原理的另一个说法是：n个独立事件分别有a1，…，an种方式发生，那么这n个事件之一发生的方式总计为a1+ …\n+an种。\n乘法原理：若事件的有限集合  EMBED Equation.3    [公式或对象]  是依次取自有限集合  EMBED Equation.3    [公式或对象]\n中事件的序列的集合，那么\nEMBED Equation.3    [公式或对象]\n\n\n\n\n\n\n\n",
+            "chapter_id": 3,
+            "section_id": 3,
+            "section_title": "3.1.1 加法原理和乘法原理",
+            "source": "第3章 计数（新）.txt",
+            "image_refs": [
+              {
+                "id": "599218250b57f328ebe870bb6516c4bad21dbb43af3a2e0cf3bf82c01874320d",
+                "image_url": "/api/pdf/crops/599218250b57f328ebe870bb6516c4bad21dbb43af3a2e0cf3bf82c01874320d/image",
+                "label": "教材第 3 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "b5f057251ea10a724c688cef9d425df581d777b8a450e32496aa9b7124e4dbe2",
+            "quote": "加法原理的另一个说法是：n个独立事件分别有a1，…，an种方式发生，那么这n个事件之一发生的方式总计为a1+ … +an种。\n乘法原理：若事件的有限集合  EMBED Equation.3    [公式或对象]  是依次取自有限集合  EMBED Equation.3    [公式或对象]  中事件的序列的集合，那么\nEMBED Equation.3    [公式或对象]",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 3,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "b5f057251ea10a724c688cef9d425df581d777b8a450e32496aa9b7124e4dbe2",
+            "retrieval_source_id": "ch3-s3-p0-w1",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-03",
+            "document_version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 183,
+            "block_end": 370,
+            "quote": "加法原理的另一个说法是：n个独立事件分别有a1，…，an种方式发生，那么这n个事件之一发生的方式总计为a1+ … +an种。\n乘法原理：若事件的有限集合  EMBED Equation.3    [公式或对象]  是依次取自有限集合  EMBED Equation.3    [公式或对象]  中事件的序列的集合，那么\nEMBED Equation.3    [公式或对象]",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              3
+            ],
+            "page": 3,
+            "selections": [
+              {
+                "document_id": "chapter-03",
+                "version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.8830555368631827,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.13546134782037816,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.91960287552521,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.2677268907563025,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.3091596320657169,
+                    "y2": 0.23446919232366203
+                  }
+                ],
+                "text": "\n\n\n\n\n\n加法原理的另一个说法是：n个独立事件分别有a1，…，an种方式发生，那么这n个事件之一发生的方式总计为a1+ …\n+an种。\n乘法原理：若事件的有限集合  EMBED Equation.3    [公式或对象]  是依次取自有限集合  EMBED Equation.3    [公式或对象]\n中事件的序列的集合，那么\nEMBED Equation.3    [公式或对象]\n\n\n\n\n\n\n\n",
+                "chapter_id": 3,
+                "section_id": 3,
+                "section_title": "3.1.1 加法原理和乘法原理",
+                "source": "第3章 计数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "599218250b57f328ebe870bb6516c4bad21dbb43af3a2e0cf3bf82c01874320d",
+                    "image_url": "/api/pdf/crops/599218250b57f328ebe870bb6516c4bad21dbb43af3a2e0cf3bf82c01874320d/image",
+                    "label": "教材第 3 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：先选饮料，有3种；再选主食，有4种。这是分步选择，根据乘法原理，总数是3×4=12种。",
+                "start": 0,
+                "end": 52,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 1870.5
+    },
+    {
+      "id": "c04",
+      "scenario_id": "c04",
+      "turn_index": 1,
+      "question": "命题的否定与原命题在真值上有什么关系？",
+      "category": "formula",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": true,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "逻辑代数",
+      "reply": "根据本轮教材摘录：命题p的否定┐p与原命题的真值相反。p真时┐p假，p假时┐p真。[1]",
+      "textbook_sources": [
+        "第4章逻辑代数（新）.txt／4.1.2  逻辑联结词"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-04",
+            "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.12301610088574914,
+                "x2": 0.8506118123030462,
+                "y2": 0.13576135442375853
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.133983654538696,
+                "x2": 0.3560529426125919,
+                "y2": 0.14672890807670538
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.14495120819164284,
+                "x2": 0.9087773929884453,
+                "y2": 0.15769646172965224
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.9022790465795693,
+                "y2": 0.16866394289429001
+              }
+            ],
+            "text": "\n今后“联结词”一词均指逻辑联结词及其符号表示。逻辑代数中，重要的联结词有5个，它们已在例4.2中出现过。\n否定词(negation)“并非”（not），用符号\n┐表示。设p表示一命题，那么┐p表示命题p的否定。p真时┐p假，而p假时┐p真。┐p读作“并非p”或“非p”。今后我们\n用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 4,
+            "section_id": 3,
+            "section_title": "4.1.2  逻辑联结词",
+            "source": "第4章逻辑代数（新）.txt",
+            "image_refs": [
+              {
+                "id": "8948e6d15063bcf7bd5925eab39a60b17a1b0f636c62340f3215e88e8c11d26f",
+                "image_url": "/api/pdf/crops/8948e6d15063bcf7bd5925eab39a60b17a1b0f636c62340f3215e88e8c11d26f/image",
+                "label": "教材第 6 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "6d9d710cc98c80738a15248767ccf58189689ba7240d5cb73f5a713daed75c3f",
+            "quote": "今后“联结词”一词均指逻辑联结词及其符号表示。逻辑代数中，重要的联结词有5个，它们已在例4.2中出现过。\n否定词(negation)“并非”（not），用符号 ┐表示。设p表示一命题，那么┐p表示命题p的否定。p真时┐p假，而p假时┐p真。┐p读作“并非p”或“非p”。今后我们用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 6,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "6d9d710cc98c80738a15248767ccf58189689ba7240d5cb73f5a713daed75c3f",
+            "retrieval_source_id": "ch4-s3-p0-w0",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-04",
+            "document_version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 0,
+            "block_end": 196,
+            "quote": "今后“联结词”一词均指逻辑联结词及其符号表示。逻辑代数中，重要的联结词有5个，它们已在例4.2中出现过。\n否定词(negation)“并非”（not），用符号 ┐表示。设p表示一命题，那么┐p表示命题p的否定。p真时┐p假，而p假时┐p真。┐p读作“并非p”或“非p”。今后我们用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              6
+            ],
+            "page": 6,
+            "selections": [
+              {
+                "document_id": "chapter-04",
+                "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.12301610088574914,
+                    "x2": 0.8506118123030462,
+                    "y2": 0.13576135442375853
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.133983654538696,
+                    "x2": 0.3560529426125919,
+                    "y2": 0.14672890807670538
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.14495120819164284,
+                    "x2": 0.9087773929884453,
+                    "y2": 0.15769646172965224
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.9022790465795693,
+                    "y2": 0.16866394289429001
+                  }
+                ],
+                "text": "\n今后“联结词”一词均指逻辑联结词及其符号表示。逻辑代数中，重要的联结词有5个，它们已在例4.2中出现过。\n否定词(negation)“并非”（not），用符号\n┐表示。设p表示一命题，那么┐p表示命题p的否定。p真时┐p假，而p假时┐p真。┐p读作“并非p”或“非p”。今后我们\n用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 4,
+                "section_id": 3,
+                "section_title": "4.1.2  逻辑联结词",
+                "source": "第4章逻辑代数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "8948e6d15063bcf7bd5925eab39a60b17a1b0f636c62340f3215e88e8c11d26f",
+                    "image_url": "/api/pdf/crops/8948e6d15063bcf7bd5925eab39a60b17a1b0f636c62340f3215e88e8c11d26f/image",
+                    "label": "教材第 6 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：命题p的否定┐p与原命题的真值相反。p真时┐p假，p假时┐p真。",
+                "start": 0,
+                "end": 41,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 2799.8
+    },
+    {
+      "id": "c05",
+      "scenario_id": "c05",
+      "turn_index": 1,
+      "question": "个体域改变时，同一个全称命题的真假会变化吗？",
+      "category": "paraphrase",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "逻辑代数",
+      "reply": "根据本轮教材摘录：会变化。同一个全称命题在不同个体域中可能有不同真假，个体域改变会影响命题是否为真。[1]",
+      "textbook_sources": [
+        "第5章逻辑代数（下）（新）.txt／5.2.1  谓词公式的真值规定"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-05",
+            "version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 21,
+                "x1": 0.31334874872800683,
+                "y1": 0.18882134125408254,
+                "x2": 0.9190436088497899,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 21,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.9110286157431722,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 21,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.3974218278131565,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 21,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.9223487394957982,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 21,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.5271327673647583,
+                "y2": 0.2454367459766089
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n当使用全总个体域，M(x)表示x是人，B(x)表示x是要死的，（1）式为真；当个体域为实\n数集合，函数符号f表示的函数使得方程f(x)=0有根时，（2）式为真；当个体域为实数集合，常元符号a,b,c表示的实数使\n得b2–4ac≥0，且变元y取值1，（3）式为真。\n因此，谓词公式的真值不仅依赖于个体域，依赖于对公式中谓词符号、函数符号、常元符号所作的解释（即符号与个体域\n上具体性质、关系、函数、对象间的映射，常用I表示一种解释。\n\n\n\n\n\n\n",
+            "chapter_id": 5,
+            "section_id": 6,
+            "section_title": "5.2.1  谓词公式的真值规定",
+            "source": "第5章逻辑代数（下）（新）.txt",
+            "image_refs": [
+              {
+                "id": "143e6b3967a59cc5747234aa6ebf646fa5cd078a51f970db74f3994e1a88b77b",
+                "image_url": "/api/pdf/crops/143e6b3967a59cc5747234aa6ebf646fa5cd078a51f970db74f3994e1a88b77b/image",
+                "label": "教材第 21 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "3cdad4f973b9523bd49d3ea3734b50f2ad98577afda456aec774ebe3bceb5d09",
+            "quote": "当使用全总个体域，M(x)表示x是人，B(x)表示x是要死的，（1）式为真；当个体域为实数集合，函数符号f表示的函数使得方程f(x)=0有根时，（2）式为真；当个体域为实数集合，常元符号a,b,c表示的实数使得b2–4ac≥0，且变元y取值1，（3）式为真。\n因此，谓词公式的真值不仅依赖于个体域，依赖于对公式中谓词符号、函数符号、常元符号所作的解释（即符号与个体域上具体性质、关系、函数、对象间的映射，常用I表示一种解释。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 21,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "3cdad4f973b9523bd49d3ea3734b50f2ad98577afda456aec774ebe3bceb5d09",
+            "retrieval_source_id": "ch5-s6-p0-w2",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-05",
+            "document_version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+            "source_block_id": null,
+            "section_id": 6,
+            "block_start": 187,
+            "block_end": 399,
+            "quote": "当使用全总个体域，M(x)表示x是人，B(x)表示x是要死的，（1）式为真；当个体域为实数集合，函数符号f表示的函数使得方程f(x)=0有根时，（2）式为真；当个体域为实数集合，常元符号a,b,c表示的实数使得b2–4ac≥0，且变元y取值1，（3）式为真。\n因此，谓词公式的真值不仅依赖于个体域，依赖于对公式中谓词符号、函数符号、常元符号所作的解释（即符号与个体域上具体性质、关系、函数、对象间的映射，常用I表示一种解释。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              21
+            ],
+            "page": 21,
+            "selections": [
+              {
+                "document_id": "chapter-05",
+                "version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 21,
+                    "x1": 0.31334874872800683,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.9190436088497899,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 21,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.9110286157431722,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 21,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.3974218278131565,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 21,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.9223487394957982,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 21,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.5271327673647583,
+                    "y2": 0.2454367459766089
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n当使用全总个体域，M(x)表示x是人，B(x)表示x是要死的，（1）式为真；当个体域为实\n数集合，函数符号f表示的函数使得方程f(x)=0有根时，（2）式为真；当个体域为实数集合，常元符号a,b,c表示的实数使\n得b2–4ac≥0，且变元y取值1，（3）式为真。\n因此，谓词公式的真值不仅依赖于个体域，依赖于对公式中谓词符号、函数符号、常元符号所作的解释（即符号与个体域\n上具体性质、关系、函数、对象间的映射，常用I表示一种解释。\n\n\n\n\n\n\n",
+                "chapter_id": 5,
+                "section_id": 6,
+                "section_title": "5.2.1  谓词公式的真值规定",
+                "source": "第5章逻辑代数（下）（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "143e6b3967a59cc5747234aa6ebf646fa5cd078a51f970db74f3994e1a88b77b",
+                    "image_url": "/api/pdf/crops/143e6b3967a59cc5747234aa6ebf646fa5cd078a51f970db74f3994e1a88b77b/image",
+                    "label": "教材第 21 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：会变化。同一个全称命题在不同个体域中可能有不同真假，个体域改变会影响命题是否为真。",
+                "start": 0,
+                "end": 50,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 2462.7
+    },
+    {
+      "id": "c06",
+      "scenario_id": "c06",
+      "turn_index": 1,
+      "question": "证明与演绎在是否允许额外前提上有何区别？",
+      "category": "proof",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": true,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "逻辑代数",
+      "reply": "根据本轮教材摘录：注意，├Am与┝Am是不同的，(├Am与 (┝Am也是不同的，前者都是指形式系统内的推理关系（证明与演绎），而后者则是指公式的真值特性及真值间的逻辑关系。显然，证明是演绎在 ( 为空集时的特例。[1]",
+      "textbook_sources": [
+        "第6章形式系统（新）.txt／6.1.2  系统内的推理：证明与演绎"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-06",
+            "version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 5,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.6438789677980566,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 5,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.9186445722820378,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 5,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.6189873949579832,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 5,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.36505798750164126,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 5,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.2387479114692752,
+                "y2": 0.2454367459766089
+              },
+              {
+                "page": 5,
+                "x1": 0.07513025210084033,
+                "y1": 0.24365903703050773,
+                "x2": 0.19575042622029282,
+                "y2": 0.25640429962955574
+              },
+              {
+                "page": 5,
+                "x1": 0.07513025210084033,
+                "y1": 0.25462659068345456,
+                "x2": 0.4772698143710609,
+                "y2": 0.2673718532825026
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n显然，证明是演绎在 ( 为空集时的特例。注意，├Am与┝Am是不同的，(├Am与\n(┝Am也是不同的，前者都是指形式系统内的推理关系（证明与演绎），而后者则是指公式的真值特性及真值间的逻辑关\n系。当然，它们之间应当是一致的，这正是我们建立形式系统所想要做到的。\n下面是FC系统内证明和演绎的两个例子。\n例6.1  证明：├FCA→A\n证. 其证明序列是\n（1）(A→((A→A)→A))→((A→(A→A))→(A→A))      公理A2\n\n",
+            "chapter_id": 6,
+            "section_id": 3,
+            "section_title": "6.1.2  系统内的推理：证明与演绎",
+            "source": "第6章形式系统（新）.txt",
+            "image_refs": [
+              {
+                "id": "46d50f219f3c92b8ef806b9dbfb3c8167e41fe73bccfe612d616fe37be38a288",
+                "image_url": "/api/pdf/crops/46d50f219f3c92b8ef806b9dbfb3c8167e41fe73bccfe612d616fe37be38a288/image",
+                "label": "教材第 5 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "ad87316962b903c9be7e0358b05be5523a8e65a8000174adfc69356172762943",
+            "quote": "显然，证明是演绎在 ( 为空集时的特例。注意，├Am与┝Am是不同的，(├Am与 (┝Am也是不同的，前者都是指形式系统内的推理关系（证明与演绎），而后者则是指公式的真值特性及真值间的逻辑关系。当然，它们之间应当是一致的，这正是我们建立形式系统所想要做到的。\n下面是FC系统内证明和演绎的两个例子。\n例6.1  证明：├FCA→A\n证. 其证明序列是\n（1）(A→((A→A)→A))→((A→(A→A))→(A→A))      公理A2",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 5,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "ad87316962b903c9be7e0358b05be5523a8e65a8000174adfc69356172762943",
+            "retrieval_source_id": "ch6-s3-p0-w10",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-06",
+            "document_version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 341,
+            "block_end": 561,
+            "quote": "显然，证明是演绎在 ( 为空集时的特例。注意，├Am与┝Am是不同的，(├Am与 (┝Am也是不同的，前者都是指形式系统内的推理关系（证明与演绎），而后者则是指公式的真值特性及真值间的逻辑关系。当然，它们之间应当是一致的，这正是我们建立形式系统所想要做到的。\n下面是FC系统内证明和演绎的两个例子。\n例6.1  证明：├FCA→A\n证. 其证明序列是\n（1）(A→((A→A)→A))→((A→(A→A))→(A→A))      公理A2",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              5
+            ],
+            "page": 5,
+            "selections": [
+              {
+                "document_id": "chapter-06",
+                "version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 5,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.6438789677980566,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 5,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.9186445722820378,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 5,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.6189873949579832,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 5,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.36505798750164126,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 5,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.2387479114692752,
+                    "y2": 0.2454367459766089
+                  },
+                  {
+                    "page": 5,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.24365903703050773,
+                    "x2": 0.19575042622029282,
+                    "y2": 0.25640429962955574
+                  },
+                  {
+                    "page": 5,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.25462659068345456,
+                    "x2": 0.4772698143710609,
+                    "y2": 0.2673718532825026
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n显然，证明是演绎在 ( 为空集时的特例。注意，├Am与┝Am是不同的，(├Am与\n(┝Am也是不同的，前者都是指形式系统内的推理关系（证明与演绎），而后者则是指公式的真值特性及真值间的逻辑关\n系。当然，它们之间应当是一致的，这正是我们建立形式系统所想要做到的。\n下面是FC系统内证明和演绎的两个例子。\n例6.1  证明：├FCA→A\n证. 其证明序列是\n（1）(A→((A→A)→A))→((A→(A→A))→(A→A))      公理A2\n\n",
+                "chapter_id": 6,
+                "section_id": 3,
+                "section_title": "6.1.2  系统内的推理：证明与演绎",
+                "source": "第6章形式系统（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "46d50f219f3c92b8ef806b9dbfb3c8167e41fe73bccfe612d616fe37be38a288",
+                    "image_url": "/api/pdf/crops/46d50f219f3c92b8ef806b9dbfb3c8167e41fe73bccfe612d616fe37be38a288/image",
+                    "label": "教材第 5 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：注意，├Am与┝Am是不同的，(├Am与 (┝Am也是不同的，前者都是指形式系统内的推理关系（证明与演绎），而后者则是指公式的真值特性及真值间的逻辑关系。显然，证明是演绎在 ( 为空集时的特例。",
+                "start": 0,
+                "end": 106,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 1687.1
+    },
+    {
+      "id": "c07",
+      "scenario_id": "c07",
+      "turn_index": 1,
+      "question": "怎样从邻接矩阵判断两个顶点之间有边？",
+      "category": "paraphrase",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": true,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "图",
+      "reply": "根据本轮教材摘录：查看邻接矩阵中表示vi到vj的元素aij。无重边时，aij为1表示vi到vj有边，aij为0表示无边；有重边或权值时，aij表示边数或权值。[1]",
+      "textbook_sources": [
+        "第7章图（新）.txt／7.4.1 邻接矩阵"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-07",
+            "version": "371393a5c5d8debbb5b7c6079176fbc5f57ba377c8321b2f3b58c3c1e84ff0c0",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 36,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.6149159910057772,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 36,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.3399907718946954,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 36,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.39853948923319327,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 36,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.9146689781381302,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 36,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.31818065380449057,
+                "y2": 0.2454367459766089
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n（2）一图的每个顶点以且仅以环为关联的边,那么该图的邻接矩阵为么矩阵。\n（3）无向图的邻接矩阵是对称矩阵。\n（4）图7.28（a）的邻接矩阵为图7.28（b）。\n邻接矩阵可推广到有平行边的多重图和赋权图上，只要令矩阵分量aij为vi到vj的边的重数或边上的权值W（vi,vj），而当vi\n，vj之间无边关联时，仍取aij＝0。\n\n\n\n\n\n\n\n",
+            "chapter_id": 7,
+            "section_id": 10,
+            "section_title": "7.4.1 邻接矩阵",
+            "source": "第7章图（新）.txt",
+            "image_refs": [
+              {
+                "id": "a9f228a0de746608d6012a0455bdd700c213d82b9062f01e00d8c701d9feca00",
+                "image_url": "/api/pdf/crops/a9f228a0de746608d6012a0455bdd700c213d82b9062f01e00d8c701d9feca00/image",
+                "label": "教材第 36 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "b5ae6f0e8935ce0d14fc7e38257dc1c974d53445a91df98fd93e80acca4b54c6",
+            "quote": "（2）一图的每个顶点以且仅以环为关联的边,那么该图的邻接矩阵为么矩阵。\n（3）无向图的邻接矩阵是对称矩阵。\n（4）图7.28（a）的邻接矩阵为图7.28（b）。\n邻接矩阵可推广到有平行边的多重图和赋权图上，只要令矩阵分量aij为vi到vj的边的重数或边上的权值W（vi,vj），而当vi，vj之间无边关联时，仍取aij＝0。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 36,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "b5ae6f0e8935ce0d14fc7e38257dc1c974d53445a91df98fd93e80acca4b54c6",
+            "retrieval_source_id": "ch7-s10-p0-w2",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-07",
+            "document_version": "371393a5c5d8debbb5b7c6079176fbc5f57ba377c8321b2f3b58c3c1e84ff0c0",
+            "source_block_id": null,
+            "section_id": 10,
+            "block_start": 196,
+            "block_end": 358,
+            "quote": "（2）一图的每个顶点以且仅以环为关联的边,那么该图的邻接矩阵为么矩阵。\n（3）无向图的邻接矩阵是对称矩阵。\n（4）图7.28（a）的邻接矩阵为图7.28（b）。\n邻接矩阵可推广到有平行边的多重图和赋权图上，只要令矩阵分量aij为vi到vj的边的重数或边上的权值W（vi,vj），而当vi，vj之间无边关联时，仍取aij＝0。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              36
+            ],
+            "page": 36,
+            "selections": [
+              {
+                "document_id": "chapter-07",
+                "version": "371393a5c5d8debbb5b7c6079176fbc5f57ba377c8321b2f3b58c3c1e84ff0c0",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 36,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.6149159910057772,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 36,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.3399907718946954,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 36,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.39853948923319327,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 36,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.9146689781381302,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 36,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.31818065380449057,
+                    "y2": 0.2454367459766089
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n（2）一图的每个顶点以且仅以环为关联的边,那么该图的邻接矩阵为么矩阵。\n（3）无向图的邻接矩阵是对称矩阵。\n（4）图7.28（a）的邻接矩阵为图7.28（b）。\n邻接矩阵可推广到有平行边的多重图和赋权图上，只要令矩阵分量aij为vi到vj的边的重数或边上的权值W（vi,vj），而当vi\n，vj之间无边关联时，仍取aij＝0。\n\n\n\n\n\n\n\n",
+                "chapter_id": 7,
+                "section_id": 10,
+                "section_title": "7.4.1 邻接矩阵",
+                "source": "第7章图（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "a9f228a0de746608d6012a0455bdd700c213d82b9062f01e00d8c701d9feca00",
+                    "image_url": "/api/pdf/crops/a9f228a0de746608d6012a0455bdd700c213d82b9062f01e00d8c701d9feca00/image",
+                    "label": "教材第 36 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：查看邻接矩阵中表示vi到vj的元素aij。无重边时，aij为1表示vi到vj有边，aij为0表示无边；有重边或权值时，aij表示边数或权值。",
+                "start": 0,
+                "end": 79,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 2336.1
+    },
+    {
+      "id": "c08",
+      "scenario_id": "c08",
+      "turn_index": 1,
+      "question": "连通无圈图为何是一棵树？",
+      "category": "definition",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": true,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "图",
+      "reply": "根据本轮教材摘录：定义8.9  连通无回路的无向图称为无向树，简称为树（tree）。[1]",
+      "textbook_sources": [
+        "第8章特殊图（新）.txt／8.3.1  树的基本概念"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-08",
+            "version": "b09d760b62c8e9e68cfc0913c50755ef9d5c151e645100e8a9d65c988791f9e6",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.12301610088574914,
+                "x2": 0.12835630426487002,
+                "y2": 0.13576135442375853
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.133983654538696,
+                "x2": 0.9200815142463235,
+                "y2": 0.14672890807670538
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.14495120819164284,
+                "x2": 0.8347093331473213,
+                "y2": 0.15769646172965224
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.5729563213957457,
+                "y2": 0.16866394289429001
+              }
+            ],
+            "text": "\n定义8.9\n连通无回路的无向图称为无向树，简称为树（tree）。树中的悬挂点又称为树叶（leave），其它结点称为分支点（branch\ned node）。单一孤立结点称为空树（null tree）。诸连通分支均为树的图称为森林（forest），树也是森林。\n例8.13  图9.22中（a），（b）为树，而（c）不是树，但（c）为森林。\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 8,
+            "section_id": 7,
+            "section_title": "8.3.1  树的基本概念",
+            "source": "第8章特殊图（新）.txt",
+            "image_refs": [
+              {
+                "id": "d112fd82c54a42d5fcd6e68293d8c05c6f44cab5ce6348f67e59c6a3624a2772",
+                "image_url": "/api/pdf/crops/d112fd82c54a42d5fcd6e68293d8c05c6f44cab5ce6348f67e59c6a3624a2772/image",
+                "label": "教材第 23 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "25fdf12c91b9a12a801831bed598674ce42e65f24a27f8a85329d5612e2138b4",
+            "quote": "定义8.9  连通无回路的无向图称为无向树，简称为树（tree）。树中的悬挂点又称为树叶（leave），其它结点称为分支点（branched node）。单一孤立结点称为空树（null tree）。诸连通分支均为树的图称为森林（forest），树也是森林。\n例8.13  图9.22中（a），（b）为树，而（c）不是树，但（c）为森林。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 23,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "25fdf12c91b9a12a801831bed598674ce42e65f24a27f8a85329d5612e2138b4",
+            "retrieval_source_id": "ch8-s7-p0-w1",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-08",
+            "document_version": "b09d760b62c8e9e68cfc0913c50755ef9d5c151e645100e8a9d65c988791f9e6",
+            "source_block_id": null,
+            "section_id": 7,
+            "block_start": 0,
+            "block_end": 168,
+            "quote": "定义8.9  连通无回路的无向图称为无向树，简称为树（tree）。树中的悬挂点又称为树叶（leave），其它结点称为分支点（branched node）。单一孤立结点称为空树（null tree）。诸连通分支均为树的图称为森林（forest），树也是森林。\n例8.13  图9.22中（a），（b）为树，而（c）不是树，但（c）为森林。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              23
+            ],
+            "page": 23,
+            "selections": [
+              {
+                "document_id": "chapter-08",
+                "version": "b09d760b62c8e9e68cfc0913c50755ef9d5c151e645100e8a9d65c988791f9e6",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.12301610088574914,
+                    "x2": 0.12835630426487002,
+                    "y2": 0.13576135442375853
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.133983654538696,
+                    "x2": 0.9200815142463235,
+                    "y2": 0.14672890807670538
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.14495120819164284,
+                    "x2": 0.8347093331473213,
+                    "y2": 0.15769646172965224
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.5729563213957457,
+                    "y2": 0.16866394289429001
+                  }
+                ],
+                "text": "\n定义8.9\n连通无回路的无向图称为无向树，简称为树（tree）。树中的悬挂点又称为树叶（leave），其它结点称为分支点（branch\ned node）。单一孤立结点称为空树（null tree）。诸连通分支均为树的图称为森林（forest），树也是森林。\n例8.13  图9.22中（a），（b）为树，而（c）不是树，但（c）为森林。\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 8,
+                "section_id": 7,
+                "section_title": "8.3.1  树的基本概念",
+                "source": "第8章特殊图（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "d112fd82c54a42d5fcd6e68293d8c05c6f44cab5ce6348f67e59c6a3624a2772",
+                    "image_url": "/api/pdf/crops/d112fd82c54a42d5fcd6e68293d8c05c6f44cab5ce6348f67e59c6a3624a2772/image",
+                    "label": "教材第 23 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：定义8.9  连通无回路的无向图称为无向树，简称为树（tree）。",
+                "start": 0,
+                "end": 42,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 3186.9
+    },
+    {
+      "id": "c09",
+      "scenario_id": "c09",
+      "turn_index": 1,
+      "question": "一个关系什么时候具有反对称性？",
+      "category": "definition",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "关系",
+      "reply": "根据本轮教材摘录：关系R具有反对称性，当且仅当对任意x和y，若xRy且yRx，则x=y。[1]",
+      "textbook_sources": [
+        "第9章关系（新）.txt／9.1.3 关系的基本特性"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-09",
+            "version": "35a1daa3224fd49a81c68f3b8c6f03ecd4e1f919eb72078c63abc39a08beb7b9",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 16,
+                "x1": 0.5025025193671219,
+                "y1": 0.18882134125408254,
+                "x2": 0.5354352924763655,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 16,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.3350411797531513,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 16,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.6019513544675682,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 16,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.3964638579552915,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 16,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.5577564133075105,
+                "y2": 0.2454367459766089
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n即，\nR对称 当且仅当 (x(y(x,y(A∧xRy→yRx)\n称R是反对称的（antisymmetric）,如果对任意x,y(A，xRy且yRx蕴涵x＝y。即,\nR反对称 当且仅当(x(y(x,y(A∧xRy∧yRx→x = y)\n称R是传递的（transitive），如果对任意x,y,z(A ，xRy且yRz蕴涵xRz 。\n\n\n\n\n\n",
+            "chapter_id": 9,
+            "section_id": 4,
+            "section_title": "9.1.3 关系的基本特性",
+            "source": "第9章关系（新）.txt",
+            "image_refs": [
+              {
+                "id": "6a8d419bbee94cc1a5555d14fd32402160329983556ca1c776a2cc80af45981a",
+                "image_url": "/api/pdf/crops/6a8d419bbee94cc1a5555d14fd32402160329983556ca1c776a2cc80af45981a/image",
+                "label": "教材第 16 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "0881513eab003c6c2edf585f0d5118c091bfaf0b2189c5ba6493dfd9d9a4154b",
+            "quote": "即，\nR对称 当且仅当 (x(y(x,y(A∧xRy→yRx)\n称R是反对称的（antisymmetric）,如果对任意x,y(A，xRy且yRx蕴涵x＝y。即,\nR反对称 当且仅当(x(y(x,y(A∧xRy∧yRx→x = y)\n称R是传递的（transitive），如果对任意x,y,z(A ，xRy且yRz蕴涵xRz 。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 16,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "0881513eab003c6c2edf585f0d5118c091bfaf0b2189c5ba6493dfd9d9a4154b",
+            "retrieval_source_id": "ch9-s4-p0-w1",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-09",
+            "document_version": "35a1daa3224fd49a81c68f3b8c6f03ecd4e1f919eb72078c63abc39a08beb7b9",
+            "source_block_id": null,
+            "section_id": 4,
+            "block_start": 228,
+            "block_end": 392,
+            "quote": "即，\nR对称 当且仅当 (x(y(x,y(A∧xRy→yRx)\n称R是反对称的（antisymmetric）,如果对任意x,y(A，xRy且yRx蕴涵x＝y。即,\nR反对称 当且仅当(x(y(x,y(A∧xRy∧yRx→x = y)\n称R是传递的（transitive），如果对任意x,y,z(A ，xRy且yRz蕴涵xRz 。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              16
+            ],
+            "page": 16,
+            "selections": [
+              {
+                "document_id": "chapter-09",
+                "version": "35a1daa3224fd49a81c68f3b8c6f03ecd4e1f919eb72078c63abc39a08beb7b9",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 16,
+                    "x1": 0.5025025193671219,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.5354352924763655,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 16,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.3350411797531513,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 16,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.6019513544675682,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 16,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.3964638579552915,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 16,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.5577564133075105,
+                    "y2": 0.2454367459766089
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n即，\nR对称 当且仅当 (x(y(x,y(A∧xRy→yRx)\n称R是反对称的（antisymmetric）,如果对任意x,y(A，xRy且yRx蕴涵x＝y。即,\nR反对称 当且仅当(x(y(x,y(A∧xRy∧yRx→x = y)\n称R是传递的（transitive），如果对任意x,y,z(A ，xRy且yRz蕴涵xRz 。\n\n\n\n\n\n",
+                "chapter_id": 9,
+                "section_id": 4,
+                "section_title": "9.1.3 关系的基本特性",
+                "source": "第9章关系（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "6a8d419bbee94cc1a5555d14fd32402160329983556ca1c776a2cc80af45981a",
+                    "image_url": "/api/pdf/crops/6a8d419bbee94cc1a5555d14fd32402160329983556ca1c776a2cc80af45981a/image",
+                    "label": "教材第 16 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：关系R具有反对称性，当且仅当对任意x和y，若xRy且yRx，则x=y。",
+                "start": 0,
+                "end": 44,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 2443.7
+    },
+    {
+      "id": "c10",
+      "scenario_id": "c10",
+      "turn_index": 1,
+      "question": "函数复合 f○g 中两个函数的应用次序是什么？",
+      "category": "formula",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": true,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "函数",
+      "reply": "根据本轮教材摘录：合成函数g○f先应用内层函数f，再应用外层函数g，即(g○f)(x)=g(f(x))。[1]",
+      "textbook_sources": [
+        "第10章函数（新）.txt／10.1.3  函数的合成"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-10",
+            "version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 11,
+                "x1": 0.15721345891872374,
+                "y1": 0.21075637607166717,
+                "x2": 0.7037689711626838,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 11,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.689814282842043,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 11,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.18109330787979255,
+                "y2": 0.2454367459766089
+              },
+              {
+                "page": 11,
+                "x1": 0.07513025210084033,
+                "y1": 0.24365903703050773,
+                "x2": 0.7800403488543854,
+                "y2": 0.25640429962955574
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n\n由于f为函数，知y1=y2；又因g为函数，得知z1=z2。f○g为X到Z的函数得证。\n我们注意到<x,z>(f○g意指：有y使<x,y>(f，<y,z>(g，即y = f(x)，z = g(y) = g(f(x))，因而\nf○g(x) = g(f(x))\n这就是说，当f,g为函数时，它们的合成函数作用于自变量的次序刚好与合成的原始记号的顺序相反。\n\n",
+            "chapter_id": 10,
+            "section_id": 4,
+            "section_title": "10.1.3  函数的合成",
+            "source": "第10章函数（新）.txt",
+            "image_refs": [
+              {
+                "id": "7f7b6795d5db63332ac2a51e5706ef1cb98b4d0b8b0218ec258eddf823437a89",
+                "image_url": "/api/pdf/crops/7f7b6795d5db63332ac2a51e5706ef1cb98b4d0b8b0218ec258eddf823437a89/image",
+                "label": "教材第 11 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "9b9a8047a4fb315b464a3090da062c380289bacb264dbf8369879eaf681c0798",
+            "quote": "由于f为函数，知y1=y2；又因g为函数，得知z1=z2。f○g为X到Z的函数得证。\n我们注意到<x,z>(f○g意指：有y使<x,y>(f，<y,z>(g，即y = f(x)，z = g(y) = g(f(x))，因而\nf○g(x) = g(f(x))\n这就是说，当f,g为函数时，它们的合成函数作用于自变量的次序刚好与合成的原始记号的顺序相反。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 11,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "9b9a8047a4fb315b464a3090da062c380289bacb264dbf8369879eaf681c0798",
+            "retrieval_source_id": "ch10-s4-p0-w2",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-10",
+            "document_version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+            "source_block_id": null,
+            "section_id": 4,
+            "block_start": 357,
+            "block_end": 531,
+            "quote": "由于f为函数，知y1=y2；又因g为函数，得知z1=z2。f○g为X到Z的函数得证。\n我们注意到<x,z>(f○g意指：有y使<x,y>(f，<y,z>(g，即y = f(x)，z = g(y) = g(f(x))，因而\nf○g(x) = g(f(x))\n这就是说，当f,g为函数时，它们的合成函数作用于自变量的次序刚好与合成的原始记号的顺序相反。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              11
+            ],
+            "page": 11,
+            "selections": [
+              {
+                "document_id": "chapter-10",
+                "version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 11,
+                    "x1": 0.15721345891872374,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.7037689711626838,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 11,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.689814282842043,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 11,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.18109330787979255,
+                    "y2": 0.2454367459766089
+                  },
+                  {
+                    "page": 11,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.24365903703050773,
+                    "x2": 0.7800403488543854,
+                    "y2": 0.25640429962955574
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n\n由于f为函数，知y1=y2；又因g为函数，得知z1=z2。f○g为X到Z的函数得证。\n我们注意到<x,z>(f○g意指：有y使<x,y>(f，<y,z>(g，即y = f(x)，z = g(y) = g(f(x))，因而\nf○g(x) = g(f(x))\n这就是说，当f,g为函数时，它们的合成函数作用于自变量的次序刚好与合成的原始记号的顺序相反。\n\n",
+                "chapter_id": 10,
+                "section_id": 4,
+                "section_title": "10.1.3  函数的合成",
+                "source": "第10章函数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "7f7b6795d5db63332ac2a51e5706ef1cb98b4d0b8b0218ec258eddf823437a89",
+                    "image_url": "/api/pdf/crops/7f7b6795d5db63332ac2a51e5706ef1cb98b4d0b8b0218ec258eddf823437a89/image",
+                    "label": "教材第 11 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：合成函数g○f先应用内层函数f，再应用外层函数g，即(g○f)(x)=g(f(x))。",
+                "start": 0,
+                "end": 52,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 2153.4
+    },
+    {
+      "id": "c11",
+      "scenario_id": "c11",
+      "turn_index": 1,
+      "question": "A∧B 在什么条件下取真？",
+      "category": "formula",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": true,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "逻辑代数",
+      "reply": "根据本轮教材摘录：设p，q表示两命题，那么p∧q表示合取p和q所得的命题，即p和q同时为真时p∧q真，否则p∧q为假。[1]",
+      "textbook_sources": [
+        "第4章逻辑代数（新）.txt／4.1.2  逻辑联结词"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-04",
+            "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.7306403398273371,
+                "y2": 0.2454367459766089
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.24365903703050773,
+                "x2": 0.8491108603597689,
+                "y2": 0.25640429962955574
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.25462659068345456,
+                "x2": 0.9146369731486343,
+                "y2": 0.2673718532825026
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.26559407184809236,
+                "x2": 0.32032016683626574,
+                "y2": 0.2783393344471404
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n\n\n\n当用否定词“并非”代替自然语言中的“不”时（或者反过来），应注意保持原语句的意义。例如p\n表示“整数都是自然数”时，┐p表示“并非整数都是自然数”或“整数不都是自然数”，而不是“整数都不是自然数”。\n合取词(conjunction)“并且”（and），用符号∧表示。设p，q表示两命题，那么p∧q表示合取p和q所得的命题，即p和q同\n时为真时p∧q真，否则p∧q为假。\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 4,
+            "section_id": 3,
+            "section_title": "4.1.2  逻辑联结词",
+            "source": "第4章逻辑代数（新）.txt",
+            "image_refs": [
+              {
+                "id": "bfe6b7ef6a7b141f25dfb6cb4ef1746698b27f061ecf7f4fbd857f633a7cc2ca",
+                "image_url": "/api/pdf/crops/bfe6b7ef6a7b141f25dfb6cb4ef1746698b27f061ecf7f4fbd857f633a7cc2ca/image",
+                "label": "教材第 6 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "4445d32276e04a17a7726a57cb8eeb45b15791e3ee494ac15dc6660b00cf7cf9",
+            "quote": "当用否定词“并非”代替自然语言中的“不”时（或者反过来），应注意保持原语句的意义。例如p 表示“整数都是自然数”时，┐p表示“并非整数都是自然数”或“整数不都是自然数”，而不是“整数都不是自然数”。\n合取词(conjunction)“并且”（and），用符号∧表示。设p，q表示两命题，那么p∧q表示合取p和q所得的命题，即p和q同时为真时p∧q真，否则p∧q为假。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 6,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "4445d32276e04a17a7726a57cb8eeb45b15791e3ee494ac15dc6660b00cf7cf9",
+            "retrieval_source_id": "ch4-s3-p0-w1",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-04",
+            "document_version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 1431,
+            "block_end": 1614,
+            "quote": "当用否定词“并非”代替自然语言中的“不”时（或者反过来），应注意保持原语句的意义。例如p 表示“整数都是自然数”时，┐p表示“并非整数都是自然数”或“整数不都是自然数”，而不是“整数都不是自然数”。\n合取词(conjunction)“并且”（and），用符号∧表示。设p，q表示两命题，那么p∧q表示合取p和q所得的命题，即p和q同时为真时p∧q真，否则p∧q为假。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              6
+            ],
+            "page": 6,
+            "selections": [
+              {
+                "document_id": "chapter-04",
+                "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.7306403398273371,
+                    "y2": 0.2454367459766089
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.24365903703050773,
+                    "x2": 0.8491108603597689,
+                    "y2": 0.25640429962955574
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.25462659068345456,
+                    "x2": 0.9146369731486343,
+                    "y2": 0.2673718532825026
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.26559407184809236,
+                    "x2": 0.32032016683626574,
+                    "y2": 0.2783393344471404
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n\n\n\n当用否定词“并非”代替自然语言中的“不”时（或者反过来），应注意保持原语句的意义。例如p\n表示“整数都是自然数”时，┐p表示“并非整数都是自然数”或“整数不都是自然数”，而不是“整数都不是自然数”。\n合取词(conjunction)“并且”（and），用符号∧表示。设p，q表示两命题，那么p∧q表示合取p和q所得的命题，即p和q同\n时为真时p∧q真，否则p∧q为假。\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 4,
+                "section_id": 3,
+                "section_title": "4.1.2  逻辑联结词",
+                "source": "第4章逻辑代数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "bfe6b7ef6a7b141f25dfb6cb4ef1746698b27f061ecf7f4fbd857f633a7cc2ca",
+                    "image_url": "/api/pdf/crops/bfe6b7ef6a7b141f25dfb6cb4ef1746698b27f061ecf7f4fbd857f633a7cc2ca/image",
+                    "label": "教材第 6 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：设p，q表示两命题，那么p∧q表示合取p和q所得的命题，即p和q同时为真时p∧q真，否则p∧q为假。",
+                "start": 0,
+                "end": 59,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 2840.2
+    },
+    {
+      "id": "c12",
+      "scenario_id": "c12",
+      "turn_index": 1,
+      "question": "若给每个整数对应其绝对值，这个映射是否单射？",
+      "category": "application",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": true,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 2,
+        "invalid": [],
+        "valid": 2
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "answered",
+      "knowledge_point": "集合",
+      "reply": "根据本轮教材摘录：这个映射不是单射。因为-1和1的绝对值都是1，不同原像对应了同一个值，不满足单射要求。[2][1]",
+      "textbook_sources": [
+        "第10章函数（新）.txt／10.2.1 单射的、满射的和双射的函数",
+        "第10章函数（新）.txt／10.1.1函数的基本概念"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-10",
+            "version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 19,
+                "x1": 0.07513025210084033,
+                "y1": 0.12301610088574914,
+                "x2": 0.6030210084033613,
+                "y2": 0.13576135442375853
+              },
+              {
+                "page": 19,
+                "x1": 0.07513025210084033,
+                "y1": 0.133983654538696,
+                "x2": 0.23194621007582722,
+                "y2": 0.14672890807670538
+              },
+              {
+                "page": 19,
+                "x1": 0.07513025210084033,
+                "y1": 0.14495120819164284,
+                "x2": 0.7907698164226628,
+                "y2": 0.15769646172965224
+              },
+              {
+                "page": 19,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.3290697359998687,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 19,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.7683530909434085,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 19,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.10081428617589613,
+                "y2": 0.19059905020018372
+              }
+            ],
+            "text": "\n如果从函数的最基本性质出发，可以讨论单射的、满射的和双射的函数类。\n定义10.7  设f：X→Y。\n（1）称f为X到Y的单射函数，或单射（injection）、内射、入射，如果对任意x1，x2(X , x1(x2蕴涵f(x1) (\nf(x2)。单射函数也称一对一的函数。\n（2）称f为X到Y的满射函数，或满射（surjection），如果对任意y(Y，均有x(X，使y = f(x),即Ran(f) =\nY。\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 10,
+            "section_id": 6,
+            "section_title": "10.2.1 单射的、满射的和双射的函数",
+            "source": "第10章函数（新）.txt",
+            "image_refs": [
+              {
+                "id": "674b7350e127cae1e25488b5d19b5ca48d0b4b9443eb13f307247daf73ffcf33",
+                "image_url": "/api/pdf/crops/674b7350e127cae1e25488b5d19b5ca48d0b4b9443eb13f307247daf73ffcf33/image",
+                "label": "教材第 19 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "afaa170f1838e172349cc22970f300941663db633117fc7eb8814dc95786a153",
+            "quote": "如果从函数的最基本性质出发，可以讨论单射的、满射的和双射的函数类。\n定义10.7  设f：X→Y。\n（1）称f为X到Y的单射函数，或单射（injection）、内射、入射，如果对任意x1，x2(X , x1(x2蕴涵f(x1) ( f(x2)。单射函数也称一对一的函数。\n（2）称f为X到Y的满射函数，或满射（surjection），如果对任意y(Y，均有x(X，使y = f(x),即Ran(f) = Y。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 19,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "afaa170f1838e172349cc22970f300941663db633117fc7eb8814dc95786a153",
+            "retrieval_source_id": "ch10-s6-p0-w5",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-10",
+            "document_version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+            "source_block_id": null,
+            "section_id": 6,
+            "block_start": 0,
+            "block_end": 204,
+            "quote": "如果从函数的最基本性质出发，可以讨论单射的、满射的和双射的函数类。\n定义10.7  设f：X→Y。\n（1）称f为X到Y的单射函数，或单射（injection）、内射、入射，如果对任意x1，x2(X , x1(x2蕴涵f(x1) ( f(x2)。单射函数也称一对一的函数。\n（2）称f为X到Y的满射函数，或满射（surjection），如果对任意y(Y，均有x(X，使y = f(x),即Ran(f) = Y。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              19
+            ],
+            "page": 19,
+            "selections": [
+              {
+                "document_id": "chapter-10",
+                "version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 19,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.12301610088574914,
+                    "x2": 0.6030210084033613,
+                    "y2": 0.13576135442375853
+                  },
+                  {
+                    "page": 19,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.133983654538696,
+                    "x2": 0.23194621007582722,
+                    "y2": 0.14672890807670538
+                  },
+                  {
+                    "page": 19,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.14495120819164284,
+                    "x2": 0.7907698164226628,
+                    "y2": 0.15769646172965224
+                  },
+                  {
+                    "page": 19,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.3290697359998687,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 19,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.7683530909434085,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 19,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.10081428617589613,
+                    "y2": 0.19059905020018372
+                  }
+                ],
+                "text": "\n如果从函数的最基本性质出发，可以讨论单射的、满射的和双射的函数类。\n定义10.7  设f：X→Y。\n（1）称f为X到Y的单射函数，或单射（injection）、内射、入射，如果对任意x1，x2(X , x1(x2蕴涵f(x1) (\nf(x2)。单射函数也称一对一的函数。\n（2）称f为X到Y的满射函数，或满射（surjection），如果对任意y(Y，均有x(X，使y = f(x),即Ran(f) =\nY。\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 10,
+                "section_id": 6,
+                "section_title": "10.2.1 单射的、满射的和双射的函数",
+                "source": "第10章函数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "674b7350e127cae1e25488b5d19b5ca48d0b4b9443eb13f307247daf73ffcf33",
+                    "image_url": "/api/pdf/crops/674b7350e127cae1e25488b5d19b5ca48d0b4b9443eb13f307247daf73ffcf33/image",
+                    "label": "教材第 19 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：这个映射不是单射。因为-1和1的绝对值都是1，不同原像对应了同一个值，不满足单射要求。",
+                "start": 0,
+                "end": 52,
+                "markers": [
+                  2,
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        },
+        {
+          "source_index": 1,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-10",
+            "version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 4,
+                "x1": 0.3902108851841518,
+                "y1": 0.23269148337756088,
+                "x2": 0.8272210375361081,
+                "y2": 0.2454367459766089
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n\n\n\nA→A为绝对值函数，即y＝( x (，它可以用三种方法规定如下：\n\n\n\n\n\n\n\n",
+            "chapter_id": 10,
+            "section_id": 3,
+            "section_title": "10.1.1函数的基本概念",
+            "source": "第10章函数（新）.txt",
+            "image_refs": [
+              {
+                "id": "09dc365df30e54e89c018d6cc199f6eed5c034b350a5f0f3f5c08ef619fed2a7",
+                "image_url": "/api/pdf/crops/09dc365df30e54e89c018d6cc199f6eed5c034b350a5f0f3f5c08ef619fed2a7/image",
+                "label": "教材第 4 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "9618daf11618346968509f015c97fa5d0a444bc6df16b4ffd307d117cc76a856",
+            "quote": "A→A为绝对值函数，即y＝( x (，它可以用三种方法规定如下：",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 4,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "9618daf11618346968509f015c97fa5d0a444bc6df16b4ffd307d117cc76a856",
+            "retrieval_source_id": "ch10-s3-p0-w1",
+            "retrieval_source_index": 2,
+            "document_id": "chapter-10",
+            "document_version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 1000,
+            "block_end": 1032,
+            "quote": "A→A为绝对值函数，即y＝( x (，它可以用三种方法规定如下：",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              4
+            ],
+            "page": 4,
+            "selections": [
+              {
+                "document_id": "chapter-10",
+                "version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 4,
+                    "x1": 0.3902108851841518,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.8272210375361081,
+                    "y2": 0.2454367459766089
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n\n\n\nA→A为绝对值函数，即y＝( x (，它可以用三种方法规定如下：\n\n\n\n\n\n\n\n",
+                "chapter_id": 10,
+                "section_id": 3,
+                "section_title": "10.1.1函数的基本概念",
+                "source": "第10章函数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "09dc365df30e54e89c018d6cc199f6eed5c034b350a5f0f3f5c08ef619fed2a7",
+                    "image_url": "/api/pdf/crops/09dc365df30e54e89c018d6cc199f6eed5c034b350a5f0f3f5c08ef619fed2a7/image",
+                    "label": "教材第 4 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：这个映射不是单射。因为-1和1的绝对值都是1，不同原像对应了同一个值，不满足单射要求。",
+                "start": 0,
+                "end": 52,
+                "markers": [
+                  2,
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 2202.5
+    },
+    {
+      "id": "c13",
+      "scenario_id": "c13",
+      "turn_index": 1,
+      "question": "怎样用 Transformer 做机器翻译？",
+      "category": "out_of_scope",
+      "expect_refusal": true,
+      "retrieval_hit": null,
+      "answer_correct": true,
+      "citation_supports_answer": null,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "evidence_rejected",
+      "knowledge_point": "集合",
+      "reply": "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 101.4
+    },
+    {
+      "id": "c14",
+      "scenario_id": "c14",
+      "turn_index": 1,
+      "question": "糖尿病如何使用胰岛素治疗？",
+      "category": "out_of_scope",
+      "expect_refusal": true,
+      "retrieval_hit": null,
+      "answer_correct": true,
+      "citation_supports_answer": null,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "evidence_rejected",
+      "knowledge_point": "集合",
+      "reply": "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 89.4
+    },
+    {
+      "id": "c15",
+      "scenario_id": "c15",
+      "turn_index": 1,
+      "question": "股票的市盈率如何用于估值？",
+      "category": "out_of_scope",
+      "expect_refusal": true,
+      "retrieval_hit": null,
+      "answer_correct": true,
+      "citation_supports_answer": null,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "evidence_rejected",
+      "knowledge_point": "集合",
+      "reply": "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 91.6
+    },
+    {
+      "id": "c16",
+      "scenario_id": "c16",
+      "turn_index": 1,
+      "question": "动量守恒定律适用于什么条件？",
+      "category": "out_of_scope",
+      "expect_refusal": true,
+      "retrieval_hit": null,
+      "answer_correct": true,
+      "citation_supports_answer": null,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "evidence_rejected",
+      "knowledge_point": "集合",
+      "reply": "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 91.5
+    }
+  ]
+}
