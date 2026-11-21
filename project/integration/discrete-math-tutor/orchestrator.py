@@ -43,6 +43,7 @@ from knowledge.textbook import format_excerpts, load_textbook, retrieve
 from knowledge.hybrid_retrieval import expand_section_context, retrieve_hybrid
 from knowledge.pdf_evidence import enrich_sources
 from knowledge.proof_units import expand_proof_sources
+from knowledge.query_understanding import understand as understand_query
 from memory.memory_manager import MemoryManager
 from knowledge.course_config import DEFAULT_GOAL,PSYCHOLOGY
 from agents.course_prompts import GATE
@@ -57,7 +58,10 @@ def retrieve_course(query,chunks,**kwargs):
             from integrations.deeptutor.knowledge_client import supplement
             result = supplement(query, result, limit=kwargs.get("limit", 6))
         return result
-    return expand_section_context(retrieve_hybrid(query,chunks,**kwargs))
+    understanding = understand_query(query)
+    return expand_section_context(
+        retrieve_hybrid(understanding.retrieval_query, chunks, **kwargs)
+    )
 
 
 class TutorOrchestrator:
@@ -248,6 +252,22 @@ class TutorOrchestrator:
             query+='\n最近对话所指内容（仅作检索线索）：'+re.sub(r'\[\d+\]','', '\n'.join(row['content'] for row in history[-4:]))[-1800:]
         resource_query = bool(re.search(r"(?:图|表)\s*\d+\s*[.．]\s*\d+|表格|真值表|函数表|公式|表达式|配图|插图|图片", message))
         report("retrieving", "检索教材", "查找相关正文、公式、表格和插图")
+        query_understanding = understand_query(message)
+        if (query_understanding.needs_clarification and not routing.needs_context
+                and not execution.target_refs):
+            reply = query_understanding.clarification
+            save_exchange(reply)
+            return {
+                "reply": reply,
+                "answer_status": "awaiting_clarification",
+                "routing": routing.model_dump(),
+                "knowledge_point": active_point,
+                "student_state": self.memory.get_state(student_id, active_point).model_dump(),
+                "step_advanced": False,
+                "textbook_sources": [],
+                "image_refs": [],
+                "pdf_references": [],
+            }
         if navigation:
             from knowledge.course_navigation import read_target
             sources = read_target(navigation)
