@@ -1,0 +1,167 @@
+{
+  "schema": "e2e-answer-accuracy-v1",
+  "dataset": "development-v1",
+  "note": "Development regression set. Do not describe it as an independent blind set.",
+  "cases": [
+    {
+      "id": "c01",
+      "question": "有序对 (a,b) 与 (b,a) 一定相等吗？",
+      "category": "definition",
+      "chapter": 1,
+      "section": "集合的笛卡儿积",
+      "answer_groups": [
+        ["不一定", "一般不相等", "通常不相等", "未必相等", "不相等"]
+      ]
+    },
+    {
+      "id": "c02",
+      "question": "用数学归纳法证明命题时，归纳假设如何用于下一步？",
+      "category": "proof",
+      "chapter": 2,
+      "section": "数学归纳原理",
+      "answer_groups": [
+        ["归纳假设"],
+        ["n=k", "n＝k", "前一步", "归纳步骤", "下一步"]
+      ]
+    },
+    {
+      "id": "c03",
+      "question": "三种饮料与四种主食搭配，为什么使用乘法原理？",
+      "category": "application",
+      "chapter": 3,
+      "section": "加法原理和乘法原理",
+      "answer_groups": [
+        ["乘法原理"],
+        ["三步", "两步", "分步", "先选", "3×4", "3*4", "12种"]
+      ]
+    },
+    {
+      "id": "c04",
+      "question": "命题的否定与原命题在真值上有什么关系？",
+      "category": "formula",
+      "chapter": 4,
+      "section": "逻辑联结词",
+      "answer_groups": [
+        ["否定"],
+        ["相反", "真值相反", "真假相反", "互反"]
+      ]
+    },
+    {
+      "id": "c05",
+      "question": "个体域改变时，同一个全称命题的真假会变化吗？",
+      "category": "paraphrase",
+      "chapter": 5,
+      "section": "谓词公式的真值规定",
+      "answer_groups": [
+        ["个体域"],
+        ["会变化", "可能变化", "影响真假", "真假会变"]
+      ]
+    },
+    {
+      "id": "c06",
+      "question": "证明与演绎在是否允许额外前提上有何区别？",
+      "category": "proof",
+      "chapter": 6,
+      "section": "系统内的推理：证明与演绎",
+      "answer_groups": [
+        ["证明"],
+        ["演绎"],
+        ["前提"]
+      ]
+    },
+    {
+      "id": "c07",
+      "question": "怎样从邻接矩阵判断两个顶点之间有边？",
+      "category": "paraphrase",
+      "chapter": 7,
+      "section": "邻接矩阵",
+      "answer_groups": [
+        ["邻接矩阵"],
+        ["元素", "aij", "a_ij", "第i行", "第j列"],
+        ["1", "非零", "有边"]
+      ]
+    },
+    {
+      "id": "c08",
+      "question": "连通无圈图为何是一棵树？",
+      "category": "definition",
+      "chapter": 8,
+      "section": "树的基本概念",
+      "answer_groups": [
+        ["树"],
+        ["连通"],
+        ["无圈", "无回路"]
+      ]
+    },
+    {
+      "id": "c09",
+      "question": "一个关系什么时候具有反对称性？",
+      "category": "definition",
+      "chapter": 9,
+      "section": "关系的基本特性",
+      "answer_groups": [
+        ["反对称"],
+        ["a,b", "x,y", "任意"],
+        ["b,a", "y,x", "则", "等于"]
+      ]
+    },
+    {
+      "id": "c10",
+      "question": "函数复合 f○g 中两个函数的应用次序是什么？",
+      "category": "formula",
+      "chapter": 10,
+      "section": "函数的合成",
+      "answer_groups": [
+        ["合成", "复合"],
+        ["先", "次序", "先应用"]
+      ]
+    },
+    {
+      "id": "c11",
+      "question": "A∧B 在什么条件下取真？",
+      "category": "formula",
+      "chapter": 4,
+      "section": "逻辑联结词",
+      "answer_groups": [
+        ["合取", "A∧B", "p∧q"],
+        ["真"],
+        ["同时", "均", "都"]
+      ]
+    },
+    {
+      "id": "c12",
+      "question": "若给每个整数对应其绝对值，这个映射是否单射？",
+      "category": "application",
+      "chapter": 10,
+      "section": "单射的、满射的和双射的函数",
+      "answer_groups": [
+        ["绝对值"],
+        ["不是单射", "不单射", "非单射", "不是一一", "-1", "相反数"]
+      ]
+    },
+    {
+      "id": "c13",
+      "question": "怎样用 Transformer 做机器翻译？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "c14",
+      "question": "糖尿病如何使用胰岛素治疗？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "c15",
+      "question": "股票的市盈率如何用于估值？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    },
+    {
+      "id": "c16",
+      "question": "动量守恒定律适用于什么条件？",
+      "category": "out_of_scope",
+      "expect_refusal": true
+    }
+  ]
+}
