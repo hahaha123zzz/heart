@@ -1,11 +1,16 @@
 import unittest
+from unittest.mock import Mock
 
+from agents.response_generator import ResponseGenerator
+from agents.teaching_planner import TeachingPlan
 from knowledge.textbook_qa_contract import (
     ALLOWED_INTENTS,
+    TEXTBOOK_ANSWER_FORMAT,
     REFUSAL_MESSAGE,
     answer_shape,
     classify_question,
 )
+from models.student_state import StudentState
 
 
 class TextbookQAContractTests(unittest.TestCase):
@@ -53,6 +58,28 @@ class TextbookQAContractTests(unittest.TestCase):
             "简短解释",
             "教材引用",
         ))
+
+    def test_direct_textbook_explanation_receives_four_part_instruction(self):
+        llm = Mock()
+        llm.chat.return_value = "教材中的定义。[1]"
+        result = ResponseGenerator(llm).generate(
+            StudentState(),
+            TeachingPlan(
+                goal="解释集合",
+                strategy="worked_example",
+                action="explain",
+                difficulty="easy",
+            ),
+            "集合是什么？",
+            [],
+            instructional_move="direct_explanation",
+            textbook_excerpts="[1] 集合 | 1.1.1 | 证据ID:fixture\n集合由对象组成。",
+        )
+        self.assertEqual(result, "教材中的定义。[1]")
+        system = llm.chat.call_args.args[0][0]["content"]
+        self.assertIn(TEXTBOOK_ANSWER_FORMAT, system)
+        for section in answer_shape():
+            self.assertIn(section, system)
 
 
 if __name__ == "__main__":
