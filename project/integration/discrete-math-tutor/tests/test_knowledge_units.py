@@ -73,6 +73,12 @@ class KnowledgeUnitRetrievalTests(unittest.TestCase):
                 combined = "\n".join(unit.section + unit.text for unit in units)
                 self.assertTrue(any(term in combined for term in expected_terms))
 
+    def test_tree_concept_recalls_the_definition_unit_first(self):
+        units = retrieve_units("树的概念", limit=3)
+        self.assertTrue(units)
+        self.assertEqual(units[0].chunk_id, "ch8-s7-definition-定义8.9")
+        self.assertIn("连通无回路的无向图", units[0].text)
+
     def test_calibration_paraphrases_reach_the_right_section(self):
         cases = (
             ("计算两个集合并集大小时，为什么不能直接相加？", "包含排斥原理"),

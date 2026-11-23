@@ -153,6 +153,8 @@ def _related_concepts(value: str) -> tuple[str, ...]:
         concepts.extend(("重言式", "永真式"))
     if re.search(r"边.*横跨.*顶点组|两个.*顶点组.*边", text):
         concepts.append("二分图")
+    if "树" in text and ("概念" in text or "是什么" in text):
+        concepts.extend(("无向树", "森林", "树"))
     if re.search(r"连通.*删去.*边.*无圈|连通.*无回路", text):
         concepts.append("生成树")
     return tuple(dict.fromkeys(concepts))

@@ -7,8 +7,21 @@ def prepare_selection(request, tutor):
         # Native chat must receive the same host-retrieved textbook evidence as
         # the ordinary answer path; otherwise the upstream model may answer
         # from general knowledge without a verifiable citation.
-        from orchestrator import retrieve_course
-        chunks = retrieve_course(request.message, tutor.textbook_chunks, limit=6)
+        from knowledge.knowledge_units import retrieve_units
+        from knowledge.query_understanding import understand
+        understanding = understand(request.message)
+        units = retrieve_units(
+            request.message,
+            limit=6,
+            section_hints=tuple(candidate.section_id for candidate in understanding.candidates),
+        )
+        if units:
+            chunks = list(units)
+        else:
+            from knowledge.hybrid_retrieval import expand_section_context, retrieve_hybrid
+            chunks = expand_section_context(
+                retrieve_hybrid(understanding.retrieval_query, tutor.textbook_chunks, limit=6)
+            )
         if not chunks:
             return [], []
         from .native_grounding import prepare_retrieval
