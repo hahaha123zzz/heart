@@ -301,7 +301,10 @@ class NativeTurnBridge:
         from .tool_policy import visible, hidden_names, HIDDEN_EXTENSIONS
         mapped = await self.bind_scope(request)
         from .tool_policy import teaching_tool_scope
-        from .product_surface import CHAT_CAPABILITIES
+        try:
+            from .product_surface import CHAT_CAPABILITIES
+        except ImportError:
+            CHAT_CAPABILITIES = None
         with self.user_scope(mapped['user_id']), workspace_context(mapped['workspace_id']), teaching_tool_scope():
             app = DeepTutorApp(workspace_id=mapped['workspace_id'])
             resources = current_resources()
@@ -320,7 +323,8 @@ class NativeTurnBridge:
                 # 固定上游 availability 是 slots dataclass，不能读取 __dict__。
                 'capabilities': [{**manifest, 'availability': __import__('dataclasses').asdict(
                     app.get_capability_availability(manifest['name'], manifests=manifests))}
-                    for manifest in manifests if manifest['name'] in CHAT_CAPABILITIES],
+                    for manifest in manifests if (CHAT_CAPABILITIES is None
+                        or manifest['name'] in CHAT_CAPABILITIES)],
                 'tools': [{'name': spec.name, 'class_path': spec.class_path, 'registered': True,
                     'user_toggleable': spec.name in USER_TOGGLEABLE_TOOL_NAMES,
                     'context_gated': spec.name in CONFIGURABLE_BUILTIN_TOOL_NAMES,

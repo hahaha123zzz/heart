@@ -50,12 +50,7 @@ def native_catalog(request: HostSessionRequest):
     from .runtime_config import native_enabled
     if not native_enabled():
         return {"enabled": False, "capabilities": [], "tools": [], "extensions": [], "resources": {}}
-    from database.database import session_scope
-    from database.models import Student
     from knowledge.course_config import COURSE_ID, COURSE_TITLE
-    with session_scope() as db:
-        if db.get(Student, request.student_id) is None:
-            raise HTTPException(404, "学生账户不存在")
     try:
         return DeepTutorBackend().native_catalog({**request.model_dump(),
             "course_id": COURSE_ID, "course_title": COURSE_TITLE})
