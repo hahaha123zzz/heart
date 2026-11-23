@@ -1,0 +1,82 @@
+{
+  "source": "HKUDS/DeepTutor",
+  "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "license": "Apache-2.0",
+  "changes": [
+    "仅调整导入命名空间；摘要模型改接宿主 LLMClient；配置和存储保持宿主所有权。"
+  ],
+  "files": [
+    {
+      "source": "deeptutor/core/context.py",
+      "target": "agents/context_runtime/context.py",
+      "upstream_sha256": "131c41f1f7eacd98acf02d2b95d7d28ab21aa720d14a8067aa06f3aafd90bcfd",
+      "local_sha256": "131c41f1f7eacd98acf02d2b95d7d28ab21aa720d14a8067aa06f3aafd90bcfd"
+    },
+    {
+      "source": "deeptutor/capabilities/protocol.py",
+      "target": "agents/context_runtime/protocol.py",
+      "upstream_sha256": "64ad80518dfccebb55e002b76322e1a09cb9f30364513d3c4703c9f68d0d0d8c",
+      "local_sha256": "dfd4e79b9bb9c81dba1871f6446c764e8314e74007ab27dde1c38b154e19b3d1"
+    },
+    {
+      "source": "deeptutor/core/stream.py",
+      "target": "agents/context_runtime/stream.py",
+      "upstream_sha256": "1c896c97e59cd0f32d0e5296a7f67edeea81c729e8ed02d099d088c723b1b1f8",
+      "local_sha256": "1c896c97e59cd0f32d0e5296a7f67edeea81c729e8ed02d099d088c723b1b1f8"
+    },
+    {
+      "source": "deeptutor/core/trace.py",
+      "target": "agents/context_runtime/trace.py",
+      "upstream_sha256": "56c0fce34c7ddb04710afdea1105b25f074fbfaf603616ad7ff33eefdfc16224",
+      "local_sha256": "56c0fce34c7ddb04710afdea1105b25f074fbfaf603616ad7ff33eefdfc16224"
+    },
+    {
+      "source": "deeptutor/services/session/context_builder.py",
+      "target": "agents/context_runtime/context_builder.py",
+      "upstream_sha256": "520b17920ea8e3319bc09770068c7cd5a72809d46de543fc1508b22eaa7688e9",
+      "local_sha256": "e9e5b4d327db8fef27f2642de13e9fe12a7def1e8c49fa0efb3011961fe98ec9"
+    },
+    {
+      "source": "deeptutor/services/session/model_history.py",
+      "target": "agents/context_runtime/model_history.py",
+      "upstream_sha256": "335aaab5cfbf2aba6b50172e18d98eaf3d01cd27045bfdf96588dcd23473afbc",
+      "local_sha256": "335aaab5cfbf2aba6b50172e18d98eaf3d01cd27045bfdf96588dcd23473afbc"
+    },
+    {
+      "source": "deeptutor/services/session/ask_user_trace.py",
+      "target": "agents/context_runtime/ask_user_trace.py",
+      "upstream_sha256": "1b3b36fdc5cc5bcf6d533299620b1fdd144e7d0a0a15e074230a06f0b073c6b8",
+      "local_sha256": "1b3b36fdc5cc5bcf6d533299620b1fdd144e7d0a0a15e074230a06f0b073c6b8"
+    },
+    {
+      "source": "deeptutor/services/session/provider_response_state.py",
+      "target": "agents/context_runtime/provider_response_state.py",
+      "upstream_sha256": "a49eb94451ccb42b641491e18d64681933f78706eff83df11495b0b5e4bd49d9",
+      "local_sha256": "a49eb94451ccb42b641491e18d64681933f78706eff83df11495b0b5e4bd49d9"
+    },
+    {
+      "source": "deeptutor/agents/loop/prompt_blocks.py",
+      "target": "agents/context_runtime/prompt_blocks.py",
+      "upstream_sha256": "70c0cabeb6a230c58eff438beef1cbb352c96832a7c6708eb72cf45ccdd27ace",
+      "local_sha256": "5ca118b69c38f0856bf04135f2c0261f006d94da4288bed5768f1ff0c30d6658"
+    },
+    {
+      "source": "deeptutor/agents/loop/context_budget.py",
+      "target": "agents/context_runtime/context_budget.py",
+      "upstream_sha256": "a7dfad51187f1ba5f90506dea55864129661a98acdaa2de2180c0c5db2c86451",
+      "local_sha256": "46a25f45b9c8f2d3fac8594ebb9503931b298844e63d2247b2d52b039e9ee3f9"
+    }
+  ],
+  "retained": [
+    {
+      "source": "deeptutor/services/llm/context_window.py",
+      "target": "agents/context_window.py",
+      "reason": "实现相同，保留现有移植版"
+    },
+    {
+      "source": "deeptutor/services/prompt/language.py",
+      "target": "agents/prompt_language.py",
+      "reason": "仅文档字符串不同，行为相同，保留现有移植版"
+    }
+  ]
+}

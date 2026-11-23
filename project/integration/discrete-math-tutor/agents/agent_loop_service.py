@@ -560,7 +560,15 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     allow_model_knowledge = tool_purpose == 'textbook' and _allows_model_knowledge(
         request, selection_input=selection_input, chapter_route=chapter_route)
     budget = reply_budget(request.message)
+    loop_context = context.unified_context
+    loop_context.source_manifest = "\n".join(
+        f"[{row.get('index', index)}] id={row.get('source_id', '')} page={row.get('page', '')}"
+        for index, row in enumerate(initial_sources, 1))
+    if selection_input is not None and selection_input.scope_changed:
+        loop_context.conversation_history = []
+        loop_context.runtime.model_history = []
     system_prompt = build_loop_system_prompt(
+        context=loop_context,
         target=target, definitions=registry.definitions(),
         course_prompt=ANSWER_CONTRACT if teaching_skills_enabled else None,
         teaching_prompt=teaching.instructions() if teaching and not teaching_skills_enabled else "",
@@ -599,7 +607,7 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
     if resources:
         import json
         system_prompt += '\n授权教材文档（使用此处ID/版本和阅读版页码，不编造）：\n' + json.dumps(resources.course.files(resources.binding), ensure_ascii=False)
-        system_prompt += skill_catalog(skills_root, resources.binding.course_id) if skills_root.is_dir() else ''
+        loop_context.skills_manifest = skill_catalog(skills_root, resources.binding.course_id) if skills_root.is_dir() else ''
         if tool_purpose in STRUCTURED_TOOL:
             required_tools = (STRUCTURED_TOOL[tool_purpose],)
             system_prompt += '\n本轮只读取目录/盘点/画像或请求页面定位，不是教材知识讲解。先调用 ' + required_tools[0] + '，不添加教材事实或学习完成判断。'
@@ -745,8 +753,11 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         result._target = target
         emit("progress", "恢复原来的理解检查")
     else:
+        from agents.turn_context import render_turn_prompt
+        system_prompt = render_turn_prompt(loop_context, system_prompt)
         result = loop.run(
             LoopRequest(
+                context=loop_context,
                 student_id=request.student_id, session_id=request.session_id,
                 task_id=request.task_id or request.request_id,
                 request_id=request.request_id or "",
@@ -940,10 +951,17 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
                         stored_reference['guided_visualization'] = mapped['guided_visualization']
                 if mapped.get('learning_cards'):
                     stored_reference['learning_cards'] = mapped['learning_cards']
+                from agents.turn_context import retained_model_turn
+                stored_reference['_model_turn'] = retained_model_turn(mapped.get('loop_state') or {})
+                if context.history_summary:
+                    stored_reference['_context_summary'] = {
+                        'compressed_summary': context.history_summary,
+                        'summary_up_to_msg_id': loop_context.metadata.get('summary_up_to_msg_id', 0)}
                 def save_exchange():
                     cid=memory.append_exchange(request.student_id,user_message,result.final_text,
                         selection_ref=stored_reference if stored_reference['pdf_references'] or stored_reference['textbook_sources']
-                        or stored_reference.get('learning_cards') or stored_reference.get('learning_response') else None,
+                        or stored_reference.get('learning_cards') or stored_reference.get('learning_response')
+                        or stored_reference.get('_model_turn') else None,
                         expected_epoch=epoch,expected_point=target.name,task_guard=guard,session_id=request.session_id)
                     if cid is not False and composition_runtime and composition_runtime.get('latest'):
                         finished={**mapped,'conversation_id':cid,'memory_commit':{'status':'committed','conversation_id':cid}}
@@ -981,6 +999,9 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         explained = (not mapped.get('learning_interjection') and mapped.get("answer_status") == "answered"
                      and mapped.get("memory_commit", {}).get("status") == "committed")
         mapped["course_navigation"] = dict(navigation_row, explained=explained)
+    from agents.turn_context import finish_turn
+    result.final_text = mapped.get("reply", result.final_text)
+    finish_turn(loop_context, result, published=mapped.get("answer_status") == "answered")
     return mapped
 
 

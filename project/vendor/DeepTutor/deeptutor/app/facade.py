@@ -79,9 +79,10 @@ class DeepTutorApp:
         with self._workspace_context():
             return get_notebook_manager()
 
-    def resolve_capability(self, value: str | None) -> str:
+    def resolve_capability(self, value: str | None, *, manifests: list[dict[str, Any]] | None = None) -> str:
         requested = str(value or "chat").strip() or "chat"
-        manifests = self.capabilities.get_manifests()
+        if manifests is None:
+            manifests = self.capabilities.get_manifests()
         for manifest in manifests:
             if manifest["name"] == requested:
                 return requested
@@ -112,8 +113,10 @@ class DeepTutorApp:
                 }
         raise ValueError(f"Capability not found: {resolved}")
 
-    def get_capability_availability(self, capability: str) -> CapabilityAvailability:
-        resolved = self.resolve_capability(capability)
+    def get_capability_availability(
+        self, capability: str, *, manifests: list[dict[str, Any]] | None = None
+    ) -> CapabilityAvailability:
+        resolved = self.resolve_capability(capability, manifests=manifests)
         if resolved == "math_animator":
             available = importlib.util.find_spec("manim") is not None
             return CapabilityAvailability(

@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-09",
+  "model": "deepseek-flash",
+  "mock": false,
+  "mixed_chain_passed": true,
+  "phase2_fully_accepted": false,
+  "repairs": [
+    "completed_question_card_in_native_context_history",
+    "no_default_explanation_plan_for_reader_commands"
+  ],
+  "regression": {
+    "initial_related_suite_passed": 42,
+    "final_targeted_suite_passed": 11,
+    "distinct_relevant_cases_passed": 49
+  },
+  "live": {
+    "run": ".runtime\\native-delivery-live\\20261109-083118",
+    "rag_pdf_references": 2,
+    "rag_history": true,
+    "question_card": true,
+    "question_private_answers_filtered": true,
+    "reader_page": 2,
+    "reader_receipt": "applied",
+    "reader_document_and_version_match": true,
+    "question_card_restored_after_reload": true,
+    "browser_errors": [],
+    "native_tool_event_audit": "mixed-chain-audit.json"
+  },
+  "not_passed_or_revalidated": {
+    "legacy_shared_strategy_baseline_errors": 5,
+    "all_capabilities": false,
+    "large_sample_model_reliability": false
+  },
+  "preserved_failed_runs": {
+    "history_only_still_wrong_page": "20261109-082611",
+    "upstream_connection_timeout": "20261109-082234"
+  }
+}

@@ -23,6 +23,8 @@ from agents.tool_protocol import (
 from llm.client import LLMClient, LLMError
 from llm.execution_budget import BudgetExceeded, check_budget, stage_call
 from llm.answer_events import answer_kwargs, retract
+from agents.context_runtime.context import UnifiedContext
+from agents.turn_context import record_request, finish_turn
 from agents.transient_messages import with_transient_model_messages, extend_transient_model_messages
 
 
@@ -60,6 +62,31 @@ class LoopRequest:
     evidence_repair: Callable[[str], str] | None = None
     response_composer: Any = None
     composition_execute: Callable | None = None
+    context: UnifiedContext | None = field(default=None, repr=False)
+
+    def __post_init__(self):
+        if self.context is None:
+            self.context = UnifiedContext(session_id=self.session_id, user_message=self.message,
+                conversation_history=deepcopy(self.seed_messages), language="zh", active_capability="chat")
+        if self.context.session_id != self.session_id or self.context.user_message != self.message:
+            raise ValueError("UnifiedContext 与本轮会话或消息不一致")
+        host = self.context.extension("heart")
+        if host.get("student_id", self.student_id) != self.student_id:
+            raise ValueError("UnifiedContext 不属于当前学生")
+        if host.get("task_id") not in (None, "", self.task_id):
+            raise ValueError("UnifiedContext 不属于当前任务")
+        names = self.tools.names()
+        for allowed in (self.context.enabled_tools, self.context.allowed_builtin_tools):
+            if allowed is not None:
+                names = [name for name in names if name in allowed]
+        if names != self.tools.names():
+            registry = ToolRegistry()
+            for name in names:
+                registry.register(self.tools.get(name))
+            self.tools = registry
+        host["mounted_tools"] = tuple(names)
+        host["tool_state"] = self.tool_state
+
 
 
 @dataclass
@@ -82,6 +109,8 @@ class LoopResult:
     protocol_version: int = 1
     tool_outputs: list[dict[str, Any]] = field(default_factory=list)
     repair_used: bool = False
+    model_turn_start: int = 0
+    context: UnifiedContext | None = field(default=None, repr=False)
 
     def state(self) -> dict[str, Any]:
         """Serializable state for TaskService persistence."""
@@ -90,6 +119,7 @@ class LoopResult:
         return {
             "execution_policy": {"active_limit_seconds": budget.seconds} if budget else {},
             "protocol_version": self.protocol_version,
+            "model_turn_start": self.model_turn_start,
             "messages": self.messages,
             "rounds": self.rounds,
             "exploration_rounds": self.exploration_rounds,
@@ -121,7 +151,8 @@ class LocalAgentLoop:
     def run(self, request: LoopRequest, *, resume_state: dict[str, Any] | None = None,
             answer: str = "") -> LoopResult:
         collector = EventCollector(request.emit)
-        result = LoopResult(sources=deepcopy(request.initial_sources))
+        result = LoopResult(sources=deepcopy(request.initial_sources), context=request.context)
+        request.context.interaction.end_loop = False
         result._transient = []
         result._target = request.target
         def reset_pixel_flags(sources):
@@ -131,6 +162,12 @@ class LocalAgentLoop:
         reset_pixel_flags(result.sources)
         try:
             messages = self._initial_messages(request, resume_state, answer, result)
+            legacy_start = next((index for index in range(len(messages) - 1, 0, -1)
+                                 if messages[index].get("role") == "user"), 1)
+            result.model_turn_start = (int(resume_state.get("model_turn_start", legacy_start)) if resume_state
+                                       else len(messages) - 1)
+            if resume_state:
+                request.context.interaction.user_answers.append({"reply": answer})
             if resume_state:
                 result.rounds = int(resume_state.get("rounds", 0))
                 result.exploration_rounds = int(resume_state.get("exploration_rounds", 0))
@@ -149,17 +186,16 @@ class LocalAgentLoop:
                 collector("progress", "继续原任务", {"detail": "已恢复待回答的同一任务"})
             seen_sources = {str(source.get("source_id") or "")
                             for source in result.sources if source.get("source_id")}
+            tool_state = request.context.extension("heart").setdefault("tool_state", request.tool_state)
+            tool_state.update(learning_target=request.target, source_offset=len(result.sources),
+                              seen_source_ids=seen_sources,
+                              max_sources=int(request.tool_state.get("max_sources", 24)))
             tool_context = ToolContext(
                 student_id=request.student_id, session_id=request.session_id,
                 task_id=request.task_id, request_id=request.request_id,
                 knowledge_point=request.target.name if request.target else "",
                 cancellation=request.cancellation, navigation=request.navigation,
-                state={**dict(request.tool_state), "learning_target": request.target,
-                       # A paused task may already contain retrieved sources.
-                       # Continue numbering after them instead of reusing [1].
-                       "source_offset": len(result.sources),
-                       "seen_source_ids": seen_sources,
-                       "max_sources": int(request.tool_state.get("max_sources", 24))},
+                state=tool_state, unified=request.context,
                 emit=collector,
             )
             if request.tool_state.get('first_wave') is not None and result.sources:
@@ -293,6 +329,9 @@ class LocalAgentLoop:
             collector("error", "本次执行失败", {"code": "loop_failed"})
             return result
 
+        finally:
+            finish_turn(request.context, result)
+
     def _initial_messages(self, request: LoopRequest, resume_state: dict | None,
                           answer: str, result: LoopResult) -> list[dict[str, Any]]:
         if resume_state:
@@ -315,11 +354,16 @@ class LocalAgentLoop:
             result.pending_tool_call_id = pending_id
             return messages
         messages = [{"role": "system", "content": request.system_prompt}]
-        for row in deepcopy(request.seed_messages):
+        history = request.context.runtime.model_history
+        if history is None:
+            history = request.context.conversation_history
+        for row in deepcopy(history):
+            row.pop("_context_snapshot", None)
+            row.pop("_provider_response_state", None)
             if row.get('role') == 'assistant' and isinstance(row.get('content'), str):
                 row['content'] = re.sub(r'\[\d+\]', '（历史引用）', row['content'])
             messages.append(row)
-        messages.append({"role": "user", "content": request.message})
+        messages.append({"role": "user", "content": request.context.user_message})
         return messages
 
     def _loop(self, request: LoopRequest, messages: list[dict[str, Any]],
@@ -372,6 +416,8 @@ class LocalAgentLoop:
                 model_messages = [*model_messages, {'role': 'system', 'content': PRIORITY +
                     '遵守当前工具、来源与输出协议；其余教法按本轮已读取技能组织。'}]
             try:
+                record_request(request.context, model_messages, tools or [],
+                               model=getattr(self.llm, "model", ""), max_tokens=request.round_max_tokens)
                 round_result = self.llm.chat_with_tools(
                     model_messages, tools or [], temperature=request.temperature,
                     timeout=90,
@@ -642,6 +688,8 @@ class LocalAgentLoop:
                 from agents.teaching_skills import PRIORITY
                 model_messages = [*model_messages, {'role': 'system', 'content': PRIORITY +
                     '遵守当前来源与输出协议，按已读技能完成本次收尾。'}]
+            record_request(request.context, model_messages, [],
+                           model=getattr(self.llm, "model", ""), max_tokens=request.round_max_tokens)
             round_result = self.llm.chat_with_tools(
                 model_messages, [], temperature=request.temperature,
                 timeout=90,

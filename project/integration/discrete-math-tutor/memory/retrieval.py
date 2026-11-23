@@ -60,11 +60,24 @@ def _compatible(doc, selection_ref, question_id, version):
     return True
 
 
+_MEM0_STORE = None
+
+
+def _mem0_store():
+    global _MEM0_STORE
+    if _MEM0_STORE is None:
+        from memory.mem0_store import Mem0Store
+
+        _MEM0_STORE = Mem0Store(enabled=True)
+    return _MEM0_STORE
+
+
 class MemoryRetriever:
-    def __init__(self, memory, embedder=None, model_name=None):
+    def __init__(self, memory, embedder=None, model_name=None, mem0_store=None):
         self.memory=memory
         self.embedder=embedder
         self.model_name=model_name
+        self.mem0_store=mem0_store
 
     def retrieve(self,student_id,*,title="",text="",question="",selection_ref=None,
                  question_id=None,version=None,budget=6000):
@@ -77,31 +90,40 @@ class MemoryRetriever:
         docs=repo.memory_documents(student_id)
         lexical,mode=repo.memory_lexical(student_id,query)
         dense=[]; dense_status="not_initialized"
-        try:
-            model_name,embedder=(self.model_name,self.embedder) if self.embedder is not None else _model()
-            if embedder is not None and docs:
-                model_name=model_name or "injected"
-                pending=[d for d in docs if d["embedding_model"]!=model_name or not d["embedding"]]
-                updates=[]
-                for start in range(0,len(pending),32):
-                    batch=pending[start:start+32]
-                    values=list(embedder.embed([d["point"]+"\n"+d["content"][:1600] for d in batch]))
-                    if len(values)!=len(batch):
-                        raise ValueError("向量批次长度不一致")
-                    for d,v in zip(batch,values):
-                        vector=[float(x) for x in v]
-                        if not vector or not all(math.isfinite(x) for x in vector):
-                            raise ValueError("无效向量")
-                        d["embedding"]=vector;d["embedding_model"]=model_name
-                        updates.append((d["id"],d["content_hash"],vector))
-                qv=[float(x) for x in next(iter(embedder.embed([query])))]
-                dense=[d["id"] for score,d in sorted(((_cosine(qv,d["embedding"]),d) for d in docs),
-                      key=lambda pair:(pair[0],pair[1]["id"]),reverse=True) if score>=.55][:40]
-                repo.save_memory_vectors(student_id,updates,model_name)
-                dense_status="ready"
-        except Exception:
-            # 模型是可选组件；不吞掉数据库来源读取错误。
-            dense=[];dense_status="unavailable"
+        store=self.mem0_store
+        if store is None and os.getenv("MEM0_ENABLED","0")=="1":
+            store=_mem0_store()
+        if store is not None and docs:
+            try:
+                dense=[hit["card_id"] for hit in store.search(student_id,query,epoch=None,limit=40)]
+                dense_status="mem0"
+            except Exception:
+                dense=[]; dense_status="unavailable"
+        elif docs:
+            try:
+                model_name,embedder=(self.model_name,self.embedder) if self.embedder is not None else _model()
+                if embedder is not None:
+                    model_name=model_name or "injected"
+                    pending=[d for d in docs if d["embedding_model"]!=model_name or not d["embedding"]]
+                    updates=[]
+                    for start in range(0,len(pending),32):
+                        batch=pending[start:start+32]
+                        values=list(embedder.embed([d["point"]+"\n"+d["content"][:1600] for d in batch]))
+                        if len(values)!=len(batch):
+                            raise ValueError("向量批次长度不一致")
+                        for d,v in zip(batch,values):
+                            vector=[float(x) for x in v]
+                            if not vector or not all(math.isfinite(x) for x in vector):
+                                raise ValueError("无效向量")
+                            d["embedding"]=vector;d["embedding_model"]=model_name
+                            updates.append((d["id"],d["content_hash"],vector))
+                    qv=[float(x) for x in next(iter(embedder.embed([query])))]
+                    dense=[d["id"] for score,d in sorted(((_cosine(qv,d["embedding"]),d) for d in docs),
+                          key=lambda pair:(pair[0],pair[1]["id"]),reverse=True) if score>=.55][:40]
+                    repo.save_memory_vectors(student_id,updates,model_name)
+                    dense_status="ready"
+            except Exception:
+                dense=[]; dense_status="unavailable"
         # 删除/内容变化后重新读索引，不把内存中的旧向量写回成新来源。
         docs=repo.memory_documents(student_id)
         eligible={d["id"]:d for d in docs if _compatible(d,selection_ref,question_id,version)}

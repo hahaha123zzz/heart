@@ -2,6 +2,7 @@
 import os,subprocess,sys,tempfile,unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
+from tests.pg_support import temp_databases
 
 class PsychologyPipelineTests(unittest.TestCase):
     def test_original_agents_use_psychology_rules_and_structural_evidence(self):
@@ -49,8 +50,8 @@ with patch('knowledge.psychology_retrieval.retrieve_hybrid',return_value=[]):
  assert any(s.chapter_id==2 and '自变量' in s.text for s in sources)
 print('PASS: 原Agent心理学规则、旧误解目录隔离、章节偏置关闭、完整概念上下文')
 '''
-        with tempfile.TemporaryDirectory() as directory:
-            env=os.environ|{'TUTOR_COURSE':'experimental-psychology-3','DATABASE_URL':'sqlite:///'+str(Path(directory)/'test.db')}
+        with temp_databases() as pg:
+            env=os.environ|pg|{'TUTOR_COURSE':'experimental-psychology-3'}
             result=subprocess.run([sys.executable,'-X','utf8','-c',script],cwd=ROOT,env=env,text=True,capture_output=True,encoding='utf-8',timeout=30)
             self.assertEqual(result.returncode,0,result.stdout+'\n'+result.stderr)
 

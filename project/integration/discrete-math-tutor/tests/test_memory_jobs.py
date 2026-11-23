@@ -9,9 +9,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch, Mock
-from sqlalchemy import create_engine, event, select
+from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from database import database as db
+from tests.pg_support import temp_engine
 from database.models import Base, MemoryJobRow, MemoryArtifactRow, LearningEventRow, EvidenceRow, ConversationRow
 from database.memory_jobs import utcnow, LEASE_SECONDS
 from memory.memory_manager import MemoryManager
@@ -29,11 +30,7 @@ class MemoryJobTests(unittest.TestCase):
 
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory()
-        self.engine=create_engine("sqlite:///"+str(Path(self.temp.name)/"memory.db"),connect_args={"check_same_thread":False})
-        @event.listens_for(self.engine,"connect")
-        def fk(connection,_):
-            connection.execute("PRAGMA foreign_keys=ON")
-        Base.metadata.create_all(self.engine)
+        self._pg=temp_engine();self.engine=self._pg.__enter__()
         self.factory=sessionmaker(bind=self.engine,autoflush=False,expire_on_commit=False)
         self.patch=patch.object(db,"SessionLocal",self.factory);self.patch.start()
         self.memory=MemoryManager();self.memory.ensure_student("s")
@@ -44,7 +41,7 @@ class MemoryJobTests(unittest.TestCase):
         self.memory.save_lesson_plan("s",self.point,self.plan,self.before.steps_mastery)
 
     def tearDown(self):
-        self.patch.stop();self.engine.dispose();self.temp.cleanup()
+        self.patch.stop();self._pg.__exit__(None,None,None);self.temp.cleanup()
 
     def enqueue(self):
         args=self.args();result=self.memory.commit_learning_turn(**args)

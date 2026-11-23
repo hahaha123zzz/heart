@@ -8,8 +8,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
+from tests.pg_support import temp_engine
 
 from agents.agent_loop import LocalAgentLoop, LoopRequest
 from agents.q3_navigation import StubLearningNavigator
@@ -120,19 +120,11 @@ def final_round(text):
 
 class Q5TestBase(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory()
-        self.engine = create_engine(
-            "sqlite:///" + self.temp.name.replace("\\", "/") + "/q5.db",
-            connect_args={"check_same_thread": False, "timeout": 10},
-        )
-
-        @event.listens_for(self.engine, "connect")
-        def fk(connection, _):
-            connection.execute("PRAGMA foreign_keys=ON")
+        self._pg = temp_engine()
+        self.engine = self._pg.__enter__()
 
         import database.q5_learning as q5_models  # noqa: F401
 
-        Base.metadata.create_all(self.engine)
         self.db_patch = patch.object(
             db,
             "SessionLocal",
@@ -152,8 +144,7 @@ class Q5TestBase(unittest.TestCase):
 
     def tearDown(self):
         self.db_patch.stop()
-        self.engine.dispose()
-        self.temp.cleanup()
+        self._pg.__exit__(None, None, None)
 
     def make_plan(self, command_id="plan-1", value=None):
         generator = StaticGenerator(value or draft())

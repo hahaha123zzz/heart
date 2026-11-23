@@ -17,7 +17,9 @@ def teaching_snapshot(message, preferences=None, *, identity=None):
             'preferences': {**(preferences or {}), **turn_style_overrides(message)}}
     if identity is not None:
         from agents.adaptive_tutoring import enabled
-        if enabled():
+        from agents.input_understanding.route import reader_requested
+        # 页面操作由原生阅读能力执行，不能被默认讲解计划改成教学任务。
+        if enabled() and not reader_requested(message):
             from types import SimpleNamespace
             from models.task_context import TaskContext
             from agents.task_execution import build_execution

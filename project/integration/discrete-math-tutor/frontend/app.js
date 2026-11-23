@@ -21,6 +21,7 @@ const newRequestId = () => crypto.randomUUID?.() || String(Date.now()) + Math.ra
 const tabSessionKey = course.id+'-task-session';
 let tabSessionId = sessionStorage.getItem(tabSessionKey) || newRequestId();
 sessionStorage.setItem(tabSessionKey, tabSessionId);
+window.TutorNativeControls.bindScope(()=>({student_id:studentId,session_id:tabSessionId}));
 const conversationHistoryUrl = (sessionId=tabSessionId) => `/api/students/${encodeURIComponent(studentId)}/conversation?session_id=${encodeURIComponent(sessionId)}`;
 // 新标签可能复制 sessionStorage；发现同编号的存活标签后，为新标签换编号。
 const sessionChannel = typeof BroadcastChannel === 'function' ? new BroadcastChannel(course.id+'-task-tabs') : null;
@@ -323,7 +324,7 @@ function showView(view, options={}) {
   if(view==='stats')refreshStats();
   if(view==='learning'){refreshLearning();refreshStats();}
   if(view==='home')refreshLearning();
-  if(view==='settings'){refreshPreferences();if($('#memory-management').open)refreshMemory();}
+  if(view==='settings'){refreshPreferences();}
   if(view==='quiz'&&options.load!==false)loadQuiz(state.quizChapter||state.chapter);
   if(view==='course')requestAnimationFrame(syncPDFReader);
 }
@@ -669,7 +670,7 @@ function renderContent() {
 }
 
 function messagesFromHistory(history) {
-  return history.map((m) => ({conversationId:m.id,styleSuggestion:m.role==="assistant"?styleControl().restore(m.id):null,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,learningResponse:m.selection_ref?.learning_response,cardsVerified:!(m.selection_ref?.learning_cards||[]).some(c=>c.schema==='learning-cards/v2'),learningCards:m.role==="assistant"?m.selection_ref?.learning_cards:undefined,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
+  return history.map((m) => ({conversationId:m.id,styleSuggestion:m.role==="assistant"?styleControl().restore(m.id):null,renderKey:m.id != null ? 'conversation:'+studentId+':'+m.id : newRequestId(),role:m.role,content:m.content,sources:m.textbook_sources || [],pdfReferences:m.pdf_references || [],imageRefs:m.image_refs || (m.selection_ref?.image_refs || []).filter(image=>image.image_url?.startsWith("/api/figures/")),selectionRef:m.selection_ref,nativeResult:m.selection_ref?.native_result,learningResponse:m.selection_ref?.learning_response,cardsVerified:!(m.selection_ref?.learning_cards||[]).some(c=>c.schema==='learning-cards/v2'),learningCards:m.role==="assistant"?m.selection_ref?.learning_cards:undefined,sessionPlan:m.selection_ref?.session_study_plan,relationContext:m.selection_ref?.relation_context,guide:m.role==="assistant"?m.selection_ref?.guided_visualization:undefined,pdfImageRefs:m.role==="assistant"?(m.selection_ref?.image_refs || []).filter(image=>!image.image_url?.startsWith("/api/figures/")):[]}));
 }
 
 async function restoreLearningCards(){
@@ -827,6 +828,19 @@ function renderChat() {
     retry:m.compositionResume?(!m.pending?(m.compositionResume.resumable===false?'<span role="status">本轮预算已用完，请取消后重新提问。</span>':'<button type="button" class="secondary-button" data-composition-resume="'+index+'">继续未完成讲解</button>'):'')+'<button type="button" class="secondary-button" data-composition-cancel="'+index+'">取消未完成讲解</button>':m.failed&&m.request?'<button type="button" class="secondary-button retry-message" data-retry-message="'+index+'">'+(m.networkFailed?'重试原请求':'重新提问')+'</button>':'',
   }})));
   for(const message of messages) {
+    if(message.role==='assistant' && message.nativeResult && window.TutorNativeViewer) {
+      try {chatRenderer.attachComponent(message.renderKey,'native',window.TutorNativeViewer,{...message.nativeResult,
+        masteryMessages:messages.filter(item=>item.role==='assistant').map(item=>({events:item.nativeResult?.mastery_events || []})),
+        onMasteryAnswer:(questionId,text)=>{
+          if(state.sending||state.clarification)return false;
+          return sendMessage(text,{native:{capability:'mastery_path',mastery_answer:{question_id:questionId,text}}});
+        },
+        onMasterySkip:questionId=>{
+          if(state.sending||state.clarification)return false;
+          return sendMessage('跳过这道题',{native:{capability:'mastery_path',mastery_skip:{question_id:questionId}}});
+        }});}
+      catch(error) {$('#chat-error').textContent='原生展示加载失败：'+error.message;}
+    }
     if(message.role!=='assistant'||!window.GuidedVisualization)continue;
     const artifact=relationArtifacts.get(message.conversationId)||tableArtifacts.get(message.conversationId)||graphArtifacts.get(message.conversationId);
     const guide=message.guide||(artifact?window.GuidedVisualization.fromLegacy(artifact):null);
@@ -878,6 +892,7 @@ async function sendMessage(message, options={}) {
       sources:result.textbook_sources || [], pdfReferences:result.pdf_references || [], imageRefs:result.image_refs || [],
       cardsVerified:true,learningCards:result.answer_status==='answered'?result.learning_cards:undefined,selectionRef:result.selection_ref, pdfImageRefs:result.pdf_image_refs || [], memorySummary:result.memory_summary,
       visualizationStatus:result.visualization_status,visualizationReason:result.visualization_reason,
+      nativeResult:result.answer_status==='answered'?result.native_result:undefined,
       learningResponse:result.answer_status==='answered'||partial?result.learning_response:undefined,
       compositionResume:partial?{task_id:result.task_id,task_revision:result.task_revision}:undefined,
       blocksCommitted:!!partial,committedContent:partial?partial.reply:undefined,
@@ -907,7 +922,8 @@ async function sendMessage(message, options={}) {
         objectKey!==state.clarificationObject && !await cancelClarification()) throw new Error('请确认当前问题后重试');
     const task=state.clarification;
     if(exercise && !options.payload) await window.ExercisePractice?.flushTarget(exercise.target);
-    const payload=options.payload || {student_id:studentId, account_type:"test", message:text,
+    const nativeOptions = !options.payload && !task ? await window.TutorNativeControls.options({student_id:studentId,session_id:tabSessionId}) : {};
+    const payload=options.payload || {...nativeOptions,...(options.native || {}),student_id:studentId, account_type:"test", message:text,
       session_id:tabSessionId,request_id:newRequestId(),
       style_overrides:styleSnapshot.values,
       ...(task?{task_id:task.task_id,task_revision:task.task_revision}:{}),
@@ -950,6 +966,7 @@ async function sendMessage(message, options={}) {
       } catch(error) { toast('页面定位回执未保存：'+error.message); }
     }
     if(['task_conflict','task_expired','task_not_found','task_busy','request_conflict','memory_deleted','invalid_option','task_disabled'].includes(result.answer_status)) await restoreClarification();
+    return result.answer_status==='answered';
   } catch (error) {
     if (!isCurrent()) return;
     Object.assign(pending, {pending:false, answerSettled:true,answerState:pending.answerSaved?'saved':'rejected',failed:!pending.answerSaved, networkFailed:!!pending.request.payload && (!error.status || error.status>=500), finishedAt:Date.now()});
@@ -958,6 +975,7 @@ async function sendMessage(message, options={}) {
     $("#chat-error").textContent = error.message;
 
     toast(pending.answerSaved ? "文字已保存，图解连接中断；稍后刷新可查看" : "本次回答未完成，处理记录已保留");
+    return false;
   } finally {
     clearInterval(timer);
     state.sending = false;
@@ -1026,6 +1044,7 @@ async function refreshLearning() {
 }
 
 async function refreshPreferences() {
+  if(window.TutorNativeMemory && await window.TutorNativeMemory.open({student_id:studentId,session_id:tabSessionId}))return;
   try {
     const values = await api(`/api/students/${encodeURIComponent(studentId)}/preferences`);
     const form = $("#settings-form");
@@ -1257,6 +1276,7 @@ const memoryBase = () => '/api/students/' + encodeURIComponent(studentId) + '/me
 const preferenceNames = {answer_length:'回答长度', example_density:'举例频率', learning_pace:'学习节奏',explanation_order:'讲解顺序',question_frequency:'追问频率',teaching_sequence:'讲练顺序',style_suggestions:'主动风格建议'};
 const misconceptionNames = {hypothesis:'候选判断', supported:'有支持记录', confirmed:'多次支持', dismissed:'已否认', resolved:'已纠正'};
 async function refreshMemory(point) {
+  if(window.TutorNativeMemory?.active)return window.TutorNativeMemory.open({student_id:studentId,session_id:tabSessionId});
   const request = ++memoryRequest;
   let overviewLoaded=false;
   $('#memory-status').textContent = '正在读取记忆…';
@@ -1336,3 +1356,5 @@ $('#memory-forget-point').addEventListener('click', async (event) => {
 
 $('#clear-chat-style').addEventListener('click',()=>{if(state.sending){toast('请等待本轮回答结束');return;}styleControl().clear();renderStyleStatus();refreshPreferences();toast('已恢复长期风格设置');});
 renderStyleStatus();
+
+window.addEventListener('native-memory-changed',()=>restoreClarification().catch(error=>toast(error.message)));

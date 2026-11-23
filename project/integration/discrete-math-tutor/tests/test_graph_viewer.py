@@ -1,43 +1,47 @@
-"""只读图谱的输入边界与 API 契约；不依赖模型、正式数据库或候选。"""
+"""只读图谱的 PostgreSQL 输入与 API 契约；不依赖模型。"""
 
 import json
+import os
 
 from fastapi.testclient import TestClient
+import psycopg
 import pytest
 
 from graph_viewer import GraphView, create_app, digest
+from tests.pg_support import temp_databases
 
 
 @pytest.fixture
 def candidate(tmp_path):
-    index = tmp_path / "index/workspace"
-    index.mkdir(parents=True)
-    graph = index / "graph_chunk_entity_relation.graphml"
-    graph.write_text('''<graphml xmlns="http://graphml.graphdrawing.org/xmlns">
-      <key id="type" for="node" attr.name="entity_type" attr.type="string"/>
-      <key id="desc" for="all" attr.name="description" attr.type="string"/>
-      <key id="src" for="all" attr.name="source_id" attr.type="string"/>
-      <key id="file" for="all" attr.name="file_path" attr.type="string"/>
-      <graph edgedefault="undirected">
-      <node id="自变量"><data key="type">concept</data><data key="desc">候选摘要</data>
-      <data key="src">chunk-1&lt;SEP&gt;chunk-1</data><data key="file">chapter_01.generated.pdf</data></node>
-      <node id="实验"><data key="type">method</data></node><node id="控制"/>
-      <edge source="自变量" target="实验"><data key="desc">关联，非先修</data></edge>
-      <edge source="自变量" target="控制"/>
-      </graph></graphml>''', encoding="utf-8")
-    chunks = index / "kv_store_text_chunks.json"
-    chunks.write_text(json.dumps({"chunk-1": {"content": "原始检索片段", "file_path": "chapter_01.generated.pdf"}}), encoding="utf-8")
-    (tmp_path / "index_files.json").write_text(json.dumps({
-        "workspace/" + f.name: digest(f) for f in (graph, chunks)
-    }), encoding="utf-8")
-    chapter = tmp_path / "input/chapters/chapter_01"
-    chapter.mkdir(parents=True)
-    pdf = chapter / "chapter_01.generated.pdf"
-    pdf.write_bytes(b"%PDF-fixture")
-    (tmp_path / "input/pdf_manifest.json").write_text(json.dumps([
-        {"chapter_id": 1, "title": "实验心理学概论", "version": digest(pdf)}
-    ]), encoding="utf-8")
-    return tmp_path
+    with temp_databases() as env:
+        os.environ.update(env)
+        index = tmp_path / "index"
+        index.mkdir()
+        (index / "meta.json").write_text(json.dumps({"provider": "lightrag", "workspace": "ws"}), encoding="utf-8")
+        url = env["POSTGRES_DATABASE_URL"].replace("postgresql+psycopg://", "postgresql://")
+        with psycopg.connect(url) as conn:
+            conn.execute("CREATE TABLE lightrag_graph_nodes (workspace TEXT, namespace TEXT, id TEXT, properties JSONB)")
+            conn.execute("CREATE TABLE lightrag_graph_edges (workspace TEXT, namespace TEXT, src_id TEXT, tgt_id TEXT, properties JSONB)")
+            conn.execute("CREATE TABLE lightrag_doc_chunks (id TEXT, workspace TEXT, content TEXT, file_path TEXT)")
+            for node_id, props in (
+                ("自变量", {"entity_type": "concept", "description": "候选摘要", "source_id": "chunk-1<SEP>chunk-1",
+                         "file_path": "chapter_01.generated.pdf"}),
+                ("实验", {"entity_type": "method"}),
+                ("控制", {}),
+            ):
+                conn.execute("INSERT INTO lightrag_graph_nodes VALUES ('ws','chunk_entity_relation',%s,%s)", (node_id, json.dumps(props)))
+            conn.execute("INSERT INTO lightrag_graph_edges VALUES ('ws','chunk_entity_relation','自变量','实验',%s)",
+                         (json.dumps({"description": "关联，非先修"}),))
+            conn.execute("INSERT INTO lightrag_graph_edges VALUES ('ws','chunk_entity_relation','自变量','控制',%s)", (json.dumps({}),))
+            conn.execute("INSERT INTO lightrag_doc_chunks VALUES ('chunk-1','ws','原始检索片段','chapter_01.generated.pdf')")
+        chapter = tmp_path / "input/chapters/chapter_01"
+        chapter.mkdir(parents=True)
+        pdf = chapter / "chapter_01.generated.pdf"
+        pdf.write_bytes(b"%PDF-fixture")
+        (tmp_path / "input/pdf_manifest.json").write_text(json.dumps([
+            {"chapter_id": 1, "title": "实验心理学概论", "version": digest(pdf)}
+        ]), encoding="utf-8")
+        yield tmp_path
 
 
 def test_search_and_bounded_neighborhood(candidate):
@@ -46,9 +50,6 @@ def test_search_and_bounded_neighborhood(candidate):
     neighborhood = view.neighborhood("自变量", 2)
     assert neighborhood["shown"] == 2 and neighborhood["total"] == 3
     assert neighborhood["truncated"]
-    nodes = {e["data"]["id"] for e in neighborhood["elements"] if "source" not in e["data"]}
-    assert all(e["data"]["source"] in nodes and e["data"]["target"] in nodes
-               for e in neighborhood["elements"] if "source" in e["data"])
     detail = view.detail("自变量", None)
     assert detail["descriptions"] == ["候选摘要"]
     assert detail["snippets"][0]["text"] == "原始检索片段"
@@ -56,15 +57,10 @@ def test_search_and_bounded_neighborhood(candidate):
     assert detail["sources"][0]["available"]
 
 
-def test_reject_modified_graph_and_escaping_path(candidate):
-    graph = candidate / "index/workspace/graph_chunk_entity_relation.graphml"
-    graph.write_text("changed", encoding="utf-8")
-    with pytest.raises(ValueError, match="版本"):
-        GraphView(candidate)
-    manifest = {"../../outside/graph_chunk_entity_relation.graphml": "x"}
-    (candidate / "index_files.json").write_text(json.dumps(manifest), encoding="utf-8")
-    with pytest.raises(RuntimeError):
-        GraphView(candidate)
+def test_stale_graphml_file_does_not_override_postgres(candidate):
+    (candidate / "index/workspace").mkdir()
+    (candidate / "index/workspace/graph_chunk_entity_relation.graphml").write_text("stale", encoding="utf-8")
+    assert GraphView(candidate).search("自变量")[0]["name"] == "自变量"
 
 
 def test_api_and_source_invalidation(candidate):

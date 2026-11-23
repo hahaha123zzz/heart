@@ -1,0 +1,2428 @@
+{
+  "date": "2026-11-09",
+  "objective": "直接复用DeepTutor整套原生模块；保留已复用代码，替换独立自研重叠实现，不以兼容旧算法为迁移前提",
+  "scope": "深入源码/图谱审查与原生函数隔离验证，未改业务实现",
+  "graph": {
+    "graph_project": {
+      "name": "deeptutor",
+      "languages": [
+        "python",
+        "yaml",
+        "markdown",
+        "dockerfile",
+        "json",
+        "toml"
+      ],
+      "frameworks": [
+        "FastAPI",
+        "Pydantic"
+      ],
+      "description": "DeepTutor — agent-native 学习伴侣。两层插件模型：LLM 按需调用的 Tools，以及接管整轮对话的 Capabilities；CLI / WebSocket API / Python SDK 统一进入 TurnApplicationService，再由 TurnEngine 路由到选定的 capability。全项目（不含 web 前端与 tests）。",
+      "analyzedAt": "2026-11-09T00:46:15.460Z",
+      "gitCommitHash": "6cf793bd868ba5ecbe64722936d4be8fab5a01df"
+    },
+    "graph_nodes": 19123,
+    "graph_edges": 38026
+  },
+  "bundle_coverage": {
+    "原生回合与上下文": {
+      "roots": [
+        "deeptutor/app",
+        "deeptutor/services/session",
+        "deeptutor/runtime",
+        "deeptutor/agents/loop",
+        "deeptutor/core/turn_request.py"
+      ],
+      "file_count": 95,
+      "present_count": 95,
+      "changed": [],
+      "missing": [],
+      "files": [
+        {
+          "path": "deeptutor/agents/loop/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/loop/agent_loop.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/loop/ask_user_drafts.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/loop/context_budget.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/loop/dsml_tool_calls.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/loop/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/loop/prompt_blocks.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/app/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/app/container.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/app/contracts.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/app/engine.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/app/facade.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/app/service.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/core/turn_request.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/client.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/labeled_step.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/labels.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/loop.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/messages.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/think_stream.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/tool_arg_guard.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/tool_call_stream.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/tool_dispatch.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/agentic/usage.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/background_leader.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/banner.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/bootstrap/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/bootstrap/builtin_capabilities.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/cache_reset.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/capability_catalog.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/capability_routing.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/coordination/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/coordination/journal.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/coordination/memory.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/coordination/protocol.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/coordination/recovery.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/coordination/redis.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/coordination/settings.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/coordination/types.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/home.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/isolated_worker.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/launcher.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/memory_probe.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/memory_reclaim.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/mode.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/orchestrator.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/process.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/providers/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/providers/allowlist.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/providers/authorize.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/providers/scope.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/providers/text.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/providers/view.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/registry/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/registry/capability_registry.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/registry/deferred_tools.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/registry/scoped_registry.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/registry/tool_registry.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/request_contracts.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/stream_bus.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/turn_engine.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/update_worker.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/worker_process.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/runtime/worker_tasks.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/_turn_runtime_shared.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/artifact_attachments.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/ask_user_trace.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/attachment_parsing.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/context_builder.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/event_preview.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/legacy_migration.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/model_history.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/organization.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/pocketbase_store.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/protocol.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/provider_response_state.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/scope.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/search.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/source_inventory.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/sqlite_store.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/turn_runtime.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/turns/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/turns/context_assembler.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/turns/executor.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/turns/learning_adapter.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/turns/lifecycle.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/turns/request_preparer.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/turns/resource_reuse.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/turns/title_service.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/usage_recovery.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/usage_statistics.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/session/workspace_preferences.py",
+          "present": true,
+          "same": true
+        }
+      ]
+    },
+    "原生教学与学习": {
+      "roots": [
+        "deeptutor/capabilities/mastery",
+        "deeptutor/learning",
+        "deeptutor/services/persona",
+        "deeptutor/multi_user/learner_profile.py"
+      ],
+      "file_count": 64,
+      "present_count": 64,
+      "changed": [
+        "deeptutor/learning/policy.py"
+      ],
+      "missing": [],
+      "files": [
+        {
+          "path": "deeptutor/capabilities/mastery/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/binding.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/capability.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/choices.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/loop.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/mode.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/prompts/en/mastery_loop.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/prompts/zh/mastery_loop.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/mastery/tools.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/assessment.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/event_hub.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/grading.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/identity.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/mastery.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/migration.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/models.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/navigation.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/objective_relations.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/pending.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/policy.py",
+          "present": true,
+          "same": false
+        },
+        {
+          "path": "deeptutor/learning/prompts.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/prompts/en.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/prompts/zh.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/question_card.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/scheduler.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/service.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/storage.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_api_endpoints.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_assessment.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_event_hub.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_grading.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_guided_mastery_updates.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_mastery_build_shapes.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_mastery_choices.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_mastery_mode.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_mastery_navigation.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_mastery_state_integrity.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_mastery_tools.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_models.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_objective_relations.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_policy.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_prompt_language_fallback.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_scheduler.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_service_replace_merge.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_storage.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_topic_coverage.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_topic_generation.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_topic_materials.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_topic_naming.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_v2_migration.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/tests/test_visual_learning_workflow.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/topic_generation.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/topic_materials.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/topic_naming.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/visual_practice.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/multi_user/learner_profile.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/persona/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/persona/presets/peer/PERSONA.md",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/persona/presets/research-assistant/PERSONA.md",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/persona/presets/teacher/PERSONA.md",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/persona/service.py",
+          "present": true,
+          "same": true
+        }
+      ]
+    },
+    "原生记忆与日志": {
+      "roots": [
+        "deeptutor/services/memory",
+        "deeptutor/services/learning_journal",
+        "deeptutor/api/routers/memory.py",
+        "deeptutor/api/routers/learning_journal.py"
+      ],
+      "file_count": 48,
+      "present_count": 48,
+      "changed": [],
+      "missing": [],
+      "files": [
+        {
+          "path": "deeptutor/api/routers/learning_journal.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/api/routers/memory.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/learning_journal/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/learning_journal/models.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/learning_journal/store.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/chunker.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/guards.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/line_doc.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/meta.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/modes/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/modes/_runtime.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/modes/_shims.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/modes/audit.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/modes/dedup.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/modes/merge.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/modes/update.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/parse.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/en/_meta.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/en/audit_l2.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/en/audit_l3.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/en/dedup.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/en/update_l2.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/en/update_l3.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/zh/_meta.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/zh/audit_l2.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/zh/audit_l3.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/zh/dedup.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/zh/update_l2.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/prompts/zh/update_l3.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/references.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/consolidator/runs.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/document.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/ids.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/ops.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/paths.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/prompts/en.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/prompts/zh.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/recall.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/settings.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/snapshot/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/snapshot/adapters.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/snapshot/diff.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/snapshot/entity.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/snapshot/store.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/store.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/memory/trace.py",
+          "present": true,
+          "same": true
+        }
+      ]
+    },
+    "原生练习与出题": {
+      "roots": [
+        "deeptutor/services/practice",
+        "deeptutor/agents/question",
+        "deeptutor/api/routers/practice.py",
+        "deeptutor/api/routers/quiz_judge.py",
+        "deeptutor/api/routers/question_notebook.py",
+        "deeptutor/learning/assessment.py"
+      ],
+      "file_count": 27,
+      "present_count": 27,
+      "changed": [],
+      "missing": [],
+      "files": [
+        {
+          "path": "deeptutor/agents/question/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/agents/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/agents/followup_agent.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/capability.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/coordinator.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/history.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/mimic_source.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/prompts/en/deep_question.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/prompts/en/followup_agent.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/prompts/en/idea_agent.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/prompts/en/pipeline.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/prompts/zh/deep_question.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/prompts/zh/followup_agent.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/prompts/zh/idea_agent.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/prompts/zh/pipeline.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/agents/question/request_config.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/api/routers/practice.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/api/routers/question_notebook.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/api/routers/quiz_judge.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/learning/assessment.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/practice/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/practice/analytics.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/practice/answers.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/practice/importing.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/practice/scheduler.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/practice/storage.py",
+          "present": true,
+          "same": true
+        }
+      ]
+    },
+    "原生知识库与阅读": {
+      "roots": [
+        "deeptutor/services/rag",
+        "deeptutor/knowledge",
+        "deeptutor/reading",
+        "deeptutor/capabilities/reading",
+        "deeptutor/tools/rag_tool.py",
+        "deeptutor/tools/builtin/__init__.py",
+        "deeptutor/api/routers/knowledge.py"
+      ],
+      "file_count": 140,
+      "present_count": 140,
+      "changed": [],
+      "missing": [],
+      "files": [
+        {
+          "path": "deeptutor/api/routers/knowledge.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/reading/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/reading/_tool_base.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/reading/capability.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/reading/figure_view.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/reading/media_notes.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/reading/mode.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/reading/prompts/en/reading.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/reading/prompts/zh/reading.yaml",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/capabilities/reading/tools.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/knowledge/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/knowledge/add_documents.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/knowledge/indexing_run.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/knowledge/initializer.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/knowledge/kb_types.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/knowledge/manager.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/knowledge/manifest.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/knowledge/naming.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/knowledge/progress_events.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/knowledge/progress_tracker.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/_grounding.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/captions.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/catalog_models.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/catalog_store.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/epub_bilingual.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/export.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/extensions.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/extract.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/ingestion.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/knowledge_capture.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/models.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/page_render.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/quiz.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/read_aloud.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/references.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/refresh.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/search.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/service.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/store.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/study_guidance.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/translation.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/reading/vocabulary.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/embedding_binding.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/embedding_signature.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/eval/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/eval/dataset.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/eval/matching.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/eval/metrics.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/eval/report.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/eval/runner.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/factory.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/file_routing.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/index_probe.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/index_versioning.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/kb_paths.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/linked_kb.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/base.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/compatibility.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/completion_adapter.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/config.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/engine.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/errors.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/ingestion.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/pandas_compat.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/provider.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/graphrag/storage.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/client.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/config.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/envelope.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/inventory.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/media.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/models.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/notes.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/probe.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/sources.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/ima/transport.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/kiwix/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/kiwix/client.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/kiwix/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/README.md",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/block_policy.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/cache_reuse.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/config.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/engine.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/indexing_policy.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/ingress.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/parser.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/roles.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/sidecar.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/storage.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/worker.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag/write_lock.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag_server/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag_server/client.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag_server/config.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag_server/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/lightrag_server/probe.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/config.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/document_loader.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/embedding_adapter.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/errors.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/exercise_lookup.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/ingestion.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/rerank.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/retrievers.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/storage.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/llamaindex/vector_store.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/modes.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/pageindex/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/pageindex/client.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/pageindex/config.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/pageindex/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/pageindex/reasoning.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/pageindex/storage.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/pageindex/tools.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/weknora/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/weknora/client.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/weknora/config.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/weknora/pipeline.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/pipelines/weknora/probe.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/preflight.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/provider_binding.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/service.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/smart_retriever.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/source_visuals.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/visual_assets.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/rag/visual_coverage.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/tools/builtin/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/tools/rag_tool.py",
+          "present": true,
+          "same": true
+        }
+      ]
+    },
+    "原生模型服务": {
+      "roots": [
+        "deeptutor/services/llm",
+        "deeptutor/services/model_selection"
+      ],
+      "file_count": 49,
+      "present_count": 49,
+      "changed": [],
+      "missing": [],
+      "files": [
+        {
+          "path": "deeptutor/services/llm/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/capabilities.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/client.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/cloud_provider.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/config.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/context_window.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/error_mapping.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/exceptions.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/factory.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/image_caption_batch.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/image_caption_cache.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/image_description.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/image_replay.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/local_provider.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/metrics.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/multimodal.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/openai_http_client.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/anthropic_provider.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/azure_openai_provider.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/base.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/codebuddy_http_provider.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/codebuddy_models.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/codebuddy_provider.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/github_copilot_provider.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/openai_codex_provider.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/openai_compat_provider.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/openai_responses/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/openai_responses/converters.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_core/openai_responses/parsing.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_factory.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/provider_registry.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/reasoning_params.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/registry.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/request_cache.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/request_compat.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/structured_retry.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/telemetry.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/traffic_control.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/types.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/usage_estimation.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/usage_frame.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/usage_ledger.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/llm/utils.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/model_selection/__init__.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/model_selection/llm.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/model_selection/reasoning.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/model_selection/runtime.py",
+          "present": true,
+          "same": true
+        },
+        {
+          "path": "deeptutor/services/model_selection/tasks.py",
+          "present": true,
+          "same": true
+        }
+      ]
+    }
+  },
+  "unique_native_files_in_selected_bundles": 422,
+  "actions": [
+    {
+      "area": "原生核心",
+      "decision": "保留已经真实使用的原生实现",
+      "native": [
+        "deeptutor/app",
+        "deeptutor/runtime",
+        "deeptutor/services/session",
+        "deeptutor/agents/loop",
+        "deeptutor/core/context.py"
+      ],
+      "current": "native_executor → DeepTutorApp → 原生 ContextBuilder/TurnExecutor/AgentLoop",
+      "replace": [
+        "main.py中强制构造TutorOrchestrator",
+        "旧TaskContextBuilder/turn_context/conversation_context在原生入口中的装配"
+      ],
+      "target": "原生TurnRequest直接进入原生应用；宿主只映射账号、课程和资源ID"
+    },
+    {
+      "area": "教学策略",
+      "decision": "以原生教学行为替换自研策略",
+      "native": [
+        "deeptutor/services/persona",
+        "deeptutor/capabilities/mastery",
+        "deeptutor/learning",
+        "deeptutor/multi_user/learner_profile.py"
+      ],
+      "replace": [
+        "agents/teaching_strategy.py",
+        "agents/teaching_policy.py",
+        "agents/task_execution.py在原生教学入口的决策调用",
+        "teaching_prompt_adapter对LoopPromptAssembler.blocks的教学计划注入"
+      ],
+      "target": "显式persona、原生learner_profile与路径profile、原生mastery模式和tools决定教学；不保留13策略选择器或并行教案"
+    },
+    {
+      "area": "学习工具与评分",
+      "decision": "保留LearningService/Store，撤去自研行为覆盖",
+      "native": [
+        "deeptutor/capabilities/mastery/tools.py",
+        "deeptutor/learning/service.py",
+        "deeptutor/learning/storage.py",
+        "deeptutor/learning/grading.py",
+        "deeptutor/learning/scheduler.py"
+      ],
+      "replace": [
+        "tools._new_service被改成HostAssessmentService/HostAssessmentStore",
+        "原生_commit_mastery_card_answer被转到AssessmentCommands",
+        "HostAssessmentService强制scheduler=None",
+        "HostAssessmentStore.mutate中的自研评分/事件改写"
+      ],
+      "target": "原生服务处理出题、作答、跳过、评分和调度；用户/工作区/资源访问校验通过原生scope及必要宿主授权边界执行，不保留第二套教学评分算法"
+    },
+    {
+      "area": "练习模块",
+      "decision": "整套复用原生practice/question/assessment",
+      "native": [
+        "deeptutor/services/practice",
+        "deeptutor/api/routers/practice.py",
+        "deeptutor/api/routers/quiz_judge.py",
+        "deeptutor/api/routers/question_notebook.py",
+        "deeptutor/agents/question",
+        "deeptutor/learning/assessment.py"
+      ],
+      "replace": [
+        "practice_api.ai_parts",
+        "自研客观题与AI批改流程",
+        "自研练习复习队列/统计业务"
+      ],
+      "target": "旧题目按原生importing导入；PracticeStore管理复习和版本；题目帮助用原生问答能力，AI评判用原生judge；以原生结果语义展示"
+    },
+    {
+      "area": "记忆",
+      "decision": "保留原生工具，替换宿主重复记忆主体",
+      "native": [
+        "deeptutor/services/memory",
+        "deeptutor/services/learning_journal",
+        "deeptutor/services/session/sqlite_store.py",
+        "deeptutor/learning/storage.py"
+      ],
+      "replace": [
+        "MemoryManager作为统一回答依赖",
+        "独立画像/摘要/学习日志的重复维护"
+      ],
+      "target": "会话原生SessionStore；长期偏好MemoryStore；学习日志LearningJournalStore；学习进度LearningStore；旧数据一次导入或只读归档，不继续双写两套决策状态"
+    },
+    {
+      "area": "模型调用",
+      "decision": "统一调用已迁入的原生provider",
+      "native": [
+        "deeptutor/services/llm",
+        "deeptutor/services/model_selection"
+      ],
+      "replace": [
+        "llm/client.py在练习、选区、记忆等新入口的实际调用"
+      ],
+      "target": "通过隔离worker调用原生factory/provider；保持原有已可运行模型配置，不再单独维护宿主模型循环"
+    },
+    {
+      "area": "知识与来源",
+      "decision": "整套切换到原生KB/RAG/Reading契约",
+      "native": [
+        "deeptutor/services/rag",
+        "deeptutor/knowledge",
+        "deeptutor/reading",
+        "deeptutor/capabilities/reading",
+        "deeptutor/tools/rag_tool.py",
+        "deeptutor/tools/builtin/__init__.py"
+      ],
+      "replace": [
+        "HeartCourseRagTool覆盖原生rag",
+        "HeartCourseFilesTool覆盖原生kb_files",
+        "原生入口对宿主psychology_retrieval及旧证据编号算法的强依赖",
+        "为无原生KB强行挂载rag的自研compose逻辑"
+      ],
+      "target": "教材导入原生KB/ReadingStore后恢复原生rag/kb_files及知识库绑定；source_visuals做hash/page/region检查；引用和页面采用原生契约，不要求继续运行旧证据算法"
+    },
+    {
+      "area": "协议与页面",
+      "decision": "补齐原生能力实际入口，保留薄传输映射",
+      "native": [
+        "deeptutor/core/turn_request.py",
+        "deeptutor/app/contracts.py",
+        "deeptutor/app/facade.py",
+        "deeptutor/tools/ask_user.py"
+      ],
+      "replace": [
+        "NativeTurnOptions对原生可用字段的不完整转发",
+        "不必要的旧输入理解/路由判断"
+      ],
+      "target": "补接题卡提交/跳过、题库引用、分支编辑等原生字段；server-owned身份字段服务端映射；上游页面按原生数据契约接入"
+    }
+  ],
+  "native_request_fields_not_in_host_options": [
+    "auto_route",
+    "capability_once",
+    "client_submission_id",
+    "consult_partner_id",
+    "content",
+    "course_id",
+    "followup_question_context",
+    "language",
+    "llm_selection",
+    "mastery_answer",
+    "mastery_path_lease_managed",
+    "mastery_skip",
+    "parent_message_id",
+    "partner_discussion_group_id",
+    "partner_group_references",
+    "persist_user_message",
+    "preserve_session_preferences",
+    "question_notebook_references",
+    "regenerate",
+    "regenerated_from_message_id",
+    "selection_tutor_context",
+    "session_id",
+    "subagent_consult_budget",
+    "superseded_turn_id",
+    "workspace_id"
+  ],
+  "probe": {
+    "path": ".runtime\\native-reuse-probe\\20261109-090058\\report.json",
+    "scope": "direct D source; isolated native SQLite and copied PDF; no network or model",
+    "checks": [
+      "native_objective_grading_and_qualitative_no_invented_grade",
+      "native_import_commit_replay_and_duplicate_content",
+      "native_review_persistence_and_idempotency",
+      "native_stale_review_version_rejected",
+      "native_wrong_answer_cannot_receive_good_rating",
+      "native_real_pdf_page_region_text_and_hash",
+      "native_changed_source_reference_rejected",
+      "native_invalid_region_rejected",
+      "native_source_path_escape_rejected"
+    ],
+    "passed": true,
+    "native_review_version": 1,
+    "source_pdf_hash": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e"
+  },
+  "keep_existing": [
+    "已固定并实际使用的vendor/DeepTutor原生实现",
+    "已成功运行的原生工具/能力",
+    "31个不需要工具的隐藏范围",
+    "账号/工作区/资源ID映射和必要访问校验",
+    "公开结果裁剪、事件转发和页面动作回执",
+    "已验证的题卡历史交接修复，直到有上游等价替代"
+  ],
+  "do_not_assume_native_equivalence": [
+    "selection_tutor_context针对父聊天消息，PDF选区应走ReadingReference/Viewport和原生材料",
+    "practice对简答题check_answer返回None，AIjudge反馈不能伪装原客观正式分数",
+    "原生source_hash/page/region不是旧EvidenceBundle的逐字段兼容证明",
+    "NativeTurnRequest中的server-owned身份字段不能全部直接交给浏览器"
+  ],
+  "implementation_performed": false
+}

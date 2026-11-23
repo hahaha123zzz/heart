@@ -43,7 +43,7 @@ class TaskContextTests(unittest.TestCase):
             rects=[dict(page=1, x1=.1, y1=.1, x2=.2, y2=.2)], text="伪造答案999")
         resolved = {"text": "服务器读取的教材", "reference": selection.model_dump() | {
             "chapter_id": 7, "section_id": 1, "section_title": "图", "text": "服务器读取的教材"}}
-        with patch("agents.task_context_builder.resolve_selection", return_value=resolved) as locate:
+        with patch("knowledge.request_resources.resolve_selection", return_value=resolved) as locate:
             built = TaskContextBuilder().build(student_id="s", message="解释", selection=selection)
         locate.assert_called_once_with(selection)
         self.assertNotIn("999", str(built.prompt_payload()))
@@ -68,7 +68,7 @@ class TaskContextTests(unittest.TestCase):
         built = TaskContextBuilder().build(student_id="s", message="解释", history=[{"role": "user", "content": "x" * 10000}] * 20,
             known_points=["p" * 200] * 50, preferences={"answer_length": .5, "learning_pace": float("nan"), "mastery": 1})
         self.assertEqual(len(built.history), 20)
-        self.assertEqual(len(built.history[0]["content"]), 4000)
+        self.assertEqual(len(built.history[0]["content"]), 10000)  # 历史按 token 预算管理，不再逐条截断。
         self.assertEqual(len(built.known_points), 20)
         self.assertEqual(built.preferences, {"answer_length": .5})
         self.assertNotIn("student_id", built.prompt_payload())

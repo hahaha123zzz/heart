@@ -1,0 +1,29 @@
+{
+  "fixed": [
+    "reading_owner_workspace_and_content_version",
+    "rag_evidence_publication_and_history",
+    "question_delivery_and_semantic_completion",
+    "reader_navigation_and_receipt"
+  ],
+  "regression": {
+    "full_related_suite_passed": 36,
+    "distinct_cases_including_added_version_boundary": 37
+  },
+  "http": {
+    "report": ".runtime/native-chat-chain/20261108-232449/report.json",
+    "passed": true,
+    "checks": 22
+  },
+  "browser": {
+    "report": ".runtime/native-delivery-browser/20261108-232706/browser.json",
+    "passed": true,
+    "checks": 2,
+    "errors": [],
+    "observed_pdf_page": 2,
+    "receipt_status": "applied"
+  },
+  "model": "local_controlled_openai_protocol",
+  "external_model_quality_verified": false,
+  "hidden_tools_unchanged": 31,
+  "phase2_fully_accepted": false
+}

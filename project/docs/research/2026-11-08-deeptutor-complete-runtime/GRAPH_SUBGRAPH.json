@@ -1,0 +1,2519 @@
+{
+  "project": {
+    "name": "deeptutor",
+    "languages": [
+      "python",
+      "yaml",
+      "markdown",
+      "dockerfile",
+      "json",
+      "toml"
+    ],
+    "frameworks": [
+      "FastAPI",
+      "Pydantic"
+    ],
+    "description": "DeepTutor — agent-native 学习伴侣。两层插件模型：LLM 按需调用的 Tools，以及接管整轮对话的 Capabilities；CLI / WebSocket API / Python SDK 三个入口统一进入 TurnApplicationService，再由 TurnEngine 路由到选定的 capability。本次分析范围为 deeptutor/runtime、capabilities、core 三个目录加上仓库根配置与文档。",
+    "analyzedAt": "2026-11-06T14:58:34.284Z",
+    "gitCommitHash": "6cf793bd868ba5ecbe64722936d4be8fab5a01df"
+  },
+  "seed_ids": [
+    "class:deeptutor/core/context.py:UnifiedContext",
+    "file:deeptutor/capabilities/registry.py",
+    "file:deeptutor/core/context.py",
+    "file:deeptutor/runtime/bootstrap/builtin_capabilities.py",
+    "file:deeptutor/runtime/capability_catalog.py",
+    "file:deeptutor/runtime/orchestrator.py",
+    "file:deeptutor/runtime/registry/capability_registry.py",
+    "file:deeptutor/runtime/registry/deferred_tools.py",
+    "file:deeptutor/runtime/registry/scoped_registry.py",
+    "file:deeptutor/runtime/registry/tool_registry.py",
+    "file:deeptutor/runtime/turn_engine.py"
+  ],
+  "nodes": [
+    {
+      "id": "document:AGENTS.md",
+      "type": "document",
+      "name": "AGENTS.md",
+      "filePath": "AGENTS.md",
+      "summary": "面向 AI agent 的架构说明书，描述 CLI / WebSocket / SDK 三个入口汇入 TurnApplicationService 再到 ChatOrchestrator 的调用链、Tools 与 Capabilities 两层插件模型、CLI 用法以及关键文件索引与依赖分层。",
+      "tags": [
+        "documentation",
+        "architecture",
+        "entry-point",
+        "agents"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/ask_questions/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/ask_questions/capability.py",
+      "summary": "Ask Questions 组合模式的 TurnCapability 实现，声明 manifest 与请求 schema 后把 turn 交给 AgenticChatPipeline 执行。",
+      "tags": [
+        "capability",
+        "chat-loop",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:deeptutor/capabilities/ask_questions/loop.py",
+      "type": "file",
+      "name": "loop.py",
+      "filePath": "deeptutor/capabilities/ask_questions/loop.py",
+      "summary": "Ask Questions 的 chat-loop hook：激活时向普通 chat loop 注入提问策略 system block，并按语言从 prompts/{en,zh}/system.md 读取文案。",
+      "tags": [
+        "capability",
+        "hook",
+        "prompt",
+        "chat-loop"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:deeptutor/capabilities/audio_overview/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/audio_overview/capability.py",
+      "summary": "KB 音频综述 capability：校验请求配置、加载 prompt，按 retrieve → generate_script → publish 三段流派发进度，最终产出音频、转录稿与引用。",
+      "tags": [
+        "capability",
+        "audio",
+        "pipeline",
+        "streaming"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/course_study/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/course_study/capability.py",
+      "summary": "Course Study loop capability：仅在模式为 course_study 且绑定有效课程 id 时激活，把课程状态（资源、mastery、题库、大纲、阅读进度）压缩成有界摘要注入 prompt，并托管课程工具。",
+      "tags": [
+        "capability",
+        "hook",
+        "prompt",
+        "state-summary"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:deeptutor/capabilities/course_study/mode.py",
+      "type": "file",
+      "name": "mode.py",
+      "filePath": "deeptutor/capabilities/course_study/mode.py",
+      "summary": "Course Study 组合模式：不建专属 pipeline，只把 turn metadata 规范化（无课程时注入 no_course 变体 prompt）后启动 AgenticChatPipeline。",
+      "tags": [
+        "capability",
+        "entry-point",
+        "chat-loop"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/explore_context/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/explore_context/capability.py",
+      "summary": "Explore-context loop capability：turn 带可读来源时，在答案 loop 首次 LLM 调用前先跑只读的 ContextExplorer 预调查，把客观第三方视角的结论折叠进 user-message seed。",
+      "tags": [
+        "capability",
+        "hook",
+        "pre-loop",
+        "rag"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/explore_context/explorer.py",
+      "type": "file",
+      "name": "explorer.py",
+      "filePath": "deeptutor/capabilities/explore_context/explorer.py",
+      "summary": "实现「上下文调查员」这一只读前置阶段：在回答循环首次 LLM 调用之前，围绕用户请求自由调用 read_source 读透本回合附带来源，产出客观的第三人称调查结论，作为回答的 grounding。read_source 只在此处挂载，回答循环不再自行读取来源。",
+      "tags": [
+        "capability",
+        "pre-pass",
+        "tool-calling",
+        "llm",
+        "grounding"
+      ],
+      "complexity": "complex",
+      "languageNotes": "同一份能力提供两条执行路径：原生 tool-calling 的有界 agent loop 与适配弱模型的单趟 dump-and-brief 兜底，后者用字符预算（每来源 8000、总量 48000）裁剪。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/ima/binding.py",
+      "type": "file",
+      "name": "binding.py",
+      "filePath": "deeptutor/capabilities/ima/binding.py",
+      "summary": "按本回合选中的知识库解析可用腾讯 IMA 库：所有 metadata type==ima 的选中项都成为可访问库（与 Obsidian 单库不同），凭据刻意不进入绑定，改为每次调用时重新校验访问权限并从 kb_config 加载。",
+      "tags": [
+        "binding",
+        "knowledge-base",
+        "caching",
+        "security"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "解析结果缓存在 UnifiedContext 的 extension 命名空间上，供 is_active / system_block / augment_kwargs 共享一次解析。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/ima/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/ima/capability.py",
+      "summary": "IMA capability：当回合选中的知识库里有 IMA 库时激活，向 chat 注入 system 块（代入 {kb_names}）并把五个 IMA 工具的绑定由服务端写入 kwargs。刻意做成增量式 LoopExtension 而非独占回合的 KnowledgeCapability，因为 IMA 库本身可被 rag 检索。",
+      "tags": [
+        "capability",
+        "loop-extension",
+        "prompt",
+        "knowledge-base"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/marginnote4/binding.py",
+      "type": "file",
+      "name": "binding.py",
+      "filePath": "deeptutor/capabilities/marginnote4/binding.py",
+      "summary": "解析本回合目标 MarginNote 4 库：首个 metadata type==marginnote4 的选中库胜出，其 db_path（或推导出的默认路径）成为工具查询的实时 store；结果缓存在 extension 命名空间，并额外提供全部 MN4 引用集合以便把 rag 从该回合剔除。",
+      "tags": [
+        "binding",
+        "knowledge-base",
+        "caching"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/marginnote4/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/marginnote4/capability.py",
+      "summary": "MarginNote 4 capability：作为 KnowledgeCapability 独占回合，让 chat 循环只跑七个 MarginNote 工具（外加 ask_user 兜底），在同步的学习数据上导航而非检索扁平化的 RAG 片段；store 路径由服务端以 _db_path 注入。",
+      "tags": [
+        "capability",
+        "knowledge-base",
+        "prompt",
+        "exclusive"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/mastery/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/mastery/capability.py",
+      "summary": "Mastery Path capability：没有专门的状态机，agent loop 本身就是导师——它标记 mastery 模式、解析初始 path_id、持有路径租约，然后跑用导师提示词包组装的 MasteryLoopPipeline；是否可进阶由确定性的引擎闸门决定，而非模型印象。",
+      "tags": [
+        "capability",
+        "entry-point",
+        "tutoring",
+        "lease"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/mastery/loop.py",
+      "type": "file",
+      "name": "loop.py",
+      "filePath": "deeptutor/capabilities/mastery/loop.py",
+      "summary": "Mastery 路径的 loop-capability 钩子：负责 system 块、pre_loop 播种、出牌/判分后的收尾文案与「提问即结束本回合」的语义，并含一组正则守卫，识别模型把题目写成散文、声称已发卡却没有调用 mastery_quiz 等失败形态。",
+      "tags": [
+        "capability",
+        "loop-extension",
+        "validation",
+        "heuristics"
+      ],
+      "complexity": "complex",
+      "languageNotes": "大量中英双语的启发式正则，用于在没有结构化信号时判定「模型承诺出题但没出」；注释记录了每次线上事故的具体话术。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/mastery/pipeline.py",
+      "type": "file",
+      "name": "pipeline.py",
+      "filePath": "deeptutor/capabilities/mastery/pipeline.py",
+      "summary": "掌握式辅导循环本体：复用同一个 agent loop 引擎，但用导师自己的协议替换 system prompt 的地基（身份、常驻策略、回合语义），使「出题即结束回合」成为原生语义而不是对 chat 行为的例外；工具面刻意与 chat 保持一致。",
+      "tags": [
+        "pipeline",
+        "prompt-assembly",
+        "tutoring",
+        "agentic-loop"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/obsidian/binding.py",
+      "type": "file",
+      "name": "binding.py",
+      "filePath": "deeptutor/capabilities/obsidian/binding.py",
+      "summary": "从本轮选中的知识库里解析出目标 Obsidian vault，并把结果缓存在 extension 命名空间，使 is_active / augment_kwargs / system_block 共享一次文件系统查找。纯读取，访问错误一律降级为「没有 vault」而非抛异常。",
+      "tags": [
+        "binding",
+        "obsidian",
+        "resolution",
+        "cache"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/obsidian/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/obsidian/capability.py",
+      "summary": "Obsidian 回合 capability：当选中知识库是已连接的 vault 时接管本轮，只挂载九个 Obsidian tool（外加上 ask_user 兜底），直接导航与编辑 Markdown 而非检索扁平 chunk。vault 根目录由服务端以 _vault_path 注入，模型既不提供也看不到。",
+      "tags": [
+        "capability",
+        "obsidian",
+        "knowledge-capability",
+        "prompt-block"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/partner_authoring/binding.py",
+      "type": "file",
+      "name": "binding.py",
+      "filePath": "deeptutor/capabilities/partner_authoring/binding.py",
+      "summary": "Partner 档案撰写意图的门禁：用中英文正则识别「创建一个 Partner」类请求，并显式排除引用块与代码样本、否定式（不要/不用/don't）以及「在问某个已有 Partner」的情形。",
+      "tags": [
+        "binding",
+        "regex",
+        "intent-detection",
+        "partner"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "动作词必须在一个子句内紧邻 Partner 对象才命中；匹配后还会回退到子句起点做否定/疑问检测，并把匹配尾部与 issue/bug/功能 等非 Partner 目标比对，避免误触发强制出草稿。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/partner_authoring/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/partner_authoring/capability.py",
+      "summary": "增量式 chat capability：把用户请求转成可审阅的 Partner 档案草稿。按 explicit / heuristic 触发分别注入 system.md 或 heuristic.md 提示词，并只在用户显式要求且尚无草稿时追加 finish_instruction。",
+      "tags": [
+        "capability",
+        "partner",
+        "prompt-block",
+        "authoring"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/partner_authoring/tools.py",
+      "type": "file",
+      "name": "tools.py",
+      "filePath": "deeptutor/capabilities/partner_authoring/tools.py",
+      "summary": "提供唯一工具 propose_partner：把模型推断出的完整 Partner 档案（名称、描述、Soul 等）发布成一个可编辑、非绑定的草稿，交由 UI 审查与确认。",
+      "tags": [
+        "tool",
+        "partner",
+        "authoring",
+        "api-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/partner_group/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/partner_group/capability.py",
+      "summary": "Partner Group 的公开回答协议 capability：确保对外发布的正式回答里不含任何针对同伴的请求（@同伴、Follow-up for @同伴 等），把它剥离并另存为协作提议，再在私有回合结束后重发已保存的干净文本。",
+      "tags": [
+        "capability",
+        "partner-group",
+        "protocol",
+        "regex"
+      ],
+      "complexity": "complex",
+      "languageNotes": "剥离逻辑不枚举中英文的 follow-up 前缀词，而是先用 @id 定位最后一个同伴标签，再回退到最近的段落/换行/句子边界切分，把标签周围的措辞当作数据处理；紧随其后的水平分割线也一并删除，避免留下悬空分隔符。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/partner_group/tools.py",
+      "type": "file",
+      "name": "tools.py",
+      "filePath": "deeptutor/capabilities/partner_group/tools.py",
+      "summary": "提供唯一工具 invoke_other：把「向某位同伴提一个聚焦问题」记录为一条待用户批准的请求，工具本身从不真正调用对方，也不允许自指或一次调用多方。",
+      "tags": [
+        "tool",
+        "partner-group",
+        "approval",
+        "api-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/protocol.py",
+      "type": "file",
+      "name": "protocol.py",
+      "filePath": "deeptutor/capabilities/protocol.py",
+      "summary": "定义 chat loop 与其 loop capability 之间的共享协议：PromptBlock、LoopExtension、KnowledgeCapability，并保留旧完成键与弃用属性转发。",
+      "tags": [
+        "type-definition",
+        "protocol",
+        "capability",
+        "loop",
+        "backward-compat"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "用 typing.Protocol 做结构化子类型，模块级 __getattr__ 把已弃用常量转发并用 DeprecationWarning 提示迁移。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/reading/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/reading/capability.py",
+      "summary": "ReadingCapability：素材打开时接管 chat loop，注入阅读 playbook、素材与工作区事实、视口种子，并跑一次不耗 token 的确定性 locate 预检索。",
+      "tags": [
+        "capability",
+        "loop-extension",
+        "pre-loop",
+        "prompt-injection",
+        "reading"
+      ],
+      "complexity": "complex",
+      "languageNotes": "pre_loop 钩子故意不发起额外 LLM 轮次：复用模型本会发起的检索，把命中页直接写进本轮 seed，弱模型也能完成 grounding。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/reading/mode.py",
+      "type": "file",
+      "name": "mode.py",
+      "filePath": "deeptutor/capabilities/reading/mode.py",
+      "summary": "ImmersiveReadingCapability：用户在 composer 里选择的阅读模式，不建独立流水线，只标记 turn 后跑标准 agentic chat pipeline。",
+      "tags": [
+        "capability",
+        "mode",
+        "delegation",
+        "reading"
+      ],
+      "complexity": "simple",
+      "languageNotes": "模式与 loop capability 分离：模式是用户选择，loop capability 依据“是否真的打开了文档”激活，因此选模式但无素材时退化为普通聊天。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/registry.py",
+      "type": "file",
+      "name": "registry.py",
+      "filePath": "deeptutor/capabilities/registry.py",
+      "summary": "loop capability 的工厂注册表：通过 entry point 发现内置与外部扩展、兼容旧版列表视图，并提供激活查询与工具归属映射。",
+      "tags": [
+        "registry",
+        "factory",
+        "plugin",
+        "entry-point",
+        "backward-compat"
+      ],
+      "complexity": "complex",
+      "languageNotes": "未迁移的调用方仍把注册表当列表用，故用 _LegacyLoopCapabilitiesView 适配 len/iter/getitem，迁移完可整体删除。"
+    },
+    {
+      "id": "class:deeptutor/capabilities/registry.py:LoopCapabilitySpec",
+      "type": "class",
+      "name": "LoopCapabilitySpec",
+      "filePath": "deeptutor/capabilities/registry.py",
+      "lineRange": [
+        28,
+        46
+      ],
+      "summary": "描述一个已发现的 loop capability：类路径、惰性工厂与元数据，调用时按需创建实例。",
+      "tags": [
+        "data-model",
+        "factory",
+        "capability"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:deeptutor/capabilities/registry.py:_LegacyLoopCapabilitiesView",
+      "type": "class",
+      "name": "_LegacyLoopCapabilitiesView",
+      "filePath": "deeptutor/capabilities/registry.py",
+      "lineRange": [
+        103,
+        113
+      ],
+      "summary": "把新注册表适配成旧的序列接口（__len__/__iter__/__getitem__），供未迁移的调用方继续使用。",
+      "tags": [
+        "adapter",
+        "backward-compat",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:deeptutor/capabilities/registry.py:_coerce_loop_factory",
+      "type": "function",
+      "name": "_coerce_loop_factory",
+      "filePath": "deeptutor/capabilities/registry.py",
+      "lineRange": [
+        119,
+        145
+      ],
+      "summary": "把类、实例或工厂函数统一包装成“返回 LoopExtension 实例”的工厂，兼容不同扩展的注册风格。",
+      "tags": [
+        "factory",
+        "coercion",
+        "registry"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:deeptutor/capabilities/registry.py:_discover_external_loop_capabilities",
+      "type": "function",
+      "name": "_discover_external_loop_capabilities",
+      "filePath": "deeptutor/capabilities/registry.py",
+      "lineRange": [
+        149,
+        177
+      ],
+      "summary": "按 entry point 组发现外部包注册的 loop capability，拆解配置并跳过重复或无效项。",
+      "tags": [
+        "plugin",
+        "discovery",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:deeptutor/capabilities/registry.py:discover_external_loop_capabilities",
+      "type": "function",
+      "name": "discover_external_loop_capabilities",
+      "filePath": "deeptutor/capabilities/registry.py",
+      "lineRange": [
+        180,
+        185
+      ],
+      "summary": "对外暴露外部 loop capability 的发现结果（带缓存的公开包装）。",
+      "tags": [
+        "plugin",
+        "discovery",
+        "cache"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:deeptutor/capabilities/registry.py:_register_loop_entry",
+      "type": "function",
+      "name": "_register_loop_entry",
+      "filePath": "deeptutor/capabilities/registry.py",
+      "lineRange": [
+        192,
+        201
+      ],
+      "summary": "把单个 entry point 转换成 LoopCapabilitySpec 并写入内部注册表，无效条目只记日志。",
+      "tags": [
+        "registry",
+        "entry-point",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:deeptutor/capabilities/registry.py:all_loop_capabilities",
+      "type": "function",
+      "name": "all_loop_capabilities",
+      "filePath": "deeptutor/capabilities/registry.py",
+      "lineRange": [
+        204,
+        215
+      ],
+      "summary": "返回全部已注册的 loop capability（内置优先、外部追加），按名称去重。",
+      "tags": [
+        "registry",
+        "query",
+        "capability"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:deeptutor/capabilities/registry.py:any_exclusive_capability_active",
+      "type": "function",
+      "name": "any_exclusive_capability_active",
+      "filePath": "deeptutor/capabilities/registry.py",
+      "lineRange": [
+        222,
+        226
+      ],
+      "summary": "判断当前 turn 是否有知识型（独占）capability 处于激活状态。",
+      "tags": [
+        "query",
+        "capability",
+        "activation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:deeptutor/capabilities/registry.py:capability_tool_owners",
+      "type": "function",
+      "name": "capability_tool_owners",
+      "filePath": "deeptutor/capabilities/registry.py",
+      "lineRange": [
+        229,
+        234
+      ],
+      "summary": "返回“工具名 → capability 名”的归属映射，用于判断某个工具由哪个 capability 提供。",
+      "tags": [
+        "query",
+        "tool",
+        "capability"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:deeptutor/capabilities/setup/binding.py",
+      "type": "file",
+      "name": "binding.py",
+      "filePath": "deeptutor/capabilities/setup/binding.py",
+      "summary": "判断一个 turn 是否属于 setup，以及安装里还缺什么：依据设置规格算出真正的能力缺口，并用客观信号（用户选择、动作词+配置对象、首次会话）决定是否参与。",
+      "tags": [
+        "capability",
+        "activation",
+        "settings",
+        "cache"
+      ],
+      "complexity": "complex",
+      "languageNotes": "刻意不让模型“嗅探意图”来激活：按相关性自动挂载会在无关对话里乱入，故只用三类客观信号。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/setup/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/setup/capability.py",
+      "summary": "SetupCapability：普通（非独占）loop capability，在保留常规工具面的同时额外挂上四个配置工具，并把安装缺口写进 system 片段。",
+      "tags": [
+        "capability",
+        "loop-extension",
+        "settings",
+        "prompt-injection"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/solve/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/solve/capability.py",
+      "summary": "DeepSolveCapability：不建专用流水线，只把 turn 标记为 solve 模式并解析会话 id，然后跑标准 agentic chat pipeline。",
+      "tags": [
+        "capability",
+        "mode",
+        "delegation",
+        "deep-solve"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "与 chat / mastery 共用设计公理：智能在 loop 出口（模型规划求解），确定性骨架（计划、逐步 gate、有限 replan）由工具读写。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/solve/loop.py",
+      "type": "file",
+      "name": "loop.py",
+      "filePath": "deeptutor/capabilities/solve/loop.py",
+      "summary": "SolveLoopCapability：在 turn 被标记 solve_mode 时激活，挂上 solve 三件套与精选内置工具，并注入 solver playbook。",
+      "tags": [
+        "capability",
+        "loop-extension",
+        "deep-solve",
+        "prompt-injection"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/capabilities/subagent/binding.py",
+      "type": "file",
+      "name": "binding.py",
+      "filePath": "deeptutor/capabilities/subagent/binding.py",
+      "summary": "从用户选中的 knowledge base 中解析本轮要连接的本地 subagent（agent_kind 与 cwd / partner_id），解析结果缓存在 extension 命名空间，供 is_active、augment_kwargs、system_block 共用。",
+      "tags": [
+        "binding",
+        "resolver",
+        "subagent",
+        "cache"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "用哨兵对象区分「未解析」与「解析为无连接」，把空结果也缓存为 \"\"。"
+    },
+    {
+      "id": "file:deeptutor/capabilities/subagent/capability.py",
+      "type": "file",
+      "name": "capability.py",
+      "filePath": "deeptutor/capabilities/subagent/capability.py",
+      "summary": "SubagentCapability（KnowledgeCapability 实现）：当用户选中的 KB 是已连接 subagent 时接管本轮，仅挂载 consult_subagent tool，注入后端连接、per-backend 配置与轮次级 consult 预算，并生成中文/英文系统提示块。",
+      "tags": [
+        "capability",
+        "prompt",
+        "subagent",
+        "delegation"
+      ],
+      "complexity": "complex",
+      "languageNotes": "所有服务端状态通过 augment_kwargs 注入，模型只提供 question，避免声明式参数被伪造。"
+    },
+    {
+      "id": "file:deeptutor/core/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "deeptutor/core/__init__.py",
+      "summary": "core 契约层的 barrel 入口，统一导出 stream 事件、tool 与 capability 协议以及 trace 辅助函数，作为 runtime / tools / capabilities 的公共依赖面。",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "contract",
+        "core"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:deeptutor/core/capability_protocol.py",
+      "type": "file",
+      "name": "capability_protocol.py",
+      "filePath": "deeptutor/core/capability_protocol.py",
+      "summary": "Capability 层（Level 2）的基础协议：StreamBusProtocol 约定事件总线接口，CapabilityManifest 描述能力元数据，TurnCapability 定义 run 抽象方法。",
+      "tags": [
+        "protocol",
+        "capability",
+        "abstract-base-class",
+        "contract"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/core/context.py",
+      "type": "file",
+      "name": "context.py",
+      "filePath": "deeptutor/core/context.py",
+      "summary": "定义贯穿 orchestrator 的统一上下文数据模型：UnifiedContext 汇总会话、消息、工具白名单、附件、语言与各类上下文片段，另含附件、工作区/轮次运行时、交互状态与能力输出等子结构。",
+      "tags": [
+        "data-model",
+        "context",
+        "contract",
+        "core"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "大量使用 dataclass + field(default_factory)，extension() 提供按 key 惰性创建的能力私有命名空间。"
+    },
+    {
+      "id": "class:deeptutor/core/context.py:UnifiedContext",
+      "type": "class",
+      "name": "UnifiedContext",
+      "filePath": "deeptutor/core/context.py",
+      "lineRange": [
+        86,
+        158
+      ],
+      "summary": "单个轮次的完整上下文对象：会话与历史、启用的工具与内置工具白名单、知识库、附件、语言、记忆/日志/人设/侧边栏/技能与来源清单，以及 runtime、interaction、capability_output 与 extension_state。",
+      "tags": [
+        "data-model",
+        "context",
+        "contract"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:deeptutor/core/stream.py",
+      "type": "file",
+      "name": "stream.py",
+      "filePath": "deeptutor/core/stream.py",
+      "summary": "定义统一流式事件协议：StreamEventType 枚举所有事件类型，StreamEvent 携带来源、阶段、内容、元数据与会话/轮次标识，供 CLI、WebSocket 与 SDK 一致消费。",
+      "tags": [
+        "protocol",
+        "streaming",
+        "event-handler",
+        "contract"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "事件类型用 str Enum 以便直接序列化为 JSON；事件带 seq 与时间戳支持回放排序。"
+    },
+    {
+      "id": "file:deeptutor/core/tool_protocol.py",
+      "type": "file",
+      "name": "tool_protocol.py",
+      "filePath": "deeptutor/core/tool_protocol.py",
+      "summary": "Tool 层（Level 1）的基础协议：工具参数与定义 schema、prompt hints、ToolResult 返回结构、ToolEventSink、ToolLookup 注册与查询接口，以及所有工具实现的抽象基类 BaseTool。",
+      "tags": [
+        "protocol",
+        "tool",
+        "abstract-base-class",
+        "contract"
+      ],
+      "complexity": "complex",
+      "languageNotes": "ToolDefinition 同时支持结构化 parameters 与原始 JSON schema（raw_parameters），以兼容不同 provider 的函数调用格式。"
+    },
+    {
+      "id": "file:deeptutor/runtime/agentic/tool_dispatch.py",
+      "type": "file",
+      "name": "tool_dispatch.py",
+      "filePath": "deeptutor/runtime/agentic/tool_dispatch.py",
+      "summary": "与 capability 无关的并行工具调度器：并行执行一轮全部 tool call，为每次调用发一条子 trace，返回携带 role=tool 消息、来源、暂停与终止信号的 DispatchOutcome。",
+      "tags": [
+        "tool",
+        "orchestration",
+        "concurrency",
+        "runtime"
+      ],
+      "complexity": "complex",
+      "languageNotes": "把 kwarg 增强、retrieve 子 trace 标签、失败文案等 capability 差异全部通过回调注入，调度器本身不做业务假设。"
+    },
+    {
+      "id": "file:deeptutor/runtime/bootstrap/builtin_capabilities.py",
+      "type": "file",
+      "name": "builtin_capabilities.py",
+      "filePath": "deeptutor/runtime/bootstrap/builtin_capabilities.py",
+      "summary": "以 import-free 方式描述全部内置 turn capability：把类路径与 CapabilityManifest 静态列出，使注册表无需导入重量级 capability 模块即可枚举。",
+      "tags": [
+        "capability",
+        "registry",
+        "manifest",
+        "bootstrap"
+      ],
+      "complexity": "complex",
+      "languageNotes": "manifest 通过 _manifest 工厂统一构造，避免每项手写重复字段。"
+    },
+    {
+      "id": "class:deeptutor/runtime/bootstrap/builtin_capabilities.py:BuiltinCapabilitySpec",
+      "type": "class",
+      "name": "BuiltinCapabilitySpec",
+      "filePath": "deeptutor/runtime/bootstrap/builtin_capabilities.py",
+      "lineRange": [
+        11,
+        13
+      ],
+      "summary": "一条内置 capability 描述：capability 类路径加静态 manifest。",
+      "tags": [
+        "data-model",
+        "capability",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:deeptutor/runtime/bootstrap/builtin_capabilities.py:_manifest",
+      "type": "function",
+      "name": "_manifest",
+      "filePath": "deeptutor/runtime/bootstrap/builtin_capabilities.py",
+      "lineRange": [
+        16,
+        32
+      ],
+      "summary": "构造 CapabilityManifest：名称、描述、阶段、使用的 tool、CLI 别名与默认 config。",
+      "tags": [
+        "factory",
+        "capability",
+        "manifest"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:deeptutor/runtime/capability_catalog.py",
+      "type": "file",
+      "name": "capability_catalog.py",
+      "filePath": "deeptutor/runtime/capability_catalog.py",
+      "summary": "turn capability 与 chat-loop 扩展的规范目录：按 (kind, name) 存放条目、工厂与配置模型，并提供进程级单例。",
+      "tags": [
+        "registry",
+        "capability",
+        "factory"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "只用工厂注册、不保存实例，因此两个执行层级可以共享同一个目录而不共享状态。"
+    },
+    {
+      "id": "class:deeptutor/runtime/capability_catalog.py:CapabilityCatalogEntry",
+      "type": "class",
+      "name": "CapabilityCatalogEntry",
+      "filePath": "deeptutor/runtime/capability_catalog.py",
+      "lineRange": [
+        22,
+        30
+      ],
+      "summary": "目录条目：名称、kind、manifest、工厂与配置模型，可由 create() 实例化 capability。",
+      "tags": [
+        "data-model",
+        "capability",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:deeptutor/runtime/capability_catalog.py:CapabilityCatalog",
+      "type": "class",
+      "name": "CapabilityCatalog",
+      "filePath": "deeptutor/runtime/capability_catalog.py",
+      "lineRange": [
+        33,
+        79
+      ],
+      "summary": "工厂式 capability 注册表：register/get/create/entries/clear，key 为 (kind, name)。",
+      "tags": [
+        "registry",
+        "capability",
+        "factory"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:deeptutor/runtime/capability_catalog.py:get_capability_catalog",
+      "type": "function",
+      "name": "get_capability_catalog",
+      "filePath": "deeptutor/runtime/capability_catalog.py",
+      "lineRange": [
+        85,
+        89
+      ],
+      "summary": "返回进程级共享的 capability 目录，必要时懒初始化。",
+      "tags": [
+        "singleton",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:deeptutor/runtime/capability_catalog.py:set_capability_catalog",
+      "type": "function",
+      "name": "set_capability_catalog",
+      "filePath": "deeptutor/runtime/capability_catalog.py",
+      "lineRange": [
+        92,
+        94
+      ],
+      "summary": "替换全局 capability 目录，供启动装配与测试注入使用。",
+      "tags": [
+        "singleton",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:deeptutor/runtime/orchestrator.py",
+      "type": "file",
+      "name": "orchestrator.py",
+      "filePath": "deeptutor/runtime/orchestrator.py",
+      "summary": "统一编排入口 ChatOrchestrator：校验请求、解析 capability、创建 StreamBus 并以异步任务执行 turn，同时向事件总线发布完成事件。",
+      "tags": [
+        "runtime",
+        "orchestration",
+        "entry-point",
+        "event-stream"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:deeptutor/runtime/providers/allowlist.py",
+      "type": "file",
+      "name": "allowlist.py",
+      "filePath": "deeptutor/runtime/providers/allowlist.py",
+      "summary": "以显式 unrestricted 状态建模的工具名允许集合，narrow/widen 对无限制状态始终有定义，避免 None 集合运算造成静默提权或权限全失。",
+      "tags": [
+        "security",
+        "authorization",
+        "value-object",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:deeptutor/runtime/providers/text.py",
+      "type": "file",
+      "name": "text.py",
+      "filePath": "deeptutor/runtime/providers/text.py",
+      "summary": "对外部 provider 提供的第三方文本做单行化、去控制字符与长度截断，防止伪造 manifest 条目或注入超长提示。",
+      "tags": [
+        "security",
+        "sanitization",
+        "providers",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/runtime/providers/view.py",
+      "type": "file",
+      "name": "view.py",
+      "filePath": "deeptutor/runtime/providers/view.py",
+      "summary": "组装单轮的外部工具视图：启动 provider、按 scope 授权过滤工具池、构建渐进披露 loader 并渲染 manifest，任何失败都降级为空工具集。",
+      "tags": [
+        "providers",
+        "composition",
+        "authorization",
+        "tooling"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:deeptutor/runtime/registry/capability_registry.py",
+      "type": "file",
+      "name": "capability_registry.py",
+      "filePath": "deeptutor/runtime/registry/capability_registry.py",
+      "summary": "CapabilityCatalog 之上的兼容视图，负责注册内置与插件 capability、解析配置模型并向编排层提供 manifest 列表。",
+      "tags": [
+        "registry",
+        "capability",
+        "plugin",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:deeptutor/runtime/registry/deferred_tools.py",
+      "type": "file",
+      "name": "deferred_tools.py",
+      "filePath": "deeptutor/runtime/registry/deferred_tools.py",
+      "summary": "工具的渐进披露：为延迟工具渲染一行 manifest，并在模型调用 load_tools 后把完整 schema 注入当前轮次的工具列表。",
+      "tags": [
+        "tooling",
+        "progressive-disclosure",
+        "prompt",
+        "registry"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:deeptutor/runtime/registry/scoped_registry.py",
+      "type": "file",
+      "name": "scoped_registry.py",
+      "filePath": "deeptutor/runtime/registry/scoped_registry.py",
+      "summary": "每轮作用域下的工具注册表视图：用 overlay 承载单用户工具，并在 execute 处执行授权拦截。",
+      "tags": [
+        "registry",
+        "authorization",
+        "multi-tenant",
+        "tooling"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/runtime/registry/tool_registry.py",
+      "type": "file",
+      "name": "tool_registry.py",
+      "filePath": "deeptutor/runtime/registry/tool_registry.py",
+      "summary": "进程级工具注册表，发现内置与插件工具，提供别名解析、definitions/prompt hints 汇总与 OpenAI schema 生成。",
+      "tags": [
+        "registry",
+        "tooling",
+        "plugin",
+        "schema"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/runtime/request_contracts.py",
+      "type": "file",
+      "name": "request_contracts.py",
+      "filePath": "deeptutor/runtime/request_contracts.py",
+      "summary": "内置 capability 的公开请求契约：pydantic 配置模型、按 capability 名分派的校验器以及 JSON schema 生成。",
+      "tags": [
+        "validation",
+        "type-definition",
+        "api-contract",
+        "capability"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:deeptutor/runtime/stream_bus.py",
+      "type": "file",
+      "name": "stream_bus.py",
+      "filePath": "deeptutor/runtime/stream_bus.py",
+      "summary": "异步事件通道 StreamBus：capability 侧 emit 各类 StreamEvent，消费者 subscribe 获取，并支持 turn 内中断式的 ask_user 输入。",
+      "tags": [
+        "event-stream",
+        "async",
+        "runtime",
+        "pub-sub"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:deeptutor/runtime/turn_engine.py",
+      "type": "file",
+      "name": "turn_engine.py",
+      "filePath": "deeptutor/runtime/turn_engine.py",
+      "summary": "所有应用适配器共享的底层执行引擎，懒加载 ChatOrchestrator 并把统一上下文转成事件流。",
+      "tags": [
+        "runtime",
+        "entry-point",
+        "orchestration",
+        "singleton"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:deeptutor/runtime/orchestrator.py:completion_event_fields",
+      "type": "function",
+      "name": "completion_event_fields",
+      "filePath": "deeptutor/runtime/orchestrator.py",
+      "lineRange": [
+        28,
+        48
+      ],
+      "summary": "从 context 与 capability 元数据中提取完成事件字段（turn 标识、耗时、usage 等）。",
+      "tags": [
+        "event-stream",
+        "utility",
+        "metadata"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:deeptutor/runtime/orchestrator.py:ChatOrchestrator",
+      "type": "class",
+      "name": "ChatOrchestrator",
+      "filePath": "deeptutor/runtime/orchestrator.py",
+      "lineRange": [
+        51,
+        231
+      ],
+      "summary": "统一编排器：校验请求、选择 capability、创建 StreamBus 与异步执行任务、发布 completion 事件，并提供工具与 capability 清单查询。",
+      "tags": [
+        "orchestration",
+        "runtime",
+        "entry-point"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:deeptutor/runtime/registry/capability_registry.py:CapabilityRegistry",
+      "type": "class",
+      "name": "CapabilityRegistry",
+      "filePath": "deeptutor/runtime/registry/capability_registry.py",
+      "lineRange": [
+        57,
+        218
+      ],
+      "summary": "capability 注册表兼容层：注册内置与插件 capability、延迟导入实现类、解析配置模型并输出 manifest。",
+      "tags": [
+        "registry",
+        "capability",
+        "plugin"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:deeptutor/runtime/registry/capability_registry.py:get_capability_registry",
+      "type": "function",
+      "name": "get_capability_registry",
+      "filePath": "deeptutor/runtime/registry/capability_registry.py",
+      "lineRange": [
+        224,
+        230
+      ],
+      "summary": "返回进程级单例 CapabilityRegistry，首次调用时加载内置与插件 capability。",
+      "tags": [
+        "singleton",
+        "registry",
+        "factory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:deeptutor/runtime/registry/deferred_tools.py:DeferredToolLoader",
+      "type": "class",
+      "name": "DeferredToolLoader",
+      "filePath": "deeptutor/runtime/registry/deferred_tools.py",
+      "lineRange": [
+        116,
+        201
+      ],
+      "summary": "管理延后加载的工具：生成初始 schema、按名 load 注入完整 schema，并把已加载名单持久化到会话。",
+      "tags": [
+        "tooling",
+        "progressive-disclosure",
+        "registry"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:deeptutor/runtime/registry/deferred_tools.py:render_deferred_tools_manifest",
+      "type": "function",
+      "name": "render_deferred_tools_manifest",
+      "filePath": "deeptutor/runtime/registry/deferred_tools.py",
+      "lineRange": [
+        57,
+        113
+      ],
+      "summary": "把延迟工具按 provider 分组渲染成提示词中的一行式清单，文本先经 sanitize 处理。",
+      "tags": [
+        "prompt",
+        "tooling",
+        "rendering"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:deeptutor/runtime/registry/scoped_registry.py:ScopedToolRegistry",
+      "type": "class",
+      "name": "ScopedToolRegistry",
+      "filePath": "deeptutor/runtime/registry/scoped_registry.py",
+      "lineRange": [
+        40,
+        180
+      ],
+      "summary": "每轮作用域的工具视图：base 注册表叠加 overlay 承载归属单用户的工具，并在 dispatch 时执行 allowlist 校验。",
+      "tags": [
+        "registry",
+        "authorization",
+        "multi-tenant"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:deeptutor/runtime/registry/tool_registry.py:ToolRegistry",
+      "type": "class",
+      "name": "ToolRegistry",
+      "filePath": "deeptutor/runtime/registry/tool_registry.py",
+      "lineRange": [
+        28,
+        187
+      ],
+      "summary": "进程级工具注册表：注册/注销、内置与插件加载、请求别名解析、schema 与 prompt hints 生成及执行分派。",
+      "tags": [
+        "registry",
+        "tooling",
+        "plugin",
+        "schema"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:deeptutor/runtime/registry/tool_registry.py:get_tool_registry",
+      "type": "function",
+      "name": "get_tool_registry",
+      "filePath": "deeptutor/runtime/registry/tool_registry.py",
+      "lineRange": [
+        194,
+        222
+      ],
+      "summary": "返回进程级单例工具注册表，登记请求解析上下文并加载内置与插件工具。",
+      "tags": [
+        "singleton",
+        "registry",
+        "factory"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:deeptutor/runtime/turn_engine.py:TurnEngine",
+      "type": "class",
+      "name": "TurnEngine",
+      "filePath": "deeptutor/runtime/turn_engine.py",
+      "lineRange": [
+        11,
+        28
+      ],
+      "summary": "薄执行引擎，懒加载 ChatOrchestrator 并把 UnifiedContext 转成事件流，为测试与嵌入方提供单一打桩点。",
+      "tags": [
+        "runtime",
+        "orchestration",
+        "adapter"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:AGENTS.md",
+      "target": "file:deeptutor/runtime/orchestrator.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:deeptutor/capabilities/course_study/mode.py",
+      "target": "file:deeptutor/capabilities/course_study/capability.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:deeptutor/capabilities/ima/capability.py",
+      "target": "file:deeptutor/capabilities/ima/binding.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:deeptutor/capabilities/marginnote4/capability.py",
+      "target": "file:deeptutor/capabilities/marginnote4/binding.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:deeptutor/capabilities/mastery/capability.py",
+      "target": "file:deeptutor/capabilities/mastery/pipeline.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:deeptutor/capabilities/mastery/pipeline.py",
+      "target": "file:deeptutor/capabilities/mastery/loop.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:deeptutor/capabilities/obsidian/capability.py",
+      "target": "file:deeptutor/capabilities/obsidian/binding.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_authoring/capability.py",
+      "target": "file:deeptutor/capabilities/partner_authoring/binding.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_authoring/capability.py",
+      "target": "file:deeptutor/capabilities/partner_authoring/tools.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_group/capability.py",
+      "target": "file:deeptutor/capabilities/partner_group/tools.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:deeptutor/capabilities/reading/capability.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/capabilities/reading/mode.py",
+      "target": "file:deeptutor/capabilities/reading/capability.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "class:deeptutor/capabilities/registry.py:LoopCapabilitySpec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "class:deeptutor/capabilities/registry.py:_LegacyLoopCapabilitiesView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:_coerce_loop_factory",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:_discover_external_loop_capabilities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:discover_external_loop_capabilities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:_register_loop_entry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:all_loop_capabilities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:any_exclusive_capability_active",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:capability_tool_owners",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "class:deeptutor/capabilities/registry.py:LoopCapabilitySpec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:discover_external_loop_capabilities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:all_loop_capabilities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:any_exclusive_capability_active",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "function:deeptutor/capabilities/registry.py:capability_tool_owners",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/capabilities/setup/capability.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/capabilities/setup/capability.py",
+      "target": "file:deeptutor/capabilities/setup/binding.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/capabilities/solve/loop.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/capabilities/subagent/binding.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/capabilities/subagent/capability.py",
+      "target": "file:deeptutor/capabilities/subagent/binding.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/capabilities/subagent/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/core/__init__.py",
+      "target": "file:deeptutor/core/capability_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/core/__init__.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/core/__init__.py",
+      "target": "file:deeptutor/core/stream.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/core/__init__.py",
+      "target": "file:deeptutor/core/tool_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/core/capability_protocol.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/core/capability_protocol.py",
+      "target": "file:deeptutor/core/stream.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/core/context.py",
+      "target": "class:deeptutor/core/context.py:UnifiedContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/core/context.py",
+      "target": "class:deeptutor/core/context.py:UnifiedContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/bootstrap/builtin_capabilities.py",
+      "target": "class:deeptutor/runtime/bootstrap/builtin_capabilities.py:BuiltinCapabilitySpec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/bootstrap/builtin_capabilities.py",
+      "target": "class:deeptutor/runtime/bootstrap/builtin_capabilities.py:BuiltinCapabilitySpec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/bootstrap/builtin_capabilities.py",
+      "target": "function:deeptutor/runtime/bootstrap/builtin_capabilities.py:_manifest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/capability_catalog.py",
+      "target": "class:deeptutor/runtime/capability_catalog.py:CapabilityCatalogEntry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/capability_catalog.py",
+      "target": "class:deeptutor/runtime/capability_catalog.py:CapabilityCatalogEntry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/capability_catalog.py",
+      "target": "class:deeptutor/runtime/capability_catalog.py:CapabilityCatalog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/capability_catalog.py",
+      "target": "class:deeptutor/runtime/capability_catalog.py:CapabilityCatalog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/capability_catalog.py",
+      "target": "function:deeptutor/runtime/capability_catalog.py:get_capability_catalog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/capability_catalog.py",
+      "target": "function:deeptutor/runtime/capability_catalog.py:get_capability_catalog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/capability_catalog.py",
+      "target": "function:deeptutor/runtime/capability_catalog.py:set_capability_catalog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/capability_catalog.py",
+      "target": "function:deeptutor/runtime/capability_catalog.py:set_capability_catalog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/orchestrator.py",
+      "target": "file:deeptutor/runtime/registry/capability_registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/runtime/orchestrator.py",
+      "target": "file:deeptutor/runtime/registry/tool_registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/runtime/orchestrator.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/runtime/providers/view.py",
+      "target": "file:deeptutor/runtime/providers/allowlist.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/runtime/providers/view.py",
+      "target": "file:deeptutor/runtime/registry/deferred_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/runtime/providers/view.py",
+      "target": "file:deeptutor/runtime/registry/scoped_registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/capability_registry.py",
+      "target": "file:deeptutor/runtime/request_contracts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/deferred_tools.py",
+      "target": "file:deeptutor/runtime/providers/text.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/scoped_registry.py",
+      "target": "file:deeptutor/runtime/providers/allowlist.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:deeptutor/runtime/orchestrator.py",
+      "target": "function:deeptutor/runtime/orchestrator.py:completion_event_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/orchestrator.py",
+      "target": "class:deeptutor/runtime/orchestrator.py:ChatOrchestrator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/capability_registry.py",
+      "target": "class:deeptutor/runtime/registry/capability_registry.py:CapabilityRegistry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/capability_registry.py",
+      "target": "function:deeptutor/runtime/registry/capability_registry.py:get_capability_registry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/deferred_tools.py",
+      "target": "class:deeptutor/runtime/registry/deferred_tools.py:DeferredToolLoader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/deferred_tools.py",
+      "target": "function:deeptutor/runtime/registry/deferred_tools.py:render_deferred_tools_manifest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/scoped_registry.py",
+      "target": "class:deeptutor/runtime/registry/scoped_registry.py:ScopedToolRegistry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/tool_registry.py",
+      "target": "class:deeptutor/runtime/registry/tool_registry.py:ToolRegistry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/tool_registry.py",
+      "target": "function:deeptutor/runtime/registry/tool_registry.py:get_tool_registry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/turn_engine.py",
+      "target": "class:deeptutor/runtime/turn_engine.py:TurnEngine",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:deeptutor/runtime/orchestrator.py",
+      "target": "function:deeptutor/runtime/orchestrator.py:completion_event_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/orchestrator.py",
+      "target": "class:deeptutor/runtime/orchestrator.py:ChatOrchestrator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/capability_registry.py",
+      "target": "class:deeptutor/runtime/registry/capability_registry.py:CapabilityRegistry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/capability_registry.py",
+      "target": "function:deeptutor/runtime/registry/capability_registry.py:get_capability_registry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/deferred_tools.py",
+      "target": "class:deeptutor/runtime/registry/deferred_tools.py:DeferredToolLoader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/deferred_tools.py",
+      "target": "function:deeptutor/runtime/registry/deferred_tools.py:render_deferred_tools_manifest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/scoped_registry.py",
+      "target": "class:deeptutor/runtime/registry/scoped_registry.py:ScopedToolRegistry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/tool_registry.py",
+      "target": "class:deeptutor/runtime/registry/tool_registry.py:ToolRegistry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/tool_registry.py",
+      "target": "function:deeptutor/runtime/registry/tool_registry.py:get_tool_registry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/runtime/turn_engine.py",
+      "target": "class:deeptutor/runtime/turn_engine.py:TurnEngine",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:deeptutor/runtime/turn_engine.py:TurnEngine",
+      "target": "class:deeptutor/runtime/orchestrator.py:ChatOrchestrator",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:deeptutor/runtime/orchestrator.py:ChatOrchestrator",
+      "target": "function:deeptutor/runtime/registry/capability_registry.py:get_capability_registry",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:deeptutor/runtime/orchestrator.py:ChatOrchestrator",
+      "target": "function:deeptutor/runtime/registry/tool_registry.py:get_tool_registry",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:deeptutor/capabilities/ask_questions/capability.py",
+      "target": "file:deeptutor/core/capability_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/ask_questions/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/ask_questions/capability.py",
+      "target": "file:deeptutor/runtime/request_contracts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/ask_questions/capability.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/ask_questions/loop.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/ask_questions/loop.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/audio_overview/capability.py",
+      "target": "file:deeptutor/core/capability_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/audio_overview/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/audio_overview/capability.py",
+      "target": "file:deeptutor/runtime/request_contracts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/audio_overview/capability.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/course_study/capability.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/course_study/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/course_study/capability.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/course_study/mode.py",
+      "target": "file:deeptutor/capabilities/course_study/capability.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/course_study/mode.py",
+      "target": "file:deeptutor/core/capability_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/course_study/mode.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/course_study/mode.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/explore_context/capability.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/explore_context/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/explore_context/capability.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/explore_context/explorer.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/explore_context/explorer.py",
+      "target": "file:deeptutor/runtime/registry/tool_registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/explore_context/explorer.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/ima/binding.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/ima/capability.py",
+      "target": "file:deeptutor/capabilities/ima/binding.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/ima/capability.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/ima/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/marginnote4/binding.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/marginnote4/capability.py",
+      "target": "file:deeptutor/capabilities/marginnote4/binding.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/marginnote4/capability.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/marginnote4/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/mastery/capability.py",
+      "target": "file:deeptutor/capabilities/mastery/pipeline.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/mastery/capability.py",
+      "target": "file:deeptutor/core/capability_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/mastery/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/mastery/capability.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/mastery/loop.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/mastery/loop.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/mastery/pipeline.py",
+      "target": "file:deeptutor/capabilities/mastery/loop.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/mastery/pipeline.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/obsidian/binding.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/obsidian/capability.py",
+      "target": "file:deeptutor/capabilities/obsidian/binding.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/obsidian/capability.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/obsidian/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_authoring/binding.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_authoring/capability.py",
+      "target": "file:deeptutor/capabilities/partner_authoring/binding.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_authoring/capability.py",
+      "target": "file:deeptutor/capabilities/partner_authoring/tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_authoring/capability.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_authoring/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_authoring/tools.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_authoring/tools.py",
+      "target": "file:deeptutor/core/tool_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_group/capability.py",
+      "target": "file:deeptutor/capabilities/partner_group/tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_group/capability.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_group/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_group/tools.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/partner_group/tools.py",
+      "target": "file:deeptutor/core/tool_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/protocol.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/reading/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/reading/capability.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/reading/mode.py",
+      "target": "file:deeptutor/core/capability_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/reading/mode.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/reading/mode.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/registry.py",
+      "target": "file:deeptutor/runtime/capability_catalog.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/setup/binding.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/setup/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/solve/capability.py",
+      "target": "file:deeptutor/core/capability_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/solve/capability.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/solve/capability.py",
+      "target": "file:deeptutor/runtime/request_contracts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/solve/capability.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/solve/loop.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/capabilities/subagent/capability.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/agentic/tool_dispatch.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/agentic/tool_dispatch.py",
+      "target": "file:deeptutor/core/tool_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/agentic/tool_dispatch.py",
+      "target": "file:deeptutor/runtime/registry/tool_registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/agentic/tool_dispatch.py",
+      "target": "file:deeptutor/runtime/stream_bus.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/bootstrap/builtin_capabilities.py",
+      "target": "file:deeptutor/core/capability_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/orchestrator.py",
+      "target": "file:deeptutor/capabilities/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/orchestrator.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/orchestrator.py",
+      "target": "file:deeptutor/core/stream.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/providers/view.py",
+      "target": "file:deeptutor/core/tool_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/capability_registry.py",
+      "target": "file:deeptutor/core/capability_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/capability_registry.py",
+      "target": "file:deeptutor/runtime/bootstrap/builtin_capabilities.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/capability_registry.py",
+      "target": "file:deeptutor/runtime/capability_catalog.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/deferred_tools.py",
+      "target": "file:deeptutor/core/tool_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/scoped_registry.py",
+      "target": "file:deeptutor/core/tool_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/registry/tool_registry.py",
+      "target": "file:deeptutor/core/tool_protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/request_contracts.py",
+      "target": "file:deeptutor/runtime/capability_catalog.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/stream_bus.py",
+      "target": "file:deeptutor/core/stream.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/turn_engine.py",
+      "target": "file:deeptutor/core/context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    },
+    {
+      "source": "file:deeptutor/runtime/turn_engine.py",
+      "target": "file:deeptutor/core/stream.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7,
+      "recoveredFromImportMap": true
+    }
+  ]
+}

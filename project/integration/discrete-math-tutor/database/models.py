@@ -22,6 +22,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -318,6 +319,9 @@ class MemoryDocumentRow(Base):
     embedding_model: Mapped[str] = mapped_column(String(128), default="")
     embedding: Mapped[list] = mapped_column(JSON, default=list)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+    active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"), index=True)
+    mem0_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    mem0_synced_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
 
 
 class MisconceptionObservationRow(Base):
@@ -593,3 +597,20 @@ class RelationOperationRow(Base):
     request_id: Mapped[str] = mapped_column(String(64))
     payload_hash: Mapped[str] = mapped_column(String(64))
     result: Mapped[dict] = mapped_column(JSON)
+
+class AuthAccountRow(Base):
+    __tablename__ = 'auth_accounts'
+    student_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(String(256))
+    role: Mapped[str] = mapped_column(String(20), default='student')
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class AuthSessionRow(Base):
+    __tablename__ = 'auth_sessions'
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), index=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+    expires_at: Mapped[dt.datetime] = mapped_column(DateTime)
+    revoked_at: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)

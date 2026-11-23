@@ -84,7 +84,7 @@ class RelocationTests(unittest.TestCase):
         (candidate/'progress.json').write_text(json.dumps({'state':'candidate_complete','chapters':{str(i):{'complete':True} for i in range(1,12)}}))
         (candidate/'index_files.json').write_text(json.dumps({'core':'sha'}))
         backend=LightRagBackend(candidate,authorized_course_ids={'experimental-psychology-3'},allow_candidate=True,source_root=local)
-        with patch('knowledge.lightrag.retrieval.verify') as frozen,patch('knowledge.lightrag.retrieval.verify_active') as verify,patch('knowledge.lightrag.ingress._contained_regular_file',return_value=candidate/'core'),patch('knowledge.lightrag.retrieval.digest',return_value='sha'):
+        with patch('knowledge.lightrag.retrieval.verify') as frozen,patch('knowledge.lightrag.retrieval.verify_active') as verify,patch('knowledge.lightrag.ingress._contained_regular_file',return_value=candidate/'core'),patch('knowledge.lightrag.retrieval.digest',return_value='sha'),patch('knowledge.lightrag.storage.verify_manifest',return_value={}):
             self.assertEqual(backend.validate('experimental-psychology-3'),manifest)
             self.assertEqual(verify.call_args_list[-1].args[0],local)
             frozen.assert_called_once_with(candidate/'input',manifest['files'])

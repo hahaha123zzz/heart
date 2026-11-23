@@ -5,6 +5,7 @@ from xml.etree import ElementTree as ET
 from scripts.parse_converted_textbook import NS,paragraph_text
 
 ROOT=Path(__file__).resolve().parents[1]
+from tests.pg_support import temp_databases
 
 class FormulaTextTests(unittest.TestCase):
     def parse(self,body):
@@ -47,8 +48,8 @@ with patch('knowledge.psychology_retrieval.retrieve_hybrid',return_value=[]):
  assert any('每个区组的被试同质' in s.text for s in sources)
  assert any('每名被试随机接受一种处理水平' in s.text for s in sources)
 '''
-        with tempfile.TemporaryDirectory() as folder:
-            env=os.environ|{'TUTOR_COURSE':'experimental-psychology-3','DATABASE_URL':'sqlite:///'+str(Path(folder)/'test.db')}
+        with temp_databases() as pg:
+            env=os.environ|pg|{'TUTOR_COURSE':'experimental-psychology-3'}
             result=subprocess.run([sys.executable,'-X','utf8','-c',script],cwd=ROOT,env=env,capture_output=True,text=True,encoding='utf-8',timeout=30)
             self.assertEqual(result.returncode,0,result.stdout+'\n'+result.stderr)
 

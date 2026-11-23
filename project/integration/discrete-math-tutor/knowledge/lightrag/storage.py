@@ -22,6 +22,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import json
 import logging
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -67,33 +68,132 @@ def _store_root(root_dir: Path) -> Path:
     return candidate if candidate.is_dir() else root
 
 
+def _workspace(root_dir: Path) -> str:
+    meta = _read_meta(Path(root_dir)) or {}
+    workspace = str(meta.get("workspace") or "").strip()
+    if workspace:
+        return workspace
+    from .engine import workspace_for
+
+    return workspace_for(Path(root_dir))
+
+
+def _pg_connect():
+    """LightRAG 文档状态所在库；只读就绪与错误摘要。"""
+    import psycopg
+
+    return psycopg.connect(
+        host=os.getenv("POSTGRES_HOST", "127.0.0.1"),
+        port=int(os.getenv("POSTGRES_PORT", "5432")),
+        user=os.getenv("POSTGRES_USER", ""),
+        password=os.getenv("POSTGRES_PASSWORD", ""),
+        dbname=os.getenv("POSTGRES_DATABASE", ""),
+        connect_timeout=10,
+    )
+
+
+MANIFEST_TABLE = "lightrag_index_manifest"
+INDEX_TABLES = (
+    "LIGHTRAG_DOC_FULL",
+    "LIGHTRAG_DOC_CHUNKS",
+    "LIGHTRAG_FULL_ENTITIES",
+    "LIGHTRAG_FULL_RELATIONS",
+    "LIGHTRAG_ENTITY_CHUNKS",
+    "LIGHTRAG_RELATION_CHUNKS",
+    "LIGHTRAG_LLM_CACHE",
+    "LIGHTRAG_DOC_STATUS",
+    "LIGHTRAG_VDB_CHUNKS",
+    "LIGHTRAG_VDB_ENTITY",
+    "LIGHTRAG_VDB_RELATION",
+)
+
+
+def _ensure_manifest_table(conn) -> None:
+    conn.execute(
+        f"CREATE TABLE IF NOT EXISTS {MANIFEST_TABLE} ("
+        "workspace TEXT NOT NULL, namespace TEXT NOT NULL, row_count BIGINT NOT NULL, "
+        "id_sha256 TEXT NOT NULL, source_signature TEXT NOT NULL DEFAULT '', "
+        "imported_at TIMESTAMPTZ NOT NULL DEFAULT now(), PRIMARY KEY (workspace, namespace))"
+    )
+
+
+def table_fingerprint(conn, workspace: str, namespace: str) -> dict[str, Any]:
+    if namespace not in INDEX_TABLES:
+        raise ValueError(f"未知的 LightRAG 索引表: {namespace}")
+    row = conn.execute(
+        f"SELECT count(*), encode(sha256(convert_to(coalesce(string_agg(id, '|' ORDER BY id), ''), 'UTF8')), 'hex') "
+        f"FROM {namespace} WHERE workspace = %s",
+        (workspace,),
+    ).fetchone()
+    return {"row_count": int(row[0]), "id_sha256": str(row[1] or "")}
+
+
+def write_manifest(root_dir: Path, entries: dict[str, dict[str, Any]], *, source_signature: str) -> None:
+    workspace = _workspace(Path(root_dir))
+    with _pg_connect() as conn:
+        _ensure_manifest_table(conn)
+        for namespace, entry in entries.items():
+            if namespace not in INDEX_TABLES:
+                raise ValueError(f"未知的 LightRAG 索引表: {namespace}")
+            conn.execute(
+                f"INSERT INTO {MANIFEST_TABLE} (workspace, namespace, row_count, id_sha256, source_signature) "
+                "VALUES (%s, %s, %s, %s, %s) "
+                "ON CONFLICT (workspace, namespace) DO UPDATE SET row_count = EXCLUDED.row_count, "
+                "id_sha256 = EXCLUDED.id_sha256, source_signature = EXCLUDED.source_signature, imported_at = now()",
+                (workspace, namespace, int(entry["row_count"]), str(entry["id_sha256"]), source_signature),
+            )
+
+
+def read_manifest(root_dir: Path) -> dict[str, dict[str, Any]]:
+    import psycopg
+
+    workspace = _workspace(Path(root_dir))
+    try:
+        with _pg_connect() as conn:
+            _ensure_manifest_table(conn)
+            rows = conn.execute(
+                f"SELECT namespace, row_count, id_sha256, source_signature FROM {MANIFEST_TABLE} WHERE workspace = %s",
+                (workspace,),
+            ).fetchall()
+    except psycopg.errors.UndefinedTable:
+        return {}
+    return {
+        row[0]: {"row_count": int(row[1]), "id_sha256": str(row[2]), "source_signature": str(row[3])}
+        for row in rows
+    }
+
+
+def verify_manifest(root_dir: Path, *, source_signature: str) -> dict[str, dict[str, Any]]:
+    entries = read_manifest(root_dir)
+    if not entries:
+        raise RuntimeError("候选索引缺少 PostgreSQL 清单")
+    workspace = _workspace(Path(root_dir))
+    with _pg_connect() as conn:
+        for namespace, entry in entries.items():
+            if entry["source_signature"] != source_signature:
+                raise RuntimeError("候选索引清单与源签名不一致")
+            current = table_fingerprint(conn, workspace, namespace)
+            if namespace == "LIGHTRAG_LLM_CACHE":
+                # 查询会写关键词/查询缓存；只要求不少于导入基线。
+                if current["row_count"] < entry["row_count"]:
+                    raise RuntimeError("候选索引 LLM 缓存行数减少")
+                continue
+            if current["row_count"] != entry["row_count"]:
+                raise RuntimeError(f"候选索引 {namespace} 行数变化")
+    return entries
+
+
 def has_output(root_dir: Path | None) -> bool:
     """True when LightRAG has at least one successfully indexed document."""
     if root_dir is None:
         return False
-    root = _store_root(Path(root_dir))
-    if not root.is_dir():
-        return False
-
-    status_signal = _doc_status_has_success(root)
-    if status_signal is not None:
-        return status_signal
-
-    for pattern in _OUTPUT_GLOBS:
-        for path in root.glob(pattern):
-            try:
-                if path.is_file() and path.stat().st_size > 2:
-                    return True
-            except OSError:
-                continue
-    return False
-
-
-def _doc_status_has_success(root_dir: Path) -> bool | None:
-    payload = _read_doc_status(root_dir)
+    payload = _read_doc_status(Path(root_dir))
     if not payload:
-        return None
+        return False
+    return bool(_doc_status_has_success(payload))
 
+
+def _doc_status_has_success(payload: dict[str, Any]) -> bool:
     saw_failure = False
     for item in payload.values():
         if not isinstance(item, dict):
@@ -151,16 +251,22 @@ def document_error(root_dir: Path | None, doc_id: str) -> str:
 
 
 def _read_doc_status(root_dir: Path) -> dict[str, Any] | None:
-    path = root_dir / _DOC_STATUS_FILENAME
-    if not path.exists():
-        return None
+    workspace = _workspace(root_dir)
     try:
-        with open(path, encoding="utf-8") as handle:
-            payload = json.load(handle)
-        return payload if isinstance(payload, dict) else None
-    except Exception as exc:
-        logger.warning("Failed to read LightRAG doc status %s: %s", path, exc)
+        import psycopg
+
+        with _pg_connect() as conn:
+            rows = conn.execute(
+                "SELECT id, status, chunks_list, error_msg, file_path, content_summary, chunks_count "
+                "FROM lightrag_doc_status WHERE workspace = %s",
+                (workspace,),
+            ).fetchall()
+    except psycopg.errors.UndefinedTable:
         return None
+    if not rows:
+        return None
+    keys = ("status", "chunks_list", "error_msg", "file_path", "content_summary", "chunks_count")
+    return {row[0]: dict(zip(keys, row[1:])) for row in rows}
 
 
 def has_any_doc_status(root_dir: Path | None) -> bool:

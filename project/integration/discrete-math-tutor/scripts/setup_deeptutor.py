@@ -8,6 +8,8 @@ import venv
 ROOT = Path(__file__).resolve().parents[1]
 VENDOR = ROOT.parents[1] / "vendor/DeepTutor"
 LOCK_NAME = f"requirements-deeptutor-{sys.platform}-py{sys.version_info[0]}{sys.version_info[1]}.lock.txt"
+# 教材检索在 worker 内按词法索引运行；向量模型留在宿主 GPU 环境，避免 CPU 推理拖慢回合。
+EXTRA: list[str] = []
 
 
 def main():
@@ -19,7 +21,7 @@ def main():
         venv.EnvBuilder(with_pip=True).create(env)
     lock = ROOT / LOCK_NAME
     requirements = ["-r", str(lock)] if lock.is_file() else ["-e", str(VENDOR)]
-    subprocess.run([str(python), "-m", "pip", "install", *requirements], check=True, cwd=ROOT)
+    subprocess.run([str(python), "-m", "pip", "install", *requirements, *EXTRA], check=True, cwd=ROOT)
 
 
 if __name__ == "__main__":

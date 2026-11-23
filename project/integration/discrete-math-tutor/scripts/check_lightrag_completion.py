@@ -1,31 +1,42 @@
 """只读核对全书实际存储、逐章数量和素材处理状态；不调用模型。"""
-import argparse,json,sys,xml.etree.ElementTree as ET
+import argparse,json,sys
 from collections import Counter
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 from knowledge.lightrag.retrieval import LightRagBackend
 from knowledge.lightrag.course_input import COURSE,verify
-from knowledge.lightrag.storage import _store_root
+from knowledge.lightrag import storage
 from knowledge.lightrag.file_io import atomic_write_json
+
+def _pg_rows(workspace):
+    with storage._pg_connect() as conn:
+        docs={row[0]:{"status":row[1],"chunks_list":row[2] or []} for row in conn.execute(
+            "SELECT id,status,chunks_list FROM lightrag_doc_status WHERE workspace=%s",(workspace,)).fetchall()}
+        chunks={row[0]:{"full_doc_id":row[1]} for row in conn.execute(
+            "SELECT id,full_doc_id FROM lightrag_doc_chunks WHERE workspace=%s",(workspace,)).fetchall()}
+        vectors={row[0] for row in conn.execute(
+            "SELECT id FROM lightrag_vdb_chunks WHERE workspace=%s",(workspace,)).fetchall()}
+        nodes=[set((row[0] or "").split("<SEP>")) for row in conn.execute(
+            "SELECT properties->>'source_id' FROM lightrag_graph_nodes WHERE workspace=%s",(workspace,)).fetchall()]
+        edges=[set((row[0] or "").split("<SEP>")) for row in conn.execute(
+            "SELECT properties->>'source_id' FROM lightrag_graph_edges WHERE workspace=%s",(workspace,)).fetchall()]
+    return docs,chunks,vectors,nodes,edges
 
 def check(candidate):
     candidate=Path(candidate).resolve(strict=True)
     def read(path):return json.loads(path.read_text(encoding="utf-8"))
-    state=read(candidate/"progress.json");root=_store_root(candidate/"index")
+    state=read(candidate/"progress.json")
     assert state["state"] in ("candidate_complete","partial_failed","failed","cancelled"),"运行中不核定最终存储"
     manifest=read(candidate/"input_manifest.json")
     verify(candidate/"input",manifest["files"]);verify(Path(manifest["source_root"]),manifest["files"])
     if state["state"]=="candidate_complete":
         LightRagBackend(candidate,authorized_course_ids={COURSE},allow_candidate=True).validate(COURSE)
-    docs=read(root/"kv_store_doc_status.json");chunks=read(root/"kv_store_text_chunks.json")
-    vectors={row["__id__"] for row in read(root/"vdb_chunks.json")["data"]}
-    graph=ET.parse(root/"graph_chunk_entity_relation.graphml").getroot()
-    ns={"g":"http://graphml.graphdrawing.org/xmlns"}
-    keys={e.attrib["id"]:e.attrib.get("attr.name") for e in graph.findall("g:key",ns)}
-    def sources(element):
-        return set(next((d.text or "" for d in element.findall("g:data",ns) if keys[d.attrib["key"]]=="source_id"),"").split("<SEP>"))
-    nodes=[sources(n) for n in graph.findall("g:graph/g:node",ns)]
-    edges=[sources(e) for e in graph.findall("g:graph/g:edge",ns)]
+    docs,chunks,vectors,nodes,edges=_pg_rows(storage._workspace(candidate/"index"))
     chapters=[];used=set();modalities=Counter()
     for chapter in range(1,12):
         entry=state["chapters"][str(chapter)];doc=docs[entry["doc_id"]]

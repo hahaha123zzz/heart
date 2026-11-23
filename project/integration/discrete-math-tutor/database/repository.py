@@ -399,6 +399,27 @@ class Repository(MemoryIndexRepository, StrategyMemoryRepository, MemoryJobRepos
             )
             return [{"role": r.role, "content": r.content} for r in reversed(rows)]
 
+    def get_conversation_for_context(self, student_id: str, *, session_id: str | None = None) -> list[dict]:
+        with session_scope() as session:
+            query = select(ConversationRow).where(ConversationRow.student_id == student_id)
+            if session_id is not None:
+                query = query.where(ConversationRow.session_id == session_id)
+            rows = session.scalars(query.order_by(ConversationRow.id)).all()
+            ids = [row.id for row in rows]
+            references = {row.conversation_id: row.reference for row in session.scalars(
+                select(PDFCitationRow).where(PDFCitationRow.conversation_id.in_(ids))).all()} if ids else {}
+            result = []
+            for row in rows:
+                item = {"id": row.id, "role": row.role, "content": row.content}
+                record = (references.get(row.id) or {}).get("_model_turn")
+                if row.role == "assistant" and record is not None:
+                    item["metadata"] = {"model_turn": record}
+                summary = (references.get(row.id) or {}).get("_context_summary")
+                if row.role == "assistant" and summary is not None:
+                    item.setdefault("metadata", {})["context_summary"] = summary
+                result.append(item)
+            return result
+
     def get_conversation_with_figures(self, student_id: str, limit: int = 40, session_id: str | None = None) -> list[dict]:
         with session_scope() as session:
             query = select(ConversationRow).where(ConversationRow.student_id == student_id)

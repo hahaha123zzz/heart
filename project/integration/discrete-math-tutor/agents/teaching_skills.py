@@ -88,6 +88,9 @@ def prepare_teaching_skills(llm, messages, *, context=None):
         if not loaded:
             schema['function']['parameters']['properties']['name']['enum'] = [GUIDE]
             schema['function']['parameters']['properties']['file']['enum'] = ['SKILL.md']
+        if context.unified is not None:
+            from agents.turn_context import record_request
+            record_request(context.unified, conversation, [schema], model=getattr(llm, "model", ""), max_tokens=1200)
         response = llm.chat_with_tools(conversation, [schema], temperature=.1,
             max_tokens=1200, timeout=90,
             tool_choice={'type': 'function', 'function': {'name': 'read_skill'}} if not loaded else 'auto')

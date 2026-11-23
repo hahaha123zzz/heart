@@ -81,11 +81,19 @@ async def memory_lifespan(app):
         # Finish SDK imports before readiness so cold starts do not consume a teaching turn's budget.
         await asyncio.to_thread(import_module, 'openai')
     worker=None
-    if os.getenv("MEMORY_WORKER_ENABLED","1")=="1":
+    from integrations.deeptutor.runtime_config import native_enabled
+    if not native_enabled() and os.getenv("MEMORY_WORKER_ENABLED","1")=="1":
         llm=app.state.memory_llm if os.getenv("MEMORY_REFLECTION_LLM","0")=="1" else None
         worker=MemoryWorker(app.state.memory.repo,llm)
         worker.start()
     app.state.memory_worker=worker
+    mem0_worker=None
+    if os.getenv("MEM0_ENABLED","0")=="1":
+        from memory.mem0_indexer import Mem0Indexer
+        from memory.mem0_store import Mem0Store
+        mem0_worker=Mem0Indexer(app.state.memory.repo,Mem0Store(enabled=True))
+        mem0_worker.start()
+    app.state.mem0_indexer=mem0_worker
     try:
         from knowledge.fixed_book import start
         await start()
@@ -96,8 +104,12 @@ async def memory_lifespan(app):
             await stop()
         finally:
             try:
-                if worker:
-                    await asyncio.to_thread(worker.stop)
+                if mem0_worker:
+                    await asyncio.to_thread(mem0_worker.stop)
             finally:
-                from llm.transport import close_pool
-                await asyncio.to_thread(close_pool)
+                try:
+                    if worker:
+                        await asyncio.to_thread(worker.stop)
+                finally:
+                    from llm.transport import close_pool
+                    await asyncio.to_thread(close_pool)

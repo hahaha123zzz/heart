@@ -199,12 +199,12 @@ async def build_book(source, base, *, retries=2, resume_candidate=None):
         try:
             await run_in_worker_loop(job)
             if state["state"]=="candidate_complete":
-                files={}
-                for path in storage._store_root(working).iterdir():
-                    if path.is_file() and (path.name.startswith("vdb_") or path.name in (
-                        "graph_chunk_entity_relation.graphml","kv_store_text_chunks.json","kv_store_doc_status.json","kv_store_full_docs.json")):
-                        files[path.relative_to(working).as_posix()]=digest(path)
-                atomic_write_json(candidate/"index_files.json",files)
+                from . import storage as _storage
+                workspace=_storage._workspace(working)
+                with _storage._pg_connect() as conn:
+                    entries={name:_storage.table_fingerprint(conn,workspace,name) for name in _storage.INDEX_TABLES}
+                atomic_write_json(candidate/"index_files.json",entries)
+                _storage.write_manifest(working,entries,source_signature=digest(candidate/"index_files.json"))
         except asyncio.CancelledError:
             state["state"]="cancelled";raise
         except BaseException as exc:

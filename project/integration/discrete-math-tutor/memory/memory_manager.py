@@ -70,7 +70,10 @@ class MemoryManager:
         return self.repo.list_learning_points(student_id)
 
     # ---- Conversation 记忆 -----------------------------------------
-    def get_history(self, student_id: str, limit: int = MAX_HISTORY, *, session_id: str | None = None) -> List[Dict[str, str]]:
+    def get_history(self, student_id: str, limit: int = MAX_HISTORY, *, session_id: str | None = None,
+                    for_context: bool = False) -> list[dict]:
+        if for_context:
+            return self.repo.get_conversation_for_context(student_id, session_id=session_id)
         return self.repo.get_conversation(student_id, limit, session_id=session_id)
 
     def append(
@@ -95,7 +98,8 @@ class MemoryManager:
             point = expected_point or (selection_ref or {}).get("section_title") or self.get_active_goal(student_id) or ""
             if expected_epoch is not None and self.repo.memory_epoch(student_id, point) != expected_epoch:
                 return False
-            self.append(student_id, "user", message, selection_ref=selection_ref, session_id=session_id)
+            public_reference = {key: value for key, value in (selection_ref or {}).items() if not key.startswith("_")}
+            self.append(student_id, "user", message, selection_ref=public_reference or None, session_id=session_id)
             return self.append(student_id, "assistant", reply, selection_ref=selection_ref, session_id=session_id)
 
     # ---- Learning 记忆 ---------------------------------------------

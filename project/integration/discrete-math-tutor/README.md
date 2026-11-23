@@ -20,7 +20,21 @@ Windows 双击 `3-start-api.bat`，或在本目录运行：
 
 正式教材和索引：`knowledge/courses/experimental-psychology-3/`。
 
-心理学学习库自动采用独立SQLite文件 `ai_tutor.experimental-psychology-3.db`。原学习数据库不覆盖、不清空，启动时不会因代码变化删除心理学测试账户；测试账户原有有效期规则仍生效。
+存储已迁到本机 PostgreSQL 18（`docs/postgres-setup.md`）：
+
+- `heart`：旧课程业务库（空库）。
+- `heart_psychology`：当前课程账本、记忆卡片与 mem0 向量。
+- `heart_rag`：LightRAG 的 11 张 `LIGHTRAG_*` 表（教材索引已导入：11 文档 / 1239 chunks）。
+
+旧业务数据不迁移；旧 SQLite 文件只作留档。记忆卡片写入 PG 后由后台线程异步同步到 mem0（`infer=False`，`MEM0_ENABLED=1`）；mem0 自己的变更历史保存在 `.runtime/mem0/history.sqlite`，可重建。
+
+测试只跑 PostgreSQL，先设置 `.env` 的 `TEST_POSTGRES_URL` 与 `TEST_POSTGRES_ADMIN_URL`，再运行：
+
+```powershell
+.venv-runtime/Scripts/python.exe -B -m pytest tests -q --basetemp=.runtime/pytest-tmp
+```
+
+验收脚本：`scripts/check_postgres_mem0.py`（库、pgvector、计数、mem0 增删查）与 `scripts/check_lightrag_pg_parity.py`（文件/PG 检索对照）。
 
 教材替换计划及验收详情见 `docs/原项目教材替换实施计划.md` 和 `docs/正式教材迁移实施记录.md`。旧教材资源和旧说明归档于 `artifacts/archive/discrete-math-20261015/`，不会经静态教材目录提供或进入当前检索；原库切换前备份位于 `artifacts/service-backups/before-psychology-cutover-20261015.sqlite`。
 
@@ -125,3 +139,29 @@ python scripts/start_deeptutor.py
 此前实验提供 `/internal/heart/native/start|status|events|reply|cancel`，直接委托 DeepTutorApp 与原生持久化回合。Q0已从 worker 撤下这组接口的注册，并移除示例启用项；设置旧环境变量也不会通过当前 worker 启动这些接口。实验实现及测试保留历史，不作为当前业务入口。
 
 当前仅完成 P1 私有运行时检查点，替身能力验证真实应用层的持久化、多轮上下文、澄清接续、取消、去重、并发隔离和无租约回收。新增原生正文写入 worker 私有 data/users，均为待核验产物；宿主归属/版本/删除/正式发布及页面尚未接通。不要据此开启学生入口或标记真实模型/RAG及质量验收完成。完整计划、契约与检查命令见 `project/docs/research/2026-10-19-deeptutor-conversation-flow/`。
+
+
+## UnifiedContext 完整上下文链路
+
+主聊天和文字选区使用 `agents/context_runtime/` 中迁入的原生上下文构建、模型历史重放、提示词组装和用量统计。任务入口、工具执行、暂停恢复与私有历史保存已接通；既有学生隔离、教材版本和发布核验保持生效。文件对照与边界见 [迁移清单](../../docs/research/2026-11-08-unified-context-migration/FILES.md)，验证见同目录 `VALIDATION.md`。
+
+## 服务器部署（ECS 47.98.136.122）
+
+在仓库根目录执行，需要 `paramiko` 和服务器 root 密码：
+
+```powershell
+$env:HEART_DEPLOY_PW='<服务器密码>'
+python project/integration/discrete-math-tutor/deploy/deploy_heart.py
+```
+
+脚本依次完成：打包当前工作区（排除虚拟环境、node_modules、日志、`.env`）→ SFTP 断点续传 → 解包到 `/opt/heart/app` → 幂等执行 `deploy/provision_heart.sh` → 写 `.env` → 重启 `heart-tutor` → 轮询 `/health`。重复执行只更新代码和配置，服务器上已有的 `.env` 不会被覆盖；`--skip-upload` 只刷新服务器配置，`--repack` 强制重新打包。
+
+- 访问：`http://47.98.136.122/`（Caddy 反代 `127.0.0.1:8000`，只匹配该 IP，不影响同机 `api.mnix.cn` 站点）。
+- 登录页：`/login`，账号 `admin` / 密码 `123456`，成功后在 `localStorage.tutor_session` 记一个标记并进入 `/`；`index.html` 头部在无标记时跳回 `/login`。只是前端入口遮蔽，不做服务端校验，接口本身仍是开放的（按需求如此），要真正鉴权需另加。背景动效复用 motion-prompt #095 流动渐变（MIT，出处注释保留在 `login.html`）。
+- 服务：`systemctl status|restart heart-tutor`，日志 `journalctl -u heart-tutor -f`。
+- 数据：`/opt/heart/app/ai_tutor.experimental-psychology-3.db` 与 `ai_tutor.db` 随包上传，之后服务器上的新增数据不会回传本机。
+- 2 核 2G 取舍：Python 3.12（deadsnakes）+ CPU embedding + 关闭重排模型（`RAG_RERANK_MODEL` 留空，实测加载占 1.2G 内存）、关闭本地 DeepTutor worker 与 LightRAG 固定教材；`provision_heart.sh` 额外加 2G swap。
+- 检索：服务器用 `Q3_RETRIEVAL_MODE=local_llamaindex`（依赖 `requirements-local-rag.txt`）。留空或写 `existing` 会退回 `stub` 检索器，回答将没有教材引用。实测单轮 13–17 秒、每轮 1–3 条教材引用；比较类问题比本机 LightRAG + 重排方案引用更少，回答会自行声明证据不足。要恢复本机效果，需上传 LightRAG candidate 索引并升配内存。
+- 教材：当前线上课程为 `TUTOR_COURSE=discrete-math`（离散数学十章），资源在 `knowledge/textbook_text/`、`knowledge/rag_index_v2.sqlite3`、`knowledge/pdf/`、`knowledge/imported_wordopenxml/`（章节正文从 Word 包解析，缺了会导致小节接口 500）、`frontend/textbook/`（阅读版/练习版 PDF + `manifest.json`，缺了阅读版目录接口 500、教材打不开）。这些文件原先归档在 `artifacts/archive/discrete-math-20261015/`，已同步回项目目录；改回心理学只需把 `.env` 的 `TUTOR_COURSE` 换成 `experimental-psychology-3` 并重启。
+- 换教材随附的两处通用修复：`knowledge/citation_index.py` 的块定位不再写死心理学 `chapters/*/document.json`，非心理学教材改为读取教材索引的块；`knowledge/course_release.py` 用发布文件 mtime 作缓存键，避免每张图都全书重哈希（否则读取章节会长时间卡住）。
+- 引用覆盖：引文卡片取决于模型是否在答案里输出 `[n]`，实测离散数学单轮约半数问题带引用（如「欧拉回路」命中第7章第14页原句），未输出的问题仍基于检索原文作答。

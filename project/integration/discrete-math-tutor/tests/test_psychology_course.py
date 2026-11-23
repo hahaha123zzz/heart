@@ -3,6 +3,7 @@ import hashlib,json,os,subprocess,sys,tempfile,unittest
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
+from tests.pg_support import temp_databases
 
 class PsychologyCourseIntegrationTests(unittest.TestCase):
     def test_original_course_and_pdf_interfaces_use_full_book(self):
@@ -70,10 +71,12 @@ try:
 except ValueError:pass
 print('PASS: 原教材接口11章37节、376页版本、全书索引、选区与旧引用隔离')
 '''
-        with tempfile.TemporaryDirectory() as temporary:
-            env=os.environ|{'TUTOR_COURSE':'experimental-psychology-3','DATABASE_URL':'sqlite:///'+str(Path(temporary)/'isolated.db')}
+        with temp_databases() as pg:
+            env=os.environ|pg|{'TUTOR_COURSE':'experimental-psychology-3'}
             result=subprocess.run([sys.executable,'-X','utf8','-c',script],cwd=ROOT,env=env,text=True,capture_output=True,encoding='utf-8',timeout=180)
             self.assertEqual(result.returncode,0,result.stdout+'\n'+result.stderr)
-            self.assertFalse((Path(temporary)/'isolated.db').exists(),'教材只读接口不应创建学生数据库')
+            import psycopg
+            with psycopg.connect(pg['COURSE_DATABASE_URL'].replace('postgresql+psycopg://','postgresql://')) as conn:
+                self.assertEqual(conn.execute('select count(*) from students').fetchone()[0],0,'教材只读接口不应写入学生数据')
 
 if __name__=='__main__':unittest.main()

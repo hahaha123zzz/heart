@@ -3,12 +3,16 @@ import json,os,tempfile,unittest,uuid,sys
 from pathlib import Path
 from unittest.mock import patch
 from agents.quality_checker import QualityResult
-_TMP=tempfile.TemporaryDirectory()
-os.environ['DATABASE_URL']='sqlite:///'+str(Path(_TMP.name)/'practice.db')
+from tests.pg_support import temp_databases
+_PG=temp_databases();_ENV=_PG.__enter__()
+import atexit
+atexit.register(lambda:_PG.__exit__(None,None,None))
+os.environ.update(_ENV)
 os.environ['LLM_MOCK']='1'
 if 'database.database' in sys.modules:
- from database.database import engine as initialized_engine
- if Path(initialized_engine.url.database).resolve()!=Path(_TMP.name,'practice.db').resolve():
+ from sqlalchemy.engine import make_url
+ from database.database import DATABASE_URL
+ if make_url(DATABASE_URL).database!=make_url(_ENV['COURSE_DATABASE_URL']).database:
   raise RuntimeError('练习测试必须在独立进程运行；数据库已初始化，禁止清理已有账户。')
 from fastapi.testclient import TestClient
 import main,practice_api as p

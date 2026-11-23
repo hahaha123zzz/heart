@@ -7,13 +7,19 @@ from collections import defaultdict
 import hashlib
 import json
 from pathlib import Path
-import xml.etree.ElementTree as ET
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from knowledge.lightrag.ingress import _contained_regular_file
+
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:
+    pass
 
 
 def digest(path: Path) -> str:
@@ -28,35 +34,37 @@ def parts(value: str) -> list[str]:
 class GraphView:
     def __init__(self, candidate: Path):
         self.root = candidate.resolve(strict=True)
-        manifest_path = self.file("index_files.json")
-        self.manifest = json.loads(manifest_path.read_text("utf-8"))
-        self.checked = {}
-        graph_paths = [p for p in self.manifest if p.endswith("/graph_chunk_entity_relation.graphml")]
-        if len(graph_paths) != 1:
-            raise ValueError("候选必须包含唯一图谱")
-        graph_path = graph_paths[0]
-        graph = ET.parse(self.index_file(graph_path)).getroot()
-        self.graph_hash = self.manifest[graph_path]
-        ns = {"g": "http://graphml.graphdrawing.org/xmlns"}
-        keys = {k.attrib["id"]: k.attrib["attr.name"] for k in graph.findall("g:key", ns)}
+        from knowledge.lightrag import storage
 
-        def data(element):
-            return {keys[d.attrib["key"]]: d.text or "" for d in element.findall("g:data", ns)}
-
-        self.nodes = {n.attrib["id"]: data(n) for n in graph.findall("g:graph/g:node", ns)}
+        self.workspace = storage._workspace(self.root / "index")
+        with storage._pg_connect() as conn:
+            node_rows = conn.execute(
+                "SELECT id, properties FROM lightrag_graph_nodes WHERE workspace = %s",
+                (self.workspace,),
+            ).fetchall()
+            edge_rows = conn.execute(
+                "SELECT src_id, tgt_id, properties FROM lightrag_graph_edges WHERE workspace = %s",
+                (self.workspace,),
+            ).fetchall()
+            chunk_rows = conn.execute(
+                "SELECT id, content, file_path FROM lightrag_doc_chunks WHERE workspace = %s",
+                (self.workspace,),
+            ).fetchall()
+        self.nodes = {node_id: dict(properties or {}) for node_id, properties in node_rows}
         self.edges = []
         self.adj = defaultdict(list)
-        for edge in graph.findall("g:graph/g:edge", ns):
-            a, b = edge.attrib["source"], edge.attrib["target"]
-            if a not in self.nodes or b not in self.nodes:
-                raise ValueError("图谱包含不存在的端点")
+        for source, target, properties in edge_rows:
             idx = len(self.edges)
-            self.edges.append({**data(edge), "source": a, "target": b})
-            self.adj[a].append(idx)
-            if a != b:
-                self.adj[b].append(idx)
-        chunk_path = str(Path(graph_path).parent / "kv_store_text_chunks.json").replace("\\", "/")
-        self.chunks = json.loads(self.index_file(chunk_path).read_text("utf-8"))
+            self.edges.append({**(properties or {}), "source": source, "target": target})
+            self.adj[source].append(idx)
+            if source != target:
+                self.adj[target].append(idx)
+        self.chunks = {chunk_id: {"content": content or "", "file_path": file_path or ""}
+                       for chunk_id, content, file_path in chunk_rows}
+        self.checked = {}
+        self.graph_hash = hashlib.sha256(json.dumps(
+            [sorted(self.nodes), sorted((e["source"], e["target"]) for e in self.edges)],
+            ensure_ascii=False).encode()).hexdigest()
         self.pdfs = {}
         for entry in json.loads(self.file("input/pdf_manifest.json").read_text("utf-8")):
             chapter = int(entry["chapter_id"])
@@ -65,11 +73,6 @@ class GraphView:
 
     def file(self, relative: str) -> Path:
         return _contained_regular_file(self.root, self.root / relative, label="图谱浏览输入")
-
-    def index_file(self, relative: str) -> Path:
-        path = self.file("index/" + relative)
-        self.check(path, self.manifest[relative])
-        return path
 
     def check(self, path: Path, expected: str):
         stat = path.stat()

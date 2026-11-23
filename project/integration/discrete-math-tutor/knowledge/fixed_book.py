@@ -189,13 +189,13 @@ class FixedBookRuntime:
         storage.require_compatible_embedding(self.backend.candidate / 'index', embedding)
         self.roles = resolve_query_roles()
         self.model_binding = query_binding(self.policy, self.roles)
-        from knowledge.lightrag import engine
-        entity_file = self.backend.candidate / 'index' / engine.workspace_for(self.backend.candidate / 'index') / 'vdb_entities.json'
-        entities = json.loads(entity_file.read_text(encoding='utf8'))['data']
-        self.backend.entity_terms = tuple(sorted({e['entity_name'] for e in entities
-            if isinstance(e.get('entity_name'), str) and 2 <= len(e['entity_name']) <= 80}, key=lambda s:(-len(s), s)))
         self.backend.resident = ResidentGraph(self.backend, embedding, self.roles)
         await run_in_worker_loop(lambda _: self.backend.resident.start())
+        labels = await run_in_worker_loop(
+            lambda _: self.backend.resident.rag.chunk_entity_relation_graph.get_all_labels())
+        self.backend.entity_terms = tuple(sorted(
+            {name for name in labels if isinstance(name, str) and 2 <= len(name) <= 80},
+            key=lambda s: (-len(s), s)))
         self.ready = True
         try:
             # 快速路径同样预热，缓存签名从本次完整核验中取得。

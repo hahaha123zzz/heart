@@ -107,7 +107,11 @@ class NativeTeachingPromptTests(unittest.IsolatedAsyncioTestCase):
         await self.bridge.start(req)
         await self.finished(req)
         entry = self.bridge.entry(req)
-        self.assertEqual(entry['digest'], digest(req.model_dump(exclude={'teaching_preferences'})))
+        payload = req.receipt_payload()
+        # 旧客户端的收据只含这些字段；新增字段的默认值不得改变哈希。
+        self.assertEqual(set(payload), {'student_id','course_id','session_id','request_id','task_id',
+            'task_revision','memory_epoch','material_versions','course_title','content','capability'})
+        self.assertEqual(entry['digest'], digest(payload))
         self.assertEqual(json.loads(entry['teaching_style'])['mode'], 'auto')
 
     async def test_other_session_cannot_assemble_with_current_style(self):

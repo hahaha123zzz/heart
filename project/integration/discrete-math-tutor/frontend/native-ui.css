@@ -1,0 +1,42 @@
+/* 新能力沿用学习工作台的配色与表单规范；放在上游展示样式之后。 */
+.native-controls{margin:0 0 10px;padding:0;color:var(--text);font-size:12px;line-height:1.6}
+.native-controls>summary{width:fit-content;max-width:100%;padding:7px 10px;background:var(--sidebar);color:var(--muted);cursor:pointer;border-radius:6px}
+.native-controls>summary:hover,.native-controls[open]>summary{background:var(--selected);color:var(--accent)}
+.native-controls-body{margin-top:8px;padding:12px;border:1px solid var(--line);border-radius:8px;max-height:min(280px,30dvh,max(80px,calc(100dvh - 400px)));overflow:auto;scrollbar-width:thin;scroll-padding-block:12px;background:var(--surface)}
+.native-controls-body>select{width:100%}
+.native-controls :is(select,input:not([type=checkbox])){min-width:0;max-width:100%;min-height:36px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px}
+.native-controls :is(select,input:not([type=checkbox])):hover{border-color:var(--accent)}
+.native-controls input::placeholder{color:var(--muted)}
+.native-controls fieldset{min-width:0;margin:12px 0 0;padding:0;border:0;display:flex;flex-wrap:wrap;gap:6px 12px}
+.native-controls-body>fieldset:first-of-type{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:10px 12px}
+.native-controls-body>fieldset:first-of-type>label{display:flex;flex-direction:column;align-items:stretch;gap:4px;color:var(--muted);min-width:0}
+.native-controls legend{padding:0;margin-bottom:6px;color:var(--muted);font-size:11px}
+.native-controls label{display:inline-flex;align-items:center;gap:7px;min-width:0;min-height:32px;overflow-wrap:anywhere;cursor:pointer}
+.native-controls-body>fieldset:not(:first-of-type){display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:6px}
+.native-controls-body>fieldset:not(:first-of-type)>label{padding:7px 9px;border:1px solid var(--line);border-radius:6px;align-items:flex-start;background:var(--surface)}
+.native-controls-body>fieldset:not(:first-of-type)>label:hover{background:var(--sidebar)}
+.native-controls-body>fieldset>label:has(input:checked){background:var(--selected);border-color:var(--accent);color:var(--accent)}
+.native-controls-body>fieldset>label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.native-controls label>span{min-width:0;overflow-wrap:anywhere}
+.native-controls input[type=checkbox]{flex:0 0 auto;width:15px;height:15px;margin:3px 0 0;accent-color:var(--accent);cursor:pointer}
+.native-controls label:has(input:disabled){color:var(--muted);cursor:not-allowed}
+.native-controls input:disabled{opacity:.55;cursor:not-allowed}
+.native-controls-body>.secondary-button{margin-top:12px}
+.native-controls-body>[role=status]{margin:8px 0 0;color:var(--muted);font-size:11px;overflow-wrap:anywhere}
+.native-controls-body>[role=status]:empty{display:none}
+.native-viewer{--border:var(--line);--background:var(--surface);--card:var(--surface);--foreground:var(--text);--muted-foreground:var(--muted);min-width:0;max-width:100%;color:var(--text);font:inherit}
+.native-quiz-question{padding:14px 16px;margin:12px 0;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.native-quiz-question h3{margin:0 0 10px;color:var(--accent);font-size:13px;font-weight:600;line-height:1.6}
+.native-quiz-question p{margin:8px 0}
+.native-viewer>div:has(>audio,>video,>img){margin:12px 0;min-width:0}
+.native-viewer :is(audio,video,img){display:block;max-width:100%;margin:8px 0;border-radius:6px}
+.native-viewer audio{width:100%}
+.native-viewer a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}
+.native-viewer a:hover{color:var(--text)}
+.native-viewer :is(button,a):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:780px){
+ .native-controls :is(select,input:not([type=checkbox])){font-size:16px;min-height:40px}
+ .native-controls label{min-height:40px}
+ .native-controls-body>.secondary-button{min-height:40px}
+ .native-quiz-question{padding:12px}
+}
