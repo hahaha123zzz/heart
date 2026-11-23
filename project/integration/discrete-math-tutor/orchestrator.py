@@ -44,6 +44,7 @@ from knowledge.hybrid_retrieval import expand_section_context, retrieve_hybrid
 from knowledge.pdf_evidence import enrich_sources
 from knowledge.proof_units import expand_proof_sources
 from knowledge.query_understanding import understand as understand_query
+from knowledge.textbook_qa_contract import classify_question
 from knowledge.answer_release import decision as release_decision
 from memory.memory_manager import MemoryManager
 from knowledge.course_config import DEFAULT_GOAL,PSYCHOLOGY
@@ -197,6 +198,23 @@ class TutorOrchestrator:
                 "student_state": self.memory.get_state(student_id, active_point).model_dump(),
                 "step_advanced": False, "step_reason": "问题识别未完成",
                 "textbook_sources": [], "image_refs": [], "pdf_image_refs": [], "pdf_references": [],
+            }
+
+        # 教材问答边界先于普通教学流程：明确的新题、新计算和新证明不进入回答。
+        qa_contract = classify_question(message, has_context=bool(history))
+        if qa_contract.intent == "exercise_or_new_derivation":
+            save_exchange(qa_contract.reply)
+            return {
+                "reply": qa_contract.reply,
+                "answer_status": "out_of_scope",
+                "routing": routing.model_dump(),
+                "knowledge_point": active_point,
+                "student_state": self.memory.get_state(student_id, active_point).model_dump(),
+                "step_advanced": False,
+                "textbook_sources": [],
+                "image_refs": [],
+                "pdf_image_refs": [],
+                "pdf_references": [],
             }
 
         # 0.1) 非学习消息：不进教学流程（简短共情 + 轻推回学习，不强行拉回）

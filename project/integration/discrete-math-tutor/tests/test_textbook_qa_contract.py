@@ -30,6 +30,7 @@ class TextbookQAContractTests(unittest.TestCase):
         for question in (
             "请计算 37×48",
             "求证任意一棵树都至少有两个叶结点",
+            "证明这个结论",
             "给我出一道新题",
             "设计一个新算法解决这个问题",
         ):

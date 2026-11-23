@@ -25,7 +25,7 @@ class AnswerFlowTests(unittest.TestCase):
     def run_turn(self, tutor, message='请解释随机区组设计并引用教材'):
         source = TextbookChunk(source='教材.txt', section='随机区组设计', text='区组内随机分配处理', terms=frozenset())
         with ExitStack() as stack:
-            stack.enter_context(patch("knowledge.grounded_citations.settings",return_value=None))
+            stack.enter_context(patch("knowledge.grounded_citations.settings", return_value=None))
             stack.enter_context(patch('orchestrator.retrieve_course', return_value=[source]))
             stack.enter_context(patch('orchestrator.retrieve_figures', return_value=[]))
             stack.enter_context(patch('orchestrator.expand_proof_sources', return_value=([source], None)))
@@ -90,6 +90,15 @@ class AnswerFlowTests(unittest.TestCase):
         result = self.run_turn(tutor, '带我一步步学习随机区组设计')
         self.assertEqual(result['response_path'], 'tutoring')
         tutor.lesson_planner.create.assert_called_once()
+
+    def test_explicit_new_exercise_is_refused_before_retrieval(self):
+        tutor = self.tutor()
+        result = tutor.handle_turn('guard-test', '计算一下 1+1')
+        self.assertEqual(result['answer_status'], 'out_of_scope')
+        self.assertFalse(result['step_advanced'])
+        self.assertEqual(result['textbook_sources'], [])
+        tutor.context_sufficiency.check.assert_not_called()
+        tutor.response_generator.generate.assert_not_called()
 
     def test_rejected_draft_is_not_committed_as_a_success(self):
         tutor = self.tutor()
