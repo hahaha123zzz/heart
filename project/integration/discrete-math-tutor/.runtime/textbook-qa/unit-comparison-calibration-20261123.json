@@ -1,0 +1,856 @@
+{
+  "schema": "textbook-unit-comparison-v1",
+  "created_at": "2026-11-23T08:43:50.037352+08:00",
+  "split": "calibration",
+  "cases": 18,
+  "current": {
+    "section_hit": 0.5556,
+    "concept_coverage": 0.5556,
+    "condition_coverage": 0.6111,
+    "average_context_chars": 1911.1
+  },
+  "unit_retrieval": {
+    "section_hit": 1.0,
+    "concept_coverage": 0.8889,
+    "condition_coverage": 0.9444,
+    "average_context_chars": 1344.0
+  },
+  "rows": [
+    {
+      "id": "tq01",
+      "question": "若两个集合互换成员后仍拥有相同成员，它们在集合论中是否算同一个集合？",
+      "section": "外延性公理与子集合",
+      "current_section_hit": false,
+      "unit_section_hit": true,
+      "current_concept_hit": true,
+      "unit_concept_hit": true,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 2387,
+      "unit_chars": 398,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "1.3.1集合的归纳定义",
+          "id": "ch1-s9-p0-w3"
+        },
+        {
+          "kind": "text",
+          "section": "1.2.3集合的笛卡儿积",
+          "id": "ch1-s8-p0-w8"
+        },
+        {
+          "kind": "text",
+          "section": "1.1.1集合及其元素",
+          "id": "ch1-s2-p0-w0"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "context",
+          "section": "1.1.3  外延性公理与子集合",
+          "id": "ch1-s4-context"
+        },
+        {
+          "kind": "example",
+          "section": "1.1.3  外延性公理与子集合",
+          "id": "ch1-s4-example-例1.4"
+        },
+        {
+          "kind": "example",
+          "section": "1.1.3  外延性公理与子集合",
+          "id": "ch1-s4-example-例1.5"
+        }
+      ]
+    },
+    {
+      "id": "tq02",
+      "question": "除了把元素列出，还能用何种方式概括一个集合？",
+      "section": "集合的表示",
+      "current_section_hit": true,
+      "unit_section_hit": true,
+      "current_concept_hit": false,
+      "unit_concept_hit": false,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 3018,
+      "unit_chars": 1836,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "1.1.1集合及其元素",
+          "id": "ch1-s2-p0-w1"
+        },
+        {
+          "kind": "text",
+          "section": "1.1.2集合的表示",
+          "id": "ch1-s3-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "1.3.1集合的归纳定义",
+          "id": "ch1-s9-p0-w3"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "context",
+          "section": "1.1.2集合的表示",
+          "id": "ch1-s3-context"
+        },
+        {
+          "kind": "example",
+          "section": "1.1.1集合及其元素",
+          "id": "ch1-s2-example-例1.1"
+        },
+        {
+          "kind": "example",
+          "section": "1.3.1集合的归纳定义",
+          "id": "ch1-s9-example-例1.13"
+        }
+      ]
+    },
+    {
+      "id": "tq03",
+      "question": "A 中去掉与 B 共同元素后剩下的部分对应哪种基本运算？",
+      "section": "并、交、差、补运算",
+      "current_section_hit": false,
+      "unit_section_hit": true,
+      "current_concept_hit": false,
+      "unit_concept_hit": true,
+      "current_conditions_hit": false,
+      "unit_conditions_hit": true,
+      "current_chars": 1314,
+      "unit_chars": 578,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "9.1.2 关系的基本运算",
+          "id": "ch9-s3-p0-w8"
+        },
+        {
+          "kind": "text",
+          "section": "8.2.1 平面图的基本概念",
+          "id": "ch8-s4-p0-w1"
+        },
+        {
+          "kind": "text",
+          "section": "10.1.1函数的基本概念",
+          "id": "ch10-s3-p0-w2"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "definition",
+          "section": "1.2.1 并、交、差、补运算",
+          "id": "ch1-s6-definition-定义1.5"
+        },
+        {
+          "kind": "theorem",
+          "section": "9.1.2 关系的基本运算",
+          "id": "ch9-s3-theorem-定理9.5"
+        },
+        {
+          "kind": "theorem",
+          "section": "9.1.2 关系的基本运算",
+          "id": "ch9-s3-theorem-定理9.6"
+        }
+      ]
+    },
+    {
+      "id": "tq04",
+      "question": "一个集合所有可能子集汇合起来形成哪个对象？",
+      "section": "幂集运算和广义并、交运算",
+      "current_section_hit": false,
+      "unit_section_hit": true,
+      "current_concept_hit": false,
+      "unit_concept_hit": true,
+      "current_conditions_hit": false,
+      "unit_conditions_hit": true,
+      "current_chars": 2504,
+      "unit_chars": 603,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "1.1.3  外延性公理与子集合",
+          "id": "ch1-s4-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "1.1.1集合及其元素",
+          "id": "ch1-s2-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "1.3.1集合的归纳定义",
+          "id": "ch1-s9-p0-w3"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "definition",
+          "section": "1.2.2 幂集运算和广义并、交运算",
+          "id": "ch1-s7-definition-定义1.6"
+        },
+        {
+          "kind": "definition",
+          "section": "1.1.3  外延性公理与子集合",
+          "id": "ch1-s4-definition-定义1.3"
+        },
+        {
+          "kind": "example",
+          "section": "1.2.2 幂集运算和广义并、交运算",
+          "id": "ch1-s7-example-例1.7"
+        }
+      ]
+    },
+    {
+      "id": "tq05",
+      "question": "由两个集合分别取一个成员构成的有序组合全体称为什么？",
+      "section": "集合的笛卡儿积",
+      "current_section_hit": true,
+      "unit_section_hit": true,
+      "current_concept_hit": false,
+      "unit_concept_hit": false,
+      "current_conditions_hit": false,
+      "unit_conditions_hit": true,
+      "current_chars": 2331,
+      "unit_chars": 749,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "1.2.3集合的笛卡儿积",
+          "id": "ch1-s8-p0-w8"
+        },
+        {
+          "kind": "text",
+          "section": "1.3.1集合的归纳定义",
+          "id": "ch1-s9-p0-w3"
+        },
+        {
+          "kind": "text",
+          "section": "1.1.2集合的表示",
+          "id": "ch1-s3-p0-w0"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "definition",
+          "section": "1.2.3集合的笛卡儿积",
+          "id": "ch1-s8-definition-定义1.9"
+        },
+        {
+          "kind": "definition",
+          "section": "1.2.3集合的笛卡儿积",
+          "id": "ch1-s8-definition-定义1.10"
+        },
+        {
+          "kind": "definition",
+          "section": "1.2.3集合的笛卡儿积",
+          "id": "ch1-s8-definition-定义1.11"
+        }
+      ]
+    },
+    {
+      "id": "tq06",
+      "question": "递归定义集合的性质证明为何要同时处理基础元素和构造操作？",
+      "section": "结构归纳原理",
+      "current_section_hit": false,
+      "unit_section_hit": true,
+      "current_concept_hit": false,
+      "unit_concept_hit": true,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 1849,
+      "unit_chars": 1423,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "10.4.4  基数比较",
+          "id": "ch10-s11-p0-w3"
+        },
+        {
+          "kind": "text",
+          "section": "1.2.3集合的笛卡儿积",
+          "id": "ch1-s8-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "1.3.1集合的归纳定义",
+          "id": "ch1-s9-p0-w0"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "context",
+          "section": "2.1.1结构归纳原理",
+          "id": "ch2-s3-context"
+        },
+        {
+          "kind": "context",
+          "section": "2.1.2数学归纳原理",
+          "id": "ch2-s4-context"
+        },
+        {
+          "kind": "definition",
+          "section": "1.3.1集合的归纳定义",
+          "id": "ch1-s9-definition-定义1.13"
+        }
+      ]
+    },
+    {
+      "id": "tq07",
+      "question": "第一数学归纳法从前一项成立推进到后一项，依赖哪条假设？",
+      "section": "数学归纳原理",
+      "current_section_hit": true,
+      "unit_section_hit": true,
+      "current_concept_hit": true,
+      "unit_concept_hit": true,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 1917,
+      "unit_chars": 1828,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "2.1.2数学归纳原理",
+          "id": "ch2-s4-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "2.1.1结构归纳原理",
+          "id": "ch2-s3-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "2.1 归纳原理",
+          "id": "ch2-s2-p0-w0"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "example",
+          "section": "2.1.2数学归纳原理",
+          "id": "ch2-s4-example-例2.2"
+        },
+        {
+          "kind": "example",
+          "section": "2.1.2数学归纳原理",
+          "id": "ch2-s4-example-例2.8"
+        },
+        {
+          "kind": "context",
+          "section": "2.1.2数学归纳原理",
+          "id": "ch2-s4-context"
+        }
+      ]
+    },
+    {
+      "id": "tq08",
+      "question": "若完成任务的几类方案互斥，方案数应相加还是相乘？",
+      "section": "加法原理和乘法原理",
+      "current_section_hit": false,
+      "unit_section_hit": true,
+      "current_concept_hit": false,
+      "unit_concept_hit": true,
+      "current_conditions_hit": false,
+      "unit_conditions_hit": true,
+      "current_chars": 624,
+      "unit_chars": 1054,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "5.2.3  关于永真式的几个基本原理",
+          "id": "ch5-s8-p0-w5"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "context",
+          "section": "3.1.1 加法原理和乘法原理",
+          "id": "ch3-s3-context"
+        },
+        {
+          "kind": "example",
+          "section": "3.1.1 加法原理和乘法原理",
+          "id": "ch3-s3-example-例3.2"
+        },
+        {
+          "kind": "example",
+          "section": "3.1.1 加法原理和乘法原理",
+          "id": "ch3-s3-example-例3.1"
+        }
+      ]
+    },
+    {
+      "id": "tq09",
+      "question": "计算两个集合并集大小时，为什么不能直接相加？",
+      "section": "包含排斥原理",
+      "current_section_hit": false,
+      "unit_section_hit": true,
+      "current_concept_hit": false,
+      "unit_concept_hit": true,
+      "current_conditions_hit": false,
+      "unit_conditions_hit": false,
+      "current_chars": 1823,
+      "unit_chars": 2158,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "1.2.3集合的笛卡儿积",
+          "id": "ch1-s8-p0-w8"
+        },
+        {
+          "kind": "text",
+          "section": "1.1.3  外延性公理与子集合",
+          "id": "ch1-s4-p0-w4"
+        },
+        {
+          "kind": "text",
+          "section": "1.3.1集合的归纳定义",
+          "id": "ch1-s9-p0-w3"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "context",
+          "section": "3.1.2包含排斥原理",
+          "id": "ch3-s4-context"
+        },
+        {
+          "kind": "example",
+          "section": "3.1.2包含排斥原理",
+          "id": "ch3-s4-example-例3.3"
+        },
+        {
+          "kind": "theorem",
+          "section": "3.1.2包含排斥原理",
+          "id": "ch3-s4-theorem-定理3.4"
+        }
+      ]
+    },
+    {
+      "id": "tq10",
+      "question": "不考虑旋转后相同的圆桌位置，为什么圆排列数量比线排列少一个因子？",
+      "section": "排列的计数",
+      "current_section_hit": true,
+      "unit_section_hit": true,
+      "current_concept_hit": true,
+      "unit_concept_hit": true,
+      "current_conditions_hit": false,
+      "unit_conditions_hit": true,
+      "current_chars": 1870,
+      "unit_chars": 1268,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "3.3.1 重集的排列",
+          "id": "ch3-s8-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "3.2.1 排列的计数",
+          "id": "ch3-s5-p0-w1"
+        },
+        {
+          "kind": "text",
+          "section": "3.3.3禁位排列的计数",
+          "id": "ch3-s10-p0-w0"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "example",
+          "section": "3.2.1 排列的计数",
+          "id": "ch3-s5-example-例3.4"
+        },
+        {
+          "kind": "theorem",
+          "section": "3.2.1 排列的计数",
+          "id": "ch3-s5-theorem-定理3.6"
+        },
+        {
+          "kind": "example",
+          "section": "3.2.1 排列的计数",
+          "id": "ch3-s5-example-例3.5"
+        }
+      ]
+    },
+    {
+      "id": "tq11",
+      "question": "选取若干成员时不计先后次序，对应哪类计数？",
+      "section": "组合的计数",
+      "current_section_hit": true,
+      "unit_section_hit": true,
+      "current_concept_hit": true,
+      "unit_concept_hit": true,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 1773,
+      "unit_chars": 1414,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "3.3.3禁位排列的计数",
+          "id": "ch3-s10-p0-w4"
+        },
+        {
+          "kind": "text",
+          "section": "3.2.2 组合的计数",
+          "id": "ch3-s6-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "3.2.1 排列的计数",
+          "id": "ch3-s5-p0-w1"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "definition",
+          "section": "3.2.2 组合的计数",
+          "id": "ch3-s6-definition-定义3.2"
+        },
+        {
+          "kind": "example",
+          "section": "3.2.2 组合的计数",
+          "id": "ch3-s6-example-例3.6"
+        },
+        {
+          "kind": "context",
+          "section": "3.2.2 组合的计数",
+          "id": "ch3-s6-context"
+        }
+      ]
+    },
+    {
+      "id": "tq12",
+      "question": "两个原子命题至少一个为真时，析取命题的真值怎样确定？",
+      "section": "逻辑联结词",
+      "current_section_hit": true,
+      "unit_section_hit": true,
+      "current_concept_hit": true,
+      "unit_concept_hit": true,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 1358,
+      "unit_chars": 1784,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "4.1.2  逻辑联结词",
+          "id": "ch4-s3-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "5.2.1  谓词公式的真值规定",
+          "id": "ch5-s6-p0-w1"
+        },
+        {
+          "kind": "text",
+          "section": "4.1.1  命题",
+          "id": "ch4-s2-p0-w2"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "example",
+          "section": "4.1.2  逻辑联结词",
+          "id": "ch4-s3-example-例4.4"
+        },
+        {
+          "kind": "context",
+          "section": "4.1.2  逻辑联结词",
+          "id": "ch4-s3-context"
+        },
+        {
+          "kind": "definition",
+          "section": "4.4.2  主析取范式与主合取范式",
+          "id": "ch4-s11-definition-定义4.10"
+        }
+      ]
+    },
+    {
+      "id": "tq13",
+      "question": "双重否定后命题会回到原来的真值吗？",
+      "section": "逻辑等价式和逻辑蕴涵式",
+      "current_section_hit": true,
+      "unit_section_hit": true,
+      "current_concept_hit": true,
+      "unit_concept_hit": true,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 1884,
+      "unit_chars": 1271,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "4.1.2  逻辑联结词",
+          "id": "ch4-s3-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "5.2.1  谓词公式的真值规定",
+          "id": "ch5-s6-p0-w1"
+        },
+        {
+          "kind": "text",
+          "section": "4.2.2  逻辑等价式和逻辑蕴涵式",
+          "id": "ch4-s8-p0-w0"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "definition",
+          "section": "4.2.2  逻辑等价式和逻辑蕴涵式",
+          "id": "ch4-s8-definition-定义4.3"
+        },
+        {
+          "kind": "theorem",
+          "section": "4.2.2  逻辑等价式和逻辑蕴涵式",
+          "id": "ch4-s8-theorem-定理4.5"
+        },
+        {
+          "kind": "context",
+          "section": "4.2  逻辑等价式和逻辑蕴涵式",
+          "id": "ch4-s6-context"
+        }
+      ]
+    },
+    {
+      "id": "tq14",
+      "question": "一个公式在所有赋值下都真，它在教材里叫什么？",
+      "section": "重言式",
+      "current_section_hit": false,
+      "unit_section_hit": true,
+      "current_concept_hit": true,
+      "unit_concept_hit": true,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 1904,
+      "unit_chars": 1138,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "5.1.4  谓词公式及语句的形式化",
+          "id": "ch5-s5-p0-w5"
+        },
+        {
+          "kind": "text",
+          "section": "5.2.1  谓词公式的真值规定",
+          "id": "ch5-s6-p0-w1"
+        },
+        {
+          "kind": "text",
+          "section": "3.4.1 一个重要的递归关系",
+          "id": "ch3-s12-p0-w6"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "definition",
+          "section": "4.2.1  重言式",
+          "id": "ch4-s7-definition-定义4.2"
+        },
+        {
+          "kind": "definition",
+          "section": "4.2.2  逻辑等价式和逻辑蕴涵式",
+          "id": "ch4-s8-definition-定义4.3"
+        },
+        {
+          "kind": "context",
+          "section": "5.2.2  谓词演算永真式",
+          "id": "ch5-s7-context"
+        }
+      ]
+    },
+    {
+      "id": "tq15",
+      "question": "量词控制的那段公式范围在教材中有什么名称？",
+      "section": "量词及其辖域",
+      "current_section_hit": true,
+      "unit_section_hit": true,
+      "current_concept_hit": true,
+      "unit_concept_hit": true,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 1867,
+      "unit_chars": 2444,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "5.1.4  谓词公式及语句的形式化",
+          "id": "ch5-s5-p0-w3"
+        },
+        {
+          "kind": "text",
+          "section": "5.1.3  量词及其辖域",
+          "id": "ch5-s4-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "4.1.3  命题公式",
+          "id": "ch4-s4-p0-w0"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "context",
+          "section": "5.1.3  量词及其辖域",
+          "id": "ch5-s4-context"
+        },
+        {
+          "kind": "example",
+          "section": "5.1.3  量词及其辖域",
+          "id": "ch5-s4-example-例5.1"
+        },
+        {
+          "kind": "example",
+          "section": "5.1.4  谓词公式及语句的形式化",
+          "id": "ch5-s5-example-例5.4"
+        }
+      ]
+    },
+    {
+      "id": "tq16",
+      "question": "无向图的两个不同顶点之间有边时，邻接矩阵对应位置应满足什么关系？",
+      "section": "邻接矩阵",
+      "current_section_hit": true,
+      "unit_section_hit": true,
+      "current_concept_hit": true,
+      "unit_concept_hit": true,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 1886,
+      "unit_chars": 2665,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "7.4.1 邻接矩阵",
+          "id": "ch7-s10-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "9.2.2  等价关系与划分",
+          "id": "ch9-s8-p0-w1"
+        },
+        {
+          "kind": "text",
+          "section": "9.3.1  序关系和有序集",
+          "id": "ch9-s10-p0-w4"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "example",
+          "section": "7.4.1 邻接矩阵",
+          "id": "ch7-s10-example-例7.16"
+        },
+        {
+          "kind": "context",
+          "section": "7.4.1 邻接矩阵",
+          "id": "ch7-s10-context"
+        },
+        {
+          "kind": "theorem",
+          "section": "7.1.2  结点的度",
+          "id": "ch7-s3-theorem-定理7.1"
+        }
+      ]
+    },
+    {
+      "id": "tq17",
+      "question": "若图的所有边都横跨两个互不相交的顶点组，这是什么图？",
+      "section": "二分图的基本概念",
+      "current_section_hit": true,
+      "unit_section_hit": true,
+      "current_concept_hit": true,
+      "unit_concept_hit": true,
+      "current_conditions_hit": true,
+      "unit_conditions_hit": true,
+      "current_chars": 2180,
+      "unit_chars": 1195,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "8.2.1 平面图的基本概念",
+          "id": "ch8-s4-p0-w2"
+        },
+        {
+          "kind": "text",
+          "section": "8.1.1 二分图的基本概念",
+          "id": "ch8-s2-p0-w1"
+        },
+        {
+          "kind": "text",
+          "section": "8.3.2 生成树",
+          "id": "ch8-s8-p0-w2"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "definition",
+          "section": "8.1.1 二分图的基本概念",
+          "id": "ch8-s2-definition-定义8.1"
+        },
+        {
+          "kind": "theorem",
+          "section": "8.1.1 二分图的基本概念",
+          "id": "ch8-s2-theorem-定理8.1"
+        },
+        {
+          "kind": "definition",
+          "section": "8.1.2  匹配",
+          "id": "ch8-s3-definition-定义8.2"
+        }
+      ]
+    },
+    {
+      "id": "tq18",
+      "question": "从连通图中删去一些边后仍连通且无圈，得到的是哪类子图？",
+      "section": "生成树",
+      "current_section_hit": false,
+      "unit_section_hit": true,
+      "current_concept_hit": false,
+      "unit_concept_hit": true,
+      "current_conditions_hit": false,
+      "unit_conditions_hit": true,
+      "current_chars": 1911,
+      "unit_chars": 386,
+      "current_units": [
+        {
+          "kind": "text",
+          "section": "7.2.2  连通性",
+          "id": "ch7-s6-p0-w3"
+        },
+        {
+          "kind": "text",
+          "section": "7.1.3  子图、补图及图同构",
+          "id": "ch7-s4-p0-w0"
+        },
+        {
+          "kind": "text",
+          "section": "7.2.1  路径与回路",
+          "id": "ch7-s5-p0-w1"
+        }
+      ],
+      "unit_units": [
+        {
+          "kind": "theorem",
+          "section": "8.3.2 生成树",
+          "id": "ch8-s8-theorem-定理8.17"
+        },
+        {
+          "kind": "definition",
+          "section": "8.3.2 生成树",
+          "id": "ch8-s8-definition-定义8.10"
+        },
+        {
+          "kind": "theorem",
+          "section": "8.3.2 生成树",
+          "id": "ch8-s8-theorem-定理8.19"
+        }
+      ]
+    }
+  ]
+}

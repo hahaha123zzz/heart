@@ -1,14 +1,14 @@
 {"id":"tq01","split":"calibration","question":"若两个集合互换成员后仍拥有相同成员，它们在集合论中是否算同一个集合？","category":"definition","route":"answer","section":"外延性公理与子集合","concept":["外延","集合相等"],"required_groups":[["相同","一样"],["元素","成员"]]}
 {"id":"tq02","split":"calibration","question":"除了把元素列出，还能用何种方式概括一个集合？","category":"paraphrase","route":"answer","section":"集合的表示","concept":["集合表示","概括"],"required_groups":[["性质","条件"],["表示","概括"]]}
-{"id":"tq03","split":"calibration","question":"A 中去掉与 B 共同元素后剩下的部分对应哪种基本运算？","category":"definition","route":"answer","section":"并、交、差、补运算","concept":["差集","集合差"],"required_groups":[["差集","差运算","A-B"],["元素","属于"]]}
+{"id":"tq03","split":"calibration","question":"A 中去掉与 B 共同元素后剩下的部分对应哪种基本运算？","category":"definition","route":"answer","section":"并、交、差、补运算","concept":["差集","集合差"],"required_groups":[["差集","差运算","A-B"],["元素","属于","x"]]}
 {"id":"tq04","split":"calibration","question":"一个集合所有可能子集汇合起来形成哪个对象？","category":"definition","route":"answer","section":"幂集运算和广义并、交运算","concept":["幂集"],"required_groups":[["幂集"],["子集"]]}
 {"id":"tq05","split":"calibration","question":"由两个集合分别取一个成员构成的有序组合全体称为什么？","category":"definition","route":"answer","section":"集合的笛卡儿积","concept":["笛卡儿积","有序对"],"required_groups":[["笛卡儿积","笛卡尔积"],["有序对","序偶"]]}
 {"id":"tq06","split":"calibration","question":"递归定义集合的性质证明为何要同时处理基础元素和构造操作？","category":"theorem","route":"answer","section":"结构归纳原理","concept":["结构归纳"],"required_groups":[["归纳基础","基础条款"],["归纳推理","归纳条款","构造"]]}
 {"id":"tq07","split":"calibration","question":"第一数学归纳法从前一项成立推进到后一项，依赖哪条假设？","category":"theorem","route":"answer","section":"数学归纳原理","concept":["第一数学归纳","归纳假设"],"required_groups":[["归纳假设"],["前一步","P(k)","n=k"]]}
-{"id":"tq08","split":"calibration","question":"若完成任务的几类方案互斥，方案数应相加还是相乘？","category":"comparison","route":"answer","section":"加法原理和乘法原理","concept":["加法原理","乘法原理"],"required_groups":[["加法","相加"],["互斥","分类"]]}
+{"id":"tq08","split":"calibration","question":"若完成任务的几类方案互斥，方案数应相加还是相乘？","category":"comparison","route":"answer","section":"加法原理和乘法原理","concept":["加法原理","乘法原理"],"required_groups":[["加法","相加"],["互斥","两两不相交","分类"]]}
 {"id":"tq09","split":"calibration","question":"计算两个集合并集大小时，为什么不能直接相加？","category":"formula","route":"answer","section":"包含排斥原理","concept":["容斥原理","包含排斥"],"required_groups":[["交集","重复"],["减去","扣除"]]}
 {"id":"tq10","split":"calibration","question":"不考虑旋转后相同的圆桌位置，为什么圆排列数量比线排列少一个因子？","category":"formula","route":"answer","section":"排列的计数","concept":["圆排列"],"required_groups":[["圆排列"],["切断","除以","(n-1)!"]]}
-{"id":"tq11","split":"calibration","question":"选取若干成员时不计先后次序，对应哪类计数？","category":"definition","route":"answer","section":"组合的计数","concept":["组合"],"required_groups":[["组合"],["顺序","次序"]]}
+{"id":"tq11","split":"calibration","question":"选取若干成员时不计先后次序，对应哪类计数？","category":"definition","route":"answer","section":"组合的计数","concept":["组合"],"required_groups":[["组合"],["顺序","次序","有序排列"]]}
 {"id":"tq12","split":"calibration","question":"两个原子命题至少一个为真时，析取命题的真值怎样确定？","category":"formula","route":"answer","section":"逻辑联结词","concept":["析取","或"],"required_groups":[["析取","或"],["真","至少一个"]]}
 {"id":"tq13","split":"calibration","question":"双重否定后命题会回到原来的真值吗？","category":"theorem","route":"answer","section":"逻辑等价式和逻辑蕴涵式","concept":["双重否定律"],"required_groups":[["双重否定"],["真值","等价","相同"]]}
 {"id":"tq14","split":"calibration","question":"一个公式在所有赋值下都真，它在教材里叫什么？","category":"definition","route":"answer","section":"重言式","concept":["重言式","永真式"],"required_groups":[["重言式","永真式"],["所有","任意","赋值"]]}

@@ -7,6 +7,7 @@ import re
 import sqlite3
 import unicodedata
 from collections import Counter
+from contextlib import closing
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -118,10 +119,38 @@ def _focus(value: str) -> str:
 def _related_concepts(value: str) -> tuple[str, ...]:
     text = _normalize(value)
     concepts: list[str] = []
+    if ("集合" in text and re.search(r"互换.*成员|成员.*相同|元素.*相同|只.*成员", text)):
+        concepts.extend(("外延性公理", "集合相等"))
+    if re.search(r"去掉.*共同元素|A-B|A－B", text):
+        concepts.extend(("差集", "差运算"))
+    if re.search(r"所有.*子集.*(?:汇合|集合)|全部子集", text):
+        concepts.append("幂集")
     if "子集" in text and re.search(r"多少|几个|个数|总数|数量", text):
         concepts.append("幂集")
     if "矛盾式" in text and "真值" in text:
         concepts.append("重言式")
+    if re.search(r"递归.*定义", text) and re.search(r"基础|构造", text):
+        concepts.extend(("结构归纳", "归纳基础", "归纳推理"))
+    if re.search(r"方案.*互斥|几类方案|分类", text):
+        concepts.append("加法原理")
+    if re.search(
+        r"并.*(?:大小|元素个数|数量).*(?:相加|直接加)|"
+        r"(?:并|交叠).*(?:重复|重叠)",
+        text,
+    ):
+        concepts.extend(("包含排斥原理", "交集"))
+    if re.search(r"不计.*次序|不计.*顺序|先后次序", text):
+        concepts.extend(("组合", "组合的计数"))
+    if re.search(r"至少一个.*真|一个为真", text):
+        concepts.extend(("析取", "逻辑联结词"))
+    if "双重否定" in text:
+        concepts.extend(("双重否定律", "逻辑等价式"))
+    if re.search(r"所有赋值.*真|任意赋值.*真", text):
+        concepts.extend(("重言式", "永真式"))
+    if re.search(r"边.*横跨.*顶点组|两个.*顶点组.*边", text):
+        concepts.append("二分图")
+    if re.search(r"连通.*删去.*边.*无圈|连通.*无回路", text):
+        concepts.append("生成树")
     return tuple(dict.fromkeys(concepts))
 
 
@@ -158,7 +187,7 @@ def _number_depth(title: str) -> int:
 @lru_cache(maxsize=4)
 def _section_catalog(path_value: str, modified_ns: int) -> tuple[_SectionEntry, ...]:
     del modified_ns
-    with sqlite3.connect(path_value) as db:
+    with closing(sqlite3.connect(path_value)) as db:
         rows = db.execute(
             "SELECT DISTINCT chapter_id,section_id,section FROM chunks "
             "WHERE section_id IS NOT NULL ORDER BY chapter_id,section_id"

@@ -53,6 +53,8 @@ def structural_terms(query: str) -> list[str]:
         additions.append("第3章 3.1.1 加法原理和乘法原理")
     if re.search(r"[A-Za-z][A-Za-z0-9]*∧[A-Za-z]|合取", query):
         additions.append("第4章 4.1.2 逻辑联结词 合取")
+    if re.search(r"[A-Za-z][A-Za-z0-9]*∨[A-Za-z]|析取", query):
+        additions.append("第4章 4.1.2 逻辑联结词 析取")
     if re.search(r"命题.{0,8}否定|否定.{0,8}命题|否定.{0,8}真值", query):
         additions.append("第4章 4.1.2 逻辑联结词 否定 真值")
     if re.search(r"个体域|全称命题", query):

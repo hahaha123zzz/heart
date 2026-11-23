@@ -45,6 +45,17 @@ class QueryUnderstandingTests(unittest.TestCase):
         self.assertIn("组合的计数", result.candidates[0].title)
         self.assertNotIn("重集", result.candidates[0].title)
 
+    def test_new_expressions_bind_to_canonical_textbook_terms(self):
+        cases = {
+            "选取若干成员时不计先后次序，对应哪类计数？": "组合",
+            "一个公式在所有赋值下都真，它在教材里叫什么？": "重言式",
+            "若图的所有边都横跨两个互不相交的顶点组，这是什么图？": "二分图",
+            "连通图中删去一些边后仍连通且无圈，得到什么？": "生成树",
+        }
+        for question, concept in cases.items():
+            with self.subTest(question=question):
+                self.assertIn(concept, understand(question).related_concepts)
+
     def test_ambiguous_or_empty_question_requests_a_specific_object(self):
         result = understand("为什么会这样？")
         self.assertTrue(result.needs_clarification)
