@@ -100,6 +100,12 @@ class AnswerFlowTests(unittest.TestCase):
         tutor.context_sufficiency.check.assert_not_called()
         tutor.response_generator.generate.assert_not_called()
 
+    def test_direct_textbook_answer_uses_structured_response_budget(self):
+        tutor = self.tutor()
+        self.run_turn(tutor)
+        check_context = tutor.quality_checker.check.call_args.args[5]
+        self.assertEqual(check_context['reply_maximum_override'], 500)
+
     def test_rejected_draft_is_not_committed_as_a_success(self):
         tutor = self.tutor()
         tutor.response_generator.generate.side_effect = ['错误草稿', '仍然错误']

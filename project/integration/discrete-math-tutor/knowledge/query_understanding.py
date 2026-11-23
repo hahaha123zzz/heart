@@ -143,6 +143,10 @@ def _related_concepts(value: str) -> tuple[str, ...]:
         concepts.extend(("组合", "组合的计数"))
     if re.search(r"至少一个.*真|一个为真", text):
         concepts.extend(("析取", "逻辑联结词"))
+    if "析取子句" in text:
+        concepts.extend(("析取子句", "析取范式", "合取范式"))
+    if "合取子句" in text:
+        concepts.extend(("合取子句", "析取范式", "合取范式"))
     if "双重否定" in text:
         concepts.extend(("双重否定律", "逻辑等价式"))
     if re.search(r"所有赋值.*真|任意赋值.*真", text):

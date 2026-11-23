@@ -51,6 +51,7 @@ class QueryUnderstandingTests(unittest.TestCase):
             "一个公式在所有赋值下都真，它在教材里叫什么？": "重言式",
             "若图的所有边都横跨两个互不相交的顶点组，这是什么图？": "二分图",
             "连通图中删去一些边后仍连通且无圈，得到什么？": "生成树",
+            "析取子句是什么？": "析取范式",
         }
         for question, concept in cases.items():
             with self.subTest(question=question):

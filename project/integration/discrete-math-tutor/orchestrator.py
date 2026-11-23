@@ -571,6 +571,10 @@ class TutorOrchestrator:
             "recent_moves": (recent_moves + [move.instructional_move])[-3:],
             "stuck_count": stuck_count,
         }
+        if (direct_answer and move.instructional_move == "direct_explanation"
+                and plan.action == "explain"):
+            # 四段式教材回答需要容纳依据、关键条件和引用，不能用普通短回复上限误拒。
+            check_context["reply_maximum_override"] = 500
         if SIMPLIFY_PATTERN.search(message) and previous_reply:
             # 页面阅读位置仍是当前章节，但“没听懂/再简单点”指向上一轮解释；
             # 不能把本轮目标退回章节标题，否则会换题并误判为偏题。
