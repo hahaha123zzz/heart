@@ -759,8 +759,10 @@ class TaskService:
             if (result.get('answer_status') == 'answered'
                     and result.get('memory_commit', {}).get('status') == 'committed'
                     and context.course_navigation is None and not result.get('learning_interjection')):
-                from knowledge.course_navigation import bind_result
-                bound_navigation = bind_result(result)
+                from knowledge.course_config import PSYCHOLOGY
+                if PSYCHOLOGY:
+                    from knowledge.course_navigation import bind_result
+                    bound_navigation = bind_result(result)
                 if bound_navigation and bound_navigation.get('status') != 'ready':
                     bound_navigation = self._prefer_current_cursor(
                         bound_navigation,
