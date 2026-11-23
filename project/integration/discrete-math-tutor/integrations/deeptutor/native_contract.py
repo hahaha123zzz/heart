@@ -64,6 +64,10 @@ class NativeScopeRequest(BaseModel):
     session_id: Annotated[str, Field(min_length=1, max_length=64)]
 
 
+class NativeSessionLookup(NativeScopeRequest):
+    native_session_id: Identifier
+
+
 class MemoryOperation(BaseModel):
     model_config = ConfigDict(extra='forbid')
     action: Literal['overview', 'read', 'write', 'delete_entry'] = 'overview'

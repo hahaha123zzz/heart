@@ -285,13 +285,15 @@ class NativeTurnExecutor:
         from agents.agent_loop import LoopResult
         from agents.agent_loop_service import _publish_gate
         from agents.q3_navigation import LearningTarget
+        from knowledge.course_config import PSYCHOLOGY
         outcome = LoopResult(final_text=text, completed=True,
             sources=publication_sources(binding, state, task['context'].get('document_versions') or {}))
         target = LearningTarget("native:" + task["id"], task["knowledge_point"])
         from models.chat_request import ChatRequest
         original = ChatRequest.model_validate(task['payload'])
-        gate = _publish_gate(self.orchestrator, original, target, allow_model_knowledge=not bool(
-            original.selection or original.exercise_target or re.search(r"教材原文|原书怎么说|引用原文|具体研究结果", original.message)))
+        gate = _publish_gate(self.orchestrator, original, target, allow_model_knowledge=(
+            PSYCHOLOGY and not bool(original.selection or original.exercise_target
+                or re.search(r"教材原文|原书怎么说|引用原文|具体研究结果", original.message))))
         accepted, reason = gate(text, outcome)
         if not accepted:
             _, saved = self.repo.save(task=task, receipt_id=binding["receipt_id"], status="failed",

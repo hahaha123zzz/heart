@@ -23,11 +23,18 @@ def digest(value):
 
 def normalize_turn_options(options):
     """把旧课程库名与产品别名归一为唯一课程KB；其他KB保持原顺序。"""
-    from .course_rag_provider import canonical_names
-    from .product_surface import validate_options
-    validate_options(options)
+    try:
+        from .course_rag_provider import canonical_names
+    except ImportError:
+        canonical_names = None
+    try:
+        from .product_surface import validate_options
+    except ImportError:
+        validate_options = None
+    if validate_options is not None:
+        validate_options(options)
     names = options.get('knowledge_bases')
-    if names:
+    if names and canonical_names is not None:
         options['knowledge_bases'] = canonical_names(names)
     return options
 
@@ -230,8 +237,12 @@ class NativeTurnBridge:
             session_digest = digest([binding['user_id'], request.course_id, request.session_id])
             session_id = 'heart_native_' + session_digest
             with workspace_context(workspace_id):
-                from .course_rag_provider import register_course_sources
-                register_course_sources(course_id)
+                try:
+                    from .course_rag_provider import register_course_sources
+                except ImportError:
+                    register_course_sources = None
+                if register_course_sources is not None:
+                    register_course_sources(course_id)
                 store = get_session_store()
                 imported = 'imported_heart_' + session_digest
                 if await store.get_session(imported) is not None:
@@ -600,17 +611,19 @@ def install_native_bridge(app, sessions):
     @router.post('/artifact')
     async def artifact(payload: NativeArtifactRequest): return await bridge.artifact(payload)
 
-    from .native_learning_view import install as install_learning_view
-    install_learning_view(router, bridge)
-
-    from .native_learning_write import install as install_learning_write
-    install_learning_write(router, bridge)
-
-    from .legacy_migration import install as install_migration
-    install_migration(router, bridge)
-
-    from .native_practice import install as install_practice
-    install_practice(router, bridge)
+    # These routes are optional extensions in some packaged checkouts.  Their
+    # absence must not prevent the core native chat/evidence bridge from booting.
+    for module_name in (
+        'integrations.deeptutor.native_learning_view',
+        'integrations.deeptutor.native_learning_write',
+        'integrations.deeptutor.legacy_migration',
+        'integrations.deeptutor.native_practice',
+    ):
+        try:
+            module = __import__(module_name, fromlist=['install'])
+        except ImportError:
+            continue
+        module.install(router, bridge)
 
     # 旧测评命令已归档；新题卡使用原生LearningTurnAdapter。
 

@@ -6,7 +6,18 @@ import json
 
 def course_syllabus() -> list[dict]:
     """把教材章节转成原生 syllabus units；章节号保持宿主 id 以便对照。"""
-    from knowledge.course_config import PSYCHOLOGY_DIR
+    from knowledge.course_config import PSYCHOLOGY, PSYCHOLOGY_DIR
+
+    if not PSYCHOLOGY:
+        from knowledge.course import chapters
+        return [{
+            "id": f"chapter-{chapter['id']}",
+            "position": position,
+            "title": str(chapter.get("title") or f"第{chapter['id']}章").strip(),
+            "topics": [str(section.get("title")).strip()
+                       for section in chapter.get("sections", ())
+                       if str(section.get("title") or "").strip()],
+        } for position, chapter in enumerate(chapters(), 1)]
 
     path = PSYCHOLOGY_DIR / "manifest.json"
     if not path.is_file():
