@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import {
   getWorkspaceResources,
@@ -39,8 +38,8 @@ export function WorkspaceResourcePicker({
     }
   }, [workspaceId, attempt])
   const groups = [
-    { key: 'skills' as const, label: 'Skills', href: '/space/skills' },
-    { key: 'mcp' as const, label: 'MCP services', href: '/space/mcp' },
+    { key: 'skills' as const, label: 'Skills', href: '/settings/model' },
+    { key: 'mcp' as const, label: 'MCP services', href: '/settings/model' },
     { key: 'knowledge_bases' as const, label: 'Knowledge bases', href: '/knowledge-bases' },
   ]
   return (
@@ -69,7 +68,7 @@ export function WorkspaceResourcePicker({
           </button>
         </p>
       )}
-      {groups.map(({ key, label, href }) => {
+      {groups.map(({ key, label }) => {
         const selected = value[key]
         const items = catalog?.[key] ?? []
         const missing = (selected ?? []).filter(id => !items.some(item => item.id === id))
@@ -88,12 +87,6 @@ export function WorkspaceResourcePicker({
                 <option value="inherit">{t('Inherit available resources')}</option>
                 <option value="selected">{t('Only selected resources')}</option>
               </select>
-              <Link
-                className="text-xs underline underline-offset-2 text-[var(--muted-foreground)]"
-                href={href}
-              >
-                {t('Manage library')}
-              </Link>
             </div>
             {selected === null ? (
               <p className="mt-2 text-xs text-[var(--muted-foreground)]">

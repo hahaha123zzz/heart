@@ -1,5 +1,7 @@
 "use client";
 
+import {usePathname,useSearchParams} from "next/navigation";
+import {scopedUrl} from "@/lib/workspace-scope";
 import { BOOKS_HOME } from "@/lib/learning-routes";
 
 /**
@@ -145,7 +147,7 @@ interface SpaceCategoryDef {
 const SPACE_CATEGORIES: Record<string, SpaceCategoryDef> = {
   chat_history: {
     key: "chat_history",
-    href: "/space/chat-history",
+    href: "/chat",
     label: "Chat history",
     icon: History,
   },
@@ -163,13 +165,13 @@ const SPACE_CATEGORIES: Record<string, SpaceCategoryDef> = {
   },
   question_bank: {
     key: "question_bank",
-    href: "/space/questions",
+    href: "/learning/practice",
     label: "Question bank",
     icon: ClipboardList,
   },
   persona: {
     key: "persona",
-    href: "/space/personas",
+    href: "/settings/model",
     label: "Persona",
     icon: UserRound,
   },
@@ -205,6 +207,7 @@ export function ActivityBody({
   configSection?: ReactNode;
 }) {
   const { t } = useTranslation();
+  const currentPath=usePathname()||"/chat",currentQuery=useSearchParams();
   const { tools, knowledgeBases, space, attachments, artifacts } = activity;
   const { sessions, notebooks, books } = useResolvedTitles(activity, open);
 
@@ -267,7 +270,7 @@ export function ActivityBody({
         count={space.questionEntryIds.length}
       >
         {space.questionEntryIds.map((id) => (
-          <SpaceItemRow key={id} title={t("Question #{{n}}", { n: id })} />
+          <SpaceItemRow key={id} title={t("Question #{{n}}", { n: id })} href={scopedUrl("/learning/practice?"+new URLSearchParams({question:String(id),return_to:currentPath+"?"+currentQuery.toString()}))} />
         ))}
       </SpaceSubsection>,
     );
@@ -495,14 +498,16 @@ function SpaceSubsection({
 function SpaceItemRow({
   title,
   subtitle,
+  href,
 }: {
   title: string;
   subtitle?: string;
+  href?: string;
 }) {
   return (
     <li className="flex min-h-7 items-center gap-2 rounded-md px-2 py-1 text-[11.5px]">
       <span className="block min-w-0 flex-1 truncate font-medium text-[var(--foreground)]">
-        {title}
+        {href?<Link href={href} className="underline">{title}</Link>:title}
       </span>
       {subtitle ? (
         <span className="shrink-0 text-[10px] text-[var(--muted-foreground)]">

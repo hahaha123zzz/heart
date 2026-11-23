@@ -103,6 +103,10 @@ def _client_cache_key(
     loop: asyncio.AbstractEventLoop,
     disable_ssl_verify: bool,
 ) -> tuple[Any, ...]:
+    from deeptutor.multi_user.context import get_current_user_or_none
+
+    user = get_current_user_or_none()
+    owner_identity = user.id if user is not None and not user.is_admin else ""
     serialized_key = json.dumps(config.api_key or "", ensure_ascii=False, separators=(",", ":"))
     secret = hashlib.sha256(serialized_key.encode("utf-8")).hexdigest()[:16]
     headers = json.dumps(config.extra_headers or {}, sort_keys=True, separators=(",", ":"))
@@ -117,6 +121,7 @@ def _client_cache_key(
         config.wire_api,
         config.api_format,
         disable_ssl_verify,
+        owner_identity,
     )
 
 

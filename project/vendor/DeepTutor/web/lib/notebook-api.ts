@@ -585,9 +585,13 @@ export interface QuestionBankStats {
  * much is there.
  */
 export async function getQuestionBankStats(
-  courseId = "",
+  courseId = "",knowledgePointId="",masteryPathId="",
 ): Promise<QuestionBankStats> {
-  const query = courseId ? `?course_id=${encodeURIComponent(courseId)}` : "";
+  const params=new URLSearchParams();
+  if(courseId)params.set("course_id",courseId);
+  if(knowledgePointId)params.set("knowledge_point_id",knowledgePointId);
+  if(masteryPathId)params.set("mastery_path_id",masteryPathId);
+  const query=params.size?"?"+params.toString():"";
   const response = await apiFetch(
     apiUrl(`/api/question-notebook/stats${query}`),
     { cache: "no-store" },

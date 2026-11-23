@@ -19,7 +19,10 @@ import {
 export const READING_CAPABILITY = READING_WORKSPACE_MODE;
 export { READING_WORKSPACE_MODE };
 
+export interface ReadingSelectionPage { locator: number; quote: string; rects: Array<[number, number, number, number]>; }
+
 export interface ReadingTurnState {
+  selectionPages: ReadingSelectionPage[];
   workspaceId: string | null;
   materialId: string | null;
   materialRevision: number | null;
@@ -29,6 +32,7 @@ export interface ReadingTurnState {
 }
 
 const state: ReadingTurnState = {
+  selectionPages: [],
   workspaceId: null,
   materialId: null,
   materialRevision: null,
@@ -66,6 +70,7 @@ export function setReadingWorkspace(workspaceId: string | null): void {
     state.materialRevision = null;
     state.locator = 0;
     state.selection = "";
+    state.selectionPages = [];
     state.timeSeconds = null;
   }
 }
@@ -74,6 +79,9 @@ export function setReadingMaterial(
   materialId: string | null,
   materialRevision: number | null = null,
 ): void {
+  if (state.materialId !== materialId || state.materialRevision !== normalizeReadingMaterialRevision(materialRevision)) {
+    state.locator = 0; state.selection = ""; state.selectionPages = []; state.timeSeconds = null;
+  }
   state.materialId = materialId;
   state.materialRevision = materialId
     ? normalizeReadingMaterialRevision(materialRevision)
@@ -83,12 +91,14 @@ export function setReadingMaterial(
     // would tell the model the user is looking at a page of a closed file.
     state.locator = 0;
     state.selection = "";
+    state.selectionPages = [];
     state.timeSeconds = null;
   }
 }
 
 export function setReadingViewport(next: {
   locator?: number;
+  selectionPages?: ReadingSelectionPage[];
   selection?: string;
   timeSeconds?: number | null;
 }): void {
@@ -96,8 +106,11 @@ export function setReadingViewport(next: {
     state.locator = next.locator > 0 ? Math.floor(next.locator) : 0;
   }
   if (typeof next.selection === "string") {
+    if (next.selection !== state.selection) state.selectionPages = [];
     state.selection = next.selection;
+    if (!next.selection) state.selectionPages = [];
   }
+  if (next.selectionPages) state.selectionPages = next.selectionPages;
   if (next.timeSeconds === null) {
     state.timeSeconds = null;
   } else if (
@@ -135,6 +148,7 @@ export function readingTurnFields(
   reading_material_revision?: number;
   reading_viewport?: {
     locator?: number;
+    selection_pages?: ReadingSelectionPage[];
     selection?: string;
     time_seconds?: number;
   };
@@ -142,11 +156,12 @@ export function readingTurnFields(
   if (workspaceMode !== READING_WORKSPACE_MODE) return {};
   const viewport: {
     locator?: number;
+    selection_pages?: ReadingSelectionPage[];
     selection?: string;
     time_seconds?: number;
   } = {};
   if (state.locator > 0) viewport.locator = state.locator;
-  if (state.selection) viewport.selection = state.selection;
+  if (state.selection) { viewport.selection = state.selection; if (state.selectionPages.length) viewport.selection_pages = state.selectionPages; }
   if (state.timeSeconds !== null) viewport.time_seconds = state.timeSeconds;
   return {
     ...(state.workspaceId ? { reading_workspace_id: state.workspaceId } : {}),
@@ -161,6 +176,7 @@ export function readingTurnFields(
 /** Test seam: reset the cell between cases. */
 export function resetReadingTurnState(): void {
   state.workspaceId = null;
+  state.selectionPages = [];
   state.materialId = null;
   state.materialRevision = null;
   state.locator = 0;

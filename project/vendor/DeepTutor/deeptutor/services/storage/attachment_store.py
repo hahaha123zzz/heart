@@ -43,6 +43,15 @@ from deeptutor.services.path_service import get_path_service
 logger = logging.getLogger(__name__)
 
 
+_external_attachment_policy=None
+class AttachmentExpiredError(ValueError):
+    pass
+
+def set_external_attachment_policy(policy):
+    global _external_attachment_policy
+    _external_attachment_policy=policy
+
+
 _LEGACY_SUBPATH = ("workspace", "chat", "attachments")
 _VISIBLE_SUBPATH = ("chat", "attachments")
 # Public route prefix served by deeptutor.api.routers.attachments
@@ -153,13 +162,14 @@ class LocalDiskAttachmentStore:
         data: bytes,
         mime_type: str = "",
     ) -> str:
-        del mime_type  # not needed for local disk
         stored = self._stored_filename(attachment_id, filename)
         target = self._safe_join(session_id, stored)
         if target is None:
             raise ValueError(f"refusing to write attachment outside storage root: {stored!r}")
 
         loop = asyncio.get_running_loop()
+        if _external_attachment_policy is not None:
+            await asyncio.to_thread(_external_attachment_policy.uploaded,self,session_id,attachment_id,filename,data,mime_type)
         await loop.run_in_executor(None, self._write_sync, target, data)
 
         # The router uses the same _coerce_filename rules to look up the file,
@@ -191,6 +201,8 @@ class LocalDiskAttachmentStore:
                     pass
 
     async def delete_session(self, session_id: str) -> None:
+        if _external_attachment_policy is not None and await asyncio.to_thread(_external_attachment_policy.delete_session,self,session_id):
+            return
         loop = asyncio.get_running_loop()
         roots = (self._root, self._legacy_root) if self._legacy_root else (self._root,)
         for root in roots:
@@ -231,6 +243,8 @@ class LocalDiskAttachmentStore:
             logger.warning("failed to remove empty attachment dir %s: %s", session_dir, exc)
 
     def resolve_path(self, *, session_id: str, attachment_id: str, filename: str) -> Path | None:
+        if _external_attachment_policy is not None:
+            _external_attachment_policy.check(self,session_id,attachment_id,filename)
         stored = self._stored_filename(attachment_id, filename)
         target = self._safe_join(session_id, stored)
         if target is not None and target.is_file():

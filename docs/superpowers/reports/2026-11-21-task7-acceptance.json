@@ -1,0 +1,209 @@
+{
+  "task": 7,
+  "date": "2026-11-21",
+  "complete": true,
+  "python_tests": 30,
+  "component_tests": {
+    "files": 2,
+    "passed": 10
+  },
+  "typecheck_exit_code": 0,
+  "build_exit_code": 0,
+  "browser": {
+    "checks": [
+      "anonymous memory operations require authentication",
+      "no-Key preference management, source detail and cancelled deletion",
+      "two-account memory isolation and stable-ID deletion boundary",
+      "ordinary chat creates grounded self-report with evaluation disabled",
+      "delete persists across reload and old self-report replay",
+      "switch stops model memory reads and automatic writes; reopening does not backscan",
+      "PG memory read failure allows chat without memory and later recovery",
+      "quoted cases and third-party claims do not become personal facts",
+      "disabled memory still allows manual preference add and delete",
+      "search, 390px layout and native memory editor rejection",
+      "memory service read failure has retry and does not show stale cards"
+    ],
+    "failures": [],
+    "pageErrors": [],
+    "model": "local httpx.MockTransport; no external generation call"
+  },
+  "real_mem0": {
+    "real_mem0": true,
+    "storage": "temporary PostgreSQL pgvector",
+    "embedding": "cached local ONNX CPU",
+    "index_write": true,
+    "search": true,
+    "owner_isolation": true,
+    "delete_before_index_catches_up": true,
+    "index_delete": true
+  },
+  "no_external_generation": true,
+  "no_mastery_rows_created": true,
+  "production_source_files_matched": 950,
+  "provenance": {
+    "baseline_files": 3764,
+    "local_changes": 176,
+    "local_deletions": 101,
+    "task7": [
+      {
+        "path": "web/features/heart/StudentMemory.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/memory/MemoryCard.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/memory/MemoryCardActions.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/memory/MemoryEmptyState.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/memory/MemoryList.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/memory/types.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/student-memory.spec.tsx",
+        "action": "modify"
+      }
+    ],
+    "hash_errors": [],
+    "reverse_patch_check": true
+  },
+  "librechat": {
+    "source": "https://github.com/danny-avila/LibreChat",
+    "commit": "4700c44eb77c142b4f9f8b87476924f22890eb39",
+    "scope": "仅记忆卡片、列表、删除确认及必要空态；H hooks 和本项目弹窗替换上游 hooks，不引入管理权限、token、编辑或数据库",
+    "files": {
+      "LICENSE": "1ce5c9d51e5ab764b44142cd44d1e687f5bfe32f807c7221c14d061007309b97",
+      "client/src/components/SidePanel/Memories/MemoryCard.tsx": "1d0df8b5b3455fe63e4beb97c377427a514b501f71457a9f24f6d0169691f0ac",
+      "client/src/components/SidePanel/Memories/MemoryList.tsx": "a837526b5d6327daf0441c9aff718abdee09bbfc7cf8acb3d9cd95d15423ece6",
+      "client/src/components/SidePanel/Memories/MemoryCardActions.tsx": "20c0b3f5981d1f0c0282212c854d50c3f3a84caf9cafacc106ed14593b400b27",
+      "client/src/components/SidePanel/Memories/MemoryEmptyState.tsx": "a665dc66fc37812ef5f37535d32d76792d885ee03fd40a4d9c21859163978d3b",
+      "client/src/components/SidePanel/Memories/MemoryCreateDialog.tsx": "90cc04f7f00dcb61cb1dd9558576dc18c4449a835382ed5251b604e712f0b42a",
+      "client/src/components/SidePanel/Memories/address.ts": "4f191d6ce141c4b6ffabea481fe8a2548da2cf0eb0b41cc5371a2117ddfb7eb7"
+    },
+    "adapted_targets": {
+      "web/features/heart/memory/MemoryCard.tsx": "64198d1021f2b3500d95a5a84aa499aaa4356107dc16b04f002e8363d9dba2d0",
+      "web/features/heart/memory/MemoryCardActions.tsx": "81a492a8afce067c1fd6781fb271d45c1f32533b51e103a9f815214fab2149d5",
+      "web/features/heart/memory/MemoryEmptyState.tsx": "b3e1f575fa6595cdd5f650dc24f5f2ee0a1b0d1406815ed1607e544edaf57db0",
+      "web/features/heart/memory/MemoryList.tsx": "214fe05295787e7bec180f08edb9e94cbb137a6cec57f7a388cde587f27d77f9",
+      "web/features/heart/memory/types.ts": "99a1bded03269ffb0f1d4a45f93bce1cf7b4f785ca293bb70630ef94da3f2dee"
+    },
+    "host_data_hook": "web/features/heart/StudentMemory.tsx → /api/heart/memory → H PG",
+    "dialog_dependency": "DeepTutor components/ui/ConfirmDialog.tsx; 未复制 LibreChat 权限/编辑/管理依赖"
+  },
+  "host_source_hashes": [
+    {
+      "path": "integrations/deeptutor/student_memory.py",
+      "sha256": "aa37a3c66bda88d1c1c37f251750aa68b6c04c401e6cb0c07055a62390ab3bf8"
+    },
+    {
+      "path": "integrations/deeptutor/heart_memory_api.py",
+      "sha256": "a4f4a0a1e4f0697e7b9f4b57a90a9c34a5326b015437f677bce0fa99b7480e0b"
+    },
+    {
+      "path": "integrations/deeptutor/assessment_intake.py",
+      "sha256": "b14cae5ba59905365a4b63c495f498d792f157baf77d6c4170875cac4e77b2b6"
+    },
+    {
+      "path": "integrations/deeptutor/assessment_publication.py",
+      "sha256": "7ee325811d839a05d9dcb6dc62e34394d717273f268224093085cf08538be5b6"
+    },
+    {
+      "path": "database/models.py",
+      "sha256": "ae7434c12901f286715308712e213337a5e9d40a28b581431a2f36e217d1a2e7"
+    },
+    {
+      "path": "memory/mem0_indexer.py",
+      "sha256": "2b2a0cd8e73096d4db40a9c102d715b36e0e74e5b34a51a42c8b1870f343fceb"
+    },
+    {
+      "path": "memory/mem0_store.py",
+      "sha256": "8eb6d5e3e7015886c71f33ff7ae85a73bf26189b031e5311c8989edd7fd1c0d7"
+    },
+    {
+      "path": "tests/test_student_memory_bridge.py",
+      "sha256": "c2a05e4636403d725115a839a8579462b4b704e6e04d0c13c859d5bfb1d1fcc2"
+    },
+    {
+      "path": "memory/background_worker.py",
+      "sha256": "fbb128dee21c73c3341f8ede3244c41a107a7abba50e5ced0dc88a8c4aeff78e"
+    },
+    {
+      "path": "tests/test_native_memory_lifecycle.py",
+      "sha256": "ca1f2ddd3480efb04ab5f19b7f0c0daac79e88e0719025c88e074f2adf8ed2db"
+    }
+  ],
+  "limits": [
+    "仅有依据的评估观察和严格匹配目录的中文自述自动保存；不做自由文本推断",
+    "未运行全仓 Vitest",
+    "390px 为浏览器视口模拟",
+    "正式服务未切换，图片暂缓"
+  ],
+  "check_artifacts": [
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/browser-task7-results.json",
+      "sha256": "900c344cf9f482626ba4adbe28f635acefdef7c3734f3c13a46605891f32cd71"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/browser-task7.js",
+      "sha256": "e5cf10eb4b78cee5ad54d564388133fedb72a3623ae2497b8df85c2ebcf14a49"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/check_task7.py",
+      "sha256": "442aef9f96c5b483aab6cb40e75fdccb0b1b52de3a6253e385262974acb0301e"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/README.md",
+      "sha256": "d43ddfcaeac45984e99776b20d7006668fcfaaa97bd51b5c0bf63b3a8a2e0494"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/task7-browser.log",
+      "sha256": "c776438f552a90d67559ffbed4bcbf7b49a57a4c490c4587d40777a284d3e323"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/task7-build.log",
+      "sha256": "c587ab35e41f7956fa9c388a7d21409af9a7e754510a2fad3110bdc0be6e8c3d"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/task7-model-requests.json",
+      "sha256": "58866488b4af39bedece1720f2cb93702fe45eeebc03957f6089b49b3c83e419"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/task7-provenance.json",
+      "sha256": "0fa3001aefd33e84c842a3aa9dae98c2c2a97ec24255a427f41ef9edddaf0022"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/task7-provenance.log",
+      "sha256": "0752160be88f2acc06a259fb2a7059c66a8abe9e5fd597c977910b751f9e9544"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/task7-provenance.py",
+      "sha256": "6581e915b3444a82b373ca5f313884f73392cc2f3402c7f3acd4498ab0f56afc"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/task7-python-final.log",
+      "sha256": "e346cee9f19df006962a11f1f09b06d79a1df86dd5e963e25fdf38d09995ceba"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/task7-real-mem0.json",
+      "sha256": "13eb063f33b5e93d0fc38ad893d60b314f03149cac3b76767447933de5e2d58c"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/task7-typecheck.log",
+      "sha256": "2230e90d45b9c1814de2d3d7f36c69df8930ee83dc9b214ba7ced20e68f127a4"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task7-checks/task7-unit.log",
+      "sha256": "e75ee259c4ae762c1e4a4464d58914b19cf2e6c1323cfc3e1869374a80bb4fff"
+    }
+  ]
+}

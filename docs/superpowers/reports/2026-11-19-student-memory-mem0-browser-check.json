@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "checks": [
+    "自动学习线索可查看来源并删除，删除后辅导与刷新均不复活",
+    "无 Key 登录可添加偏好，刷新保留，辅导读取来自 H",
+    "关闭长期记忆后停止读取，刷新保持关闭",
+    "关闭期间可查看、手动添加和删除，删除刷新不复活",
+    "服务端搜索、来源详情及390px无横向溢出",
+    "重开只读取当前有效偏好，厂家旧记忆入口403",
+    "第二账号看不到也不能删除第一账号记忆"
+  ],
+  "pageErrors": [],
+  "mem0": {
+    "storage": "pgvector in temporary PostgreSQL",
+    "embedding": "local ONNX on CPU",
+    "index_write": true,
+    "search": true,
+    "other_owner_excluded": true,
+    "index_delete": true
+  },
+  "fixture": "One synthetic synchronized assessment event, passed through the real automatic memory writer; no external model call."
+}

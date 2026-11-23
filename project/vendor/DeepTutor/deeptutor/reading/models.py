@@ -234,6 +234,9 @@ class MaterialManifest:
     source_type: str = "upload"
     source_url: str = ""
     revision: int = 1
+    document_id: str = ""
+    version: str = ""
+    page_map: dict[str, int] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -255,6 +258,9 @@ class MaterialManifest:
             "source_type": self.source_type,
             "source_url": self.source_url,
             "revision": self.revision,
+            "document_id": self.document_id,
+            "version": self.version,
+            "page_map": self.page_map,
         }
 
     @classmethod
@@ -285,6 +291,9 @@ class MaterialManifest:
             source_type=str(data.get("source_type") or "upload"),
             source_url=str(data.get("source_url") or ""),
             revision=max(1, int(data.get("revision") or 1)),
+            document_id=str(data.get("document_id") or ""),
+            version=str(data.get("version") or ""),
+            page_map={str(k): int(v) for k, v in (data.get("page_map") or {}).items()},
         )
 
 

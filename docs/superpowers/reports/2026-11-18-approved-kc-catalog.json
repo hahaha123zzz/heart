@@ -1,0 +1,832 @@
+{
+  "schema": "kc-registry-full-v1",
+  "course_id": "experimental-psychology-3",
+  "status": "confirmed",
+  "note": "2026-11-18 用户确认先采用每个教材节一个知识点的 37 项第一版目录，后续再细分；不代表图谱实体映射已确认。",
+  "source_manifest_sha256": {
+    "frontmatter.docx": "f14d917117e6d720d28a01906bec4e45fbe2376c53f2f0a14be5e33ba77d23ac",
+    "textbook.docx": "f0ed04bd1d9c43d9771317aad532ed33720d5a2e2f01549ae5b2c9875507a31e"
+  },
+  "knowledge_components": [
+    {
+      "id": "kc-1-1",
+      "name": "实验心理学的研究对象",
+      "aliases": [
+        "实验心理学概论 实验心理学的研究对象",
+        "实验心理学概论"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 1,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_01/document.json",
+          "chapter_id": 1,
+          "section_id": 1,
+          "block_ids": [
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-1-2",
+      "name": "实验心理学的产生与发展",
+      "aliases": [
+        "实验心理学概论 实验心理学的产生与发展",
+        "实验心理学概论"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 1,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_01/document.json",
+          "chapter_id": 1,
+          "section_id": 2,
+          "block_ids": [
+            119
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-1-3",
+      "name": "心理学实验的程序",
+      "aliases": [
+        "实验心理学概论 心理学实验的程序",
+        "实验心理学概论"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 1,
+      "section_id": 3,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_01/document.json",
+          "chapter_id": 1,
+          "section_id": 3,
+          "block_ids": [
+            209
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-1-4",
+      "name": "心理学实验中的伦理问题",
+      "aliases": [
+        "实验心理学概论 心理学实验中的伦理问题",
+        "实验心理学概论"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 1,
+      "section_id": 4,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_01/document.json",
+          "chapter_id": 1,
+          "section_id": 4,
+          "block_ids": [
+            409
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-2-1",
+      "name": "变量概述",
+      "aliases": [
+        "心理学实验中的变量及其控制 变量概述",
+        "心理学实验中的变量及其控制"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 2,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_02/document.json",
+          "chapter_id": 2,
+          "section_id": 1,
+          "block_ids": [
+            561
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-2-2",
+      "name": "自变量及控制",
+      "aliases": [
+        "心理学实验中的变量及其控制 自变量及控制",
+        "心理学实验中的变量及其控制"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 2,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_02/document.json",
+          "chapter_id": 2,
+          "section_id": 2,
+          "block_ids": [
+            589
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-2-3",
+      "name": "因变量及控制",
+      "aliases": [
+        "心理学实验中的变量及其控制 因变量及控制",
+        "心理学实验中的变量及其控制"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 2,
+      "section_id": 3,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_02/document.json",
+          "chapter_id": 2,
+          "section_id": 3,
+          "block_ids": [
+            628
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-2-4",
+      "name": "额外变量及控制",
+      "aliases": [
+        "心理学实验中的变量及其控制 额外变量及控制",
+        "心理学实验中的变量及其控制"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 2,
+      "section_id": 4,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_02/document.json",
+          "chapter_id": 2,
+          "section_id": 4,
+          "block_ids": [
+            665
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-2-5",
+      "name": "实验的效度与信度",
+      "aliases": [
+        "心理学实验中的变量及其控制 实验的效度与信度",
+        "心理学实验中的变量及其控制"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 2,
+      "section_id": 5,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_02/document.json",
+          "chapter_id": 2,
+          "section_id": 5,
+          "block_ids": [
+            839
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-3-1",
+      "name": "相关设计",
+      "aliases": [
+        "相关设计和准实验设计",
+        "相关设计和准实验设计 相关设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 3,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_03/document.json",
+          "chapter_id": 3,
+          "section_id": 1,
+          "block_ids": [
+            984
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-3-2",
+      "name": "准实验设计",
+      "aliases": [
+        "相关设计和准实验设计",
+        "相关设计和准实验设计 准实验设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 3,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_03/document.json",
+          "chapter_id": 3,
+          "section_id": 2,
+          "block_ids": [
+            1207
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-4-1",
+      "name": "被试间设计概述",
+      "aliases": [
+        "被试间设计 被试间设计概述",
+        "被试间设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 4,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_04/document.json",
+          "chapter_id": 4,
+          "section_id": 1,
+          "block_ids": [
+            1509
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-4-2",
+      "name": "单自变量被试间设计",
+      "aliases": [
+        "被试间设计",
+        "被试间设计 单自变量被试间设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 4,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_04/document.json",
+          "chapter_id": 4,
+          "section_id": 2,
+          "block_ids": [
+            1551
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-4-3",
+      "name": "多自变量被试间设计",
+      "aliases": [
+        "被试间设计 多自变量被试间设计",
+        "被试间设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 4,
+      "section_id": 3,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_04/document.json",
+          "chapter_id": 4,
+          "section_id": 3,
+          "block_ids": [
+            1706
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-5-1",
+      "name": "被试内设计概述",
+      "aliases": [
+        "被试内设计和混合设计 被试内设计概述",
+        "被试内设计和混合设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 5,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_05/document.json",
+          "chapter_id": 5,
+          "section_id": 1,
+          "block_ids": [
+            1908
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-5-2",
+      "name": "单因素被试内设计",
+      "aliases": [
+        "被试内设计和混合设计",
+        "被试内设计和混合设计 单因素被试内设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 5,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_05/document.json",
+          "chapter_id": 5,
+          "section_id": 2,
+          "block_ids": [
+            1933
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-5-3",
+      "name": "多因素被试内设计",
+      "aliases": [
+        "被试内设计和混合设计",
+        "被试内设计和混合设计 多因素被试内设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 5,
+      "section_id": 3,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_05/document.json",
+          "chapter_id": 5,
+          "section_id": 3,
+          "block_ids": [
+            1995
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-5-4",
+      "name": "被试内设计的控制",
+      "aliases": [
+        "被试内设计和混合设计",
+        "被试内设计和混合设计 被试内设计的控制"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 5,
+      "section_id": 4,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_05/document.json",
+          "chapter_id": 5,
+          "section_id": 4,
+          "block_ids": [
+            2066
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-5-5",
+      "name": "混合设计",
+      "aliases": [
+        "被试内设计和混合设计",
+        "被试内设计和混合设计 混合设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 5,
+      "section_id": 5,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_05/document.json",
+          "chapter_id": 5,
+          "section_id": 5,
+          "block_ids": [
+            2163
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-6-1",
+      "name": "单被试设计概述",
+      "aliases": [
+        "单被试设计",
+        "单被试设计 单被试设计概述"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 6,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_06/document.json",
+          "chapter_id": 6,
+          "section_id": 1,
+          "block_ids": [
+            2290
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-6-2",
+      "name": "A-B-A设计",
+      "aliases": [
+        "单被试设计",
+        "单被试设计 A-B-A设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 6,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_06/document.json",
+          "chapter_id": 6,
+          "section_id": 2,
+          "block_ids": [
+            2360
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-6-3",
+      "name": "A-B设计",
+      "aliases": [
+        "单被试设计 A-B设计",
+        "单被试设计"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 6,
+      "section_id": 3,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_06/document.json",
+          "chapter_id": 6,
+          "section_id": 3,
+          "block_ids": [
+            2504
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-7-1",
+      "name": "感觉阈限的测量",
+      "aliases": [
+        "心理物理学方法 感觉阈限的测量",
+        "心理物理学方法"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 7,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_07/document.json",
+          "chapter_id": 7,
+          "section_id": 1,
+          "block_ids": [
+            2698
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-7-2",
+      "name": "心理量表法",
+      "aliases": [
+        "心理物理学方法 心理量表法",
+        "心理物理学方法"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 7,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_07/document.json",
+          "chapter_id": 7,
+          "section_id": 2,
+          "block_ids": [
+            2986
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-7-3",
+      "name": "信号检测论",
+      "aliases": [
+        "心理物理学方法 信号检测论",
+        "心理物理学方法"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 7,
+      "section_id": 3,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_07/document.json",
+          "chapter_id": 7,
+          "section_id": 3,
+          "block_ids": [
+            3092
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-8-1",
+      "name": "反应时概述",
+      "aliases": [
+        "反应时法",
+        "反应时法 反应时概述"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 8,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_08/document.json",
+          "chapter_id": 8,
+          "section_id": 1,
+          "block_ids": [
+            3265
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-8-2",
+      "name": "反应时的影响因素",
+      "aliases": [
+        "反应时法",
+        "反应时法 反应时的影响因素"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 8,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_08/document.json",
+          "chapter_id": 8,
+          "section_id": 2,
+          "block_ids": [
+            3329
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-8-3",
+      "name": "反应时研究方法的发展",
+      "aliases": [
+        "反应时法",
+        "反应时法 反应时研究方法的发展"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 8,
+      "section_id": 3,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_08/document.json",
+          "chapter_id": 8,
+          "section_id": 3,
+          "block_ids": [
+            3422
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-9-1",
+      "name": "注意研究中的基本问题",
+      "aliases": [
+        "注 意 注意研究中的基本问题",
+        "注 意"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 9,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_09/document.json",
+          "chapter_id": 9,
+          "section_id": 1,
+          "block_ids": [
+            3538
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-9-2",
+      "name": "注意的研究范式",
+      "aliases": [
+        "注 意 注意的研究范式",
+        "注 意"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 9,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_09/document.json",
+          "chapter_id": 9,
+          "section_id": 2,
+          "block_ids": [
+            3605
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-9-3",
+      "name": "注意研究中的经典实验",
+      "aliases": [
+        "注 意 注意研究中的经典实验",
+        "注 意"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 9,
+      "section_id": 3,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_09/document.json",
+          "chapter_id": 9,
+          "section_id": 3,
+          "block_ids": [
+            3698
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-10-1",
+      "name": "记忆的类型",
+      "aliases": [
+        "记 忆",
+        "记 忆 记忆的类型"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 10,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_10/document.json",
+          "chapter_id": 10,
+          "section_id": 1,
+          "block_ids": [
+            3789
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-10-2",
+      "name": "记忆实验中的变量",
+      "aliases": [
+        "记 忆 记忆实验中的变量",
+        "记 忆"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 10,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_10/document.json",
+          "chapter_id": 10,
+          "section_id": 2,
+          "block_ids": [
+            3859
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-10-3",
+      "name": "记忆实验研究中的注意事项",
+      "aliases": [
+        "记 忆",
+        "记 忆 记忆实验研究中的注意事项"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 10,
+      "section_id": 3,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_10/document.json",
+          "chapter_id": 10,
+          "section_id": 3,
+          "block_ids": [
+            3893
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-11-1",
+      "name": "阅读研究中的基本问题",
+      "aliases": [
+        "阅 读",
+        "阅 读 阅读研究中的基本问题"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 11,
+      "section_id": 1,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_11/document.json",
+          "chapter_id": 11,
+          "section_id": 1,
+          "block_ids": [
+            3945
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-11-2",
+      "name": "阅读的研究方法及实验范式",
+      "aliases": [
+        "阅 读 阅读的研究方法及实验范式",
+        "阅 读"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 11,
+      "section_id": 2,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_11/document.json",
+          "chapter_id": 11,
+          "section_id": 2,
+          "block_ids": [
+            3982
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kc-11-3",
+      "name": "阅读中的眼动和知觉过程",
+      "aliases": [
+        "阅 读 阅读中的眼动和知觉过程",
+        "阅 读"
+      ],
+      "observable": "",
+      "status": "confirmed",
+      "chapter_id": 11,
+      "section_id": 3,
+      "source_refs": [
+        {
+          "document": "chapters/chapter_11/document.json",
+          "chapter_id": 11,
+          "section_id": 3,
+          "block_ids": [
+            4056
+          ]
+        }
+      ]
+    }
+  ],
+  "confirmation": {
+    "date": "2026-11-18",
+    "scope": "37-section-level-knowledge-components",
+    "source_sha256": "8df6ac3ca4f2eee2b049eb3f7707e486c338d8870c6172d00c185c79a7c455b0",
+    "entity_mapping_confirmed": false
+  }
+}

@@ -26,7 +26,7 @@ to :mod:`deeptutor.runtime.agentic` and the shared tool-composition policy.
 from __future__ import annotations
 
 from collections.abc import Awaitable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import StrEnum
 import json
 import logging
@@ -1052,7 +1052,7 @@ class QuestionPipeline:
         client: Any,
     ) -> str | None:
         """Run one main-model LLM call that compresses ``tool_result`` into a
-        lossless summary. The summary is streamed live to the trace panel
+        concise summary. The summary is streamed live to the trace panel
         under a "Reflecting..." sub-trace node and returned to the caller,
         which then substitutes it for the raw result in the loop's message
         buffer.
@@ -1062,6 +1062,10 @@ class QuestionPipeline:
         """
         text = (tool_result or "").strip()
         if not text:
+            return None
+        from deeptutor.services.session.context_builder import count_tokens
+        # 原文已在摘要输出预算内时，保留证据，省去一次主模型重述。
+        if count_tokens(text) <= self.tool_summarizer_max_tokens:
             return None
 
         system_prompt = self._t("tool_summarizer.system")
@@ -2169,15 +2173,7 @@ class _ExploreLoopHost(_BaseLoopHost):
                 new_message["content"] = summary
             summarized.append(new_message)
 
-        return DispatchOutcome(
-            sources=outcome.sources,
-            tool_messages=summarized,
-            terminate=outcome.terminate,
-            terminate_payload=outcome.terminate_payload,
-            pause=outcome.pause,
-            pause_payload=outcome.pause_payload,
-            pause_tool_call_id=outcome.pause_tool_call_id,
-        )
+        return replace(outcome, tool_messages=summarized)
 
     def build_iteration_trace_meta(self, iteration: int) -> tuple[dict[str, Any], dict[str, Any]]:
         iter_call_id = new_call_id(f"quiz-explore-iter-{iteration}")

@@ -451,6 +451,18 @@
             "maxLength": 20000,
             "title": "Answer",
             "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
           }
         },
         "title": "AnswerRequest",
@@ -784,7 +796,7 @@
       "Body_admin_import_users_api_auth_users_import_post": {
         "properties": {
           "file": {
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "type": "string"
           }
@@ -805,7 +817,7 @@
           "files": {
             "default": [],
             "items": {
-              "format": "binary",
+              "contentMediaType": "application/octet-stream",
               "type": "string"
             },
             "title": "Files",
@@ -863,7 +875,7 @@
       "Body_import_docx_api_documents_import_docx_post": {
         "properties": {
           "file": {
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "type": "string"
           }
@@ -883,7 +895,7 @@
             "type": "string"
           },
           "file": {
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "type": "string"
           },
@@ -906,7 +918,7 @@
       "Body_import_visualizer_api_visualizers_import_post": {
         "properties": {
           "file": {
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "type": "string"
           }
@@ -920,8 +932,8 @@
       "Body_library_add": {
         "properties": {
           "file": {
+            "contentMediaType": "application/octet-stream",
             "description": "Raw file bytes",
-            "format": "binary",
             "title": "File",
             "type": "string"
           },
@@ -946,7 +958,7 @@
       "Body_preview_office_upload_api_file_preview_pdf_post": {
         "properties": {
           "file": {
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "type": "string"
           }
@@ -981,7 +993,7 @@
       "Body_speech_to_text_api_voice_stt_post": {
         "properties": {
           "file": {
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "type": "string"
           },
@@ -1006,7 +1018,7 @@
       "Body_upload_avatar_api_auth_profile_avatar_put": {
         "properties": {
           "file": {
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "type": "string"
           }
@@ -1025,7 +1037,7 @@
           },
           "files": {
             "items": {
-              "format": "binary",
+              "contentMediaType": "application/octet-stream",
               "type": "string"
             },
             "title": "Files",
@@ -1064,7 +1076,7 @@
       "Body_upload_material_api_reading_materials_post": {
         "properties": {
           "file": {
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "type": "string"
           }
@@ -6011,6 +6023,11 @@
             "title": "Created At",
             "type": "number"
           },
+          "document_id": {
+            "default": "",
+            "title": "Document Id",
+            "type": "string"
+          },
           "extractor": {
             "default": "",
             "title": "Extractor",
@@ -6046,6 +6063,13 @@
             "default": "",
             "title": "Outline Text",
             "type": "string"
+          },
+          "page_map": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Page Map",
+            "type": "object"
           },
           "render_mode": {
             "default": "text",
@@ -6094,6 +6118,11 @@
             },
             "title": "Unit Refs",
             "type": "array"
+          },
+          "version": {
+            "default": "",
+            "title": "Version",
+            "type": "string"
           }
         },
         "required": [
@@ -6136,6 +6165,11 @@
             "title": "Created At",
             "type": "number"
           },
+          "document_id": {
+            "default": "",
+            "title": "Document Id",
+            "type": "string"
+          },
           "extractor": {
             "default": "",
             "title": "Extractor",
@@ -6158,6 +6192,13 @@
             "default": "",
             "title": "Mime",
             "type": "string"
+          },
+          "page_map": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Page Map",
+            "type": "object"
           },
           "render_mode": {
             "default": "text",
@@ -6198,6 +6239,11 @@
           "unit_count": {
             "title": "Unit Count",
             "type": "integer"
+          },
+          "version": {
+            "default": "",
+            "title": "Version",
+            "type": "string"
           }
         },
         "required": [
@@ -8329,6 +8375,61 @@
         "title": "ReadingReference",
         "type": "object"
       },
+      "ReadingSelectionPage": {
+        "additionalProperties": false,
+        "description": "一页内的选区，坐标以阅读器显示的裁剪框归一化。",
+        "properties": {
+          "locator": {
+            "minimum": 1,
+            "title": "Locator",
+            "type": "integer"
+          },
+          "quote": {
+            "maxLength": 2000,
+            "title": "Quote",
+            "type": "string"
+          },
+          "rects": {
+            "items": {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            "maxItems": 128,
+            "title": "Rects",
+            "type": "array"
+          }
+        },
+        "required": [
+          "locator",
+          "quote",
+          "rects"
+        ],
+        "title": "ReadingSelectionPage",
+        "type": "object"
+      },
       "ReadingSessionCreateRequest": {
         "properties": {
           "active_material_id": {
@@ -8401,6 +8502,14 @@
             ],
             "default": null,
             "title": "Selection"
+          },
+          "selection_pages": {
+            "items": {
+              "$ref": "#/components/schemas/ReadingSelectionPage"
+            },
+            "maxItems": 40,
+            "title": "Selection Pages",
+            "type": "array"
           }
         },
         "title": "ReadingViewport",
@@ -8765,8 +8874,8 @@
           }
         },
         "required": [
-          "request_id",
           "version",
+          "request_id",
           "rating"
         ],
         "title": "ReviewRequest",
@@ -27457,6 +27566,30 @@
         "operationId": "overview_api_learning_journal_get",
         "parameters": [
           {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "maximum": 50,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
             "in": "header",
             "name": "Authorization",
             "required": false,
@@ -42413,6 +42546,26 @@
             }
           },
           {
+            "in": "query",
+            "name": "knowledge_point_id",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Knowledge Point Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "mastery_path_id",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Mastery Path Id",
+              "type": "string"
+            }
+          },
+          {
             "in": "header",
             "name": "Authorization",
             "required": false,
@@ -42997,6 +43150,26 @@
             }
           },
           {
+            "in": "query",
+            "name": "knowledge_point_id",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Knowledge Point Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "mastery_path_id",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Mastery Path Id",
+              "type": "string"
+            }
+          },
+          {
             "in": "header",
             "name": "Authorization",
             "required": false,
@@ -43096,6 +43269,26 @@
             }
           },
           {
+            "in": "query",
+            "name": "knowledge_point_id",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Knowledge Point Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "mastery_path_id",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Mastery Path Id",
+              "type": "string"
+            }
+          },
+          {
             "in": "header",
             "name": "Authorization",
             "required": false,
@@ -43168,6 +43361,26 @@
             "schema": {
               "default": "",
               "title": "Course Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "knowledge_point_id",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Knowledge Point Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "mastery_path_id",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Mastery Path Id",
               "type": "string"
             }
           },

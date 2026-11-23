@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { format } from "prettier";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -17,7 +17,7 @@ const outputs = [
     name: "api.ts",
     command: path.join(webRoot, "node_modules", "openapi-typescript", "bin", "cli.js"),
     args: [
-      path.join(schemaRoot, "openapi.json"),
+      pathToFileURL(path.join(schemaRoot, "openapi.json")).href,
       "--output",
       path.join(temporaryRoot, "api.ts"),
       "--alphabetize",

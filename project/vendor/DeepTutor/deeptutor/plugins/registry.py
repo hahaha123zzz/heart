@@ -595,6 +595,11 @@ def _now() -> str:
 
 
 def _manifest_files(dist: Distribution) -> list[tuple[Path, Any, str]]:
+    read_text = getattr(dist, "read_text", None)
+    record = read_text("RECORD") if callable(read_text) else None
+    # 普通依赖不展开数万条文件对象；每次仍读取清单，保留变更与旧安装格式发现。
+    if record and MANIFEST_FILENAME not in record.casefold():
+        return []
     files = dist.files or []
     results: list[tuple[Path, Any, str]] = []
     for item in files:

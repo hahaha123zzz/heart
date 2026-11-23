@@ -28,13 +28,28 @@ and a partner turn keeps inheriting the login of the human who owns it.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Callable
 
 from deeptutor.services.config.model_catalog import ModelCatalogService
 
 from .paths import get_owner_path_service
 
 _CODEX_MANAGED_BY = "openai_codex_oauth"
+
+
+_external_llm_profiles: Callable | None = None
+
+
+def set_external_llm_profiles(loader: Callable) -> None:
+    """安装宿主提供的请求内个人模型读取器；None 表示保留厂家行为。"""
+    global _external_llm_profiles
+    _external_llm_profiles = loader
+
+
+def external_llm_profiles() -> list[dict[str, Any]] | None:
+    from .context import get_current_user_or_none
+
+    return _external_llm_profiles(get_current_user_or_none()) if _external_llm_profiles else None
 
 
 def _codex_profile_is_current(profile: dict[str, Any]) -> bool:
@@ -69,6 +84,9 @@ def _personal_catalog_profiles() -> list[dict[str, Any]]:
     from .context import get_current_user_or_none
     from .model_access import is_owner_bound
 
+    external = external_llm_profiles()
+    if external is not None:
+        return external
     user = get_current_user_or_none()
     if user is None or user.is_admin:
         return []
@@ -140,6 +158,16 @@ def merge_personal_llm_profiles(catalog: dict[str, Any]) -> dict[str, Any]:
     may not include. The owner's own profile is the authority inside their
     own scope; the token is resolved per owner regardless.
     """
+    external = external_llm_profiles()
+    if external is not None:
+        if not external:
+            raise PermissionError("请先配置个人模型 Key")
+        profile = external[0]
+        services = dict(catalog.get("services") or {})
+        services["llm"] = {"profiles": external, "active_profile_id": profile["id"],
+                           "active_model_id": profile["models"][0]["id"]}
+        services["task"] = {"mode": "inherit"}
+        return {**catalog, "services": services}
     personal = _personal_catalog_profiles()
     if not personal:
         return catalog

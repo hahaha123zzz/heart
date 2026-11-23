@@ -305,6 +305,7 @@ export default function SimpleMarkdownRenderer({
         return <InlineFileCard name={attachmentName} fallback={children} />;
       }
       const isCitation = title === "citation";
+      const isReadingCitation = href?.startsWith("#dt-material-");
       const isHashLink = href?.startsWith("#");
       const external =
         href?.startsWith("http://") || href?.startsWith("https://");
@@ -312,6 +313,25 @@ export default function SimpleMarkdownRenderer({
       if (isCitation) {
         const label = extractText(children);
         const ids = label.split(/\s*,\s*/);
+        if (isReadingCitation) {
+          return (
+            <sup
+              className="reading-citation-markers"
+              {...props}
+            >
+              {ids.map((id, idx) => (
+                <a
+                  key={`${id}-${idx}`}
+                  href={href}
+                  aria-label={`教材引用 ${id}`}
+                  className="cursor-pointer rounded-sm px-[2px] font-medium text-[var(--primary)] no-underline hover:underline"
+                >
+                  {id}
+                </a>
+              ))}
+            </sup>
+          );
+        }
         const scrollToRef = (event: React.MouseEvent, id?: string) => {
           event.preventDefault();
           const target = findCitationAnchor(href, id);

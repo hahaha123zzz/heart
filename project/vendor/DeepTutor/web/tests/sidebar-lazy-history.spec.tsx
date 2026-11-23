@@ -68,19 +68,15 @@ it("loads conversation history while navigation remains usable, then preserves s
   );
   expect(container.querySelector('[aria-busy="true"]')).toBeInTheDocument();
   expect(screen.queryByRole("link", { name: "Co-Writer" })).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: /More/ }));
-  expect(screen.getByRole("link", { name: "Co-Writer" })).toHaveAttribute(
-    "href",
-    "/co-writer",
-  );
+  expect(screen.queryByRole("button", { name: /More/ })).toBeNull();
 
   const history = await screen.findByText("Retained session");
   const scroller = history.closest(".overflow-y-auto");
   expect(scroller).toContainElement(
-    screen.getByRole("link", { name: "Partners" }),
+    screen.getByRole("link", { name: "我的学习" }),
   );
   expect(scroller).not.toContainElement(
-    screen.getByRole("link", { name: "Home" }),
+    screen.getByRole("link", { name: "对话" }),
   );
   expect(scroller).not.toContainElement(
     screen.getByRole("link", { name: "Settings" }),
@@ -109,14 +105,14 @@ it("keeps Home pinned even when a previous layout folded it into More", () => {
   localStorage.setItem(
     "deeptutor.sidebar.navLayout",
     JSON.stringify({
-      order: ["/partners", "/chat", "/space"],
+      order: ["/learning", "/chat"],
       collapsed: ["/chat"],
     }),
   );
   render(<SidebarShell />);
-  expect(screen.getAllByRole("link", { name: "Home" })).toHaveLength(1);
-  expect(screen.queryByRole("button", { name: "Arrange Home" })).toBeNull();
-  fireEvent.click(screen.getByRole("link", { name: "Home" }));
+  expect(screen.getAllByRole("link", { name: "对话" })).toHaveLength(1);
+  expect(screen.queryByRole("button", { name: "Arrange 对话" })).toBeNull();
+  fireEvent.click(screen.getByRole("link", { name: "对话" }));
   expect(fixture.push).toHaveBeenCalledWith("/chat");
 });
 

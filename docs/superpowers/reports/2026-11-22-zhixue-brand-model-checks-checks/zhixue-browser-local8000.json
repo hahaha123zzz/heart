@@ -1,0 +1,56 @@
+{
+  "base": "http://127.0.0.1:8000",
+  "brandPages": [
+    "/learning",
+    "/chat",
+    "/learning/mastery",
+    "/learning/practice",
+    "/learning/reading",
+    "/learning/journal",
+    "/memory",
+    "/settings/model",
+    "/profile"
+  ],
+  "logo": "user-provided original PNG displayed through SVG viewport",
+  "titleChinese": true,
+  "favicon": true,
+  "randomUUIDUnavailable": true,
+  "capabilityButtons": [
+    {
+      "capability": "chat",
+      "singleRequest": true,
+      "progressVisible": true,
+      "consentRetainedWhilePending": true,
+      "resultVisible": true
+    },
+    {
+      "capability": "assessment",
+      "singleRequest": true,
+      "progressVisible": true,
+      "consentRetainedWhilePending": true,
+      "resultVisible": true
+    },
+    {
+      "capability": "tools",
+      "singleRequest": true,
+      "progressVisible": true,
+      "consentRetainedWhilePending": true,
+      "resultVisible": true
+    },
+    {
+      "capability": "vision",
+      "singleRequest": true,
+      "progressVisible": true,
+      "consentRetainedWhilePending": true,
+      "resultVisible": true
+    }
+  ],
+  "postRequests": 5,
+  "lostResponseWarningPersists": true,
+  "noAutomaticPaidRetry": true,
+  "mobileWidth": 390,
+  "noHorizontalOverflow": true,
+  "pageErrors": [],
+  "modelTestResponses": "controlled browser fixtures",
+  "externalModelCalls": 0
+}

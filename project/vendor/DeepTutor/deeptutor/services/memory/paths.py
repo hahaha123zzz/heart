@@ -60,7 +60,21 @@ SURFACES: tuple[Surface, ...] = get_args(Surface)
 L3_SLOTS: tuple[L3Slot, ...] = get_args(L3Slot)
 
 
+_external_root_guard = None
+
+
+class MemoryAccessDisabledError(PermissionError):
+    pass
+
+
+def set_external_memory_root_guard(guard) -> None:
+    global _external_root_guard
+    _external_root_guard = guard
+
+
 def memory_root() -> Path:
+    if _external_root_guard is not None:
+        _external_root_guard()
     override = _memory_path_service.get()
     service = override if override is not None else get_path_service()
     return service.get_memory_dir()

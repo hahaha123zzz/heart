@@ -62,22 +62,43 @@ def main() -> None:
     from deeptutor.api.main import app
     # worker 按文件路径启动；宿主目录只用于加载适配层，上游仍来自固定副本。
     sys.path.insert(0, str(HOST_ROOT))
+    from integrations.deeptutor.wsl_sandbox import install as install_wsl_sandbox
+    install_wsl_sandbox()
     from integrations.deeptutor.boundary import HostBridgeBoundary
     from integrations.deeptutor.session_bridge import install_session_bridge
     from integrations.deeptutor.turn_bridge import install_turn_bridge
     from integrations.deeptutor.generation_bridge import install_generation_bridge
     from integrations.deeptutor.agentic_bridge import install_agentic_bridge
+    from integrations.deeptutor.heart_model_api import install_heart_model
+    from integrations.deeptutor.heart_memory_api import install_heart_memory
     from integrations.deeptutor.knowledge_bridge import install_knowledge_bridge
     sessions = install_session_bridge(app, args.home)
     install_turn_bridge(app, sessions)
     install_generation_bridge(app)
     install_agentic_bridge(app)
+    install_heart_model(app, args.home)
+    from integrations.deeptutor.legacy_reader_api import install_legacy_reader
+    install_legacy_reader(app)
+    from integrations.deeptutor.catalog_binding import install_catalog_binding
+    install_catalog_binding()
+    from integrations.deeptutor.heart_rag import install_heart_tools
+    from integrations.deeptutor.tool_policy import install_tool_policy
+    install_heart_tools()
+    install_tool_policy()
+    from integrations.deeptutor.assessment_worker import install_assessment_worker
+    install_assessment_worker(app)
+    install_heart_memory(app)
+    from integrations.deeptutor.attachment_retention import install as install_attachment_retention
+    install_attachment_retention(app)
     install_knowledge_bridge(app, args.home.resolve())
     if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '1') == '1':
         from integrations.deeptutor.native_bridge import install_native_bridge
         install_native_bridge(app, sessions)
         from integrations.deeptutor.heart_rag import warm_retrieval
         warm_retrieval()
+    from integrations.deeptutor.warmup import install_worker_warmup, warm_worker
+    warm_worker()
+    install_worker_warmup(app)
     app.add_middleware(HostBridgeBoundary)
     uvicorn.run(app, host="127.0.0.1", port=args.port,
                 proxy_headers=False, access_log=False)

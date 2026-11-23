@@ -3,6 +3,8 @@ import { expect, it, vi } from 'vitest'
 import { hydrateTopicSource, useTopicSourceLibrary } from '@/hooks/useTopicSourceLibrary'
 import { apiFetch } from '@/lib/api'
 
+const policy = vi.hoisted(() => ({ restricted: false }))
+vi.mock('@/lib/auth', () => ({ fetchAuthStatus: async () => ({ learning_policy: policy.restricted ? {} : null }) }))
 vi.mock('@/lib/api', () => ({ apiUrl: (path: string) => path, apiFetch: vi.fn() }))
 vi.mock('@/lib/partners-api', () => ({ listPartners: async () => [], getPartnerSessions: vi.fn() }))
 vi.mock('@/lib/partner-groups-api', () => ({
@@ -60,4 +62,17 @@ it('uses global indexes and pins file expansion and book hydration to their sour
       .every(url => url.searchParams.get('dt_workspace') === 'original')
   ).toBe(true)
   expect(window.location.search).toBe('?dt_workspace=destination')
+})
+
+it('requests only student notebook, chat and practice sources', async () => {
+  policy.restricted = true
+  vi.mocked(apiFetch).mockClear()
+  vi.mocked(apiFetch).mockImplementation(async () => new Response(JSON.stringify({ items: [], unavailable_workspaces: [] })))
+  const { result } = renderHook(() => useTopicSourceLibrary(translate))
+  await waitFor(() => expect(result.current.loading).toBe(false))
+  expect(result.current.library.restricted).toBe(true)
+  expect(vi.mocked(apiFetch).mock.calls.map(call => new URL(String(call[0]), 'http://localhost').pathname).sort()).toEqual([
+    '/api/dashboard/source-library/chats', '/api/dashboard/source-library/notebooks', '/api/dashboard/source-library/practice',
+  ])
+  policy.restricted = false
 })

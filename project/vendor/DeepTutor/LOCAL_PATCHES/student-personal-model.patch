@@ -1,0 +1,193 @@
+diff --git a/project/vendor/DeepTutor/deeptutor/multi_user/model_access.py b/project/vendor/DeepTutor/deeptutor/multi_user/model_access.py
+index 76ae465..223c4c5 100644
+--- a/project/vendor/DeepTutor/deeptutor/multi_user/model_access.py
++++ b/project/vendor/DeepTutor/deeptutor/multi_user/model_access.py
+@@ -73,6 +73,10 @@ def redacted_model_access(user_id: str | None = None) -> dict[str, list[dict[str
+     user = get_current_user()
+     if user_id is None:
+         user_id = user.id
++    from .personal_models import external_llm_profiles, personal_llm_rows
++
++    if external_llm_profiles() is not None:
++        return {"llm": personal_llm_rows() if user_id == user.id else []}
+     grant = load_grant(user_id)
+     catalog = admin_catalog()
+     result: dict[str, list[dict[str, Any]]] = {"llm": []}
+diff --git a/project/vendor/DeepTutor/deeptutor/multi_user/personal_models.py b/project/vendor/DeepTutor/deeptutor/multi_user/personal_models.py
+index 595a3e9..5d5dd00 100644
+--- a/project/vendor/DeepTutor/deeptutor/multi_user/personal_models.py
++++ b/project/vendor/DeepTutor/deeptutor/multi_user/personal_models.py
+@@ -28,7 +28,7 @@ and a partner turn keeps inheriting the login of the human who owns it.
+ 
+ from __future__ import annotations
+ 
+-from typing import Any
++from typing import Any, Callable
+ 
+ from deeptutor.services.config.model_catalog import ModelCatalogService
+ 
+@@ -37,6 +37,21 @@ from .paths import get_owner_path_service
+ _CODEX_MANAGED_BY = "openai_codex_oauth"
+ 
+ 
++_external_llm_profiles: Callable | None = None
++
++
++def set_external_llm_profiles(loader: Callable) -> None:
++    """安装宿主提供的请求内个人模型读取器；None 表示保留厂家行为。"""
++    global _external_llm_profiles
++    _external_llm_profiles = loader
++
++
++def external_llm_profiles() -> list[dict[str, Any]] | None:
++    from .context import get_current_user_or_none
++
++    return _external_llm_profiles(get_current_user_or_none()) if _external_llm_profiles else None
++
++
+ def _codex_profile_is_current(profile: dict[str, Any]) -> bool:
+     try:
+         from deeptutor.services.codex_auth import get_codex_oauth_service
+@@ -69,6 +84,9 @@ def _personal_catalog_profiles() -> list[dict[str, Any]]:
+     from .context import get_current_user_or_none
+     from .model_access import is_owner_bound
+ 
++    external = external_llm_profiles()
++    if external is not None:
++        return external
+     user = get_current_user_or_none()
+     if user is None or user.is_admin:
+         return []
+@@ -140,6 +158,16 @@ def merge_personal_llm_profiles(catalog: dict[str, Any]) -> dict[str, Any]:
+     may not include. The owner's own profile is the authority inside their
+     own scope; the token is resolved per owner regardless.
+     """
++    external = external_llm_profiles()
++    if external is not None:
++        if not external:
++            raise PermissionError("请先配置个人模型 Key")
++        profile = external[0]
++        services = dict(catalog.get("services") or {})
++        services["llm"] = {"profiles": external, "active_profile_id": profile["id"],
++                           "active_model_id": profile["models"][0]["id"]}
++        services["task"] = {"mode": "inherit"}
++        return {**catalog, "services": services}
+     personal = _personal_catalog_profiles()
+     if not personal:
+         return catalog
+diff --git a/project/vendor/DeepTutor/deeptutor/runtime/agentic/client.py b/project/vendor/DeepTutor/deeptutor/runtime/agentic/client.py
+index dd0c1ae..91e3c7e 100644
+--- a/project/vendor/DeepTutor/deeptutor/runtime/agentic/client.py
++++ b/project/vendor/DeepTutor/deeptutor/runtime/agentic/client.py
+@@ -103,6 +103,10 @@ def _client_cache_key(
+     loop: asyncio.AbstractEventLoop,
+     disable_ssl_verify: bool,
+ ) -> tuple[Any, ...]:
++    from deeptutor.multi_user.context import get_current_user_or_none
++
++    user = get_current_user_or_none()
++    owner_identity = user.id if user is not None and not user.is_admin else ""
+     serialized_key = json.dumps(config.api_key or "", ensure_ascii=False, separators=(",", ":"))
+     secret = hashlib.sha256(serialized_key.encode("utf-8")).hexdigest()[:16]
+     headers = json.dumps(config.extra_headers or {}, sort_keys=True, separators=(",", ":"))
+@@ -117,6 +121,7 @@ def _client_cache_key(
+         config.wire_api,
+         config.api_format,
+         disable_ssl_verify,
++        owner_identity,
+     )
+ 
+ 
+diff --git a/project/vendor/DeepTutor/deeptutor/services/config/provider_runtime.py b/project/vendor/DeepTutor/deeptutor/services/config/provider_runtime.py
+index ec32329..b377c54 100644
+--- a/project/vendor/DeepTutor/deeptutor/services/config/provider_runtime.py
++++ b/project/vendor/DeepTutor/deeptutor/services/config/provider_runtime.py
+@@ -710,12 +710,10 @@ def _with_personal_llm_profiles(catalog: dict[str, Any]) -> dict[str, Any]:
+     layer must keep resolving in contexts where multi-user state is absent
+     (CLI, tests, background jobs).
+     """
+-    try:
+-        from deeptutor.multi_user.personal_models import merge_personal_llm_profiles
++    from deeptutor.multi_user.personal_models import merge_personal_llm_profiles
+ 
+-        return merge_personal_llm_profiles(catalog)
+-    except Exception:
+-        return catalog
++    # 宿主凭据读取失败必须阻断解析，不能退回共享 Key。
++    return merge_personal_llm_profiles(catalog)
+ 
+ 
+ def _model_capabilities(model: dict[str, Any] | None) -> dict[str, bool]:
+diff --git a/project/vendor/DeepTutor/deeptutor/services/llm/openai_http_client.py b/project/vendor/DeepTutor/deeptutor/services/llm/openai_http_client.py
+index d066623..5847f69 100644
+--- a/project/vendor/DeepTutor/deeptutor/services/llm/openai_http_client.py
++++ b/project/vendor/DeepTutor/deeptutor/services/llm/openai_http_client.py
+@@ -5,7 +5,7 @@ from __future__ import annotations
+ import logging
+ import os
+ import threading
+-from typing import TYPE_CHECKING, Any
++from typing import TYPE_CHECKING, Any, Callable
+ import uuid
+ 
+ import httpx
+@@ -29,6 +29,15 @@ _warning_lock = threading.Lock()
+ _warning_logged = False
+ 
+ 
++_external_http_client: Callable[[str | None], httpx.AsyncClient | None] | None = None
++
++
++def set_external_http_client(factory: Callable[[str | None], httpx.AsyncClient | None]) -> None:
++    """宿主可为当前用户提供独立的受限 HTTP client；异常不得静默回退。"""
++    global _external_http_client
++    _external_http_client = factory
++
++
+ def disable_ssl_verify_enabled() -> bool:
+     """Return whether outbound TLS verification should be disabled."""
+     if not load_system_settings()["disable_ssl_verify"]:
+@@ -147,6 +156,11 @@ def openai_sdk_client_kwargs(
+     }
+     if sdk_max_retries is not None:
+         kwargs["max_retries"] = sdk_max_retries
++    http_client = _external_http_client(base_url) if _external_http_client else None
++    if http_client is not None:
++        kwargs["http_client"] = http_client
++        kwargs["max_retries"] = 0
++        return kwargs
+     if disable_ssl_verify is None:
+         http_client = build_openai_http_client()
+     elif disable_ssl_verify:
+diff --git a/project/vendor/DeepTutor/deeptutor/services/llm/provider_core/openai_compat_provider.py b/project/vendor/DeepTutor/deeptutor/services/llm/provider_core/openai_compat_provider.py
+index 5d6e885..c260b58 100644
+--- a/project/vendor/DeepTutor/deeptutor/services/llm/provider_core/openai_compat_provider.py
++++ b/project/vendor/DeepTutor/deeptutor/services/llm/provider_core/openai_compat_provider.py
+@@ -190,6 +190,11 @@ class OpenAICompatProvider(LLMProvider):
+         self._provider_name = provider_name
+         self._wire_api = normalize_wire_api(wire_api)
+ 
++        from deeptutor.multi_user.context import get_current_user_or_none
++
++        current_user = get_current_user_or_none()
++        if current_user is not None and not current_user.is_admin:
++            configure_env = False
+         if configure_env and primary_key and spec and spec.env_key:
+             self._setup_env(primary_key, api_base)
+ 
+diff --git a/project/vendor/DeepTutor/deeptutor/services/llm/provider_factory.py b/project/vendor/DeepTutor/deeptutor/services/llm/provider_factory.py
+index 77d0fdf..a81adb2 100644
+--- a/project/vendor/DeepTutor/deeptutor/services/llm/provider_factory.py
++++ b/project/vendor/DeepTutor/deeptutor/services/llm/provider_factory.py
+@@ -28,7 +28,10 @@ def _secret_fingerprint(value: str | list[str] | None) -> str:
+ 
+ def _provider_cache_key(config: LLMConfig, loop: asyncio.AbstractEventLoop) -> tuple[Any, ...]:
+     headers = json.dumps(config.extra_headers or {}, sort_keys=True, separators=(",", ":"))
+-    owner_identity = ""
++    from deeptutor.multi_user.context import get_current_user_or_none
++
++    user = get_current_user_or_none()
++    owner_identity = user.id if user is not None and not user.is_admin else ""
+     spec = find_by_name(config.provider_name or config.binding)
+     if spec and spec.backend == "github_copilot":
+         from deeptutor.services.github_copilot_storage import get_github_copilot_storage

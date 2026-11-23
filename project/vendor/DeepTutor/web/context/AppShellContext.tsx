@@ -35,13 +35,12 @@ import {
   normalizeCodeBlockShowLineNumbers,
   normalizeCodeBlockTheme,
   normalizeCodeBlockWrapLongLines,
-  normalizeLanguage,
   resolveResponseLanguage,
   readStoredActiveSessionId,
   readStoredCodeBlockShowLineNumbers,
   readStoredCodeBlockTheme,
   readStoredCodeBlockWrapLongLines,
-  readStoredLanguage,
+  readStoredResponseLanguage,
   writeStoredResponseLanguage,
   readStoredSidebarCollapsed,
   writeStoredActiveSessionId,
@@ -78,8 +77,8 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     return getStoredTheme() ?? getSystemTheme();
   });
-  // Always start with "en" to match SSR; hydrate from localStorage after mount
-  const [language, setLanguageState] = useState<AppLanguage>("en");
+  // 当前学生产品统一中文，旧浏览器和账号的英文界面偏好不再覆盖它。
+  const [language, setLanguageState] = useState<AppLanguage>("zh");
   const [languageReady, setLanguageReady] = useState(false);
   const [activeSessionId, setActiveSessionIdState] = useState<string | null>(
     () => readStoredActiveSessionId(),
@@ -104,31 +103,18 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // The saved languages live in the backend's ui settings, but only the
-    // settings route ever read them, so every other page started in English
-    // until the user changed it again in this browser. Adopt them once, and
-    // only when this browser has made no choice of its own — a local selection
-    // is the more specific signal and must win.
-    //
-    // One fetch carries both fields: the interface locale and the
-    // reader-facing output language are stored together and are gated by the
-    // same "has this browser chosen yet?" question, so splitting them into two
-    // bootstraps would only give them a chance to disagree.
+    // 界面固定中文；回答语言仍从账号设置或已有浏览器选择独立恢复。
     const controller = new AbortController();
     let cancelled = false;
     let fallbackTimer: ReturnType<typeof setTimeout> | undefined;
     void (async () => {
-      // Both keys are checked, not just the interface one. They were split
-      // after the interface language shipped, so a browser from before the
-      // split has `deeptutor-language` and no `deeptutor-response-language` —
-      // and returning here on the first alone locked it out of ever adopting
-      // the account's model output language.
       const hadLanguageAtStart = hasStoredLanguage();
       if (hadLanguageAtStart && !cancelled) {
-        setLanguageState(readStoredLanguage());
+        setLanguageState("zh");
       }
       if (hadLanguageAtStart && hasStoredResponseLanguage()) {
         if (!cancelled) {
+          writeStoredLanguage("zh");
           setLanguageReady(true);
         }
         return;
@@ -148,11 +134,8 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
           response_language?: unknown;
         };
         if (!isAppLanguage(payload.language)) return;
-        // Only what this browser is actually missing: a stored interface
-        // language is this user's own choice and the server must not overwrite
-        // it just because the response key was absent.
         const hadLanguage = hasStoredLanguage();
-        if (!hadLanguage) writeStoredLanguage(payload.language);
+        if (!hadLanguage) writeStoredLanguage("zh");
         if (!hasStoredResponseLanguage()) {
           // A backend that predates the split sends no response_language;
           // resolveResponseLanguage inherits the interface locale, matching
@@ -166,12 +149,17 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
             ),
           );
         }
-        if (!cancelled && !hadLanguage) setLanguageState(payload.language);
+        if (!cancelled && !hadLanguage) setLanguageState("zh");
       } catch {
         // Offline or unauthenticated: keep the local default.
       } finally {
         if (fallbackTimer) clearTimeout(fallbackTimer);
-        if (!cancelled) setLanguageReady(true);
+        if (!cancelled) {
+          // 迁移界面缓存前保留独立的回答语言，离线时也不把它覆盖为中文。
+          if (!hasStoredResponseLanguage()) writeStoredResponseLanguage(readStoredResponseLanguage());
+          writeStoredLanguage("zh");
+          setLanguageReady(true);
+        }
       }
     })();
     return () => {
@@ -183,7 +171,7 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     return subscribeToThemeChanges((nextTheme) => {
-      setThemeState(nextTheme);
+      setThemeState("snow");
     });
   }, []);
 
@@ -192,7 +180,8 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
 
     const onStorage = (event: StorageEvent) => {
       if (event.key === LANGUAGE_STORAGE_KEY) {
-        setLanguageState(normalizeLanguage(event.newValue));
+        setLanguageState("zh");
+        if (event.newValue !== "zh") writeStoredLanguage("zh");
       }
       if (event.key === ACTIVE_SESSION_STORAGE_KEY) {
         setActiveSessionIdState(event.newValue);
@@ -215,9 +204,8 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    const onLanguage = (event: Event) => {
-      const detail = (event as CustomEvent<{ language?: AppLanguage }>).detail;
-      setLanguageState(normalizeLanguage(detail?.language));
+    const onLanguage = () => {
+      setLanguageState("zh");
     };
 
     const onActiveSession = (event: Event) => {
@@ -273,12 +261,12 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = useCallback((nextTheme: Theme) => {
     applyThemePreference(nextTheme);
-    setThemeState(nextTheme);
+    setThemeState("snow");
   }, []);
 
-  const setLanguage = useCallback((nextLanguage: AppLanguage) => {
-    writeStoredLanguage(nextLanguage);
-    setLanguageState(nextLanguage);
+  const setLanguage = useCallback((_nextLanguage: AppLanguage) => {
+    writeStoredLanguage("zh");
+    setLanguageState("zh");
     setLanguageReady(true);
   }, []);
 

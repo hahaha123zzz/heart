@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "anonymous settings require login and ten accounts start empty and isolated",
+    "account display settings persist across reload without crossing accounts",
+    "personal model saves masked metadata and never returns a raw key",
+    "capability checks require cost consent and stay separate and version bound",
+    "evaluation and memory switches are independent and persisted",
+    "teaching preference templates require confirmation and use the one memory source",
+    "key deletion persists and admin registration and embedding remain unavailable",
+    "390px settings remain readable and logout clears authenticated access"
+  ],
+  "failures": [],
+  "pageErrors": [],
+  "controlledCapabilities": true
+}

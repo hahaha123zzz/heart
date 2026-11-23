@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "checks": [
+    "实际答题、判分、保存及待同步提示",
+    "390px 下练习完成页无横向溢出",
+    "后台重试并确认同一次提交同步成功",
+    "章节面板显示题库结论与下次复习",
+    "双账号复习档案隔离"
+  ],
+  "date": "2026-11-18",
+  "browser": "可见 Chromium / Playwright",
+  "viewport": "390×844",
+  "scope": "临时账号、厂家工作区、考试题及 PostgreSQL。第一次同步注入临时故障。实际练习判分、同步后台循环和数据库写入均执行。",
+  "retry": {
+    "failed_attempts": 1,
+    "successful_attempts": 1,
+    "same_event_id": true,
+    "persisted_review_events": 1
+  },
+  "cleanup": "浏览器及隔离前后端已退出，临时 PostgreSQL 由测试上下文清理。"
+}

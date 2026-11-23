@@ -37,12 +37,12 @@ export function SystemWorkspaceSnapshot() {
           <RefreshCw size={13} className={busy ? 'animate-spin' : ''} />
           {t('View / refresh configuration snapshot')}
         </button>
-        <Link href="/space/skills" className="hover:underline">
+        <span className="hover:underline">
           {t('Skills')}
-        </Link>
-        <Link href="/space/mcp" className="hover:underline">
+        </span>
+        <span className="hover:underline">
           {t('MCP')}
-        </Link>
+        </span>
       </div>
       {error && (
         <p role="alert" className="mt-2 text-xs text-[var(--destructive)]">

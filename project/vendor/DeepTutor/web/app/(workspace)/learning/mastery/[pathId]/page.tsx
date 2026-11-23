@@ -1,7 +1,11 @@
 "use client";
 
+import { browserStorage } from "@/shared/storage";
+
+import { useAuthStatus } from "@/hooks/useAuthStatus";
+import { LearningScrollRestoration } from "@/components/learning/LearningScrollRestoration";
 import { PageContainer, PAGE_DESCRIPTION_CLASS } from '@/components/layout/FeaturePage'
-import { scopedUrl } from "@/lib/workspace-scope";
+import { activeWorkspaceId, scopedUrl } from "@/lib/workspace-scope";
 import { MASTERY_HOME, masterySessionRoute as existingMasterySessionRoute, masterySessionsRoute } from "@/lib/learning-routes";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -76,6 +80,22 @@ export default function MasteryTopicPage() {
     null,
   );
   const [topicView, setTopicView] = useState<"outline" | "board">("outline");
+  const auth = useAuthStatus();
+  const viewKey = `dt.mastery.view:${auth.userId}:${activeWorkspaceId()}:${pathId}`;
+  const [viewOwner, setViewOwner] = useState("");
+  useEffect(() => {
+    if (auth.loading || !auth.statusAvailable || !auth.userId) return;
+    try {
+      const saved = JSON.parse(browserStorage.readRaw("session", viewKey) || "{}");
+      setSelectedId(typeof saved.point === "string" ? saved.point : null);
+      setTopicView(saved.view === "board" ? "board" : "outline");
+    } catch { setSelectedId(null); setTopicView("outline"); }
+    setViewOwner(viewKey);
+  }, [viewKey, auth.loading, auth.statusAvailable, auth.userId]);
+  useEffect(() => {
+    if (viewOwner !== viewKey) return;
+    try { browserStorage.writeRaw("session", viewKey, JSON.stringify({ point: selectedId, view: topicView })); } catch {}
+  }, [viewOwner, viewKey, selectedId, topicView]);
   const [board, setBoard] = useState<BoardResult | null>(null);
   const [boardError, setBoardError] = useState(false);
   const [boardRequestNonce, setBoardRequestNonce] = useState(0);
@@ -318,7 +338,8 @@ export default function MasteryTopicPage() {
     // Under `lg` the columns stack and the page scrolls normally — a phone has
     // no second column to balance, and a fixed-height stack there would just
     // be three tiny scrollers.
-    <main className="mastery-shell flex h-full flex-col overflow-y-auto [scrollbar-gutter:stable]">
+    <main data-learning-scroll className="mastery-shell flex h-full flex-col overflow-y-auto [scrollbar-gutter:stable]">
+      <LearningScrollRestoration />
       <PageContainer className="flex min-h-0 flex-1 flex-col pb-40 sm:pb-10">
         <div className="flex items-center justify-between gap-3">
           <Link
@@ -329,6 +350,7 @@ export default function MasteryTopicPage() {
             {t("Learning topics")}
           </Link>
           <div className="flex items-center gap-2">
+            <Link className="rounded-lg border border-border px-2.5 py-2 text-xs" href={scopedUrl('/learning/practice?'+new URLSearchParams({mastery_path_id:pathId,return_to:scopedUrl('/learning/mastery/'+encodeURIComponent(pathId))}))}>本路径练习与复习</Link>
             <button
               type="button"
               onClick={(event) => openEditor(event.currentTarget)}
@@ -399,7 +421,7 @@ export default function MasteryTopicPage() {
               {t("knowledge points")}
             </span>
             <span className="h-3 w-px bg-[var(--border)]" aria-hidden="true" />
-            <div className="flex items-center gap-2">
+            {!needsRouteRepair && <div className="flex items-center gap-2">
               <div className="h-1 w-24 overflow-hidden rounded-full bg-[var(--muted)]">
                 <div
                   className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-500"
@@ -409,7 +431,7 @@ export default function MasteryTopicPage() {
               <span className="text-[13px] font-medium tabular-nums text-[var(--foreground)]">
                 {progress}%
               </span>
-            </div>
+            </div>}
           </div>
         </header>
 

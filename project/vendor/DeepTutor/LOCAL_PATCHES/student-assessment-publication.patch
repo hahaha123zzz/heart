@@ -1,0 +1,103 @@
+diff --git a/project/vendor/DeepTutor/deeptutor/learning/service.py b/project/vendor/DeepTutor/deeptutor/learning/service.py
+index e5bd1d3..562c027 100644
+--- a/project/vendor/DeepTutor/deeptutor/learning/service.py
++++ b/project/vendor/DeepTutor/deeptutor/learning/service.py
+@@ -1793,6 +1793,7 @@ class LearningService:
+         scheduler: SpacedRepetitionScheduler | None = None,
+         session_id: str = "",
+         turn_id: str = "",
++        assessment_context: dict | None = None,
+     ) -> LearningProgress:
+         def record(tx):
+             from deeptutor.learning.policy import QUALITATIVE_TYPES, find_knowledge_point
+@@ -1814,15 +1815,17 @@ class LearningService:
+                 scheduler=scheduler,
+                 session_id=session_id,
+                 turn_id=turn_id,
++                assessment_context=assessment_context,
+             )
+             if not applied:
+                 return
+             tx.touch()
+             tx.emit(
+-                "mastery.assessed",
++                "mastery.assessed" if assessment_context is None or assessment_context.get("independent") is True else "assessment.recorded",
+                 {
+                     "knowledge_point_id": kp_id,
+                     "passed": bool(passed),
++                    "independent": assessment_context is None or assessment_context.get("independent") is True,
+                 },
+                 session_id=session_id,
+                 turn_id=turn_id,
+@@ -1855,6 +1858,7 @@ class LearningService:
+         scheduler: SpacedRepetitionScheduler | None = None,
+         session_id: str = "",
+         turn_id: str = "",
++        assessment_context: dict | None = None,
+     ) -> bool:
+         evidence_id = ""
+         if session_id or turn_id:
+@@ -1864,6 +1868,17 @@ class LearningService:
+             ).hex
+             if any(item.evidence_id == evidence_id for item in progress.learning_evidence):
+                 return False
++        if assessment_context is not None and assessment_context.get("independent") is not True:
++            # 未核验或有辅助的作答只留证据，不改变掌握和复习计划。
++            progress.learning_evidence.append(LearningEvidence(
++                evidence_id=evidence_id, knowledge_point_id=kp_id,
++                assessment_type="qualitative", result="correct" if passed else "partial",
++                session_id=session_id, turn_id=turn_id,
++                hints_used=int(assessment_context.get("assistance_status") == "assisted"),
++                visual_context=dict(assessment_context),
++            ))
++            progress.updated_at = time.time()
++            return True
+         progress.qualitative_mastery[kp_id] = bool(passed)
+         progress.deferred_objectives.pop(kp_id, None)
+         current = progress.mastery_levels.get(kp_id, 0.0)
+diff --git a/project/vendor/DeepTutor/deeptutor/learning/tests/test_assessment.py b/project/vendor/DeepTutor/deeptutor/learning/tests/test_assessment.py
+index 4d266dc..dca27d7 100644
+--- a/project/vendor/DeepTutor/deeptutor/learning/tests/test_assessment.py
++++ b/project/vendor/DeepTutor/deeptutor/learning/tests/test_assessment.py
+@@ -234,8 +234,8 @@ def test_reanswer_keeps_immutable_attempts_and_updates_latest_projection(
+ 
+ def test_old_submission_retry_cannot_overwrite_newer_answer(store: SQLiteSessionStore) -> None:
+     asyncio.run(store.create_session(title="S", session_id="session-1"))
+-    wrong = _mastery_record(attempt_id="old", user_answer="3", result="incorrect")
+-    right = _mastery_record(attempt_id="new", user_answer="4", result="correct", is_correct=True)
++    wrong = _mastery_record(attempt_id="old", user_answer="3", result="incorrect", created_at=100.0)
++    right = _mastery_record(attempt_id="new", user_answer="4", result="correct", is_correct=True, created_at=200.0)
+     asyncio.run(record_assessment(wrong))
+     asyncio.run(record_assessment(right))
+     retried = asyncio.run(record_assessment(wrong))
+diff --git a/project/vendor/DeepTutor/deeptutor/learning/tests/test_guided_mastery_updates.py b/project/vendor/DeepTutor/deeptutor/learning/tests/test_guided_mastery_updates.py
+index 31d75da..6e736e8 100644
+--- a/project/vendor/DeepTutor/deeptutor/learning/tests/test_guided_mastery_updates.py
++++ b/project/vendor/DeepTutor/deeptutor/learning/tests/test_guided_mastery_updates.py
+@@ -537,3 +537,26 @@ def test_active_error_on_another_question_does_not_weaken_correct_answer(tmp_pat
+         )
+     assert progress.error_records[0].status == "retrying"
+     assert [event.quality for event in progress.learning_evidence] == [0.0, 0.0, 1.0]
++
++
++@pytest.mark.parametrize("status", ["not_verified", "assisted"])
++@pytest.mark.parametrize("passed", [True, False])
++def test_nonindependent_qualitative_keeps_gate_and_schedule_and_is_idempotent(tmp_path, status, passed):
++    from deeptutor.learning.policy import learning_stage
++    store = LearningStore(root=tmp_path)
++    service = LearningService(store)
++    progress = _make_progress()
++    service.record_qualitative(progress, "kp1", passed=True, scheduler=SpacedRepetitionScheduler())
++    before = progress.model_dump(mode="json")
++    context = {"independent": False, "assistance_status": status, "job_id": "job-test"}
++    for _ in range(2):
++        result = service.record_qualitative_for_path(progress.book_id, "kp1", passed=passed,
++            session_id="s", turn_id="t-background", assessment_context=context)
++    assert len(result.learning_evidence) == len(progress.learning_evidence) + 1
++    assert result.qualitative_mastery == progress.qualitative_mastery
++    assert result.mastery_levels == progress.mastery_levels
++    assert result.model_dump(mode="json")["repetition_states"] == before["repetition_states"]
++    assert result.model_dump(mode="json")["review_queue"] == before["review_queue"]
++    assert result.learning_evidence[-1].hints_used == int(status == "assisted")
++    assert result.learning_evidence[-1].visual_context == context
++    assert learning_stage(result, "kp1") == "independently_demonstrated"

@@ -1,0 +1,402 @@
+{
+  "base": "http://127.0.0.1:3000",
+  "account": "student10",
+  "viewport": [
+    1440,
+    1000
+  ],
+  "fixture": false,
+  "requests": [
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/partners"
+    },
+    {
+      "status": 403,
+      "path": "/api/partner-groups"
+    },
+    {
+      "status": 403,
+      "path": "/api/capabilities/registered"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/resources"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/chat-attachments"
+    },
+    {
+      "status": 403,
+      "path": "/api/tools"
+    },
+    {
+      "status": 403,
+      "path": "/api/subagents/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/system/update"
+    },
+    {
+      "status": 403,
+      "path": "/api/partners"
+    },
+    {
+      "status": 403,
+      "path": "/api/partner-groups"
+    },
+    {
+      "status": 403,
+      "path": "/api/dashboard/suggestions"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/resources"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/system/update"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/dashboard/learning-index"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/system/update"
+    },
+    {
+      "status": 403,
+      "path": "/api/dashboard/learning-index"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/system/update"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/system/update"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/system/update"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/system/status"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/capabilities/registered"
+    },
+    {
+      "status": 403,
+      "path": "/api/partners"
+    },
+    {
+      "status": 403,
+      "path": "/api/partner-groups"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/resources"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/chat-attachments"
+    },
+    {
+      "status": 403,
+      "path": "/api/tools"
+    },
+    {
+      "status": 403,
+      "path": "/api/subagents/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/system/update"
+    },
+    {
+      "status": 403,
+      "path": "/api/partners"
+    },
+    {
+      "status": 403,
+      "path": "/api/partner-groups"
+    },
+    {
+      "status": 403,
+      "path": "/api/dashboard/suggestions"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/resources"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings/workspace/registrations"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    },
+    {
+      "status": 403,
+      "path": "/api/settings"
+    }
+  ],
+  "errors": [],
+  "pages": [
+    {
+      "name": "01-chat",
+      "route": "/chat",
+      "status": 200,
+      "finalPath": "/chat",
+      "tokens": {
+        "theme": "geist_f8f0a9da-module__hptJ_W__variable lora_800b91ea-module__rFdvOq__variable theme-snow",
+        "background": "#f7f8f9",
+        "primary": "#2f3437"
+      },
+      "body": "主页\n个性化学习\n暂无对话\nstudent10\n个人资料\n退出登录\n设置\n知识图谱\n我的模型\n状态检查失败\n新对话\n开始对话后即可重命名\n保存到笔记本\n将聊天记录下载为 Markdown 文件\n在聊天中写 Markdown\n会话活动、附件与预览\n你想学点什么？\n聊天\n聊天\n默认工作区\n默认工作区\nThis learning account cannot use the requested server surface.\n错误: This learning account cannot use the requested server surface.\n资源\ndeepseek-flash\ndeepseek-flash\n录制语音\n发送\n生成学习引导\n暂时无法生成探索方向，请重试。"
+    },
+    {
+      "name": "02-reading",
+      "route": "/learning/reading",
+      "status": 200,
+      "finalPath": "/learning/reading",
+      "tokens": {
+        "theme": "geist_f8f0a9da-module__hptJ_W__variable lora_800b91ea-module__rFdvOq__variable theme-snow",
+        "background": "#f7f8f9",
+        "primary": "#2f3437"
+      },
+      "body": "主页\n个性化学习\n暂无对话\nstudent10\n个人资料\n退出登录\n设置\n知识图谱\n我的模型\n状态检查失败\n个性化学习\n沉浸式阅读\n\n把 PDF、网页、讲座视频放进一个资料组，和 AI 一起精读，每句话都能回到原文。\n\n新建资料组\n资料组\n0\n资料库\n1\n0 个资料组\n近期\n名称\n还没有资料组\n\n一个资料组就是一次阅读任务：一篇论文加它的综述、一门课的全部讲座、一本书的几个章节。放进去的资料共享同一批对话和批注。\n\n新建资料组"
+    },
+    {
+      "name": "03-learning",
+      "route": "/learning",
+      "status": 200,
+      "finalPath": "/learning",
+      "tokens": {
+        "theme": "geist_f8f0a9da-module__hptJ_W__variable lora_800b91ea-module__rFdvOq__variable theme-snow",
+        "background": "#f7f8f9",
+        "primary": "#2f3437"
+      },
+      "body": "主页\n个性化学习\n暂无对话\nstudent10\n个人资料\n退出登录\n设置\n知识图谱\n我的模型\n状态检查失败\n个性化学习\n\n一位导师，陪你按自己的方式学习。\n\n选择学习方式\n书籍\n\n生成、浏览并学习你的 AI 编写书籍。\n\n精通之路\n\n沿着持续完善的知识图谱，逐步掌握一个主题。\n\n练习\n\n管理题库、整理错题，每天巩固所学。\n\n沉浸式阅读\n\n在导师陪伴下，深入阅读你的资料。\n\n部分学习记录暂时无法加载：书籍、精通之路、沉浸式阅读。\n重试"
+    },
+    {
+      "name": "04-graph",
+      "route": "/learning/graph",
+      "status": 200,
+      "finalPath": "/learning/graph",
+      "tokens": {
+        "theme": "geist_f8f0a9da-module__hptJ_W__variable lora_800b91ea-module__rFdvOq__variable theme-snow",
+        "background": "#f7f8f9",
+        "primary": "#2f3437"
+      },
+      "body": "主页\n个性化学习\n暂无对话\nstudent10\n个人资料\n退出登录\n设置\n知识图谱\n我的模型\n状态检查失败\n教材知识图谱\n\n按章节展示教材中的概念与关系；节点点击可看说明。\n\n章节\n第 1 章\n第 2 章\n第 3 章\n第 4 章\n第 5 章\n第 6 章\n第 7 章\n第 8 章\n第 9 章\n第 10 章\n第 11 章\n查询\n\n仅显示前 80 个节点（部分显示）。\n\n点击节点查看详情。"
+    },
+    {
+      "name": "05-memory",
+      "route": "/memory",
+      "status": 200,
+      "finalPath": "/memory",
+      "tokens": {
+        "theme": "geist_f8f0a9da-module__hptJ_W__variable lora_800b91ea-module__rFdvOq__variable theme-snow",
+        "background": "#f7f8f9",
+        "primary": "#2f3437"
+      },
+      "body": "主页\n个性化学习\n暂无对话\nstudent10\n个人资料\n退出登录\n设置\n知识图谱\n我的模型\n状态检查失败\n我的记忆\n\n这里是从学习过程中整理出的偏好与画像。你可以查看、删除，也可以主动补充学习偏好。\n\n添加偏好\n学习偏好\n\n你确认过的讲解方式与节奏。\n\n还没有内容。\n\n学习画像\n\n根据学习记录整理的画像，删除后不再用于生成。\n\n还没有内容。"
+    },
+    {
+      "name": "06-practice",
+      "route": "/learning/practice",
+      "status": 200,
+      "finalPath": "/learning/practice",
+      "tokens": {
+        "theme": "geist_f8f0a9da-module__hptJ_W__variable lora_800b91ea-module__rFdvOq__variable theme-snow",
+        "background": "#f7f8f9",
+        "primary": "#2f3437"
+      },
+      "body": "主页\n个性化学习\n暂无对话\nstudent10\n个人资料\n退出登录\n设置\n知识图谱\n我的模型\n状态检查失败\n个性化学习\n练习\n\n每天练习一点，让学过的内容记得更久。\n\n导入题目\n今日复习\n复习范围\n全部工作区\n默认工作区\n56\n道题待复习\n\n掌握一道，本轮就少一道；到了下次复习时间，它会再次出现。\n\n开始今日复习\n0\n今日已复习\n0\n等待下次复习\n56\n题库\n\n先回忆，再看答案。没记住的题，本轮会再练一次。\n\n管理题库\n练习统计"
+    },
+    {
+      "name": "07-model",
+      "route": "/settings/model",
+      "status": 200,
+      "finalPath": "/settings/model",
+      "tokens": {
+        "theme": "geist_f8f0a9da-module__hptJ_W__variable lora_800b91ea-module__rFdvOq__variable theme-snow",
+        "background": "#f7f8f9",
+        "primary": "#2f3437"
+      },
+      "body": "返回应用\n\n个人\n\n常规\n界面语言、回复语言与配置帮助\n工作区\n系统、通用与自建工作区，根目录与存储迁移\n数据迁移\n查找、迁移和导出学习数据\n外观\n视觉主题与代码块\n用量统计\n模型用量与对话活跃情况\n\n模型与服务\n\n提供方\n管理提供方的名称、地址、密钥并测试连接。\n语言模型\n模型名称、上下文窗口、能力与连接测试。\n后台任务模型\nDeepTutor 自己发起的调用使用的模型。\n嵌入模型\n嵌入模型、维度与连接测试。\n搜索\n联网搜索供应商。\n语音\n使用已配置的提供方管理语音合成与语音识别模型。\n多模态生成\n使用已配置的提供方管理图片与视频生成模型。\n\n学习与对话\n\n对话\n主页输入框下方那三行引导的素材范围。\n学习档案\n调整年龄、年级与讲解偏好。\n学习进度\n阅读进度与近期学习操作\n记忆\n分块、预算、去重与引用策略\n\n功能与集成\n\n工具\n对话智能体可调用的内置工具。\n能力\n各能力的 LLM 参数与运行时旋钮。\n知识与文档\n文档解析引擎\n\n系统\n\n网络\n端口、浏览器 API 地址与 CORS\n运行状态\n服务就绪情况、诊断与内存占用\n关于\n版本、更新与项目资源\n\n已归档\n\n已归档的聊天\n搜索、取消归档或永久删除已归档的对话\n无法从后端加载设置。\nSettings fetch failed: HTTP 403\n请确认后端正在运行，且 NEXT_PUBLIC_API_BASE 指向可访问的主机。Docker 部署请参考 data/user/settings/system.json。\n重试\n我的模型\n\n对话、讲解与出题使用你自己的 OpenAI-compatible Key。教材检索与建库仍由平台维护。\n\nBase URL（必须 HTTPS）\n模型名称\nAPI Key\n保存\n\n图片题需要支持图像输入的模型；不支持时请换模型。Key 只保存密文，读取接口只返回末四位。"
+    },
+    {
+      "name": "08-login",
+      "route": "/login",
+      "status": 200,
+      "finalPath": "/chat",
+      "tokens": {
+        "theme": "geist_f8f0a9da-module__hptJ_W__variable lora_800b91ea-module__rFdvOq__variable theme-snow",
+        "background": "#f7f8f9",
+        "primary": "#2f3437"
+      },
+      "body": "主页\n个性化学习\n暂无对话\nstudent10\n个人资料\n退出登录\n设置\n知识图谱\n我的模型\n状态检查失败\n新对话\n开始对话后即可重命名\n保存到笔记本\n将聊天记录下载为 Markdown 文件\n在聊天中写 Markdown\n会话活动、附件与预览\n你想学点什么？\n聊天\n聊天\n默认工作区\n默认工作区\nThis learning account cannot use the requested server surface.\n错误: This learning account cannot use the requested server surface.\n资源\ndeepseek-flash\ndeepseek-flash\n录制语音\n发送\n生成学习引导\n暂时无法生成探索方向，请重试。"
+    }
+  ]
+}

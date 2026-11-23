@@ -1,0 +1,200 @@
+diff --git a/project/vendor/DeepTutor/deeptutor/capabilities/mastery/tools.py b/project/vendor/DeepTutor/deeptutor/capabilities/mastery/tools.py
+index d988cca..cf160e4 100644
+--- a/project/vendor/DeepTutor/deeptutor/capabilities/mastery/tools.py
++++ b/project/vendor/DeepTutor/deeptutor/capabilities/mastery/tools.py
+@@ -419,6 +419,7 @@ async def _sync_qualitative_to_question_bank(
+     evidence: str,
+     material_title: str = "",
+     quality: float | None = None,
++    assessment_context: dict | None = None,
+ ) -> None:
+     if not session_id:
+         return
+@@ -434,7 +435,10 @@ async def _sync_qualitative_to_question_bank(
+         question_id=f"qual:{knowledge_point_id}",
+         question=knowledge_point_name,
+         question_type="written",
+-        user_answer=evidence,
++        user_answer=str(assessment_context.get("answer", "")) if assessment_context is not None else evidence,
++        explanation=evidence,
++        visual_context=assessment_context or {},
++        hints_used=int((assessment_context or {}).get("assistance_status") == "assisted"),
+         is_correct=passed,
+         result="correct" if passed else "partial",
+         source="mastery_path",
+@@ -1504,6 +1508,10 @@ class MasteryAssessTool(BaseTool):
+             return ToolResult(content=str(exc), success=False)
+         kp, _, _ = find_knowledge_point(progress, kp_id)
+         assert kp is not None
++        recorded = next((item for item in reversed(progress.learning_evidence)
++            if item.knowledge_point_id == kp_id and item.session_id == _resolve_session_id(kwargs)
++            and item.turn_id == _resolve_turn_id(kwargs)), None)
++        assessment_context = recorded.visual_context if recorded and recorded.visual_context else None
+         await _sync_qualitative_to_question_bank(
+             path_id=path_id,
+             session_id=_resolve_session_id(kwargs),
+@@ -1513,11 +1521,14 @@ class MasteryAssessTool(BaseTool):
+             passed=passed,
+             evidence=feedback,
+             material_title=progress.name,
++            assessment_context=assessment_context,
+         )
+         payload = {
+             "knowledge_point_id": kp_id,
+             "path_revision": progress.version,
+             "passed": passed,
++            "independent": (assessment_context or {}).get("independent", True),
++            "assistance_status": (assessment_context or {}).get("assistance_status", ""),
+             "mastered": is_mastered(progress, kp),
+             "mastery": round(display_mastery(progress, kp), 3),
+             "next": next_objective(progress).to_dict(),
+diff --git a/project/vendor/DeepTutor/deeptutor/learning/service.py b/project/vendor/DeepTutor/deeptutor/learning/service.py
+index e5bd1d3..3173c05 100644
+--- a/project/vendor/DeepTutor/deeptutor/learning/service.py
++++ b/project/vendor/DeepTutor/deeptutor/learning/service.py
+@@ -1793,7 +1793,16 @@ class LearningService:
+         scheduler: SpacedRepetitionScheduler | None = None,
+         session_id: str = "",
+         turn_id: str = "",
++        assessment_context: dict | None = None,
+     ) -> LearningProgress:
++        if assessment_context is None:
++            from deeptutor.multi_user.context import get_current_user_or_none
++
++            user = get_current_user_or_none()
++            if user is not None and not user.is_admin:
++                # 学生原生入口也必须有服务端独立资格；模型传入 passed 不能替代核验。
++                assessment_context = {"independent": False, "assistance_status": "not_verified",
++                                      "qualification_reason": "source_and_assistance_unverified"}
+         def record(tx):
+             from deeptutor.learning.policy import QUALITATIVE_TYPES, find_knowledge_point
+ 
+@@ -1814,15 +1823,17 @@ class LearningService:
+                 scheduler=scheduler,
+                 session_id=session_id,
+                 turn_id=turn_id,
++                assessment_context=assessment_context,
+             )
+             if not applied:
+                 return
+             tx.touch()
+             tx.emit(
+-                "mastery.assessed",
++                "mastery.assessed" if assessment_context is None or assessment_context.get("independent") is True else "assessment.recorded",
+                 {
+                     "knowledge_point_id": kp_id,
+                     "passed": bool(passed),
++                    "independent": assessment_context is None or assessment_context.get("independent") is True,
+                 },
+                 session_id=session_id,
+                 turn_id=turn_id,
+@@ -1855,6 +1866,7 @@ class LearningService:
+         scheduler: SpacedRepetitionScheduler | None = None,
+         session_id: str = "",
+         turn_id: str = "",
++        assessment_context: dict | None = None,
+     ) -> bool:
+         evidence_id = ""
+         if session_id or turn_id:
+@@ -1864,6 +1876,17 @@ class LearningService:
+             ).hex
+             if any(item.evidence_id == evidence_id for item in progress.learning_evidence):
+                 return False
++        if assessment_context is not None and assessment_context.get("independent") is not True:
++            # 未核验或有辅助的作答只留证据，不改变掌握和复习计划。
++            progress.learning_evidence.append(LearningEvidence(
++                evidence_id=evidence_id, knowledge_point_id=kp_id,
++                assessment_type="qualitative", result="correct" if passed else "partial",
++                session_id=session_id, turn_id=turn_id,
++                hints_used=int(assessment_context.get("assistance_status") == "assisted"),
++                visual_context=dict(assessment_context),
++            ))
++            progress.updated_at = time.time()
++            return True
+         progress.qualitative_mastery[kp_id] = bool(passed)
+         progress.deferred_objectives.pop(kp_id, None)
+         current = progress.mastery_levels.get(kp_id, 0.0)
+diff --git a/project/vendor/DeepTutor/deeptutor/learning/tests/test_guided_mastery_updates.py b/project/vendor/DeepTutor/deeptutor/learning/tests/test_guided_mastery_updates.py
+index 31d75da..580391a 100644
+--- a/project/vendor/DeepTutor/deeptutor/learning/tests/test_guided_mastery_updates.py
++++ b/project/vendor/DeepTutor/deeptutor/learning/tests/test_guided_mastery_updates.py
+@@ -537,3 +537,46 @@ def test_active_error_on_another_question_does_not_weaken_correct_answer(tmp_pat
+         )
+     assert progress.error_records[0].status == "retrying"
+     assert [event.quality for event in progress.learning_evidence] == [0.0, 0.0, 1.0]
++
++
++@pytest.mark.parametrize("status", ["not_verified", "assisted"])
++@pytest.mark.parametrize("passed", [True, False])
++def test_nonindependent_qualitative_keeps_gate_and_schedule_and_is_idempotent(tmp_path, status, passed):
++    from deeptutor.learning.policy import learning_stage
++    store = LearningStore(root=tmp_path)
++    service = LearningService(store)
++    progress = _make_progress()
++    service.record_qualitative(progress, "kp1", passed=True, scheduler=SpacedRepetitionScheduler())
++    before = progress.model_dump(mode="json")
++    context = {"independent": False, "assistance_status": status, "job_id": "job-test"}
++    for _ in range(2):
++        result = service.record_qualitative_for_path(progress.book_id, "kp1", passed=passed,
++            session_id="s", turn_id="t-background", assessment_context=context)
++    assert len(result.learning_evidence) == len(progress.learning_evidence) + 1
++    assert result.qualitative_mastery == progress.qualitative_mastery
++    assert result.mastery_levels == progress.mastery_levels
++    assert result.model_dump(mode="json")["repetition_states"] == before["repetition_states"]
++    assert result.model_dump(mode="json")["review_queue"] == before["review_queue"]
++    assert result.learning_evidence[-1].hints_used == int(status == "assisted")
++    assert result.learning_evidence[-1].visual_context == context
++    assert learning_stage(result, "kp1") == "independently_demonstrated"
++
++
++@pytest.mark.parametrize("passed", [True, False])
++def test_authenticated_student_native_qualitative_requires_server_qualification(tmp_path, passed):
++    from types import SimpleNamespace
++    from deeptutor.multi_user.context import set_current_user, reset_current_user
++    store = LearningStore(root=tmp_path)
++    service = LearningService(store)
++    progress = _make_progress()
++    service.save(progress)
++    token = set_current_user(SimpleNamespace(is_admin=False))
++    try:
++        result = service.record_qualitative_for_path(progress.book_id, "kp1", passed=passed,
++            evidence="模型反馈不等于学生作答", session_id="native-session", turn_id="native-turn",
++            scheduler=SpacedRepetitionScheduler())
++    finally:
++        reset_current_user(token)
++    assert result.qualitative_mastery == {} and not result.repetition_states
++    assert result.learning_evidence[-1].visual_context["independent"] is False
++    assert result.learning_evidence[-1].visual_context["assistance_status"] == "not_verified"
+diff --git a/project/vendor/DeepTutor/deeptutor/learning/tests/test_mastery_tools.py b/project/vendor/DeepTutor/deeptutor/learning/tests/test_mastery_tools.py
+index 837184d..c1a78f0 100644
+--- a/project/vendor/DeepTutor/deeptutor/learning/tests/test_mastery_tools.py
++++ b/project/vendor/DeepTutor/deeptutor/learning/tests/test_mastery_tools.py
+@@ -1994,3 +1994,28 @@ async def test_an_empty_profile_call_is_refused_with_the_fields_it_wanted(path_i
+     result = await MasteryProfileTool().execute(_mastery_path_id=path_id)
+     assert result.success is False
+     assert "time_budget" in result.content
++
++
++@pytest.mark.asyncio
++async def test_student_native_assess_does_not_grant_mastery_or_store_feedback_as_answer(path_id, session_store):
++    from deeptutor.learning.models import KnowledgeType
++    from types import SimpleNamespace
++    from deeptutor.multi_user.context import set_current_user, reset_current_user
++    session = await session_store.create_session(title="Student qualitative check")
++    await _build_basic(path_id)
++    progress = LearningStore().load(path_id)
++    point = next(kp for module in progress.modules for kp in module.knowledge_points if kp.type in {KnowledgeType.CONCEPT, KnowledgeType.DESIGN})
++    token = set_current_user(SimpleNamespace(is_admin=False))
++    try:
++        result = await MasteryAssessTool().execute(_mastery_path_id=path_id, _session_id=session["id"],
++            _turn_id="student-native", knowledge_point_id=point.id, passed=True, feedback="仅为教师反馈")
++    finally:
++        reset_current_user(token)
++    assert result.success
++    payload = json.loads(result.content)
++    assert payload["independent"] is False and payload["mastered"] is False
++    entries = await session_store.list_notebook_entries(assessment_type="qualitative")
++    entry = entries["items"][0]
++    assert entry["user_answer"] == "" and entry["explanation"] == "仅为教师反馈"
++    attempt = (await session_store.list_assessment_attempts(session["id"]))[0]
++    assert attempt["visual_context"]["independent"] is False

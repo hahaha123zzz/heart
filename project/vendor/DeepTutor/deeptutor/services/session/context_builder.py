@@ -182,6 +182,15 @@ class ContextBuildResult:
     previous_model_turn: dict[str, Any] | None = None
 
 
+_external_history_preparer = None
+_external_summary_wrapper = None
+
+
+def set_external_history_handlers(preparer, summary_wrapper) -> None:
+    global _external_history_preparer, _external_summary_wrapper
+    _external_history_preparer, _external_summary_wrapper = preparer, summary_wrapper
+
+
 class _ContextSummaryAgent(BaseAgent):
     """Small helper agent for compressing older conversation turns."""
 
@@ -523,6 +532,9 @@ class ContextBuilder:
         if session is None:
             return ContextBuildResult([], "", "", [], 0, self._history_budget(llm_config))
 
+        if _external_history_preparer is not None:
+            session, messages = await _external_history_preparer(session_id, session, messages, self.store)
+
         budget = self._history_budget(llm_config)
         summary_budget = self._summary_budget(budget, llm_config)
         recent_budget = self._recent_budget(budget)
@@ -625,6 +637,8 @@ class ContextBuilder:
             events = []
 
         if summarize_ok and new_summary:
+            if _external_summary_wrapper is not None:
+                new_summary = _external_summary_wrapper(new_summary)
             # Advance the watermark only on a successful summarize — never
             # past turns that were not actually folded in.
             up_to_msg_id = summary_up_to_msg_id

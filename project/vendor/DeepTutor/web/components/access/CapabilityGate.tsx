@@ -2,6 +2,9 @@
 
 import { usePathname } from "next/navigation";
 
+import { READING_HOME } from "@/lib/learning-routes";
+import { useCapabilityAccess } from "./CapabilityAccessContext";
+
 import { capabilityForPath } from "@/lib/capability-routes";
 
 import { RequireCapability } from "./RequireCapability";
@@ -17,7 +20,9 @@ export default function CapabilityGate({
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? "";
-  const capability = capabilityForPath(pathname);
+  const { isLearningAccount } = useCapabilityAccess();
+  const isReading = pathname === READING_HOME || pathname.startsWith(`${READING_HOME}/`);
+  const capability = isLearningAccount && isReading ? null : capabilityForPath(pathname);
   return (
     <RequireCapability capability={capability}>{children}</RequireCapability>
   );

@@ -659,9 +659,13 @@ def _learning_surface_for_path(
         # the router already scopes every record to the current account, so
         # all methods (including progress PATCH/POST) belong to "chat".
         ("/api/mastery-paths", "chat"),
+        ("/api/notebooks", "chat"),
     ):
         if normalized == root or normalized.startswith(f"{root}/"):
             return surface
+    # 截图读取仍由当前账号/工作区的附件存储隔离，只开放这个 GET 路由。
+    if method.upper() == "GET" and route_path == "/files/attachments/{session_id}/{attachment_id}/{filename:path}":
+        return "chat"
     # Match the resolved route template, not just the URL prefix: this keeps
     # admin diagnostics and engine configuration GETs out of the learner shell.
     if (
@@ -679,7 +683,9 @@ def _learning_surface_for_path(
     # Choosing the model for a chat turn is part of chat. The handler is
     # already grant-filtered. Match this exact path only: a prefix of
     # /api/settings would also open catalog writes on the same router (#1222).
-    if method.upper() == "GET" and normalized == "/api/settings/llm-options":
+    if method.upper() == "GET" and normalized in {"/api/settings/llm-options", "/api/learning-journal", "/api/dashboard/learning-library/mastery",
+        "/api/dashboard/learning-library/practice", "/api/dashboard/source-library/notebooks",
+        "/api/dashboard/source-library/chats", "/api/dashboard/source-library/practice"}:
         return "chat"
     return ""
 

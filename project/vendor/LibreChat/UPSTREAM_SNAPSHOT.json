@@ -1,0 +1,23 @@
+{
+  "source": "https://github.com/danny-avila/LibreChat",
+  "commit": "4700c44eb77c142b4f9f8b87476924f22890eb39",
+  "scope": "仅记忆卡片、列表、删除确认及必要空态；H hooks 和本项目弹窗替换上游 hooks，不引入管理权限、token、编辑或数据库",
+  "files": {
+    "LICENSE": "1ce5c9d51e5ab764b44142cd44d1e687f5bfe32f807c7221c14d061007309b97",
+    "client/src/components/SidePanel/Memories/MemoryCard.tsx": "1d0df8b5b3455fe63e4beb97c377427a514b501f71457a9f24f6d0169691f0ac",
+    "client/src/components/SidePanel/Memories/MemoryList.tsx": "a837526b5d6327daf0441c9aff718abdee09bbfc7cf8acb3d9cd95d15423ece6",
+    "client/src/components/SidePanel/Memories/MemoryCardActions.tsx": "20c0b3f5981d1f0c0282212c854d50c3f3a84caf9cafacc106ed14593b400b27",
+    "client/src/components/SidePanel/Memories/MemoryEmptyState.tsx": "a665dc66fc37812ef5f37535d32d76792d885ee03fd40a4d9c21859163978d3b",
+    "client/src/components/SidePanel/Memories/MemoryCreateDialog.tsx": "90cc04f7f00dcb61cb1dd9558576dc18c4449a835382ed5251b604e712f0b42a",
+    "client/src/components/SidePanel/Memories/address.ts": "4f191d6ce141c4b6ffabea481fe8a2548da2cf0eb0b41cc5371a2117ddfb7eb7"
+  },
+  "adapted_targets": {
+    "web/features/heart/memory/MemoryCard.tsx": "64198d1021f2b3500d95a5a84aa499aaa4356107dc16b04f002e8363d9dba2d0",
+    "web/features/heart/memory/MemoryCardActions.tsx": "81a492a8afce067c1fd6781fb271d45c1f32533b51e103a9f815214fab2149d5",
+    "web/features/heart/memory/MemoryEmptyState.tsx": "b3e1f575fa6595cdd5f650dc24f5f2ee0a1b0d1406815ed1607e544edaf57db0",
+    "web/features/heart/memory/MemoryList.tsx": "214fe05295787e7bec180f08edb9e94cbb137a6cec57f7a388cde587f27d77f9",
+    "web/features/heart/memory/types.ts": "99a1bded03269ffb0f1d4a45f93bce1cf7b4f785ca293bb70630ef94da3f2dee"
+  },
+  "host_data_hook": "web/features/heart/StudentMemory.tsx → /api/heart/memory → H PG",
+  "dialog_dependency": "DeepTutor components/ui/ConfirmDialog.tsx; 未复制 LibreChat 权限/编辑/管理依赖"
+}

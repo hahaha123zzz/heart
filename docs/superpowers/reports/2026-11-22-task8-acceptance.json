@@ -1,0 +1,479 @@
+{
+  "task": 8,
+  "date": "2026-11-22",
+  "complete": true,
+  "python_tests": {
+    "total": 218,
+    "assessment_model": 100,
+    "screenshot_retention": 21,
+    "durable_delivery": 3,
+    "native_practice_turns": 64,
+    "memory_compatibility": 30
+  },
+  "node_tests": 1272,
+  "component_tests": {
+    "files": 6,
+    "passed": 37
+  },
+  "typecheck_exit_code": 0,
+  "build_exit_code": 0,
+  "frontend_contracts_exit_code": 0,
+  "backend_contracts_exit_code": 0,
+  "browser": {
+    "checks": [
+      "anonymous practice and evaluation requests are rejected",
+      "default evaluation is enabled and question data are owner-bound",
+      "point and path scopes agree across bank summary queue and analytics",
+      "practice draft survives reload without exposing reference or manual mastery",
+      "lost submission response resumes with the same request ID and saves exactly once",
+      "H review sync recovers in background and scope remains after returning",
+      "path entry preserves its practice scope and return location",
+      "incomplete screenshot requests clarification and creates no assessment",
+      "complete screenshot continues tutoring and is assessed as assisted after navigation",
+      "one successful reassessment keeps original result and uses the explicit cost confirmation",
+      "attribution gets one correction then discards without a score",
+      "expired screenshot is denied and the chat remains readable",
+      "deleting source conversation preserves published evidence and labels the source deleted",
+      "390px practice remains usable and has no uncaught browser error"
+    ],
+    "failures": [],
+    "pageErrors": [],
+    "practiceRequests": [
+      {
+        "request_id": "b351a55a-9773-4f3a-bbb6-1b79c6a8a4eb",
+        "version": 0,
+        "rating": "good",
+        "answer": "B",
+        "self_report": false
+      },
+      {
+        "request_id": "b351a55a-9773-4f3a-bbb6-1b79c6a8a4eb",
+        "version": 0,
+        "rating": "good",
+        "answer": "B",
+        "self_report": false
+      }
+    ],
+    "controlledFixtures": [
+      "self-authored questions with historical due times",
+      "local grading model and real DeepSeek screenshot result replay",
+      "one H review sync and one assessment publication outage"
+    ],
+    "assessmentJob": "d50b84ae-b905-4827-887d-e151dc90a2c4"
+  },
+  "integration": {
+    "controlled_model": true,
+    "review_events": 1,
+    "completed": 2,
+    "discarded": 1,
+    "calls": [
+      {
+        "job_id": "d50b84ae-b905-4827-887d-e151dc90a2c4",
+        "model": "review-alpha",
+        "correction": "",
+        "point": "kc-3-1"
+      },
+      {
+        "job_id": "29d9a96a-9d6a-4884-800a-0c37f6f6763c",
+        "model": "review-alpha",
+        "correction": "",
+        "point": "kc-3-1"
+      },
+      {
+        "job_id": "3badd0e8-f8a3-4f8c-99c8-9cc112bb4642",
+        "model": "review-alpha",
+        "correction": "",
+        "point": "kc-3-1"
+      },
+      {
+        "job_id": "3badd0e8-f8a3-4f8c-99c8-9cc112bb4642",
+        "model": "review-alpha",
+        "correction": "knowledge_point_mismatch",
+        "point": "kc-3-1"
+      }
+    ],
+    "default_evaluation_enabled": true,
+    "real_vision_artifact_replayed": true
+  },
+  "real_vision": {
+    "endpoint": "api.deepseek.com",
+    "model": "deepseek-flash",
+    "ocr_model_added": false,
+    "source": "agent-authored synthetic images; no private screenshot or textbook scan",
+    "cases": [
+      {
+        "label": "complete",
+        "image_sha256": "bb0136019dc068859962100937e1509f219d532d2acf276bdb92c522be75557c",
+        "reading": {
+          "question_count": 1,
+          "question": "哪一种设计只测量变量关系，不操纵变量？",
+          "options": {
+            "A": "相关设计",
+            "B": "真正的实验设计"
+          },
+          "question_complete": true,
+          "student_answer": "A",
+          "answer_origin": "student",
+          "reference_answer": "A",
+          "solution_steps": "",
+          "missing_fields": []
+        },
+        "ready": true,
+        "assisted": true
+      },
+      {
+        "label": "incomplete",
+        "image_sha256": "c5fe474d94b33532494729f22d28821f22b20d77c513d12fd6d1b9c67fc11ce6",
+        "reading": {
+          "question_count": 1,
+          "question": "哪一种设计只测量变量关系，不操纵变量？",
+          "options": {
+            "A": "相关设计",
+            "B": "[选项被裁掉]"
+          },
+          "question_complete": false,
+          "student_answer": "",
+          "answer_origin": "unknown",
+          "reference_answer": "",
+          "solution_steps": "",
+          "missing_fields": [
+            "选项B内容被裁掉",
+            "学生作答无法辨认"
+          ]
+        },
+        "ready": false,
+        "assisted": false
+      }
+    ],
+    "passed": true
+  },
+  "production_source_files_matched": 951,
+  "provenance": {
+    "baseline_files": 3764,
+    "local_changes": 192,
+    "local_deletions": 101,
+    "task8": [
+      {
+        "path": "deeptutor/api/routers/attachments.py",
+        "action": "modify"
+      },
+      {
+        "path": "deeptutor/api/routers/auth.py",
+        "action": "modify"
+      },
+      {
+        "path": "deeptutor/api/routers/practice.py",
+        "action": "modify"
+      },
+      {
+        "path": "deeptutor/api/routers/question_notebook.py",
+        "action": "modify"
+      },
+      {
+        "path": "deeptutor/services/practice/storage.py",
+        "action": "modify"
+      },
+      {
+        "path": "deeptutor/services/session/sqlite_store.py",
+        "action": "modify"
+      },
+      {
+        "path": "deeptutor/services/session/turns/executor.py",
+        "action": "modify"
+      },
+      {
+        "path": "deeptutor/services/storage/attachment_store.py",
+        "action": "modify"
+      },
+      {
+        "path": "tests/api/test_attachment_learning_surface.py",
+        "action": "modify"
+      },
+      {
+        "path": "tests/api/test_practice.py",
+        "action": "modify"
+      },
+      {
+        "path": "web/app/(utility)/courses/[courseId]/page.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/app/(workspace)/learning/mastery/[pathId]/page.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/chat/home/SessionActivityPanel.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/chat/preview/FilePreviewDrawer.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/chat/preview/previewers/ImagePreview.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/learning/practice/PracticeInsights.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/learning/practice/PracticePage.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/learning/practice/PracticeSession.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/learning/practice/ReviewHome.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/learning/practice/practice-resume.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/sidebar/UtilitySidebar.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/sidebar/WorkspaceSidebar.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/space/question-bank/QuestionBankSection.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/space/question-bank/useQuestionBank.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/contracts/generated/api.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/contracts/schema/openapi.json",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/KnowledgeGraph.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/StudentAssessments.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/settings/sections/ArchivedChatsSettingsSection.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/lib/notebook-api.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/lib/practice-api.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/locales/en/app.json",
+        "action": "modify"
+      },
+      {
+        "path": "web/locales/zh/app.json",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/practice-workflow.spec.tsx",
+        "action": "modify"
+      }
+    ],
+    "hash_errors": [],
+    "reverse_patch_check": true
+  },
+  "host_source_hashes": [
+    {
+      "path": "database/models.py",
+      "sha256": "e242fe6da6dfcbc561b32226847777de44d7b3ab783cb743453151696d009e72"
+    },
+    {
+      "path": "integrations/deeptutor/model_credentials.py",
+      "sha256": "3e5bc06bce838c31a22f6f603bc123029cf5c311197be09a5f4013ed8b538051"
+    },
+    {
+      "path": "integrations/deeptutor/assessment_jobs.py",
+      "sha256": "a6a99deee31d7ecd39b0e4577fde75213d918dfd4f0f4a4fdf58de418239f198"
+    },
+    {
+      "path": "integrations/deeptutor/assessment_delivery.py",
+      "sha256": "ab3a45dc774a0904a1e127c92fda753b5b6ff2e360d9238ce55aca4ab92e4a3a"
+    },
+    {
+      "path": "integrations/deeptutor/assessment_intake.py",
+      "sha256": "e7ca553d79eb2858eb824f7da7bde2af23eef436d08e025adafb9b1d8c2a9d12"
+    },
+    {
+      "path": "integrations/deeptutor/assessment_publication.py",
+      "sha256": "7ee325811d839a05d9dcb6dc62e34394d717273f268224093085cf08538be5b6"
+    },
+    {
+      "path": "integrations/deeptutor/assessment_worker.py",
+      "sha256": "f1a5b741a34b2580f29dfbb9cacb5e126e60748c998d7b149e6a68cfa976e8d4"
+    },
+    {
+      "path": "integrations/deeptutor/heart_memory_api.py",
+      "sha256": "3bafe0c522ad0c8285059573205519cde7d5e38bb62580d681945be6e8814dc0"
+    },
+    {
+      "path": "integrations/deeptutor/practice_sync.py",
+      "sha256": "7266e3a954be0f2cbfa3ccf30101fb032d4dc17daccd430f54ca7632771b7366"
+    },
+    {
+      "path": "integrations/deeptutor/screenshot_intake.py",
+      "sha256": "7e84214fa705c86d685f2aaca5d1df4ae9e5572af310967d3a443ff1be6d0294"
+    },
+    {
+      "path": "integrations/deeptutor/attachment_retention.py",
+      "sha256": "6f31758d87b3b5cd6aec5f1eb3aa3528c7253690fac86ae47a0b45cd4e079854"
+    },
+    {
+      "path": "tests/test_student_model_credentials.py",
+      "sha256": "85ca6d63061d98680f73730ed710cc1a47f0ef8310792c207130670403ad2ebb"
+    },
+    {
+      "path": "tests/test_assessment_delivery.py",
+      "sha256": "1ec42c5e10fd2c494a4b3f67e708d678cd725fa42d4d4d53f470890ebe6bd33c"
+    },
+    {
+      "path": "tests/test_screenshot_intake.py",
+      "sha256": "b4fbe85890a16a951c017d310b4df912a2774186ff93c2fd461af62ca2040a92"
+    },
+    {
+      "path": "tests/test_screenshot_retention.py",
+      "sha256": "df571232e3be192e153aa6644347467e4edc0519954b3ba1c51fb45af4f5d023"
+    }
+  ],
+  "limits": [
+    "后台候选 independent=false，未完整覆盖的辅助追踪不放行独立掌握",
+    "浏览器评分/检索采用明确受控边界，截图识别另有真实 DeepSeek 验收",
+    "未运行全仓全部 Vitest",
+    "390px 为浏览器视口模拟，未测真实手机",
+    "正式服务未切换、旧聊天未迁入"
+  ],
+  "check_artifacts": [
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/browser-task8-results.json",
+      "sha256": "701c5228ada237cc1a0a6c14d0396806bee805f4bf59a0475dd118e69e442433"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/browser-task8.js",
+      "sha256": "d42027d5edf08b5de6eae432388ebd2540df06ed81a8661a982900795818bee1"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/check_task8.py",
+      "sha256": "a3ff49df7a61a2b835cfcb564fb111ab525f6cf0d3318081e8e5c3dc4b393b7b"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/README.md",
+      "sha256": "1de40c499c9c88fa4ca650b20680bd8155e4fa40b5b2b4f39e8a89b91ebfec72"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-browser.log",
+      "sha256": "fc7c9b17568585c52dc4d87ccff38f64e267f62af0fb749ec613220275ef584d"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-build.log",
+      "sha256": "40c2c02a44b2d235a2612c80e8644ece307e46f711f309acc987b8aa5fa2afba"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-contract-check.log",
+      "sha256": "64e1cc52a9649de49ea3c5899873d3be466c7d5caf72c1cce99833cab62c18e6"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-contracts.log",
+      "sha256": "7b9947fcff047c93556b8767c2ca08cdaeeca17cb1f2829f44782c50b76884cf"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-delivery-tests.log",
+      "sha256": "891e7cb16720d26429f89ea12cf6ba564d6d8db357c812fc85811e0340d61fc1"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-integration-results.json",
+      "sha256": "d5e7f2c3e170c27075c63e929ff24ef7039977d7ac85fcc015a569f7cfd47554"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-memory-tests.log",
+      "sha256": "4c0e1eb164d73ec29f2ca8a2d9d7100574d4de7fd359c4e71488370de7888961"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-native-tests.log",
+      "sha256": "1c1ad5534185c21c4171b8627eeaf51f81de4d36ecbe60700a1d521e0261c117"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-node.log",
+      "sha256": "8a7c558a4eff301c18e2ac5a15c6186357c92abd33780c1ffaab6136e124e5e3"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-provenance.json",
+      "sha256": "cac341fc3d1875498b918a5b51efaa13152bcf67439ec0b1d1b0addecd71a7eb"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-provenance.log",
+      "sha256": "181a1cbddb568436c3e6c1ea97a9657828ef53dd3917e867abb50848c19458ec"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-provenance.py",
+      "sha256": "77b090a4563af6dc19505fdd4164bd72d8d42a8453061e8659a149ec8f21c843"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-python.log",
+      "sha256": "0a8ce8bb033ec714ecca671a0a568cf11b7e33bcf1f6d2dc42cf31524851dcf0"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-real-vision-complete-raw.json",
+      "sha256": "0b9ca03f48f1efd8b786dcc00ae601c05b81aed75b0aef139a5f0a0f97c72635"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-real-vision-incomplete-raw.json",
+      "sha256": "d52b8f1bdbf935aaef7ba7431c3552719550792290fe7d86540092a5e141aa71"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-real-vision.json",
+      "sha256": "b69000a6db06c6bdfd7e9593476f0aed1294099ebf6f9742b463698386c3cc15"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-real-vision.log",
+      "sha256": "dcf25ef1356febc915d8ad1daf590eb455e7b175246b84152b633a28880cd124"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-real-vision.py",
+      "sha256": "5a26782a2c7359b82987bca26a4c8f8a9ec7dc3f85d658a42b79e4f4d7533caa"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-run-tests.py",
+      "sha256": "ec0db7fe9c5f882047f925383b3737ee48037d04721be5f9a9cf5bda532a6522"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-screenshot-tests.log",
+      "sha256": "56ef4b11633e6a2411392d10b63742209f896109029d630adb70de6d38b84a58"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-typecheck.log",
+      "sha256": "2230e90d45b9c1814de2d3d7f36c69df8930ee83dc9b214ba7ced20e68f127a4"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-unit.log",
+      "sha256": "8cc3a6e2051621580122a525b176e1b115b571bffa5c6f4468a9e188da2afbb2"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-vision-complete.png",
+      "sha256": "bb0136019dc068859962100937e1509f219d532d2acf276bdb92c522be75557c"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task8-checks/task8-vision-incomplete.png",
+      "sha256": "c5fe474d94b33532494729f22d28821f22b20d77c513d12fd6d1b9c67fc11ce6"
+    }
+  ]
+}

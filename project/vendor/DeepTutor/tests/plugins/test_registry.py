@@ -242,3 +242,50 @@ def test_registry_marks_managed_version_deprecated_from_catalog(tmp_path) -> Non
 
     assert record is not None
     assert record.status == "deprecated"
+
+
+def test_non_plugin_record_does_not_expand_package_file_inventory():
+    from deeptutor.plugins.registry import _manifest_files
+    class OrdinaryDistribution:
+        def read_text(self, name):
+            assert name == "RECORD"
+            return "ordinary/module.py,,\nordinary/data.bin,,\n"
+        @property
+        def files(self):
+            raise AssertionError("普通依赖无需展开完整文件清单")
+    assert _manifest_files(OrdinaryDistribution()) == []
+
+
+def test_record_fast_path_rechecks_changed_manifest_and_record(tmp_path):
+    from importlib.metadata import PathDistribution
+    from deeptutor.plugins.registry import _manifest_files
+    metadata = tmp_path / "sample.dist-info"
+    metadata.mkdir()
+    record = metadata / "RECORD"
+    record.write_text("ordinary/module.py,,\n", encoding="utf-8")
+    dist = PathDistribution(metadata)
+    assert _manifest_files(dist) == []
+    manifest_path = tmp_path / "DEEptutor.Plugin.JSON"
+    manifest_path.write_text(json.dumps(_manifest()), encoding="utf-8")
+    record.write_text(manifest_path.name + ",,\n", encoding="utf-8")
+    found = _manifest_files(dist)
+    assert found[0][1]["permissions"] == {"network": ["https://api.example.com"]}
+    changed = _manifest()
+    changed["permissions"] = {"network": ["https://changed.example.com"]}
+    manifest_path.write_text(json.dumps(changed), encoding="utf-8")
+    assert _manifest_files(dist)[0][1]["permissions"] == changed["permissions"]
+    record.write_text("ordinary/module.py,,\n", encoding="utf-8")
+    assert _manifest_files(dist) == []
+
+
+def test_missing_record_keeps_legacy_source_manifest_discovery(tmp_path):
+    from importlib.metadata import PathDistribution
+    from deeptutor.plugins.registry import _manifest_files
+    metadata = tmp_path / "sample.egg-info"
+    metadata.mkdir()
+    (metadata / "SOURCES.txt").write_text("deeptutor.plugin.json\n", encoding="utf-8")
+    path = tmp_path / "deeptutor.plugin.json"
+    path.write_text(json.dumps(_manifest()), encoding="utf-8")
+    found = _manifest_files(PathDistribution(metadata))
+    assert len(found) == 1
+    assert found[0][1]["id"] == "org.author.example"

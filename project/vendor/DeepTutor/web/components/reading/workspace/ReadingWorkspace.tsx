@@ -134,6 +134,11 @@ const AddMaterialsDialog = dynamic(
 );
 
 interface ReaderAskDetail {
+  materialId?: string;
+  materialRevision?: number;
+  documentId?: string;
+  version?: string;
+  pages?: import("@/lib/reading-turn-state").ReadingSelectionPage[];
   quote?: string;
   locator?: number;
   unit?: string;
@@ -193,7 +198,13 @@ export function ReadingWorkspacePage() {
   const [selection, setSelection] = useState<{
     quote: string;
     locator: number;
+    pages?: import("@/lib/reading-turn-state").ReadingSelectionPage[];
   } | null>(null);
+  useEffect(() => {
+    if (selection) setNotice("教材已切换或换版，旧选区已失效，请重新选择。");
+    setSelection(null);
+    setReadingViewport({ selection: "" });
+  }, [material?.material_id, material?.revision, material?.version]);
   const prefillInputRef = useRef<((text: string) => void) | null>(null);
   const [isDesktopWide, setIsDesktopWide] = useState(false);
 
@@ -319,6 +330,10 @@ export function ReadingWorkspacePage() {
   useEffect(() => {
     const onAsk = (event: Event) => {
       const detail = (event as CustomEvent<ReaderAskDetail>).detail;
+      if (detail?.materialId && (detail.materialId !== material?.material_id || detail.materialRevision !== (material?.revision ?? 1) || detail.version !== material?.version)) {
+        setNotice("教材已切换或换版，请重新选择引用。");
+        return;
+      }
       const quote = String(detail?.quote ?? "").trim();
       if (!quote) return;
       const locator = Number(detail.locator || activeLocator);
@@ -334,14 +349,14 @@ export function ReadingWorkspacePage() {
         !state.isStreaming &&
         !workspaceActionNeedsConfiguration(state.activeCapability)
       ) {
-        setReadingViewport({ locator, selection: quote });
+        setReadingViewport({ locator, selection: quote, selectionPages: detail.pages });
         sendMessage(prompt, undefined, undefined, undefined, linkedSessionIds);
         setSelection(null);
         window.setTimeout(() => setReadingViewport({ selection: "" }), 0);
         return;
       }
-      setSelection({ quote, locator });
-      setReadingViewport({ locator, selection: quote });
+      setSelection({ quote, locator, pages: detail.pages });
+      setReadingViewport({ locator, selection: quote, selectionPages: detail.pages });
       if (prompt) {
         window.requestAnimationFrame(() => prefillInputRef.current?.(prompt));
         return;
@@ -355,6 +370,7 @@ export function ReadingWorkspacePage() {
     return () => window.removeEventListener(READER_ASK_EVENT, onAsk);
   }, [
     activeLocator,
+    material?.material_id, material?.revision, material?.version, setNotice,
     linkedSessionIds,
     sendMessage,
     state.activeCapability,
@@ -379,6 +395,7 @@ export function ReadingWorkspacePage() {
     );
   }, [
     activeLocator,
+    material?.material_id, material?.revision, material?.version, setNotice,
     linkedSessionIds,
     sendMessage,
     state.isStreaming,

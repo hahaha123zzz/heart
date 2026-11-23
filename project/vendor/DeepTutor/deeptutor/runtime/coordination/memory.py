@@ -73,11 +73,12 @@ class MemoryCoordinator:
     async def release_turn(self, lease: TurnLease) -> bool:
         async with self._lock:
             current = self._turn_leases.get(lease.turn_id)
-            if current is None or (
+            if current is None or not self._active(current) or (
                 current.owner_id != lease.owner_id or current.fencing_token != lease.fencing_token
             ):
                 return False
             self._turn_leases.pop(lease.turn_id, None)
+            self._known_turns.discard(lease.turn_id)
             if self._session_turns.get(lease.session_id) == lease.turn_id:
                 self._session_turns.pop(lease.session_id, None)
             return True

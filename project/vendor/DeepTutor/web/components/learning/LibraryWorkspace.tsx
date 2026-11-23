@@ -1,10 +1,13 @@
 'use client'
 
+import { browserStorage } from "@/shared/storage";
+
 import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import Modal from '@/components/common/Modal'
+import { useAuthStatus } from '@/hooks/useAuthStatus'
 import { useChatWorkspaces } from '@/hooks/useChatWorkspaces'
 import { activeWorkspaceId, scopedUrl } from '@/lib/workspace-scope'
 import type { LearningOrigin } from '@/lib/learning-library'
@@ -19,8 +22,36 @@ export function WorkspaceLabel({ row }: { row: LearningOrigin }) {
 }
 
 export function useLibraryFilter<T extends LearningOrigin>(rows: T[]) {
-  const [filter, setFilter] = useState('*')
+  const pathname = usePathname()
+  const query = useSearchParams()
+  const router = useRouter()
+  const auth = useAuthStatus()
+  const filterKey = `dt.learning.filter:${auth.userId}:${pathname}`
+  const queryText = query.toString()
+  const queryFilter = query.get('library_workspace') ?? '*'
+  const [filter, setLocalFilter] = useState(queryFilter)
+  useEffect(() => setLocalFilter(queryFilter), [queryFilter])
+  const setFilter = (value: string) => {
+    setLocalFilter(value)
+    if (auth.userId && auth.statusAvailable) try { browserStorage.writeRaw("session", filterKey, value) } catch {}
+    const next = new URLSearchParams(query.toString())
+    if (value === '*') next.delete('library_workspace')
+    else next.set('library_workspace', value)
+    router.replace(`${pathname}${next.size ? `?${next}` : ''}`, { scroll: false })
+  }
   const { t } = useTranslation()
+  useEffect(() => {
+    if (!auth.userId || !auth.statusAvailable || query.has('library_workspace')) return
+    try {
+      const saved = browserStorage.readRaw("session", filterKey)
+      if (saved && saved !== '*') {
+        setLocalFilter(saved)
+        const next = new URLSearchParams(queryText)
+        next.set('library_workspace', saved)
+        router.replace(`${pathname}?${next}`, { scroll: false })
+      }
+    } catch {}
+  }, [auth.userId, auth.statusAvailable, filterKey, queryText, pathname, router])
   const options = new Map(rows.map(row => [row.content_workspace_id ?? '', workspaceName(row, t)]))
   // A workspace that no longer has rows cannot stay selected: its option is
   // gone, so nothing on screen would say why the list is empty.

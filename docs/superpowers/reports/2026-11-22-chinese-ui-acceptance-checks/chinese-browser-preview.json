@@ -1,0 +1,58 @@
+{
+  "base": "http://127.0.0.1:64531",
+  "pages": [
+    {
+      "route": "/learning",
+      "language": "zh",
+      "chinese": true
+    },
+    {
+      "route": "/chat",
+      "language": "zh",
+      "chinese": true
+    },
+    {
+      "route": "/learning/mastery",
+      "language": "zh",
+      "chinese": true
+    },
+    {
+      "route": "/learning/practice",
+      "language": "zh",
+      "chinese": true
+    },
+    {
+      "route": "/learning/reading",
+      "language": "zh",
+      "chinese": true
+    },
+    {
+      "route": "/learning/journal",
+      "language": "zh",
+      "chinese": true
+    },
+    {
+      "route": "/memory",
+      "language": "zh",
+      "chinese": true
+    },
+    {
+      "route": "/settings/model",
+      "language": "zh",
+      "chinese": true
+    },
+    {
+      "route": "/profile",
+      "language": "zh",
+      "chinese": true
+    }
+  ],
+  "loginErrorChinese": true,
+  "cachedEnglishMigrated": true,
+  "responseLanguagePreserved": true,
+  "reloadChinese": true,
+  "mobileWidth": 390,
+  "noOverflow": true,
+  "pageErrors": [],
+  "externalModelCalls": 0
+}

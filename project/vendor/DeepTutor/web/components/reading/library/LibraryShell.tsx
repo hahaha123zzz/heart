@@ -23,6 +23,7 @@ export function LibraryShell({
   collectionCount,
   materialCount,
   actionLabel,
+  showAction = true,
   onAction,
   scopeChip,
   children,
@@ -30,6 +31,7 @@ export function LibraryShell({
   view: 'collections' | 'materials'
   collectionCount?: number
   materialCount?: number
+  showAction?: boolean
   actionLabel: string
   onAction: () => void
   /** Rendered beside the title when this visit belongs to one course. */
@@ -74,7 +76,7 @@ export function LibraryShell({
         'Put PDFs, web pages and lectures into one collection and read them with an AI companion that can always point back to the source.'
       )}
       scopeChip={scopeChip}
-      action={
+      action={showAction ? (
         <button
           type="button"
           onClick={onAction}
@@ -83,7 +85,7 @@ export function LibraryShell({
           <Plus size={14} />
           {actionLabel}
         </button>
-      }
+      ) : undefined}
       tabs={
         <nav className="mt-5 flex gap-1 border-b border-[var(--border)]">
           <ViewTab

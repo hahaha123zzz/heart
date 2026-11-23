@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 import asyncio
+import re
+from urllib.parse import quote as url_quote
 
 from deeptutor.core.tool_protocol import BaseTool, ToolDefinition, ToolParameter, ToolResult
 
@@ -17,15 +19,14 @@ class HeartCourseRagTool(BaseTool):
         return ToolDefinition(
             name="rag",
             description=(
-                "Retrieve relevant passages from the course textbook attached to "
-                "this turn. Returns the page and section so a claim can be traced."
+                "在当前账号已授权的课程教材中检索相关原文，返回可核验的章节、PDF 页码、版本和可点击引用。"
             ),
             parameters=[
-                ToolParameter(name="query", type="string", description="Search query."),
+                ToolParameter(name="query", type="string", description="要检索的教材问题或概念。"),
                 ToolParameter(name="kb_name", type="string", required=False,
-                              description="Knowledge base name; the course textbook is the default."),
+                              description="课程教材名称；默认使用当前课程教材。"),
                 ToolParameter(name="limit", type="integer", required=False, default=6,
-                              description="Maximum passages, 1-12."),
+                              description="最多返回段落数，范围 1-12。"),
             ],
         )
 
@@ -37,11 +38,15 @@ class HeartCourseRagTool(BaseTool):
         kb_name = str(kwargs.get("kb_name") or "实验心理学")
         try:
             from knowledge import psychology_retrieval
-            rows = await asyncio.to_thread(psychology_retrieval.retrieve, query, [], limit=limit)
+            # Retrieve a wider candidate set so course permissions can be
+            # applied before any passage is returned to the model.
+            rows = await asyncio.to_thread(psychology_retrieval.retrieve, query, [], limit=40)
         except Exception as exc:  # noqa: BLE001 - 检索失败要回到模型而不是中断回合
             return ToolResult(content=f"教材检索暂不可用：{type(exc).__name__}", success=False)
+        rows = await asyncio.to_thread(_authorized_course_rows, rows)
+        rows = rows[:limit]
         if not rows:
-            return ToolResult(content="教材索引没有匹配段落；不要编造原文。",
+            return ToolResult(content="已授权的教材范围内没有足够匹配原文；不要编造依据。",
                               metadata={"query": query})
         from .native_grounding import prepare_retrieval
         try:
@@ -50,11 +55,93 @@ class HeartCourseRagTool(BaseTool):
             return ToolResult(content='本次检索原文未能通过正式证据核验，请缩小问题范围后重试。', success=False)
         if not sources:
             return ToolResult(content='没有可核验的教材证据，不要编造原文。', success=False)
-        lines = [f"教材检索结果（{len(sources)} 条，引用写作 [序号]）："]
+        linked_sources = []
+        citation_lines = []
         for source in sources:
-            location = f"第{source['chapter_id']}章，第{source['page']}页，{source['location']['section']}"
-            lines.append(f"[{source['index']}] {location} (source_id={source['rag_source_id']})\n{source['text']}")
-        return ToolResult(content="\n\n".join(lines), sources=sources)
+            citation = _reader_citation(source)
+            if not citation:
+                continue
+            source["reader_citation"] = citation
+            linked_sources.append(source)
+            location = f"第{source['chapter_id']}章，第{_reader_page(source)}页，{source['location']['section']}"
+            citation_lines.append(f"来源：{citation}（{location}）\n已核验原文：\n{source['text']}")
+        if not linked_sources:
+            return ToolResult(content="检索到的段落无法与当前教材阅读版本核对，本次不提供引用。", success=False)
+        lines = [
+            f"教材检索结果（{len(linked_sources)} 条）。最终回答只引用已核验原文，"
+            "并原样复制每条来源提供的完整 Markdown 教材角标链接；不要把跨章节页码改成当前章节页码。",
+            *citation_lines,
+        ]
+        return ToolResult(content="\n\n".join(lines), sources=linked_sources)
+
+
+def _authorized_course_rows(rows):
+    """Remove passages from chapters the current learner cannot open."""
+    from deeptutor.multi_user.context import get_current_user_or_none
+
+    user = get_current_user_or_none()
+    if user is None or user.is_admin:
+        return rows
+    from deeptutor.multi_user.learning_access import learning_material_allowed
+    from knowledge.pdf_reader import document_for_chapter
+
+    allowed = []
+    for row in rows:
+        chapter_id = getattr(row, "chapter_id", None)
+        try:
+            document = document_for_chapter(int(chapter_id))
+        except (TypeError, ValueError):
+            document = None
+        if document and learning_material_allowed(str(document.get("version") or "")[:16]):
+            allowed.append(row)
+    return allowed
+
+
+def _reader_page(source):
+    """PDF page of a verified source: its own page, else its section's page."""
+    page = source.get("page")
+    if isinstance(page, int) and page > 0:
+        return page
+    try:
+        from knowledge.pdf_reader import document_for_chapter
+
+        record = document_for_chapter(int(source.get("chapter_id"))) or {}
+    except (TypeError, ValueError):
+        return None
+    section_id = str(source.get("section_id") or "")
+    for section in record.get("sections") or ():
+        if str(section.get("id")) == section_id and isinstance(section.get("page"), int):
+            return section["page"]
+    return None
+
+
+def _reader_citation(source):
+    """Build a version-checked legacy-reader link for a verified RAG source."""
+    document_id = str(source.get("document_id") or "")
+    version = str(source.get("version") or "")
+    try:
+        chapter = int(source.get("chapter_id"))
+        page = _reader_page(source)
+    except (TypeError, ValueError):
+        return ""
+    if (not re.fullmatch(r"[a-f0-9]{64}", version)
+            or not isinstance(page, int) or page < 1
+            or chapter < 1):
+        return ""
+    material_id = version[:16]
+    try:
+        from deeptutor.reading import ReadingStore
+
+        manifest = ReadingStore().manifest(material_id)
+    except Exception:
+        return ""
+    if manifest.document_id != document_id or manifest.version != version:
+        return ""
+    revision = int(manifest.revision)
+    quote = str(source.get("quote") or "")[:2000]
+    suffix = f"?quote={url_quote(quote, safe='')}" if quote else ""
+    href = f"#dt-material-{material_id}-revision-{revision}-locator-{page}{suffix}"
+    return f"[教材第{chapter}章第{page}页]({href} \"citation\")"
 
 
 

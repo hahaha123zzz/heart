@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "local 8000 is the new authenticated frontend and old shell files are unavailable",
+    "all ten durable accounts log in with no old chat scores paths or personal key",
+    "local learning navigation model and memory pages use actual services",
+    "actual fixed graph remains version valid with no fabricated mastery",
+    "actual textbook PDF opens and practice starts empty"
+  ],
+  "failures": [],
+  "pageErrors": [],
+  "externalModelCalls": 0
+}

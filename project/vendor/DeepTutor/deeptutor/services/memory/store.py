@@ -430,9 +430,19 @@ def migrate_partner_surface_if_needed() -> bool:
 
 
 _singleton: MemoryStore | None = None
+_external_memory_store = None
+
+
+def set_external_memory_store(loader) -> None:
+    global _external_memory_store
+    _external_memory_store = loader
 
 
 def get_memory_store() -> MemoryStore:
+    if _external_memory_store is not None:
+        store = _external_memory_store()
+        if store is not None:
+            return store
     global _singleton
     if _singleton is None:
         _singleton = MemoryStore()

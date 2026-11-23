@@ -1,6 +1,5 @@
-import MemoryHub from "@/components/memory/MemoryHub";
-import { FeaturePage } from "@/components/layout/FeaturePage";
+import StudentMemory from "@/features/heart/StudentMemory";
 
 export default function MemoryPage() {
-  return <FeaturePage><MemoryHub /></FeaturePage>;
+  return <StudentMemory />;
 }

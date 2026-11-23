@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-18",
+  "browser": "可见 Chromium / Playwright",
+  "frontend": "隔离树 Next.js，Webpack 开发模式，127.0.0.1:3107",
+  "backend": "隔离厂家 API + H 个人模型/评估路由，127.0.0.1:18107",
+  "data": "随机临时 PostgreSQL、独立厂家运行目录、随机临时账号。评估为固定测试记录，不是真实模型输出。",
+  "viewports": [
+    "1440x1000",
+    "390x844"
+  ],
+  "passed": true,
+  "checks": [
+    {
+      "name": "匿名页面跳转登录，未认证评估 API 返回 401",
+      "passed": true
+    },
+    {
+      "name": "通过真实学生登录表单登录",
+      "passed": true
+    },
+    {
+      "name": "评估开关走真实 API 保存，刷新后保持状态",
+      "passed": true
+    },
+    {
+      "name": "学习记录展示待同步/已同步/辅助/结果不明与教材依据",
+      "passed": true
+    },
+    {
+      "name": "请求失败时保留旧记录并标记过时，恢复后可刷新",
+      "passed": true
+    },
+    {
+      "name": "390px 手机宽度下学习概览与模型设置无页面横向溢出",
+      "passed": true
+    },
+    {
+      "name": "第二账号无法读取第一账号记录",
+      "passed": true
+    }
+  ],
+  "uncaught_page_errors": [],
+  "limits": [
+    "未调用外部模型",
+    "未覆盖所有练习/截图/图谱真实数据交互",
+    "测试启动脚本未安装完整宿主 worker 桥接与评分消费者，不能等同部署启动验收"
+  ],
+  "cleanup": "测试前后端已退出，临时 PostgreSQL 数据库由测试上下文清理；临时运行目录仅保留测试资料和密码哈希，无明文登录密码。"
+}

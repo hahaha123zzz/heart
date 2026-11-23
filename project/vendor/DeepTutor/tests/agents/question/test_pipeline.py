@@ -1018,7 +1018,7 @@ def test_summarize_tool_result_streams_chunks_and_returns_assembled_text() -> No
     summary = asyncio.run(
         pipeline._summarize_tool_result(
             tool_name="rag",
-            tool_result="<long raw rag result here>",
+            tool_result="long raw rag result with repeated details\n" * 1000,
             iteration=1,
             stream=bus,
             client=_FakeClient(),
@@ -1037,6 +1037,58 @@ def test_summarize_tool_result_streams_chunks_and_returns_assembled_text() -> No
     # Concatenated thinking text matches the returned summary.
     joined = "".join(ev["text"] for ev in bus.thinking_events)  # type: ignore[attr-defined]
     assert joined == summary
+
+
+@pytest.mark.parametrize("tool_name, content", [
+    ("rag", "教材原文 [1]：自变量是研究者操纵的变量。source_id=stable-id"),
+    ("kb_files", "chapter-01.txt\nchapter-02.txt"),
+    ("rag", "检索失败：教材版本已变化，请重新发起任务。"),
+])
+def test_short_tool_result_keeps_original_without_model_reflection(tool_name, content) -> None:
+    pipeline = _make_pipeline()
+    bus = _StubStreamBus()
+    result = asyncio.run(pipeline._summarize_tool_result(
+        tool_name=tool_name, tool_result=content, iteration=0,
+        stream=bus, client=object(),
+    ))
+    assert result is None
+    assert bus.progress_events == []
+
+
+def test_tool_result_at_summary_budget_keeps_original() -> None:
+    from deeptutor.services.session.context_builder import count_tokens
+    pipeline = _make_pipeline()
+    content = "已核验原文 [7]：实验者操纵自变量。source_id=stable-id"
+    pipeline.tool_summarizer_max_tokens = count_tokens(content)
+    bus = _StubStreamBus()
+    result = asyncio.run(pipeline._summarize_tool_result(
+        tool_name="rag", tool_result=content, iteration=0,
+        stream=bus, client=object(),
+    ))
+    assert result is None
+    assert bus.progress_events == []
+
+
+def test_short_tool_dispatch_preserves_evidence_ids_and_control_state() -> None:
+    from deeptutor.agents.question.pipeline import _BaseLoopHost, _ExploreLoopHost
+    from deeptutor.core.context import UnifiedContext
+    from deeptutor.runtime.agentic import DispatchOutcome
+    bus = _StubStreamBus()
+    original = DispatchOutcome(
+        sources=[{"source_id": "verified-id", "version": "v1", "index": 7}],
+        tool_messages=[{"role": "tool", "tool_call_id": "call-1",
+                        "content": "教材版本已变化；[7] 不可用于当前回答。"}],
+        tool_metadata_by_id={"call-1": {"error_type": "stale", "source_id": "verified-id"}},
+        pause=True, pause_payload={"question": "重新选择教材？"}, pause_tool_call_id="call-1",
+    )
+    host = _ExploreLoopHost(pipeline=_make_pipeline(), stream=bus,
+                            context=UnifiedContext(), client=object())
+    with patch.object(_BaseLoopHost, "dispatch_tools", new=AsyncMock(return_value=original)):
+        result = asyncio.run(host.dispatch_tools(
+            iteration=0, tool_calls=[{"id": "call-1", "name": "rag"}],
+        ))
+    assert result == original
+    assert bus.progress_events == []
 
 
 def test_summarize_tool_result_empty_input_returns_none() -> None:

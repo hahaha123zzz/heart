@@ -184,7 +184,7 @@ def _as_chunk(row: sqlite3.Row, *, text: str | None = None) -> TextbookChunk:
 
 @lru_cache(maxsize=2)
 def _vectors(path: str, modified: int) -> tuple[str | None, list[tuple[str, array, float]]]:
-    with closing(sqlite3.connect(path)) as db:
+    with closing(sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True)) as db:
         model_row = db.execute("SELECT value FROM metadata WHERE key='embedding_model'").fetchone()
         if not model_row:
             return None, []
@@ -447,7 +447,7 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
         return []
     scores: dict[str, float] = {}
     try:
-        db = sqlite3.connect(index)
+        db = sqlite3.connect(Path(index).resolve().as_uri() + "?mode=ro", uri=True)
         db.row_factory = sqlite3.Row
         try:
             subject = _definition_subject(query)

@@ -1,0 +1,129 @@
+{
+  "baseline_files": 3764,
+  "local_changes": 156,
+  "local_deletions": 101,
+  "task5": [
+    {
+      "path": "deeptutor/api/routers/auth.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/api/routers/learning_journal.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/multi_user/grants.py",
+      "action": "modify"
+    },
+    {
+      "path": "tests/multi_user/test_learning_policy.py",
+      "action": "modify"
+    },
+    {
+      "path": "tests/multi_user/test_learning_surface_map.py",
+      "action": "modify"
+    },
+    {
+      "path": "web/app/(workspace)/learning/journal/page.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/app/(workspace)/learning/mastery/[pathId]/page.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/layout/FeaturePage.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/learning/LearningDashboard.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/learning/LearningScrollRestoration.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/learning/LearningWays.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/learning/LibraryWorkspace.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/space/LearningJournalPanel.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/space/learning/TopicMapCard.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/space/learning/TopicWizardSteps.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/contracts/generated/api.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/contracts/schema/openapi.json",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/AssessmentEvidence.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/StudentAssessments.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/hooks/useTopicSourceLibrary.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/capability-routes.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/learning-dashboard.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/learning-journal-api.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/assessment-evidence.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/capability-access.test.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/learning-dashboard.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/learning-journal-panel.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/learning-library-workspaces.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/learning-scroll-restoration.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/learning-source-library.spec.tsx",
+      "action": "modify"
+    }
+  ],
+  "hash_errors": [],
+  "reverse_patch_check": true
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "heart-graph-release-v1",
+  "course_id": "experimental-psychology-3",
+  "workspace": "deeptutor_426733019d24d665",
+  "status": "approved_isolated_snapshot",
+  "approved_on": "2026-11-21",
+  "approval": "用户确认固定快照用于任务六隔离验收；正式服务和原索引不切换",
+  "control_hashes": {
+    "input_manifest.json": "ca81fddc5c4c970569d1feebba208ffe147e75b3611b0f4e33d720754f289c77",
+    "progress.json": "77b03b9d25641a158aad479cb6187686064ee7e35f88a56d149ffcbe9b551751",
+    "index_files.json": "e58c0ae96e5ede80a0a0e20cd9f24df7cb48912609c5b292dee1c8fcbe288124",
+    "source_map.json": "986fd9bf9785588b023a6ca1c19036e0a936c94f4ab0ae00a1b43c852a1988a3",
+    "index/meta.json": "4e552f354df218adf31dcd7c4daf0f204c0b692ea82bf587bc5f3abdcb7f8c77"
+  },
+  "catalog_sha256": "8e70e39f23ee3a77b47ecf3f5639995bed1bb0458c4dda096fcbd13130dad19f",
+  "graph_tables": {
+    "lightrag_graph_nodes": {
+      "count": 7138,
+      "updated_at": "2026-11-16 11:15:42.866519+08:00"
+    },
+    "lightrag_graph_edges": {
+      "count": 14741,
+      "updated_at": "2026-11-16 11:15:51.497428+08:00"
+    }
+  },
+  "release_id": "aff825f68e24136fa0d9b5c832bcca44502db36140a3624c99ca010a44bde80c"
+}

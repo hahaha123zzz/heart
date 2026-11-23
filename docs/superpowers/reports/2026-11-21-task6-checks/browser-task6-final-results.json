@@ -1,0 +1,52 @@
+{
+  "checks": [
+    "anonymous graph and document requests require native authentication",
+    "actual textbook graph and native Sigma renderer load without graph management",
+    "fresh accounts do not inherit the previous real assessment records",
+    "confirmed mapping detail exposes actual source and verified textbook file",
+    "graph selection and scope survive leaving and returning",
+    "server caps, release rejection and partial-display message are enforced",
+    "empty scope stays empty and chapter switches discard old selection",
+    "WebGL-disabled browser retains searchable selectable concept list",
+    "controlled ambiguous and due boundaries do not edit persisted records",
+    "graph read failure can be retried against the actual service",
+    "390px concept view stays within viewport",
+    "confirmed concept opens native guidance with stable knowledge point ID",
+    "no uncaught browser error"
+  ],
+  "failures": [],
+  "pageErrors": [],
+  "controlled_states": [
+    "ambiguous mapping response",
+    "due-time response; no persisted result altered"
+  ],
+  "navigations": [
+    "http://127.0.0.1:60305/login?next=%2Fsettings%2Fmodel",
+    "http://127.0.0.1:60305/login?next=%2Fsettings%2Fmodel",
+    "http://127.0.0.1:60305/settings/model",
+    "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+    "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+    "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1&node=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+    "http://127.0.0.1:60305/learning/journal",
+    "http://127.0.0.1:60305/learning/journal",
+    "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1&node=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+    "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1&node=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+    "http://127.0.0.1:60305/learning/graph?chapter=1",
+    "http://127.0.0.1:60305/learning/graph?chapter=1",
+    "http://127.0.0.1:60305/learning/graph?chapter=3&q=no-such-concept-task6",
+    "http://127.0.0.1:60305/learning/graph?chapter=3&q=no-such-concept-task6",
+    "http://127.0.0.1:60305/learning/graph?chapter=2",
+    "http://127.0.0.1:60305/learning/graph?chapter=3",
+    "http://127.0.0.1:60305/learning/graph?chapter=3",
+    "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+    "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+    "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1&node=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+    "http://127.0.0.1:60305/learning/mastery/topic_0f94ebc87a4c4940afeb7dd07cda80f8/sessions"
+  ],
+  "pathRequests": [
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:60305/api/mastery-paths/topics?dt_workspace="
+    }
+  ]
+}

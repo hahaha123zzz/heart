@@ -179,3 +179,19 @@ def test_learner_preset_falls_back_to_the_conservative_policy(mu_isolated_root, 
         "material_ids": [],
         "extensions": [],
     }
+
+
+def test_mastery_tutoring_requires_explicit_learning_grant_and_keeps_tool_limits(mu_isolated_root, seed_user, as_user):
+    learner = _seed_learner(seed_user, "mastery-student")
+    grant = _policy_grant()
+    save_grant(learner["id"], grant)
+    with as_user(learner["id"], username="mastery-student"):
+        with pytest.raises(PermissionError, match="cannot use this mode"):
+            apply_learning_policy({"capability": "mastery_path"})
+    grant["learning_policy"]["allowed_capabilities"].append("mastery_path")
+    save_grant(learner["id"], grant)
+    with as_user(learner["id"], username="mastery-student"):
+        payload = apply_learning_policy({"capability": "mastery_path", "workspace_mode": "mastery_path", "mastery_path_id": "owned-path", "tools": ["web_search"]})
+    assert payload["capability"] == "mastery_path"
+    assert payload["mastery_path_id"] == "owned-path"
+    assert payload["tools"] == [] and payload["enabled_tools"] == []

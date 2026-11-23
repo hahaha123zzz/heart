@@ -1,0 +1,107 @@
+[
+  {
+    "file": "app/(auth)/login/page.tsx",
+    "line": 61,
+    "text": "DeepTutor"
+  },
+  {
+    "file": "app/(settings)/settings/model/page.tsx",
+    "line": 111,
+    "text": "https://api.example.com/v1"
+  },
+  {
+    "file": "app/(settings)/settings/model/page.tsx",
+    "line": 117,
+    "text": "gpt-4o-mini"
+  },
+  {
+    "file": "components/chat/home/SessionLoadingView.tsx",
+    "line": 62,
+    "text": "DeepTutor"
+  },
+  {
+    "file": "components/layout/AppShell.tsx",
+    "line": 118,
+    "text": "DeepTutor"
+  },
+  {
+    "file": "components/layout/AppShell.tsx",
+    "line": 125,
+    "text": "DeepTutor"
+  },
+  {
+    "file": "components/mcp/McpServerForm.tsx",
+    "line": 195,
+    "text": "my-server"
+  },
+  {
+    "file": "components/mcp/McpServerForm.tsx",
+    "line": 233,
+    "text": "npx"
+  },
+  {
+    "file": "components/mcp/McpServerForm.tsx",
+    "line": 258,
+    "text": "/path/to/workdir"
+  },
+  {
+    "file": "components/mcp/McpServerForm.tsx",
+    "line": 284,
+    "text": "https://example.com/mcp"
+  },
+  {
+    "file": "components/settings/ServiceConfigEditor.tsx",
+    "line": 898,
+    "text": "gpt-4o"
+  },
+  {
+    "file": "components/settings/ServiceConfigEditor.tsx",
+    "line": 1081,
+    "text": "alloy"
+  },
+  {
+    "file": "components/settings/ServiceConfigEditor.tsx",
+    "line": 1867,
+    "text": "{\"APP-Code\":\"your-app-code\"}"
+  },
+  {
+    "file": "components/settings/VoiceModelFields.tsx",
+    "line": 122,
+    "text": "volc.bigasr.auc_turbo"
+  },
+  {
+    "file": "components/sidebar/SidebarShell.tsx",
+    "line": 192,
+    "text": "DeepTutor"
+  },
+  {
+    "file": "components/sidebar/SidebarShell.tsx",
+    "line": 197,
+    "text": "DeepTutor"
+  },
+  {
+    "file": "components/sidebar/SidebarShell.tsx",
+    "line": 261,
+    "text": "DeepTutor"
+  },
+  {
+    "file": "components/sidebar/SidebarShell.tsx",
+    "line": 268,
+    "text": "DeepTutor"
+  },
+  {
+    "file": "features/chat/components/ChatWorkspace.tsx",
+    "line": 2508,
+    "text": "DeepTutor"
+  },
+  {
+    "file": "features/runtime-status/TurnCoordinationSettings.tsx",
+    "line": 86,
+    "text": "Redis"
+  },
+  {
+    "file": "features/settings/sections/UsageSettingsSection.tsx",
+    "line": 212,
+    "text": "tokens"
+  }
+]

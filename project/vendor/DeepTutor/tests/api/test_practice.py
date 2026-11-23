@@ -393,3 +393,143 @@ def test_analytics_local_midnight_dst_zero_days_and_deleted_sources(bank):
     with repo.connect() as conn:
         conn.execute("UPDATE sessions SET deleted_at=? WHERE id='lesson'", (now,))
     assert repo.analytics("America/New_York", 7, now=now)["sources"] == []
+
+
+
+def test_assessment_capability_guard_blocks_new_reviews_but_keeps_saved_replay(bank, monkeypatch):
+    from types import SimpleNamespace
+    from deeptutor.learning import service
+    from deeptutor.multi_user.context import set_current_user, reset_current_user
+    from fastapi import HTTPException
+    store, repo, _ = bank
+    entry = seed(store)
+    state = repo.state(entry["id"])
+    saved = repo.review(entry["id"], "saved-review-guard", state["version"], "good", "B")
+    def deny(user):
+        raise service.MasteryInteractionError("评分已暂停，请验证评估能力。")
+    monkeypatch.setattr(service, "_external_assessment_guard", deny)
+    token = set_current_user(SimpleNamespace(is_admin=False))
+    try:
+        assert repo.review(entry["id"], "saved-review-guard", state["version"], "good", "B") == saved
+        with pytest.raises(service.MasteryInteractionError):
+            repo.review(entry["id"], "new-review-guard", saved["version"], "good", "B")
+        with pytest.raises(HTTPException) as error:
+            asyncio.run(practice.check(entry["id"], practice.AnswerRequest(answer="B")))
+        assert error.value.status_code == 409
+    finally:
+        reset_current_user(token)
+    assert repo.state(entry["id"])["version"] == saved["version"]
+
+
+
+def test_reference_answer_is_released_after_recording_the_first_submission(bank):
+    store, repo, client = bank
+    entry = seed(store, explanation="Unique reference explanation")
+    ident = entry["id"]
+    for candidate in [client.get(f"/practice/questions/{ident}").json(), *client.get("/practice/queue").json()]:
+        assert candidate["entry"]["correct_answer"] == ""
+        assert candidate["entry"]["explanation"] == ""
+        assert candidate["entry"]["user_answer"] == ""
+    version = repo.state(ident)["version"]
+    url = f"/practice/questions/{ident}/check"
+    assert client.post(url, json={"answer": "A", "version": version + 1}).status_code == 409
+    first = client.post(url, json={"answer": "A", "version": version}).json()
+    assert first == {"correct": False, "correct_answer": "B", "explanation": "Unique reference explanation"}
+    assert client.post(url, json={"answer": "B", "version": version}).json()["correct"] is True
+    review = repo.review(ident, "reveal-then-edit", version, "good", "B")
+    assert review["assistance"]["status"] == "assisted"
+    next_review = repo.review(ident, "later-round", review["version"], "again", "A")
+    assert next_review["assistance"]["status"] == "assisted"
+
+
+def test_original_answer_is_recorded_as_pre_reveal_without_claiming_independence(bank):
+    store, repo, client = bank
+    ident = seed(store)["id"]
+    version = repo.state(ident)["version"]
+    client.post(f"/practice/questions/{ident}/check", json={"answer": "B", "version": version}).raise_for_status()
+    result = repo.review(ident, "original-first-answer", version, "good", "B")
+    assert result["assistance"]["status"] == "answer_committed_before_reveal"
+    assert "independent" not in result["assistance"]
+    direct = seed(store, question_id="direct-q")
+    skipped_check = repo.review(direct["id"], "direct-without-check", repo.state(direct["id"])["version"], "good", "B")
+    assert skipped_check["assistance"] == {"status": "not_verified"}
+
+
+@pytest.mark.parametrize("surface", ["detail", "list", "lookup"])
+def test_notebook_reference_exposure_marks_later_practice_assisted(bank, surface):
+    store, repo, client = bank
+    entry = seed(store)
+    urls = {
+        "detail": f"/bank/entries/{entry['id']}",
+        "list": "/bank/entries",
+        "lookup": "/bank/entries/lookup/by-question?session_id=lesson&question_id=q1",
+    }
+    for _ in range(2):
+        assert client.get(urls[surface]).status_code == 200
+    repo.reveal_answer(entry["id"], "B", 0)
+    result = repo.review(entry["id"], "after_reference", 0, "good", "B")
+    assert result["assistance"]["status"] == "assisted"
+    with repo.connect() as conn:
+        assert conn.execute("SELECT COUNT(*) FROM practice_answer_reveals").fetchone()[0] == 1
+
+
+def test_notebook_read_after_committed_answer_preserves_first_reveal(bank):
+    store, repo, client = bank
+    entry = seed(store)
+    repo.reveal_answer(entry["id"], "B", 0)
+    assert client.get(f"/bank/entries/{entry['id']}").status_code == 200
+    result = repo.review(entry["id"], "committed_first", 0, "good", "B")
+    assert result["assistance"]["status"] == "answer_committed_before_reveal"
+
+
+def test_notebook_exposure_is_bound_to_question_snapshot(bank):
+    store, repo, client = bank
+    entry = seed(store)
+    assert client.get(f"/bank/entries/{entry['id']}").status_code == 200
+    seed(store, question="A different question", correct_answer="A")
+    version = repo.state(entry["id"])["version"]
+    repo.reveal_answer(entry["id"], "A", version)
+    result = repo.review(entry["id"], "changed_question", version, "good", "A")
+    assert result["assistance"]["status"] == "answer_committed_before_reveal"
+
+
+
+def test_notebook_list_records_only_returned_references(bank):
+    store, repo, client = bank
+    unseen = seed(store)
+    visible = seed(store, question_id="q2", question="Visible reference")
+    blank = seed(store, question_id="q3", correct_answer="", explanation="", ai_judgment="")
+    assert client.get("/bank/entries?search=Visible").status_code == 200
+    assert client.get(f"/bank/entries/{blank['id']}").status_code == 200
+    with repo.connect() as conn:
+        ids = [row[0] for row in conn.execute("SELECT entry_id FROM practice_answer_reveals")]
+    assert ids == [visible["id"]]
+    assert unseen["id"] not in ids
+
+
+def test_notebook_upsert_response_also_records_reference(bank):
+    store, repo, client = bank
+    entry = seed(store)
+    response = client.post("/bank/entries/upsert", json={
+        "session_id": "lesson", "question_id": "q1", "question": "2 + 2?",
+        "question_type": "single_choice", "options": {"A": "3", "B": "4"},
+        "correct_answer": "B", "user_answer": "A", "source": "deep_question",
+    })
+    assert response.status_code == 200
+    version = repo.state(entry["id"])["version"]
+    repo.reveal_answer(entry["id"], "B", version)
+    result = repo.review(entry["id"], "after_save", version, "good", "B")
+    assert result["assistance"]["status"] == "assisted"
+
+
+def test_canonical_point_and_path_scope_filter_before_queue_limit(bank):
+    store,repo,client=bank
+    first=seed(store,question_id="scope-1",knowledge_point_id="kc-3-1",mastery_path_id="path-a")
+    seed(store,question_id="scope-2",knowledge_point_id="kc-3-2",mastery_path_id="path-b")
+    query="knowledge_point_id=kc-3-1&mastery_path_id=path-a"
+    assert client.get("/practice/summary?"+query).json()["total"]==1
+    assert client.get("/bank/stats?"+query).json()["total"]==1
+    ids=repo.queue("UTC",now=first["created_at"]+2*DAY,knowledge_point_id="kc-3-1",mastery_path_id="path-a",limit=1)
+    assert ids==[first["id"]]
+    assert repo.queue("UTC",now=first["created_at"]+2*DAY,knowledge_point_id="kc-%")==[]
+    assert client.get("/practice/analytics?"+query).json()["totals"]["questions"]==1

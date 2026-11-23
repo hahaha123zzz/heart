@@ -1,9 +1,12 @@
 'use client'
 
+import Link from 'next/link'
+import { learningLibrary } from '@/lib/learning-library'
 import { pageGridClass } from '@/components/layout/FeaturePage'
 import { useEffect, useState } from 'react'
 import { BookOpen, Route } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { fetchAuthStatus } from '@/lib/auth'
 import { apiFetch, apiUrl } from '@/lib/api'
 import { scopedUrl } from '@/lib/workspace-scope'
 import { bookRoute } from '@/lib/learning-routes'
@@ -50,11 +53,23 @@ export function LearningDashboard() {
       let failures: LearningKind[] = []
       let result: LearningSources = { books: [], mastery: [], reading: [], watching: [] }
       try {
-        const response = await apiFetch(apiUrl(scopedUrl('/api/dashboard/learning-index', '')), { signal: AbortSignal.timeout(20000) })
-        if (!response.ok) throw new Error('Learning index unavailable')
-        const payload = await response.json() as { sources: LearningSources; failed: LearningKind[] }
-        result = payload.sources
-        failures = payload.failed
+        const auth = await fetchAuthStatus()
+        if (auth?.learning_policy) {
+          const [mastery, reading] = await Promise.allSettled([
+            learningLibrary<LearningSources['mastery'][number]>('mastery'),
+            learningLibrary<LearningSources['reading'][number]>('reading'),
+          ])
+          if (mastery.status === 'fulfilled') { result.mastery = mastery.value.items; if (mastery.value.unavailable_workspaces.length) failures.push('mastery') }
+          else failures.push('mastery')
+          if (reading.status === 'fulfilled') { result.reading = reading.value.items; if (reading.value.unavailable_workspaces.length) failures.push('reading') }
+          else failures.push('reading')
+        } else {
+          const response = await apiFetch(apiUrl(scopedUrl('/api/dashboard/learning-index', '')), { signal: AbortSignal.timeout(20000) })
+          if (!response.ok) throw new Error('Learning index unavailable')
+          const payload = await response.json() as { sources: LearningSources; failed: LearningKind[] }
+          result = payload.sources
+          failures = payload.failed
+        }
       } catch { failures = ['books', 'mastery', 'reading', 'watching'] }
       const { books, mastery, reading, watching } = result
       if (alive) {
@@ -87,11 +102,17 @@ export function LearningDashboard() {
   return (
     <LearningShell
       back={false}
-      title={t('Personalized Learning')}
+      title="我的学习"
       subtitle={t('One tutor, your own way to learn.')}
     >
       {/* The ways in lead the page: everything below them assumes you already
           chose one. Each opens its own introduction before it commits you. */}
+      <nav aria-label="学习记录与设置" className="mb-6 flex flex-wrap gap-3 text-sm">
+        <Link href="/learning/journal" className="rounded-lg border border-border px-4 py-2 hover:bg-accent">学习档案与证据</Link>
+        <Link href="/learning/mastery" className="rounded-lg border border-border px-4 py-2 hover:bg-accent">学习路径</Link>
+        <Link href="/learning/graph" className="rounded-lg border border-border px-4 py-2 hover:bg-accent">知识图谱</Link>
+        <Link href="/memory" className="rounded-lg border border-border px-4 py-2 hover:bg-accent">学习记忆</Link>
+      </nav>
       <LearningWays />
       {failed.length > 0 && (
         <LearningErrorState

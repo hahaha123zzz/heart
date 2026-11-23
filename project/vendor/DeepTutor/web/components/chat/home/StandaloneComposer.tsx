@@ -17,6 +17,7 @@
  * should go.
  */
 
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 import { ResourceReuseContext, useResourceReusePolicy } from "./ResourceReuse";
 import { retainedKnowledgeBases } from "@/lib/resource-reuse";
 import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
@@ -602,11 +603,13 @@ function StandaloneComposerImpl({
   // Seeded from the configured default; the chip's stepper overrides it for
   // the next turn. Null until the setting loads, which is also what "no agent
   // selected" looks like — neither case has a budget to send.
+  const { loading: authLoading, learningPolicy } = useAuthStatus();
   const [subagentBudget, setSubagentBudget] = useState<number | null>(null);
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const [selectedPartnerGroup, setSelectedPartnerGroup] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading || learningPolicy) return;
     let cancelled = false;
     void getSubagentSettings()
       .then((settings) => {
@@ -616,7 +619,7 @@ function StandaloneComposerImpl({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [authLoading, learningPolicy]);
 
   const handleClearPersona = useCallback(() => setSelectedPersona(null), []);
   const handleToggleMemoryFile = useCallback((file: SpaceMemoryFile) => {

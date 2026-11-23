@@ -1,0 +1,27 @@
+{
+  "checks": [
+    "anonymous learning and journal require authentication",
+    "empty account has no invented progress or other account journal",
+    "native source indexes are available only within learner surface",
+    "native path creation and owner isolation",
+    "rename and module editor persist vendor records",
+    "detail view returns to its selected board",
+    "empty native path has no mastery percentage",
+    "overview and library share the same vendor path",
+    "native journal paginates on demand and preserves handoff",
+    "learning journal scroll returns to previous position",
+    "journal error is visible and refresh recovers",
+    "module tutoring uses native sessions and local model transport",
+    "reset requires confirmation and uses vendor reset",
+    "390px journal has no horizontal overflow",
+    "no browser runtime errors"
+  ],
+  "failures": [],
+  "pageErrors": [],
+  "httpFailures": [
+    [
+      "/api/learning-journal",
+      503
+    ]
+  ]
+}

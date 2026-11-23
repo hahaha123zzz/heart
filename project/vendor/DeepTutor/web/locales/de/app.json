@@ -5505,5 +5505,10 @@
   "No durable indexing run recorded yet.": "Noch kein dauerhafter Indexierungslauf aufgezeichnet.",
   "Approve this MCP origin for private-network connections": "Diesen MCP-Ursprung für private Netzwerkverbindungen freigeben",
   "Use an administrator-approved private MCP origin": "Einen administrativ freigegebenen privaten MCP-Ursprung verwenden",
-  "Only this scheme, host and port can use private Docker or LAN addresses. Metadata addresses remain blocked.": "Nur dieses Schema, dieser Host und Port dürfen private Docker- oder LAN-Adressen verwenden. Metadatenadressen bleiben gesperrt."
+  "Only this scheme, host and port can use private Docker or LAN addresses. Metadata addresses remain blocked.": "Nur dieses Schema, dieser Host und Port dürfen private Docker- oder LAN-Adressen verwenden. Metadatenadressen bleiben gesperrt.",
+  "关闭导航": "Navigation schließen",
+  "教材阅读区": "Lehrbuchbereich",
+  "辅导消息": "Lernnachrichten",
+  "选择已授权教材": "Zugewiesenes Lehrbuch auswählen",
+  "Enter your username": "Benutzernamen eingeben"
 }

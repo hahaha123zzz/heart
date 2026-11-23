@@ -12,23 +12,19 @@ import {
 
 beforeEach(() => localStorage.clear());
 
-it("new profiles see five primary entries and two folded features", () => {
+it("new profiles see two primary entries and no folded features", () => {
   expect(readNavLayout()).toBeNull();
   const resolved = resolveNavLayout(
     PRIMARY_NAV_HREFS,
     readNavLayout(),
     DEFAULT_COLLAPSED_NAV
   );
-  expect(resolved.visible).toEqual([
-    "/chat",
-    "/partners",
-    "/learning",
-    "/space",
-    "/kanban",
-  ]);
-  expect(resolved.collapsed).toEqual(["/co-writer", "/agents"]);
+  expect(resolved.visible).toEqual(["/chat", "/learning"]);
+  expect(resolved.collapsed).toEqual([]);
   expect(resolved.customized).toBe(false);
-  expect(SECONDARY_NAV.map(item => item.href)).toEqual(["/settings"]);
+  expect(SECONDARY_NAV.map(item => item.href)).toEqual([
+    "/settings",
+  ]);
 });
 
 it("storage round trips an intentionally expanded layout without reapplying defaults", () => {

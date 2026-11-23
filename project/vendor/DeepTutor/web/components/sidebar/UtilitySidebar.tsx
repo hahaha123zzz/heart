@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { SidebarShell } from "@/components/sidebar/SidebarShell";
 import { LogoutButton } from "@/components/auth/LogoutButton";
-import { AdminLink } from "@/components/auth/AdminLink";
 import { ProfileLink } from "@/components/auth/ProfileLink";
 import { useAppShell } from "@/context/AppShellContext";
 import {
@@ -111,7 +110,7 @@ export default function UtilitySidebar() {
 
   const handleDeleteSession = useCallback(
     async (sessionId: string) => {
-      if (!window.confirm(t("Permanently delete this chat and its tutor threads? This cannot be undone."))) return;
+      if (!window.confirm(t("Permanently delete this chat and its tutor threads? This cannot be undone.")+"\n\n已形成的评估和必要作答证据会保留；已建评估仍可能继续调用个人模型、产生费用并新增证据。")) return;
       await deleteSession(sessionId, sessionWorkspaceId(sessions.find(item => item.session_id === sessionId)));
       setSessions((prev) =>
         prev.filter((session) => session.session_id !== sessionId),
@@ -159,7 +158,7 @@ export default function UtilitySidebar() {
       footerSlot={(collapsed) => (
         <>
           <ProfileLink collapsed={collapsed} />
-          <AdminLink collapsed={collapsed} />
+
           <LogoutButton collapsed={collapsed} />
         </>
       )}

@@ -202,6 +202,7 @@ export function ReaderPane({
     null,
   );
   const [selection, setSelection] = useState<SelectionPayload | null>(null);
+  useEffect(() => { setSelection(null); window.getSelection()?.removeAllRanges(); }, [material?.material_id, material?.revision, material?.version]);
   // Whether the annotation popover is showing, kept apart from whether there
   // IS a selection. They used to be the same flag, and the popover dismisses
   // itself on a document-level, capture-phase `pointerdown` — so pressing a
@@ -616,7 +617,7 @@ export function ReaderPane({
         return true;
       }
       rememberExplicitLocation(target.locator);
-      requestJump(target.locator);
+      requestJump(target.locator, target.quote);
       return true;
     },
     [
@@ -748,26 +749,26 @@ export function ReaderPane({
       if (!selection || !material) return;
       const temporaryId = `pending-${Date.now()}-${Math.round(Math.random() * 1e6)}`;
       const now = Date.now() / 1000;
-      void saveMark(
+      for (const segment of selection.pages ?? [selection]) void saveMark(
         {
-          locator: selection.locator,
+          locator: segment.locator,
           kind: kind === "note" ? "highlight" : kind,
           color,
-          quote: selection.quote,
+          quote: segment.quote,
           note,
-          rects: selection.rects,
+          rects: segment.rects,
           source_anchor: selection.sourceAnchor ?? "",
           selectors: selection.selectors ?? [],
         },
         {
-          annotation_id: temporaryId,
-          locator: selection.locator,
+          annotation_id: `${temporaryId}-${segment.locator}`,
+          locator: segment.locator,
           material_revision: material.revision ?? 1,
           kind: kind === "note" ? "highlight" : kind,
           color,
-          quote: selection.quote,
+          quote: segment.quote,
           note,
-          rects: selection.rects,
+          rects: segment.rects,
           source_anchor: selection.sourceAnchor ?? "",
           selectors: selection.selectors ?? [],
           author: "user",
@@ -793,6 +794,11 @@ export function ReaderPane({
       window.dispatchEvent(
         new CustomEvent(READER_ASK_EVENT, {
           detail: {
+            materialId: material.material_id,
+            materialRevision: material.revision ?? 1,
+            documentId: material.document_id,
+            version: material.version,
+            pages: selection.pages,
             quote: selectionText,
             locator: selection.locator,
             unit: material.unit,

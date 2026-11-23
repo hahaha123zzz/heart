@@ -1994,3 +1994,28 @@ async def test_an_empty_profile_call_is_refused_with_the_fields_it_wanted(path_i
     result = await MasteryProfileTool().execute(_mastery_path_id=path_id)
     assert result.success is False
     assert "time_budget" in result.content
+
+
+@pytest.mark.asyncio
+async def test_student_native_assess_does_not_grant_mastery_or_store_feedback_as_answer(path_id, session_store):
+    from deeptutor.learning.models import KnowledgeType
+    from types import SimpleNamespace
+    from deeptutor.multi_user.context import set_current_user, reset_current_user
+    session = await session_store.create_session(title="Student qualitative check")
+    await _build_basic(path_id)
+    progress = LearningStore().load(path_id)
+    point = next(kp for module in progress.modules for kp in module.knowledge_points if kp.type in {KnowledgeType.CONCEPT, KnowledgeType.DESIGN})
+    token = set_current_user(SimpleNamespace(is_admin=False))
+    try:
+        result = await MasteryAssessTool().execute(_mastery_path_id=path_id, _session_id=session["id"],
+            _turn_id="student-native", knowledge_point_id=point.id, passed=True, feedback="仅为教师反馈")
+    finally:
+        reset_current_user(token)
+    assert result.success
+    payload = json.loads(result.content)
+    assert payload["independent"] is False and payload["mastered"] is False
+    entries = await session_store.list_notebook_entries(assessment_type="qualitative")
+    entry = entries["items"][0]
+    assert entry["user_answer"] == "" and entry["explanation"] == "仅为教师反馈"
+    attempt = (await session_store.list_assessment_attempts(session["id"]))[0]
+    assert attempt["visual_context"]["independent"] is False

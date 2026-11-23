@@ -1,3 +1,4 @@
+import { fetchAuthStatus } from "@/lib/auth";
 import { apiFetch, apiUrl } from "@/lib/api";
 
 export interface ToolSettingsResponse {
@@ -21,6 +22,7 @@ async function fetchEnabledOptionalTools(): Promise<string[]> {
 export async function getEnabledOptionalTools(options?: {
   force?: boolean;
 }): Promise<string[]> {
+  if ((await fetchAuthStatus())?.learning_policy) return [];
   if (options?.force || cached === null) {
     cached = fetchEnabledOptionalTools().catch((err) => {
       cached = null;

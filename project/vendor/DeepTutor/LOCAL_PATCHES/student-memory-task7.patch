@@ -1,0 +1,233 @@
+diff --git a/project/vendor/DeepTutor/web/features/heart/StudentMemory.tsx b/project/vendor/DeepTutor/web/features/heart/StudentMemory.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/StudentMemory.tsx
+@@ -0,0 +1,64 @@
++"use client";
++
++import { apiFetch } from "@/lib/api";
++
++import { useEffect, useState } from "react";
++
++import MemoryList from "./memory/MemoryList";
++import type { MemoryEntry as Entry } from "./memory/types";
++interface MemoryPayload { preferences: Entry[]; profile: Entry[]; has_more?: boolean; }
++const EMPTY: MemoryPayload = { preferences: [], profile: [] };
++
++export default function StudentMemory() {
++  const [data, setData] = useState<MemoryPayload>(EMPTY);
++  const [text, setText] = useState("");
++  const [query, setQuery] = useState("");
++  const [status, setStatus] = useState("");
++  const [error, setError] = useState("");
++  const [busy, setBusy] = useState(false);
++  const [loaded, setLoaded] = useState(false);
++  const [reload, setReload] = useState(0);
++  useEffect(() => {
++    const controller = new AbortController();
++    setData(EMPTY); setLoaded(false); setError("");
++    apiFetch(`/api/heart/memory?q=${encodeURIComponent(query.trim())}`, { credentials: "same-origin", cache: "no-store", signal: controller.signal })
++      .then(response => { if (!response.ok) throw new Error("memory_unavailable"); return response.json(); })
++      .then((value: MemoryPayload) => { if (!controller.signal.aborted) { setData(value); setLoaded(true); } })
++      .catch(() => { if (!controller.signal.aborted) setError("无法读取记忆，请重新读取；聊天仍可继续。"); });
++    return () => controller.abort();
++  }, [query, reload]);
++  async function mutate(url: string, method: string, body?: string) {
++    if (busy || !loaded) return;
++    setBusy(true); setError(""); setStatus("");
++    try {
++      const response = await apiFetch(url, { method, credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : undefined, body });
++      const result = await response.json().catch(() => ({}));
++      if (!response.ok) { setLoaded(false); setData(EMPTY); setError(result.detail ?? "操作失败，请重新读取后再试。"); return; }
++      if (method === "POST") setText("");
++      setStatus(method === "POST" ? "已添加" : "已删除"); setReload(value => value + 1);
++    } catch {
++      setLoaded(false); setData(EMPTY); setError("未能确认操作结果，请重新读取记忆；不会自动重复提交。");
++    } finally { setBusy(false); }
++  }
++  function section(title: string, hint: string, entries: Entry[], kind: "preference" | "profile") {
++    return <section className="mt-8">
++      <h2 className="text-base font-semibold">{title}</h2><p className="mt-1 text-sm text-muted-foreground">{hint}</p>
++      {loaded && <MemoryList memories={entries} disabled={busy || !loaded} isFiltered={Boolean(query)} label={title} onDelete={item=>mutate(`/api/heart/memory/${kind}/${encodeURIComponent(item.id)}`, "DELETE")} />}
++    </section>;
++  }
++  return <div className="mx-auto w-full max-w-3xl px-6 py-8">
++    <h1 className="text-xl font-semibold">我的记忆</h1>
++    <p className="mt-2 text-sm text-muted-foreground">查看、删除记忆，或主动添加学习偏好。长期记忆开关请到设置页调整；关闭后仍可管理这里的内容。</p>
++    <label className="mt-6 block text-sm">搜索记忆<input aria-label="搜索记忆" value={query} maxLength={100} onChange={event => setQuery(event.target.value)} className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2" /></label>
++    <form onSubmit={event => { event.preventDefault(); if (text.trim()) void mutate("/api/heart/memory/preference", "POST", JSON.stringify({ text: text.trim() })); }} className="mt-4 flex flex-wrap gap-2">
++      <input aria-label="学习偏好" value={text} maxLength={500} onChange={event => setText(event.target.value)} placeholder="例如：讲题时多举例子，先给结论再展开" className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm" />
++      <button type="submit" disabled={busy || !loaded || !text.trim()} className="shrink-0 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-50">添加偏好</button>
++    </form>
++    {!loaded && !error && <p role="status" className="mt-3 text-sm">正在读取记忆…</p>}
++    {status && <p role="status" className="mt-3 text-sm">{status}</p>}
++    {error && <div className="mt-3 text-sm"><p role="alert">{error}</p><button type="button" onClick={() => setReload(value => value + 1)} className="mt-2 rounded-md border border-border px-3 py-1.5">重新读取记忆</button></div>}
++    {data.has_more && <p className="mt-3 text-sm text-muted-foreground">当前显示最近 200 条匹配记忆，请缩小搜索范围查看其他内容。</p>}
++    {section("学习偏好", "你确认过的讲解方式与节奏。", data.preferences, "preference")}
++    {section("学习画像", "只有明确来源的学习信息才会显示，不代表掌握成绩。", data.profile, "profile")}
++  </div>;
++}
+diff --git a/project/vendor/DeepTutor/web/features/heart/memory/MemoryCard.tsx b/project/vendor/DeepTutor/web/features/heart/memory/MemoryCard.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/memory/MemoryCard.tsx
+@@ -0,0 +1,15 @@
++// 改编自 LibreChat MemoryCard；保留两行卡片结构，来源和时间仅使用 H 真实字段。
++import MemoryCardActions from './MemoryCardActions';
++import type { MemoryEntry } from './types';
++const sourceLabel=(source:string)=>({explicit_user:'你主动添加',student_statement:'学生自述',learning_inference:'学习记录自动整理（待确认）'}[source]??'来源尚未确认');
++export default function MemoryCard({memory,disabled,onDelete}:{memory:MemoryEntry;disabled:boolean;onDelete:()=>Promise<void>}) {
++  const date=memory.created_at?new Date(memory.created_at+(/[zZ]|[+-]\d\d:\d\d$/.test(memory.created_at)?'':'Z')):null;
++  return <div className="group min-w-0 rounded-lg px-3 py-2.5 hover:bg-muted">
++    <div className="flex items-start gap-2"><span className="min-w-0 flex-1 whitespace-pre-wrap break-words text-sm font-medium">{memory.text}</span><MemoryCardActions memory={memory} disabled={disabled} onDelete={onDelete}/></div>
++    <div className="mt-1 text-sm"><details><summary className="cursor-pointer">查看详情</summary>
++      {memory.source&&<p className="mt-2">来源：{sourceLabel(memory.source)}</p>}
++      {date&&!Number.isNaN(date.getTime())&&<time className="mt-1 block text-xs text-muted-foreground" dateTime={memory.created_at}>添加时间：{date.toLocaleString('zh-CN')}</time>}
++      <p className="mt-2 text-muted-foreground">记忆用于调整辅导方式，不代表已通过知识点测评。</p>
++    </details></div>
++  </div>;
++}
+diff --git a/project/vendor/DeepTutor/web/features/heart/memory/MemoryCardActions.tsx b/project/vendor/DeepTutor/web/features/heart/memory/MemoryCardActions.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/memory/MemoryCardActions.tsx
+@@ -0,0 +1,11 @@
++// 改编自 LibreChat MemoryCardActions；首版仅保留删除，弹窗沿用宿主。
++import { useState } from 'react';
++import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
++import type { MemoryEntry } from './types';
++export default function MemoryCardActions({memory, disabled, onDelete}: {memory:MemoryEntry; disabled:boolean; onDelete:()=>Promise<void>}) {
++  const [open,setOpen]=useState(false);
++  return <><button type="button" disabled={disabled} aria-label={`删除${memory.text}`} onClick={()=>setOpen(true)} className="shrink-0 rounded-md border border-border px-2 py-1 text-xs disabled:opacity-50">删除</button>
++    <ConfirmDialog open={open} title="删除这条记忆？" confirmLabel="确认删除" cancelLabel="取消" busy={disabled} tone="danger" onCancel={()=>setOpen(false)} onConfirm={()=>void onDelete().finally(()=>setOpen(false))}>
++      <p className="break-words">{memory.text}</p><p className="mt-2">删除后，后续辅导不再读取这条记忆。原始学习记录不受影响。</p>
++    </ConfirmDialog></>;
++}
+diff --git a/project/vendor/DeepTutor/web/features/heart/memory/MemoryEmptyState.tsx b/project/vendor/DeepTutor/web/features/heart/memory/MemoryEmptyState.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/memory/MemoryEmptyState.tsx
+@@ -0,0 +1,4 @@
++// 改编自 LibreChat MemoryEmptyState，使用学生语言和项目样式。
++export default function MemoryEmptyState({isFiltered=false}:{isFiltered?:boolean}) {
++  return <p className="mt-3 text-sm text-muted-foreground">{isFiltered?'没有匹配内容。':'还没有内容。'}</p>;
++}
+diff --git a/project/vendor/DeepTutor/web/features/heart/memory/MemoryList.tsx b/project/vendor/DeepTutor/web/features/heart/memory/MemoryList.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/memory/MemoryList.tsx
+@@ -0,0 +1,8 @@
++// 改编自 LibreChat MemoryList；H 的稳定条目 ID 是列表与删除的唯一地址。
++import MemoryCard from './MemoryCard';
++import MemoryEmptyState from './MemoryEmptyState';
++import type {MemoryEntry} from './types';
++export default function MemoryList({memories,disabled,isFiltered=false,label,onDelete}:{memories:MemoryEntry[];disabled:boolean;isFiltered?:boolean;label:string;onDelete:(memory:MemoryEntry)=>Promise<void>}) {
++  if(!memories.length)return <MemoryEmptyState isFiltered={isFiltered}/>;
++  return <div className="mt-3 space-y-2" role="list" aria-label={label}>{memories.map(memory=><div key={memory.id} role="listitem"><MemoryCard memory={memory} disabled={disabled} onDelete={()=>onDelete(memory)}/></div>)}</div>;
++}
+diff --git a/project/vendor/DeepTutor/web/features/heart/memory/types.ts b/project/vendor/DeepTutor/web/features/heart/memory/types.ts
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/memory/types.ts
+@@ -0,0 +1,2 @@
++export interface MemoryEntry { id: string; text: string; source?: string; created_at?: string; }
++export type MemoryKind = "preference" | "profile";
+diff --git a/project/vendor/DeepTutor/web/tests/student-memory.spec.tsx b/project/vendor/DeepTutor/web/tests/student-memory.spec.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/tests/student-memory.spec.tsx
+@@ -0,0 +1,94 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, expect, it, vi } from "vitest";
++import StudentMemory from "@/features/heart/StudentMemory";
++import StudentMemorySettings from "@/features/heart/StudentMemorySettings";
++
++const request = vi.hoisted(() => vi.fn());
++vi.mock("@/shared/api/client", () => ({ apiUrl: (path: string) => path, apiFetch: (...args: Parameters<typeof fetch>) => fetch(...args), requestJson: request }));
++beforeEach(() => request.mockReset());
++afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
++
++it("keeps an unknown memory switch disabled and re-reads after an uncertain write", async () => {
++  request.mockResolvedValueOnce({ enabled: true }).mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ enabled: false });
++  render(<StudentMemorySettings />);
++  const toggle = screen.getByRole("checkbox", { name: "开启长期记忆供辅导使用" });
++  expect(toggle).toBeDisabled();
++  await waitFor(() => expect(toggle).toBeChecked());
++  fireEvent.click(toggle);
++  expect(await screen.findByRole("alert")).toHaveTextContent("未能确认保存结果");
++  expect(toggle).toBeDisabled();
++  fireEvent.click(screen.getByRole("button", { name: "重新读取长期记忆开关" }));
++  await waitFor(() => expect(toggle).not.toBeChecked());
++  const writes = request.mock.calls.filter(([, options]) => options.method === "PUT");
++  expect(writes).toHaveLength(1);
++  expect(writes[0][1].body).toBe('{"enabled":false}');
++});
++
++it("does not allow changes when the memory setting cannot be read", async () => {
++  request.mockRejectedValueOnce(new Error("offline"));
++  render(<StudentMemorySettings />);
++  expect(await screen.findByRole("alert")).toHaveTextContent("无法读取长期记忆开关");
++  expect(screen.getByRole("checkbox")).toBeDisabled();
++});
++
++it("shows verified source and time, searches on the server, and deletes by stable id", async () => {
++  const card = { id: "42", text: "多举例", source: "explicit_user", created_at: "2026-11-18T10:00:00" };
++  const fetcher = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [card], profile: [] }) })
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [card], profile: [] }) })
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ deleted: "42" }) })
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [], profile: [] }) });
++  vi.stubGlobal("fetch", fetcher);
++  render(<StudentMemory />);
++  expect(await screen.findByText("多举例")).toBeInTheDocument();
++  expect(screen.getByText("来源：你主动添加")).toBeInTheDocument();
++  expect(screen.getByText(/添加时间/)).toBeInTheDocument();
++  fireEvent.change(screen.getByLabelText("搜索记忆"), { target: { value: "举例" } });
++  await waitFor(() => expect(fetcher).toHaveBeenCalledWith("/api/heart/memory?q=%E4%B8%BE%E4%BE%8B", expect.objectContaining({ cache: "no-store" })));
++  await screen.findByText("多举例");
++  fireEvent.click(screen.getByRole("button", { name: "删除多举例" }));
++  fireEvent.click(screen.getByRole("button", {name:"确认删除"}));
++  await waitFor(() => expect(fetcher).toHaveBeenCalledWith("/api/heart/memory/preference/42", expect.objectContaining({ method: "DELETE" })));
++  await waitFor(() => expect(screen.queryByText("多举例")).toBeNull());
++});
++
++it("handles a failed memory load without an unhandled rejection or write", async () => {
++  const fetcher = vi.fn().mockRejectedValueOnce(new Error("offline"))
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [], profile: [] }) });
++  vi.stubGlobal("fetch", fetcher);
++  render(<StudentMemory />);
++  expect(await screen.findByRole("alert")).toHaveTextContent("无法读取记忆");
++  expect(screen.getByRole("button", { name: "添加偏好" })).toBeDisabled();
++  fireEvent.click(screen.getByRole("button", { name: "重新读取记忆" }));
++  await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
++  expect(fetcher.mock.calls.every(([, options]) => !options.method)).toBe(true);
++});
++
++
++it("clears stale entries and waits for a read after an uncertain deletion", async () => {
++  const fetcher = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [{ id: "5", text: "待删除偏好" }], profile: [] }) })
++    .mockRejectedValueOnce(new Error("offline"))
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [], profile: [] }) });
++  vi.stubGlobal("fetch", fetcher);
++  render(<StudentMemory />);
++  fireEvent.click(await screen.findByRole("button", { name: "删除待删除偏好" }));
++  fireEvent.click(screen.getByRole("button", {name:"确认删除"}));
++  expect(await screen.findByRole("alert")).toHaveTextContent("未能确认操作结果");
++  expect(screen.queryByText("待删除偏好")).toBeNull();
++  expect(screen.getByRole("button", { name: "添加偏好" })).toBeDisabled();
++  fireEvent.click(screen.getByRole("button", { name: "重新读取记忆" }));
++  await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
++  expect(fetcher.mock.calls.filter(([, options]) => options.method === "DELETE")).toHaveLength(1);
++});
++
++
++it("cancels deletion and does not invent missing source or time", async () => {
++ const fetcher=vi.fn().mockResolvedValue({ok:true,json:async()=>({preferences:[{id:'no-meta',text:'无附加信息'}],profile:[]})});
++ vi.stubGlobal('fetch',fetcher);render(<StudentMemory/>);
++ fireEvent.click(await screen.findByRole('button',{name:'删除无附加信息'}));
++ expect(screen.getByRole('alertdialog')).toBeInTheDocument();
++ fireEvent.click(screen.getByRole('button',{name:'取消'}));
++ expect(screen.queryByRole('alertdialog')).toBeNull();
++ expect(fetcher.mock.calls.some(([,options])=>options.method)).toBe(false);
++ expect(screen.queryByText(/来源：|添加时间/)).toBeNull();
++ expect(screen.queryByRole('button',{name:/编辑|更正/})).toBeNull();
++});

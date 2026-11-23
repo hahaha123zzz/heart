@@ -641,6 +641,15 @@ def _reading_viewport(value: Any) -> dict[str, Any]:
     selection = str(value.get("selection") or "").strip()
     if selection:
         viewport["selection"] = selection[:READING_SELECTION_MAX_CHARS]
+        if isinstance(value.get("selection_pages"), list):
+            from deeptutor.core.turn_request import ReadingSelectionPage
+            from pydantic import ValidationError
+            try:
+                pages = [ReadingSelectionPage.model_validate(p).model_dump(mode="json") for p in value["selection_pages"][:40]]
+            except ValidationError:
+                pages = []
+            if pages:
+                viewport["selection_pages"] = pages
     return viewport
 
 
@@ -948,6 +957,28 @@ def _request_snapshot_metadata(
     # bare "Explain this" with nothing to say what "this" was, and a
     # regenerate re-asks it about no passage at all.
     viewport = _reading_viewport(payload.get("reading_viewport"))
+    raw_viewport = payload.get("reading_viewport")
+    if reading_material_id and isinstance(raw_viewport, dict) and raw_viewport.get("document_id"):
+        from knowledge.pdf_reader import document
+        doc = document(raw_viewport['document_id'])
+        if doc and doc['version'][:16] == reading_material_id:
+            stored_context = {
+                'materialId': reading_material_id,
+                'materialRevision': reading_material_revision or 1,
+                'documentId': doc['document_id'], 'version': doc['version'],
+                'chapterId': doc['chapter_id'],
+                'chapterTitle': f"第{doc['chapter_id']}章 {doc.get('title', '')}",
+                'locator': viewport.get('locator', 0), 'source': 'viewport',
+            }
+            selected = raw_viewport.get('legacy_reader_selection')
+            if isinstance(selected, dict):
+                stored_context['source'] = 'selection'
+                stored_context['selection'] = {
+                    'kind': selected.get('kind'), 'rects': selected.get('rects', []),
+                    'text': viewport.get('selection', ''),
+                    'attachmentFilename': selected.get('attachment_filename', ''),
+                }
+            snapshot['legacyReaderContext'] = stored_context
     if reading_material_id and viewport.get("selection"):
         snapshot["readingSelection"] = {
             "quote": viewport["selection"],

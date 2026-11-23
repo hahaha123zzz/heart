@@ -311,4 +311,4 @@ def get_ui_language(default: str = "en") -> str:
 def get_response_language(default: str = "en") -> str:
     """Get the preferred reader-facing model output language."""
     settings = get_ui_settings()
-    return _normalize_response_language(settings.get("response_language"), default)
+    return "zh"

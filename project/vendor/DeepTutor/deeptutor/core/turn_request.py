@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 import warnings
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -64,11 +64,34 @@ class ReadingReference(BaseModel):
     locators: list[int] = Field(default_factory=list)
 
 
+class ReadingSelectionPage(BaseModel):
+    """一页内的选区，坐标以阅读器显示的裁剪框归一化。"""
+    model_config = ConfigDict(extra="forbid")
+    locator: int = Field(ge=1, strict=True)
+    quote: str = Field(max_length=2000)
+    rects: list[tuple[
+        Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)],
+        Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)],
+        Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)],
+        Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)],
+    ]] = Field(max_length=128)
+
+    @model_validator(mode="after")
+    def valid_rectangles(self):
+        if any(x0 >= x1 or y0 >= y1 for x0, y0, x1, y1 in self.rects):
+            raise ValueError("Selection rectangles must have positive area")
+        return self
+
+
 class ReadingViewport(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     locator: int | None = Field(default=None, ge=0)
     selection: str | None = None
+    selection_pages: list[ReadingSelectionPage] = Field(default_factory=list, max_length=40)
+    chapter_id: int | None = Field(default=None, ge=1)
+    document_id: str | None = Field(default=None, max_length=100)
+    legacy_reader_selection: dict[str, Any] | None = None
 
 
 class TimedMediaViewport(BaseModel):
@@ -244,6 +267,7 @@ __all__ = [
     "OutgoingAttachment",
     "ReadingReference",
     "ReadingViewport",
+    "ReadingSelectionPage",
     "TimedMediaViewport",
     "TurnRequest",
 ]

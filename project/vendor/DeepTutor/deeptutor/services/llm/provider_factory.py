@@ -28,7 +28,10 @@ def _secret_fingerprint(value: str | list[str] | None) -> str:
 
 def _provider_cache_key(config: LLMConfig, loop: asyncio.AbstractEventLoop) -> tuple[Any, ...]:
     headers = json.dumps(config.extra_headers or {}, sort_keys=True, separators=(",", ":"))
-    owner_identity = ""
+    from deeptutor.multi_user.context import get_current_user_or_none
+
+    user = get_current_user_or_none()
+    owner_identity = user.id if user is not None and not user.is_admin else ""
     spec = find_by_name(config.provider_name or config.binding)
     if spec and spec.backend == "github_copilot":
         from deeptutor.services.github_copilot_storage import get_github_copilot_storage

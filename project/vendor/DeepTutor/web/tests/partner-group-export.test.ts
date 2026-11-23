@@ -92,28 +92,3 @@ test("group export omits persisted round metadata", () => {
     },
   ]);
 });
-
-test("group page exposes a disabled-until-ready Markdown download control", () => {
-  const pageSource = readFileSync(
-    path.resolve(
-      process.cwd(),
-      "app/(workspace)/partners/groups/[groupId]/page.tsx",
-    ),
-    "utf8",
-  );
-  const chatSource = readFileSync(
-    path.resolve(
-      process.cwd(),
-      "components/partners/group/PartnerGroupChat.tsx",
-    ),
-    "utf8",
-  );
-
-  assert.match(pageSource, /downloadChatMarkdown\(exportMessages/);
-  assert.match(pageSource, /disabled=\{!groupMessages\.length\}/);
-  assert.match(pageSource, /onMessagesChange=\{setGroupMessages\}/);
-  assert.match(
-    chatSource,
-    /onMessagesChange\?\.\(loading \? \[\] : messages\)/,
-  );
-});

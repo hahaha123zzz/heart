@@ -45,5 +45,8 @@ export function prepareBackendForwardHeaders(
     headers.set("upgrade", "websocket");
   }
   if (frontendHost) headers.set(FRONTEND_HOST_HEADER, frontendHost);
+  // H 的独立后端只接受宿主凭据；浏览器不能持令牌，由 Next 服务端注入。
+  const bridgeToken = process.env.DEEPTUTOR_BRIDGE_TOKEN;
+  if (bridgeToken) headers.set("x-heart-bridge-token", bridgeToken);
   return headers;
 }

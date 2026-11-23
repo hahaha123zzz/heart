@@ -1,4 +1,5 @@
-import { render } from "@testing-library/react";
+import { render, fireEvent, screen } from "@testing-library/react";
+import { getReadingTurnState, resetReadingTurnState, setReadingViewport } from "@/lib/reading-turn-state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ResourceSelection } from "@/features/chat/ChatStateAdapter";
@@ -9,6 +10,7 @@ initI18n("en");
 
 const captured = vi.hoisted(() => ({
   props: null as {
+    inputHeader?: React.ReactNode;
     resourceCatalog?: ComposerResourceCatalog;
     resourceSelection?: ResourceSelection;
     onResourceSelectionChange?: (selection: ResourceSelection) => void;
@@ -62,7 +64,7 @@ vi.mock("@/hooks/useWorkspaceChatActions", () => ({
 vi.mock("@/components/chat/home/StandaloneComposer", () => ({
   default: (props: typeof captured.props) => {
     captured.props = props;
-    return <div>composer</div>;
+    return <div>{props?.inputHeader}composer</div>;
   },
 }));
 
@@ -96,4 +98,16 @@ describe("ReadingComposer resources", () => {
       skills: [], mcp: [],
     });
   });
+});
+
+
+it("removing the quoted passage clears the pending wire selection and regions", () => {
+  resetReadingTurnState();
+  setReadingViewport({ selection: "待移除中文", selectionPages: [{ locator: 1, quote: "待移除中文", rects: [[0.1,0.1,0.5,0.2]] }] });
+  const removed = vi.fn();
+  render(<ReadingComposer placeholder="Ask" selection={{ quote: "待移除中文", locator: 1 }} onSent={vi.fn()} onRemoveSelection={removed} linkedSessionIds={[]} />);
+  fireEvent.click(screen.getByRole("button", { name: "Remove quoted passage" }));
+  expect(removed).toHaveBeenCalledOnce();
+  expect(getReadingTurnState().selection).toBe("");
+  expect(getReadingTurnState().selectionPages).toEqual([]);
 });

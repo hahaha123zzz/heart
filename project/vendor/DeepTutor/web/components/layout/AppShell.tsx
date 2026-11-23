@@ -4,13 +4,13 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useState,
 } from "react";
-import Image from "next/image";
+import BrandLogo from "@/components/common/BrandLogo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { useModalDialog } from "@/hooks/useModalDialog";
+import { Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useDevice } from "@/hooks/useDevice";
 import type { ReactNode } from "react";
@@ -64,14 +64,7 @@ export default function AppShell({ sidebar, children }: AppShellProps) {
     setDrawerOpen(false);
   }
 
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setDrawerOpen(false);
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [drawerOpen]);
+  const drawerRef = useModalDialog(close, false, undefined, isMobile && drawerOpen);
 
   return (
     <SidebarDrawerContext.Provider value={{ close }}>
@@ -91,40 +84,37 @@ export default function AppShell({ sidebar, children }: AppShellProps) {
             Tab walks the user into a sidebar they cannot see. This is the
             half `max-md:` cannot express, hence useDevice(). */}
         <div
+          ref={drawerRef}
+          role={isMobile && drawerOpen ? "dialog" : undefined}
+          aria-modal={isMobile && drawerOpen ? true : undefined}
+          aria-label={isMobile && drawerOpen ? "导航" : undefined}
+          tabIndex={isMobile && drawerOpen ? -1 : undefined}
           inert={isMobile && !drawerOpen ? true : undefined}
           className={`max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:shadow-xl max-md:transition-transform max-md:duration-200 max-md:ease-out ${
             drawerOpen ? "max-md:translate-x-0" : "max-md:-translate-x-full"
           }`}
         >
+          {drawerOpen && isMobile && (
+            <button type="button" onClick={close} aria-label={t("关闭导航")} className="absolute right-2 top-2 z-10 flex size-11 items-center justify-center rounded-lg bg-background text-foreground">
+              <X size={18} />
+            </button>
+          )}
           {sidebar}
         </div>
 
-        <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[var(--background)]">
+        <main inert={isMobile && drawerOpen ? true : undefined} className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[var(--background)]">
           <div className="flex h-11 shrink-0 items-center gap-1 border-b border-[var(--border)] px-2 md:hidden">
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
               aria-label={t("Open navigation")}
               aria-expanded={drawerOpen}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
             >
               <Menu size={18} strokeWidth={1.7} />
             </button>
             <Link href="/" className="flex items-center gap-1.5">
-              <Image
-                src="/logo.png"
-                alt="DeepTutor"
-                width={20}
-                height={20}
-                className="h-5 w-5"
-              />
-              <Image
-                src="/banner.png"
-                alt="DeepTutor"
-                width={897}
-                height={236}
-                className="h-[18px] w-auto"
-              />
+              <BrandLogo className="h-9 w-[97px] shrink-0" />
             </Link>
           </div>
 

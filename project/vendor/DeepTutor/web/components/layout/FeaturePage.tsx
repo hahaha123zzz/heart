@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { LearningScrollRestoration } from "@/components/learning/LearningScrollRestoration";
 import type { ComponentPropsWithRef, ReactNode, Ref, UIEventHandler } from 'react'
 
 /** Feature page standard, based on Personalized Learning:
@@ -46,6 +48,7 @@ export function FeaturePage({
       data-feature-page
       className={`h-full min-h-0 w-full min-w-0 overflow-y-auto bg-[var(--background)] text-[var(--foreground)] [scrollbar-gutter:stable] ${className}`}
     >
+      <Suspense fallback={null}><LearningScrollRestoration /></Suspense>
       <PageContainer>{children}</PageContainer>
     </section>
   )

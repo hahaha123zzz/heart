@@ -1,0 +1,342 @@
+diff --git a/project/vendor/DeepTutor/deeptutor/api/routers/question_notebook.py b/project/vendor/DeepTutor/deeptutor/api/routers/question_notebook.py
+index a6c426a..dc437f6 100644
+--- a/project/vendor/DeepTutor/deeptutor/api/routers/question_notebook.py
++++ b/project/vendor/DeepTutor/deeptutor/api/routers/question_notebook.py
+@@ -4,6 +4,7 @@ Question Notebook API — persists quiz questions, bookmarks, and categories.
+ 
+ from __future__ import annotations
+ 
++import asyncio
+ import base64 as _b64
+ from hashlib import sha256 as _sha256
+ import logging
+@@ -14,6 +15,7 @@ from fastapi import APIRouter, HTTPException, Query, Response
+ from pydantic import BaseModel, Field, model_validator
+ 
+ from deeptutor.core.assessment import AssessmentResult, AssessmentSource, QuestionOriginType
++from deeptutor.services.practice.storage import PracticeStore
+ from deeptutor.services.session import get_sqlite_session_store
+ from deeptutor.services.storage import get_attachment_store
+ 
+@@ -318,6 +320,7 @@ async def upsert_single_entry(payload: UpsertEntryRequest):
+             image_id = str(image.get("id") or "")
+             if image_id and image_id not in retained:
+                 await attachment_store.delete_attachment(old_owner, image_id)
++    await asyncio.to_thread(PracticeStore(store.db_path).record_answer_exposures, [entry])
+     return entry
+ 
+ 
+@@ -397,6 +400,7 @@ async def list_entries(
+         limit=limit,
+         offset=offset,
+     )
++    await asyncio.to_thread(PracticeStore(store.db_path).record_answer_exposures, listing["items"])
+     return NotebookEntryListResponse(
+         items=[NotebookEntryItem(**item) for item in listing["items"]],
+         total=listing["total"],
+@@ -436,6 +440,7 @@ async def lookup_entry(
+         if missing_ok:
+             return Response(status_code=204)
+         raise HTTPException(status_code=404, detail="Entry not found")
++    await asyncio.to_thread(PracticeStore(store.db_path).record_answer_exposures, [entry])
+     return entry
+ 
+ 
+@@ -445,6 +450,7 @@ async def get_entry(entry_id: int) -> NotebookEntryItem:
+     entry = await store.get_notebook_entry(entry_id)
+     if entry is None:
+         raise HTTPException(status_code=404, detail="Entry not found")
++    await asyncio.to_thread(PracticeStore(store.db_path).record_answer_exposures, [entry])
+     return NotebookEntryItem(**entry)
+ 
+ 
+diff --git a/project/vendor/DeepTutor/deeptutor/services/practice/storage.py b/project/vendor/DeepTutor/deeptutor/services/practice/storage.py
+index e7c6a89..75d7b3c 100644
+--- a/project/vendor/DeepTutor/deeptutor/services/practice/storage.py
++++ b/project/vendor/DeepTutor/deeptutor/services/practice/storage.py
+@@ -3,6 +3,7 @@
+ from __future__ import annotations
+ 
+ from contextlib import contextmanager
++from hashlib import sha256
+ import json
+ from pathlib import Path
+ import sqlite3
+@@ -18,6 +19,14 @@ _DUE_AT_SQL = """(CASE WHEN (n.resolved=1 OR n.is_correct=1)
+     ELSE COALESCE(r.due_at, n.created_at) END)"""
+ 
+ 
++_review_export = None
++
++
++def set_review_export(export):
++    global _review_export
++    _review_export = export
++
++
+ class ReviewConflict(ValueError):
+     """A different tab or source changed this question since it was opened."""
+ 
+@@ -50,6 +59,19 @@ def initialize_practice(conn: sqlite3.Connection) -> None:
+             outcome_json TEXT NOT NULL
+         );
+         CREATE INDEX IF NOT EXISTS idx_practice_history ON practice_review_events(entry_id, reviewed_at);
++        CREATE TABLE IF NOT EXISTS practice_answer_reveals (
++            entry_id INTEGER NOT NULL REFERENCES notebook_entries(id) ON DELETE CASCADE,
++            question_hash TEXT NOT NULL,
++            review_version INTEGER NOT NULL,
++            first_answer_hash TEXT NOT NULL,
++            revealed_at REAL NOT NULL,
++            PRIMARY KEY(entry_id, question_hash)
++        );
++        CREATE TABLE IF NOT EXISTS practice_review_outbox (
++            event_id TEXT PRIMARY KEY,
++            request_id TEXT NOT NULL UNIQUE,
++            payload_json TEXT NOT NULL
++        );
+         CREATE TABLE IF NOT EXISTS practice_imports (
+             token TEXT PRIMARY KEY,
+             filename TEXT NOT NULL,
+@@ -66,9 +88,11 @@ def initialize_practice(conn: sqlite3.Connection) -> None:
+             SELECT NEW.id, NEW.created_at, NEW.created_at + 86400
+             WHERE NOT EXISTS(SELECT 1 FROM practice_review_state WHERE entry_id=NEW.id);
+         END;
+-        CREATE TRIGGER IF NOT EXISTS practice_invalidate_question
+-        AFTER UPDATE OF question, options_json, correct_answer ON notebook_entries
+-        WHEN OLD.question != NEW.question OR OLD.options_json != NEW.options_json OR OLD.correct_answer != NEW.correct_answer
++        DROP TRIGGER IF EXISTS practice_invalidate_question;
++        CREATE TRIGGER practice_invalidate_question
++        AFTER UPDATE OF question, question_type, options_json, correct_answer ON notebook_entries
++        WHEN OLD.question != NEW.question OR OLD.question_type != NEW.question_type
++          OR OLD.options_json != NEW.options_json OR OLD.correct_answer != NEW.correct_answer
+         BEGIN
+             UPDATE practice_review_state SET version=version+1 WHERE entry_id=NEW.id;
+         END;
+@@ -223,6 +247,50 @@ class PracticeStore:
+                 is not None
+             )
+ 
++    @staticmethod
++    def _question_hash(entry):
++        fields = (entry["question"], entry["question_type"],
++                  json.loads(entry["options_json"] or "{}"), entry["correct_answer"])
++        return sha256(json.dumps(fields, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
++
++    @staticmethod
++    def _answer_hash(answer):
++        return sha256(answer.encode()).hexdigest()
++
++    def record_answer_exposures(self, entries: list[dict]) -> None:
++        with self.connect() as conn:
++            conn.execute("BEGIN IMMEDIATE")
++            for entry in entries:
++                if not (entry.get("correct_answer") or entry.get("explanation") or entry.get("ai_judgment")):
++                    continue
++                snapshot = {**entry, "options_json": json.dumps(entry.get("options") or {})}
++                # 记录实际返回的题目快照；空哈希表示此前未提交作答。
++                conn.execute("""INSERT OR IGNORE INTO practice_answer_reveals
++                    SELECT n.id, ?, COALESCE(r.version, 0), '', ?
++                    FROM notebook_entries n LEFT JOIN practice_review_state r ON r.entry_id=n.id
++                    WHERE n.id=?""", (self._question_hash(snapshot), time.time(), entry["id"]))
++
++    def reveal_answer(self, entry_id: int, answer: str, version: int | None = None) -> dict:
++        from deeptutor.learning.service import require_assessment_capability
++        from .answers import check_answer
++
++        with self.connect() as conn:
++            conn.execute("BEGIN IMMEDIATE")
++            entry = conn.execute("""SELECT n.*, COALESCE(r.version, 0) AS review_version
++                FROM notebook_entries n LEFT JOIN sessions s ON s.id=n.session_id
++                LEFT JOIN practice_review_state r ON r.entry_id=n.id
++                WHERE n.id=? AND (n.session_id IS NULL OR s.deleted_at IS NULL)""", (entry_id,)).fetchone()
++            if entry is None:
++                raise LookupError("Question not found")
++            if version is not None and entry["review_version"] != version:
++                raise ReviewConflict("This question changed in another tab. Reload it before reviewing again.")
++            require_assessment_capability()
++            conn.execute("INSERT OR IGNORE INTO practice_answer_reveals VALUES (?, ?, ?, ?, ?)",
++                         (entry_id, self._question_hash(entry), entry["review_version"],
++                          self._answer_hash(answer), time.time()))
++            return {"correct": check_answer(dict(entry), answer),
++                    "correct_answer": entry["correct_answer"], "explanation": entry["explanation"]}
++
+     def review(
+         self,
+         entry_id: int,
+@@ -266,6 +334,9 @@ class PracticeStore:
+                 raise ReviewConflict(
+                     "This question changed in another tab. Reload it before reviewing again."
+                 )
++            from deeptutor.learning.service import require_assessment_capability
++
++            require_assessment_capability()
+             # Objective answers are checked again at the transaction boundary.
+             from .answers import check_answer
+ 
+@@ -307,6 +378,15 @@ class PracticeStore:
+             )
+             if rating == "again":
+                 conn.execute("UPDATE notebook_entries SET resolved=0 WHERE id=?", (entry_id,))
++            reveal = conn.execute("""SELECT review_version, first_answer_hash, revealed_at
++                FROM practice_answer_reveals WHERE entry_id=? AND question_hash=?""",
++                (entry_id, self._question_hash(entry))).fetchone()
++            assistance = {"status": "not_verified"}
++            if reveal is not None:
++                first_answer = reveal["first_answer_hash"] == self._answer_hash(answer)
++                assisted = reveal["review_version"] != version or not first_answer
++                assistance = {"status": "assisted" if assisted else "answer_committed_before_reveal",
++                              "first_reveal_at": reveal["revealed_at"]}
+             outcome = {
+                 **next_state,
+                 "entry_id": entry_id,
+@@ -314,8 +394,15 @@ class PracticeStore:
+                 "correct": correct,
+                 "rating": rating,
+                 "self_report": self_report,
++                "assistance": assistance,
+                 "mastered": rating in {"good", "easy"},
+             }
++            if _review_export is not None:
++                payload = _review_export(conn, dict(entry), outcome, answer, now)
++                if payload is not None:
++                    conn.execute("INSERT INTO practice_review_outbox VALUES (?, ?, ?)",
++                                 (uuid.uuid4().hex, request_id, json.dumps(payload, ensure_ascii=False)))
++                    outcome["learning_sync"] = "pending"
+             conn.execute(
+                 "INSERT INTO practice_review_events VALUES(?, ?, ?, ?, ?, ?)",
+                 (request_id, entry_id, rating, answer, now, json.dumps(outcome)),
+diff --git a/project/vendor/DeepTutor/tests/api/test_practice.py b/project/vendor/DeepTutor/tests/api/test_practice.py
+index 13d4e75..7a99b42 100644
+--- a/project/vendor/DeepTutor/tests/api/test_practice.py
++++ b/project/vendor/DeepTutor/tests/api/test_practice.py
+@@ -393,3 +393,130 @@ def test_analytics_local_midnight_dst_zero_days_and_deleted_sources(bank):
+     with repo.connect() as conn:
+         conn.execute("UPDATE sessions SET deleted_at=? WHERE id='lesson'", (now,))
+     assert repo.analytics("America/New_York", 7, now=now)["sources"] == []
++
++
++
++def test_assessment_capability_guard_blocks_new_reviews_but_keeps_saved_replay(bank, monkeypatch):
++    from types import SimpleNamespace
++    from deeptutor.learning import service
++    from deeptutor.multi_user.context import set_current_user, reset_current_user
++    from fastapi import HTTPException
++    store, repo, _ = bank
++    entry = seed(store)
++    state = repo.state(entry["id"])
++    saved = repo.review(entry["id"], "saved-review-guard", state["version"], "good", "B")
++    def deny(user):
++        raise service.MasteryInteractionError("评分已暂停，请验证评估能力。")
++    monkeypatch.setattr(service, "_external_assessment_guard", deny)
++    token = set_current_user(SimpleNamespace(is_admin=False))
++    try:
++        assert repo.review(entry["id"], "saved-review-guard", state["version"], "good", "B") == saved
++        with pytest.raises(service.MasteryInteractionError):
++            repo.review(entry["id"], "new-review-guard", saved["version"], "good", "B")
++        with pytest.raises(HTTPException) as error:
++            asyncio.run(practice.check(entry["id"], practice.AnswerRequest(answer="B")))
++        assert error.value.status_code == 409
++    finally:
++        reset_current_user(token)
++    assert repo.state(entry["id"])["version"] == saved["version"]
++
++
++
++def test_reference_answer_is_released_after_recording_the_first_submission(bank):
++    store, repo, client = bank
++    entry = seed(store, explanation="Unique reference explanation")
++    ident = entry["id"]
++    for candidate in [client.get(f"/practice/questions/{ident}").json(), *client.get("/practice/queue").json()]:
++        assert candidate["entry"]["correct_answer"] == ""
++        assert candidate["entry"]["explanation"] == ""
++        assert candidate["entry"]["user_answer"] == ""
++    version = repo.state(ident)["version"]
++    url = f"/practice/questions/{ident}/check"
++    assert client.post(url, json={"answer": "A", "version": version + 1}).status_code == 409
++    first = client.post(url, json={"answer": "A", "version": version}).json()
++    assert first == {"correct": False, "correct_answer": "B", "explanation": "Unique reference explanation"}
++    assert client.post(url, json={"answer": "B", "version": version}).json()["correct"] is True
++    review = repo.review(ident, "reveal-then-edit", version, "good", "B")
++    assert review["assistance"]["status"] == "assisted"
++    next_review = repo.review(ident, "later-round", review["version"], "again", "A")
++    assert next_review["assistance"]["status"] == "assisted"
++
++
++def test_original_answer_is_recorded_as_pre_reveal_without_claiming_independence(bank):
++    store, repo, client = bank
++    ident = seed(store)["id"]
++    version = repo.state(ident)["version"]
++    client.post(f"/practice/questions/{ident}/check", json={"answer": "B", "version": version}).raise_for_status()
++    result = repo.review(ident, "original-first-answer", version, "good", "B")
++    assert result["assistance"]["status"] == "answer_committed_before_reveal"
++    assert "independent" not in result["assistance"]
++    direct = seed(store, question_id="direct-q")
++    skipped_check = repo.review(direct["id"], "direct-without-check", repo.state(direct["id"])["version"], "good", "B")
++    assert skipped_check["assistance"] == {"status": "not_verified"}
++
++
++@pytest.mark.parametrize("surface", ["detail", "list", "lookup"])
++def test_notebook_reference_exposure_marks_later_practice_assisted(bank, surface):
++    store, repo, client = bank
++    entry = seed(store)
++    urls = {
++        "detail": f"/bank/entries/{entry['id']}",
++        "list": "/bank/entries",
++        "lookup": "/bank/entries/lookup/by-question?session_id=lesson&question_id=q1",
++    }
++    for _ in range(2):
++        assert client.get(urls[surface]).status_code == 200
++    repo.reveal_answer(entry["id"], "B", 0)
++    result = repo.review(entry["id"], "after_reference", 0, "good", "B")
++    assert result["assistance"]["status"] == "assisted"
++    with repo.connect() as conn:
++        assert conn.execute("SELECT COUNT(*) FROM practice_answer_reveals").fetchone()[0] == 1
++
++
++def test_notebook_read_after_committed_answer_preserves_first_reveal(bank):
++    store, repo, client = bank
++    entry = seed(store)
++    repo.reveal_answer(entry["id"], "B", 0)
++    assert client.get(f"/bank/entries/{entry['id']}").status_code == 200
++    result = repo.review(entry["id"], "committed_first", 0, "good", "B")
++    assert result["assistance"]["status"] == "answer_committed_before_reveal"
++
++
++def test_notebook_exposure_is_bound_to_question_snapshot(bank):
++    store, repo, client = bank
++    entry = seed(store)
++    assert client.get(f"/bank/entries/{entry['id']}").status_code == 200
++    seed(store, question="A different question", correct_answer="A")
++    version = repo.state(entry["id"])["version"]
++    repo.reveal_answer(entry["id"], "A", version)
++    result = repo.review(entry["id"], "changed_question", version, "good", "A")
++    assert result["assistance"]["status"] == "answer_committed_before_reveal"
++
++
++
++def test_notebook_list_records_only_returned_references(bank):
++    store, repo, client = bank
++    unseen = seed(store)
++    visible = seed(store, question_id="q2", question="Visible reference")
++    blank = seed(store, question_id="q3", correct_answer="", explanation="", ai_judgment="")
++    assert client.get("/bank/entries?search=Visible").status_code == 200
++    assert client.get(f"/bank/entries/{blank['id']}").status_code == 200
++    with repo.connect() as conn:
++        ids = [row[0] for row in conn.execute("SELECT entry_id FROM practice_answer_reveals")]
++    assert ids == [visible["id"]]
++    assert unseen["id"] not in ids
++
++
++def test_notebook_upsert_response_also_records_reference(bank):
++    store, repo, client = bank
++    entry = seed(store)
++    response = client.post("/bank/entries/upsert", json={
++        "session_id": "lesson", "question_id": "q1", "question": "2 + 2?",
++        "question_type": "single_choice", "options": {"A": "3", "B": "4"},
++        "correct_answer": "B", "user_answer": "A", "source": "deep_question",
++    })
++    assert response.status_code == 200
++    version = repo.state(entry["id"])["version"]
++    repo.reveal_answer(entry["id"], "B", version)
++    result = repo.review(entry["id"], "after_save", version, "good", "B")
++    assert result["assistance"]["status"] == "assisted"

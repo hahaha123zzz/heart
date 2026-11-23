@@ -1,0 +1,44 @@
+--- a/deeptutor/app/service.py
++++ b/deeptutor/app/service.py
+@@ -102,10 +102,12 @@
+                 "question_notebook_references": list(
+                     payload.get("question_notebook_references") or []
+                 ),
+-                "knowledge_bases": list(payload.get("knowledge_bases") or []),
++                **({"knowledge_bases": list(payload["knowledge_bases"] or [])}
++                   if "knowledge_bases" in payload else {}),
+                 "partner_group_references": list(payload.get("partner_group_references") or []),
+             },
+         )
++        session = await store.get_session(session["id"]) or session
+         # Keep historical source references even when the current turn no
+         # longer selects them. Migration must preserve earlier citations too.
+         previous = (session.get("preferences") or {}).get("workspace_dependencies", {})
+--- a/tests/app/test_turn_application_service.py
++++ b/tests/app/test_turn_application_service.py
+@@ -324,3 +324,25 @@
+         fencing_token=lease.fencing_token,
+     )
+     await coordinator.release_turn(lease)
++
++
++@pytest.mark.asyncio
++@pytest.mark.parametrize("selection", [None, [], ["selected-book"]])
++async def test_course_knowledge_selection_survives_two_application_turns(submission_service, selection):
++    from deeptutor.services.courses import CourseService
++
++    service, store, _coordinator, _registry, _calls = submission_service
++    courses = CourseService()
++    course = courses.create(name="教材继承回归")
++    courses.attach_resource(course.id, kind="knowledge_base", ref_id="course-book")
++    session = await store.ensure_session("course-inheritance")
++    expected = ["course-book"] if selection is None else selection
++    for index in range(2):
++        payload = {"content": "解释自变量", "session_id": session["id"], "course_id": course.id}
++        if index == 0 and selection is not None:
++            payload["knowledge_bases"] = selection
++        _, turn = await service.start_turn(payload)
++        [event async for event in service.subscribe_turn(turn["id"])]
++        saved = await store.get_session(session["id"])
++        assert saved["preferences"]["knowledge_bases"] == expected
++        assert saved["preferences"]["workspace_dependencies"]["knowledge_bases"] == expected

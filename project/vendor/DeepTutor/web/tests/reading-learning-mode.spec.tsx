@@ -1,11 +1,12 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ReadingWorkspacePage } from '@/components/reading/workspace/ReadingWorkspace'
 
 const LEARNING_KEY = 'reading-learning'
+const source = vi.hoisted(() => ({ material: null as import('@/lib/reading-api').MaterialDetail | null, notice: vi.fn() }))
 
 vi.mock('next/navigation', () => ({
   useParams: () => ({ workspaceId: 'reading-1' }),
@@ -36,8 +37,8 @@ vi.mock('@/components/reading/workspace/useReadingWorkspace', () => ({
     loading: false,
     error: null,
     notice: null,
-    setNotice: vi.fn(),
-    material: null,
+    setNotice: source.notice,
+    material: source.material,
     annotations: [],
     activeTab: undefined,
     activeConversation: null,
@@ -77,7 +78,7 @@ vi.mock('@/components/reading/workspace/SourceNavigator', () => ({
   ),
 }))
 vi.mock('@/components/reading/workspace/ReadingCompanion', () => ({
-  ReadingCompanion: () => <div data-testid="reading-companion" />,
+  ReadingCompanion: ({ selection }: { selection: { quote: string } | null }) => <div data-testid="reading-companion">{selection?.quote}</div>,
 }))
 vi.mock('@/components/reading/workspace/MediaReadingStage', () => ({
   MediaReadingStage: () => null,
@@ -111,6 +112,7 @@ function visibleDialog() {
 
 describe('reading fullscreen learning', () => {
   beforeEach(() => {
+    source.material = null; source.notice.mockReset();
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
       writable: true,
@@ -217,4 +219,19 @@ describe('reading fullscreen learning', () => {
     expect(screen.getByTestId('reading-companion')).toBeInTheDocument()
     expect(sessionStorage.getItem(LEARNING_KEY)).toBeNull()
   })
+  it('invalidates a pending quote on a revision change without remounting and rejects a delayed old event', async () => {
+    source.material = { filename: 'test.pdf', mime: 'application/pdf', title: 'Test', byte_size: 100, char_count: 20, created_at: 1, has_raw_view: true, extractor: 'fixture', annotation_count: 0, outline_text: '', material_id: 'abcdef1234567890', revision: 1, version: '1'.repeat(64), unit: 'page', unit_count: 2, outline: [], unit_refs: [], render_mode: 'pdf' };
+    const view = render(<ReadingWorkspacePage />);
+    const detail = { materialId: source.material.material_id, materialRevision: 1, version: source.material.version, quote: '旧版选区', locator: 1 };
+    act(() => { window.dispatchEvent(new CustomEvent('dt:reader-ask', { detail })); });
+    expect(screen.getByTestId('reading-companion')).toHaveTextContent('旧版选区');
+    source.material = { ...source.material, revision: 2, version: '2'.repeat(64) };
+    view.rerender(<ReadingWorkspacePage />);
+    await waitFor(() => expect(screen.getByTestId('reading-companion')).not.toHaveTextContent('旧版选区'));
+    expect(source.notice).toHaveBeenCalledWith('教材已切换或换版，旧选区已失效，请重新选择。');
+    act(() => { window.dispatchEvent(new CustomEvent('dt:reader-ask', { detail })); });
+    expect(screen.getByTestId('reading-companion')).not.toHaveTextContent('旧版选区');
+    expect(source.notice).toHaveBeenLastCalledWith('教材已切换或换版，请重新选择引用。');
+  });
+
 })

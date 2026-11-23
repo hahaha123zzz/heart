@@ -1,5 +1,14 @@
 "use client";
 
+import { citationTargetFromHref } from "@/lib/reading-citations";
+import type { LegacyCitationReference } from "@/features/heart/LegacyTextbook";
+import type { LegacyReaderContext } from "@/lib/legacy-reader-context";
+import {LegacyTextbook} from "@/features/heart/LegacyTextbook";
+import { LegacyTextbookWorkspace } from "@/features/heart/LegacyTextbookWorkspace";
+
+import BrandLogo from "@/components/common/BrandLogo";
+
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 import { COMMAND_CONFIRMATION_FAILED } from "@/features/chat/transport/command-delivery";
 
 import { ResourceReuseContext, useResourceReusePolicy } from "@/components/chat/home/ResourceReuse";
@@ -69,7 +78,7 @@ import {
   type MessageRequestSnapshot,
 } from "@/features/chat/ChatStateAdapter";
 import { useAppShell } from "@/context/AppShellContext";
-import { readStoredResponseLanguage } from "@/context/app-shell-storage";
+import { DEFAULT_CHAT_REPLY_LANGUAGE } from "@/context/app-shell-storage";
 import { RESPONSE_LANGUAGE_OPTIONS } from "@/features/settings/store";
 
 import type { FilePreviewSource } from "@/components/chat/preview/previewerFor";
@@ -412,6 +421,95 @@ export default function ChatWorkspace() {
   // Single right-side panel: the Activity/Viewer. Its home view is the
   // session activity; files and web pages open as tabs alongside it.
   const [viewerPanelOpen, setViewerPanelOpen] = useState(false);
+  const [textbookOpen, setTextbookOpenState] = useState(false);
+  const setTextbookOpen = useCallback((open: boolean) => {
+    setTextbookOpenState(open);
+    try { window.sessionStorage.setItem("dt:legacy-textbook:open", open ? "1" : "0"); } catch {}
+  }, []);
+  useEffect(() => {
+    try {
+      if (window.sessionStorage.getItem("dt:legacy-textbook:open") === "1") {
+        setTextbookOpenState(true);
+      }
+    } catch {}
+  }, []);
+  const [textbookTarget, setTextbookTarget] = useState<{
+    materialId: string;
+    materialRevision?: number;
+    locator: number;
+    reference?: LegacyCitationReference;
+    nonce?: number;
+  } | null>(null);
+  const citationRequestRef = useRef(0);
+  const [legacyReaderContext, setLegacyReaderContext] = useState<LegacyReaderContext | null>(null);
+  const legacyReaderContextRef = useRef<LegacyReaderContext | null>(null);
+  const updateLegacyReaderContext = useCallback((context: LegacyReaderContext) => {
+    if (context.source === "viewport" && legacyReaderContextRef.current?.source === "selection") return;
+    legacyReaderContextRef.current = context;
+    setLegacyReaderContext(context);
+  }, []);
+  const clearLegacyReaderContext = useCallback(() => {
+    const current = legacyReaderContextRef.current;
+    legacyReaderContextRef.current = null;
+    setLegacyReaderContext(null);
+    if (current?.selection?.attachmentFilename) {
+      setAttachments((previous) => previous.filter(
+        (attachment) => attachment.filename !== current.selection?.attachmentFilename,
+      ));
+    }
+  }, []);
+  const handleCloseTextbook = useCallback(() => {
+    setTextbookOpen(false);
+    if (legacyReaderContextRef.current?.source !== "selection") {
+      clearLegacyReaderContext();
+    }
+  }, [clearLegacyReaderContext, setTextbookOpen]);
+  useEffect(() => {
+    clearLegacyReaderContext();
+  }, [clearLegacyReaderContext, state.sessionKey]);
+  useEffect(() => {
+    const open = (event: MouseEvent) => {
+      const anchor = (event.target as Element).closest?.("a[href]");
+      const target = citationTargetFromHref(anchor?.getAttribute("href"));
+      if (!target?.materialId) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const requestId = ++citationRequestRef.current;
+      const query = new URLSearchParams({
+        material_id: target.materialId,
+        locator: String(target.locator),
+        ...(target.materialRevision ? { revision: String(target.materialRevision) } : {}),
+        ...(target.quote ? { quote: target.quote } : {}),
+      });
+      void fetch(`/api/heart/legacy-reader/citation-target?${query}`, { credentials: "include" })
+        .then(async (response) => {
+          if (!response.ok) {
+            const body = await response.json().catch(() => null);
+            throw new Error(body?.detail || "教材引用暂时不可用。");
+          }
+          const body: Pick<LegacyCitationReference, "document_id" | "version" | "rects"> & { locator: number } =
+            await response.json();
+          if (requestId !== citationRequestRef.current) return;
+          setTextbookTarget({
+            materialId: target.materialId!,
+            materialRevision: target.materialRevision,
+            locator: body.locator,
+            reference: body.rects?.length
+              ? { document_id: body.document_id, version: body.version, rects: body.rects,
+                  kind: "text", text: target.quote ?? "" }
+              : undefined,
+            nonce: requestId,
+          });
+          setTextbookOpen(true);
+        })
+        .catch((error: unknown) => {
+          if (requestId !== citationRequestRef.current) return;
+          notify(error instanceof Error ? error.message : "教材引用暂时不可用。", { tone: "error" });
+        });
+    };
+    document.addEventListener("click", open, true);
+    return () => document.removeEventListener("click", open, true);
+  }, [setTextbookOpen]);
   const [selectionTutorPrompt, setSelectionTutorPrompt] = useState<{
     text: string;
     sourceMessageId: number;
@@ -604,6 +702,21 @@ export default function ChatWorkspace() {
   const prefillInputRef = useRef<((text: string) => void) | null>(null);
   const handlePrefillComposer = useCallback((text: string) => {
     prefillInputRef.current?.(text);
+  }, []);
+  const handleLegacyTextbookAsk = useCallback((text: string, context: LegacyReaderContext) => {
+    legacyReaderContextRef.current = context;
+    setLegacyReaderContext(context);
+    prefillInputRef.current?.(text);
+  }, []);
+  const handleLegacyReaderAttach = useCallback((attachment: {
+    type: string;
+    filename: string;
+    base64: string;
+    previewUrl: string;
+    size: number;
+    mimeType: string;
+  }) => {
+    setAttachments((previous) => [...previous, attachment]);
   }, []);
 
   // A message handed over by another page (Settings' "set up with DeepTutor"
@@ -1829,15 +1942,19 @@ export default function ChatWorkspace() {
   );
   // How many times DeepTutor may consult the selected agent this turn. Seeded
   // from the configured default; the composer's stepper overrides it per turn.
+  const { loading: authLoading, learningPolicy } = useAuthStatus();
   const [subagentBudget, setSubagentBudget] = useState<number | null>(null);
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const [selectedPartnerGroup, setSelectedPartnerGroup] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading || learningPolicy) return;
+    let active = true;
     void getSubagentSettings()
-      .then((settings) => setSubagentBudget(settings.consult_budget))
+      .then((settings) => { if (active) setSubagentBudget(settings.consult_budget); })
       .catch(() => undefined);
-  }, []);
+    return () => { active = false; };
+  }, [authLoading, learningPolicy]);
 
   const handleSend = useCallback(
     async (content: string) => {
@@ -1980,6 +2097,7 @@ export default function ChatWorkspace() {
       // Persona is NOT passed per-call here: it is a session-level
       // preference (state.personaSelection) that sendMessage resolves and
       // sends with every turn.
+      const turnReaderContext = legacyReaderContextRef.current;
       sendMessage(
         messageContent,
         extraAttachments,
@@ -1989,11 +2107,18 @@ export default function ChatWorkspace() {
         {
           bookReferences: bookReferencesPayload,
           readingReferences: readingReferencesPayload,
+          ...(turnReaderContext
+            ? {
+                capability: "immersive_reading",
+                legacyReaderContext: turnReaderContext,
+              }
+            : {}),
         },
         questionNotebookReferencesPayload,
         undefined,
         memoryPayload,
       );
+      if (turnReaderContext) clearLegacyReaderContext();
       setKBs(retainedKnowledgeBases(state.knowledgeBases, agentNameSet, resourceReuse.policy));
       if (!resourceReuse.policy.persona) setPersonaSelection("");
       setResourceSelection({skills: resourceReuse.policy.skills ? state.resourceSelection.skills : [], mcp: resourceReuse.policy.mcp ? state.resourceSelection.mcp : []});
@@ -2016,6 +2141,7 @@ export default function ChatWorkspace() {
       courseId,
       readingReferencesPayload,
       historyReferencesPayload,
+      clearLegacyReaderContext,
       isQuizMode,
       isResearchMode,
       isVisualizeMode,
@@ -2476,15 +2602,14 @@ export default function ChatWorkspace() {
                   label={t("Markdown note")}
                   title={t("Write Markdown in chat")}
                 />
-                <HeaderActionButton
-                  onClick={toggleViewerPanel}
-                  active={viewerPanelOpen}
-                  icon={PanelRight}
-                  label={t("Activity")}
-                  title={t("Session activity, attachments & previews")}
-                />
+                <button type="button" onClick={()=>{if(textbookOpen){handleCloseTextbook()}else{setTextbookTarget(null);setTextbookOpen(true)}}} className="rounded-lg border border-border px-3 py-1.5 text-sm">{textbookOpen?"关闭教材":"打开教材"}</button>
               </div>
             </div>
+            <LegacyTextbookWorkspace
+              open={textbookOpen}
+              onClose={handleCloseTextbook}
+              reader={textbookOpen ? <LegacyTextbook onClose={handleCloseTextbook} onAsk={handleLegacyTextbookAsk} onAttach={handleLegacyReaderAttach} onReaderContext={updateLegacyReaderContext} target={textbookTarget} /> : null}
+            >
             <div className="flex w-full flex-1 min-h-0 flex-col">
               {sessionLoading || sessionLoadFailed ? (
                 <div className="flex w-full flex-1 min-h-0 justify-center px-6">
@@ -2499,14 +2624,7 @@ export default function ChatWorkspace() {
               ) : !hasMessages ? (
                 <div className="flex w-full flex-1 min-h-0 items-end justify-center pb-14 animate-fade-in px-6">
                   <div className="w-full max-w-[960px] flex items-center justify-center gap-4">
-                    <img
-                      src="/logo_black.png"
-                      alt="DeepTutor"
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 select-none"
-                      draggable={false}
-                    />
+                    <BrandLogo compact className="h-12 w-16 shrink-0" />
                     <h1 className="font-serif text-[40px] font-medium leading-[1.1] tracking-[-0.015em] text-[var(--foreground)]">
                       {t(welcomeGreeting)}
                     </h1>
@@ -2668,6 +2786,21 @@ export default function ChatWorkspace() {
                   </div>
                 </div>
               ) : null}
+              {legacyReaderContext ? (
+                <div className="mx-auto mb-2 flex w-full max-w-[960px] items-center gap-2 px-6 text-xs">
+                  <span className="rounded-full border border-[var(--border)] bg-[var(--muted)]/45 px-2.5 py-1 text-[var(--muted-foreground)]">
+                    教材来源：{legacyReaderContext.chapterTitle} · 第{legacyReaderContext.locator}页
+                    {legacyReaderContext.source === "selection" ? "（已核验选区）" : "（当前阅读页）"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={clearLegacyReaderContext}
+                    className="rounded px-1.5 py-1 text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                  >
+                    移除
+                  </button>
+                </div>
+              ) : null}
               <ChatComposer
                 composerRef={composerRef}
                 capMenuRef={capMenuRef}
@@ -2758,8 +2891,8 @@ export default function ChatWorkspace() {
                 replyLanguageOverride={state.replyLanguageOverride}
                 replyLanguageOptions={RESPONSE_LANGUAGE_OPTIONS}
                 replyLanguageDefaultLabel={RESPONSE_LANGUAGE_OPTIONS.find(
-                  (option) => option.value === readStoredResponseLanguage(),
-                )?.label ?? "English"}
+                  (option) => option.value === DEFAULT_CHAT_REPLY_LANGUAGE,
+                )?.label ?? "简体中文"}
                 replyLanguageDisabled={replyLanguageSavingKey === state.sessionKey || state.isStreaming}
                 onReplyLanguageChange={handleReplyLanguageChange}
                 resourceCatalog={resourceCatalog}
@@ -2794,7 +2927,7 @@ export default function ChatWorkspace() {
                 it through the normal send path: this page is already a draft
                 session when it has no messages, so that both creates the
                 session and starts it on the topic. */}
-              {!hasMessages ? (
+              {!hasMessages && !authLoading && !learningPolicy ? (
                 <StarterSuggestions
                   workspaceId={state.workspaceId || ""}
                   onPick={(prompt) => void handleSend(prompt)}
@@ -2810,6 +2943,7 @@ export default function ChatWorkspace() {
                 }}
               />
             </div>
+            </LegacyTextbookWorkspace>
             <NotebookRecordPicker
               open={showNotebookPicker}
               onClose={handleCloseNotebookPicker}

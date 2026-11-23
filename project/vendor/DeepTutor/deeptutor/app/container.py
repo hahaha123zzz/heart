@@ -144,6 +144,12 @@ class ApplicationContainer:
         to claim and recover them.
         """
 
+        # 空闲巡检无需准备全部用户工作区；本次检查后过期的任务由下一轮处理。
+        if not await self.coordinator.list_expired_turn_ids():
+            for recovery in self._recovery_services.values():
+                recovery.backlog = 0
+            return
+
         from deeptutor.multi_user.paths import user_context
         from deeptutor.services.workspace.activity import acquire_activity
         from deeptutor.services.workspace.models import WorkspaceError

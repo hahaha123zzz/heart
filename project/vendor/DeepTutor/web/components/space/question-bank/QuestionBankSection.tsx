@@ -61,7 +61,8 @@ export default function QuestionBankSection({
   // not part of the scope rail: the learner keeps clicking through wrong /
   // bookmarked / a category *inside* the course.
   const courseId = useSearchParams().get("course")?.trim() ?? "";
-  const bank = useQuestionBank({ courseId, mistakesOnly });
+  const search=useSearchParams();
+  const bank = useQuestionBank({ courseId, mistakesOnly,knowledgePointId:search.get("knowledge_point_id")||"",masteryPathId:search.get("mastery_path_id")||"" });
   useEffect(() => {
     onChanged?.();
   }, [bank.stats, onChanged]);
@@ -116,7 +117,7 @@ export default function QuestionBankSection({
                   </Link>
                   <button
                     type="button"
-                    onClick={() => router.replace("/space/questions")}
+                    onClick={() => router.replace("/learning/practice")}
                     aria-label={t("Show every course")}
                     className="rounded-full p-0.5 transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                   >

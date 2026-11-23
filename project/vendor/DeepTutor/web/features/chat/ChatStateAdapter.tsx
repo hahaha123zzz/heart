@@ -28,7 +28,7 @@ import {
   RESPONSE_LANGUAGE_STORAGE_KEY,
   isResponseLanguage,
   readStoredChatResponseTimeout,
-  readStoredResponseLanguage,
+  DEFAULT_CHAT_REPLY_LANGUAGE,
   resolveResponseLanguage,
   writeStoredActiveSessionId,
 } from "@/context/app-shell-storage";
@@ -106,6 +106,10 @@ import {
   normalizeReadingReferences,
   type ReadingReferencePayload,
 } from "@/lib/reading-references";
+import {
+  normalizeLegacyReaderContext,
+  type LegacyReaderContext,
+} from "@/lib/legacy-reader-context";
 
 type SessionRuntimeStatus =
   "idle" | "running" | "completed" | "failed" | "cancelled" | "rejected";
@@ -137,6 +141,8 @@ export interface SendMessageOptions {
   retrySubmissionId?: string;
   bookReferences?: BookReferencePayload[];
   readingReferences?: ReadingReferencePayload[];
+  /** One-turn material context captured by the restored legacy PDF reader. */
+  legacyReaderContext?: LegacyReaderContext;
   /** Edit-branching: when set, the new user message is inserted as a
    *  sibling under this parent rather than appended to the session tail.
    *  ``null`` means "explicitly attach to the session root". */
@@ -301,6 +307,8 @@ export interface MessageRequestSnapshot {
   readingSelection?: ReadingSelectionSnapshot;
   /** Complete wire context captured at first send for deterministic retry. */
   readingTurnFields?: ReturnType<typeof readingTurnFields>;
+  /** Verified source and page from the legacy textbook reader, retained for retry. */
+  legacyReaderContext?: LegacyReaderContext;
   watchingTurnFields?: { timed_media_id?: string; timed_media_viewport?: { time_seconds: number } };
   /** `capability` ran for this turn only (see SendMessageOptions.capability). */
   capabilityOnce?: boolean;
@@ -309,6 +317,36 @@ export interface MessageRequestSnapshot {
 export interface ReadingSelectionSnapshot {
   quote: string;
   locator: number;
+}
+
+function legacyReaderTurnFields(
+  context: LegacyReaderContext,
+): ReturnType<typeof readingTurnFields> {
+  const selection = context.selection;
+  const reading_viewport = {
+    locator: context.locator,
+    chapter_id: context.chapterId,
+    document_id: context.documentId,
+    ...(selection
+      ? {
+          selection: selection.text,
+          legacy_reader_selection: {
+            document_id: context.documentId,
+            version: context.version,
+            kind: selection.kind,
+            rects: selection.rects,
+            ...(selection.attachmentFilename
+              ? { attachment_filename: selection.attachmentFilename }
+              : {}),
+          },
+        }
+      : {}),
+  } as ReturnType<typeof readingTurnFields>["reading_viewport"];
+  return {
+    reading_material_id: context.materialId,
+    reading_material_revision: context.materialRevision,
+    reading_viewport,
+  };
 }
 
 export interface MessageItem {
@@ -497,7 +535,7 @@ function createSessionEntry(
     isStreaming: false,
     currentStage: "",
     language:
-      typeof window === "undefined" ? "en" : readStoredResponseLanguage(),
+      DEFAULT_CHAT_REPLY_LANGUAGE,
     replyLanguageOverride: null,
     status: "idle",
     activeTurnId: null,
@@ -729,7 +767,7 @@ function reducer(state: ProviderState, action: Action): ProviderState {
           [action.key]: {
             ...session,
             replyLanguageOverride: action.language,
-            language: action.language ?? readStoredResponseLanguage(),
+            language: action.language ?? DEFAULT_CHAT_REPLY_LANGUAGE,
           },
         },
       };
@@ -1721,6 +1759,9 @@ function hydrateRequestSnapshot(
       ? String(stored.timedMediaId ?? stored.timed_media_id).trim()
       : "";
   const readingSelection = asReadingSelection(stored.readingSelection);
+  const legacyReaderContext = normalizeLegacyReaderContext(
+    stored.legacyReaderContext,
+  );
 
   if (config && Object.keys(config).length) snapshot.config = config;
   if (notebookReferences.length)
@@ -1757,6 +1798,7 @@ function hydrateRequestSnapshot(
   }
   if (timedMediaId) snapshot.timedMediaId = timedMediaId;
   if (readingSelection) snapshot.readingSelection = readingSelection;
+  if (legacyReaderContext) snapshot.legacyReaderContext = legacyReaderContext;
   if (stored.capabilityOnce === true) snapshot.capabilityOnce = true;
   return snapshot;
 }
@@ -2530,7 +2572,7 @@ export function ChatStateAdapterProvider({
         },
         // Historical `preferences.language` is only the last turn's account
         // default. The dedicated selector is the durable conversation choice.
-        language: replyLanguageOverride ?? readStoredResponseLanguage(),
+        language: replyLanguageOverride ?? DEFAULT_CHAT_REPLY_LANGUAGE,
         replyLanguageOverride,
         selectedBranches: normalizeSelectedBranches(
           session.preferences?.selected_branches,
@@ -2592,7 +2634,7 @@ export function ChatStateAdapterProvider({
     const syncLanguage = (language: string | null | undefined) => {
       dispatch({
         type: "SET_LANGUAGE",
-        lang: resolveResponseLanguage(language, readStoredResponseLanguage()),
+        lang: resolveResponseLanguage(language, DEFAULT_CHAT_REPLY_LANGUAGE),
       });
     };
     const onResponseLanguage = (event: Event) => {
@@ -2732,7 +2774,7 @@ export function ChatStateAdapterProvider({
       const effectiveLanguage =
         replaySnapshot?.language ??
         session.replyLanguageOverride ??
-        readStoredResponseLanguage();
+        DEFAULT_CHAT_REPLY_LANGUAGE;
       // Persona resolution: replay snapshot wins; then an explicit per-call
       // persona (quiz follow-up surface); then the session-level preference.
       // Always a string — "" means Default / no persona.
@@ -2752,6 +2794,11 @@ export function ChatStateAdapterProvider({
       const effectiveReadingReferences =
         exactReplay ? replaySnapshot?.readingReferences :
         replaySnapshot?.readingReferences ?? options?.readingReferences;
+      const effectiveLegacyReaderContext = exactReplay
+        ? normalizeLegacyReaderContext(replaySnapshot?.legacyReaderContext)
+        : normalizeLegacyReaderContext(
+            options?.legacyReaderContext ?? replaySnapshot?.legacyReaderContext,
+          );
       const effectiveAttachments =
         replaySnapshot?.attachments?.map((a) => ({
           type: a.type,
@@ -2775,7 +2822,9 @@ export function ChatStateAdapterProvider({
       const replaySelection = replaySnapshot?.readingSelection;
       const effectiveReadingTurnFields = exactReplay
         ? (replaySnapshot?.readingTurnFields ?? (replaySnapshot?.readingMaterialId
-          ? {
+          ? (effectiveLegacyReaderContext
+            ? legacyReaderTurnFields(effectiveLegacyReaderContext)
+            : {
               reading_material_id: replaySnapshot.readingMaterialId,
               ...(replaySnapshot.readingMaterialRevision
                 ? { reading_material_revision: replaySnapshot.readingMaterialRevision }
@@ -2784,8 +2833,10 @@ export function ChatStateAdapterProvider({
                 ? { reading_viewport: { selection: replaySelection.quote,
                     locator: replaySelection.locator } }
                 : {}),
-            }
+            })
           : {}))
+        : effectiveLegacyReaderContext
+        ? legacyReaderTurnFields(effectiveLegacyReaderContext)
         : replaySnapshot?.readingMaterialId
         ? {
             reading_material_id: replaySnapshot.readingMaterialId,
@@ -2812,6 +2863,12 @@ export function ChatStateAdapterProvider({
       const liveViewport = liveReadingFields.reading_viewport;
       const effectiveReadingSelection: ReadingSelectionSnapshot | undefined =
         replaySelection ??
+        (effectiveLegacyReaderContext?.selection?.text
+          ? {
+              quote: effectiveLegacyReaderContext.selection.text,
+              locator: effectiveLegacyReaderContext.locator,
+            }
+          : undefined) ??
         (liveReadingFields.reading_material_id && liveViewport?.selection
           ? {
               quote: liveViewport.selection,
@@ -2884,6 +2941,9 @@ export function ChatStateAdapterProvider({
           : {}),
         ...(effectiveReadingSelection
           ? { readingSelection: effectiveReadingSelection }
+          : {}),
+        ...(effectiveLegacyReaderContext
+          ? { legacyReaderContext: effectiveLegacyReaderContext }
           : {}),
         ...(Object.keys(effectiveReadingTurnFields).length
           ? { readingTurnFields: effectiveReadingTurnFields }
@@ -3187,7 +3247,7 @@ export function ChatStateAdapterProvider({
       session_id: session.sessionId,
       overrides: replaySnapshot
         ? { replay_snapshot: true }
-        : { language: readStoredResponseLanguage() },
+        : { language: DEFAULT_CHAT_REPLY_LANGUAGE },
     });
   }, [sendThroughRunner]);
 

@@ -1,0 +1,42 @@
+{
+  "checks": [
+    "anonymous practice and evaluation requests are rejected",
+    "default evaluation is enabled and question data are owner-bound",
+    "point and path scopes agree across bank summary queue and analytics",
+    "practice draft survives reload without exposing reference or manual mastery",
+    "lost submission response resumes with the same request ID and saves exactly once",
+    "H review sync recovers in background and scope remains after returning",
+    "path entry preserves its practice scope and return location",
+    "incomplete screenshot requests clarification and creates no assessment",
+    "complete screenshot continues tutoring and is assessed as assisted after navigation",
+    "one successful reassessment keeps original result and uses the explicit cost confirmation",
+    "attribution gets one correction then discards without a score",
+    "expired screenshot is denied and the chat remains readable",
+    "deleting source conversation preserves published evidence and labels the source deleted",
+    "390px practice remains usable and has no uncaught browser error"
+  ],
+  "failures": [],
+  "pageErrors": [],
+  "practiceRequests": [
+    {
+      "request_id": "b351a55a-9773-4f3a-bbb6-1b79c6a8a4eb",
+      "version": 0,
+      "rating": "good",
+      "answer": "B",
+      "self_report": false
+    },
+    {
+      "request_id": "b351a55a-9773-4f3a-bbb6-1b79c6a8a4eb",
+      "version": 0,
+      "rating": "good",
+      "answer": "B",
+      "self_report": false
+    }
+  ],
+  "controlledFixtures": [
+    "self-authored questions with historical due times",
+    "local grading model and real DeepSeek screenshot result replay",
+    "one H review sync and one assessment publication outage"
+  ],
+  "assessmentJob": "d50b84ae-b905-4827-887d-e151dc90a2c4"
+}

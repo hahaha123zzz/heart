@@ -1,0 +1,81 @@
+{
+  "baseline_files": 3764,
+  "local_changes": 171,
+  "local_deletions": 101,
+  "task6": [
+    {
+      "path": "web/features/heart/KnowledgeGraph.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/FocusOnNode.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/GraphControl.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/GraphViewer.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/constants.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/graphColor.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/graphEdgeSafety.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/selectors.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/settings.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/store.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/types.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/useIsDarkMode.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/graph/useLightragGraph.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/package-lock.json",
+      "action": "modify"
+    },
+    {
+      "path": "web/package.json",
+      "action": "modify"
+    },
+    {
+      "path": "web/scripts/run-node-tests.mjs",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/student-graph-build.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/student-graph.spec.tsx",
+      "action": "modify"
+    }
+  ],
+  "hash_errors": [],
+  "reverse_patch_check": true
+}

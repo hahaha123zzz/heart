@@ -50,7 +50,7 @@ function allLearningActivity(sources: LearningSources): LearningActivity[] {
         href: scopedUrl(masteryTopicRoute(topic.path_id, ""), topic.content_workspace_id || ""),
         updatedAt: topic.updated_at,
         workspaceName: topic.content_workspace_name,
-        progress: topic.map.counts.total ? topic.map.counts.mastered / topic.map.counts.total : 0,
+        progress: topic.map.counts.total ? topic.map.counts.mastered / topic.map.counts.total : undefined,
       })),
     ...sources.reading.map(workspace => ({
       key: `reading:${workspace.content_workspace_id || ""}:${workspace.workspace_id}`,

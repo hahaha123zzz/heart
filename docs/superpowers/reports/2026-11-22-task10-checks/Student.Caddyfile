@@ -1,0 +1,11 @@
+# 所有公网请求经过新版 Next；H 与 worker 只监听回环，不公开旧壳。
+{$HEART_PUBLIC_SITE:localhost} {
+    @retired path /index.html /login.html /learner.js /app.js /frontend/* /native/* /legacy/*
+    respond @retired 404
+    reverse_proxy 127.0.0.1:3782 {
+        flush_interval -1
+        transport http {
+            response_header_timeout 30m
+        }
+    }
+}

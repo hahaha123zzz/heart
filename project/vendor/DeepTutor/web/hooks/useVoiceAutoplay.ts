@@ -4,6 +4,7 @@ import { browserStorage } from "@/shared/storage";
 
 import { useCallback, useEffect, useState } from "react";
 
+import { fetchAuthStatus } from "@/lib/auth";
 import { apiFetch, apiUrl } from "@/lib/api";
 
 // Three-state autoplay model:
@@ -22,8 +23,10 @@ let inflight: Promise<boolean> | null = null;
 function fetchGlobalDefault(): Promise<boolean> {
   if (cachedGlobal !== null) return Promise.resolve(cachedGlobal);
   if (!inflight) {
-    inflight = apiFetch(apiUrl("/api/settings"))
-      .then((r) => (r.ok ? r.json() : null))
+    inflight = fetchAuthStatus().then((status) =>
+      status?.learning_policy ? null : apiFetch(apiUrl("/api/settings")),
+    )
+      .then((r) => (r?.ok ? r.json() : null))
       .then((payload) => {
         cachedGlobal = Boolean(payload?.ui?.voice_autoplay);
         return cachedGlobal;

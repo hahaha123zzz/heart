@@ -1,0 +1,107 @@
+diff --git a/project/vendor/DeepTutor/deeptutor/learning/storage.py b/project/vendor/DeepTutor/deeptutor/learning/storage.py
+index f7f000f..5199006 100644
+--- a/project/vendor/DeepTutor/deeptutor/learning/storage.py
++++ b/project/vendor/DeepTutor/deeptutor/learning/storage.py
+@@ -2023,6 +2023,16 @@ class LearningStore:
+         interactions = (LearningTransaction._interaction_from_row(row) for row in rows)
+         return [interaction for interaction in interactions if interaction is not None]
+ 
++    def record_chat_reference(self, path_id: str, *, session_id: str, turn_id: str, payload: dict) -> None:
++        """只保存引用暴露的最小审计信息，重复完成通知不产生新事件。"""
++        def record(tx):
++            existing = tx._conn.execute("""SELECT 1 FROM mastery_events
++                WHERE path_id=? AND event_type='chat.reference_provided' AND session_id=? AND turn_id=?""",
++                (path_id, session_id, turn_id)).fetchone()
++            if existing is None:
++                tx.emit("chat.reference_provided", payload, session_id=session_id, turn_id=turn_id)
++        self.mutate(path_id, record)
++
+     def list_events(self, path_id: str, *, after_revision: int = 0) -> list[MasteryEvent]:
+         path_id = self._validate_id(path_id)
+         self._import_legacy_if_needed(path_id)
+diff --git a/project/vendor/DeepTutor/deeptutor/services/session/turns/executor.py b/project/vendor/DeepTutor/deeptutor/services/session/turns/executor.py
+index 2cacdb7..1aaade2 100644
+--- a/project/vendor/DeepTutor/deeptutor/services/session/turns/executor.py
++++ b/project/vendor/DeepTutor/deeptutor/services/session/turns/executor.py
+@@ -64,6 +64,15 @@ if TYPE_CHECKING:
+ logger = logging.getLogger(__name__)
+ 
+ 
++_completion_observer = None
++
++
++def set_completion_observer(observer):
++    """宿主仅观察完成回合；评分工作由持久后台消费者执行。"""
++    global _completion_observer
++    _completion_observer = observer
++
++
+ class TurnExecutor:
+     if TYPE_CHECKING:
+         store: SessionStoreProtocol
+@@ -1205,6 +1214,12 @@ class TurnExecutor:
+             await self._publish_live_event(execution, pending_done_event)
+             stream_done_sent = True
+             await self._flush_buffered_events(execution)
++            if not is_regenerate and turn_status == "completed" and _completion_observer is not None:
++                try:
++                    context.metadata["persisted_assistant_message_id"] = assistant_message_id
++                    await _completion_observer(execution, context, assistant_events, accepted_user_message_id)
++                except Exception:
++                    logger.warning("Completed-turn observer failed; foreground reply is already saved")
+             if not is_regenerate and turn_status == "completed":
+                 # Title generation is post-turn metadata. Keep it after DONE
+                 # so the composer and duration clock stop as soon as the
+diff --git a/project/vendor/DeepTutor/tests/api/test_unified_ws_turn_runtime.py b/project/vendor/DeepTutor/tests/api/test_unified_ws_turn_runtime.py
+index 350adb0..622585e 100644
+--- a/project/vendor/DeepTutor/tests/api/test_unified_ws_turn_runtime.py
++++ b/project/vendor/DeepTutor/tests/api/test_unified_ws_turn_runtime.py
+@@ -104,11 +104,13 @@ def _model_catalog() -> dict:
+         {"config": {"consult_partner_id": None, "partner_discussion_group_id": "group-1"}},
+     ],
+ )
++@pytest.mark.parametrize("observer_fails", [False, True])
+ @pytest.mark.asyncio
+ async def test_turn_runtime_replays_events_and_materializes_messages(
+     monkeypatch: pytest.MonkeyPatch,
+     tmp_path,
+     consultation,
++    observer_fails,
+ ) -> None:
+     store = SQLiteSessionStore(tmp_path / "chat_history.db")
+     runtime = TurnRuntimeManager(store)
+@@ -125,6 +127,17 @@ async def test_turn_runtime_replays_events_and_materializes_messages(
+     }
+     captured: dict[str, object] = {}
+     publish_order: list[str] = []
++    from deeptutor.services.session.turns import executor
++
++    async def completed_observer(execution, context, events, user_message_id):
++        captured["observer_after_done"] = "done" in publish_order
++        assert context.metadata["persisted_assistant_message_id"]
++        captured["observer_user_message_id"] = user_message_id
++        captured["observer_persisted_status"] = (await store.get_turn(execution.turn_id))["status"]
++        if observer_fails:
++            raise RuntimeError("test observer failure")
++
++    monkeypatch.setattr(executor, "_completion_observer", completed_observer)
+     original_publish = runtime._publish_live_event
+ 
+     async def publish_with_status_capture(execution, event):
+@@ -251,6 +264,8 @@ async def test_turn_runtime_replays_events_and_materializes_messages(
+ 
+     assert captured["turn_status_when_done_published"] == "completed"
+     assert captured["title_started_after_done"] is True
++    assert captured["observer_after_done"] is True
++    assert captured["observer_persisted_status"] == "completed"
+ 
+     detail = await store.get_session_with_messages(session["id"])
+     assert detail is not None
+@@ -259,6 +274,7 @@ async def test_turn_runtime_replays_events_and_materializes_messages(
+     # optimistic negative ids in place instead of refetching the session.
+     user_row, assistant_row = detail["messages"]
+     assert done_event["metadata"]["user_message_id"] == user_row["id"]
++    assert captured["observer_user_message_id"] == user_row["id"]
+     assert done_event["metadata"]["assistant_message_id"] == assistant_row["id"]
+     assert user_row["metadata"]["client_submission_id"] == "browser-submission-123"
+     assert user_row["metadata"]["turn_id"] == turn["id"]

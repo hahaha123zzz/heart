@@ -125,7 +125,7 @@ export default function ArchivedChatsSettingsSection() {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-x-4">
-        <SettingsPageHeader title={t("Archived chats")} />
+        <SettingsPageHeader title={t("Archived chats")} description="已形成的评估和必要作答证据会保留；已建评估仍可能继续调用个人模型、产生费用并新增证据。" />
         <button
           type="button"
           disabled={loading || !!busy || !count}

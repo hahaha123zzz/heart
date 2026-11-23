@@ -4,6 +4,7 @@ Question Notebook API — persists quiz questions, bookmarks, and categories.
 
 from __future__ import annotations
 
+import asyncio
 import base64 as _b64
 from hashlib import sha256 as _sha256
 import logging
@@ -14,6 +15,7 @@ from fastapi import APIRouter, HTTPException, Query, Response
 from pydantic import BaseModel, Field, model_validator
 
 from deeptutor.core.assessment import AssessmentResult, AssessmentSource, QuestionOriginType
+from deeptutor.services.practice.storage import PracticeStore
 from deeptutor.services.session import get_sqlite_session_store
 from deeptutor.services.storage import get_attachment_store
 
@@ -318,6 +320,7 @@ async def upsert_single_entry(payload: UpsertEntryRequest):
             image_id = str(image.get("id") or "")
             if image_id and image_id not in retained:
                 await attachment_store.delete_attachment(old_owner, image_id)
+    await asyncio.to_thread(PracticeStore(store.db_path).record_answer_exposures, [entry])
     return entry
 
 
@@ -397,6 +400,7 @@ async def list_entries(
         limit=limit,
         offset=offset,
     )
+    await asyncio.to_thread(PracticeStore(store.db_path).record_answer_exposures, listing["items"])
     return NotebookEntryListResponse(
         items=[NotebookEntryItem(**item) for item in listing["items"]],
         total=listing["total"],
@@ -436,6 +440,7 @@ async def lookup_entry(
         if missing_ok:
             return Response(status_code=204)
         raise HTTPException(status_code=404, detail="Entry not found")
+    await asyncio.to_thread(PracticeStore(store.db_path).record_answer_exposures, [entry])
     return entry
 
 
@@ -445,6 +450,7 @@ async def get_entry(entry_id: int) -> NotebookEntryItem:
     entry = await store.get_notebook_entry(entry_id)
     if entry is None:
         raise HTTPException(status_code=404, detail="Entry not found")
+    await asyncio.to_thread(PracticeStore(store.db_path).record_answer_exposures, [entry])
     return NotebookEntryItem(**entry)
 
 
@@ -526,6 +532,7 @@ async def remove_entry_from_category(entry_id: int, category_id: int):
 @router.get("/stats", response_model=QuestionBankStats)
 async def question_bank_stats(
     course_id: str = Query(default=""),
+    knowledge_point_id:str="",mastery_path_id:str="",
 ) -> QuestionBankStats:
     """Counts behind the filter chips; also the agent's one-call overview.
 
@@ -534,7 +541,7 @@ async def question_bank_stats(
     """
     store = get_sqlite_session_store()
     session_ids = await _course_session_ids(store, course_id)
-    return QuestionBankStats(**await store.question_bank_stats(session_ids))
+    return QuestionBankStats(**await store.question_bank_stats(session_ids,knowledge_point_id,mastery_path_id))
 
 
 @router.get("/materials", response_model=list[QuestionBankMaterial])

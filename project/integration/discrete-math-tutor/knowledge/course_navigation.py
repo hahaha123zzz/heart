@@ -291,6 +291,8 @@ def resolve(message, *, cursor=None, reader_location=None, activity=None):
                             and u['section_id'] == reader_location.section_id), None)
         if current is None:
             return {'status': 'clarify', 'reply': '还没有可确认的学习路径和当前位置。请先说明章节或选择要学习的小节。'}
+        if cursor and cursor.get('version') and cursor['version'] != current['version']:
+            return {'status': 'clarify', 'reply': '教材版本已变化，请重新选择章节或小节。'}
         if (cursor or {}).get('delivery_pending'):
             return _cursor(current, mode='repeat', explained=False) | {
                 'continuation_action': 'retry_current',

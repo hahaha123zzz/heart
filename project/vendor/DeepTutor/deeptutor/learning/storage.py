@@ -2023,6 +2023,19 @@ class LearningStore:
         interactions = (LearningTransaction._interaction_from_row(row) for row in rows)
         return [interaction for interaction in interactions if interaction is not None]
 
+    def record_chat_assistance(self, path_id: str, *, session_id: str, turn_id: str, payload: dict,
+                               event_type: str = "chat.reference_provided") -> None:
+        """只保存已提供辅助的最小审计信息，重复完成通知不产生新事件。"""
+        if event_type not in {"chat.reference_provided", "chat.teaching_provided"}:
+            raise ValueError("Unsupported chat assistance event")
+        def record(tx):
+            existing = tx._conn.execute("""SELECT 1 FROM mastery_events
+                WHERE path_id=? AND event_type=? AND session_id=? AND turn_id=?""",
+                (path_id, event_type, session_id, turn_id)).fetchone()
+            if existing is None:
+                tx.emit(event_type, payload, session_id=session_id, turn_id=turn_id)
+        self.mutate(path_id, record)
+
     def list_events(self, path_id: str, *, after_revision: int = 0) -> list[MasteryEvent]:
         path_id = self._validate_id(path_id)
         self._import_legacy_if_needed(path_id)

@@ -9,6 +9,7 @@ import {
   locatorFromHref,
   locatorLabel,
   verifiedReadingLocators,
+  verifiedReadingQuotes,
 } from "../lib/reading-citations";
 
 test("parses a single locator citation", () => {
@@ -123,7 +124,19 @@ test("linkify binds a citation to its turn material", () => {
       materialId: "0123456789abcdef",
       allowedLocators: [12],
     }),
-    "Grounded [p.12](#dt-material-0123456789abcdef-locator-12) claim.",
+    'Grounded [1](#dt-material-0123456789abcdef-locator-12 "citation") claim.',
+  );
+});
+
+test("numbered material markers reuse a source number and preserve revision and quote", () => {
+  assert.equal(
+    linkifyLocatorCitations("First [p.12], again [p.12], then [p.15].", {
+      materialId: "0123456789abcdef",
+      materialRevision: 3,
+      allowedLocators: [12, 15],
+      quotes: new Map([[12, "verified passage"]]),
+    }),
+    'First [1](#dt-material-0123456789abcdef-revision-3-locator-12?quote=verified%20passage "citation"), again [1](#dt-material-0123456789abcdef-revision-3-locator-12?quote=verified%20passage "citation"), then [2](#dt-material-0123456789abcdef-revision-3-locator-15 "citation").',
   );
 });
 
@@ -133,7 +146,7 @@ test("unsupported citations remain plain text instead of blind links", () => {
       materialId: "0123456789abcdef",
       allowedLocators: [12],
     }),
-    "Grounded [p.12](#dt-material-0123456789abcdef-locator-12), guessed [p.13].",
+    'Grounded [1](#dt-material-0123456789abcdef-locator-12 "citation"), guessed [p.13].',
   );
   assert.equal(
     linkifyLocatorCitations("Mixed [p.12,13].", {
@@ -227,7 +240,7 @@ test("linkify binds material-aware citations to an immutable revision", () => {
       materialRevision: 4,
       allowedLocators: [12],
     }),
-    "Grounded [p.12](#dt-material-0123456789abcdef-revision-4-locator-12).",
+    'Grounded [1](#dt-material-0123456789abcdef-revision-4-locator-12 "citation").',
   );
 });
 
@@ -397,4 +410,15 @@ test("absorption is still idempotent", () => {
     "It is on page 3 of the document [p.3].",
   );
   assert.equal(linkifyLocatorCitations(once), once);
+});
+
+
+test("verified Chinese quote round-trips with its material revision for region navigation", () => {
+  const events = [{ type: "tool_result", metadata: { tool: "reader_goto", tool_metadata: { material_id: "abcdef1234567890", material_revision: 2, reader_action: "goto", locator: 3, quote: "中文依据（原文）" } } }];
+  const quotes = verifiedReadingQuotes(events, "abcdef1234567890", 2);
+  const text = linkifyLocatorCitations("教材结论 [p.3]。\n\n补充解释（非教材结论）：这是例子。", { materialId: "abcdef1234567890", materialRevision: 2, allowedLocators: [3], quotes });
+  const href = /\]\(([^ )]+)(?: "citation")?\)/.exec(text)![1];
+  assert.deepEqual(citationTargetFromHref(href), { materialId: "abcdef1234567890", materialRevision: 2, locator: 3, quote: "中文依据（原文）" });
+  assert.equal(verifiedReadingQuotes(events, "abcdef1234567890", 3).size, 0);
+  assert.ok(text.endsWith("补充解释（非教材结论）：这是例子。"));
 });

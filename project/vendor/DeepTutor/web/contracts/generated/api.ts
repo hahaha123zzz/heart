@@ -11283,6 +11283,8 @@ export interface components {
        * @default
        */
       readonly answer: string;
+      /** Version */
+      readonly version?: number | null;
     };
     /** ApplyOpsRequest */
     readonly ApplyOpsRequest: {
@@ -11427,10 +11429,7 @@ export interface components {
     };
     /** Body_admin_import_users_api_auth_users_import_post */
     readonly Body_admin_import_users_api_auth_users_import_post: {
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       readonly file: string;
     };
     /** Body_create_knowledge_base_api_knowledge_bases_post */
@@ -11474,10 +11473,7 @@ export interface components {
     };
     /** Body_import_docx_api_documents_import_docx_post */
     readonly Body_import_docx_api_documents_import_docx_post: {
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       readonly file: string;
     };
     /** Body_import_preview_api_question_notebook_practice_import_preview_post */
@@ -11487,10 +11483,7 @@ export interface components {
        * @default
        */
       readonly course_id: string;
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       readonly file: string;
       /**
        * Target
@@ -11501,17 +11494,13 @@ export interface components {
     };
     /** Body_import_visualizer_api_visualizers_import_post */
     readonly Body_import_visualizer_api_visualizers_import_post: {
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       readonly file: string;
     };
     /** Body_library_add */
     readonly Body_library_add: {
       /**
        * File
-       * Format: binary
        * @description Raw file bytes
        */
       readonly file: string;
@@ -11528,10 +11517,7 @@ export interface components {
     };
     /** Body_preview_office_upload_api_file_preview_pdf_post */
     readonly Body_preview_office_upload_api_file_preview_pdf_post: {
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       readonly file: string;
     };
     /** Body_reindex_knowledge_base_api_knowledge_bases__kb_name__reindex_post */
@@ -11554,20 +11540,14 @@ export interface components {
     };
     /** Body_speech_to_text_api_voice_stt_post */
     readonly Body_speech_to_text_api_voice_stt_post: {
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       readonly file: string;
       /** Language */
       readonly language?: string | null;
     };
     /** Body_upload_avatar_api_auth_profile_avatar_put */
     readonly Body_upload_avatar_api_auth_profile_avatar_put: {
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       readonly file: string;
     };
     /** Body_upload_files_api_knowledge_bases__kb_name__upload_post */
@@ -11588,10 +11568,7 @@ export interface components {
     };
     /** Body_upload_material_api_reading_materials_post */
     readonly Body_upload_material_api_reading_materials_post: {
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       readonly file: string;
     };
     /** BookmarkInfo */
@@ -13722,6 +13699,11 @@ export interface components {
        */
       readonly created_at: number;
       /**
+       * Document Id
+       * @default
+       */
+      readonly document_id: string;
+      /**
        * Extractor
        * @default
        */
@@ -13749,6 +13731,10 @@ export interface components {
        * @default
        */
       readonly outline_text: string;
+      /** Page Map */
+      readonly page_map?: {
+        readonly [key: string]: number;
+      };
       /**
        * Render Mode
        * @default text
@@ -13783,6 +13769,11 @@ export interface components {
       readonly unit_refs?: readonly {
         readonly [key: string]: unknown;
       }[];
+      /**
+       * Version
+       * @default
+       */
+      readonly version: string;
     };
     /** MaterialInfo */
     readonly MaterialInfo: {
@@ -13813,6 +13804,11 @@ export interface components {
        */
       readonly created_at: number;
       /**
+       * Document Id
+       * @default
+       */
+      readonly document_id: string;
+      /**
        * Extractor
        * @default
        */
@@ -13831,6 +13827,10 @@ export interface components {
        * @default
        */
       readonly mime: string;
+      /** Page Map */
+      readonly page_map?: {
+        readonly [key: string]: number;
+      };
       /**
        * Render Mode
        * @default text
@@ -13861,6 +13861,11 @@ export interface components {
       readonly unit: string;
       /** Unit Count */
       readonly unit_count: number;
+      /**
+       * Version
+       * @default
+       */
+      readonly version: string;
     };
     /**
      * MCPServerConfig
@@ -15048,6 +15053,18 @@ export interface components {
       /** Revision */
       readonly revision: number;
     };
+    /**
+     * ReadingSelectionPage
+     * @description 一页内的选区，坐标以阅读器显示的裁剪框归一化。
+     */
+    readonly ReadingSelectionPage: {
+      /** Locator */
+      readonly locator: number;
+      /** Quote */
+      readonly quote: string;
+      /** Rects */
+      readonly rects: readonly (readonly [number, number, number, number])[];
+    };
     /** ReadingSessionCreateRequest */
     readonly ReadingSessionCreateRequest: {
       /**
@@ -15083,6 +15100,8 @@ export interface components {
        * @default null
        */
       readonly selection: string | null;
+      /** Selection Pages */
+      readonly selection_pages?: readonly components["schemas"]["ReadingSelectionPage"][];
     };
     /** RebuildBookRequest */
     readonly RebuildBookRequest: {
@@ -17554,6 +17573,8 @@ export type SchemaReadingLearningRecords =
 export type SchemaReadingProgressRecord =
   components["schemas"]["ReadingProgressRecord"];
 export type SchemaReadingReference = components["schemas"]["ReadingReference"];
+export type SchemaReadingSelectionPage =
+  components["schemas"]["ReadingSelectionPage"];
 export type SchemaReadingSessionCreateRequest =
   components["schemas"]["ReadingSessionCreateRequest"];
 export type SchemaReadingSessionLinkRequest =
@@ -24621,7 +24642,10 @@ export interface operations {
   };
   readonly overview_api_learning_journal_get: {
     readonly parameters: {
-      readonly query?: never;
+      readonly query?: {
+        readonly limit?: number;
+        readonly offset?: number;
+      };
       readonly header?: {
         readonly Authorization?: string | null;
       };
@@ -31809,6 +31833,8 @@ export interface operations {
         readonly all_workspaces?: boolean;
         readonly course_id?: string;
         readonly days?: number;
+        readonly knowledge_point_id?: string;
+        readonly mastery_path_id?: string;
         readonly timezone?: string;
       };
       readonly header?: {
@@ -32069,7 +32095,9 @@ export interface operations {
         readonly all_workspaces?: boolean;
         readonly category_id?: number | null;
         readonly course_id?: string;
+        readonly knowledge_point_id?: string;
         readonly limit?: number;
+        readonly mastery_path_id?: string;
         readonly timezone?: string;
       };
       readonly header?: {
@@ -32107,6 +32135,8 @@ export interface operations {
       readonly query?: {
         readonly all_workspaces?: boolean;
         readonly course_id?: string;
+        readonly knowledge_point_id?: string;
+        readonly mastery_path_id?: string;
         readonly timezone?: string;
       };
       readonly header?: {
@@ -32143,6 +32173,8 @@ export interface operations {
     readonly parameters: {
       readonly query?: {
         readonly course_id?: string;
+        readonly knowledge_point_id?: string;
+        readonly mastery_path_id?: string;
       };
       readonly header?: {
         readonly Authorization?: string | null;

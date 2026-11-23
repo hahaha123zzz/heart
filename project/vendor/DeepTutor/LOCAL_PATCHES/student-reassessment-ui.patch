@@ -1,0 +1,536 @@
+diff --git a/project/vendor/DeepTutor/web/app/(settings)/settings/model/page.tsx b/project/vendor/DeepTutor/web/app/(settings)/settings/model/page.tsx
+index 47e1054..d28e1d4 100644
+--- a/project/vendor/DeepTutor/web/app/(settings)/settings/model/page.tsx
++++ b/project/vendor/DeepTutor/web/app/(settings)/settings/model/page.tsx
+@@ -1,6 +1,7 @@
+ "use client";
+ 
+ import { useEffect, useState } from "react";
++import { StudentEvaluationSettings } from "@/features/heart/StudentAssessments";
+ 
+ interface ModelState {
+   configured: boolean;
+@@ -17,20 +18,28 @@ export default function StudentModelPage() {
+   const [apiKey, setApiKey] = useState("");
+   const [status, setStatus] = useState("");
+   const [busy, setBusy] = useState(false);
++  const [loaded, setLoaded] = useState(false);
++  const [reload, setReload] = useState(0);
+ 
+   useEffect(() => {
+-    fetch("/api/heart/model", { credentials: "same-origin" })
+-      .then((response) => (response.ok ? response.json() : { configured: false }))
++    const controller = new AbortController();
++    setLoaded(false);
++    fetch("/api/heart/model", { credentials: "same-origin", signal: controller.signal, cache: "no-store" })
++      .then(response => { if (!response.ok) throw new Error("model_read_failed"); return response.json(); })
+       .then((value: ModelState) => {
++        if (controller.signal.aborted) return;
+         setState(value);
+         setBaseUrl(value.base_url ?? "");
+         setModel(value.model ?? "");
++        setLoaded(true);
+       })
+-      .catch(() => setStatus("无法读取当前配置"));
+-  }, []);
++      .catch(() => { if (!controller.signal.aborted) setStatus("无法读取当前配置，请重新读取后再编辑。"); });
++    return () => controller.abort();
++  }, [reload]);
+ 
+   async function save(event: React.FormEvent) {
+     event.preventDefault();
++    if (busy || !loaded) return;
+     setBusy(true);
+     setStatus("");
+     try {
+@@ -48,6 +57,8 @@ export default function StudentModelPage() {
+       setState({ configured: true, base_url: baseUrl, model, api_key_masked: payload.api_key_masked });
+       setApiKey("");
+       setStatus("已保存，后续对话使用这个 Key");
++    } catch {
++      setApiKey(""); setLoaded(false); setStatus("未能确认保存结果，请重新读取配置后再操作。");
+     } finally {
+       setBusy(false);
+     }
+@@ -64,6 +75,8 @@ export default function StudentModelPage() {
+       } else {
+         setStatus("删除失败");
+       }
++    } catch {
++      setLoaded(false); setStatus("未能确认删除结果，请重新读取配置后再操作。");
+     } finally {
+       setBusy(false);
+     }
+@@ -84,32 +97,34 @@ export default function StudentModelPage() {
+         </div>
+       )}
+ 
+-      <form onSubmit={save} className="mt-6 space-y-4">
++      {!loaded && !status && <p role="status" className="mt-4 text-sm">正在读取模型配置…</p>}
++      {!loaded && status && <button type="button" className="mt-4 rounded-md border border-border px-3 py-2 text-sm" onClick={() => { setStatus(""); setReload(value => value + 1); }}>重新读取模型配置</button>}
++      <form aria-busy={!loaded || busy} onSubmit={save} className="mt-6 space-y-4">
+         <label className="block">
+           <span className="text-sm font-medium text-[var(--foreground)]">Base URL（必须 HTTPS）</span>
+-          <input className={`${field} mt-1`} value={baseUrl} required
++          <input className={`${field} mt-1`} value={baseUrl} required disabled={!loaded || busy}
+                  placeholder="https://api.example.com/v1"
+                  onChange={(event) => setBaseUrl(event.target.value)} />
+         </label>
+         <label className="block">
+           <span className="text-sm font-medium text-[var(--foreground)]">模型名称</span>
+-          <input className={`${field} mt-1`} value={model} required
++          <input className={`${field} mt-1`} value={model} required disabled={!loaded || busy}
+                  placeholder="gpt-4o-mini"
+                  onChange={(event) => setModel(event.target.value)} />
+         </label>
+         <label className="block">
+           <span className="text-sm font-medium text-[var(--foreground)]">API Key</span>
+-          <input className={`${field} mt-1`} value={apiKey} type="password" required
++          <input className={`${field} mt-1`} value={apiKey} type="password" required disabled={!loaded || busy}
+                  placeholder={state.configured ? "输入新 Key 以替换" : "sk-..."}
+                  onChange={(event) => setApiKey(event.target.value)} />
+         </label>
+         <div className="flex items-center gap-3">
+-          <button type="submit" disabled={busy}
++          <button type="submit" disabled={busy || !loaded}
+                   className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] disabled:opacity-50">
+             保存
+           </button>
+           {state.configured && (
+-            <button type="button" onClick={remove} disabled={busy}
++            <button type="button" onClick={remove} disabled={busy || !loaded}
+                     className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] disabled:opacity-50">
+               删除
+             </button>
+@@ -118,6 +133,8 @@ export default function StudentModelPage() {
+         </div>
+       </form>
+ 
++      <StudentEvaluationSettings />
++
+       <p className="mt-6 text-xs text-[var(--muted-foreground)]">
+         图片题需要支持图像输入的模型；不支持时请换模型。Key 只保存密文，读取接口只返回末四位。
+       </p>
+diff --git a/project/vendor/DeepTutor/web/features/heart/StudentAssessments.tsx b/project/vendor/DeepTutor/web/features/heart/StudentAssessments.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/StudentAssessments.tsx
+@@ -0,0 +1,213 @@
++"use client";
++
++import { useEffect, useState } from "react";
++import { apiUrl, requestJson } from "@/shared/api/client";
++import { ApiError } from "@/shared/api/errors";
++
++interface Assessment {
++  id: string;
++  status: string;
++  created_at: string;
++  knowledge_point: string;
++  passed: boolean | null;
++  feedback: string;
++  answer: string;
++  publication_status: string;
++  assistance_status: string;
++  independent: boolean;
++  citations: { quote: string; document_id: string; version: string }[];
++  reassessment?: { id: string; status: string; publication_status: string; passed: boolean | null;
++    feedback: string; reason: string; effective: boolean; can_retry: boolean } | null;
++}
++
++function progressLabel(job: Assessment) {
++  if (job.status === "completed") {
++    if (job.publication_status === "published") return "已记录并同步";
++    if (job.publication_status === "blocked") return "评分已保存，同步受阻";
++    return "评分已保存，等待同步";
++  }
++  return ({ queued: "排队中", claimed: "准备评估", sent: "评估中", paused: "等待模型配置",
++    unknown: "结果不明，未自动重试", cancelled: "已取消", discarded: "本次未计入评估",
++    failed: "评估未完成" } as Record<string, string>)[job.status] ?? "等待更新";
++}
++
++function ReassessmentPanel({ job, onSubmitted }: { job: Assessment; onSubmitted: () => void }) {
++  const [open, setOpen] = useState(false);
++  const [reason, setReason] = useState("");
++  const [confirmed, setConfirmed] = useState(false);
++  const [requestId, setRequestId] = useState("");
++  const [busy, setBusy] = useState(false);
++  const [error, setError] = useState("");
++  const review = job.reassessment;
++  async function submit(event: React.FormEvent) {
++    event.preventDefault();
++    if (busy || !confirmed || !reason.trim()) return;
++    setBusy(true); setError("");
++    try {
++      await requestJson(apiUrl(`/api/heart/evaluation/jobs/${encodeURIComponent(job.id)}/reassessment`), {
++        method: "POST", headers: { "Content-Type": "application/json" },
++        body: JSON.stringify({ request_id: requestId, reason: reason.trim(), confirm_cost: true,
++          confirm_unknown_retry: review?.status === "unknown" }),
++      });
++      setOpen(false); onSubmitted();
++    } catch (error) {
++      setError(error instanceof ApiError && [404, 409, 422].includes(error.status ?? 0)
++        ? error.message : "未能确认申请结果。请先刷新记录查看；再次提交会使用同一申请编号，不会重复创建任务。");
++    } finally { setBusy(false); }
++  }
++  return (
++    <div className="mt-4 border-t border-border pt-3 text-sm">
++      {review && <div aria-label="复评记录">
++        <p className="font-medium">复评状态：{progressLabel({ ...job, ...review })}</p>
++        <p className="mt-1">原结论：{job.passed ? "通过" : "未通过"}</p>
++        {review.passed !== null && <p className="mt-1">{review.effective ? "当前有效结论" : "复评结论（待同步）"}：{review.passed ? "通过" : "未通过"}</p>}
++        <p className="mt-1 whitespace-pre-wrap break-words">申请原因：{review.reason}</p>
++        {review.feedback && <p className="mt-1 whitespace-pre-wrap break-words">复评依据：{review.feedback}</p>}
++      </div>}
++      {(!review || review.can_retry) && !open && <button type="button"
++        className="mt-2 rounded-md border border-border px-3 py-1.5 hover:bg-accent"
++        onClick={() => { setRequestId(crypto.randomUUID()); setReason(review?.reason ?? ""); setConfirmed(false); setError(""); setOpen(true); }}>
++        {review ? "再次申请复评" : "申请复评"}
++      </button>}
++      {open && <form aria-label="复评申请" onSubmit={submit} className="mt-3 space-y-3">
++        <p className="text-muted-foreground">使用你当前的个人模型，最多一次评估及一次归属修正，会产生额外调用费用。每条原评分仅允许一次成功复评。</p>
++        {review?.status === "unknown" && <p>上次请求结果不明，可能已计费。再次申请可能重复计费，旧请求的迟到结果将不再采用。</p>}
++        <label className="block">复评原因
++          <textarea required maxLength={1000} value={reason} disabled={busy} onChange={event => setReason(event.target.value)}
++            className="mt-1 block w-full rounded-md border border-border bg-background p-2" />
++        </label>
++        <label className="flex items-start gap-2">
++          <input type="checkbox" checked={confirmed} disabled={busy} onChange={event => setConfirmed(event.target.checked)} />
++          {review?.status === "unknown" ? "我已了解上次可能已计费，并同意再次调用产生的费用" : "我已了解并同意本次复评可能产生的模型调用费用"}
++        </label>
++        <div className="flex flex-wrap gap-3">
++          <button type="submit" disabled={busy || !confirmed || !reason.trim()} className="rounded-md border border-border px-3 py-1.5 disabled:opacity-50">{busy ? "正在提交…" : "确认并提交复评"}</button>
++          <button type="button" disabled={busy} onClick={() => setOpen(false)} className="rounded-md px-3 py-1.5">取消</button>
++        </div>
++        {error && <p role="alert">{error}</p>}
++      </form>}
++    </div>
++  );
++}
++
++export function StudentAssessments() {
++  const [jobs, setJobs] = useState<Assessment[]>([]);
++  const [loading, setLoading] = useState(true);
++  const [error, setError] = useState(false);
++  const [reload, setReload] = useState(0);
++  useEffect(() => {
++    const controller = new AbortController();
++    let busy = false;
++    const refresh = async () => {
++      if (busy || document.visibilityState === "hidden") return;
++      busy = true;
++      try {
++        const value = await requestJson<{ jobs: Assessment[] }>(apiUrl("/api/heart/evaluation/jobs"),
++          { signal: controller.signal, cache: "no-store" });
++        if (!controller.signal.aborted) { setJobs(value.jobs); setError(false); }
++      } catch {
++        if (!controller.signal.aborted) setError(true);
++      } finally {
++        busy = false;
++        if (!controller.signal.aborted) setLoading(false);
++      }
++    };
++    void refresh();
++    const timer = window.setInterval(refresh, 15_000);
++    window.addEventListener("focus", refresh);
++    document.addEventListener("visibilitychange", refresh);
++    return () => {
++      controller.abort();
++      window.clearInterval(timer);
++      window.removeEventListener("focus", refresh);
++      document.removeEventListener("visibilitychange", refresh);
++    };
++  }, [reload]);
++  return (
++    <section aria-labelledby="student-assessments" className="my-6 rounded-xl border border-border p-5">
++      <div className="flex flex-wrap items-center justify-between gap-3">
++        <h2 id="student-assessments" className="font-semibold">聊天评估记录</h2>
++        <button type="button" onClick={() => setReload(value => value + 1)}
++          className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent">刷新记录</button>
++      </div>
++      <p className="mt-2 text-sm text-muted-foreground">显示最近 20 条记录。评估通过后，还需核验是否独立作答，才可作为掌握依据。</p>
++      {loading && <p role="status" className="mt-3 text-sm">正在读取评估记录…</p>}
++      {error && <p role="alert" className="mt-3 text-sm">无法读取最新评估状态。已有内容可能已过时，请刷新后再查看。</p>}
++      {!loading && !error && jobs.length === 0 && <p className="mt-3 text-sm text-muted-foreground">还没有评估记录。有教材依据的有效作答会在后台评估。</p>}
++      <ul className="mt-4 space-y-4">
++        {jobs.map(job => (
++          <li key={job.id} className="rounded-lg border border-border p-4">
++            <div className="flex flex-wrap justify-between gap-2 text-sm">
++              <span className="font-medium">{job.knowledge_point || "聊天作答"}</span>
++              <span>{progressLabel(job)}</span>
++            </div>
++            {job.passed !== null && (
++              <>
++                <p className="mt-2 text-sm">{job.reassessment ? "原评估结论" : "评估结论"}：{job.passed ? "通过" : "未通过"}</p>
++                <p className="mt-1 text-sm text-muted-foreground">
++                  {job.assistance_status === "assisted" ? "辅助作答，不更新掌握状态" : "独立性待核验，不更新掌握状态"}
++                </p>
++                <p className="mt-2 whitespace-pre-wrap text-sm">{job.feedback}</p>
++                <details className="mt-3 text-sm">
++                  <summary className="cursor-pointer">查看作答与教材依据</summary>
++                  <p className="mt-2 whitespace-pre-wrap">作答：{job.answer}</p>
++                  {job.citations.map((cite, index) => (
++                    <blockquote key={index} className="mt-2 border-l-2 border-border pl-3 whitespace-pre-wrap">
++                      {cite.quote}
++                      <footer className="mt-1 break-all text-xs text-muted-foreground">教材：{cite.document_id} · 版本：{cite.version}</footer>
++                    </blockquote>
++                  ))}
++                </details>
++                {job.publication_status === "published" && <ReassessmentPanel job={job} onSubmitted={() => setReload(value => value + 1)} />}
++              </>
++            )}
++            {job.status === "paused" && <p className="mt-2 text-sm text-muted-foreground">请到个人模型设置检查或重新保存配置。</p>}
++            {job.status === "unknown" && <p className="mt-2 text-sm text-muted-foreground">本次请求可能已产生费用，系统不会自动再次调用模型。</p>}
++            <time dateTime={job.created_at} className="mt-3 block text-xs text-muted-foreground">{new Date(job.created_at).toLocaleString("zh-CN")}</time>
++          </li>
++        ))}
++      </ul>
++    </section>
++  );
++}
++
++export function StudentEvaluationSettings() {
++  const [enabled, setEnabled] = useState<boolean | null>(null);
++  const [busy, setBusy] = useState(false);
++  const [error, setError] = useState("");
++  const [reload, setReload] = useState(0);
++  useEffect(() => {
++    const controller = new AbortController();
++    setEnabled(null);
++    requestJson<{ enabled: boolean }>(apiUrl("/api/heart/evaluation"), { signal: controller.signal, cache: "no-store" })
++      .then(value => { if (!controller.signal.aborted) { setEnabled(value.enabled); setError(""); } })
++      .catch(() => { if (!controller.signal.aborted) setError("无法读取评估开关，请重试。"); });
++    return () => controller.abort();
++  }, [reload]);
++  async function save() {
++    if (enabled === null || busy) return;
++    setBusy(true);
++    setError("");
++    try {
++      const value = await requestJson<{ enabled: boolean }>(apiUrl("/api/heart/evaluation"), {
++        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: !enabled }),
++      });
++      setEnabled(value.enabled);
++    } catch { setEnabled(null); setError("未能确认保存结果，请重新读取后再操作。"); }
++    finally { setBusy(false); }
++  }
++  return (
++    <section aria-labelledby="student-evaluation-settings" className="mt-8 rounded-xl border border-border p-5">
++      <h2 id="student-evaluation-settings" className="font-semibold">聊天自动评估</h2>
++      <p className="mt-2 text-sm text-muted-foreground">在后台用你的个人模型评估有教材依据的作答，会产生额外调用费用。每条候选作答评估一次，归属错误时最多修正一次。</p>
++      <label className="mt-4 flex items-center gap-3 text-sm">
++        <input type="checkbox" checked={enabled === true} disabled={enabled === null || busy} onChange={save} />
++        开启聊天自动评估
++      </label>
++      <p className="mt-3 text-xs text-muted-foreground">关闭后取消尚未开始的评估；已开始的请求和已保存的结果仍会处理完成。重新开启不会补评关闭期间的聊天。</p>
++      {enabled === null && !error && <p role="status" className="mt-2 text-sm">正在读取开关…</p>}
++      {error && <p role="alert" className="mt-2 text-sm">{error}</p>}
++      {enabled === null && error && <button type="button" className="mt-2 rounded-md border border-border px-3 py-1.5 text-sm" onClick={() => setReload(value => value + 1)}>重新读取</button>}
++    </section>
++  );
++}
+diff --git a/project/vendor/DeepTutor/web/tests/student-assessments.spec.tsx b/project/vendor/DeepTutor/web/tests/student-assessments.spec.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/tests/student-assessments.spec.tsx
+@@ -0,0 +1,156 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, expect, it, vi } from "vitest";
++import { StudentAssessments, StudentEvaluationSettings } from "@/features/heart/StudentAssessments";
++
++const request = vi.hoisted(() => vi.fn());
++vi.mock("@/shared/api/client", () => ({ apiUrl: (path: string) => path, requestJson: request }));
++beforeEach(() => request.mockReset());
++afterEach(cleanup);
++const job = { id: "own-job", status: "completed", publication_status: "pending", created_at: "2026-11-18T06:00:00Z",
++  knowledge_point: "自变量", passed: true, feedback: "解释符合教材", answer: "研究者操纵的变量", independent: false,
++  assistance_status: "not_verified", citations: [{ quote: "教材引用", document_id: "实验心理学", version: "v1" }] };
++
++it("reloads authoritative settings after a failed save without repeating the PUT", async () => {
++  request.mockResolvedValueOnce({ enabled: false }).mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ enabled: true });
++  render(<StudentEvaluationSettings />);
++  const toggle = screen.getByRole("checkbox", { name: "开启聊天自动评估" });
++  await waitFor(() => expect(toggle).toBeEnabled());
++  expect(toggle).not.toBeChecked();
++  fireEvent.click(toggle);
++  expect(await screen.findByRole("alert")).toHaveTextContent("未能确认保存结果");
++  expect(toggle).toBeDisabled();
++  fireEvent.click(screen.getByRole("button", { name: "重新读取" }));
++  await waitFor(() => expect(toggle).toBeChecked());
++  const writes = request.mock.calls.filter(([, options]) => options.method === "PUT");
++  expect(writes).toHaveLength(1);
++  expect(writes[0][1].body).toBe('{"enabled":true}');
++  expect(screen.getByText(/额外调用费用/)).toBeInTheDocument();
++  expect(screen.getByText(/不会补评/)).toBeInTheDocument();
++});
++
++it("keeps an unreadable switch disabled and supports a read retry", async () => {
++  request.mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ enabled: true });
++  render(<StudentEvaluationSettings />);
++  expect(await screen.findByRole("alert")).toHaveTextContent("无法读取评估开关");
++  expect(screen.getByRole("checkbox")).toBeDisabled();
++  fireEvent.click(screen.getByRole("button", { name: "重新读取" }));
++  await waitFor(() => expect(screen.getByRole("checkbox")).toBeChecked());
++});
++
++it("distinguishes a passing evaluation from independent mastery and shows textbook evidence", async () => {
++  request.mockResolvedValue({ jobs: [job, { ...job, id: "assisted", knowledge_point: "因变量", assistance_status: "assisted", publication_status: "published" }] });
++  render(<StudentAssessments />);
++  expect(await screen.findByText("自变量")).toBeInTheDocument();
++  expect(screen.getByText("评分已保存，等待同步")).toBeInTheDocument();
++  expect(screen.getByText("已记录并同步")).toBeInTheDocument();
++  expect(screen.getByText("独立性待核验，不更新掌握状态")).toBeInTheDocument();
++  expect(screen.getByText("辅助作答，不更新掌握状态")).toBeInTheDocument();
++  expect(screen.getAllByText("教材引用")).toHaveLength(2);
++});
++
++it("marks retained results stale after refresh failure without resubmitting an assessment", async () => {
++  request.mockResolvedValueOnce({ jobs: [job] }).mockRejectedValueOnce(new Error("offline"));
++  render(<StudentAssessments />);
++  await screen.findByText("自变量");
++  fireEvent.click(screen.getByRole("button", { name: "刷新记录" }));
++  expect(await screen.findByRole("alert")).toHaveTextContent("已有内容可能已过时");
++  expect(screen.getByText("自变量")).toBeInTheDocument();
++  expect(request.mock.calls.every(([path, options]) => path === "/api/heart/evaluation/jobs" && !options.method)).toBe(true);
++});
++
++it("shows an empty state and aborts pending reads when unmounted", async () => {
++  request.mockResolvedValue({ jobs: [] });
++  const view = render(<StudentAssessments />);
++  expect(await screen.findByText(/还没有评估记录/)).toBeInTheDocument();
++  const signal = request.mock.calls[0][1].signal as AbortSignal;
++  view.unmount();
++  expect(signal.aborted).toBe(true);
++});
++
++it("shows an unknown outcome without offering an automatic model retry", async () => {
++  request.mockResolvedValue({ jobs: [{ ...job, status: "unknown", passed: null, feedback: "", publication_status: "" }] });
++  render(<StudentAssessments />);
++  expect(await screen.findByText("结果不明，未自动重试")).toBeInTheDocument();
++  expect(screen.getByText(/可能已产生费用/)).toBeInTheDocument();
++  expect(screen.queryByText(/评估结论/)).toBeNull();
++  expect(screen.getAllByRole("button")).toHaveLength(1);
++});
++
++
++it("saves a disabled setting only after the server confirms it", async () => {
++  request.mockResolvedValueOnce({ enabled: true }).mockResolvedValueOnce({ enabled: false });
++  render(<StudentEvaluationSettings />);
++  const toggle = screen.getByRole("checkbox");
++  await waitFor(() => expect(toggle).toBeChecked());
++  fireEvent.click(toggle);
++  await waitFor(() => expect(toggle).not.toBeChecked());
++  expect(request).toHaveBeenLastCalledWith("/api/heart/evaluation", expect.objectContaining({ method: "PUT", body: '{"enabled":false}' }));
++});
++
++
++it("requires a reason and cost confirmation and deduplicates repeated submit clicks", async () => {
++  let finish!: (value: unknown) => void;
++  const submitted = new Promise(resolve => { finish = resolve; });
++  const review = { id: "review-1", status: "paused", publication_status: "", passed: null, feedback: "", reason: "请核对", effective: false, can_retry: false };
++  request.mockResolvedValueOnce({ jobs: [{ ...job, publication_status: "published" }] })
++    .mockReturnValueOnce(submitted).mockResolvedValue({ jobs: [{ ...job, publication_status: "published", reassessment: review }] });
++  render(<StudentAssessments />);
++  fireEvent.click(await screen.findByRole("button", { name: "申请复评" }));
++  const submit = screen.getByRole("button", { name: "确认并提交复评" });
++  expect(submit).toBeDisabled();
++  fireEvent.change(screen.getByRole("textbox", { name: "复评原因" }), { target: { value: "请核对" } });
++  expect(submit).toBeDisabled();
++  fireEvent.click(screen.getByRole("checkbox", { name: /同意本次复评/ }));
++  fireEvent.click(submit); fireEvent.click(submit);
++  const writes = request.mock.calls.filter(([, options]) => options.method === "POST");
++  expect(writes).toHaveLength(1);
++  expect(JSON.parse(writes[0][1].body)).toMatchObject({ reason: "请核对", confirm_cost: true, confirm_unknown_retry: false });
++  expect(JSON.parse(writes[0][1].body).request_id).toMatch(/^[a-f0-9-]{36}$/);
++  finish({ id: "review-1", status: "paused" });
++  expect(await screen.findByText("复评状态：等待模型配置")).toBeInTheDocument();
++  expect(screen.queryByRole("button", { name: "申请复评" })).toBeNull();
++});
++
++it("keeps the same application id if the response is lost", async () => {
++  request.mockResolvedValueOnce({ jobs: [{ ...job, publication_status: "published" }] })
++    .mockRejectedValueOnce(new Error("lost response")).mockRejectedValueOnce(new Error("still offline"));
++  render(<StudentAssessments />);
++  fireEvent.click(await screen.findByRole("button", { name: "申请复评" }));
++  fireEvent.change(screen.getByRole("textbox", { name: "复评原因" }), { target: { value: "核查依据" } });
++  fireEvent.click(screen.getByRole("checkbox", { name: /同意本次复评/ }));
++  fireEvent.click(screen.getByRole("button", { name: "确认并提交复评" }));
++  await screen.findByText(/未能确认申请结果/);
++  fireEvent.click(screen.getByRole("button", { name: "确认并提交复评" }));
++  await waitFor(() => expect(request.mock.calls.filter(([, options]) => options.method === "POST")).toHaveLength(2));
++  const writes = request.mock.calls.filter(([, options]) => options.method === "POST");
++  expect(writes[0][1].body).toBe(writes[1][1].body);
++});
++
++it("shows old and effective reassessment conclusions without another paid application", async () => {
++  request.mockResolvedValue({ jobs: [{ ...job, publication_status: "published", reassessment: {
++    id: "review-done", status: "completed", publication_status: "published", passed: false,
++    feedback: "调整原因：概念边界不足", reason: "核对边界", effective: true, can_retry: false,
++  } }] });
++  render(<StudentAssessments />);
++  expect(await screen.findByText("原结论：通过")).toBeInTheDocument();
++  expect(screen.getByText("当前有效结论：未通过")).toBeInTheDocument();
++  expect(screen.getByText(/调整原因：概念边界不足/)).toBeInTheDocument();
++  expect(screen.queryByRole("button", { name: /申请复评/ })).toBeNull();
++});
++
++it("requires explicit acknowledgement of possible duplicate charges after an unknown outcome", async () => {
++  request.mockResolvedValueOnce({ jobs: [{ ...job, publication_status: "published", reassessment: {
++    id: "unknown-review", status: "unknown", publication_status: "", passed: null, feedback: "",
++    reason: "核查", effective: false, can_retry: true,
++  } }] }).mockResolvedValueOnce({ id: "new-review", status: "queued" }).mockResolvedValue({ jobs: [] });
++  render(<StudentAssessments />);
++  fireEvent.click(await screen.findByRole("button", { name: "再次申请复评" }));
++  expect(screen.getByText(/再次申请可能重复计费/)).toBeInTheDocument();
++  const submit = screen.getByRole("button", { name: "确认并提交复评" });
++  expect(submit).toBeDisabled();
++  fireEvent.click(screen.getByRole("checkbox", { name: /上次可能已计费/ }));
++  fireEvent.click(submit);
++  await waitFor(() => expect(request.mock.calls.filter(([, options]) => options.method === "POST")).toHaveLength(1));
++  const write = request.mock.calls.find(([, options]) => options.method === "POST");
++  expect(JSON.parse(write![1].body).confirm_unknown_retry).toBe(true);
++});
+diff --git a/project/vendor/DeepTutor/web/tests/student-model-page.spec.tsx b/project/vendor/DeepTutor/web/tests/student-model-page.spec.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/tests/student-model-page.spec.tsx
+@@ -0,0 +1,39 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, expect, it, vi } from "vitest";
++import StudentModelPage from "@/app/(settings)/settings/model/page";
++vi.mock("@/features/heart/StudentAssessments", () => ({ StudentEvaluationSettings: () => null }));
++afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
++
++it("disables model fields until the initial read finishes so late data cannot overwrite edits", async () => {
++  let finish!: (value: unknown) => void;
++  vi.stubGlobal("fetch", vi.fn(() => new Promise(resolve => { finish = resolve; })));
++  render(<StudentModelPage />);
++  expect(screen.getByLabelText("Base URL（必须 HTTPS）")).toBeDisabled();
++  expect(screen.getByRole("button", { name: "保存" })).toBeDisabled();
++  finish({ ok: true, json: async () => ({ configured: false }) });
++  await waitFor(() => expect(screen.getByLabelText("Base URL（必须 HTTPS）")).toBeEnabled());
++});
++
++it("keeps a failed configuration read disabled until an explicit retry succeeds", async () => {
++  vi.stubGlobal("fetch", vi.fn().mockRejectedValueOnce(new Error("offline"))
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ configured: false }) }));
++  render(<StudentModelPage />);
++  fireEvent.click(await screen.findByRole("button", { name: "重新读取模型配置" }));
++  await waitFor(() => expect(screen.getByRole("button", { name: "保存" })).toBeEnabled());
++});
++
++it("requires reading back after a lost save response and clears the typed key", async () => {
++  const fetcher = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ configured: false }) })
++    .mockRejectedValueOnce(new Error("lost response"));
++  vi.stubGlobal("fetch", fetcher);
++  render(<StudentModelPage />);
++  const save = screen.getByRole("button", { name: "保存" });
++  await waitFor(() => expect(save).toBeEnabled());
++  fireEvent.change(screen.getByLabelText("Base URL（必须 HTTPS）"), { target: { value: "https://example.com/v1" } });
++  fireEvent.change(screen.getByLabelText("模型名称"), { target: { value: "test-model" } });
++  fireEvent.change(screen.getByLabelText("API Key"), { target: { value: "test-only-key" } });
++  fireEvent.click(save);
++  expect(await screen.findByText("未能确认保存结果，请重新读取配置后再操作。")).toBeInTheDocument();
++  expect(save).toBeDisabled(); expect(screen.getByLabelText("API Key")).toHaveValue("");
++  expect(fetcher).toHaveBeenCalledTimes(2);
++});

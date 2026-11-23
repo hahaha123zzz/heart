@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { fetchAuthStatus } from "@/lib/auth";
+
 import { fetchCapabilityCatalog } from "./api";
 import type { CapabilityDescriptor } from "./model";
 import {
@@ -29,7 +31,9 @@ export function useCapabilityCatalog() {
 
   useEffect(() => {
     let cancelled = false;
-    void fetchCapabilityCatalog()
+    void fetchAuthStatus().then((status) =>
+      status?.learning_policy ? fallbackDescriptors() : fetchCapabilityCatalog(),
+    )
       .then((next) => {
         if (cancelled) return;
         setDescriptors(next.length > 0 ? next : fallbackDescriptors());

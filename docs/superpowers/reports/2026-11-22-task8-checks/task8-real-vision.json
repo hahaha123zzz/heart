@@ -1,0 +1,52 @@
+{
+  "endpoint": "api.deepseek.com",
+  "model": "deepseek-flash",
+  "ocr_model_added": false,
+  "source": "agent-authored synthetic images; no private screenshot or textbook scan",
+  "cases": [
+    {
+      "label": "complete",
+      "image_sha256": "bb0136019dc068859962100937e1509f219d532d2acf276bdb92c522be75557c",
+      "reading": {
+        "question_count": 1,
+        "question": "哪一种设计只测量变量关系，不操纵变量？",
+        "options": {
+          "A": "相关设计",
+          "B": "真正的实验设计"
+        },
+        "question_complete": true,
+        "student_answer": "A",
+        "answer_origin": "student",
+        "reference_answer": "A",
+        "solution_steps": "",
+        "missing_fields": []
+      },
+      "ready": true,
+      "assisted": true
+    },
+    {
+      "label": "incomplete",
+      "image_sha256": "c5fe474d94b33532494729f22d28821f22b20d77c513d12fd6d1b9c67fc11ce6",
+      "reading": {
+        "question_count": 1,
+        "question": "哪一种设计只测量变量关系，不操纵变量？",
+        "options": {
+          "A": "相关设计",
+          "B": "[选项被裁掉]"
+        },
+        "question_complete": false,
+        "student_answer": "",
+        "answer_origin": "unknown",
+        "reference_answer": "",
+        "solution_steps": "",
+        "missing_fields": [
+          "选项B内容被裁掉",
+          "学生作答无法辨认"
+        ]
+      },
+      "ready": false,
+      "assisted": false
+    }
+  ],
+  "passed": true
+}

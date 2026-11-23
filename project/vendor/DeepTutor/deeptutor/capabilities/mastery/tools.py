@@ -419,6 +419,7 @@ async def _sync_qualitative_to_question_bank(
     evidence: str,
     material_title: str = "",
     quality: float | None = None,
+    assessment_context: dict | None = None,
 ) -> None:
     if not session_id:
         return
@@ -434,7 +435,10 @@ async def _sync_qualitative_to_question_bank(
         question_id=f"qual:{knowledge_point_id}",
         question=knowledge_point_name,
         question_type="written",
-        user_answer=evidence,
+        user_answer=str(assessment_context.get("answer", "")) if assessment_context is not None else evidence,
+        explanation=evidence,
+        visual_context=assessment_context or {},
+        hints_used=int((assessment_context or {}).get("assistance_status") == "assisted"),
         is_correct=passed,
         result="correct" if passed else "partial",
         source="mastery_path",
@@ -870,7 +874,8 @@ class MasteryNoteExplainedTool(BaseTool):
                 "session_id": _resolve_session_id(kwargs),
                 "turn_id": _resolve_turn_id(kwargs),
             }
-            tx.emit("objective.explained", {"knowledge_point_id": kp_id, "summary": summary})
+            tx.emit("objective.explained", {"knowledge_point_id": kp_id, "summary": summary},
+                    session_id=_resolve_session_id(kwargs), turn_id=_resolve_turn_id(kwargs))
 
         try:
             await asyncio.to_thread(service.store.mutate, path_id, note)
@@ -1504,6 +1509,10 @@ class MasteryAssessTool(BaseTool):
             return ToolResult(content=str(exc), success=False)
         kp, _, _ = find_knowledge_point(progress, kp_id)
         assert kp is not None
+        recorded = next((item for item in reversed(progress.learning_evidence)
+            if item.knowledge_point_id == kp_id and item.session_id == _resolve_session_id(kwargs)
+            and item.turn_id == _resolve_turn_id(kwargs)), None)
+        assessment_context = recorded.visual_context if recorded and recorded.visual_context else None
         await _sync_qualitative_to_question_bank(
             path_id=path_id,
             session_id=_resolve_session_id(kwargs),
@@ -1513,11 +1522,14 @@ class MasteryAssessTool(BaseTool):
             passed=passed,
             evidence=feedback,
             material_title=progress.name,
+            assessment_context=assessment_context,
         )
         payload = {
             "knowledge_point_id": kp_id,
             "path_revision": progress.version,
             "passed": passed,
+            "independent": (assessment_context or {}).get("independent", True),
+            "assistance_status": (assessment_context or {}).get("assistance_status", ""),
             "mastered": is_mastered(progress, kp),
             "mastery": round(display_mastery(progress, kp), 3),
             "next": next_objective(progress).to_dict(),

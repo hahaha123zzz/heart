@@ -31,17 +31,10 @@ export interface SpaceItem {
 export const SPACE_ITEMS: SpaceItem[] = [
   {
     key: "chat_history",
-    href: "/space/chat-history",
+    href: "/chat",
     label: "Chat History",
     description: "Review and reopen previous conversations.",
     icon: History,
-  },
-  {
-    key: "agents",
-    href: "/agents",
-    label: "My Agents",
-    description: "Chat with imported Claude Code and Codex agents.",
-    icon: Bot,
   },
   {
     key: "notebooks",
@@ -53,23 +46,9 @@ export const SPACE_ITEMS: SpaceItem[] = [
   },
   {
     key: "question_bank",
-    href: "/space/questions",
+    href: "/learning/practice",
     label: "Question Bank",
     description: "Review and organize quiz questions across sessions.",
     icon: ClipboardList,
-  },
-  {
-    key: "personas",
-    href: "/space/personas",
-    label: "Personas",
-    description: "Behavior presets you can apply per chat turn.",
-    icon: UserRound,
-  },
-  {
-    key: "skills",
-    href: "/space/skills",
-    label: "Skills",
-    description: "Capability playbooks the model reads on demand.",
-    icon: Wand2,
   },
 ];

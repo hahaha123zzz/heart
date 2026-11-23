@@ -24,6 +24,7 @@ import {
 // host that name resolves to ::1 first, while uvicorn binds 0.0.0.0 (IPv4
 // only), so every rewrite would fail to connect.
 const API_BASE_URL = resolveBackendApiBase();
+const HEART_API_BASE_URL = process.env.HEART_API_BASE_URL || "http://127.0.0.1:8000";
 
 const AUTH_ENABLED = parseAuthEnabled(
   process.env.DEEPTUTOR_AUTH_ENABLED ?? process.env.NEXT_PUBLIC_AUTH_ENABLED,
@@ -59,6 +60,13 @@ export function proxy(req: NextRequest): NextResponse {
 
   if (isRetiredPagePath(pathname)) {
     return new NextResponse(null, { status: 404 });
+  }
+
+  // 教材图谱由宿主 H 提供（LightRAG 数据在 H 侧的 PG 里），不是厂家接口。
+  if (pathname.startsWith("/api/graph")) {
+    return NextResponse.rewrite(new URL(pathname + search, HEART_API_BASE_URL), {
+      request: { headers: prepareBackendForwardHeaders(req.headers) },
+    });
   }
 
   // 1. Bridge the origin gap: forward backend-relative paths to the API server.

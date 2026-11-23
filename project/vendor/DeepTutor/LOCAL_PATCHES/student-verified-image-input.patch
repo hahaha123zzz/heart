@@ -1,0 +1,83 @@
+diff --git a/project/vendor/DeepTutor/deeptutor/services/llm/multimodal.py b/project/vendor/DeepTutor/deeptutor/services/llm/multimodal.py
+index 9d32735..16a3d2c 100644
+--- a/project/vendor/DeepTutor/deeptutor/services/llm/multimodal.py
++++ b/project/vendor/DeepTutor/deeptutor/services/llm/multimodal.py
+@@ -13,6 +13,7 @@ Supports:
+ from __future__ import annotations
+ 
+ import base64 as _b64
++from collections.abc import Callable
+ from dataclasses import dataclass
+ import logging
+ from typing import Any
+@@ -22,6 +23,19 @@ from .capabilities import supports_vision, supports_vision_url
+ 
+ logger = logging.getLogger(__name__)
+ 
++_external_image_guard: Callable | None = None
++
++
++def set_external_image_guard(guard: Callable) -> None:
++    global _external_image_guard
++    _external_image_guard = guard
++
++
++def require_image_capability(model: str | None = None) -> bool:
++    """返回是否禁止丢图降级；宿主在发送前核验当前用户配置。"""
++    return bool(_external_image_guard(model)) if _external_image_guard else False
++
++
+ MIME_FALLBACK = "image/png"
+ _LOCAL_ATTACHMENT_PREFIX = "/files/attachments/"
+ 
+@@ -158,8 +172,13 @@ def prepare_multimodal_messages(
+     if not image_attachments:
+         return MultimodalResult(messages=messages)
+ 
++    strict_images = require_image_capability(model)
++    if strict_images and any(not (getattr(a, "base64", "") or getattr(a, "url", "")) for a in image_attachments):
++        raise ValueError("图片未能完整读取，请重新上传图片后再试。")
+     last_user_idx = _find_last_user_message(messages)
+     if last_user_idx is None:
++        if strict_images:
++            raise ValueError("图片缺少对应的提问，请补充问题后重新提交。")
+         return MultimodalResult(messages=messages)
+ 
+     is_anthropic = (binding or "").lower() in ("anthropic", "claude")
+@@ -175,6 +194,8 @@ def prepare_multimodal_messages(
+         require_base64=require_base64,
+     )
+ 
++    if strict_images and (dropped or not has_image_parts(messages)):
++        raise ValueError("图片未能完整读取，请重新上传图片后再试。")
+     return MultimodalResult(messages=messages, url_images_dropped=dropped)
+ 
+ 
+@@ -354,6 +375,8 @@ def should_degrade_to_text(
+     """
+     if not has_image_parts(messages):
+         return False
++    if require_image_capability(model):
++        return False
+     return not supports_vision(binding or "openai", model)
+ 
+ 
+diff --git a/project/vendor/DeepTutor/deeptutor/services/llm/provider_core/base.py b/project/vendor/DeepTutor/deeptutor/services/llm/provider_core/base.py
+index 490ba53..6b34c88 100644
+--- a/project/vendor/DeepTutor/deeptutor/services/llm/provider_core/base.py
++++ b/project/vendor/DeepTutor/deeptutor/services/llm/provider_core/base.py
+@@ -349,10 +349,14 @@ class LLMProvider(ABC):
+         from deeptutor.services.llm.metrics import measure_provider_call
+         from deeptutor.services.llm.multimodal import (
+             has_image_parts,
++            require_image_capability,
+             strip_image_parts,
+             strip_image_parts_inplace,
+         )
+ 
++        if has_image_parts(messages) and require_image_capability(model or self.get_default_model()):
++            allow_image_fallback = False
++
+         raw_call = call
+ 
+         async def measured_call(**call_kwargs: Any) -> LLMResponse:

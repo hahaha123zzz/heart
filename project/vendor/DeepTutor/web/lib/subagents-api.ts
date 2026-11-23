@@ -1,3 +1,4 @@
+import { fetchAuthStatus } from "@/lib/auth";
 import { apiFetch, apiUrl } from "@/lib/api";
 import { invalidateClientCache, withClientCache } from "@/lib/client-cache";
 
@@ -32,6 +33,7 @@ export async function detectSubagents(): Promise<SubagentBackendInfo[]> {
 }
 
 export async function listSubagentConnections(): Promise<SubagentConnection[]> {
+  if ((await fetchAuthStatus())?.learning_policy) return [];
   const res = await apiFetch(apiUrl("/api/subagents/connections"), {
     cache: "no-store",
   });

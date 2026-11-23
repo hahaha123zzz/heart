@@ -17,7 +17,7 @@ export function TopicMapCard({ topic }: { topic: MasteryTopic }) {
   const { map, metadata } = topic
   const total = map.counts.total
   const mastered = map.counts.mastered
-  const progress = total ? mastered / total : 0
+  const progress = total ? mastered / total : undefined
   const displayName = topicDisplayName(topic, t)
 
   return (
@@ -35,7 +35,7 @@ export function TopicMapCard({ topic }: { topic: MasteryTopic }) {
         <LearningCardContent
           title={displayName}
           subtitle={metadata.description || metadata.goal}
-          icon={map.complete ? <CircleCheck size={19} /> : <Route size={19} />}
+          icon={total > 0 && map.complete ? <CircleCheck size={19} /> : <Route size={19} />}
           updatedAt={topic.updated_at}
           progress={progress}
         />

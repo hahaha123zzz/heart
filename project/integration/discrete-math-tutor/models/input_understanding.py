@@ -137,7 +137,7 @@ class TurnRoute(StrictModel):
     name: str = Field(default='', max_length=200)
     query: str = Field(default='', max_length=4000)
     tool_purpose: ToolPurpose = 'textbook'
-    navigation_mode: Literal['start', 'overview', 'guide', 'next', 'repeat', 'bind'] | None = None
+    navigation_mode: Literal['start', 'overview', 'guide', 'next', 'topic', 'section', 'chapter', 'repeat', 'bind'] | None = None
     constraints: list[Constraint] = Field(default_factory=list, max_length=4)
     source: Literal['rule', 'model', 'fallback'] = 'rule'
     reason: str = Field(default='', max_length=200)

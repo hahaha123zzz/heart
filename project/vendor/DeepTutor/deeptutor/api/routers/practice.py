@@ -13,7 +13,7 @@ from defusedxml.ElementTree import ParseError
 from fastapi import APIRouter, File, Form, HTTPException, Query, Response, UploadFile
 from pydantic import BaseModel, Field
 
-from deeptutor.services.practice.answers import check_answer
+from deeptutor.learning.service import MasteryInteractionError
 from deeptutor.services.practice.importing import MAX_BYTES, preview
 from deeptutor.services.practice.scheduler import Rating, day_bounds
 from deeptutor.services.practice.storage import PracticeStore, ReviewConflict
@@ -70,6 +70,7 @@ class PracticeAnalytics(BaseModel):
 
 class AnswerRequest(BaseModel):
     answer: str = Field(default="", max_length=20000)
+    version: int | None = Field(default=None, ge=0)
 
 
 class ReviewRequest(AnswerRequest):
@@ -100,15 +101,20 @@ async def _entry(entry_id: int) -> dict:
     return entry
 
 
+def _before_reveal(entry: dict) -> dict:
+    return {**entry, "correct_answer": "", "explanation": "", "user_answer": "",
+            "user_answer_images": [], "ai_judgment": ""}
+
+
 @router.get("/summary", response_model=PracticeSummary)
-async def summary(timezone: str = "UTC", course_id: str = "", all_workspaces: bool = False):
+async def summary(timezone: str = "UTC", course_id: str = "", all_workspaces: bool = False, knowledge_point_id: str = "", mastery_path_id: str = ""):
     if all_workspaces and not course_id:
         from deeptutor.services.workspace.navigation import read_workspace_indexes
 
         _, end = _validate_timezone(timezone)
 
         async def read():
-            return [await summary(timezone, course_id)]
+            return [await summary(timezone, course_id, knowledge_point_id=knowledge_point_id, mastery_path_id=mastery_path_id)]
 
         rows, unavailable = await read_workspace_indexes(read)
         return {
@@ -127,7 +133,7 @@ async def summary(timezone: str = "UTC", course_id: str = "", all_workspaces: bo
     store = get_sqlite_session_store()
     sessions = await _course_session_ids(store, course_id)
     try:
-        return await asyncio.to_thread(PracticeStore(store.db_path).overview, timezone, sessions)
+        return await asyncio.to_thread(PracticeStore(store.db_path).overview, timezone, sessions, knowledge_point_id=knowledge_point_id, mastery_path_id=mastery_path_id)
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
 
@@ -139,6 +145,7 @@ async def queue(
     category_id: int | None = None,
     limit: int = Query(default=20, ge=1, le=100),
     all_workspaces: bool = False,
+    knowledge_point_id: str = "", mastery_path_id: str = "",
 ):
     if all_workspaces and not course_id:
         from deeptutor.services.workspace.navigation import read_workspace_indexes
@@ -146,7 +153,7 @@ async def queue(
         _validate_timezone(timezone)
 
         async def read():
-            return await queue(timezone, course_id, category_id, limit)
+            return await queue(timezone, course_id, category_id, limit, knowledge_point_id=knowledge_point_id, mastery_path_id=mastery_path_id)
 
         rows, _ = await read_workspace_indexes(read)
         rows.sort(
@@ -162,7 +169,7 @@ async def queue(
     practice = PracticeStore(store.db_path)
     sessions = await _course_session_ids(store, course_id)
     try:
-        ids = await asyncio.to_thread(practice.queue, timezone, sessions, category_id, limit)
+        ids = await asyncio.to_thread(practice.queue, timezone, sessions, category_id, limit, knowledge_point_id=knowledge_point_id, mastery_path_id=mastery_path_id)
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
     from deeptutor.services.workspace.context import current_workspace_id
@@ -173,7 +180,7 @@ async def queue(
         if entry:
             questions.append(
                 {
-                    "entry": entry,
+                    "entry": _before_reveal(entry),
                     "state": await asyncio.to_thread(practice.state, entry_id),
                     "content_workspace_id": current_workspace_id(),
                 }
@@ -183,7 +190,7 @@ async def queue(
 
 @router.get("/analytics", response_model=PracticeAnalytics)
 async def practice_analytics(
-    timezone: str = "UTC", days: int = 30, course_id: str = "", all_workspaces: bool = False
+    timezone: str = "UTC", days: int = 30, course_id: str = "", all_workspaces: bool = False, knowledge_point_id: str = "", mastery_path_id: str = ""
 ):
     _validate_timezone(timezone)
     if days not in {7, 30, 90}:
@@ -192,11 +199,11 @@ async def practice_analytics(
         from deeptutor.services.workspace.navigation import read_workspace_indexes
 
         async def read():
-            return [await practice_analytics(timezone, days, course_id)]
+            return [await practice_analytics(timezone, days, course_id, knowledge_point_id=knowledge_point_id, mastery_path_id=mastery_path_id)]
 
         rows, _ = await read_workspace_indexes(read)
         if not rows:
-            return await practice_analytics(timezone, days, course_id)
+            return await practice_analytics(timezone, days, course_id, knowledge_point_id=knowledge_point_id, mastery_path_id=mastery_path_id)
         result = dict(rows[0])
         for bucket, identity in (("daily", "date"), ("sources", "source")):
             combined = {}
@@ -219,7 +226,7 @@ async def practice_analytics(
     sessions = await _course_session_ids(store, course_id)
     try:
         return await asyncio.to_thread(
-            PracticeStore(store.db_path).analytics, timezone, days, sessions
+            PracticeStore(store.db_path).analytics, timezone, days, sessions, knowledge_point_id=knowledge_point_id, mastery_path_id=mastery_path_id
         )
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
@@ -231,13 +238,18 @@ async def practice_question(entry_id: int):
     state = await asyncio.to_thread(
         PracticeStore(get_sqlite_session_store().db_path).state, entry_id
     )
-    return {"entry": entry, "state": state}
+    return {"entry": _before_reveal(entry), "state": state}
 
 
 @router.post("/questions/{entry_id}/check")
 async def check(entry_id: int, payload: AnswerRequest):
-    entry = await _entry(entry_id)
-    return {"correct": check_answer(entry, payload.answer)}
+    try:
+        store = PracticeStore(get_sqlite_session_store().db_path)
+        return await asyncio.to_thread(store.reveal_answer, entry_id, payload.answer, payload.version)
+    except (MasteryInteractionError, ReviewConflict) as exc:
+        raise HTTPException(409, str(exc)) from None
+    except LookupError as exc:
+        raise HTTPException(404, str(exc)) from exc
 
 
 @router.post("/questions/{entry_id}/review")
@@ -252,6 +264,8 @@ async def review(entry_id: int, payload: ReviewRequest):
             payload.answer,
             self_report=payload.self_report,
         )
+    except MasteryInteractionError as exc:
+        raise HTTPException(409, str(exc)) from None
     except LookupError as exc:
         raise HTTPException(404, str(exc)) from exc
     except ReviewConflict as exc:

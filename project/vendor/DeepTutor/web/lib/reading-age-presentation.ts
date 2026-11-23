@@ -68,9 +68,9 @@ const tones: Record<Exclude<ReadingAgeMode, "default">, Record<string, string>> 
     "quiz:start": "border-sky-200 bg-sky-50 text-sky-950 hover:bg-sky-100",
   },
   older: {
-    "read_aloud:read": "border-emerald-200 bg-emerald-50 text-emerald-950 hover:bg-emerald-100",
-    "vocabulary:explain": "border-amber-200 bg-amber-50 text-amber-950 hover:bg-amber-100",
-    "quiz:start": "border-sky-200 bg-sky-50 text-sky-950 hover:bg-sky-100",
+    "read_aloud:read": "border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]",
+    "vocabulary:explain": "border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]",
+    "quiz:start": "border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]",
   },
 };
 

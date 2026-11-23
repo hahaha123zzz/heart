@@ -14,13 +14,14 @@ import { WorkspaceLabel } from "../LibraryWorkspace";
 import { activeWorkspaceId } from "@/lib/workspace-scope";
 import { PracticeImport } from "./PracticeImport";
 import { PracticeSession } from "./PracticeSession";
+import {usePracticeRun,writeRun} from "./practice-resume";
 import { PracticeInsights } from "./PracticeInsights";
 
 /** Shared collections and imports; both surfaces can start a manual practice session. */
 export function PracticePage({ mode = "practice" }: { mode?: "practice" | "library" }) {
   const search = useSearchParams();
-  if (mode === "practice" && !search.has("course") && !search.has("question")) return <ReviewHome />;
-  return <ScopedPracticePage mode={mode} initialImport={search.get("create") === "1"} />;
+  if (mode === "practice" && !search.has("course") && !search.has("question") && !search.has("knowledge_point_id") && !search.has("mastery_path_id")) return <ReviewHome />;
+  return <ScopedPracticePage key={[mode,search.get("course"),search.get("knowledge_point_id"),search.get("mastery_path_id"),search.get("question"),search.get("dt_workspace")].join(":")} mode={mode} initialImport={search.get("create") === "1"} />;
 }
 
 function ScopedPracticePage({ mode, initialImport }: { mode: "practice" | "library"; initialImport: boolean }) {
@@ -30,6 +31,10 @@ function ScopedPracticePage({ mode, initialImport }: { mode: "practice" | "libra
   const router = useRouter();
   const search = useSearchParams();
   const courseId = search.get("course")?.trim() || "";
+  const knowledgePointId=search.get("knowledge_point_id")||"",masteryPathId=search.get("mastery_path_id")||"";
+  const scope={knowledge_point_id:knowledgePointId,mastery_path_id:masteryPathId};
+  const returnTo=search.get("return_to")||"";
+  const safeReturn=/^\/(?:learning(?:\/|$)|chat(?:\/|$))/.test(returnTo)?returnTo:"";
   const tab = search.get("view") === "mistakes" ? "mistakes" : "bank";
   const [summary, setSummary] = useState<PracticeSummary | null>(null);
   const [error, setError] = useState("");
@@ -40,13 +45,14 @@ function ScopedPracticePage({ mode, initialImport }: { mode: "practice" | "libra
     const id = Number(search.get('question'));
     return Number.isSafeInteger(id) && id > 0 ? [id] : null;
   });
+  const resumeKey=usePracticeRun(items=>setSession(items.map(item=>item.id)));
   const [starting, setStarting] = useState(false);
   const pending = useRef(false);
   const summarySequence = useRef(0);
   const refresh = useCallback(async () => {
     const sequence = ++summarySequence.current;
     try {
-      const result = await getPracticeSummary(courseId);
+      const result = await getPracticeSummary(courseId,undefined,scope);
       if (sequence === summarySequence.current) {
         setSummary(result);
         setError("");
@@ -55,7 +61,7 @@ function ScopedPracticePage({ mode, initialImport }: { mode: "practice" | "libra
       if (sequence === summarySequence.current)
         setError(err instanceof Error ? err.message : String(err));
     }
-  }, [courseId]);
+  }, [courseId,knowledgePointId,masteryPathId]);
   useEffect(() => {
     void refresh();
     const onFocus = () => {
@@ -72,6 +78,7 @@ function ScopedPracticePage({ mode, initialImport }: { mode: "practice" | "libra
     };
   }, [refresh]);
   function closeSession() {
+    writeRun(resumeKey,null);
     setSession(null);
     setRevision(value => value + 1);
     void refresh();
@@ -82,7 +89,7 @@ function ScopedPracticePage({ mode, initialImport }: { mode: "practice" | "libra
     setStarting(true);
     setNotice("");
     try {
-      const queue = await getPracticeQueue(courseId);
+      const queue = await getPracticeQueue(courseId,undefined,scope);
       if (queue.length) setSession(queue.map(item => item.entry.id));
       else {
         setNotice(t("You are caught up. Come back when your next reviews are due."));
@@ -135,9 +142,11 @@ function ScopedPracticePage({ mode, initialImport }: { mode: "practice" | "libra
         )
       }
     >
+      {safeReturn&&<a href={safeReturn} className="mb-4 inline-block text-sm underline">返回学习来源</a>}
+      {(knowledgePointId||masteryPathId)&&<p className="mb-4 text-sm text-muted-foreground">当前仅显示此知识点或学习路径的题目。</p>}
       {!libraryOnly && <div className="mb-4 flex items-center gap-3 text-xs"><a href="/learning/practice" className="underline">{t("All workspaces")}</a><WorkspaceLabel row={{ content_workspace_id: activeWorkspaceId() }} /></div>}
       {session ? (
-        <PracticeSession ids={session} onClose={closeSession} backLabel={libraryOnly ? t("Back to library") : undefined} />
+        <PracticeSession key={resumeKey} resumeKey={resumeKey} ids={session} onClose={closeSession} backLabel={libraryOnly ? t("Back to library") : undefined} />
       ) : (
         <>
           {notice && (

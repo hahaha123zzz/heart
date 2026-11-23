@@ -1,0 +1,33 @@
+{
+  "source": "https://github.com/HKUDS/LightRAG",
+  "commit": "25141aa7180fe20f5d9f20e425f80b7b0db880e6",
+  "scope": "仅学生只读图谱渲染依赖闭包；未引入后台应用或图谱修改接口",
+  "files": {
+    "LICENSE": "0c16924564059e493c86854574660a47ed1dcc2a476ba7b5f949d3f2f73a1984",
+    "lightrag_webui/src/features/GraphViewer.tsx": "c1d2628ae9893495f23f19603bd2d7aaf86a6287015a4ea69c85b25a6999b7a4",
+    "lightrag_webui/src/components/graph/GraphControl.tsx": "586a73f0fe90318e27a8fd919a36bbae94057911f91b39c0041f74bb742c88f6",
+    "lightrag_webui/src/components/graph/FocusOnNode.tsx": "c2e553b6132ef5d0c93ce3df27f991b0b01f7149a94acefe263b3b929b624d09",
+    "lightrag_webui/src/hooks/useLightragGraph.tsx": "f665b87f32645211f62b0bd96559cff40586000dbeffef9c5d67803af49f6853",
+    "lightrag_webui/src/stores/graph.ts": "803223991fef1e0bedcd57370f16c9ec4f783ac55c6d53538844871f6d591666",
+    "lightrag_webui/src/stores/settings.ts": "960873e834351d734555b3b926c2539f3681ad9183b34ea4a46bc86897ebe6d3",
+    "lightrag_webui/src/utils/graphColor.ts": "33e5d21e5ec34bfb22f804d97ec4cc7e9a2991729af431d351a0884128947ef6",
+    "lightrag_webui/src/utils/graphEdgeSafety.ts": "76f7049fdb7486778fdac30dddac812e51677ba373f92049248cb89b466147b5",
+    "lightrag_webui/src/lib/constants.ts": "6b5f2ca47d3ebc235beb452f2f2e232881e61c26c1017ae39e2d855161a6203f",
+    "lightrag_webui/src/lib/utils.ts": "4bf4fbd528579a1a19026eca7bd90b34492f97681b3b46ccd253ad4ef5061244",
+    "lightrag_webui/package.json": "3a593f53a5bc78383881e39725871ef8b34e7bb463a571da50d9f8d11f6126fc"
+  },
+  "adapted_targets": {
+    "web\\features\\heart\\graph\\constants.ts": "45c358259a731cef8de062998168e61e7ae813d1f373fd5a41e43648682443a2",
+    "web\\features\\heart\\graph\\FocusOnNode.tsx": "faa1ca26514b94b6b78280bcdbcf8ddff3912b639b6a639d5dbe779dc9e7e579",
+    "web\\features\\heart\\graph\\graphColor.ts": "42a340989fa71d024d353d4daf7529d5d6acb393f2e205939268b7da23f90e6e",
+    "web\\features\\heart\\graph\\GraphControl.tsx": "b737f013febce860ef8d20af2abf71372c9f85b1075679d6e449de0ccd814196",
+    "web\\features\\heart\\graph\\graphEdgeSafety.ts": "6e9bf9fd76a3aa51e6ebcf07510e539974cb6e91ea003cbacfa30a2b9807cead",
+    "web\\features\\heart\\graph\\GraphViewer.tsx": "3bfd11b5900516453f7cf8144eb5637326e8625c80e59bc4dafd6ece9d2d28ad",
+    "web\\features\\heart\\graph\\selectors.ts": "d03ce546b6438c4d3837afc86c3904fe8cd5fa27df3afa0583dfb4d0d7994d2f",
+    "web\\features\\heart\\graph\\settings.ts": "67388c4df9954f38318f7fdfc71230e5e99463b1b78ed88d8c01d51249916628",
+    "web\\features\\heart\\graph\\store.ts": "f2e5a60e51798eb0ebdca92fb9656a86357a6155362aa4d7e2bdf7f52a57026a",
+    "web\\features\\heart\\graph\\types.ts": "d02c79fa397f10c3738408d1977d194fd1efd7cc0773c8f46c579f206ad7829d",
+    "web\\features\\heart\\graph\\useIsDarkMode.ts": "50a212b28d3f43f687afa698083cb5fea8a4db74279819eec6defcd620782d2e",
+    "web\\features\\heart\\graph\\useLightragGraph.tsx": "4466280fbd69fffd8bd4b058a50dbff64472f58fcbc1caf029cdf9cca95dff26"
+  }
+}

@@ -140,7 +140,7 @@ export function SourcesStep({
     }
     setOpened(next)
   }
-  const groups = [
+  const groups = ([
     { key: 'knowledgeBases', label: 'Knowledge bases', icon: Database },
     { key: 'notebooks', label: 'Notebooks', icon: Notebook },
     { key: 'books', label: 'Books', icon: BookOpen },
@@ -148,13 +148,13 @@ export function SourcesStep({
     { key: 'chats', label: 'Conversations', icon: MessagesSquare },
     { key: 'drafts', label: 'Co-Writer drafts', icon: PenLine },
     { key: 'partners', label: 'Partners', icon: Users },
-  ] as const
+  ] as const).filter(group => !library.restricted || ['notebooks', 'questionSets', 'chats'].includes(group.key))
   const [tab, setTab] = useState<string>('knowledgeBases')
   const tabId = useId()
   const [search, setSearch] = useState('')
   const all = groups.flatMap(group => library[group.key])
   const { rows, control } = useLibraryFilter(all)
-  const group = groups.find(group => group.key === tab)!
+  const group = groups.find(group => group.key === tab) ?? groups[0]!
   const ids = new Set(library[group.key].map(item => item.key))
   const visible = rows.filter(
     item =>
@@ -239,7 +239,7 @@ export function SourcesStep({
       <div
         role="tabpanel"
         id={`${tabId}-panel`}
-        aria-labelledby={`${tabId}-${tab}`}
+        aria-labelledby={`${tabId}-${group.key}`}
         className="max-h-[360px] min-h-40 overflow-y-auto overscroll-contain pr-1"
       >
         {loading ? (

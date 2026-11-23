@@ -1,10 +1,11 @@
 "use client";
 
+import BrandLogo from "@/components/common/BrandLogo";
+
 import { Suspense, useCallback, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { login, fetchAuthStatus, checkIsFirstUser } from "@/lib/auth";
+import { login, fetchAuthStatus } from "@/lib/auth";
 import {
   inheritLoginHash,
   normalizeInternalReturnPath,
@@ -36,12 +37,7 @@ function LoginPageContent() {
     fetchAuthStatus().then((status) => {
       if (status?.authenticated) {
         router.replace(resolvedNext());
-        return;
       }
-      // No users registered yet — send straight to the registration page
-      checkIsFirstUser().then((first) => {
-        if (first) router.replace("/register");
-      });
     });
   }, [router, resolvedNext]);
 
@@ -55,7 +51,7 @@ function LoginPageContent() {
     if (result.ok) {
       router.replace(resolvedNext());
     } else {
-      setError(result.error ?? t("Login failed"));
+      setError(t(result.error ?? "Login failed", { defaultValue: t("Login failed") }));
       setLoading(false);
     }
   }
@@ -64,9 +60,7 @@ function LoginPageContent() {
     <div className="w-full max-w-sm">
       {/* Logo / Title */}
       <div className="text-center mb-8">
-        <h1 className="font-serif text-2xl font-semibold text-[var(--foreground)] tracking-tight">
-          DeepTutor
-        </h1>
+        <h1 className="flex justify-center"><BrandLogo className="h-16 w-[172px]" /></h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           {t("Sign in to your account")}
         </p>
@@ -102,7 +96,7 @@ function LoginPageContent() {
                          placeholder:text-[var(--muted-foreground)]
                          focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent
                          transition-shadow text-sm"
-              placeholder="you@example.com"
+              placeholder={t("Enter your username")}
             />
           </div>
 
@@ -151,16 +145,6 @@ function LoginPageContent() {
           </button>
         </form>
       </div>
-
-      <p className="mt-6 text-center text-sm text-[var(--muted-foreground)]">
-        {t("Don't have an account?")}{" "}
-        <Link
-          href="/register"
-          className="text-[var(--primary)] hover:underline font-medium"
-        >
-          {t("Create one")}
-        </Link>
-      </p>
 
       <p className="mt-3 text-center text-xs text-[var(--muted-foreground)]">
         {t("DeepTutor · Agent-Native Learning")}

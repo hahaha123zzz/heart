@@ -124,3 +124,148 @@ PG 迁移刻意不动 vendor，因此以下仍是 SQLite，备份与回退必须
 - 仍需在任务 2 前补齐：登录方案（待用户选择）、旧基线测试归因、部署脚本 PG 步骤。
 - 不阻塞任务 1：白灰截图可以在 V/web 连上 H 之后补拍。
 
+
+## 8. 2026-11-17 厂家接管验证（方案 B）
+
+已完成并联调通过的三步：
+
+1. **厂家认证打开**：`scripts/enable_vendor_auth.py` → `auth.json` 的 `enabled=true, cookie_secure=false`。设置目录 `E:\项目\heart\.runtime\deeptutor\data\user\settings`。
+2. **账号**：`scripts/init_vendor_accounts.py`（用 `.venv-deeptutor`，bcrypt 只装在该环境）建 1 个 `admin` + 10 个 `student01..10`，幂等；明文只写 `.runtime/vendor-accounts.txt`。用户库真实路径：`.runtime/deeptutor/data/system/auth/users.json`（不带 `DEEPTUTOR_HOME` 运行会误写到 `H/data/system/auth/users.json`，脚本已打印 `users_store` 以便核对）。
+3. **代理与模型**：`V/web/lib/backend-forward.ts` 转发时注入 `x-heart-bridge-token`（补丁 `LOCAL_PATCHES/heart-bridge-token-forward.patch`）；V/web 以 `DEEPTUTOR_API_BASE_URL=http://127.0.0.1:18001` 启动。`scripts/assign_vendor_model.py` 把宿主 `heart-host` profile 授予 10 个学生（学生自带 Key 接入前的过渡，决定 29）。
+
+验收证据（`scripts/check_vendor_ws.py`，经 `:3000` 代理）：
+
+```
+login(student01) -> dt_token
+WS /ws start_turn -> done status=completed
+events 984；types: content, thinking, tool_call, tool_result, progress, session, stage_start, stage_end, result, done
+content_chars 816；usage total_tokens 20870
+```
+
+已知缺口：
+
+- `learning_policy` 目前为 null（`learner` preset 没有下发教材白名单），固定教材/禁上传尚未生效。
+- 学生仍用共享的宿主模型；自带 Key 的自建设置页未做。
+- 生产环境 Next 不支持 WS 升级，`/ws` 与 `/api/*` 必须由 Caddy 直接转给 18001。
+- 未做两个账号的并发隔离与浏览器 UI 视觉验收。
+
+## 9. 2026-11-17 固定教材与白灰主题
+
+- 厂家阅读材料按用户隔离，材料本体去重共享：admin 上传 `textbook.docx` 得到 `f0ed04bd1d9c43d9`（132 节、396783 字、render_mode=text、extractor=docx）。
+- `scripts/provision_student_reading.py`：逐账号登录 → 若库里无同名材料则**临时**放开上传 → 导入 → 立刻收回，并把该账号的 `learning_policy.reading.material_ids` 写成自己的 material id。10 个账号全部 `policy_changed=True`。
+- 验收：student01 的 `/api/auth/status` 返回 `reading: {allow_upload:false, material_ids:["f0ed04bd1d9c43d9"]}`；`/api/reading/library/materials` 返回该教材（status=ready）。政策生效后重跑 `check_vendor_ws.py` 仍 `done/completed`（984 事件、816 字符）。
+- 白灰主题：默认主题是 `.theme-snow`（不是 `:root`）。已把其 `--background #f7f8f9`、`--primary #2f3437`、`--border #e3e5e8`、`--ring #9aa0a6`，`:root` 同步；浏览器计算值已确认 `#f7f8f9 / #2f3437 / #e3e5e8`。这是品牌差异，不随上游合并，故不写入 LOCAL_PATCHES。
+
+## 10. 2026-11-17 路由裁剪（任务 3）
+
+- 删除：`(admin)`、`(workspace)/{partners,kanban,co-writer,whisper}`、`(auth)/register`、`(utility)/{agents,space,session-handoff}`、`features/co-writer`。
+- 导航收敛为 `/chat` + `/learning`，`/settings` 保留；登录页去掉注册跳转与链接。
+- 验证：`npm run typecheck` EXIT=0；`npm run build` EXIT=0，路由表只剩 `chat / learning/** / login / memory/** / notebooks / profile / settings`。
+- 被删地址实测 404：`/partners`、`/register`、`/space`、`/kanban`、`/agents`、`/session-handoff`；`/` 仍 307 到 `/chat`，`/login`、`/chat`、`/learning`、`/settings` 均 200。
+- 测试：删除 7 个测已删路由的 spec；`learner-navigation`、`sidebar-defaults`、`sidebar-lazy-history` 更新为新导航后 13/13 通过。全量 vitest 在并行下大量 5–16s 超时（同一批单独跑全过），改用 `--no-file-parallelism` 作为门禁。
+- 死代码保留：`components/partners`、`lib/partners-api.ts`、`components/space`（79/51 处引用，牵涉 memory 与 hooks），不再有可访问路由。
+
+## 11. 2026-11-17 账号隔离验收
+
+`scripts/check_account_isolation.py`（经 `:3000` 代理，两个真实学生账号）：
+
+```
+created=unified_1794878685345_8f665d7c
+student01 sees it: True (n=2)
+student02 sees it: False (n=0)
+student02 GET session -> 404
+ISOLATION_OK
+```
+
+## 12. 2026-11-17 学生自带模型 Key
+
+- 后端：`integrations/deeptutor/heart_model_api.py`，由 worker 挂载为 `/api/heart/model`（GET/PUT/DELETE，走厂家 `require_auth`）。
+- 存储：`<home>/data/system/heart-model/<user_id>.json`，Key 为 Fernet 密文（密钥 `.secret`，同目录）；读取只返回末四位。
+- 校验：`https` + 非回环/私网/链路本地/保留地址，且 URL 不含凭据。`http://127.0.0.1:11434` → 400。
+- 生效方式：保存时把 `heart-student-<user_id 前 12 位>` profile 写进 `model_catalog.json`，并把该学生 grant 的 `models.llm` **只**指向它；删除时移除 profile 与授权。
+- 前端：`/settings/model`，侧栏“我的模型”入口（学生可见）。
+- 验收（经 `:3000`）：`before {"configured":false}` → PUT `{"configured":true,"api_key_masked":"••••1234"}` → GET 返回 base_url/model/updated_at → DELETE `{"configured":false}`；catalog 出现 `heart-student-u_8186fbcaed` 且 grant 指向它。
+- 取舍：删除 Key 后按决定 29 不回退共享 Key；本机为继续演示已重新授予宿主 profile（`assign_vendor_model.py`），学生一旦配置自己的 Key，其 grant 会被替换为个人 profile。
+
+## 13. 2026-11-17 记忆页改造（决定 30/31）
+
+- 后端：`integrations/deeptutor/heart_memory_api.py`，worker 挂载 `/api/heart/memory`：
+  - `GET` 返回 `{preferences, profile}`，只取 L3 的 `preferences` 与 `profile` 条目；
+  - `POST /preference` 走引擎 `write_preference(op="add")`（自带去重与原子写），ref 用合法的短名 `chat`；
+  - `DELETE /{kind}/{entry_id}` 只允许 `preference|profile` 两类。
+- 前端：`/memory` 改为 `features/heart/StudentMemory.tsx`（自然语言卡片、添加偏好、逐条删除）；删除 `/memory/{l1,l2,l3,graph,resolve}`，内部层级不可达。
+- 验收：
+  - `GET` → `{"preferences":[],"profile":[]}`；
+  - 添加“讲题时多举例子，先给结论再展开” → 写入 `…/memory/L3/preferences.md`（中文完整，`[^1]: chat`）；
+  - 重复添加返回同一 `entry_id`（去重生效）；
+  - 删除 → 列表回空；
+  - `/memory` 200，`/memory/l1` 404。
+- 备注：PowerShell 5.1 直接发中文 JSON 会按 Latin-1 编码变成 `?`，验收时改用 UTF-8 字节；测试残留已删除。
+- 未做：记忆页尚未接入“设置里的偏好唯一来源”核对（任务 7 的剩余项）。
+
+## 14. 2026-11-17 教材知识图谱（决定 32 的第一步）
+
+- 宿主接口：`graph_api.py` → `GET /api/graph/subgraph?chapter=&q=&limit=`（limit ≤ 200），只读 `heart_rag` 的 `lightrag_graph_nodes/edges`，按 `properties->>'file_path' = chapter_NN.generated.pdf` 限定章节，返回节点（id/type/description/chapter）、边（source/target/weight/description）与 `truncated`。
+- 鉴权：校验厂家 `dt_token`（HS256，标准库实现，密钥读 `<home>/data/system/auth/auth_secret`）；匿名 401。不返回任何学生成绩。
+- 代理：`web/proxy.ts` 把 `/api/graph/*` 直接 rewrite 到 `HEART_API_BASE_URL`（默认 `http://127.0.0.1:8000`），其余 `/api/*` 仍走厂家。
+- 前端：`/learning/graph`（`features/heart/KnowledgeGraph.tsx`，cytoscape，章节选择、搜索、节点详情、截断提示）；侧栏“知识图谱”入口；节点详情显示实体类型与教材描述，并提供“去学习/去练习”，掌握状态明确写“尚未评估”。
+- 验收（经 `:3000`）：匿名 401；`chapter=8&limit=40` → 40 节点 / 36 边 / `truncated=true`；节点带 `type` 与中文描述。
+- 未做：实体↔知识点映射（需人工确认候选）与掌握状态叠加；这两项依赖“结果同步”，否则图谱只能显示教材结构。
+
+## 15. 2026-11-17 知识点扩全与实体映射
+
+- 用户确认：**全部采用**按节生成的 37 个知识点（11 章）。来源：`manifest.json` 的章节/section，每节一个 KC，`status=candidate`，`scripts/build_kc_registry.py` 生成 `kc_registry_full.json`（20077 B）。人工审阅过的 `kc_registry.json`（第 1 章 4 条）保持不变。
+- 实体映射：`scripts/build_entity_kc_map.py` 用 chunk `heading` 归一化后与 KC 名**精确匹配**（不做相似度），`kc_entity_map.json`（817 KB）：
+  - 已映射实体 **7047 / 7138**，未映射 91；
+  - 已映射 chunk 1195，未匹配 heading 11。
+- 图谱接口节点新增 `kc_ids` / `kc_names`；图谱页章节选择改为 1–11，节点详情显示知识点。
+- 注意：`knowledge/courses/` 被 `.gitignore` 忽略，两个映射 JSON 只在本机；脚本已提交，换机器按 `build_kc_registry.py` → `build_entity_kc_map.py` 重生成；接口在文件缺失时降级为空映射，不 500。
+- 说明：掌握状态仍显示“尚未评估”，因为还没有 evidence；结果同步是下一步，且需要先把“厂家题目 → 我们的 KC”对齐。
+
+## 16. 2026-11-17 练习题库、作答同步与掌握叠加
+
+- 题库来源：H 没有《实验心理学》题库（`practice_api.catalog()` 返回空），因此用 `scripts/generate_practice_candidates.py` 按 37 个 KC 逐节生成候选题：**56 道**（11 章；单选 36 / 判断 20），每道必须带原文 `evidence` 且校验为该节原文子串，`status=candidate`、`origin=ai_generated`；用户审阅后 `--mark-approved`。
+- 导入：`scripts/import_practice_candidates.py` → 每个学生 `POST /api/question-notebook/practice/import/preview` + `commit`，10 个账号各 `created: 56`。CSV 的 `tags` 落成厂家 notebook 分类 `kc-*`。
+- 作答：厂家 `check` 只判定不落库；`review` 才持久化，写入 `practice_review_events.outcome_json`（含 `correct`）与 `practice_review_state`（间隔/到期），**不写** `assessment_attempts`。
+- 同步：`scripts/sync_practice_evidence.py` 读 `practice_review_events` → 按分类取 `kc-*` → 写 H `evidence`（`evidence_type=practice`，content 含 entry_id/request_id/rating/correct），按 `request_id` 幂等。
+- 事故与修正：首版按 `notebook_entries.attempt_count>0` 同步，把**导入即 attempt_count=1 / result=ungraded** 的 560 条当成作答，写入了 560 条错误证据；已全部删除（`evidence` 恢复为 0）并改为只读 review 事件。现库中仅 1 条真实证据：student01 / `kc-1-1` / correct。
+- 掌握叠加：`graph_api.py` 按当前学生查 `evidence`，节点返回 `mastery[{kc_id, assessed, correct}]` 与 `assessed`；图谱页显示“已评估（1/1 正确）”或“尚未评估”，不擅自发明掌握阈值。
+
+## 17. 2026-11-17 部署与回退
+
+- `deploy/deploy_heart.py` 不再写死 `DATABASE_URL=sqlite:///./ai_tutor.db`：现在要求 `HEART_DATABASE_URL` 与 `HEART_COURSE_DATABASE_URL` 均为 `postgresql://...`，否则直接退出并提示缺失项。
+- 部署前自动备份：`/opt/heart/app` → `/opt/heart/app.prev`（覆盖上一版，保留一整份）。
+- 回退命令（已验证语法，未在服务器执行）：
+  `rm -rf /opt/heart/app && cp -a /opt/heart/app.prev /opt/heart/app && systemctl restart heart-tutor`
+- 仍未自动化、也未执行（远端基础设施）：
+  1. 服务器安装 PG 18 + pgvector，建 `heart` / `heart_psychology` / `heart_rag` 三库；
+  2. 部署 18001 worker（`.venv-deeptutor`）与 `DEEPTUTOR_BRIDGE_TOKEN`；
+  3. 部署 V/web 的 Next 生产构建（独立 systemd 服务）；
+  4. Caddy 将 `/ws` 与 `/api/*` 直转 18001 并注入 `x-heart-bridge-token`，其余路径转 Next。
+- 结论：**当前不具备可执行的上线/回退演练**；脚本已改为“缺失即拒绝”，不会静默用 SQLite 部署。
+
+## 18. 最终门禁（2026-11-17）
+
+- `npm run typecheck`：EXIT=0。
+- `npm run build`：EXIT=0。
+- `npx vitest run --no-file-parallelism`：**631/634 通过**；3 个失败集中在 `epub-display-preferences`（超时）与 `settings-unified-draft`（超时/未保存态），另报 2 个 vitest worker 启动超时。两项单独重跑 **21/21 通过（5.8s）**，确认为高负载下的环境抖动，与本轮改动无关（本轮前端只新增 `features/heart/*`、导航与路由，未触碰 epub/settings 逻辑）。
+- 结论：功能门禁通过；单测需在低负载下重跑或放宽 testTimeout，才可作为稳定判据。
+
+
+## 任务 0 前置与基线冻结收尾（2026-11-19）
+
+已核对用户最新决定和实际实施范围，取消的效果图/截图前置按 2026-11-18 决定执行。基线、来源、隔离工作树差异、36 个实际页面及直接导入、主要页面的组件/Provider/hooks/HTTP/流/存储、厂家评估/队列/复评/能力验证/H 记忆缺口、账号身份、启动端口、旧数据与保留资产、部署包与回退现状均已登记。详细结果见 2026-11-19-task0-current-audit.md 与 2026-11-19-task0-freeze.json。旧调用链清单已带入隔离树，历史基线保留。
+
+实际测试为 19 passed / 14 failed，另有 39 subtests passed。12 项为缺 llm 的旧测试替身，1 项为已删除符号导入，1 项为导航 cursor 版本校验缺口。旧命令的另外两份测试文件当前缺失。旧补丁账本的裁剪与哈希漂移完整列入冻结文件，缺少的三份补丁文件已补回。近期可部署的上一版整包仍缺，后续属于任务 10。任务 0 的审计与冻结完成，产品全量验收仍保留上述缺口。
+
+## 任务 0 最终完成核验
+
+本节取代上文审计初轮的未修复状态。原始失败和差异保留作追溯，当前任务 0 的前置条件与退出清单已全部完成。
+
+修复了旧导航续学前的教材游标版本校验，过期版本先要求重新选择；补齐 TurnRoute 接受的 topic、section、chapter 导航模式，避免正常下一知识点请求触发模型验证异常。两处导航服务测试替身补齐 llm 字段，质检测试从仍有效的 agents.reply_budget 导入补充证明判断函数。
+
+导航、课程发布、输入路由及 worker 快照校验共 48 项通过，另有 56 个子检查通过。补丁校验测试首次受旧 pytest 公共临时目录权限影响，指定唯一 basetemp 后通过，未改应用权限。历史缺失的两份测试文件作为失效旧命令登记，当前可执行基线及替代专项证据明确列出。
+
+从本地 Git 历史恢复全部 72 项差异对应的原导入文件并验证原始 SHA-256，重建 task0-source-reconciliation.patch 和新增文件补丁 task0-added-source-reconciliation.patch。两个补丁均通过反向应用检查。3,764 个导入文件、82 项本地修改及 46 项删除全部能与当前文件状态对应，未解释差异为 0，缺失补丁文件为 0。7 项导入前已应用补丁单独登记 imported_baseline_layers，保留最初导入哈希与真正上游哈希的区别。DeepTutor 来源许可证为 Apache-2.0。
+
+代码修复和来源账本位于隔离工作树，主工作区同步本轮文档与冻结结果。任务 0 的冻结不要求正式服务切换。独立依赖安装/生产构建复现、近期上一版整包与代理回退演练、真实模型和其余功能矩阵继续按任务 2–10 执行。图片工作按用户要求暂缓。

@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import threading
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
 import uuid
 
 import httpx
@@ -27,6 +27,15 @@ OPENROUTER_ATTRIBUTION_HEADERS: dict[str, str] = {
 
 _warning_lock = threading.Lock()
 _warning_logged = False
+
+
+_external_http_client: Callable[[str | None], httpx.AsyncClient | None] | None = None
+
+
+def set_external_http_client(factory: Callable[[str | None], httpx.AsyncClient | None]) -> None:
+    """宿主可为当前用户提供独立的受限 HTTP client；异常不得静默回退。"""
+    global _external_http_client
+    _external_http_client = factory
 
 
 def disable_ssl_verify_enabled() -> bool:
@@ -147,6 +156,11 @@ def openai_sdk_client_kwargs(
     }
     if sdk_max_retries is not None:
         kwargs["max_retries"] = sdk_max_retries
+    http_client = _external_http_client(base_url) if _external_http_client else None
+    if http_client is not None:
+        kwargs["http_client"] = http_client
+        kwargs["max_retries"] = 0
+        return kwargs
     if disable_ssl_verify is None:
         http_client = build_openai_http_client()
     elif disable_ssl_verify:

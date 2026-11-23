@@ -1,0 +1,322 @@
+{
+  "date": "2026-11-20",
+  "task": 3,
+  "patch": "student-navigation-task3.patch",
+  "retired_routes": {
+    "/partners": 404,
+    "/partners/groups/new": 404,
+    "/kanban": 404,
+    "/co-writer": 404,
+    "/whisper": 404,
+    "/space/cli-apps": 404,
+    "/space/mcp": 404,
+    "/space/personas": 404,
+    "/space/skills": 404,
+    "/admin/users": 404,
+    "/register": 404,
+    "/session-handoff": 404
+  },
+  "files": [
+    {
+      "path": "web/app/(settings)/settings/model/page.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/app/(utility)/profile/page.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/agents/AgentsHub.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/auth/AdminLink.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/chat/home/ChatComposer.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/chat/home/PartnerGroupSelector.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/chat/home/PartnerSelector.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/chat/home/SessionActivityPanel.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/memory/MemoryArchivedBanner.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/memory/MemoryGraph.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/memory/MemoryHub.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/memory/MemoryL1Workbench.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/memory/MemoryRunPanel.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/memory/MemorySection.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/memory/MemoryWorkbench.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/memory/useMemoryRun.ts",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/notebook/NotebookConsole.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/partners/AssetPicker.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/ChannelIcon.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/ChannelOnboardingPanel.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/ChannelRuntimeStatus.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/FaceEditor.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/PartnerArchives.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/PartnerChannels.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/PartnerConfigure.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/PartnerLinkModal.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/PartnerModelPicker.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/PartnerModelSelect.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/PartnerWorkspacePicker.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/SoulEditor.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/SoulPicker.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/ToolPicker.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/WeixinQrLogin.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/group/DiscussionModePicker.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/group/GroupSessionPicker.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/partners/schema-form.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/reading/library/AddMaterialsDialog.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/reading/library/LibraryShell.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/reading/library/MaterialLibrary.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/sidebar/UtilitySidebar.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/sidebar/WorkspaceSidebar.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/space/ChatHistorySection.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/EduHubImportModal.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/ImportWizard.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/McpStoreSection.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/MyAgentsSection.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/PersonasSection.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/ScopeEditorModal.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/ScopePicker.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/SkillLibraryScope.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/SkillsSection.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/SpaceDashboard.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/SpaceMain.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/space/question-bank/QuestionBankSection.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/tasks/TaskPanelSection.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/whisper/WhisperComposer.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/whisper/WhisperMessageList.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/whisper/WhisperRoomChip.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/components/workspaces/SystemWorkspaceSnapshot.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/workspaces/WorkspaceResourcePicker.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/KnowledgeGraph.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/StudentMemory.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/space-items.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/admin-user-batches.test.ts",
+      "action": "delete"
+    },
+    {
+      "path": "web/tests/admin-user-presets.test.ts",
+      "action": "delete"
+    },
+    {
+      "path": "web/tests/chat-history-search.spec.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/tests/partner-continuity.spec.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/tests/partner-direct-chat.test.ts",
+      "action": "delete"
+    },
+    {
+      "path": "web/tests/partner-group-export.test.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/partner-workspace-picker.spec.tsx",
+      "action": "delete"
+    },
+    {
+      "path": "web/tests/partners-channel-onboarding.test.ts",
+      "action": "delete"
+    },
+    {
+      "path": "web/tests/reading-add-invidious.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/space-dashboard-capability-gate.test.ts",
+      "action": "delete"
+    },
+    {
+      "path": "web/tests/student-memory.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/whisper-i18n.test.ts",
+      "action": "delete"
+    }
+  ],
+  "note": "路由的物理删除已在任务 0 入账，本轮继续删除这些模块独占的不可达组件与旧页面测试；共享学习依赖保留。"
+}

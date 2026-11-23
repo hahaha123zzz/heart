@@ -1,0 +1,29 @@
+diff --git a/project/vendor/DeepTutor/web/lib/capability-routes.ts b/project/vendor/DeepTutor/web/lib/capability-routes.ts
+index dcf71f4..679a269 100644
+--- a/project/vendor/DeepTutor/web/lib/capability-routes.ts
++++ b/project/vendor/DeepTutor/web/lib/capability-routes.ts
+@@ -32,6 +32,8 @@ export const ROUTE_CAPABILITIES: ReadonlyArray<{
+  * sibling route like "/booket" can never be swallowed by the BOOKS_HOME prefix.
+  */
+ export function capabilityForPath(pathname: string): Capability | null {
++  // 学习概览和图谱读取已有记录，缺少个人模型不应挡住查看入口。
++  if (pathname === LEARNING_HUB || pathname === `${LEARNING_HUB}/graph`) return null;
+   const match = ROUTE_CAPABILITIES.find(
+     (r) => pathname === r.prefix || pathname.startsWith(`${r.prefix}/`),
+   );
+diff --git a/project/vendor/DeepTutor/web/tests/capability-access.test.ts b/project/vendor/DeepTutor/web/tests/capability-access.test.ts
+index 2a17b91..16bf6be 100644
+--- a/project/vendor/DeepTutor/web/tests/capability-access.test.ts
++++ b/project/vendor/DeepTutor/web/tests/capability-access.test.ts
+@@ -40,3 +40,11 @@ test("capabilityForPath returns null for ungated routes", () => {
+   assert.equal(capabilityForPath("/space"), null);
+   assert.equal(capabilityForPath("/settings"), null);
+ });
++
++
++test("learning overview and graph remain readable without a model", () => {
++  assert.equal(capabilityForPath("/learning"), null);
++  assert.equal(capabilityForPath("/learning/graph"), null);
++  assert.equal(capabilityForPath("/learning/mastery/path/sessions/s"), "llm");
++  assert.equal(capabilityForPath("/chat/session"), "llm");
++});

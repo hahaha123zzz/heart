@@ -46,6 +46,7 @@ export interface ReadingCitationTarget {
   materialId?: string;
   materialRevision?: number;
   locator: number;
+  quote?: string;
 }
 
 interface ReadingEvidenceEvent {
@@ -228,6 +229,7 @@ export function linkifyLocatorCitations(
     materialId?: string;
     materialRevision?: number;
     allowedLocators?: Iterable<number>;
+    quotes?: ReadonlyMap<number, string>;
   } = {},
 ): string {
   const citations = findLocatorCitations(text);
@@ -238,6 +240,8 @@ export function linkifyLocatorCitations(
     : null;
 
   const skip = codeRanges(text);
+  const markerNumbers = new Map<string, number>();
+  let nextMarkerNumber = 1;
   let out = "";
   let cursor = 0;
   for (const citation of citations) {
@@ -256,13 +260,25 @@ export function linkifyLocatorCitations(
       continue;
     }
 
-    const revisionAddress =
-      Number.isSafeInteger(materialRevision) && Number(materialRevision) >= 1
-        ? `-revision-${materialRevision}`
-        : "";
-    const href = materialId
-      ? `${MATERIAL_LOCATOR_HREF_PREFIX}${encodeURIComponent(materialId)}${revisionAddress}-locator-${locators[0]}`
-      : `${LOCATOR_HREF_PREFIX}${locators[0]}`;
+    if (materialId) {
+      out += text.slice(cursor, citation.start);
+      const markers = locators.map((locator) => {
+        const address = readingPassageHref(materialId, locator, materialRevision);
+        let number = markerNumbers.get(address);
+        if (number === undefined) {
+          number = nextMarkerNumber++;
+          markerNumbers.set(address, number);
+        }
+        const quote = options.quotes?.get(locator);
+        const region = quote ? `?quote=${encodeURIComponent(quote.slice(0, 2000))}` : "";
+        return `[${number}](${address}${region} "citation")`;
+      });
+      out += markers.join("");
+      cursor = citation.end;
+      continue;
+    }
+
+    const href = `${LOCATOR_HREF_PREFIX}${locators[0]}`;
     const absorbed =
       locators.length === citation.locators.length
         ? findAbsorbablePhrase(text, citation, skip)
@@ -316,9 +332,11 @@ export function citationTargetFromHref(
   if (!href.startsWith(MATERIAL_LOCATOR_HREF_PREFIX)) return null;
   // Material ids are content hashes or catalog-minted rm_ ids, matching the
   // id shape the server-side citation generator can emit.
+  const [address, query] = href.split("?", 2);
+  const quote = new URLSearchParams(query).get("quote")?.slice(0, 2000);
   const match =
     /^#dt-material-((?:[0-9a-f]{8,64}|rm_[0-9a-f]{12}))(?:-revision-(\d+))?-locator-(\d+)$/i.exec(
-      href,
+      address,
     );
   if (!match) return null;
   const materialRevision = match[2] ? Number(match[2]) : undefined;
@@ -333,6 +351,7 @@ export function citationTargetFromHref(
   }
   return {
     materialId: materialId.toLowerCase(),
+    ...(quote ? { quote } : {}),
     ...(materialRevision !== undefined ? { materialRevision } : {}),
     locator,
   };
@@ -383,4 +402,21 @@ export function verifiedReadingLocators(
 export function locatorLabel(unit: string, locator: number): string {
   const word = unit || "page";
   return `${word} ${locator}`;
+}
+
+
+/** 仅将本回合 reader_goto 已验证的逐字原文带入引用回跳。 */
+export function verifiedReadingQuotes(events: ReadingEvidenceEvent[] | undefined, materialId?: string, revision?: number): Map<number, string> {
+  const quotes = new Map<number, string>();
+  const allowed = verifiedReadingLocators(events, materialId, revision);
+  for (const event of events ?? []) {
+    if (event.type !== "tool_result" || !event.metadata) continue;
+    const outer = event.metadata as Record<string, unknown>;
+    const metadata = toolResultMetadata(outer);
+    if (!metadata || metadata.reader_action !== "goto" || metadata.verified === false || outer.success === false) continue;
+    if (String(metadata.material_id).toLowerCase() !== materialId?.toLowerCase() || (revision && Number(metadata.material_revision) !== revision)) continue;
+    const locator = Number(metadata.locator);
+    if (allowed.has(locator) && typeof metadata.quote === "string" && metadata.quote.trim()) quotes.set(locator, metadata.quote.slice(0, 2000));
+  }
+  return quotes;
 }

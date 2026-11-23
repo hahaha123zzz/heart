@@ -1,0 +1,22 @@
+{
+  "accounts": 10,
+  "initialization_idempotent": true,
+  "controlled_capability_boundary": true,
+  "probe_calls": [
+    {
+      "owner": "heart-review-01",
+      "capability": "chat",
+      "model": "task9-alpha"
+    },
+    {
+      "owner": "heart-review-01",
+      "capability": "assessment",
+      "model": "task9-alpha"
+    },
+    {
+      "owner": "heart-review-01",
+      "capability": "vision",
+      "model": "task9-alpha"
+    }
+  ]
+}

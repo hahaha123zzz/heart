@@ -1,6 +1,7 @@
 """接原生应用层与持久化回合；不调用旧教学链，不将原生草稿当正式答案。"""
 from contextlib import aclosing, contextmanager
 import asyncio
+import base64
 import hashlib
 import json
 import logging
@@ -448,11 +449,85 @@ class NativeTurnBridge:
                                 viewport = dict(request.reading_viewport or {})
                                 chapter_id = viewport.pop('chapter_id', None)
                                 document_id = viewport.pop('document_id', None)
+                                legacy_selection = viewport.pop('legacy_reader_selection', None)
                                 options['reading_viewport'] = viewport or None
                                 options['reading_workspace_id'] = prepared['workspace_id']
-                                options['reading_material_id'] = options.get('reading_material_id') or \
-                                    material_for_chapter(prepared, chapter_id=chapter_id, document_id=document_id)
-                                options['reading_material_revision'] = options.get('reading_material_revision') or 1
+                                requested_material = options.get('reading_material_id')
+                                if legacy_selection or document_id is not None or chapter_id is not None:
+                                    candidates = [row for row in prepared['materials']
+                                        if (document_id is None or row['document_id'] == document_id)
+                                        and (chapter_id is None or row['chapter_id'] == chapter_id)]
+                                    if len(candidates) != 1:
+                                        raise HTTPException(409, '引用对应的教材不存在或版本已变化')
+                                    material = candidates[0]
+                                    material_id = material['material_id']
+                                    if requested_material and requested_material != material_id:
+                                        raise HTTPException(409, '教材引用与当前教材不匹配')
+                                    from deeptutor.reading import ReadingStore
+                                    manifest = await asyncio.to_thread(ReadingStore().manifest, material_id)
+                                    requested_revision = options.get('reading_material_revision')
+                                    if requested_revision and requested_revision != manifest.revision:
+                                        raise HTTPException(409, '教材文本版本已变化，请重新选择教材页')
+                                    options['reading_material_id'] = material_id
+                                    options['reading_material_revision'] = manifest.revision
+                                    if legacy_selection:
+                                        from knowledge.pdf_reader import PDFSelection, resolve_selection, evidence_text
+                                        if not isinstance(legacy_selection, dict):
+                                            raise HTTPException(400, '教材选区格式无效')
+                                        if (legacy_selection.get('document_id') != material['document_id']
+                                                or legacy_selection.get('version') != material['version']):
+                                            raise HTTPException(409, '选区对应的教材版本已变化，请重新选择')
+                                        try:
+                                            selection = PDFSelection.model_validate({
+                                                'document_id': legacy_selection.get('document_id'),
+                                                'version': legacy_selection.get('version'),
+                                                'kind': legacy_selection.get('kind'),
+                                                'rects': legacy_selection.get('rects'),
+                                                'text': '',
+                                            })
+                                            resolved = await asyncio.to_thread(resolve_selection, selection)
+                                        except (ValueError, TypeError) as exc:
+                                            raise HTTPException(400, str(exc) or '教材选区已失效，请重新选择') from None
+                                        if resolved['reference']['chapter_id'] != material['chapter_id']:
+                                            raise HTTPException(409, '选区对应的章节已变化，请重新选择')
+                                        pages = sorted({rect.page for rect in selection.rects})
+                                        if len(pages) > 40:
+                                            raise HTTPException(400, '一次最多引用 40 页，请缩小选区')
+                                        viewport['locator'] = pages[0]
+                                        viewport['selection'] = resolved['text']
+                                        viewport['selection_pages'] = []
+                                        for page in pages:
+                                            page_rects = [rect for rect in selection.rects if rect.page == page]
+                                            page_text = await asyncio.to_thread(
+                                                evidence_text, selection.document_id, selection.version, page_rects)
+                                            viewport['selection_pages'].append({
+                                                'locator': page,
+                                                'quote': page_text[:2000],
+                                                'rects': [[rect.x1, rect.y1, rect.x2, rect.y2] for rect in page_rects],
+                                            })
+                                        if selection.kind == 'area':
+                                            expected_filename = str(legacy_selection.get('attachment_filename') or '')
+                                            verified_images = resolved['images']
+                                            if len(verified_images) != 1 or verified_images[0].name != expected_filename:
+                                                raise HTTPException(409, '选区图片已变化，请重新框选')
+                                            attachments = list(options.get('attachments') or [])
+                                            matches = [index for index, attachment in enumerate(attachments)
+                                                if isinstance(attachment, dict)
+                                                and attachment.get('filename') == expected_filename
+                                                and str(attachment.get('type') or '').lower() == 'image']
+                                            if len(matches) != 1:
+                                                raise HTTPException(409, '选区图片已移除，请重新框选')
+                                            image_bytes = await asyncio.to_thread(verified_images[0].read_bytes)
+                                            attachments[matches[0]] = {
+                                                'type': 'image', 'filename': expected_filename,
+                                                'base64': base64.b64encode(image_bytes).decode('ascii'),
+                                                'mime_type': 'image/png',
+                                            }
+                                            options['attachments'] = attachments
+                                else:
+                                    options['reading_material_id'] = requested_material or \
+                                        material_for_chapter(prepared)
+                                    options['reading_material_revision'] = options.get('reading_material_revision') or 1
                             if request.grounding:
                                 notebook_name = 'Heart 本轮材料 · ' + submission_id
                                 notebook = next((item for item in app.list_notebooks()

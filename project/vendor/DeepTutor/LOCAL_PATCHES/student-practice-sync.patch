@@ -1,0 +1,239 @@
+diff --git a/project/vendor/DeepTutor/deeptutor/services/practice/storage.py b/project/vendor/DeepTutor/deeptutor/services/practice/storage.py
+index e7c6a89..4a11821 100644
+--- a/project/vendor/DeepTutor/deeptutor/services/practice/storage.py
++++ b/project/vendor/DeepTutor/deeptutor/services/practice/storage.py
+@@ -18,6 +18,14 @@ _DUE_AT_SQL = """(CASE WHEN (n.resolved=1 OR n.is_correct=1)
+     ELSE COALESCE(r.due_at, n.created_at) END)"""
+ 
+ 
++_review_export = None
++
++
++def set_review_export(export):
++    global _review_export
++    _review_export = export
++
++
+ class ReviewConflict(ValueError):
+     """A different tab or source changed this question since it was opened."""
+ 
+@@ -50,6 +58,11 @@ def initialize_practice(conn: sqlite3.Connection) -> None:
+             outcome_json TEXT NOT NULL
+         );
+         CREATE INDEX IF NOT EXISTS idx_practice_history ON practice_review_events(entry_id, reviewed_at);
++        CREATE TABLE IF NOT EXISTS practice_review_outbox (
++            event_id TEXT PRIMARY KEY,
++            request_id TEXT NOT NULL UNIQUE,
++            payload_json TEXT NOT NULL
++        );
+         CREATE TABLE IF NOT EXISTS practice_imports (
+             token TEXT PRIMARY KEY,
+             filename TEXT NOT NULL,
+@@ -266,6 +279,9 @@ class PracticeStore:
+                 raise ReviewConflict(
+                     "This question changed in another tab. Reload it before reviewing again."
+                 )
++            from deeptutor.learning.service import require_assessment_capability
++
++            require_assessment_capability()
+             # Objective answers are checked again at the transaction boundary.
+             from .answers import check_answer
+ 
+@@ -316,6 +332,12 @@ class PracticeStore:
+                 "self_report": self_report,
+                 "mastered": rating in {"good", "easy"},
+             }
++            if _review_export is not None:
++                payload = _review_export(conn, dict(entry), outcome, answer, now)
++                if payload is not None:
++                    conn.execute("INSERT INTO practice_review_outbox VALUES (?, ?, ?)",
++                                 (uuid.uuid4().hex, request_id, json.dumps(payload, ensure_ascii=False)))
++                    outcome["learning_sync"] = "pending"
+             conn.execute(
+                 "INSERT INTO practice_review_events VALUES(?, ?, ?, ?, ?, ?)",
+                 (request_id, entry_id, rating, answer, now, json.dumps(outcome)),
+diff --git a/project/vendor/DeepTutor/web/lib/practice-api.ts b/project/vendor/DeepTutor/web/lib/practice-api.ts
+index 52ae062..34148a0 100644
+--- a/project/vendor/DeepTutor/web/lib/practice-api.ts
++++ b/project/vendor/DeepTutor/web/lib/practice-api.ts
+@@ -111,7 +111,7 @@ export const savePracticeReview = (
+   },
+   workspaceId?: string
+ ) =>
+-  request<{ due_at: number; correct: boolean | null; rating: PracticeRating; is_mistake: boolean }>(
++  request<{ due_at: number; correct: boolean | null; rating: PracticeRating; is_mistake: boolean; learning_sync?: "pending" | "synced" | "catalog_changed" }>(
+     `/questions/${id}/review`,
+     json(body),
+     workspaceId
+diff --git a/project/vendor/DeepTutor/web/components/learning/practice/PracticeSession.tsx b/project/vendor/DeepTutor/web/components/learning/practice/PracticeSession.tsx
+index 048a305..9e88558 100644
+--- a/project/vendor/DeepTutor/web/components/learning/practice/PracticeSession.tsx
++++ b/project/vendor/DeepTutor/web/components/learning/practice/PracticeSession.tsx
+@@ -42,6 +42,7 @@ export function PracticeSession({
+   const [skipped, setSkipped] = useState(0)
+   const { t } = useTranslation()
+   const [index, setIndex] = useState(0)
++  const [syncNotice, setSyncNotice] = useState("")
+   const [saved, setSaved] = useState(0)
+   const [saving, setSaving] = useState(false)
+   const [nextDue, setNextDue] = useState<number | null>(null)
+@@ -69,6 +70,7 @@ export function PracticeSession({
+         aria-label={t('Practice progress')}
+         className="mb-6 h-1.5 w-full accent-primary"
+       />
++      {syncNotice && <p role="status" className="mb-4 text-sm text-muted-foreground">{syncNotice}</p>}
+       {complete ? (
+         <div className="rounded-2xl border border-border bg-card px-6 py-12 text-center">
+           <CheckCircle2 className="mx-auto mb-4 text-emerald-600" size={32} />
+@@ -103,7 +105,9 @@ export function PracticeSession({
+           workspaceId={queue[index].content_workspace_id}
+           workspaceName={queue[index].content_workspace_name}
+           onBusy={setSaving}
+-          onSaved={(due, rating) => {
++          onSaved={(due, rating, sync) => {
++            if (sync === "pending") setSyncNotice("复习已保存。学习档案将在后台同步，状态可能暂未更新。")
++            if (sync === "catalog_changed") setSyncNotice("复习已保存。教材目录已更新，本次记录未计入当前目录。")
+             if (rating === 'again') setQueue(current => [...current, current[index]])
+             else setSaved(value => value + 1)
+             if (due !== null) {
+@@ -136,7 +140,7 @@ function PracticeTurn({
+   id: number
+   workspaceId?: string
+   workspaceName?: string
+-  onSaved: (due: number | null, rating: PracticeRating) => void
++  onSaved: (due: number | null, rating: PracticeRating, sync?: string) => void
+   onSkip: () => void
+   onBusy: (busy: boolean) => void
+ }) {
+@@ -204,7 +208,7 @@ function PracticeTurn({
+     }
+     try {
+       const result = await savePracticeReview(id, submission.current, workspaceId)
+-      onSaved(result.due_at, result.rating)
++      onSaved(result.due_at, result.rating, result.learning_sync)
+     } catch (err) {
+       setError(err instanceof Error ? err.message : String(err))
+       if (err instanceof PracticeRequestError && err.status === 409) setConflict(true)
+@@ -391,7 +395,7 @@ function PracticeTurn({
+                     onClick={() => void rate(correct ? 'good' : 'again')}
+                     className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-40"
+                   >
+-                    {correct ? t('Mastered · Next question') : t('Practice again')}
++                    {correct ? t('Next question') : t('Practice again')}
+                   </button>
+                 </div>
+               ) : (
+diff --git a/project/vendor/DeepTutor/web/features/heart/ChapterProgress.tsx b/project/vendor/DeepTutor/web/features/heart/ChapterProgress.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/ChapterProgress.tsx
+@@ -0,0 +1,62 @@
++"use client";
++
++import { useEffect, useState } from "react";
++import { apiUrl, requestJson } from "@/shared/api/client";
++
++type Progress = {
++  catalog_available: boolean;
++  points: {
++    id: string;
++    name: string;
++    snapshot: { assessed_mastered: boolean; learning_stage: string; next_review_at: string | null; synced_at: string } | null;
++    practice_review?: { correct: boolean | null; self_report: boolean; next_review_at: string } | null;
++    sync_pending: boolean;
++    sync_blocked: boolean;
++  }[];
++};
++
++export function ChapterProgress({ chapter }: { chapter: number }) {
++  const [data, setData] = useState<Progress>();
++  const [failed, setFailed] = useState(false);
++  const [loading, setLoading] = useState(true);
++  const [reload, setReload] = useState(0);
++  useEffect(() => {
++    const controller = new AbortController();
++    setLoading(true);
++    requestJson<Progress>(apiUrl(`/api/heart/learning/chapter-progress?chapter=${chapter}`), {
++      signal: controller.signal, cache: "no-store",
++    }).then(value => { if (!controller.signal.aborted) { setData(value); setFailed(false); } })
++      .catch(() => { if (!controller.signal.aborted) setFailed(true); })
++      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
++    return () => controller.abort();
++  }, [chapter, reload]);
++  return (
++    <section aria-labelledby="chapter-progress" className="my-5 rounded-xl border border-border p-4">
++      <div className="flex flex-wrap items-center justify-between gap-2">
++        <h2 id="chapter-progress" className="font-semibold">本章学习状态</h2>
++        <button type="button" disabled={loading} className="rounded-md border border-border px-3 py-1 text-sm disabled:opacity-50"
++          onClick={() => setReload(value => value + 1)}>刷新学习状态</button>
++      </div>
++      <p className="mt-2 text-sm text-muted-foreground">按教材知识点显示最近同步的学习记录。确认图谱实体对应关系后，才会在节点上显示个人状态。</p>
++      {loading && <p role="status" className="mt-3 text-sm">正在读取学习状态…</p>}
++      {failed && <p role="alert" className="mt-3 text-sm">学习状态读取失败{data ? "，下方记录可能已过时" : "，请刷新重试"}。</p>}
++      {data && !data.catalog_available && <p className="mt-3 text-sm">知识点目录暂不可用。</p>}
++      {data?.catalog_available && data.points.length === 0 && <p className="mt-3 text-sm">本章暂无已确认知识点。</p>}
++      <ul className="mt-3 divide-y divide-border text-sm">
++        {data?.points.map(point => <li key={point.id} className="space-y-1 py-3">
++          <p className="font-medium">{point.name}</p>
++          {point.sync_pending && <p>有评估结果待同步</p>}
++          {point.sync_blocked && <p>有评估结果同步受阻</p>}
++          {point.snapshot ? <>
++            <p>{point.snapshot.assessed_mastered ? "最近同步时已达到掌握要求" : point.snapshot.learning_stage === "practiced_with_help" ? "最近同步时有辅助练习记录" : "最近同步时尚未达到掌握要求"}</p>
++            {point.snapshot.next_review_at && <p>记录中的复习时间：<time dateTime={point.snapshot.next_review_at}>{new Date(point.snapshot.next_review_at).toLocaleString("zh-CN")}</time></p>}
++            <p className="text-muted-foreground">同步于 <time dateTime={point.snapshot.synced_at}>{new Date(point.snapshot.synced_at).toLocaleString("zh-CN")}</time></p>
++          </> : <p className="text-muted-foreground">暂无已同步的学习状态</p>}
++          {point.practice_review && <p>
++            最近同步的题库复习：{point.practice_review.self_report ? "学生自评" : point.practice_review.correct === true ? "答对" : point.practice_review.correct === false ? "答错" : "未判分"}。题库下次复习：<time dateTime={point.practice_review.next_review_at}>{new Date(point.practice_review.next_review_at).toLocaleString("zh-CN")}</time>
++          </p>}
++        </li>)}
++      </ul>
++    </section>
++  );
++}
+diff --git a/project/vendor/DeepTutor/web/tests/practice-workflow.spec.tsx b/project/vendor/DeepTutor/web/tests/practice-workflow.spec.tsx
+index 8c8d146..d0f200c 100644
+--- a/project/vendor/DeepTutor/web/tests/practice-workflow.spec.tsx
++++ b/project/vendor/DeepTutor/web/tests/practice-workflow.spec.tsx
+@@ -75,9 +75,9 @@ it("hides reference answers, waits for the server, and only counts saved reviews
+   fireEvent.click(screen.getByRole("button", { name: "Check and reveal answer" }));
+   await screen.findByText("Reference explanation");
+   expect(api.checkPracticeAnswer).toHaveBeenCalledWith(8, "B", undefined);
+-  fireEvent.click(screen.getByRole("button", { name: "Mastered · Next question" }));
++  fireEvent.click(screen.getByRole("button", { name: "Next question" }));
+   expect(screen.queryByText("Practice complete")).not.toBeInTheDocument();
+-  expect(screen.getByRole("button", { name: "Mastered · Next question" })).toBeDisabled();
++  expect(screen.getByRole("button", { name: "Next question" })).toBeDisabled();
+   await act(async () =>
+     finish({ due_at: 200000, is_mistake: true, correct: true, rating: "good" }),
+   );
+@@ -94,10 +94,10 @@ it("keeps a failed save retryable with the same submission ID", async () => {
+   render(<PracticeSession ids={[8]} onClose={vi.fn()} />);
+   fireEvent.click(await screen.findByRole("radio", { name: "B Atlantic" }));
+   fireEvent.click(screen.getByRole("button", { name: "Check and reveal answer" }));
+-  fireEvent.click(await screen.findByRole("button", { name: "Mastered · Next question" }));
++  fireEvent.click(await screen.findByRole("button", { name: "Next question" }));
+   await screen.findByText("Network interrupted");
+   expect(screen.queryByText("Practice complete")).not.toBeInTheDocument();
+-  fireEvent.click(screen.getByRole("button", { name: "Mastered · Next question" }));
++  fireEvent.click(screen.getByRole("button", { name: "Next question" }));
+   await screen.findByText("Practice complete");
+   expect(vi.mocked(api.savePracticeReview).mock.calls[0]).toEqual(
+     vi.mocked(api.savePracticeReview).mock.calls[1],
+@@ -110,7 +110,7 @@ it("does not allow a success rating when the server marked the answer wrong", as
+   fireEvent.click(await screen.findByRole("radio", { name: "A Pacific" }));
+   fireEvent.click(screen.getByRole("button", { name: "Check and reveal answer" }));
+   await screen.findByText("Needs another try");
+-  expect(screen.queryByRole("button", { name: "Mastered · Next question" })).not.toBeInTheDocument();
++  expect(screen.queryByRole("button", { name: "Next question" })).not.toBeInTheDocument();
+   expect(screen.getByRole("button", { name: "Practice again" })).not.toBeDisabled();
+ });
+ 
+@@ -121,7 +121,7 @@ it("requires reloading a stale question instead of retrying its old version", as
+   render(<PracticeSession ids={[8]} onClose={vi.fn()} />);
+   fireEvent.click(await screen.findByRole("radio", { name: "B Atlantic" }));
+   fireEvent.click(screen.getByRole("button", { name: "Check and reveal answer" }));
+-  fireEvent.click(await screen.findByRole("button", { name: "Mastered · Next question" }));
++  fireEvent.click(await screen.findByRole("button", { name: "Next question" }));
+   fireEvent.click(await screen.findByRole("button", { name: "Reload question" }));
+   await waitFor(() => expect(api.getPracticeQuestion).toHaveBeenCalledTimes(2));
+   expect(screen.queryByText("Reference explanation")).not.toBeInTheDocument();

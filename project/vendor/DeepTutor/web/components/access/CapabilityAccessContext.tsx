@@ -10,7 +10,7 @@ import {
 } from "react";
 
 import type { Capability } from "@/lib/capability-routes";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { fetchAuthStatus } from "@/lib/auth";
 import { listLLMOptions } from "@/lib/llm-options";
 
 type CapabilityAccessValue = {
@@ -20,6 +20,7 @@ type CapabilityAccessValue = {
   isAdmin: boolean;
   /** Whether the current user has at least one usable LLM model. */
   hasLlm: boolean;
+  isLearningAccount: boolean;
   /** Whether the current user may use a gated capability. */
   has: (capability: Capability) => boolean;
   /** Re-probe access (used on tab focus to pick up mid-session grant changes). */
@@ -33,6 +34,7 @@ const DEFAULT_VALUE: CapabilityAccessValue = {
   loading: false,
   isAdmin: true,
   hasLlm: true,
+  isLearningAccount: false,
   has: () => true,
   refresh: async () => {},
 };
@@ -52,17 +54,16 @@ export function CapabilityAccessProvider({
   // Optimistic until the first probe resolves so we never flash a locked UI
   // (admins and users-with-access stay unlocked; the backend enforces anyway).
   const [isAdmin, setIsAdmin] = useState(true);
+  const [isLearningAccount, setIsLearningAccount] = useState(false);
   const [hasLlm, setHasLlm] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     try {
-      // The settings payload only exposes the catalog to admins, so its
-      // presence is our admin signal — admins are never gated.
-      const res = await apiFetch(apiUrl("/api/settings"));
-      if (!res.ok) return;
-      const payload = (await res.json()) as { catalog?: unknown };
-      if (payload.catalog) {
+      const status = await fetchAuthStatus();
+      if (!status?.authenticated) return;
+      setIsLearningAccount(Boolean(status.learning_policy));
+      if (status.role === "admin" || status.is_admin) {
         setIsAdmin(true);
         setHasLlm(true);
         return;
@@ -109,7 +110,7 @@ export function CapabilityAccessProvider({
 
   return (
     <CapabilityAccessContext.Provider
-      value={{ loading, isAdmin, hasLlm, has, refresh }}
+      value={{ loading, isAdmin, hasLlm, isLearningAccount, has, refresh }}
     >
       {children}
     </CapabilityAccessContext.Provider>
