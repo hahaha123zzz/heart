@@ -1,0 +1,37 @@
+启动阶段：加载应用（累计 0.0s）
+启动阶段：读取检索索引（累计 10.1s）
+启动阶段：模型预热完成（累计 10.1s）
+RAG runtime: {'configured': {'reranker': 'cpu', 'embedding': 'cpu'}, 'sessions': {}, 'cuda_cache_path': None}
+INFO:     127.0.0.1:64444 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64450 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64451 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64453 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64457 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64472 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63217 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65206 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59184 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59185 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59189 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59190 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59192 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59193 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59194 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59195 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59198 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59199 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59200 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59202 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59203 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59204 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59206 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59207 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59208 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59209 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59210 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59212 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59213 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59227 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59228 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59229 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59230 - "DELETE /api/accounts/test/textbook-qa-20261123082501 HTTP/1.1" 200 OK

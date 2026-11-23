@@ -1,0 +1,4840 @@
+{
+  "schema": "textbook-qa-evaluation-v1",
+  "created_at": "2026-11-23T08:25:44.723902+08:00",
+  "dataset_sha256": "085ccdd1a907d22a2b1431d923eb8bbfb15aa804c223f93a727c97a969d596ea",
+  "split": "calibration",
+  "elapsed_seconds": 43.01,
+  "summary": {
+    "cases": 30,
+    "answer_cases": 18,
+    "refuse_cases": 9,
+    "clarify_cases": 3,
+    "route_accuracy": 0.6667,
+    "retrieval_hit_rate": 0.2778,
+    "concept_accuracy": 0.1667,
+    "condition_completeness": 0.0556,
+    "citation_support_rate": 0.0,
+    "wrong_citation_rate": 0.7222,
+    "unsupported_claim_rate": 0.9444,
+    "refusal_accuracy": 0.0,
+    "clarification_rate": 1.0,
+    "error_counts": {
+      "retrieval_miss": 12,
+      "wrong_concept": 1,
+      "incomplete_condition": 2,
+      "wrong_route_refusal": 1,
+      "wrong_citation": 1,
+      "unsupported_claim": 1,
+      "wrong_route_answer": 9,
+      "correct": 3
+    },
+    "categories": {
+      "ambiguous": {
+        "cases": 3,
+        "correct": 3
+      },
+      "calculation": {
+        "cases": 2,
+        "correct": 0
+      },
+      "comparison": {
+        "cases": 1,
+        "correct": 0
+      },
+      "definition": {
+        "cases": 9,
+        "correct": 0
+      },
+      "exercise": {
+        "cases": 1,
+        "correct": 0
+      },
+      "formula": {
+        "cases": 4,
+        "correct": 0
+      },
+      "new_proof": {
+        "cases": 2,
+        "correct": 0
+      },
+      "out_of_scope": {
+        "cases": 4,
+        "correct": 0
+      },
+      "paraphrase": {
+        "cases": 1,
+        "correct": 0
+      },
+      "theorem": {
+        "cases": 3,
+        "correct": 0
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "tq01",
+      "split": "calibration",
+      "question": "若两个集合互换成员后仍拥有相同成员，它们在集合论中是否算同一个集合？",
+      "category": "definition",
+      "route": "answer",
+      "section": "外延性公理与子集合",
+      "concept": [
+        "外延",
+        "集合相等"
+      ],
+      "required_groups": [
+        [
+          "相同",
+          "一样"
+        ],
+        [
+          "元素",
+          "成员"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：”为了在集合论中定义自然数，首先要选择一个集合，例如(，作为为首的自然数，并给(起一个自然数名“0”。[1]",
+      "textbook_sources": [
+        "第1章集合代数(新).txt／1.3.1集合的归纳定义"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-01",
+            "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 43,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.39111512666590076,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 43,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.16145463087578782,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 43,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.2581630408022584,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 43,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.22822606601234244,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 43,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.9174151498490021,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 43,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.9034764640231092,
+                "y2": 0.22350163867071518
+              }
+            ],
+            "text": "\n\n\n\n一种容易想到的定义自然数集合N的方式是：\n（1）0(N 。\n（2）如果x(N ,则x+1(N 。\n（3）（终极条款）。\n但这一定义是不适当的。“0为何物？集合否？”,“尚无自然数时，加1意义何在？”为了在集合论中定义自然数，首先要选择\n一个集合，例如(，作为为首的自然数，并给(起一个自然数名“0”。其次需确定一种集合运算，作为求直接后继的运算。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 1,
+            "section_id": 9,
+            "section_title": "1.3.1集合的归纳定义",
+            "source": "第1章集合代数(新).txt",
+            "image_refs": [
+              {
+                "id": "885044a878732a7b890699229d424e386696479215c844dbe60edd52054b17e0",
+                "image_url": "/api/pdf/crops/885044a878732a7b890699229d424e386696479215c844dbe60edd52054b17e0/image",
+                "label": "教材第 43 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "fa97bf3db73035d73413fe461c1927fabcbac23eb955c92f07904baa65bae8f7",
+            "quote": "一种容易想到的定义自然数集合N的方式是：\n（1）0(N 。\n（2）如果x(N ,则x+1(N 。\n（3）（终极条款）。\n但这一定义是不适当的。“0为何物？集合否？”,“尚无自然数时，加1意义何在？”为了在集合论中定义自然数，首先要选择一个集合，例如(，作为为首的自然数，并给(起一个自然数名“0”。其次需确定一种集合运算，作为求直接后继的运算。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 43,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "fa97bf3db73035d73413fe461c1927fabcbac23eb955c92f07904baa65bae8f7",
+            "retrieval_source_id": "ch1-s9-p0-w3",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-01",
+            "document_version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "source_block_id": null,
+            "section_id": 9,
+            "block_start": 0,
+            "block_end": 172,
+            "quote": "一种容易想到的定义自然数集合N的方式是：\n（1）0(N 。\n（2）如果x(N ,则x+1(N 。\n（3）（终极条款）。\n但这一定义是不适当的。“0为何物？集合否？”,“尚无自然数时，加1意义何在？”为了在集合论中定义自然数，首先要选择一个集合，例如(，作为为首的自然数，并给(起一个自然数名“0”。其次需确定一种集合运算，作为求直接后继的运算。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              43
+            ],
+            "page": 43,
+            "selections": [
+              {
+                "document_id": "chapter-01",
+                "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 43,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.39111512666590076,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 43,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.16145463087578782,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 43,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.2581630408022584,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 43,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.22822606601234244,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 43,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.9174151498490021,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 43,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.9034764640231092,
+                    "y2": 0.22350163867071518
+                  }
+                ],
+                "text": "\n\n\n\n一种容易想到的定义自然数集合N的方式是：\n（1）0(N 。\n（2）如果x(N ,则x+1(N 。\n（3）（终极条款）。\n但这一定义是不适当的。“0为何物？集合否？”,“尚无自然数时，加1意义何在？”为了在集合论中定义自然数，首先要选择\n一个集合，例如(，作为为首的自然数，并给(起一个自然数名“0”。其次需确定一种集合运算，作为求直接后继的运算。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 1,
+                "section_id": 9,
+                "section_title": "1.3.1集合的归纳定义",
+                "source": "第1章集合代数(新).txt",
+                "image_refs": [
+                  {
+                    "id": "885044a878732a7b890699229d424e386696479215c844dbe60edd52054b17e0",
+                    "image_url": "/api/pdf/crops/885044a878732a7b890699229d424e386696479215c844dbe60edd52054b17e0/image",
+                    "label": "教材第 43 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：”为了在集合论中定义自然数，首先要选择一个集合，例如(，作为为首的自然数，并给(起一个自然数名“0”。",
+                "start": 0,
+                "end": 60,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq02",
+      "split": "calibration",
+      "question": "除了把元素列出，还能用何种方式概括一个集合？",
+      "category": "paraphrase",
+      "route": "answer",
+      "section": "集合的表示",
+      "concept": [
+        "集合表示",
+        "概括"
+      ],
+      "required_groups": [
+        [
+          "性质",
+          "条件"
+        ],
+        [
+          "表示",
+          "概括"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：因此，尽管集合与其成员是两个截然不同的概念，但一个集合完全可以成为另一个集合的元素。[1]",
+      "textbook_sources": [
+        "第1章集合代数(新).txt／1.1.1集合及其元素"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-01",
+            "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 4,
+                "x1": 0.5700882352941177,
+                "y1": 0.18882134125408254,
+                "x2": 0.9191076188287814,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 4,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.9106134741005777,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 4,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.9156747759650735,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 4,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.515078067555147,
+                "y2": 0.23446919232366203
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n例如，例1.1（5）的集合，以学员队集体为其元素\n；又如集合{1,{1,2},{1},2}，数1，2是它的成员，集合{1}和{1,2}也是它的成员。因此，尽管集合与其成员是两个截然不同的\n概念，但一个集合完全可以成为另一个集合的元素。因此必须注意，a不同于{a}，前者为一对象a，后者为仅含该对象a的\n单元素集合；同样，{a}不同于{{a}}，{{a}}是仅含{a}的单元素集。\n\n\n\n\n\n\n\n",
+            "chapter_id": 1,
+            "section_id": 2,
+            "section_title": "1.1.1集合及其元素",
+            "source": "第1章集合代数(新).txt",
+            "image_refs": [
+              {
+                "id": "be52b4948ea53d65914d752589ff4f93619160b5fb54250962df143618cc7141",
+                "image_url": "/api/pdf/crops/be52b4948ea53d65914d752589ff4f93619160b5fb54250962df143618cc7141/image",
+                "label": "教材第 4 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "3c0a3ba3d64af13271a3e65021a1a9106594ca51c878a1e39235ac05331f510c",
+            "quote": "例如，例1.1（5）的集合，以学员队集体为其元素；又如集合{1,{1,2},{1},2}，数1，2是它的成员，集合{1}和{1,2}也是它的成员。因此，尽管集合与其成员是两个截然不同的概念，但一个集合完全可以成为另一个集合的元素。因此必须注意，a不同于{a}，前者为一对象a，后者为仅含该对象a的单元素集合；同样，{a}不同于{{a}}，{{a}}是仅含{a}的单元素集。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 4,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "3c0a3ba3d64af13271a3e65021a1a9106594ca51c878a1e39235ac05331f510c",
+            "retrieval_source_id": "ch1-s2-p0-w1",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-01",
+            "document_version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "source_block_id": null,
+            "section_id": 2,
+            "block_start": 797,
+            "block_end": 983,
+            "quote": "例如，例1.1（5）的集合，以学员队集体为其元素；又如集合{1,{1,2},{1},2}，数1，2是它的成员，集合{1}和{1,2}也是它的成员。因此，尽管集合与其成员是两个截然不同的概念，但一个集合完全可以成为另一个集合的元素。因此必须注意，a不同于{a}，前者为一对象a，后者为仅含该对象a的单元素集合；同样，{a}不同于{{a}}，{{a}}是仅含{a}的单元素集。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              4
+            ],
+            "page": 4,
+            "selections": [
+              {
+                "document_id": "chapter-01",
+                "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 4,
+                    "x1": 0.5700882352941177,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.9191076188287814,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 4,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.9106134741005777,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 4,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.9156747759650735,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 4,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.515078067555147,
+                    "y2": 0.23446919232366203
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n例如，例1.1（5）的集合，以学员队集体为其元素\n；又如集合{1,{1,2},{1},2}，数1，2是它的成员，集合{1}和{1,2}也是它的成员。因此，尽管集合与其成员是两个截然不同的\n概念，但一个集合完全可以成为另一个集合的元素。因此必须注意，a不同于{a}，前者为一对象a，后者为仅含该对象a的\n单元素集合；同样，{a}不同于{{a}}，{{a}}是仅含{a}的单元素集。\n\n\n\n\n\n\n\n",
+                "chapter_id": 1,
+                "section_id": 2,
+                "section_title": "1.1.1集合及其元素",
+                "source": "第1章集合代数(新).txt",
+                "image_refs": [
+                  {
+                    "id": "be52b4948ea53d65914d752589ff4f93619160b5fb54250962df143618cc7141",
+                    "image_url": "/api/pdf/crops/be52b4948ea53d65914d752589ff4f93619160b5fb54250962df143618cc7141/image",
+                    "label": "教材第 4 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：因此，尽管集合与其成员是两个截然不同的概念，但一个集合完全可以成为另一个集合的元素。",
+                "start": 0,
+                "end": 51,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq03",
+      "split": "calibration",
+      "question": "A 中去掉与 B 共同元素后剩下的部分对应哪种基本运算？",
+      "category": "definition",
+      "route": "answer",
+      "section": "并、交、差、补运算",
+      "concept": [
+        "差集",
+        "集合差"
+      ],
+      "required_groups": [
+        [
+          "差集",
+          "差运算",
+          "A-B"
+        ],
+        [
+          "元素",
+          "属于"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：·乘与普通矩阵乘的不同在于，各分量计算中用  EMBED Equation.3    [公式或对象]  代替  EMBED Equation.3    [公式或对象]  (  EMBED Equation.3    [公式或对象]  )。[1]",
+      "textbook_sources": [
+        "第9章关系（新）.txt／9.1.2 关系的基本运算"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-09",
+            "version": "35a1daa3224fd49a81c68f3b8c6f03ecd4e1f919eb72078c63abc39a08beb7b9",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.9230996257878151,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.35621260852974,
+                "y2": 0.23446919232366203
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n\n·乘与普通矩阵乘的不同在于，各分量计算中用  EMBED Equation.3    [公式或对象]  代替  EMBED Equation.3    [公式或对象]\n (  EMBED Equation.3    [公式或对象]  )。\n",
+            "chapter_id": 9,
+            "section_id": 3,
+            "section_title": "9.1.2 关系的基本运算",
+            "source": "第9章关系（新）.txt",
+            "image_refs": [
+              {
+                "id": "fa9f406499bb226f4844439794cc303c4497e3435c551261b88bd17bc30c180a",
+                "image_url": "/api/pdf/crops/fa9f406499bb226f4844439794cc303c4497e3435c551261b88bd17bc30c180a/image",
+                "label": "教材第 15 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "22ededc102c08ebb4b62e1cf76c5354341c8b67968a330596f2754a7295ff7ce",
+            "quote": "·乘与普通矩阵乘的不同在于，各分量计算中用  EMBED Equation.3    [公式或对象]  代替  EMBED Equation.3    [公式或对象]  (  EMBED Equation.3    [公式或对象]  )。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 15,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "22ededc102c08ebb4b62e1cf76c5354341c8b67968a330596f2754a7295ff7ce",
+            "retrieval_source_id": "ch9-s3-p0-w8",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-09",
+            "document_version": "35a1daa3224fd49a81c68f3b8c6f03ecd4e1f919eb72078c63abc39a08beb7b9",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 0,
+            "block_end": 119,
+            "quote": "·乘与普通矩阵乘的不同在于，各分量计算中用  EMBED Equation.3    [公式或对象]  代替  EMBED Equation.3    [公式或对象]  (  EMBED Equation.3    [公式或对象]  )。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              15
+            ],
+            "page": 15,
+            "selections": [
+              {
+                "document_id": "chapter-09",
+                "version": "35a1daa3224fd49a81c68f3b8c6f03ecd4e1f919eb72078c63abc39a08beb7b9",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.9230996257878151,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.35621260852974,
+                    "y2": 0.23446919232366203
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n\n·乘与普通矩阵乘的不同在于，各分量计算中用  EMBED Equation.3    [公式或对象]  代替  EMBED Equation.3    [公式或对象]\n (  EMBED Equation.3    [公式或对象]  )。\n",
+                "chapter_id": 9,
+                "section_id": 3,
+                "section_title": "9.1.2 关系的基本运算",
+                "source": "第9章关系（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "fa9f406499bb226f4844439794cc303c4497e3435c551261b88bd17bc30c180a",
+                    "image_url": "/api/pdf/crops/fa9f406499bb226f4844439794cc303c4497e3435c551261b88bd17bc30c180a/image",
+                    "label": "教材第 15 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：·乘与普通矩阵乘的不同在于，各分量计算中用  EMBED Equation.3    [公式或对象]  代替  EMBED Equation.3    [公式或对象]  (  EMBED Equation.3    [公式或对象]  )。",
+                "start": 0,
+                "end": 128,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq04",
+      "split": "calibration",
+      "question": "一个集合所有可能子集汇合起来形成哪个对象？",
+      "category": "definition",
+      "route": "answer",
+      "section": "幂集运算和广义并、交运算",
+      "concept": [
+        "幂集"
+      ],
+      "required_groups": [
+        [
+          "幂集"
+        ],
+        [
+          "子集"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：（4）“获1988年诺贝尔文学奖的作家”构成一个集合，尽管它只有一个对象——埃及作家纳吉布 •马夫兹。[1]",
+      "textbook_sources": [
+        "第1章集合代数(新).txt／1.1.1集合及其元素"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-01",
+            "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 3,
+                "x1": 0.15496218487394958,
+                "y1": 0.16688623394818883,
+                "x2": 0.44335714285714284,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.11238991771024816,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.6227554695706407,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.44712521746980044,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.5429235367975315,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.7361806907333245,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.14638235807018118,
+                "y2": 0.2454367459766089
+              }
+            ],
+            "text": "\n\n\n\n\n它的实质蕴涵于下文对它的数学描述中。\n例1.1\n（1）“北京大学全体学生”为一集合，组成这一集合的对象是北京大学的学生。\n（2）“全体正整数”为一集合，其组成对象是正整数。\n（3）“本书中所有汉字”的集合，其组成对象是本书中的不同汉字。\n（4）“获1988年诺贝尔文学奖的作家”构成一个集合，尽管它只有一个对象——埃及作家纳吉布\n•马夫兹。\n\n\n\n\n\n",
+            "chapter_id": 1,
+            "section_id": 2,
+            "section_title": "1.1.1集合及其元素",
+            "source": "第1章集合代数(新).txt",
+            "image_refs": [
+              {
+                "id": "463f8ad4b17ab377a9e41f26f56260aa703b8e489b90beadafa8958f854f8c89",
+                "image_url": "/api/pdf/crops/463f8ad4b17ab377a9e41f26f56260aa703b8e489b90beadafa8958f854f8c89/image",
+                "label": "教材第 3 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "fcf1132e01fbae808c3290543adcf13fd4257175caf2e58a62b26955cd6b68df",
+            "quote": "它的实质蕴涵于下文对它的数学描述中。\n例1.1\n（1）“北京大学全体学生”为一集合，组成这一集合的对象是北京大学的学生。\n（2）“全体正整数”为一集合，其组成对象是正整数。\n（3）“本书中所有汉字”的集合，其组成对象是本书中的不同汉字。\n（4）“获1988年诺贝尔文学奖的作家”构成一个集合，尽管它只有一个对象——埃及作家纳吉布 •马夫兹。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 3,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "fcf1132e01fbae808c3290543adcf13fd4257175caf2e58a62b26955cd6b68df",
+            "retrieval_source_id": "ch1-s2-p0-w0",
+            "retrieval_source_index": 1,
+            "document_id": "chapter-01",
+            "document_version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "source_block_id": null,
+            "section_id": 2,
+            "block_start": 189,
+            "block_end": 359,
+            "quote": "它的实质蕴涵于下文对它的数学描述中。\n例1.1\n（1）“北京大学全体学生”为一集合，组成这一集合的对象是北京大学的学生。\n（2）“全体正整数”为一集合，其组成对象是正整数。\n（3）“本书中所有汉字”的集合，其组成对象是本书中的不同汉字。\n（4）“获1988年诺贝尔文学奖的作家”构成一个集合，尽管它只有一个对象——埃及作家纳吉布 •马夫兹。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              3
+            ],
+            "page": 3,
+            "selections": [
+              {
+                "document_id": "chapter-01",
+                "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 3,
+                    "x1": 0.15496218487394958,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.44335714285714284,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.11238991771024816,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.6227554695706407,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.44712521746980044,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.5429235367975315,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.7361806907333245,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.14638235807018118,
+                    "y2": 0.2454367459766089
+                  }
+                ],
+                "text": "\n\n\n\n\n它的实质蕴涵于下文对它的数学描述中。\n例1.1\n（1）“北京大学全体学生”为一集合，组成这一集合的对象是北京大学的学生。\n（2）“全体正整数”为一集合，其组成对象是正整数。\n（3）“本书中所有汉字”的集合，其组成对象是本书中的不同汉字。\n（4）“获1988年诺贝尔文学奖的作家”构成一个集合，尽管它只有一个对象——埃及作家纳吉布\n•马夫兹。\n\n\n\n\n\n",
+                "chapter_id": 1,
+                "section_id": 2,
+                "section_title": "1.1.1集合及其元素",
+                "source": "第1章集合代数(新).txt",
+                "image_refs": [
+                  {
+                    "id": "463f8ad4b17ab377a9e41f26f56260aa703b8e489b90beadafa8958f854f8c89",
+                    "image_url": "/api/pdf/crops/463f8ad4b17ab377a9e41f26f56260aa703b8e489b90beadafa8958f854f8c89/image",
+                    "label": "教材第 3 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：（4）“获1988年诺贝尔文学奖的作家”构成一个集合，尽管它只有一个对象——埃及作家纳吉布 •马夫兹。",
+                "start": 0,
+                "end": 60,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq05",
+      "split": "calibration",
+      "question": "由两个集合分别取一个成员构成的有序组合全体称为什么？",
+      "category": "definition",
+      "route": "answer",
+      "section": "集合的笛卡儿积",
+      "concept": [
+        "笛卡儿积",
+        "有序对"
+      ],
+      "required_groups": [
+        [
+          "笛卡儿积",
+          "笛卡尔积"
+        ],
+        [
+          "有序对",
+          "序偶"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": true,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "wrong_concept",
+      "error_reason": "回答没有识别预期教材概念",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；[1]",
+      "textbook_sources": [
+        "第1章集合代数(新).txt／1.2.3集合的笛卡儿积"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-01",
+            "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 35,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.356500037954635,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 35,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.3570269662552521,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 35,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.14839412041672137,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 35,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.7027153197216386,
+                "y2": 0.20156660385313058
+              }
+            ],
+            "text": "\n\n\n\nA. {{Ø}, {Ø, {Ø}}             B. {Ø, {Ø}, {Ø, {Ø}}\nC. {Ø, {Ø}, {{Ø}}, {Ø, {Ø}}      D.{ Ø, {Ø, {Ø}}\n2．填空题\n(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；\n\n\n\n\n",
+            "chapter_id": 1,
+            "section_id": 8,
+            "section_title": "1.2.3集合的笛卡儿积",
+            "source": "第1章集合代数(新).txt",
+            "image_refs": [
+              {
+                "id": "3c0a766534bb9d597e52f0e7b36878444f15a3a3fd3055d64c273efbd04d5f91",
+                "image_url": "/api/pdf/crops/3c0a766534bb9d597e52f0e7b36878444f15a3a3fd3055d64c273efbd04d5f91/image",
+                "label": "教材第 35 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "08ee06025c55f5b759aad415ec6f85052002b45928e9775f4373e2d6829bf290",
+            "quote": "A. {{Ø}, {Ø, {Ø}}             B. {Ø, {Ø}, {Ø, {Ø}}\nC. {Ø, {Ø}, {{Ø}}, {Ø, {Ø}}      D.{ Ø, {Ø, {Ø}}\n2．填空题\n(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 35,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "08ee06025c55f5b759aad415ec6f85052002b45928e9775f4373e2d6829bf290",
+            "retrieval_source_id": "ch1-s8-p0-w8",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-01",
+            "document_version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "source_block_id": null,
+            "section_id": 8,
+            "block_start": 232,
+            "block_end": 399,
+            "quote": "A. {{Ø}, {Ø, {Ø}}             B. {Ø, {Ø}, {Ø, {Ø}}\nC. {Ø, {Ø}, {{Ø}}, {Ø, {Ø}}      D.{ Ø, {Ø, {Ø}}\n2．填空题\n(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              35
+            ],
+            "page": 35,
+            "selections": [
+              {
+                "document_id": "chapter-01",
+                "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 35,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.356500037954635,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 35,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.3570269662552521,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 35,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.14839412041672137,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 35,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.7027153197216386,
+                    "y2": 0.20156660385313058
+                  }
+                ],
+                "text": "\n\n\n\nA. {{Ø}, {Ø, {Ø}}             B. {Ø, {Ø}, {Ø, {Ø}}\nC. {Ø, {Ø}, {{Ø}}, {Ø, {Ø}}      D.{ Ø, {Ø, {Ø}}\n2．填空题\n(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；\n\n\n\n\n",
+                "chapter_id": 1,
+                "section_id": 8,
+                "section_title": "1.2.3集合的笛卡儿积",
+                "source": "第1章集合代数(新).txt",
+                "image_refs": [
+                  {
+                    "id": "3c0a766534bb9d597e52f0e7b36878444f15a3a3fd3055d64c273efbd04d5f91",
+                    "image_url": "/api/pdf/crops/3c0a766534bb9d597e52f0e7b36878444f15a3a3fd3055d64c273efbd04d5f91/image",
+                    "label": "教材第 35 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；",
+                "start": 0,
+                "end": 70,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq06",
+      "split": "calibration",
+      "question": "递归定义集合的性质证明为何要同时处理基础元素和构造操作？",
+      "category": "theorem",
+      "route": "answer",
+      "section": "结构归纳原理",
+      "concept": [
+        "结构归纳"
+      ],
+      "required_groups": [
+        [
+          "归纳基础",
+          "基础条款"
+        ],
+        [
+          "归纳推理",
+          "归纳条款",
+          "构造"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：条款（l），（2）又称归纳定义的完备性条款，它们必须保证毫无遗漏地产生出待定义集合的全部成员；于是，可以从基本元素出发，反复运用这些规则来确认待定义集合的所有成员。[1]",
+      "textbook_sources": [
+        "第1章集合代数(新).txt／1.3.1集合的归纳定义"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-01",
+            "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 40,
+                "x1": 0.594452956768645,
+                "y1": 0.16688623394818883,
+                "x2": 0.9147806878610819,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 40,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.31562605042016806,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 40,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.5914454089252889,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 40,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.9107730887276785,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 40,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.6988193277310923,
+                "y2": 0.22350163867071518
+              }
+            ],
+            "text": "\n\n\n\n\n于是，可以从基本元素出发，反复运用这些规\n则来确认待定义集合的所有成员。\n（3）终极条款：规定待定义集合只含有（l），（2）条款所确定的成员。\n条款（l），（2）又称归纳定义的完备性条款，它们必须保证毫无遗漏地产生出待定义集合的全部成员；条款（3）又称\n归纳定义的纯粹性条款，它保证整个定义过程所规定的集合只包括满足要求的那些对象。\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 1,
+            "section_id": 9,
+            "section_title": "1.3.1集合的归纳定义",
+            "source": "第1章集合代数(新).txt",
+            "image_refs": [
+              {
+                "id": "b4e52e8591490e30ad15cb8d811319f886e723d7523c7d6172a85ec5d619e023",
+                "image_url": "/api/pdf/crops/b4e52e8591490e30ad15cb8d811319f886e723d7523c7d6172a85ec5d619e023/image",
+                "label": "教材第 40 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "e128adf6db991e4cf6add870f43143d76235af4d2f650ea347a2c5d14c2317c3",
+            "quote": "于是，可以从基本元素出发，反复运用这些规则来确认待定义集合的所有成员。\n（3）终极条款：规定待定义集合只含有（l），（2）条款所确定的成员。\n条款（l），（2）又称归纳定义的完备性条款，它们必须保证毫无遗漏地产生出待定义集合的全部成员；条款（3）又称归纳定义的纯粹性条款，它保证整个定义过程所规定的集合只包括满足要求的那些对象。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 40,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "e128adf6db991e4cf6add870f43143d76235af4d2f650ea347a2c5d14c2317c3",
+            "retrieval_source_id": "ch1-s9-p0-w0",
+            "retrieval_source_index": 2,
+            "document_id": "chapter-01",
+            "document_version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "source_block_id": null,
+            "section_id": 9,
+            "block_start": 164,
+            "block_end": 328,
+            "quote": "于是，可以从基本元素出发，反复运用这些规则来确认待定义集合的所有成员。\n（3）终极条款：规定待定义集合只含有（l），（2）条款所确定的成员。\n条款（l），（2）又称归纳定义的完备性条款，它们必须保证毫无遗漏地产生出待定义集合的全部成员；条款（3）又称归纳定义的纯粹性条款，它保证整个定义过程所规定的集合只包括满足要求的那些对象。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              40
+            ],
+            "page": 40,
+            "selections": [
+              {
+                "document_id": "chapter-01",
+                "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 40,
+                    "x1": 0.594452956768645,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.9147806878610819,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 40,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.31562605042016806,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 40,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.5914454089252889,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 40,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.9107730887276785,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 40,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.6988193277310923,
+                    "y2": 0.22350163867071518
+                  }
+                ],
+                "text": "\n\n\n\n\n于是，可以从基本元素出发，反复运用这些规\n则来确认待定义集合的所有成员。\n（3）终极条款：规定待定义集合只含有（l），（2）条款所确定的成员。\n条款（l），（2）又称归纳定义的完备性条款，它们必须保证毫无遗漏地产生出待定义集合的全部成员；条款（3）又称\n归纳定义的纯粹性条款，它保证整个定义过程所规定的集合只包括满足要求的那些对象。\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 1,
+                "section_id": 9,
+                "section_title": "1.3.1集合的归纳定义",
+                "source": "第1章集合代数(新).txt",
+                "image_refs": [
+                  {
+                    "id": "b4e52e8591490e30ad15cb8d811319f886e723d7523c7d6172a85ec5d619e023",
+                    "image_url": "/api/pdf/crops/b4e52e8591490e30ad15cb8d811319f886e723d7523c7d6172a85ec5d619e023/image",
+                    "label": "教材第 40 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：条款（l），（2）又称归纳定义的完备性条款，它们必须保证毫无遗漏地产生出待定义集合的全部成员；于是，可以从基本元素出发，反复运用这些规则来确认待定义集合的所有成员。",
+                "start": 0,
+                "end": 91,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq07",
+      "split": "calibration",
+      "question": "第一数学归纳法从前一项成立推进到后一项，依赖哪条假设？",
+      "category": "theorem",
+      "route": "answer",
+      "section": "数学归纳原理",
+      "concept": [
+        "第一数学归纳",
+        "归纳假设"
+      ],
+      "required_groups": [
+        [
+          "归纳假设"
+        ],
+        [
+          "前一步",
+          "P(k)",
+          "n=k"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": true,
+        "wrong_citation": false,
+        "concept_hit": true,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "incomplete_condition",
+      "error_reason": "定义、条件或定理结论不完整",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：数学归纳法的基本模式（第一数学归纳法）。回忆，用第一数学归纳法证明所有自然数具有性质P时，只要如下进行推理：。[1]",
+      "textbook_sources": [
+        "第2章两个数学基本原理（新）.txt／2.1.2数学归纳原理"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-02",
+            "version": "9f55171a8eb4776ee94c2e06b68867e90ed427533eb8b1e5cbb7ae7919b50cab",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.12301610088574914,
+                "x2": 0.9223487394957982,
+                "y2": 0.13576135442375853
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.133983654538696,
+                "x2": 0.47528991596638653,
+                "y2": 0.14672890807670538
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.14495120819164284,
+                "x2": 0.37949159663865545,
+                "y2": 0.15769646172965224
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.6118184824711134,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.4199663424451812,
+                "y2": 0.17963149654723687
+              }
+            ],
+            "text": "\n我们已经指出，数学归纳原理是上述结构归纳原理的特例，因为它只是在归纳定义的自然数集上进行归纳推理。读者在中\n学学习过的数学归纳法是数学归纳原理的最基本的形式。\n数学归纳法的基本模式（第一数学归纳法）\n回忆，用第一数学归纳法证明所有自然数具有性质P时，只要如下进行推理：\n（1） 归纳基础：证P(0)真，即证明数0有性质P。\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 2,
+            "section_id": 4,
+            "section_title": "2.1.2数学归纳原理",
+            "source": "第2章两个数学基本原理（新）.txt",
+            "image_refs": [
+              {
+                "id": "ce09dd4ce99bba482e762f2fcf3c8840510f143fc3bd1ccdc324805de728ac84",
+                "image_url": "/api/pdf/crops/ce09dd4ce99bba482e762f2fcf3c8840510f143fc3bd1ccdc324805de728ac84/image",
+                "label": "教材第 6 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "336cc2d13f843c6d6813d759f4dfbf57502bad0d5d9dda86200e5d860e00dea8",
+            "quote": "我们已经指出，数学归纳原理是上述结构归纳原理的特例，因为它只是在归纳定义的自然数集上进行归纳推理。读者在中学学习过的数学归纳法是数学归纳原理的最基本的形式。\n数学归纳法的基本模式（第一数学归纳法）\n回忆，用第一数学归纳法证明所有自然数具有性质P时，只要如下进行推理：\n（1） 归纳基础：证P(0)真，即证明数0有性质P。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 6,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "336cc2d13f843c6d6813d759f4dfbf57502bad0d5d9dda86200e5d860e00dea8",
+            "retrieval_source_id": "ch2-s4-p0-w0",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-02",
+            "document_version": "9f55171a8eb4776ee94c2e06b68867e90ed427533eb8b1e5cbb7ae7919b50cab",
+            "source_block_id": null,
+            "section_id": 4,
+            "block_start": 0,
+            "block_end": 160,
+            "quote": "我们已经指出，数学归纳原理是上述结构归纳原理的特例，因为它只是在归纳定义的自然数集上进行归纳推理。读者在中学学习过的数学归纳法是数学归纳原理的最基本的形式。\n数学归纳法的基本模式（第一数学归纳法）\n回忆，用第一数学归纳法证明所有自然数具有性质P时，只要如下进行推理：\n（1） 归纳基础：证P(0)真，即证明数0有性质P。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              6
+            ],
+            "page": 6,
+            "selections": [
+              {
+                "document_id": "chapter-02",
+                "version": "9f55171a8eb4776ee94c2e06b68867e90ed427533eb8b1e5cbb7ae7919b50cab",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.12301610088574914,
+                    "x2": 0.9223487394957982,
+                    "y2": 0.13576135442375853
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.133983654538696,
+                    "x2": 0.47528991596638653,
+                    "y2": 0.14672890807670538
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.14495120819164284,
+                    "x2": 0.37949159663865545,
+                    "y2": 0.15769646172965224
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.6118184824711134,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.4199663424451812,
+                    "y2": 0.17963149654723687
+                  }
+                ],
+                "text": "\n我们已经指出，数学归纳原理是上述结构归纳原理的特例，因为它只是在归纳定义的自然数集上进行归纳推理。读者在中\n学学习过的数学归纳法是数学归纳原理的最基本的形式。\n数学归纳法的基本模式（第一数学归纳法）\n回忆，用第一数学归纳法证明所有自然数具有性质P时，只要如下进行推理：\n（1） 归纳基础：证P(0)真，即证明数0有性质P。\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 2,
+                "section_id": 4,
+                "section_title": "2.1.2数学归纳原理",
+                "source": "第2章两个数学基本原理（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "ce09dd4ce99bba482e762f2fcf3c8840510f143fc3bd1ccdc324805de728ac84",
+                    "image_url": "/api/pdf/crops/ce09dd4ce99bba482e762f2fcf3c8840510f143fc3bd1ccdc324805de728ac84/image",
+                    "label": "教材第 6 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：数学归纳法的基本模式（第一数学归纳法）。回忆，用第一数学归纳法证明所有自然数具有性质P时，只要如下进行推理：。",
+                "start": 0,
+                "end": 64,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq08",
+      "split": "calibration",
+      "question": "若完成任务的几类方案互斥，方案数应相加还是相乘？",
+      "category": "comparison",
+      "route": "answer",
+      "section": "加法原理和乘法原理",
+      "concept": [
+        "加法原理",
+        "乘法原理"
+      ],
+      "required_groups": [
+        [
+          "加法",
+          "相加"
+        ],
+        [
+          "互斥",
+          "分类"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：(b)  ((x( A(x)→B(x) )∧A(c) )→B(c)。[1]",
+      "textbook_sources": [
+        "第5章逻辑代数（下）（新）.txt／5.2.3  关于永真式的几个基本原理"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-05",
+            "version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 33,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.29830255485983453,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 33,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.8071832470292805,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 33,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.5599277774586396,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 33,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.2489184457474396,
+                "y2": 0.20156660385313058
+              }
+            ],
+            "text": "\n\n\n\n(b)  ((x( A(x)→B(x) )∧A(c) )→B(c)\n(c)  ((x(  EMBED Equation.3    [公式或对象]  A(x)→B(x))∧(x  EMBED Equation.3    [公式或对象]  B(x))→(xA(x)\n(d)  ((x(P(x)∧Q(x)))→((xP(x)→  EMBED Equation.3    [公式或对象]  Q(x))\n其中              是永真式。\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 5,
+            "section_id": 8,
+            "section_title": "5.2.3  关于永真式的几个基本原理",
+            "source": "第5章逻辑代数（下）（新）.txt",
+            "image_refs": [
+              {
+                "id": "5c10dd4946ce84acfaf1bb335a2970d2293e81c494f12342d733aa6f9598e911",
+                "image_url": "/api/pdf/crops/5c10dd4946ce84acfaf1bb335a2970d2293e81c494f12342d733aa6f9598e911/image",
+                "label": "教材第 33 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "5d2581926b3cd80a5019f5b141474d1dc55c842a8a5cb31a5b73ea6f44d21317",
+            "quote": "(b)  ((x( A(x)→B(x) )∧A(c) )→B(c)\n(c)  ((x(  EMBED Equation.3    [公式或对象]  A(x)→B(x))∧(x  EMBED Equation.3    [公式或对象]  B(x))→(xA(x)\n(d)  ((x(P(x)∧Q(x)))→((xP(x)→  EMBED Equation.3    [公式或对象]  Q(x))\n其中              是永真式。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 33,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "5d2581926b3cd80a5019f5b141474d1dc55c842a8a5cb31a5b73ea6f44d21317",
+            "retrieval_source_id": "ch5-s8-p0-w5",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-05",
+            "document_version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+            "source_block_id": null,
+            "section_id": 8,
+            "block_start": 0,
+            "block_end": 218,
+            "quote": "(b)  ((x( A(x)→B(x) )∧A(c) )→B(c)\n(c)  ((x(  EMBED Equation.3    [公式或对象]  A(x)→B(x))∧(x  EMBED Equation.3    [公式或对象]  B(x))→(xA(x)\n(d)  ((x(P(x)∧Q(x)))→((xP(x)→  EMBED Equation.3    [公式或对象]  Q(x))\n其中              是永真式。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              33
+            ],
+            "page": 33,
+            "selections": [
+              {
+                "document_id": "chapter-05",
+                "version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 33,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.29830255485983453,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 33,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.8071832470292805,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 33,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.5599277774586396,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 33,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.2489184457474396,
+                    "y2": 0.20156660385313058
+                  }
+                ],
+                "text": "\n\n\n\n(b)  ((x( A(x)→B(x) )∧A(c) )→B(c)\n(c)  ((x(  EMBED Equation.3    [公式或对象]  A(x)→B(x))∧(x  EMBED Equation.3    [公式或对象]  B(x))→(xA(x)\n(d)  ((x(P(x)∧Q(x)))→((xP(x)→  EMBED Equation.3    [公式或对象]  Q(x))\n其中              是永真式。\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 5,
+                "section_id": 8,
+                "section_title": "5.2.3  关于永真式的几个基本原理",
+                "source": "第5章逻辑代数（下）（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "5c10dd4946ce84acfaf1bb335a2970d2293e81c494f12342d733aa6f9598e911",
+                    "image_url": "/api/pdf/crops/5c10dd4946ce84acfaf1bb335a2970d2293e81c494f12342d733aa6f9598e911/image",
+                    "label": "教材第 33 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：(b)  ((x( A(x)→B(x) )∧A(c) )→B(c)。",
+                "start": 0,
+                "end": 43,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq09",
+      "split": "calibration",
+      "question": "计算两个集合并集大小时，为什么不能直接相加？",
+      "category": "formula",
+      "route": "answer",
+      "section": "包含排斥原理",
+      "concept": [
+        "容斥原理",
+        "包含排斥"
+      ],
+      "required_groups": [
+        [
+          "交集",
+          "重复"
+        ],
+        [
+          "减去",
+          "扣除"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；[1]",
+      "textbook_sources": [
+        "第1章集合代数(新).txt／1.2.3集合的笛卡儿积"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-01",
+            "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 35,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.356500037954635,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 35,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.3570269662552521,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 35,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.14839412041672137,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 35,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.7027153197216386,
+                "y2": 0.20156660385313058
+              }
+            ],
+            "text": "\n\n\n\nA. {{Ø}, {Ø, {Ø}}             B. {Ø, {Ø}, {Ø, {Ø}}\nC. {Ø, {Ø}, {{Ø}}, {Ø, {Ø}}      D.{ Ø, {Ø, {Ø}}\n2．填空题\n(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；\n\n\n\n\n",
+            "chapter_id": 1,
+            "section_id": 8,
+            "section_title": "1.2.3集合的笛卡儿积",
+            "source": "第1章集合代数(新).txt",
+            "image_refs": [
+              {
+                "id": "3c0a766534bb9d597e52f0e7b36878444f15a3a3fd3055d64c273efbd04d5f91",
+                "image_url": "/api/pdf/crops/3c0a766534bb9d597e52f0e7b36878444f15a3a3fd3055d64c273efbd04d5f91/image",
+                "label": "教材第 35 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "08ee06025c55f5b759aad415ec6f85052002b45928e9775f4373e2d6829bf290",
+            "quote": "A. {{Ø}, {Ø, {Ø}}             B. {Ø, {Ø}, {Ø, {Ø}}\nC. {Ø, {Ø}, {{Ø}}, {Ø, {Ø}}      D.{ Ø, {Ø, {Ø}}\n2．填空题\n(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 35,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "08ee06025c55f5b759aad415ec6f85052002b45928e9775f4373e2d6829bf290",
+            "retrieval_source_id": "ch1-s8-p0-w8",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-01",
+            "document_version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "source_block_id": null,
+            "section_id": 8,
+            "block_start": 232,
+            "block_end": 399,
+            "quote": "A. {{Ø}, {Ø, {Ø}}             B. {Ø, {Ø}, {Ø, {Ø}}\nC. {Ø, {Ø}, {{Ø}}, {Ø, {Ø}}      D.{ Ø, {Ø, {Ø}}\n2．填空题\n(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              35
+            ],
+            "page": 35,
+            "selections": [
+              {
+                "document_id": "chapter-01",
+                "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 35,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.356500037954635,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 35,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.3570269662552521,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 35,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.14839412041672137,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 35,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.7027153197216386,
+                    "y2": 0.20156660385313058
+                  }
+                ],
+                "text": "\n\n\n\nA. {{Ø}, {Ø, {Ø}}             B. {Ø, {Ø}, {Ø, {Ø}}\nC. {Ø, {Ø}, {{Ø}}, {Ø, {Ø}}      D.{ Ø, {Ø, {Ø}}\n2．填空题\n(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；\n\n\n\n\n",
+                "chapter_id": 1,
+                "section_id": 8,
+                "section_title": "1.2.3集合的笛卡儿积",
+                "source": "第1章集合代数(新).txt",
+                "image_refs": [
+                  {
+                    "id": "3c0a766534bb9d597e52f0e7b36878444f15a3a3fd3055d64c273efbd04d5f91",
+                    "image_url": "/api/pdf/crops/3c0a766534bb9d597e52f0e7b36878444f15a3a3fd3055d64c273efbd04d5f91/image",
+                    "label": "教材第 35 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：(1) 设A与B为任意两个集合，由                 组成的集合S，称为A与B的交集，记作________；",
+                "start": 0,
+                "end": 70,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq10",
+      "split": "calibration",
+      "question": "不考虑旋转后相同的圆桌位置，为什么圆排列数量比线排列少一个因子？",
+      "category": "formula",
+      "route": "answer",
+      "section": "排列的计数",
+      "concept": [
+        "圆排列"
+      ],
+      "required_groups": [
+        [
+          "圆排列"
+        ],
+        [
+          "切断",
+          "除以",
+          "(n-1)!"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": false,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "wrong_route_refusal",
+      "error_reason": "应回答但未回答",
+      "unsupported_claim": false,
+      "status": "quality_rejected",
+      "reply": "本次讲解未通过教材核对，暂时不能可靠给出解释。你可以选中具体教材步骤再问。本次没有推进学习进度。",
+      "textbook_sources": [],
+      "pdf_references": []
+    },
+    {
+      "id": "tq11",
+      "split": "calibration",
+      "question": "选取若干成员时不计先后次序，对应哪类计数？",
+      "category": "definition",
+      "route": "answer",
+      "section": "组合的计数",
+      "concept": [
+        "组合"
+      ],
+      "required_groups": [
+        [
+          "组合"
+        ],
+        [
+          "顺序",
+          "次序"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": true,
+        "wrong_citation": false,
+        "concept_hit": true,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "incomplete_condition",
+      "error_reason": "定义、条件或定理结论不完整",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：今需从中选取7名前锋和4名后卫参加比赛，问：有多少种不同的选法（只考虑队员的前后场特长组合，不考虑同一位置上的左右区别）。[1]",
+      "textbook_sources": [
+        "第3章 计数（新）.txt／3.2.2 组合的计数"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-03",
+            "version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 16,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.11238991771024816,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 16,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.9172714351365545,
+                "y2": 0.2454367459766089
+              },
+              {
+                "page": 16,
+                "x1": 0.07513025210084033,
+                "y1": 0.24365903703050773,
+                "x2": 0.8105840336134453,
+                "y2": 0.25640429962955574
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n\n\n例3.6\n一个足球队有15名队员，其中5人能踢后场，8人能踢前场，2人既能踢后场又能踢前场。今需从中选取7名前锋和4名后卫\n参加比赛，问：有多少种不同的选法（只考虑队员的前后场特长组合，不考虑同一位置上的左右区别）。\n\n",
+            "chapter_id": 3,
+            "section_id": 6,
+            "section_title": "3.2.2 组合的计数",
+            "source": "第3章 计数（新）.txt",
+            "image_refs": [
+              {
+                "id": "d6384393c027494034d2f0066b2bcb906e747ac78e8a40b77dc8d34efd80f22f",
+                "image_url": "/api/pdf/crops/d6384393c027494034d2f0066b2bcb906e747ac78e8a40b77dc8d34efd80f22f/image",
+                "label": "教材第 16 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "45738ff444654f19e280a10493acca5fe62bbb76c4ba7fedd0191b792da6a6e4",
+            "quote": "例3.6 一个足球队有15名队员，其中5人能踢后场，8人能踢前场，2人既能踢后场又能踢前场。今需从中选取7名前锋和4名后卫参加比赛，问：有多少种不同的选法（只考虑队员的前后场特长组合，不考虑同一位置上的左右区别）。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 16,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "45738ff444654f19e280a10493acca5fe62bbb76c4ba7fedd0191b792da6a6e4",
+            "retrieval_source_id": "ch3-s6-p0-w0",
+            "retrieval_source_index": 1,
+            "document_id": "chapter-03",
+            "document_version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+            "source_block_id": null,
+            "section_id": 6,
+            "block_start": 422,
+            "block_end": 529,
+            "quote": "例3.6 一个足球队有15名队员，其中5人能踢后场，8人能踢前场，2人既能踢后场又能踢前场。今需从中选取7名前锋和4名后卫参加比赛，问：有多少种不同的选法（只考虑队员的前后场特长组合，不考虑同一位置上的左右区别）。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              16
+            ],
+            "page": 16,
+            "selections": [
+              {
+                "document_id": "chapter-03",
+                "version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 16,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.11238991771024816,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 16,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.9172714351365545,
+                    "y2": 0.2454367459766089
+                  },
+                  {
+                    "page": 16,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.24365903703050773,
+                    "x2": 0.8105840336134453,
+                    "y2": 0.25640429962955574
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n\n\n例3.6\n一个足球队有15名队员，其中5人能踢后场，8人能踢前场，2人既能踢后场又能踢前场。今需从中选取7名前锋和4名后卫\n参加比赛，问：有多少种不同的选法（只考虑队员的前后场特长组合，不考虑同一位置上的左右区别）。\n\n",
+                "chapter_id": 3,
+                "section_id": 6,
+                "section_title": "3.2.2 组合的计数",
+                "source": "第3章 计数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "d6384393c027494034d2f0066b2bcb906e747ac78e8a40b77dc8d34efd80f22f",
+                    "image_url": "/api/pdf/crops/d6384393c027494034d2f0066b2bcb906e747ac78e8a40b77dc8d34efd80f22f/image",
+                    "label": "教材第 16 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：今需从中选取7名前锋和4名后卫参加比赛，问：有多少种不同的选法（只考虑队员的前后场特长组合，不考虑同一位置上的左右区别）。",
+                "start": 0,
+                "end": 70,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq12",
+      "split": "calibration",
+      "question": "两个原子命题至少一个为真时，析取命题的真值怎样确定？",
+      "category": "formula",
+      "route": "answer",
+      "section": "逻辑联结词",
+      "concept": [
+        "析取",
+        "或"
+      ],
+      "required_groups": [
+        [
+          "析取",
+          "或"
+        ],
+        [
+          "真",
+          "至少一个"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": true,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "wrong_citation",
+      "error_reason": "引用了预期小节之外的错误来源",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：在命题的符号表示中，原子命题通常记为p，q，r，s等小写拉丁字母。[1]",
+      "textbook_sources": [
+        "第4章逻辑代数（新）.txt／4.1.1  命题"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-04",
+            "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 5,
+                "x1": 0.24319245256696428,
+                "y1": 0.16688623394818883,
+                "x2": 0.4630916040244223,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 5,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.32402438534007355,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 5,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.4149050405806854,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 5,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.8026327427455356,
+                "y2": 0.21253415750607743
+              }
+            ],
+            "text": "\n\n\n\n\n（逗号暗指逻辑联结词“并且”）\n（5）如果有辆车，那么我去接你。\n（6）偶数a是质数，当且仅当a=2（a是常数）。\n在命题的符号表示中，原子命题通常记为p，q，r，s等小写拉丁字母。f表示恒假命题，t表示恒真命题。\n",
+            "chapter_id": 4,
+            "section_id": 2,
+            "section_title": "4.1.1  命题",
+            "source": "第4章逻辑代数（新）.txt",
+            "image_refs": [
+              {
+                "id": "9c3541d1c7b512e9961bf5ab5d1cd56e5b2be44134515c6ffa67fe303c90eab5",
+                "image_url": "/api/pdf/crops/9c3541d1c7b512e9961bf5ab5d1cd56e5b2be44134515c6ffa67fe303c90eab5/image",
+                "label": "教材第 5 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "389fb54ff12022733559d8617c5ce8118f59a6678d2acbfaf1d19681bc7b52e9",
+            "quote": "（逗号暗指逻辑联结词“并且”）\n（5）如果有辆车，那么我去接你。\n（6）偶数a是质数，当且仅当a=2（a是常数）。\n在命题的符号表示中，原子命题通常记为p，q，r，s等小写拉丁字母。f表示恒假命题，t表示恒真命题。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 5,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "389fb54ff12022733559d8617c5ce8118f59a6678d2acbfaf1d19681bc7b52e9",
+            "retrieval_source_id": "ch4-s2-p0-w2",
+            "retrieval_source_index": 1,
+            "document_id": "chapter-04",
+            "document_version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "source_block_id": null,
+            "section_id": 2,
+            "block_start": 0,
+            "block_end": 107,
+            "quote": "（逗号暗指逻辑联结词“并且”）\n（5）如果有辆车，那么我去接你。\n（6）偶数a是质数，当且仅当a=2（a是常数）。\n在命题的符号表示中，原子命题通常记为p，q，r，s等小写拉丁字母。f表示恒假命题，t表示恒真命题。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              5
+            ],
+            "page": 5,
+            "selections": [
+              {
+                "document_id": "chapter-04",
+                "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 5,
+                    "x1": 0.24319245256696428,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.4630916040244223,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 5,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.32402438534007355,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 5,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.4149050405806854,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 5,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.8026327427455356,
+                    "y2": 0.21253415750607743
+                  }
+                ],
+                "text": "\n\n\n\n\n（逗号暗指逻辑联结词“并且”）\n（5）如果有辆车，那么我去接你。\n（6）偶数a是质数，当且仅当a=2（a是常数）。\n在命题的符号表示中，原子命题通常记为p，q，r，s等小写拉丁字母。f表示恒假命题，t表示恒真命题。\n",
+                "chapter_id": 4,
+                "section_id": 2,
+                "section_title": "4.1.1  命题",
+                "source": "第4章逻辑代数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "9c3541d1c7b512e9961bf5ab5d1cd56e5b2be44134515c6ffa67fe303c90eab5",
+                    "image_url": "/api/pdf/crops/9c3541d1c7b512e9961bf5ab5d1cd56e5b2be44134515c6ffa67fe303c90eab5/image",
+                    "label": "教材第 5 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：在命题的符号表示中，原子命题通常记为p，q，r，s等小写拉丁字母。",
+                "start": 0,
+                "end": 42,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq13",
+      "split": "calibration",
+      "question": "双重否定后命题会回到原来的真值吗？",
+      "category": "theorem",
+      "route": "answer",
+      "section": "逻辑等价式和逻辑蕴涵式",
+      "concept": [
+        "双重否定律"
+      ],
+      "required_groups": [
+        [
+          "双重否定"
+        ],
+        [
+          "真值",
+          "等价",
+          "相同"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：命题p的否定┐p与原命题的真值相反。p真时┐p假，p假时┐p真。[1]",
+      "textbook_sources": [
+        "第4章逻辑代数（新）.txt／4.1.2  逻辑联结词"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-04",
+            "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 6,
+                "x1": 0.9012790465795694,
+                "y1": 0.15591868029524197,
+                "x2": 0.9182454331341912,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.4292588167591255,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.11238991771024816,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.20596885258009454,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.1452327429506959,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.08452857419823398,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.8622991727941176,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.6895588071165966,
+                "y2": 0.2454367459766089
+              }
+            ],
+            "text": "\n\n\n\n表\n4.1规定了否定词 ┐的意义，表示┐p的真值状况。\n表4.1\np          ┐p          0\n1            1\n0\n例4.3  如果p表示命题“雪是白的”，那么“并非雪是白的”、“雪不是白的”应表示为┐p，此时┐p为假，因为p为真。\n当用否定词“并非”代替自然语言中的“不”时（或者反过来），应注意保持原语句的意义。\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 4,
+            "section_id": 3,
+            "section_title": "4.1.2  逻辑联结词",
+            "source": "第4章逻辑代数（新）.txt",
+            "image_refs": [
+              {
+                "id": "ab62b5b70f1d5e603b1b6536161bc87edb00061312304cf918d04ea01f008228",
+                "image_url": "/api/pdf/crops/ab62b5b70f1d5e603b1b6536161bc87edb00061312304cf918d04ea01f008228/image",
+                "label": "教材第 6 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "64e304e80d91497abcff2ef8fb873d670924009c375c44a3590694d7238225e8",
+            "quote": "表4.1规定了否定词 ┐的意义，表示┐p的真值状况。\n表4.1\np\t         ┐p\t\t        0\n1\t           1\n0\n例4.3  如果p表示命题“雪是白的”，那么“并非雪是白的”、“雪不是白的”应表示为┐p，此时┐p为假，因为p为真。\n当用否定词“并非”代替自然语言中的“不”时（或者反过来），应注意保持原语句的意义。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 6,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "64e304e80d91497abcff2ef8fb873d670924009c375c44a3590694d7238225e8",
+            "retrieval_source_id": "ch4-s3-p0-w0",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-04",
+            "document_version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 196,
+            "block_end": 370,
+            "quote": "表4.1规定了否定词 ┐的意义，表示┐p的真值状况。\n表4.1\np\t         ┐p\t\t        0\n1\t           1\n0\n例4.3  如果p表示命题“雪是白的”，那么“并非雪是白的”、“雪不是白的”应表示为┐p，此时┐p为假，因为p为真。\n当用否定词“并非”代替自然语言中的“不”时（或者反过来），应注意保持原语句的意义。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              6
+            ],
+            "page": 6,
+            "selections": [
+              {
+                "document_id": "chapter-04",
+                "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 6,
+                    "x1": 0.9012790465795694,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.9182454331341912,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.4292588167591255,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.11238991771024816,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.20596885258009454,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.1452327429506959,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.08452857419823398,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.8622991727941176,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.6895588071165966,
+                    "y2": 0.2454367459766089
+                  }
+                ],
+                "text": "\n\n\n\n表\n4.1规定了否定词 ┐的意义，表示┐p的真值状况。\n表4.1\np          ┐p          0\n1            1\n0\n例4.3  如果p表示命题“雪是白的”，那么“并非雪是白的”、“雪不是白的”应表示为┐p，此时┐p为假，因为p为真。\n当用否定词“并非”代替自然语言中的“不”时（或者反过来），应注意保持原语句的意义。\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 4,
+                "section_id": 3,
+                "section_title": "4.1.2  逻辑联结词",
+                "source": "第4章逻辑代数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "ab62b5b70f1d5e603b1b6536161bc87edb00061312304cf918d04ea01f008228",
+                    "image_url": "/api/pdf/crops/ab62b5b70f1d5e603b1b6536161bc87edb00061312304cf918d04ea01f008228/image",
+                    "label": "教材第 6 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：命题p的否定┐p与原命题的真值相反。p真时┐p假，p假时┐p真。",
+                "start": 0,
+                "end": 41,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq14",
+      "split": "calibration",
+      "question": "一个公式在所有赋值下都真，它在教材里叫什么？",
+      "category": "definition",
+      "route": "answer",
+      "section": "重言式",
+      "concept": [
+        "重言式",
+        "永真式"
+      ],
+      "required_groups": [
+        [
+          "重言式",
+          "永真式"
+        ],
+        [
+          "所有",
+          "任意",
+          "赋值"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：（1）下面哪个公式不是谓词公式(  )。[1]",
+      "textbook_sources": [
+        "第5章逻辑代数（下）（新）.txt／5.1.4  谓词公式及语句的形式化"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-05",
+            "version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.3260680885635504,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.1110487342642135,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.2124193581973805,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.19587817690552783,
+                "y2": 0.2454367459766089
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.24365903703050773,
+                "x2": 0.20159414493336397,
+                "y2": 0.25640429962955574
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.25462659068345456,
+                "x2": 0.4662688685825893,
+                "y2": 0.2673718532825026
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.26559407184809236,
+                "x2": 0.2067353310464811,
+                "y2": 0.2783393344471404
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.2765616255010392,
+                "x2": 0.13047984044692096,
+                "y2": 0.2893068881000872
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.28752917915398607,
+                "x2": 0.18551598454323134,
+                "y2": 0.3002744417530341
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.2984967328069329,
+                "x2": 0.16879917330701813,
+                "y2": 0.3112419772839036
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.3094642864598797,
+                "x2": 0.4137234974067752,
+                "y2": 0.3222095309368505
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.3204317676245175,
+                "x2": 0.1661168064149488,
+                "y2": 0.33317701210148826
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.33139932127746435,
+                "x2": 0.16487141995470064,
+                "y2": 0.34414456575443514
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.34236687493041124,
+                "x2": 0.3255252090582327,
+                "y2": 0.35511211940738197
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.35333442858335806,
+                "x2": 0.29466219246487657,
+                "y2": 0.36607967306032885
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n（1）下面哪个公式不是谓词公式(  )\nA．P\nB．P(x)∨Q(y)→R(x)\nC．(x(P(x)∧R(x,y)\nD．(x(R(x)→P(x,y))\n（2）谓词公式(x(P(x)∨(yR(y))→Q(x)中量词(x的辖域是(  )\nA． (x(P(x)∨(yR(y))\nB． P(x)\nC． P(x)∨(yR(y)\nD． P(x), Q(x)\n（3）谓词公式(x(P(x)∨(yR(y))→Q(x)中变元x是(  )\nA．自由变元\nB．约束变元\nC．既不是自由变元也不是约束变元\nD．既是自由变元也是约束变元\n\n\n\n\n\n\n",
+            "chapter_id": 5,
+            "section_id": 5,
+            "section_title": "5.1.4  谓词公式及语句的形式化",
+            "source": "第5章逻辑代数（下）（新）.txt",
+            "image_refs": [
+              {
+                "id": "e2dc53927ca25d63ad665fd24f7bf51ce1b11e1e3f7b2a34f092f0c4ff3afc91",
+                "image_url": "/api/pdf/crops/e2dc53927ca25d63ad665fd24f7bf51ce1b11e1e3f7b2a34f092f0c4ff3afc91/image",
+                "label": "教材第 15 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "84efa374edc75e0e2043023ced81e4e6a598594682a655445ea74f36817b7b2c",
+            "quote": "（1）下面哪个公式不是谓词公式(  )\nA．P\nB．P(x)∨Q(y)→R(x)\nC．(x(P(x)∧R(x,y)\nD．(x(R(x)→P(x,y))\n（2）谓词公式(x(P(x)∨(yR(y))→Q(x)中量词(x的辖域是(  )\nA． (x(P(x)∨(yR(y))\nB． P(x)\nC． P(x)∨(yR(y)\nD． P(x), Q(x)\n（3）谓词公式(x(P(x)∨(yR(y))→Q(x)中变元x是(  )\nA．自由变元\nB．约束变元\nC．既不是自由变元也不是约束变元\nD．既是自由变元也是约束变元",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 15,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "84efa374edc75e0e2043023ced81e4e6a598594682a655445ea74f36817b7b2c",
+            "retrieval_source_id": "ch5-s5-p0-w5",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-05",
+            "document_version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+            "source_block_id": null,
+            "section_id": 5,
+            "block_start": 0,
+            "block_end": 255,
+            "quote": "（1）下面哪个公式不是谓词公式(  )\nA．P\nB．P(x)∨Q(y)→R(x)\nC．(x(P(x)∧R(x,y)\nD．(x(R(x)→P(x,y))\n（2）谓词公式(x(P(x)∨(yR(y))→Q(x)中量词(x的辖域是(  )\nA． (x(P(x)∨(yR(y))\nB． P(x)\nC． P(x)∨(yR(y)\nD． P(x), Q(x)\n（3）谓词公式(x(P(x)∨(yR(y))→Q(x)中变元x是(  )\nA．自由变元\nB．约束变元\nC．既不是自由变元也不是约束变元\nD．既是自由变元也是约束变元",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              15
+            ],
+            "page": 15,
+            "selections": [
+              {
+                "document_id": "chapter-05",
+                "version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.3260680885635504,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.1110487342642135,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.2124193581973805,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.19587817690552783,
+                    "y2": 0.2454367459766089
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.24365903703050773,
+                    "x2": 0.20159414493336397,
+                    "y2": 0.25640429962955574
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.25462659068345456,
+                    "x2": 0.4662688685825893,
+                    "y2": 0.2673718532825026
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.26559407184809236,
+                    "x2": 0.2067353310464811,
+                    "y2": 0.2783393344471404
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.2765616255010392,
+                    "x2": 0.13047984044692096,
+                    "y2": 0.2893068881000872
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.28752917915398607,
+                    "x2": 0.18551598454323134,
+                    "y2": 0.3002744417530341
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.2984967328069329,
+                    "x2": 0.16879917330701813,
+                    "y2": 0.3112419772839036
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.3094642864598797,
+                    "x2": 0.4137234974067752,
+                    "y2": 0.3222095309368505
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.3204317676245175,
+                    "x2": 0.1661168064149488,
+                    "y2": 0.33317701210148826
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.33139932127746435,
+                    "x2": 0.16487141995470064,
+                    "y2": 0.34414456575443514
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.34236687493041124,
+                    "x2": 0.3255252090582327,
+                    "y2": 0.35511211940738197
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.35333442858335806,
+                    "x2": 0.29466219246487657,
+                    "y2": 0.36607967306032885
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n（1）下面哪个公式不是谓词公式(  )\nA．P\nB．P(x)∨Q(y)→R(x)\nC．(x(P(x)∧R(x,y)\nD．(x(R(x)→P(x,y))\n（2）谓词公式(x(P(x)∨(yR(y))→Q(x)中量词(x的辖域是(  )\nA． (x(P(x)∨(yR(y))\nB． P(x)\nC． P(x)∨(yR(y)\nD． P(x), Q(x)\n（3）谓词公式(x(P(x)∨(yR(y))→Q(x)中变元x是(  )\nA．自由变元\nB．约束变元\nC．既不是自由变元也不是约束变元\nD．既是自由变元也是约束变元\n\n\n\n\n\n\n",
+                "chapter_id": 5,
+                "section_id": 5,
+                "section_title": "5.1.4  谓词公式及语句的形式化",
+                "source": "第5章逻辑代数（下）（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "e2dc53927ca25d63ad665fd24f7bf51ce1b11e1e3f7b2a34f092f0c4ff3afc91",
+                    "image_url": "/api/pdf/crops/e2dc53927ca25d63ad665fd24f7bf51ce1b11e1e3f7b2a34f092f0c4ff3afc91/image",
+                    "label": "教材第 15 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：（1）下面哪个公式不是谓词公式(  )。",
+                "start": 0,
+                "end": 29,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq15",
+      "split": "calibration",
+      "question": "量词控制的那段公式范围在教材中有什么名称？",
+      "category": "definition",
+      "route": "answer",
+      "section": "量词及其辖域",
+      "concept": [
+        "辖域"
+      ],
+      "required_groups": [
+        [
+          "辖域"
+        ],
+        [
+          "量词"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：定义4.1  归纳定义命题公式（proposition formula）：。[1]",
+      "textbook_sources": [
+        "第4章逻辑代数（新）.txt／4.1.3  命题公式"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-04",
+            "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 11,
+                "x1": 0.13899579831932773,
+                "y1": 0.15591868029524197,
+                "x2": 0.9206083656118697,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 11,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.10806302521008404,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 11,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.9223487394957982,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 11,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.7147857142857142,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 11,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.44864201803768383,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 11,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.5315874105501575,
+                "y2": 0.22350163867071518
+              }
+            ],
+            "text": "\n\n\n\n相同符号的不同意义，容易从上下文来区别，在未指出符号p，q，r，s等表示具体命题时，它们常被看作命题变\n元。\n命题常元、变元及联结词是形式化描述命题及其推理的基本语言成分，用它们可以形式地描述更为复杂的命题。下面要引\n入更高一级的语言成分——命题公式。定义命题公式集合的方式是第一章介绍的归纳定义。\n定义4.1  归纳定义命题公式（proposition formula）：\n（1）命题常元和命题变元是命题公式，也称为原子公式或原子。\n\n\n\n\n\n\n",
+            "chapter_id": 4,
+            "section_id": 4,
+            "section_title": "4.1.3  命题公式",
+            "source": "第4章逻辑代数（新）.txt",
+            "image_refs": [
+              {
+                "id": "7711508ed7ddad357cee45ce84b663370da04a52a0b948c758325978fa38820e",
+                "image_url": "/api/pdf/crops/7711508ed7ddad357cee45ce84b663370da04a52a0b948c758325978fa38820e/image",
+                "label": "教材第 11 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "22ef672a8aa1fada3cccd155d90fd65d589e444ba9a1d51a8f0446fc05489bbb",
+            "quote": "相同符号的不同意义，容易从上下文来区别，在未指出符号p，q，r，s等表示具体命题时，它们常被看作命题变元。\n命题常元、变元及联结词是形式化描述命题及其推理的基本语言成分，用它们可以形式地描述更为复杂的命题。下面要引入更高一级的语言成分——命题公式。定义命题公式集合的方式是第一章介绍的归纳定义。\n定义4.1  归纳定义命题公式（proposition formula）：\n（1）命题常元和命题变元是命题公式，也称为原子公式或原子。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 11,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "22ef672a8aa1fada3cccd155d90fd65d589e444ba9a1d51a8f0446fc05489bbb",
+            "retrieval_source_id": "ch4-s4-p0-w0",
+            "retrieval_source_index": 2,
+            "document_id": "chapter-04",
+            "document_version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "source_block_id": null,
+            "section_id": 4,
+            "block_start": 194,
+            "block_end": 409,
+            "quote": "相同符号的不同意义，容易从上下文来区别，在未指出符号p，q，r，s等表示具体命题时，它们常被看作命题变元。\n命题常元、变元及联结词是形式化描述命题及其推理的基本语言成分，用它们可以形式地描述更为复杂的命题。下面要引入更高一级的语言成分——命题公式。定义命题公式集合的方式是第一章介绍的归纳定义。\n定义4.1  归纳定义命题公式（proposition formula）：\n（1）命题常元和命题变元是命题公式，也称为原子公式或原子。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              11
+            ],
+            "page": 11,
+            "selections": [
+              {
+                "document_id": "chapter-04",
+                "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 11,
+                    "x1": 0.13899579831932773,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.9206083656118697,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 11,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.10806302521008404,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 11,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.9223487394957982,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 11,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.7147857142857142,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 11,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.44864201803768383,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 11,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.5315874105501575,
+                    "y2": 0.22350163867071518
+                  }
+                ],
+                "text": "\n\n\n\n相同符号的不同意义，容易从上下文来区别，在未指出符号p，q，r，s等表示具体命题时，它们常被看作命题变\n元。\n命题常元、变元及联结词是形式化描述命题及其推理的基本语言成分，用它们可以形式地描述更为复杂的命题。下面要引\n入更高一级的语言成分——命题公式。定义命题公式集合的方式是第一章介绍的归纳定义。\n定义4.1  归纳定义命题公式（proposition formula）：\n（1）命题常元和命题变元是命题公式，也称为原子公式或原子。\n\n\n\n\n\n\n",
+                "chapter_id": 4,
+                "section_id": 4,
+                "section_title": "4.1.3  命题公式",
+                "source": "第4章逻辑代数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "7711508ed7ddad357cee45ce84b663370da04a52a0b948c758325978fa38820e",
+                    "image_url": "/api/pdf/crops/7711508ed7ddad357cee45ce84b663370da04a52a0b948c758325978fa38820e/image",
+                    "label": "教材第 11 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：定义4.1  归纳定义命题公式（proposition formula）：。",
+                "start": 0,
+                "end": 47,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq16",
+      "split": "calibration",
+      "question": "无向图的两个不同顶点之间有边时，邻接矩阵对应位置应满足什么关系？",
+      "category": "formula",
+      "route": "answer",
+      "section": "邻接矩阵",
+      "concept": [
+        "邻接矩阵"
+      ],
+      "required_groups": [
+        [
+          "邻接矩阵"
+        ],
+        [
+          "1",
+          "非零",
+          "有边"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": true,
+        "wrong_citation": false,
+        "concept_hit": true,
+        "required_groups_hit": true,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "unsupported_claim",
+      "error_reason": "回答结论未被引用原文覆盖",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：查看邻接矩阵中表示vi到vj的元素aij。无重边时，aij为1表示vi到vj有边，aij为0表示无边；有重边或权值时，aij表示边数或权值。[1]",
+      "textbook_sources": [
+        "第7章图（新）.txt／7.4.1 邻接矩阵"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-07",
+            "version": "371393a5c5d8debbb5b7c6079176fbc5f57ba377c8321b2f3b58c3c1e84ff0c0",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 36,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.6149159910057772,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 36,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.3399907718946954,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 36,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.39853948923319327,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 36,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.9146689781381302,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 36,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.31818065380449057,
+                "y2": 0.2454367459766089
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n（2）一图的每个顶点以且仅以环为关联的边,那么该图的邻接矩阵为么矩阵。\n（3）无向图的邻接矩阵是对称矩阵。\n（4）图7.28（a）的邻接矩阵为图7.28（b）。\n邻接矩阵可推广到有平行边的多重图和赋权图上，只要令矩阵分量aij为vi到vj的边的重数或边上的权值W（vi,vj），而当vi\n，vj之间无边关联时，仍取aij＝0。\n\n\n\n\n\n\n\n",
+            "chapter_id": 7,
+            "section_id": 10,
+            "section_title": "7.4.1 邻接矩阵",
+            "source": "第7章图（新）.txt",
+            "image_refs": [
+              {
+                "id": "a9f228a0de746608d6012a0455bdd700c213d82b9062f01e00d8c701d9feca00",
+                "image_url": "/api/pdf/crops/a9f228a0de746608d6012a0455bdd700c213d82b9062f01e00d8c701d9feca00/image",
+                "label": "教材第 36 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "b5ae6f0e8935ce0d14fc7e38257dc1c974d53445a91df98fd93e80acca4b54c6",
+            "quote": "（2）一图的每个顶点以且仅以环为关联的边,那么该图的邻接矩阵为么矩阵。\n（3）无向图的邻接矩阵是对称矩阵。\n（4）图7.28（a）的邻接矩阵为图7.28（b）。\n邻接矩阵可推广到有平行边的多重图和赋权图上，只要令矩阵分量aij为vi到vj的边的重数或边上的权值W（vi,vj），而当vi，vj之间无边关联时，仍取aij＝0。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 36,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "b5ae6f0e8935ce0d14fc7e38257dc1c974d53445a91df98fd93e80acca4b54c6",
+            "retrieval_source_id": "ch7-s10-p0-w0",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-07",
+            "document_version": "371393a5c5d8debbb5b7c6079176fbc5f57ba377c8321b2f3b58c3c1e84ff0c0",
+            "source_block_id": null,
+            "section_id": 10,
+            "block_start": 196,
+            "block_end": 358,
+            "quote": "（2）一图的每个顶点以且仅以环为关联的边,那么该图的邻接矩阵为么矩阵。\n（3）无向图的邻接矩阵是对称矩阵。\n（4）图7.28（a）的邻接矩阵为图7.28（b）。\n邻接矩阵可推广到有平行边的多重图和赋权图上，只要令矩阵分量aij为vi到vj的边的重数或边上的权值W（vi,vj），而当vi，vj之间无边关联时，仍取aij＝0。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              36
+            ],
+            "page": 36,
+            "selections": [
+              {
+                "document_id": "chapter-07",
+                "version": "371393a5c5d8debbb5b7c6079176fbc5f57ba377c8321b2f3b58c3c1e84ff0c0",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 36,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.6149159910057772,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 36,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.3399907718946954,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 36,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.39853948923319327,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 36,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.9146689781381302,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 36,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.31818065380449057,
+                    "y2": 0.2454367459766089
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n（2）一图的每个顶点以且仅以环为关联的边,那么该图的邻接矩阵为么矩阵。\n（3）无向图的邻接矩阵是对称矩阵。\n（4）图7.28（a）的邻接矩阵为图7.28（b）。\n邻接矩阵可推广到有平行边的多重图和赋权图上，只要令矩阵分量aij为vi到vj的边的重数或边上的权值W（vi,vj），而当vi\n，vj之间无边关联时，仍取aij＝0。\n\n\n\n\n\n\n\n",
+                "chapter_id": 7,
+                "section_id": 10,
+                "section_title": "7.4.1 邻接矩阵",
+                "source": "第7章图（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "a9f228a0de746608d6012a0455bdd700c213d82b9062f01e00d8c701d9feca00",
+                    "image_url": "/api/pdf/crops/a9f228a0de746608d6012a0455bdd700c213d82b9062f01e00d8c701d9feca00/image",
+                    "label": "教材第 36 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：查看邻接矩阵中表示vi到vj的元素aij。无重边时，aij为1表示vi到vj有边，aij为0表示无边；有重边或权值时，aij表示边数或权值。",
+                "start": 0,
+                "end": 79,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq17",
+      "split": "calibration",
+      "question": "若图的所有边都横跨两个互不相交的顶点组，这是什么图？",
+      "category": "definition",
+      "route": "answer",
+      "section": "二分图的基本概念",
+      "concept": [
+        "二分图"
+      ],
+      "required_groups": [
+        [
+          "二分图"
+        ],
+        [
+          "两个",
+          "顶点",
+          "集合"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：证  设C为G的任一回路，S为G的任一割集，从G中删除S的所有边后得到两个互不连通的子图G1，。[1]",
+      "textbook_sources": [
+        "第8章特殊图（新）.txt／8.3.2 生成树"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-08",
+            "version": "b09d760b62c8e9e68cfc0913c50755ef9d5c151e645100e8a9d65c988791f9e6",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 28,
+                "x1": 0.07513025210084033,
+                "y1": 0.3204317676245175,
+                "x2": 0.7534882094439338,
+                "y2": 0.33317701210148826
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n证  设C为G的任一回路，S为G的任一割集，从G中删除S的所有边后得到两个互不连通的子图G1，\n",
+            "chapter_id": 8,
+            "section_id": 8,
+            "section_title": "8.3.2 生成树",
+            "source": "第8章特殊图（新）.txt",
+            "image_refs": [
+              {
+                "id": "25fcb8a7e8b4aa82b593f6555aff1450197268d84f8ac6cc7a20ec9d0871fd2e",
+                "image_url": "/api/pdf/crops/25fcb8a7e8b4aa82b593f6555aff1450197268d84f8ac6cc7a20ec9d0871fd2e/image",
+                "label": "教材第 28 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "4add9959c22c0b6b93896f66caf3c399d3cdaf8c080027a9f18eee0e08a18d3a",
+            "quote": "证  设C为G的任一回路，S为G的任一割集，从G中删除S的所有边后得到两个互不连通的子图G1，",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 28,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "4add9959c22c0b6b93896f66caf3c399d3cdaf8c080027a9f18eee0e08a18d3a",
+            "retrieval_source_id": "ch8-s8-p0-w2",
+            "retrieval_source_index": 2,
+            "document_id": "chapter-08",
+            "document_version": "b09d760b62c8e9e68cfc0913c50755ef9d5c151e645100e8a9d65c988791f9e6",
+            "source_block_id": null,
+            "section_id": 8,
+            "block_start": 507,
+            "block_end": 554,
+            "quote": "证  设C为G的任一回路，S为G的任一割集，从G中删除S的所有边后得到两个互不连通的子图G1，",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              28
+            ],
+            "page": 28,
+            "selections": [
+              {
+                "document_id": "chapter-08",
+                "version": "b09d760b62c8e9e68cfc0913c50755ef9d5c151e645100e8a9d65c988791f9e6",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 28,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.3204317676245175,
+                    "x2": 0.7534882094439338,
+                    "y2": 0.33317701210148826
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n证  设C为G的任一回路，S为G的任一割集，从G中删除S的所有边后得到两个互不连通的子图G1，\n",
+                "chapter_id": 8,
+                "section_id": 8,
+                "section_title": "8.3.2 生成树",
+                "source": "第8章特殊图（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "25fcb8a7e8b4aa82b593f6555aff1450197268d84f8ac6cc7a20ec9d0871fd2e",
+                    "image_url": "/api/pdf/crops/25fcb8a7e8b4aa82b593f6555aff1450197268d84f8ac6cc7a20ec9d0871fd2e/image",
+                    "label": "教材第 28 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：证  设C为G的任一回路，S为G的任一割集，从G中删除S的所有边后得到两个互不连通的子图G1，。",
+                "start": 0,
+                "end": 57,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq18",
+      "split": "calibration",
+      "question": "从连通图中删去一些边后仍连通且无圈，得到的是哪类子图？",
+      "category": "definition",
+      "route": "answer",
+      "section": "生成树",
+      "concept": [
+        "生成树"
+      ],
+      "required_groups": [
+        [
+          "生成树"
+        ],
+        [
+          "连通"
+        ],
+        [
+          "无圈",
+          "无回路"
+        ]
+      ],
+      "checks": {
+        "expected_route": "answer",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": true,
+        "concept_hit": false,
+        "required_groups_hit": false,
+        "support_groups_hit": false,
+        "external_content": false
+      },
+      "error": "retrieval_miss",
+      "error_reason": "没有命中预期教材小节",
+      "unsupported_claim": true,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：如果从G中删除S中的所有顶点（注：删除结点v时，同时要删掉关联v的所有边）后得到的图不连通，。[1]",
+      "textbook_sources": [
+        "第7章图（新）.txt／7.2.2  连通性"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-07",
+            "version": "371393a5c5d8debbb5b7c6079176fbc5f57ba377c8321b2f3b58c3c1e84ff0c0",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 19,
+                "x1": 0.13636133633140757,
+                "y1": 0.14495120819164284,
+                "x2": 0.8417983357405462,
+                "y2": 0.15769646172965224
+              }
+            ],
+            "text": "\n\n\n如果从G中删除S中的所有顶点（注：删除结点v时，同时要删掉关联v的所有边）后得到的图不连通，\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 7,
+            "section_id": 6,
+            "section_title": "7.2.2  连通性",
+            "source": "第7章图（新）.txt",
+            "image_refs": [
+              {
+                "id": "2e7b7df2956409e49d36886b0c3399a4e22d40309c1183499b62cdd4a040c895",
+                "image_url": "/api/pdf/crops/2e7b7df2956409e49d36886b0c3399a4e22d40309c1183499b62cdd4a040c895/image",
+                "label": "教材第 19 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "dbb1e2dab7818472eaed707be4dd20ed858d14a08980445d05aa4cea25b19a3a",
+            "quote": "如果从G中删除S中的所有顶点（注：删除结点v时，同时要删掉关联v的所有边）后得到的图不连通，",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 19,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "dbb1e2dab7818472eaed707be4dd20ed858d14a08980445d05aa4cea25b19a3a",
+            "retrieval_source_id": "ch7-s6-p0-w3",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-07",
+            "document_version": "371393a5c5d8debbb5b7c6079176fbc5f57ba377c8321b2f3b58c3c1e84ff0c0",
+            "source_block_id": null,
+            "section_id": 6,
+            "block_start": 52,
+            "block_end": 98,
+            "quote": "如果从G中删除S中的所有顶点（注：删除结点v时，同时要删掉关联v的所有边）后得到的图不连通，",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              19
+            ],
+            "page": 19,
+            "selections": [
+              {
+                "document_id": "chapter-07",
+                "version": "371393a5c5d8debbb5b7c6079176fbc5f57ba377c8321b2f3b58c3c1e84ff0c0",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 19,
+                    "x1": 0.13636133633140757,
+                    "y1": 0.14495120819164284,
+                    "x2": 0.8417983357405462,
+                    "y2": 0.15769646172965224
+                  }
+                ],
+                "text": "\n\n\n如果从G中删除S中的所有顶点（注：删除结点v时，同时要删掉关联v的所有边）后得到的图不连通，\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 7,
+                "section_id": 6,
+                "section_title": "7.2.2  连通性",
+                "source": "第7章图（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "2e7b7df2956409e49d36886b0c3399a4e22d40309c1183499b62cdd4a040c895",
+                    "image_url": "/api/pdf/crops/2e7b7df2956409e49d36886b0c3399a4e22d40309c1183499b62cdd4a040c895/image",
+                    "label": "教材第 19 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：如果从G中删除S中的所有顶点（注：删除结点v时，同时要删掉关联v的所有边）后得到的图不连通，。",
+                "start": 0,
+                "end": 56,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq37",
+      "split": "calibration",
+      "question": "求 1 到 100 中能被 7 整除的整数个数。",
+      "category": "calculation",
+      "route": "refuse",
+      "reason": "new_calculation",
+      "near_textbook": true,
+      "checks": {
+        "expected_route": "refuse",
+        "route_correct": false,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "wrong_route_answer",
+      "error_reason": "应拒答却继续回答",
+      "unsupported_claim": false,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：解. 集合{1，2，3，…，1000}中能被5，6，8这三个数整除的元素的集合分别是  EMBED Equation.3    [公式或对象]  ，。[1]",
+      "textbook_sources": [
+        "第3章 计数（新）.txt／3.1.2包含排斥原理"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-03",
+            "version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 9,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.7840478966977416,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 9,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.7637545791754201,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 9,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.8859455258665966,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 9,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.3817428706834296,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 9,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.21088655513474922,
+                "y2": 0.21253415750607743
+              }
+            ],
+            "text": "\n\n\n\n例3.3（1）试计算在集合{1，2，3，…，1000}中有多少元素至少能被5，6，8这三个数中的一个整除。\n（2）试计算在集合{1，2，3，…，1000}中有多少元素不能被5，6，8这三个数中的任何一个整除。\n解. 集合{1，2，3，…，1000}中能被5，6，8这三个数整除的元素的集合分别是  EMBED Equation.3    [公式或对象]  ，\n那么（用  EMBED Equation.3    [公式或对象]\n表示x的整数部分。\n\n\n",
+            "chapter_id": 3,
+            "section_id": 4,
+            "section_title": "3.1.2包含排斥原理",
+            "source": "第3章 计数（新）.txt",
+            "image_refs": [
+              {
+                "id": "c7e40c04c8aeaa533a2349d8d4191fd332d8c65a6c5bd7ea3cae1bd9027b1662",
+                "image_url": "/api/pdf/crops/c7e40c04c8aeaa533a2349d8d4191fd332d8c65a6c5bd7ea3cae1bd9027b1662/image",
+                "label": "教材第 9 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "d204be63e6d97f199d478923063b6ef36a8f575554cca83a5c57ff748936021d",
+            "quote": "例3.3（1）试计算在集合{1，2，3，…，1000}中有多少元素至少能被5，6，8这三个数中的一个整除。\n（2）试计算在集合{1，2，3，…，1000}中有多少元素不能被5，6，8这三个数中的任何一个整除。\n解. 集合{1，2，3，…，1000}中能被5，6，8这三个数整除的元素的集合分别是  EMBED Equation.3    [公式或对象]  ，\n那么（用  EMBED Equation.3    [公式或对象]  表示x的整数部分。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 9,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "d204be63e6d97f199d478923063b6ef36a8f575554cca83a5c57ff748936021d",
+            "retrieval_source_id": "ch3-s4-p0-w5",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-03",
+            "document_version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+            "source_block_id": null,
+            "section_id": 4,
+            "block_start": 0,
+            "block_end": 224,
+            "quote": "例3.3（1）试计算在集合{1，2，3，…，1000}中有多少元素至少能被5，6，8这三个数中的一个整除。\n（2）试计算在集合{1，2，3，…，1000}中有多少元素不能被5，6，8这三个数中的任何一个整除。\n解. 集合{1，2，3，…，1000}中能被5，6，8这三个数整除的元素的集合分别是  EMBED Equation.3    [公式或对象]  ，\n那么（用  EMBED Equation.3    [公式或对象]  表示x的整数部分。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              9
+            ],
+            "page": 9,
+            "selections": [
+              {
+                "document_id": "chapter-03",
+                "version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 9,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.7840478966977416,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 9,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.7637545791754201,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 9,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.8859455258665966,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 9,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.3817428706834296,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 9,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.21088655513474922,
+                    "y2": 0.21253415750607743
+                  }
+                ],
+                "text": "\n\n\n\n例3.3（1）试计算在集合{1，2，3，…，1000}中有多少元素至少能被5，6，8这三个数中的一个整除。\n（2）试计算在集合{1，2，3，…，1000}中有多少元素不能被5，6，8这三个数中的任何一个整除。\n解. 集合{1，2，3，…，1000}中能被5，6，8这三个数整除的元素的集合分别是  EMBED Equation.3    [公式或对象]  ，\n那么（用  EMBED Equation.3    [公式或对象]\n表示x的整数部分。\n\n\n",
+                "chapter_id": 3,
+                "section_id": 4,
+                "section_title": "3.1.2包含排斥原理",
+                "source": "第3章 计数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "c7e40c04c8aeaa533a2349d8d4191fd332d8c65a6c5bd7ea3cae1bd9027b1662",
+                    "image_url": "/api/pdf/crops/c7e40c04c8aeaa533a2349d8d4191fd332d8c65a6c5bd7ea3cae1bd9027b1662/image",
+                    "label": "教材第 9 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：解. 集合{1，2，3，…，1000}中能被5，6，8这三个数整除的元素的集合分别是  EMBED Equation.3    [公式或对象]  ，。",
+                "start": 0,
+                "end": 84,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq38",
+      "split": "calibration",
+      "question": "给我三道关于图的练习题。",
+      "category": "exercise",
+      "route": "refuse",
+      "reason": "exercise_request",
+      "checks": {
+        "expected_route": "refuse",
+        "route_correct": false,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "wrong_route_answer",
+      "error_reason": "应拒答却继续回答",
+      "unsupported_claim": false,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：利用“若 A┝┥B，则A*┝┥B*”可由5.2.2节第（7）组永真式的第一式(x(yA(x,y)┝┥(y(x A(x,y)导出第五式 (x( y A(x,y)┝┥(y( x A(x,y)（或反之）。[1]",
+      "textbook_sources": [
+        "第5章逻辑代数（下）（新）.txt／5.2.3  关于永真式的几个基本原理"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-05",
+            "version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 30,
+                "x1": 0.07513025210084033,
+                "y1": 0.133983654538696,
+                "x2": 0.9238655913537289,
+                "y2": 0.14672890807670538
+              },
+              {
+                "page": 30,
+                "x1": 0.07513025210084033,
+                "y1": 0.14495120819164284,
+                "x2": 0.2093697545668658,
+                "y2": 0.15769646172965224
+              },
+              {
+                "page": 30,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.4700209919905462,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 30,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.3240084084903493,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 30,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.2996596638655462,
+                "y2": 0.19059905020018372
+              }
+            ],
+            "text": "\n\n利用“若 A┝┥B，则A*┝┥B*”可由5.2.2节第（7）组永真式的第一式(x(yA(x,y)┝┥(y(x A(x,y)导出第五式 (x( y A(x,y)┝┥(y( x\nA(x,y)（或反之）。\n定理5.3 （改名原理）若公式A(x)中无自由变元y，那么，\n(xA(x)┝┥(yA(y)   ,   (xA(x)┝┥(yA(y)\n本定理由量词的意义立即可得。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 5,
+            "section_id": 8,
+            "section_title": "5.2.3  关于永真式的几个基本原理",
+            "source": "第5章逻辑代数（下）（新）.txt",
+            "image_refs": [
+              {
+                "id": "e47f46e3f4ff9854495f4d7ca53e7cea78f0ae0c54c043fcb841fa91f0c039a0",
+                "image_url": "/api/pdf/crops/e47f46e3f4ff9854495f4d7ca53e7cea78f0ae0c54c043fcb841fa91f0c039a0/image",
+                "label": "教材第 30 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "522f601a59effe592d5750d43c8cdde41dccb51729d095f2eb30a933fddb2ef1",
+            "quote": "利用“若 A┝┥B，则A*┝┥B*”可由5.2.2节第（7）组永真式的第一式(x(yA(x,y)┝┥(y(x A(x,y)导出第五式 (x( y A(x,y)┝┥(y( x A(x,y)（或反之）。\n定理5.3 （改名原理）若公式A(x)中无自由变元y，那么，\n(xA(x)┝┥(yA(y)   ,   (xA(x)┝┥(yA(y)\n本定理由量词的意义立即可得。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 30,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "522f601a59effe592d5750d43c8cdde41dccb51729d095f2eb30a933fddb2ef1",
+            "retrieval_source_id": "ch5-s8-p0-w2",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-05",
+            "document_version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+            "source_block_id": null,
+            "section_id": 8,
+            "block_start": 0,
+            "block_end": 181,
+            "quote": "利用“若 A┝┥B，则A*┝┥B*”可由5.2.2节第（7）组永真式的第一式(x(yA(x,y)┝┥(y(x A(x,y)导出第五式 (x( y A(x,y)┝┥(y( x A(x,y)（或反之）。\n定理5.3 （改名原理）若公式A(x)中无自由变元y，那么，\n(xA(x)┝┥(yA(y)   ,   (xA(x)┝┥(yA(y)\n本定理由量词的意义立即可得。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              30
+            ],
+            "page": 30,
+            "selections": [
+              {
+                "document_id": "chapter-05",
+                "version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 30,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.133983654538696,
+                    "x2": 0.9238655913537289,
+                    "y2": 0.14672890807670538
+                  },
+                  {
+                    "page": 30,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.14495120819164284,
+                    "x2": 0.2093697545668658,
+                    "y2": 0.15769646172965224
+                  },
+                  {
+                    "page": 30,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.4700209919905462,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 30,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.3240084084903493,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 30,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.2996596638655462,
+                    "y2": 0.19059905020018372
+                  }
+                ],
+                "text": "\n\n利用“若 A┝┥B，则A*┝┥B*”可由5.2.2节第（7）组永真式的第一式(x(yA(x,y)┝┥(y(x A(x,y)导出第五式 (x( y A(x,y)┝┥(y( x\nA(x,y)（或反之）。\n定理5.3 （改名原理）若公式A(x)中无自由变元y，那么，\n(xA(x)┝┥(yA(y)   ,   (xA(x)┝┥(yA(y)\n本定理由量词的意义立即可得。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 5,
+                "section_id": 8,
+                "section_title": "5.2.3  关于永真式的几个基本原理",
+                "source": "第5章逻辑代数（下）（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "e47f46e3f4ff9854495f4d7ca53e7cea78f0ae0c54c043fcb841fa91f0c039a0",
+                    "image_url": "/api/pdf/crops/e47f46e3f4ff9854495f4d7ca53e7cea78f0ae0c54c043fcb841fa91f0c039a0/image",
+                    "label": "教材第 30 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：利用“若 A┝┥B，则A*┝┥B*”可由5.2.2节第（7）组永真式的第一式(x(yA(x,y)┝┥(y(x A(x,y)导出第五式 (x( y A(x,y)┝┥(y( x A(x,y)（或反之）。",
+                "start": 0,
+                "end": 108,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq39",
+      "split": "calibration",
+      "question": "A={1,2}，B={2,3}，求 A∪B 和 A-B。",
+      "category": "calculation",
+      "route": "refuse",
+      "reason": "new_calculation",
+      "near_textbook": true,
+      "checks": {
+        "expected_route": "refuse",
+        "route_correct": false,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "wrong_route_answer",
+      "error_reason": "应拒答却继续回答",
+      "unsupported_claim": false,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：（2）A(B你为A与B的交集（intersection sets），。[1]",
+      "textbook_sources": [
+        "第1章集合代数(新).txt／1.2.1 并、交、差、补运算"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-01",
+            "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.2517445273519564,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.2198436822971376,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.41294124725085346,
+                "y2": 0.19059905020018372
+              }
+            ],
+            "text": "\n\n\n\nA(B＝｛x∣x∈A或x∈B｝\n其中“(”称为并运算。\n（2）A(B你为A与B的交集（intersection sets），\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 1,
+            "section_id": 6,
+            "section_title": "1.2.1 并、交、差、补运算",
+            "source": "第1章集合代数(新).txt",
+            "image_refs": [
+              {
+                "id": "fe02aaf0c8caa2948f5586e8e07ae0d667c826b4e7bccb093f1316ff3d333372",
+                "image_url": "/api/pdf/crops/fe02aaf0c8caa2948f5586e8e07ae0d667c826b4e7bccb093f1316ff3d333372/image",
+                "label": "教材第 15 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "6d2da116d46077a38d7fa59f0701b1b33a7d313da2867d94df7ea733362a8d27",
+            "quote": "A(B＝｛x∣x∈A或x∈B｝\n其中“(”称为并运算。\n（2）A(B你为A与B的交集（intersection sets），",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 15,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "6d2da116d46077a38d7fa59f0701b1b33a7d313da2867d94df7ea733362a8d27",
+            "retrieval_source_id": "ch1-s6-p0-w0",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-01",
+            "document_version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+            "source_block_id": null,
+            "section_id": 6,
+            "block_start": 1113,
+            "block_end": 1175,
+            "quote": "A(B＝｛x∣x∈A或x∈B｝\n其中“(”称为并运算。\n（2）A(B你为A与B的交集（intersection sets），",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              15
+            ],
+            "page": 15,
+            "selections": [
+              {
+                "document_id": "chapter-01",
+                "version": "92d46082f3b7834117a84a68b0a93d14b9d49e229752a114e00b48d2a3ff57e2",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.2517445273519564,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.2198436822971376,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.41294124725085346,
+                    "y2": 0.19059905020018372
+                  }
+                ],
+                "text": "\n\n\n\nA(B＝｛x∣x∈A或x∈B｝\n其中“(”称为并运算。\n（2）A(B你为A与B的交集（intersection sets），\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 1,
+                "section_id": 6,
+                "section_title": "1.2.1 并、交、差、补运算",
+                "source": "第1章集合代数(新).txt",
+                "image_refs": [
+                  {
+                    "id": "fe02aaf0c8caa2948f5586e8e07ae0d667c826b4e7bccb093f1316ff3d333372",
+                    "image_url": "/api/pdf/crops/fe02aaf0c8caa2948f5586e8e07ae0d667c826b4e7bccb093f1316ff3d333372/image",
+                    "label": "教材第 15 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：（2）A(B你为A与B的交集（intersection sets），。",
+                "start": 0,
+                "end": 44,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq40",
+      "split": "calibration",
+      "question": "证明任意 6 个人中必有 3 人互相认识或互相不认识。",
+      "category": "new_proof",
+      "route": "refuse",
+      "reason": "new_proof",
+      "near_textbook": true,
+      "checks": {
+        "expected_route": "refuse",
+        "route_correct": false,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "wrong_route_answer",
+      "error_reason": "应拒答却继续回答",
+      "unsupported_claim": false,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：例6.2 在FC中对任意公式A，B，C，证明：。[1]",
+      "textbook_sources": [
+        "第6章形式系统（新）.txt／6.1.2  系统内的推理：证明与演绎"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-06",
+            "version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.133983654538696,
+                "x2": 0.5034868246126575,
+                "y2": 0.14672890807670538
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.14495120819164284,
+                "x2": 0.39119524171973474,
+                "y2": 0.15769646172965224
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.4582699292607668,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.3707739555294774,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.25433111008075104,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.19575042622029282,
+                "y2": 0.20156660385313058
+              }
+            ],
+            "text": "\n\n（3）(A→(A→A))→(A→A)                         对(1) (2)用分离规则\n（4）A→(A→A)                                   公理A1\n（5）A→A                                        对(3)(4)用分离规则\n例6.2 在FC中对任意公式A，B，C，证明：\n{A，B→(A→C)}├FC B→C\n证. 其演绎序列为\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 6,
+            "section_id": 3,
+            "section_title": "6.1.2  系统内的推理：证明与演绎",
+            "source": "第6章形式系统（新）.txt",
+            "image_refs": [
+              {
+                "id": "4081dddfd1fcf8afb518ee76305376ca8100fdb9596899157fb937217d1e49f3",
+                "image_url": "/api/pdf/crops/4081dddfd1fcf8afb518ee76305376ca8100fdb9596899157fb937217d1e49f3/image",
+                "label": "教材第 6 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "b157a82e37f574a86d2be7f5734705422efd19d8c58d59d2903d71bacfdad166",
+            "quote": "（3）(A→(A→A))→(A→A)                         对(1) (2)用分离规则\n（4）A→(A→A)                                   公理A1\n（5）A→A                                        对(3)(4)用分离规则\n例6.2 在FC中对任意公式A，B，C，证明：\n{A，B→(A→C)}├FC B→C\n证. 其演绎序列为",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 6,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "b157a82e37f574a86d2be7f5734705422efd19d8c58d59d2903d71bacfdad166",
+            "retrieval_source_id": "ch6-s3-p0-w1",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-06",
+            "document_version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 0,
+            "block_end": 218,
+            "quote": "（3）(A→(A→A))→(A→A)                         对(1) (2)用分离规则\n（4）A→(A→A)                                   公理A1\n（5）A→A                                        对(3)(4)用分离规则\n例6.2 在FC中对任意公式A，B，C，证明：\n{A，B→(A→C)}├FC B→C\n证. 其演绎序列为",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              6
+            ],
+            "page": 6,
+            "selections": [
+              {
+                "document_id": "chapter-06",
+                "version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.133983654538696,
+                    "x2": 0.5034868246126575,
+                    "y2": 0.14672890807670538
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.14495120819164284,
+                    "x2": 0.39119524171973474,
+                    "y2": 0.15769646172965224
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.4582699292607668,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.3707739555294774,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.25433111008075104,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.19575042622029282,
+                    "y2": 0.20156660385313058
+                  }
+                ],
+                "text": "\n\n（3）(A→(A→A))→(A→A)                         对(1) (2)用分离规则\n（4）A→(A→A)                                   公理A1\n（5）A→A                                        对(3)(4)用分离规则\n例6.2 在FC中对任意公式A，B，C，证明：\n{A，B→(A→C)}├FC B→C\n证. 其演绎序列为\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 6,
+                "section_id": 3,
+                "section_title": "6.1.2  系统内的推理：证明与演绎",
+                "source": "第6章形式系统（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "4081dddfd1fcf8afb518ee76305376ca8100fdb9596899157fb937217d1e49f3",
+                    "image_url": "/api/pdf/crops/4081dddfd1fcf8afb518ee76305376ca8100fdb9596899157fb937217d1e49f3/image",
+                    "label": "教材第 6 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：例6.2 在FC中对任意公式A，B，C，证明：。",
+                "start": 0,
+                "end": 33,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq41",
+      "split": "calibration",
+      "question": "请证明每个含 n 个顶点的树恰有 n-1 条边。",
+      "category": "new_proof",
+      "route": "refuse",
+      "reason": "new_proof",
+      "near_textbook": true,
+      "checks": {
+        "expected_route": "refuse",
+        "route_correct": false,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "wrong_route_answer",
+      "error_reason": "应拒答却继续回答",
+      "unsupported_claim": false,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：定理8.15  任何不少于两个顶点的树都至少有两片叶。[1]",
+      "textbook_sources": [
+        "第8章特殊图（新）.txt／8.3.1  树的基本概念"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-08",
+            "version": "b09d760b62c8e9e68cfc0913c50755ef9d5c151e645100e8a9d65c988791f9e6",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.4790420393743435,
+                "y2": 0.2454367459766089
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.24365903703050773,
+                "x2": 0.24285126912092964,
+                "y2": 0.25640429962955574
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.25462659068345456,
+                "x2": 0.6012169322807247,
+                "y2": 0.2673718532825026
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.26559407184809236,
+                "x2": 0.4488335863642332,
+                "y2": 0.2783393344471404
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.2765616255010392,
+                "x2": 0.41056220969833246,
+                "y2": 0.2893068881000872
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n\n\n\n定理8.14  设图T为一树，其顶点数、边数分别是n, m, 那么\nn – m = 1  或  m = n – 1\n证  因T为树，故T为连通平面图。据欧拉公式和n – m +1 = 2, 即n – m = 1。\n定理8.15  任何不少于两个顶点的树都至少有两片叶。\n证  设T为任一树，其顶点数、边数分别为n, m。\n\n\n",
+            "chapter_id": 8,
+            "section_id": 7,
+            "section_title": "8.3.1  树的基本概念",
+            "source": "第8章特殊图（新）.txt",
+            "image_refs": [
+              {
+                "id": "cfa1378b1f818a9f86c6b16ea1f6200aa754f863bb52fb4c716468e8f8929a0d",
+                "image_url": "/api/pdf/crops/cfa1378b1f818a9f86c6b16ea1f6200aa754f863bb52fb4c716468e8f8929a0d/image",
+                "label": "教材第 23 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "ced65a338394080c16c576ef7355a5b0b71939cd9f95ca3540772cfd859a028a",
+            "quote": "定理8.14  设图T为一树，其顶点数、边数分别是n, m, 那么\nn – m = 1  或  m = n – 1\n证  因T为树，故T为连通平面图。据欧拉公式和n – m +1 = 2, 即n – m = 1。\n定理8.15  任何不少于两个顶点的树都至少有两片叶。\n证  设T为任一树，其顶点数、边数分别为n, m。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 23,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "ced65a338394080c16c576ef7355a5b0b71939cd9f95ca3540772cfd859a028a",
+            "retrieval_source_id": "ch8-s7-p0-w0",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-08",
+            "document_version": "b09d760b62c8e9e68cfc0913c50755ef9d5c151e645100e8a9d65c988791f9e6",
+            "source_block_id": null,
+            "section_id": 7,
+            "block_start": 330,
+            "block_end": 490,
+            "quote": "定理8.14  设图T为一树，其顶点数、边数分别是n, m, 那么\nn – m = 1  或  m = n – 1\n证  因T为树，故T为连通平面图。据欧拉公式和n – m +1 = 2, 即n – m = 1。\n定理8.15  任何不少于两个顶点的树都至少有两片叶。\n证  设T为任一树，其顶点数、边数分别为n, m。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              23
+            ],
+            "page": 23,
+            "selections": [
+              {
+                "document_id": "chapter-08",
+                "version": "b09d760b62c8e9e68cfc0913c50755ef9d5c151e645100e8a9d65c988791f9e6",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.4790420393743435,
+                    "y2": 0.2454367459766089
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.24365903703050773,
+                    "x2": 0.24285126912092964,
+                    "y2": 0.25640429962955574
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.25462659068345456,
+                    "x2": 0.6012169322807247,
+                    "y2": 0.2673718532825026
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.26559407184809236,
+                    "x2": 0.4488335863642332,
+                    "y2": 0.2783393344471404
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.2765616255010392,
+                    "x2": 0.41056220969833246,
+                    "y2": 0.2893068881000872
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n\n\n\n定理8.14  设图T为一树，其顶点数、边数分别是n, m, 那么\nn – m = 1  或  m = n – 1\n证  因T为树，故T为连通平面图。据欧拉公式和n – m +1 = 2, 即n – m = 1。\n定理8.15  任何不少于两个顶点的树都至少有两片叶。\n证  设T为任一树，其顶点数、边数分别为n, m。\n\n\n",
+                "chapter_id": 8,
+                "section_id": 7,
+                "section_title": "8.3.1  树的基本概念",
+                "source": "第8章特殊图（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "cfa1378b1f818a9f86c6b16ea1f6200aa754f863bb52fb4c716468e8f8929a0d",
+                    "image_url": "/api/pdf/crops/cfa1378b1f818a9f86c6b16ea1f6200aa754f863bb52fb4c716468e8f8929a0d/image",
+                    "label": "教材第 23 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：定理8.15  任何不少于两个顶点的树都至少有两片叶。",
+                "start": 0,
+                "end": 36,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq42",
+      "split": "calibration",
+      "question": "如何用质谱鉴定白酒的储存年份？",
+      "category": "out_of_scope",
+      "route": "refuse",
+      "reason": "out_of_scope",
+      "checks": {
+        "expected_route": "refuse",
+        "route_correct": false,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "wrong_route_answer",
+      "error_reason": "应拒答却继续回答",
+      "unsupported_claim": false,
+      "status": "evidence_rejected",
+      "reply": "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。",
+      "textbook_sources": [],
+      "pdf_references": []
+    },
+    {
+      "id": "tq43",
+      "split": "calibration",
+      "question": "股票期权定价中的希腊字母怎样计算？",
+      "category": "out_of_scope",
+      "route": "refuse",
+      "reason": "out_of_scope",
+      "near_textbook": true,
+      "checks": {
+        "expected_route": "refuse",
+        "route_correct": false,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "wrong_route_answer",
+      "error_reason": "应拒答却继续回答",
+      "unsupported_claim": false,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：常用大写希腊字母Γ表示一个公式的集合，Γ可以是空集合；[1]",
+      "textbook_sources": [
+        "第6章形式系统（新）.txt／6.1 谓词演算形式系统FC"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-06",
+            "version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.12301610088574914,
+                "x2": 0.21000841823545824,
+                "y2": 0.13576135442375853
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.133983654538696,
+                "x2": 0.8098656139213497,
+                "y2": 0.14672890807670538
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.14495120819164284,
+                "x2": 0.36505798750164126,
+                "y2": 0.15769646172965224
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.3480857261850053,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 3,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.8845083787421218,
+                "y2": 0.17963149654723687
+              }
+            ],
+            "text": "\n6.1.1 FC的基本构成\n谓词演算形式系统FC由两个部分组成：1. 组成谓词演算形式系统FC的符号语言。我们略去，不做介绍。2.\n谓词演算形式系统FC的公理与推理规则。\n今后，我们常用大写拉丁字母A，B，C,\n…,表示任意公式，用A(v)等表示公式A中含有自由变元v；常用大写希腊字母Γ表示一个公式的集合，Γ可以是空集合；\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 6,
+            "section_id": 2,
+            "section_title": "6.1 谓词演算形式系统FC",
+            "source": "第6章形式系统（新）.txt",
+            "image_refs": [
+              {
+                "id": "8f5f6113258d639d20f6f5419d0b92325194c532d09f6b214b5951c8fa5e9fd9",
+                "image_url": "/api/pdf/crops/8f5f6113258d639d20f6f5419d0b92325194c532d09f6b214b5951c8fa5e9fd9/image",
+                "label": "教材第 3 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "57a5545c48707d86dd3e6aedc6209865718e8f71a027ed2929eb7dc54c710086",
+            "quote": "6.1.1 FC的基本构成\n谓词演算形式系统FC由两个部分组成：1. 组成谓词演算形式系统FC的符号语言。我们略去，不做介绍。2. 谓词演算形式系统FC的公理与推理规则。\n今后，我们常用大写拉丁字母A，B，C, …,表示任意公式，用A(v)等表示公式A中含有自由变元v；常用大写希腊字母Γ表示一个公式的集合，Γ可以是空集合；",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 3,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "57a5545c48707d86dd3e6aedc6209865718e8f71a027ed2929eb7dc54c710086",
+            "retrieval_source_id": "ch6-s2-p0-w0",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-06",
+            "document_version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+            "source_block_id": null,
+            "section_id": 2,
+            "block_start": 0,
+            "block_end": 162,
+            "quote": "6.1.1 FC的基本构成\n谓词演算形式系统FC由两个部分组成：1. 组成谓词演算形式系统FC的符号语言。我们略去，不做介绍。2. 谓词演算形式系统FC的公理与推理规则。\n今后，我们常用大写拉丁字母A，B，C, …,表示任意公式，用A(v)等表示公式A中含有自由变元v；常用大写希腊字母Γ表示一个公式的集合，Γ可以是空集合；",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              3
+            ],
+            "page": 3,
+            "selections": [
+              {
+                "document_id": "chapter-06",
+                "version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.12301610088574914,
+                    "x2": 0.21000841823545824,
+                    "y2": 0.13576135442375853
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.133983654538696,
+                    "x2": 0.8098656139213497,
+                    "y2": 0.14672890807670538
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.14495120819164284,
+                    "x2": 0.36505798750164126,
+                    "y2": 0.15769646172965224
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.3480857261850053,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 3,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.8845083787421218,
+                    "y2": 0.17963149654723687
+                  }
+                ],
+                "text": "\n6.1.1 FC的基本构成\n谓词演算形式系统FC由两个部分组成：1. 组成谓词演算形式系统FC的符号语言。我们略去，不做介绍。2.\n谓词演算形式系统FC的公理与推理规则。\n今后，我们常用大写拉丁字母A，B，C,\n…,表示任意公式，用A(v)等表示公式A中含有自由变元v；常用大写希腊字母Γ表示一个公式的集合，Γ可以是空集合；\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 6,
+                "section_id": 2,
+                "section_title": "6.1 谓词演算形式系统FC",
+                "source": "第6章形式系统（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "8f5f6113258d639d20f6f5419d0b92325194c532d09f6b214b5951c8fa5e9fd9",
+                    "image_url": "/api/pdf/crops/8f5f6113258d639d20f6f5419d0b92325194c532d09f6b214b5951c8fa5e9fd9/image",
+                    "label": "教材第 3 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：常用大写希腊字母Γ表示一个公式的集合，Γ可以是空集合；",
+                "start": 0,
+                "end": 36,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq44",
+      "split": "calibration",
+      "question": "如何根据心电图判断心肌梗死？",
+      "category": "out_of_scope",
+      "route": "refuse",
+      "reason": "out_of_scope",
+      "checks": {
+        "expected_route": "refuse",
+        "route_correct": false,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "wrong_route_answer",
+      "error_reason": "应拒答却继续回答",
+      "unsupported_claim": false,
+      "status": "evidence_rejected",
+      "reply": "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。",
+      "textbook_sources": [],
+      "pdf_references": []
+    },
+    {
+      "id": "tq45",
+      "split": "calibration",
+      "question": "用烘焙百分比设计面包配方。",
+      "category": "out_of_scope",
+      "route": "refuse",
+      "reason": "out_of_scope",
+      "checks": {
+        "expected_route": "refuse",
+        "route_correct": false,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "wrong_route_answer",
+      "error_reason": "应拒答却继续回答",
+      "unsupported_claim": false,
+      "status": "answered",
+      "reply": "根据本轮教材摘录：11、一个面包店只剩下6个巧克力面包，7个黄棕色面包和3个普通面包。[1]",
+      "textbook_sources": [
+        "第3章 计数（新）.txt／3.3.3禁位排列的计数"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-03",
+            "version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 43,
+                "x1": 0.07513025210084033,
+                "y1": 0.26559407184809236,
+                "x2": 0.9115716747636554,
+                "y2": 0.2783393344471404
+              },
+              {
+                "page": 43,
+                "x1": 0.07513025210084033,
+                "y1": 0.2765616255010392,
+                "x2": 0.9181017184217436,
+                "y2": 0.2893068881000872
+              },
+              {
+                "page": 43,
+                "x1": 0.07513025210084033,
+                "y1": 0.28752917915398607,
+                "x2": 0.23579411764705882,
+                "y2": 0.3002744417530341
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n10、证明：把x个1和y个0排成一行（x≤y+1），使得没有两个1是相邻的排列数为  EMBED Equation.3    [公式或对象]  。\n11、一个面包店只剩下6个巧克力面包，7个黄棕色面包和3个普通面包。这时要从这16个面包中任选12个装成一盒，问：\n有多少种不同的选法？\n",
+            "chapter_id": 3,
+            "section_id": 10,
+            "section_title": "3.3.3禁位排列的计数",
+            "source": "第3章 计数（新）.txt",
+            "image_refs": [
+              {
+                "id": "d5f07e29d24730a6cd2529b81804ba6398c2b62724c2e307cc5a617a1cc6d761",
+                "image_url": "/api/pdf/crops/d5f07e29d24730a6cd2529b81804ba6398c2b62724c2e307cc5a617a1cc6d761/image",
+                "label": "教材第 43 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "8fc3a48b5cd0c211e5548e2ca6383b46d81e065cc3175609591a75e7117b5401",
+            "quote": "10、证明：把x个1和y个0排成一行（x≤y+1），使得没有两个1是相邻的排列数为  EMBED Equation.3    [公式或对象]  。\n11、一个面包店只剩下6个巧克力面包，7个黄棕色面包和3个普通面包。这时要从这16个面包中任选12个装成一盒，问：有多少种不同的选法？",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 43,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "8fc3a48b5cd0c211e5548e2ca6383b46d81e065cc3175609591a75e7117b5401",
+            "retrieval_source_id": "ch3-s10-p0-w6",
+            "retrieval_source_index": 2,
+            "document_id": "chapter-03",
+            "document_version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+            "source_block_id": null,
+            "section_id": 10,
+            "block_start": 404,
+            "block_end": 545,
+            "quote": "10、证明：把x个1和y个0排成一行（x≤y+1），使得没有两个1是相邻的排列数为  EMBED Equation.3    [公式或对象]  。\n11、一个面包店只剩下6个巧克力面包，7个黄棕色面包和3个普通面包。这时要从这16个面包中任选12个装成一盒，问：有多少种不同的选法？",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              43
+            ],
+            "page": 43,
+            "selections": [
+              {
+                "document_id": "chapter-03",
+                "version": "05755b27bf77b92012dd8ea1fcb54254cfcfd12b8231e2d0c40428c8b45f9907",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 43,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.26559407184809236,
+                    "x2": 0.9115716747636554,
+                    "y2": 0.2783393344471404
+                  },
+                  {
+                    "page": 43,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.2765616255010392,
+                    "x2": 0.9181017184217436,
+                    "y2": 0.2893068881000872
+                  },
+                  {
+                    "page": 43,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.28752917915398607,
+                    "x2": 0.23579411764705882,
+                    "y2": 0.3002744417530341
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n10、证明：把x个1和y个0排成一行（x≤y+1），使得没有两个1是相邻的排列数为  EMBED Equation.3    [公式或对象]  。\n11、一个面包店只剩下6个巧克力面包，7个黄棕色面包和3个普通面包。这时要从这16个面包中任选12个装成一盒，问：\n有多少种不同的选法？\n",
+                "chapter_id": 3,
+                "section_id": 10,
+                "section_title": "3.3.3禁位排列的计数",
+                "source": "第3章 计数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "d5f07e29d24730a6cd2529b81804ba6398c2b62724c2e307cc5a617a1cc6d761",
+                    "image_url": "/api/pdf/crops/d5f07e29d24730a6cd2529b81804ba6398c2b62724c2e307cc5a617a1cc6d761/image",
+                    "label": "教材第 43 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：11、一个面包店只剩下6个巧克力面包，7个黄棕色面包和3个普通面包。",
+                "start": 0,
+                "end": 43,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "tq55",
+      "split": "calibration",
+      "question": "这个定义和那个定义有什么区别？",
+      "category": "ambiguous",
+      "route": "clarify",
+      "reason": "ambiguous_reference",
+      "checks": {
+        "expected_route": "clarify",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "correct",
+      "error_reason": "路由和拒答符合预期",
+      "unsupported_claim": false,
+      "status": "awaiting_clarification",
+      "reply": "你想问教材里的哪个概念、定理或公式？请补充具体名称。",
+      "textbook_sources": [],
+      "pdf_references": []
+    },
+    {
+      "id": "tq56",
+      "split": "calibration",
+      "question": "为什么会这样？",
+      "category": "ambiguous",
+      "route": "clarify",
+      "reason": "ambiguous_reference",
+      "checks": {
+        "expected_route": "clarify",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "correct",
+      "error_reason": "路由和拒答符合预期",
+      "unsupported_claim": false,
+      "status": "awaiting_clarification",
+      "reply": "你想问教材里的哪个概念、定理或公式？请补充具体名称。",
+      "textbook_sources": [],
+      "pdf_references": []
+    },
+    {
+      "id": "tq57",
+      "split": "calibration",
+      "question": "它成立吗？",
+      "category": "ambiguous",
+      "route": "clarify",
+      "reason": "ambiguous_reference",
+      "checks": {
+        "expected_route": "clarify",
+        "route_correct": true,
+        "invalid_citation": false,
+        "retrieval_hit": false,
+        "wrong_citation": false,
+        "concept_hit": false,
+        "required_groups_hit": true,
+        "support_groups_hit": true,
+        "external_content": false
+      },
+      "error": "correct",
+      "error_reason": "路由和拒答符合预期",
+      "unsupported_claim": false,
+      "status": "awaiting_clarification",
+      "reply": "你想问教材里的哪个概念、定理或公式？请补充具体名称。",
+      "textbook_sources": [],
+      "pdf_references": []
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{"id":"tq01","split":"calibration","question":"若两个集合互换成员后仍拥有相同成员，它们在集合论中是否算同一个集合？","category":"definition","route":"answer","section":"外延性公理与子集合","concept":["外延","集合相等"],"required_groups":[["相同","一样"],["元素","成员"]]}
+{"id":"tq02","split":"calibration","question":"除了把元素列出，还能用何种方式概括一个集合？","category":"paraphrase","route":"answer","section":"集合的表示","concept":["集合表示","概括"],"required_groups":[["性质","条件"],["表示","概括"]]}
+{"id":"tq03","split":"calibration","question":"A 中去掉与 B 共同元素后剩下的部分对应哪种基本运算？","category":"definition","route":"answer","section":"并、交、差、补运算","concept":["差集","集合差"],"required_groups":[["差集","差运算","A-B"],["元素","属于"]]}
+{"id":"tq04","split":"calibration","question":"一个集合所有可能子集汇合起来形成哪个对象？","category":"definition","route":"answer","section":"幂集运算和广义并、交运算","concept":["幂集"],"required_groups":[["幂集"],["子集"]]}
+{"id":"tq05","split":"calibration","question":"由两个集合分别取一个成员构成的有序组合全体称为什么？","category":"definition","route":"answer","section":"集合的笛卡儿积","concept":["笛卡儿积","有序对"],"required_groups":[["笛卡儿积","笛卡尔积"],["有序对","序偶"]]}
+{"id":"tq06","split":"calibration","question":"递归定义集合的性质证明为何要同时处理基础元素和构造操作？","category":"theorem","route":"answer","section":"结构归纳原理","concept":["结构归纳"],"required_groups":[["归纳基础","基础条款"],["归纳推理","归纳条款","构造"]]}
+{"id":"tq07","split":"calibration","question":"第一数学归纳法从前一项成立推进到后一项，依赖哪条假设？","category":"theorem","route":"answer","section":"数学归纳原理","concept":["第一数学归纳","归纳假设"],"required_groups":[["归纳假设"],["前一步","P(k)","n=k"]]}
+{"id":"tq08","split":"calibration","question":"若完成任务的几类方案互斥，方案数应相加还是相乘？","category":"comparison","route":"answer","section":"加法原理和乘法原理","concept":["加法原理","乘法原理"],"required_groups":[["加法","相加"],["互斥","分类"]]}
+{"id":"tq09","split":"calibration","question":"计算两个集合并集大小时，为什么不能直接相加？","category":"formula","route":"answer","section":"包含排斥原理","concept":["容斥原理","包含排斥"],"required_groups":[["交集","重复"],["减去","扣除"]]}
+{"id":"tq10","split":"calibration","question":"不考虑旋转后相同的圆桌位置，为什么圆排列数量比线排列少一个因子？","category":"formula","route":"answer","section":"排列的计数","concept":["圆排列"],"required_groups":[["圆排列"],["切断","除以","(n-1)!"]]}
+{"id":"tq11","split":"calibration","question":"选取若干成员时不计先后次序，对应哪类计数？","category":"definition","route":"answer","section":"组合的计数","concept":["组合"],"required_groups":[["组合"],["顺序","次序"]]}
+{"id":"tq12","split":"calibration","question":"两个原子命题至少一个为真时，析取命题的真值怎样确定？","category":"formula","route":"answer","section":"逻辑联结词","concept":["析取","或"],"required_groups":[["析取","或"],["真","至少一个"]]}
+{"id":"tq13","split":"calibration","question":"双重否定后命题会回到原来的真值吗？","category":"theorem","route":"answer","section":"逻辑等价式和逻辑蕴涵式","concept":["双重否定律"],"required_groups":[["双重否定"],["真值","等价","相同"]]}
+{"id":"tq14","split":"calibration","question":"一个公式在所有赋值下都真，它在教材里叫什么？","category":"definition","route":"answer","section":"重言式","concept":["重言式","永真式"],"required_groups":[["重言式","永真式"],["所有","任意","赋值"]]}
+{"id":"tq15","split":"calibration","question":"量词控制的那段公式范围在教材中有什么名称？","category":"definition","route":"answer","section":"量词及其辖域","concept":["辖域"],"required_groups":[["辖域"],["量词"]]}
+{"id":"tq16","split":"calibration","question":"无向图的两个不同顶点之间有边时，邻接矩阵对应位置应满足什么关系？","category":"formula","route":"answer","section":"邻接矩阵","concept":["邻接矩阵"],"required_groups":[["邻接矩阵"],["1","非零","有边"]]}
+{"id":"tq17","split":"calibration","question":"若图的所有边都横跨两个互不相交的顶点组，这是什么图？","category":"definition","route":"answer","section":"二分图的基本概念","concept":["二分图"],"required_groups":[["二分图"],["两个","顶点","集合"]]}
+{"id":"tq18","split":"calibration","question":"从连通图中删去一些边后仍连通且无圈，得到的是哪类子图？","category":"definition","route":"answer","section":"生成树","concept":["生成树"],"required_groups":[["生成树"],["连通"],["无圈","无回路"]]}
+{"id":"tq19","split":"evaluation","question":"集合是否一样只看包含成员，还是要看描述方式？","category":"definition","route":"answer","section":"外延性公理与子集合","concept":["外延性","集合相等"],"required_groups":[["元素","成员"],["相等","相同"]]}
+{"id":"tq20","split":"evaluation","question":"用共同性质限定成员，这属于集合的哪种表示思路？","category":"paraphrase","route":"answer","section":"集合的表示","concept":["描述法","性质"],"required_groups":[["性质","条件"],["表示","描述"]]}
+{"id":"tq21","split":"evaluation","question":"A-B 与 A 和 B 补集的共同部分是否表示同一类对象？","category":"formula","route":"answer","section":"并、交、差、补运算","concept":["差集","补集"],"required_groups":[["A-B","差"],["补集","交"]]}
+{"id":"tq22","split":"evaluation","question":"若把一个集合的全部子集再汇集成集合，成员数量与原子集元素数有何公式关系？","category":"formula","route":"answer","section":"幂集运算和广义并、交运算","concept":["幂集","基数"],"required_groups":[["幂集"],["2","子集","元素"]]}
+{"id":"tq23","split":"evaluation","question":"有序对的第一个位置取自 X、第二个取自 Y 时，所有可能结果组成什么集合？","category":"definition","route":"answer","section":"集合的笛卡儿积","concept":["笛卡儿积"],"required_groups":[["笛卡儿积","笛卡尔积"],["X","Y"]]}
+{"id":"tq24","split":"evaluation","question":"结构归纳为何不是只检查第一条构造规则？","category":"theorem","route":"answer","section":"结构归纳原理","concept":["结构归纳"],"required_groups":[["归纳基础","基础条款"],["归纳推理","构造"]]}
+{"id":"tq25","split":"evaluation","question":"强归纳与普通归纳在可用假设数量上有什么区别？","category":"comparison","route":"answer","section":"数学归纳原理","concept":["强归纳","第二数学归纳"],"required_groups":[["强归纳","第二数学归纳"],["普通归纳","第一数学归纳"],["假设","前"]]}
+{"id":"tq26","split":"evaluation","question":"物品比盒子多时，为什么不能保证每个盒子最多放一个？","category":"theorem","route":"answer","section":"鸽笼原理的基本形式","concept":["鸽笼原理"],"required_groups":[["至少","一个盒子"],["两个","多于一个"]]}
+{"id":"tq27","split":"evaluation","question":"两个有限集合交叠时，并集计数需要怎样修正重复部分？","category":"formula","route":"answer","section":"包含排斥原理","concept":["容斥","并集"],"required_groups":[["交集","重复"],["减"]]}
+{"id":"tq28","split":"evaluation","question":"元素出现次数固定且允许重复时，不同的线性排法如何计数？","category":"formula","route":"answer","section":"重集的排列","concept":["重集排列"],"required_groups":[["重集","重复"],["排列","计数"]]}
+{"id":"tq29","split":"evaluation","question":"两个命题公式在所有赋值下真值都相同，可以用什么关系描述？","category":"definition","route":"answer","section":"逻辑等价式和逻辑蕴涵式","concept":["逻辑等价"],"required_groups":[["逻辑等价","等值","等价"],["赋值","真值"]]}
+{"id":"tq30","split":"evaluation","question":"把谓词公式中的量词统一移到公式前端，得到哪种规范形式？","category":"definition","route":"answer","section":"谓词公式的前束范式","concept":["前束范式"],"required_groups":[["前束范式"],["量词","前"]]}
+{"id":"tq31","split":"evaluation","question":"教材中的形式证明由哪些已知起点和变换规则组成？","category":"theorem","route":"answer","section":"系统内的推理：证明与演绎","concept":["形式证明"],"required_groups":[["公理","前提"],["推理规则","演绎"]]}
+{"id":"tq32","split":"evaluation","question":"自然推理系统为什么更接近人在证明时使用规则的方式？","category":"theorem","route":"answer","section":"自然推理形式系统ND","concept":["自然推理系统","ND"],"required_groups":[["自然推理","ND"],["推理规则","人的推理"]]}
+{"id":"tq33","split":"evaluation","question":"无向图中与一个结点相连的边数在教材里称什么？","category":"definition","route":"answer","section":"结点的度","concept":["结点的度"],"required_groups":[["度"],["边","关联","结点"]]}
+{"id":"tq34","split":"evaluation","question":"一条路线经过图中每条边且每条边只使用一次，这对应哪类路线？","category":"definition","route":"answer","section":"欧拉图及欧拉路径","concept":["欧拉路径","欧拉回路"],"required_groups":[["欧拉"],["边","一次"]]}
+{"id":"tq35","split":"evaluation","question":"自反、对称、传递三个性质同时成立的关系叫什么？","category":"definition","route":"answer","section":"等价关系与等价类","concept":["等价关系"],"required_groups":[["等价关系"],["自反","对称","传递"]]}
+{"id":"tq36","split":"evaluation","question":"只有什么类型的函数才保证逆关系仍为函数？","category":"theorem","route":"answer","section":"函数的逆","concept":["双射","逆函数"],"required_groups":[["双射"],["逆函数","函数"]]}
+{"id":"tq37","split":"calibration","question":"求 1 到 100 中能被 7 整除的整数个数。","category":"calculation","route":"refuse","reason":"new_calculation","near_textbook":true}
+{"id":"tq38","split":"calibration","question":"给我三道关于图的练习题。","category":"exercise","route":"refuse","reason":"exercise_request"}
+{"id":"tq39","split":"calibration","question":"A={1,2}，B={2,3}，求 A∪B 和 A-B。","category":"calculation","route":"refuse","reason":"new_calculation","near_textbook":true}
+{"id":"tq40","split":"calibration","question":"证明任意 6 个人中必有 3 人互相认识或互相不认识。","category":"new_proof","route":"refuse","reason":"new_proof","near_textbook":true}
+{"id":"tq41","split":"calibration","question":"请证明每个含 n 个顶点的树恰有 n-1 条边。","category":"new_proof","route":"refuse","reason":"new_proof","near_textbook":true}
+{"id":"tq42","split":"calibration","question":"如何用质谱鉴定白酒的储存年份？","category":"out_of_scope","route":"refuse","reason":"out_of_scope"}
+{"id":"tq43","split":"calibration","question":"股票期权定价中的希腊字母怎样计算？","category":"out_of_scope","route":"refuse","reason":"out_of_scope","near_textbook":true}
+{"id":"tq44","split":"calibration","question":"如何根据心电图判断心肌梗死？","category":"out_of_scope","route":"refuse","reason":"out_of_scope"}
+{"id":"tq45","split":"calibration","question":"用烘焙百分比设计面包配方。","category":"out_of_scope","route":"refuse","reason":"out_of_scope"}
+{"id":"tq46","split":"evaluation","question":"出一道关于鸽笼原理的考试题。","category":"exercise","route":"refuse","reason":"exercise_request","near_textbook":true}
+{"id":"tq47","split":"evaluation","question":"计算 C(10,3)。","category":"calculation","route":"refuse","reason":"new_calculation","near_textbook":true}
+{"id":"tq48","split":"evaluation","question":"已知 A={1,2,3}，B={3,4}，求对称差 A⊕B。","category":"calculation","route":"refuse","reason":"new_calculation","near_textbook":true}
+{"id":"tq49","split":"evaluation","question":"请完整证明任意平面图的边数不超过 3n-6。","category":"new_proof","route":"refuse","reason":"new_proof","near_textbook":true}
+{"id":"tq50","split":"evaluation","question":"证明所有自然数 n 都满足 2^n>n。","category":"new_proof","route":"refuse","reason":"new_proof","near_textbook":true}
+{"id":"tq51","split":"evaluation","question":"怎样用 X 射线荧光光谱分析青铜器成分？","category":"out_of_scope","route":"refuse","reason":"out_of_scope"}
+{"id":"tq52","split":"evaluation","question":"高血压患者应该怎样调整降压药？","category":"out_of_scope","route":"refuse","reason":"out_of_scope"}
+{"id":"tq53","split":"evaluation","question":"足球联赛积分相同时如何排名？","category":"out_of_scope","route":"refuse","reason":"out_of_scope","near_textbook":true}
+{"id":"tq54","split":"evaluation","question":"用 CFD 模拟汽车外形的风阻。","category":"out_of_scope","route":"refuse","reason":"out_of_scope"}
+{"id":"tq55","split":"calibration","question":"这个定义和那个定义有什么区别？","category":"ambiguous","route":"clarify","reason":"ambiguous_reference"}
+{"id":"tq56","split":"calibration","question":"为什么会这样？","category":"ambiguous","route":"clarify","reason":"ambiguous_reference"}
+{"id":"tq57","split":"calibration","question":"它成立吗？","category":"ambiguous","route":"clarify","reason":"ambiguous_reference"}
+{"id":"tq58","split":"evaluation","question":"这两者有什么不同？","category":"ambiguous","route":"clarify","reason":"ambiguous_reference"}
+{"id":"tq59","split":"evaluation","question":"继续解释刚才那个。","category":"ambiguous","route":"clarify","reason":"ambiguous_reference"}
+{"id":"tq60","split":"evaluation","question":"该怎么理解这个公式？","category":"ambiguous","route":"clarify","reason":"ambiguous_reference"}
