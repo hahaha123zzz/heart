@@ -1,0 +1,423 @@
+{
+  "task": 3,
+  "date": "2026-11-20",
+  "complete": true,
+  "implementation_worktree": "E:\\项目\\heart\\.worktrees\\student-frontend-reuse-20261117",
+  "typecheck_exit_code": 0,
+  "production_build_exit_code": 0,
+  "production_source_matches": 909,
+  "node_tests": {
+    "passed": 1269,
+    "failed": 0
+  },
+  "vitest": {
+    "files": 14,
+    "passed": 53,
+    "failed": 0
+  },
+  "browser": {
+    "checks": [
+      "anonymous page and worker HTTP boundary",
+      "two real browser logins and no-Key reading, chat guidance, and distinct masked model settings",
+      "three navigation entries and sidebar collapse/restore",
+      "retired routes return HTTP 404 with an authenticated cookie",
+      "real chat, activity drawer, session rename/pin/delete and cancel",
+      "authorized reading context and material picker without personal import",
+      "learning reading/path/practice entry points and screenshot input survive"
+    ],
+    "pageErrors": [],
+    "sockets": [
+      "127.0.0.1:53525"
+    ],
+    "socketEvents": [
+      [
+        "session",
+        null
+      ],
+      [
+        "stage_start",
+        null
+      ],
+      [
+        "progress",
+        null
+      ],
+      [
+        "content",
+        null
+      ],
+      [
+        "progress",
+        null
+      ],
+      [
+        "stage_end",
+        null
+      ],
+      [
+        "result",
+        null
+      ],
+      [
+        "done",
+        null
+      ],
+      [
+        "session_meta",
+        null
+      ]
+    ],
+    "consoleErrors": [
+      "Failed to load sessions TypeError: Failed to fetch\n    at d (http://127.0.0.1:53525/_next/static/chunks/7072-7d5c853df2089671.js:1:772)\n    at force (http://127.0.0.1:53525/_next/static/chunks/6471-e681f1fbf6a1dbf6.js:1:8195)\n    at i (http://127.0.0",
+      "Failed to load sessions TypeError: Failed to fetch",
+      "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "Failed to load sessions TypeError: Failed to fetch"
+    ],
+    "httpFailures": [
+      [
+        "/api/dashboard/learning-library/mastery",
+        403
+      ]
+    ],
+    "retired": {
+      "/partners": 404,
+      "/partners/groups/new": 404,
+      "/kanban": 404,
+      "/co-writer": 404,
+      "/whisper": 404,
+      "/space/cli-apps": 404,
+      "/space/mcp": 404,
+      "/space/personas": 404,
+      "/space/skills": 404,
+      "/admin/users": 404,
+      "/register": 404,
+      "/session-handoff": 404
+    },
+    "drawerText": "Activity\nNew tab\nClose viewer\nSession activity\n\nAs you chat, the tools and references you use — and the files the tutor generates — will appear here.\n\nOpen\nOpen a local file",
+    "learning": {
+      "/learning": "我的学习\n\nOne tutor, your own way to learn.\n\n知识图谱\n学习记忆\n个人模型设置\nWays to learn\n聊天评估记录\n刷新记录\n\n显示最近 20 条记录。评估通过后，还需核验是否独立作答，才可作为掌握依据。\n\n正在读取评估记录…",
+      "/learning/reading": "Personalized Learning\nImmersive Reading\n\nPut PDFs, web pages and lectures into one collection and read them with an AI companion that can always point back to the source.\n\nNew collection\nCollections\n0\nMaterial library\n0\n0 collections\nRecent\nName",
+      "/learning/mastery": "Personalized Learning\nMastery Path\n\nWork through each topic's knowledge points, then pick up any session where you left off.\n\nNew topic\nShow materials from\nAll workspaces",
+      "/learning/practice": "Personalized Learning\nPractice\n\nA little recall today. Remember more tomorrow.\n\nImport questions\nToday's review\nReview scope\nAll workspaces\nDefault workspace\n—\nReady to review\n\nMastered questions leave this round and return when your next review is due.\n\nStart today's review\n—\nReviewed today\n—\nScheduled for later\n—\nQuestion Bank\n\nRecall first, then check. Forgotten questions come back in this round.\n\nManage question bank\nPractice analytics"
+    },
+    "screenshotInputs": [
+      "image/*,.pdf,.docx,.xlsx,.pptx,.txt,.text,.log,.md,.markdown,.rst,.asciidoc,.html,.htm,.xml,.svg,.json,.jsonc,.json5,.yaml,.yml,.toml,.csv,.tsv,.ini,.cfg,.conf,.env,.properties,.tex,.latex,.bib,.css,.scss,.sass,.less,.js,.mjs,.cjs,.ts,.mts,.cts,.jsx,.tsx,.vue,.svelte,.py,.java,.kt,.kts,.scala,.groovy,.gradle,.c,.h,.cpp,.cc,.cxx,.hpp,.hh,.hxx,.cs,.go,.rs,.zig,.nim,.swift,.m,.mm,.rb,.php,.pl,.pm,.lua,.r,.jl,.dart,.hs,.clj,.cljs,.cljc,.ex,.exs,.erl,.ml,.mli,.fs,.fsx,.lisp,.lsp,.scm,.rkt,.sol,.sh,.bash,.zsh,.fish,.ps1,.vim,.sql,.graphql,.gql,.proto,.cmake,.mk,.tf,.hcl,.nginxconf,.dockerfile,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain,text/markdown,text/html,text/xml,application/xml,application/json,text/csv,text/tab-separated-values,text/yaml,application/yaml,application/x-yaml,text/x-python,application/x-python-code,text/javascript,application/javascript,application/typescript,text/css,text/x-c,text/x-c++,text/x-java,text/x-go,text/x-rust,text/x-ruby,text/x-php,text/x-shellscript,application/sql,application/toml"
+    ]
+  },
+  "provenance": {
+    "baseline_files": 3764,
+    "local_changes": 105,
+    "local_deletions": 101,
+    "task3": [
+      {
+        "path": "web/app/(settings)/settings/model/page.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/app/(utility)/profile/page.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/agents/AgentsHub.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/auth/AdminLink.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/chat/home/ChatComposer.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/chat/home/PartnerGroupSelector.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/chat/home/PartnerSelector.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/chat/home/SessionActivityPanel.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/memory/MemoryArchivedBanner.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/memory/MemoryGraph.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/memory/MemoryHub.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/memory/MemoryL1Workbench.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/memory/MemoryRunPanel.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/memory/MemorySection.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/memory/MemoryWorkbench.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/memory/useMemoryRun.ts",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/notebook/NotebookConsole.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/partners/AssetPicker.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/ChannelIcon.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/ChannelOnboardingPanel.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/ChannelRuntimeStatus.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/FaceEditor.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/PartnerArchives.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/PartnerChannels.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/PartnerConfigure.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/PartnerLinkModal.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/PartnerModelPicker.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/PartnerModelSelect.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/PartnerWorkspacePicker.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/SoulEditor.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/SoulPicker.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/ToolPicker.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/WeixinQrLogin.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/group/DiscussionModePicker.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/group/GroupSessionPicker.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/partners/schema-form.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/reading/library/AddMaterialsDialog.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/reading/library/LibraryShell.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/reading/library/MaterialLibrary.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/sidebar/UtilitySidebar.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/sidebar/WorkspaceSidebar.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/space/ChatHistorySection.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/EduHubImportModal.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/ImportWizard.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/McpStoreSection.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/MyAgentsSection.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/PersonasSection.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/ScopeEditorModal.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/ScopePicker.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/SkillLibraryScope.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/SkillsSection.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/SpaceDashboard.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/SpaceMain.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/space/question-bank/QuestionBankSection.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/tasks/TaskPanelSection.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/whisper/WhisperComposer.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/whisper/WhisperMessageList.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/whisper/WhisperRoomChip.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/components/workspaces/SystemWorkspaceSnapshot.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/workspaces/WorkspaceResourcePicker.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/KnowledgeGraph.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/StudentMemory.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/lib/space-items.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/admin-user-batches.test.ts",
+        "action": "delete"
+      },
+      {
+        "path": "web/tests/admin-user-presets.test.ts",
+        "action": "delete"
+      },
+      {
+        "path": "web/tests/chat-history-search.spec.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/tests/partner-continuity.spec.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/tests/partner-direct-chat.test.ts",
+        "action": "delete"
+      },
+      {
+        "path": "web/tests/partner-group-export.test.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/partner-workspace-picker.spec.tsx",
+        "action": "delete"
+      },
+      {
+        "path": "web/tests/partners-channel-onboarding.test.ts",
+        "action": "delete"
+      },
+      {
+        "path": "web/tests/reading-add-invidious.spec.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/space-dashboard-capability-gate.test.ts",
+        "action": "delete"
+      },
+      {
+        "path": "web/tests/student-memory.spec.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/whisper-i18n.test.ts",
+        "action": "delete"
+      }
+    ],
+    "hash_errors": [],
+    "reverse_patch_check": true
+  },
+  "diff_check_exit_code": 0,
+  "scope_limits": [
+    "保留厂家后端、协议与运行时，不切换服务",
+    "本轮不新增外部模型调用，模型响应为本地替身",
+    "未运行全仓全部 Vitest 文件",
+    "图片处理按用户要求跳过；阅读引用等后续业务在后续任务验收"
+  ]
+}

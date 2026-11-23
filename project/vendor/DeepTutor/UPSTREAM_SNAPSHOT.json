@@ -5,18 +5,165 @@
   "scope": "完整 Git 跟踪源码及资源，不含工作区运行数据/私密配置",
   "local_changes": [
     {
-      "path": "deeptutor/services/llm/factory.py",
-      "upstream_sha256": "dee92bc40f741c566d9bbbd665bbf5172a08793cf231074d7784ed1457647050",
-      "local_sha256": "77d21699b9d78c9eb6d8bd72ba5f6b226a1bbf89e67881f6831f5ab42097f81f",
-      "patch": "LOCAL_PATCHES/llm-config-adapter.patch",
-      "reason": "将 ResolvedLLMConfig 转换为独立 provider 需要的 LLMConfig"
+      "path": "deeptutor/agents/question/pipeline.py",
+      "upstream_sha256": "ed6017fd8a6b6081b66102fbb9a0a408d968893cdbf7ba31930b63e7317b09b1",
+      "local_sha256": "17305acebd3df0033e5d9e5d30fb284cc1a44e2d835f46b6984cda47fea98c28",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
     },
     {
-      "path": "deeptutor/utils/secret_files.py",
-      "upstream_sha256": "ed15926577a979462d78f05f6143b9b48bf5ffdf7de76526b7a3f63769527e31",
-      "local_sha256": "74080146c26fc3d8aadc5d7de48ac70ae1289c4caccb23dfb8a11fafb1096342",
-      "patch": "LOCAL_PATCHES/windows-private-mode.patch",
-      "reason": "Preserve permission checks; avoid redundant Windows read-only attribute writes and existing-directory mkdir calls"
+      "path": "deeptutor/api/routers/attachments.py",
+      "upstream_sha256": "d11732f7ddb0247a46a8a5404215b7402bd6f5522f545484d2a4bb8dd8f4a1dd",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "6995f4848ea800c1bc9c0037579ac828c420bf0af4454863aafc5dea8ab9b8b8"
+    },
+    {
+      "path": "deeptutor/api/routers/auth.py",
+      "upstream_sha256": "c2ecaf627245f7ee318fd3901c988c526b2f94d00f8d99f5a3e5d246ee77953c",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "33cdbd324d6e388030f45e61ed235412f107d568ea6b17355a781feb8f5dc247"
+    },
+    {
+      "path": "deeptutor/api/routers/learning_journal.py",
+      "upstream_sha256": "a0f128465812e7e16852757167f8e804fa8c782bd0b5618d0dd91c027bea165f",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "2e3ec95acacbc30f0b451a49f107fb8d68d5adaeb9006114ddf2a8b184ae9cd2"
+    },
+    {
+      "path": "deeptutor/api/routers/practice.py",
+      "upstream_sha256": "f2f081c3dbeac67a8ffe58854b87fbea1e90a945f370da765e8094af7662c64b",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "8d2c59e963686ed8d24119720dd90409f0e583963ee699c142e68c50ae67fb9d"
+    },
+    {
+      "path": "deeptutor/api/routers/question_notebook.py",
+      "upstream_sha256": "f3dffccb1fbc8b6259f8ea5d2759fc5b480b0c2dbc0c5dd17e1b1833f0c332b3",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "6ce9b7cbf3c37479a9eb8991c5511204b01648c64e1516a995592e0300700690"
+    },
+    {
+      "path": "deeptutor/api/routers/reading.py",
+      "upstream_sha256": "1c06480730b7ee53c9a097bdd8318dfec3ae18a0885083ed5bd06a7288d64c24",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "93f9e03675bb109f311e85521c7966beed2f6de8c53629d27f06b22b33a8c62d"
+    },
+    {
+      "path": "deeptutor/app/container.py",
+      "upstream_sha256": "95d4f1e021cf0557423bc333c9353024f9d8a609a8282d46c5ea93407d779e25",
+      "local_sha256": "79c2f017b296dc45e9a724e3b85c341469d837e62180ba252fad09c321312c56",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/app/facade.py",
+      "upstream_sha256": "c1b0551635fe9f85228d4242418d4916815ac25a4a004b919551358f60071d70",
+      "local_sha256": "cfd8974197f2cf80a088b50e02aa2d3f1d6621a0d4ef0e238bda02b5a14ad630",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/app/service.py",
+      "upstream_sha256": "94f879b27a4e9951977aa364c8a65104fa80a8163035d645540cb4e50ae226b1",
+      "local_sha256": "7fcf7ade63e1496482cbf739bcebd5ac3f02cd88dd154abebae438658cd291c7",
+      "patch": "LOCAL_PATCHES/knowledge-base-preference-inheritance.patch",
+      "reason": "保留省略知识库字段时 runtime 已保存的课程继承结果；显式空列表仍可清空"
+    },
+    {
+      "path": "deeptutor/capabilities/mastery/tools.py",
+      "upstream_sha256": "b6be3c50425472056c4744f7d80917a6a2e3ccd8226f752e1d9e4092608c3872",
+      "local_sha256": "236dfc8e67726ebb624f8d867f07fb30341f253b8f4daf77420a0399897d4d0c",
+      "patch": "LOCAL_PATCHES/student-chat-teaching-assistance.patch",
+      "reason": "累计差异：讲解工具事件关联会话回合，完成回复提供持久编号及非空标记，事务幂等追踪有引用和无引用的明确辅助"
+    },
+    {
+      "path": "deeptutor/capabilities/reading/capability.py",
+      "upstream_sha256": "45b7f1665bb608b757fc3ede0703876a580689f620962ef17049e628313f7e6d",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "c550c03700115a4bcc7bc98338c30154c1de13ed2603ded3dc5371a94ed7e202"
+    },
+    {
+      "path": "deeptutor/capabilities/reading/prompts/en/reading.yaml",
+      "upstream_sha256": "401eca9a38a482d5885226ce1cb3604df2b4d32d8ca5e53c15e098cb28b12f27",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "55398c6aa0f16fb5cea69b2536e5b215cb1eb91acd17f95c09854cb0a23fe710"
+    },
+    {
+      "path": "deeptutor/capabilities/reading/prompts/zh/reading.yaml",
+      "upstream_sha256": "91f15a1e675330d4be5b8134c8c54e51dd4d6206a81ba9b7dbb38fa1174c012b",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "143f1a992f5e8b6eda88b13159fb48c2d96f08ad191549b4ab350a0d2859eb38"
+    },
+    {
+      "path": "deeptutor/core/turn_request.py",
+      "upstream_sha256": "1b05aaa75d2536cc7304a13d8a86df94d79d31e8f43e0eeefa9e461d7d92b9fc",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "1da1222b915d0a2f52db0db5712d439c1ba8b29f8f4ee614edc627b9666033cb"
+    },
+    {
+      "path": "deeptutor/learning/policy.py",
+      "upstream_sha256": "07f4f8cf5911c1c383a674844c84adfd7355a2b28cfd1620742272514138e91c",
+      "local_sha256": "138df30b37791ec0ad74ab08c50871807edf5f39769a46ce964989ae40e00a11",
+      "patch": "LOCAL_PATCHES/learning-evidence-qualification.patch",
+      "reason": "Exclude explicitly non-independent and AI-provisional evidence from independent learning stages and visual achievements"
+    },
+    {
+      "path": "deeptutor/learning/service.py",
+      "upstream_sha256": "db80368e5fdbae06228193a09d65edf25375dd6f79fc2e75d92af6d18ea6e35b",
+      "local_sha256": "c96514ff5ba98cedbf9e470611f9beac0f9ccc63bf9e0f45a31088bca4a03fb6",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/learning/storage.py",
+      "upstream_sha256": "1f07c18ac1f59b621b5c565984f7f6876e0e7c42eb2efc538e02a577ef04a94b",
+      "local_sha256": "79a8d55b9670eb68031d0319e04d31cbd3bee46ab90c3afdf53af68131e25408",
+      "patch": "LOCAL_PATCHES/student-chat-teaching-assistance.patch",
+      "reason": "累计差异：讲解工具事件关联会话回合，完成回复提供持久编号及非空标记，事务幂等追踪有引用和无引用的明确辅助"
+    },
+    {
+      "path": "deeptutor/learning/tests/test_assessment.py",
+      "upstream_sha256": "8a8a93acc0727535d677cf112f6072dc594e18fb3a4557ff365e9e83d16af13a",
+      "local_sha256": "60286343c8d565c70f0c10a132631147a37ce4bfde9d692391e3085dfe3fe2ac",
+      "patch": "LOCAL_PATCHES/student-assessment-publication.patch",
+      "reason": "复用厂家定性记录保存未核验/辅助评估，保留掌握与复习状态；覆盖去重及旧记录重试，测试显式时间避免 Windows 时钟精度波动"
+    },
+    {
+      "path": "deeptutor/learning/tests/test_guided_mastery_updates.py",
+      "upstream_sha256": "cd88beb3d67631d9d981a1152f33ade94221a304c899f4b8c6f6d5c800255b0e",
+      "local_sha256": "a4f99ed3ed7819f53ddbfd430c0a13cdf01dd9c1a36b00357c59e805aff69a50",
+      "patch": "LOCAL_PATCHES/student-reassessment-qualification.patch",
+      "reason": "累计差异：一次成功复评、前后结论/来源保留，费用确认与幂等申请；修复模型初读覆盖输入及响应不明处理"
+    },
+    {
+      "path": "deeptutor/learning/tests/test_mastery_tools.py",
+      "upstream_sha256": "fa229ff9f75c2e5bba59f6311820a9f9db5fe0337718425015f030e97a7a4f8d",
+      "local_sha256": "dcae19e65fe5d9365613750306ec1d91a66e1e8a745e5998ad4b11ccbf75bdfa",
+      "patch": "LOCAL_PATCHES/student-native-qualification.patch",
+      "reason": "累计差异：学生原生定性评估须核验资格，教师反馈不冒充学生原话；或无 Key 时允许读取学习概览/图谱，生成入口仍受门禁"
+    },
+    {
+      "path": "deeptutor/multi_user/grants.py",
+      "upstream_sha256": "63a2cf9f454fd70e314f3ee9708b92a31ac5bd955c44580838b264f4efe1b4c2",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "a0a1109dd34a8e2ceccea713865ba7723aa8b88c292f46e7dfcd969516883eef"
+    },
+    {
+      "path": "deeptutor/multi_user/model_access.py",
+      "upstream_sha256": "0e01483f05daf9aed87ab5be0376a6bc212fe651369ad271eb34c55a56fcac86",
+      "local_sha256": "e8763a7a5dc54cb48de8877069397e483764ea0aac8c00cb34313946dab797f1",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
     },
     {
       "path": "deeptutor/multi_user/paths.py",
@@ -26,11 +173,1320 @@
       "reason": "Reuse existing root-keyed PathService cache while retaining every directory initialization and permission check"
     },
     {
-      "path": "deeptutor/learning/policy.py",
-      "upstream_sha256": "07f4f8cf5911c1c383a674844c84adfd7355a2b28cfd1620742272514138e91c",
-      "local_sha256": "138df30b37791ec0ad74ab08c50871807edf5f39769a46ce964989ae40e00a11",
-      "patch": "LOCAL_PATCHES/learning-evidence-qualification.patch",
-      "reason": "Exclude explicitly non-independent and AI-provisional evidence from independent learning stages and visual achievements"
+      "path": "deeptutor/multi_user/personal_models.py",
+      "upstream_sha256": "d7b3aca0580acc94e57924a80d5d8fbb282944d987f4a1a3382c1b5bacef6a99",
+      "local_sha256": "933d8f05da06ba01fda0f95400a0e7e27e6943d5bda7f70ba854de1c9f538e4a",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/plugins/registry.py",
+      "upstream_sha256": "2df9afd067235ef93b4a50699f3417e4eddd927af36504b5d304406cd971f332",
+      "local_sha256": "36eb7a73c540070eafc63f01853614e78a7da7cc1a78742b03594119c8c2e02b",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/reading/models.py",
+      "upstream_sha256": "98c89fa76de6c3694ac6181ff846cc1fd4455f14be56d1874bcbc5d0d005bfb1",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "7a7ccd20edb751363e41ead24de535582d24538d813e63e626fa3cba5d1b434d"
+    },
+    {
+      "path": "deeptutor/reading/store.py",
+      "upstream_sha256": "67cb21af083a7fce078fc06d18d51d5259662d0c9f5707b810fbda724add4711",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "2cbb2ed0b7db7519d02603830b05dacddf84ea9d31269f95fc038c6ca8bb5734"
+    },
+    {
+      "path": "deeptutor/runtime/agentic/client.py",
+      "upstream_sha256": "7e35cde05d017c7e386d022983ccff0c69007ae957ed6a12ac42fc2824feb004",
+      "local_sha256": "e15faf417b2d948bfcd2e2767e047243b6dba48112872b112a03a2cb2e4c8526",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/runtime/coordination/memory.py",
+      "upstream_sha256": "c8979e2ecf2461328d866c80489b9613d7a406464bbabe7bde842cdb357221b1",
+      "local_sha256": "03032d8a5ba6ec62aa8964e71976cf927d55fd86c397f9298c4598e9ebec05ed",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/runtime/turn_engine.py",
+      "upstream_sha256": "727037834dd040a3bfdfea0118d4f431f99b2517d5cc6f66cdc581c571339c9f",
+      "local_sha256": "3899946ddcf384760e1afedc55e9cd04fc6d4fb61d8316f158c9b6c43d0aa203",
+      "patch": "LOCAL_PATCHES/student-memory-retrieval-and-observations.patch",
+      "reason": "累计差异：学生记忆检索、摘要失效及自动学习线索展示，并保留已接入的截图前置接口"
+    },
+    {
+      "path": "deeptutor/services/config/provider_runtime.py",
+      "upstream_sha256": "68cafcc06f148a1783aac93f1d72d5dbb5b38dd2bd3ee00f18967df091b9bf47",
+      "local_sha256": "24a54eefc8b9c3d0c8515c99536ec4deb5fd81d8f31522b3519b742ad50d5f67",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/services/llm/factory.py",
+      "upstream_sha256": "dee92bc40f741c566d9bbbd665bbf5172a08793cf231074d7784ed1457647050",
+      "local_sha256": "77d21699b9d78c9eb6d8bd72ba5f6b226a1bbf89e67881f6831f5ab42097f81f",
+      "patch": "LOCAL_PATCHES/llm-config-adapter.patch",
+      "reason": "将 ResolvedLLMConfig 转换为独立 provider 需要的 LLMConfig"
+    },
+    {
+      "path": "deeptutor/services/llm/multimodal.py",
+      "upstream_sha256": "1b868667e56155dcc8c71c893cc0119fb887eed1292319934d9d0a47bade3305",
+      "local_sha256": "ed6a10e70fb96b05e3b06c5b4486764c6745f4f88a8f16366216714487b98b21",
+      "patch": "LOCAL_PATCHES/student-verified-image-input.patch",
+      "reason": "学生图片请求发送前核验当前账号及配置的图片能力，禁止图片失败后丢图降级，缺失图片明确报错"
+    },
+    {
+      "path": "deeptutor/services/llm/openai_http_client.py",
+      "upstream_sha256": "6f3a940ff2e8262a166a507247b99c79a7896f1393c4cdf7a07859c606ddc3cf",
+      "local_sha256": "94acf22bdf5dfa86eca84a0312908635c9e4dad0622aa2807442ceee127712a0",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/services/llm/provider_core/base.py",
+      "upstream_sha256": "a0f3bb68008b872743b3bb12a1e86ad69ee90548b1732b5750aa4c29217710c1",
+      "local_sha256": "67246d61d7624516e7e46af789b59d5b5f0721bc915ed807aac34fc3760a108c",
+      "patch": "LOCAL_PATCHES/student-verified-image-input.patch",
+      "reason": "学生图片请求发送前核验当前账号及配置的图片能力，禁止图片失败后丢图降级，缺失图片明确报错"
+    },
+    {
+      "path": "deeptutor/services/llm/provider_core/openai_compat_provider.py",
+      "upstream_sha256": "47413d577aa1c93b7f6f82c472d425dbfd2729573d383af487370809c48d8efb",
+      "local_sha256": "ea7e9f20f59aa7eadd96ea99ddb8fc5fd7b11d9ef3509b6ab5778a699ef5e64e",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/services/llm/provider_factory.py",
+      "upstream_sha256": "d68452be1643656ee435e19148eb498928beb0c7f44b5e51794f779981df5e9d",
+      "local_sha256": "f8e07d8ebed1119450f2d4d01d8565890cb7cb5d01cab160fa8d037cbdff5950",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "deeptutor/services/memory/paths.py",
+      "upstream_sha256": "b86ed33c3ebcad6da9bc9bc776f62e5563aaf251b7d72a39f798ced3052ba514",
+      "local_sha256": "d3d484416db02c55e9daab2ceba6cc6d6cd81683adc7ee38c7dbe34801a5e802",
+      "patch": "LOCAL_PATCHES/student-pg-memory-foundation.patch",
+      "reason": "累计差异：H PG 学生记忆唯一正文、关闭厂家本地记忆、独立开关及搜索/来源/删除交互；自动提取仍未启用"
+    },
+    {
+      "path": "deeptutor/services/memory/store.py",
+      "upstream_sha256": "feca47652ecd3fb82157235870f8b52c6cf1bb3ed2a1f493ce42d498117fa940",
+      "local_sha256": "bfc28f787f2ed978c3eec57d055044d159f41fd811dc90f6e3f08ac989c2177b",
+      "patch": "LOCAL_PATCHES/student-pg-memory-foundation.patch",
+      "reason": "累计差异：H PG 学生记忆唯一正文、关闭厂家本地记忆、独立开关及搜索/来源/删除交互；自动提取仍未启用"
+    },
+    {
+      "path": "deeptutor/services/practice/storage.py",
+      "upstream_sha256": "22daa4b781840f215a06ea06f24d2ebdb0673d4ad11f6193b4ef544786d65242",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "d5387fb1e11231fc447c4a84faee442f72d1609a8797c69bcd736b3beecb2ef6"
+    },
+    {
+      "path": "deeptutor/services/session/_turn_runtime_shared.py",
+      "upstream_sha256": "2a3b343e975703f8c43ff3032de81cf7c4c26a1153c531af8a92dfbe7d941e32",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "1e194d844bb297716629fd8be2a02c334158cb89a2ee3f6a0ed54afd71c1aafc"
+    },
+    {
+      "path": "deeptutor/services/session/context_builder.py",
+      "upstream_sha256": "520b17920ea8e3319bc09770068c7cd5a72809d46de543fc1508b22eaa7688e9",
+      "local_sha256": "e6cabbe5751b3fa3beda283dd5e92cc5bae203a3790d5ae8505d10bbcc9bbd39",
+      "patch": "LOCAL_PATCHES/student-memory-retrieval-and-observations.patch",
+      "reason": "累计差异：学生记忆检索、摘要失效及自动学习线索展示，并保留已接入的截图前置接口"
+    },
+    {
+      "path": "deeptutor/services/session/sqlite_store.py",
+      "upstream_sha256": "3ce91074219983b3d5481d12f8dab608ece30cc9e9eb7983cceb1e1c8805f02a",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "2d499c43810d8a422d21926bc23ec1ae719f68cb875ab646bac94dc6b7b7d8fe"
+    },
+    {
+      "path": "deeptutor/services/session/turns/executor.py",
+      "upstream_sha256": "f45111b0b599f5fb193cffcc59166d7ae2c6ead21ff8bf554eed140d040dff9f",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "b0296ccb9dfce85e043808881016e8b5cac9c757ace180ee60d05c18ddf32c33"
+    },
+    {
+      "path": "deeptutor/services/settings/interface_settings.py",
+      "upstream_sha256": "9aa30adc5f2af476257d771ee5c76eafa29ccf7bc22570fea141f4f3e4b03219",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "8ae952dad10d777ca3e7c7101e5e996766e8359d617a6eb49022f5bc63326f2f"
+    },
+    {
+      "path": "deeptutor/services/storage/attachment_store.py",
+      "upstream_sha256": "a5ca0f6fb2a4a6b38cbbb1c3692e49ac2704ea75f069fe55e4c625d3a2554f99",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "86955c8fe456cf04a902e4f1412463d0cb41f2d2694922eb231d5259e7f07bbd"
+    },
+    {
+      "path": "deeptutor/utils/secret_files.py",
+      "upstream_sha256": "ed15926577a979462d78f05f6143b9b48bf5ffdf7de76526b7a3f63769527e31",
+      "local_sha256": "74080146c26fc3d8aadc5d7de48ac70ae1289c4caccb23dfb8a11fafb1096342",
+      "patch": "LOCAL_PATCHES/windows-private-mode.patch",
+      "reason": "Preserve permission checks; avoid redundant Windows read-only attribute writes and existing-directory mkdir calls"
+    },
+    {
+      "path": "tests/agents/question/test_pipeline.py",
+      "upstream_sha256": "339f0f35f70af1a49739e71d58ec978a33218ac0cc525ea3b85521358afba966",
+      "local_sha256": "75530176d253d1c6bce9652e680ec7779cc221645692aa53503b23987c68c4cd",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "tests/api/test_attachment_learning_surface.py",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "71c41ec3e45f57309220a56ae15578b2b5bc011235fc6c8c0e07da04c395e607"
+    },
+    {
+      "path": "tests/api/test_practice.py",
+      "upstream_sha256": "ff964b7a30b84ed3c0a8333f0207241ef1bc2a4fd4f4d1dc77f02ab2927aa1e7",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "c306a6e4093d183c790a542f24855d9dcad607ea88f392fee6aad6a8577a83ec"
+    },
+    {
+      "path": "tests/api/test_unified_ws_turn_runtime.py",
+      "upstream_sha256": "7c0c7f0fc053c0de65e65a172fc98c52db01b6efa2cbabf39f9dc6c224f93126",
+      "local_sha256": "5128842b322c9d0f39a9bb33c6bc37b795944fb7f8c8248c434c5ce9996cd21f",
+      "patch": "LOCAL_PATCHES/student-chat-teaching-assistance.patch",
+      "reason": "累计差异：讲解工具事件关联会话回合，完成回复提供持久编号及非空标记，事务幂等追踪有引用和无引用的明确辅助"
+    },
+    {
+      "path": "tests/app/test_turn_application_service.py",
+      "upstream_sha256": "8f669a151864db382b5417c08227de8982e1be702d8d200bff12322dea15cae1",
+      "local_sha256": "62fba013f66ce0ad60c53e78731ee37614b365ea4ef523d7ee38d3b1785443f4",
+      "patch": "LOCAL_PATCHES/knowledge-base-preference-inheritance.patch",
+      "reason": "覆盖课程教材继承、显式清空和已选教材在连续两轮及依赖清单中的持久化"
+    },
+    {
+      "path": "tests/multi_user/test_learning_policy.py",
+      "upstream_sha256": "f33712a2b0f47bc2e33f4feae6d1f7d5f4b0ae62b11d60826694c10161ba4aaf",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "1df916496f33d04a6d9a23001753e7b57bb06c573b597a5c55e4964b284d59a9"
+    },
+    {
+      "path": "tests/multi_user/test_learning_surface_map.py",
+      "upstream_sha256": "721a94f997436af0e4ed0c535d0d6eb7083aa5e982e4a8cbc3ceb59a4f1aba80",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "3b4c56b6d3db40f6983df32beef3abc220c7cba3f4addd8897768c793d19029d"
+    },
+    {
+      "path": "tests/plugins/test_registry.py",
+      "upstream_sha256": "20df5ecabfb23899180953e19d31a31b8ac8ade2eb213263e4ee82cf86278e3d",
+      "local_sha256": "9413c4d3806c7251b20ed52dd96b997ca25265df51f5010094b4b3d592502ec0",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "tests/runtime/coordination/test_memory_coordinator.py",
+      "upstream_sha256": "4f4acd06aa9f569ce35155f48bb1cb4ec326db2eb500843f4028273ee26c9e6c",
+      "local_sha256": "21ff8902ab5b36d661be4133845774a17407b35dc1eaa8ae0632bc37289cadeb",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "web/app/(auth)/login/page.tsx",
+      "upstream_sha256": "7a9d8039d5bff8bed70c8e9e53bdbbaaebc93391472021669d790dfd7278f82d",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "87c7b51c840f28ef2bc9deaf2f1c37cc1790b5b80989f4c454705efb9be377dd"
+    },
+    {
+      "path": "web/app/(settings)/settings/layout.tsx",
+      "upstream_sha256": "f6aaaa5a5e275011bad9fbda71083108c8efc06324a24892698f711f8dec417a",
+      "local_sha256": "4b1924b5fb1f63ceba9d35688dd4c0f28d2da2d04a6dbe07f27390e48d756ee6",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "web/app/(settings)/settings/model/page.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "0e2c93c0657e95924f53cdbc5eca0609d030db2de8af73f6f3de68fd675f8998"
+    },
+    {
+      "path": "web/app/(utility)/courses/[courseId]/page.tsx",
+      "upstream_sha256": "0971d3a474cff05a8c36d348beb3371b5fd8ecc384467264b2da852b44c027a8",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "2bc0789c3dd7a5b6f81766019379a73fa9fb84804e6523fe962d7b895e75f6da"
+    },
+    {
+      "path": "web/app/(utility)/memory/page.tsx",
+      "upstream_sha256": "c64716484e525f53d4a7b8ffc142e1654703e7e2245b5e5177f927269b3cb193",
+      "local_sha256": "3a81a3333cb870dc28a731d2ea96030f876287e064cd3b3723b6af3d4b479580",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "web/app/(utility)/profile/page.tsx",
+      "upstream_sha256": "7e9fc3d3d0ccbf701d89d5c7ac0cd42a95d58d15b88701b127120a5d6c5f47a4",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "7390c3fbdfc45875d6378ca093e632120e217aeb19553e5eb1a067f380ef72a0"
+    },
+    {
+      "path": "web/app/(workspace)/learning/journal/page.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "2c4784b3529b966b0efdf7d45c69789c50170179d09f8806499f0698a94c22fa"
+    },
+    {
+      "path": "web/app/(workspace)/learning/mastery/[pathId]/page.tsx",
+      "upstream_sha256": "02588fe4779c323ea2b54df5a67f853336e6dc8e2204992999375cdb3387c451",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "87dfc322c99b24e47b8394583a3ff9172bc1250fb3f65320c3d8dc1200b3146c"
+    },
+    {
+      "path": "web/app/globals.css",
+      "upstream_sha256": "6dfe4d60967ef2bedb531f94979cacaa48c98507b29aa641ff38f5eb88cc8901",
+      "local_sha256": "1679453a46655ba644a7d4920d4e6a1661cc4ac77095738b7f1512730d9a193a",
+      "patch": "LOCAL_PATCHES/student-white-gray-accessibility.patch",
+      "reason": "任务 1 固定白灰、对比度、移动键盘导航与可用学习入口"
+    },
+    {
+      "path": "web/app/layout.tsx",
+      "upstream_sha256": "69d440602705a2299e62241b3c35ce7ad6e894e3a7f3b47d506ce7a0729714ef",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "f9cf496f0d1d10c92e4ebaaecab12ef0ca1f0a4932be5de8a044b319606770e0"
+    },
+    {
+      "path": "web/components/Mermaid.tsx",
+      "upstream_sha256": "14ac1c363ef917c20bec50f12b9034fc927ab18fc1a5cf64815cdbbee57b8d6e",
+      "local_sha256": "3841bd87eb6ff4b9618a9329ce0f1ddd2c968264b0d2cd6cb110eadab8f2168d",
+      "patch": "LOCAL_PATCHES/mermaid-render-recovery.patch",
+      "reason": "隔离每次图表渲染ID；错误分支不再阻断后续源码重绘；暂态TypeError只重试一次"
+    },
+    {
+      "path": "web/components/ThemeScript.tsx",
+      "upstream_sha256": "654c42b7e4f31a108ebf81753eea1a5a16c693e795c582f6cfae567c49ccd5cf",
+      "local_sha256": "11e6af6346fb869fb4c66f95b699d855d57e4ac43f31ec9d04b496d7a24cea2a",
+      "patch": "LOCAL_PATCHES/student-white-gray-accessibility.patch",
+      "reason": "任务 1 固定白灰、对比度、移动键盘导航与可用学习入口"
+    },
+    {
+      "path": "web/components/access/CapabilityAccessContext.tsx",
+      "upstream_sha256": "68fe33e300eda60a0caf678f02523251f2391d24d37b3e717871a686c5e92ecc",
+      "local_sha256": "df0b9b6059ba0b3830e46c708630ab643792c18c81f5a3aeb4a6518dceba1244",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/components/access/CapabilityGate.tsx",
+      "upstream_sha256": "efb61a29e189be092fe1eafb7d4f04dfee5ad1c2aaaca8726c1dfc1c5637feba",
+      "local_sha256": "ea0c6c1266a51844e3ceef52153f024ab97e4a69aef57fefbb5e0bc52383abbe",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/components/access/RequireCapability.tsx",
+      "upstream_sha256": "3714734712ae2e0889f8c06782573ffbd6333c734bce8fbaf1c6a1c51daded25",
+      "local_sha256": "82818c0432d0938dea94a035a71323d38acc235142c461fee47d152869d46e88",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/components/chat/home/ChatComposer.tsx",
+      "upstream_sha256": "b46a1eb681ed662b4a7045c7a535046d41c17cf8e8727f7ec96f8f61a71bde3f",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "7005c26a320c92fdbfdb1b20d22612883bdd600aed3e9b5e05505232305d89d3"
+    },
+    {
+      "path": "web/components/chat/home/SessionActivityPanel.tsx",
+      "upstream_sha256": "a00699b0bcbbc19150da61dbe21a51b536e91bb2184b76e229616f65ac469729",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "7d0ceadf87009bb07667f2fc7905641ca0d873dadad79416e4cc7f67b42f2ffc"
+    },
+    {
+      "path": "web/components/chat/home/SessionLoadingView.tsx",
+      "upstream_sha256": "373dd106098018b413c5acc84ebe8d464f28e400a07f294a8d76a3cafd9946f9",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "f4236bcca851dd1a9cb54899042455ab4ed1939434d0b18bd6bdf52876e1d948"
+    },
+    {
+      "path": "web/components/chat/home/StandaloneComposer.tsx",
+      "upstream_sha256": "5a867bd947490d416305134ac2882df59c0c290a42cccb58a00306065a66258b",
+      "local_sha256": "34a15e095743942b37a4ebdedda5388eebb9d7737582f08f3425d8bbb8513e47",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/components/chat/preview/FilePreviewDrawer.tsx",
+      "upstream_sha256": "d4dca2b3acf66683956b251167a3894e264059414e8d8680e34381ba6aed1c24",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "148bbca904f3ac699635b7a927af35142751d8a2079d1ec69895c54b4758c681"
+    },
+    {
+      "path": "web/components/chat/preview/previewers/ImagePreview.tsx",
+      "upstream_sha256": "2116c6dd28688433f13f6445cc11dc54ed0aeccde98aa66b544823ef3be10b42",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "615b5fc07f9207f4df22a81ce9786c6be4807e9ef5a7dd88e9c67c5820d7839a"
+    },
+    {
+      "path": "web/components/common/AssistantResponse.tsx",
+      "upstream_sha256": "e2e65db028c2f2711d6512ce020b96639c6e6ec44f939051c9b3643b32030801",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "bd30991e5f9ef34ad0d0636313bd2dfcd1a0bae5a3466a8a1f7f8b41a03de248"
+    },
+    {
+      "path": "web/components/common/BrandLogo.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "fb500177c12402b44d214479f13198f34da859319fba8fb4cfb960fd1983eb93"
+    },
+    {
+      "path": "web/components/layout/AppShell.tsx",
+      "upstream_sha256": "153c7cb07856d2df3376774d69c6c7cb6aa4a4fb1ad86f41d276a82423edf7d2",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "061fd6a78df1ba0c4ed43190ba7b69145f093b8f6a4536056b5e5db069c55290"
+    },
+    {
+      "path": "web/components/layout/FeaturePage.tsx",
+      "upstream_sha256": "fac5dce45cfe9c4f7b6926341cda067c0babaed00b7d51f2195ce34025dc399f",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "5e4c2c698204a02d6148920a385011ef9ed74d1227ace7cc5f529029c37aa3ef"
+    },
+    {
+      "path": "web/components/learning/LearningDashboard.tsx",
+      "upstream_sha256": "ff7c52efa31f8efb23dbbb082a828157aaddb1e288b1544506d44e2b009b09bd",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "e357670fb370428d47317cd3e1c18eeca03418c7718755535ba3c93a792fba35"
+    },
+    {
+      "path": "web/components/learning/LearningScrollRestoration.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "abfed13e23172030b5ce4a9255d6091baa1b01cd7e95962740c883ef9c13e392"
+    },
+    {
+      "path": "web/components/learning/LearningWays.tsx",
+      "upstream_sha256": "df58987d46590c4522492b825cf572d3dc33c92bba7050f4eb53e8df327fa9b7",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "6dd4c1a78e6b670764a6d0d2c7c97db576b2700b7b719809e1b6940996f5d822"
+    },
+    {
+      "path": "web/components/learning/LibraryWorkspace.tsx",
+      "upstream_sha256": "e068b4d371c9014b70149196b6cf15099f8a09e070006bb343ab72261b539b49",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "cb238cb95cc8d876e187f718b699adeacf393dd5d6ca6271856afa5ed2bb6cfa"
+    },
+    {
+      "path": "web/components/learning/practice/PracticeInsights.tsx",
+      "upstream_sha256": "8fc94b95407f52186bfed4e53fa61475ad43141677dc37cbac0a4f891ffba651",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "e2b6158e7ff4d3d17bf883c5597cb045b355a4310c92213bf282a0070e20230a"
+    },
+    {
+      "path": "web/components/learning/practice/PracticePage.tsx",
+      "upstream_sha256": "157368261cc4a8aecbb24530e87e3ceb0342c2d0cb09ce07793dc4853aef1a40",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "eb2321e5cb5636927e136cf507dd56052f3ea3fc8713b54f603709cad872484f"
+    },
+    {
+      "path": "web/components/learning/practice/PracticeSession.tsx",
+      "upstream_sha256": "8c9af58034bd6f90c678db4a1eb3367a87433e4f0c60f82b26b897cc2e0ceb50",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "f4adcd5be8001760b21603cf5877fda5c13ad4555cb22f91a3917cb06d813d99"
+    },
+    {
+      "path": "web/components/learning/practice/ReviewHome.tsx",
+      "upstream_sha256": "6cb4ef664d6829c3c821954af69a6df66f10c999061b034fbfeccb80e849a852",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "9af35001e3ca026ff80cb8319545a47b368f0f32b91f096b79aa7e5091d36f50"
+    },
+    {
+      "path": "web/components/learning/practice/practice-resume.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "c83f320bcb0e345814abb2195e132c5956fa6ed45c2871d3dfa7d6f05e924159"
+    },
+    {
+      "path": "web/components/notebook/NotebookConsole.tsx",
+      "upstream_sha256": "63d152bec8cb47a1cda32e3e4c51555a16da62b7a0032dac1d09317b3973d17e",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "32cb154f37c048e3cdc75ff4435e02a501a5c3da2b0adbe075df6b1328db9e56"
+    },
+    {
+      "path": "web/components/reading/PdfDocumentView.tsx",
+      "upstream_sha256": "04c6dd979f5d4b74a3cb28011746b24355a356ddb448bb30ffed2e9cf0e40649",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "a4861cd444242edb5797ddeb60d82d4357f22111b476aee78233c6200451ac04"
+    },
+    {
+      "path": "web/components/reading/ReaderPane.tsx",
+      "upstream_sha256": "190690f1d4c6101f0ae98bbdb7985084454df6e0c61c1d25f33125f41857dd7b",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "157f2f3a72693e8d770dfef3e6924ac085699c641921259fafb02fa4cd0a3b34"
+    },
+    {
+      "path": "web/components/reading/library/AddMaterialsDialog.tsx",
+      "upstream_sha256": "2d1ee9fd68f78b2307bebf384bc82fd340ab02fe308d3219e78aca1e950ee5b8",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "31d5ee508b46a475687ceb6b764ac664fb1fbf3d5bf0af69632721e4635ca2c6"
+    },
+    {
+      "path": "web/components/reading/library/LibraryShell.tsx",
+      "upstream_sha256": "2d9aab90e838bd9d53eec712f44546689f55b64e859c283c767a5fca7cd4186e",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "e53e7bc35b43f92b04d32feff12cbae3713d40bbc2c903e4f25ef6261d7b4af7"
+    },
+    {
+      "path": "web/components/reading/library/MaterialLibrary.tsx",
+      "upstream_sha256": "cdf36848c6ac10d085c358a066c213ce9051fbe5176ea06d32747a1b87a5bc4f",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "e897d5c08c38badb226b9004fa74179a1ba0cc536b5658002935ab3994913649"
+    },
+    {
+      "path": "web/components/reading/workspace/ReadingCompanion.tsx",
+      "upstream_sha256": "2e422be08748d5c3a97b247df68347c2a9fcc82ac52855087795f936e75c3905",
+      "local_sha256": "399e058a7bf83d7e4825e354402fa0a3d3a971e4b5dd7d755171d31a476ada29",
+      "patch": "LOCAL_PATCHES/student-white-gray-accessibility.patch",
+      "reason": "任务 1 固定白灰、对比度、移动键盘导航与可用学习入口"
+    },
+    {
+      "path": "web/components/reading/workspace/ReadingComposer.tsx",
+      "upstream_sha256": "7573e47d9a5def8999c1fc8ccf4817c2bf562e2fb72458b2ccf9527c9a8549d0",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "e7490ca1fff767c15c3218ba6bf4e60a64db9404e1ff95de8ba3b1e9534bf7f8"
+    },
+    {
+      "path": "web/components/reading/workspace/ReadingWorkspace.tsx",
+      "upstream_sha256": "6400ebbccf1a3cc8aa62fcbc1e2d5c998082b001a616bd824719cad3cb124ced",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "44a16e00905b6a973bb2f94a89b93212d673940b8b3345b60e7b674f787971ae"
+    },
+    {
+      "path": "web/components/sidebar/SidebarShell.tsx",
+      "upstream_sha256": "d8d27828869b283e06b43e6c77a054f30d2de20b50f5e4a46d4c9dc7ff825be4",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "4323db3b29b913caecbaa18408b0f6ba24ca87eb0537fcc54e3531efcdee1a8f"
+    },
+    {
+      "path": "web/components/sidebar/UtilitySidebar.tsx",
+      "upstream_sha256": "514d4336198455fa986627d4fb80d2fe185cf580a686efb9e2590acf4651576f",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "64912b0a63ec6af29247be5106f33e23cebc06e118b8266935961050b146df51"
+    },
+    {
+      "path": "web/components/sidebar/VersionBadge.tsx",
+      "upstream_sha256": "3acf870f90ba07e9cbdb1afcd9d5dbb73a932ccf2b43b2e59ac2920bc190a376",
+      "local_sha256": "89ce3f3c53d6423021b7269192a9b365e1020fe5c7306d60f63507ef85a80de8",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/components/sidebar/WorkspaceSidebar.tsx",
+      "upstream_sha256": "db9398fd106cc3cdc6a57de59f8ec776de4f8411d53cb0fac908142c1e24cc2c",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "f6128f2e702e2f84d75bfd7d3bbb0f0cdb01c45e9b0f06cc6ad203964cfd53c8"
+    },
+    {
+      "path": "web/components/sidebar/nav-entries.ts",
+      "upstream_sha256": "e247de879e9dac02e189649494168ba299a09200676abf61b128c6f76ec8e9c6",
+      "local_sha256": "85fed74976471c43190231094f8a6b1b8fb294a72c0e96efce9786ec69a75819",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "web/components/space/LearningJournalPanel.tsx",
+      "upstream_sha256": "ae5aabbeb00b774b4c63a1b266a07c4410d25c9f80a470a709647267fd9c2787",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "9799abef2405f36da8b14b380ab4e788ec7d38d16a3b2e9d86f6c0f5d16f8d8a"
+    },
+    {
+      "path": "web/components/space/learning/TopicMapCard.tsx",
+      "upstream_sha256": "6f8c27390564512b070cab8f7272285f41ae24bedb4fb448835e541669dd116e",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "3422be5aeb5c61967a2f14a01e8d4110dcac34439a219d7e62204c902c8bd413"
+    },
+    {
+      "path": "web/components/space/learning/TopicWizardSteps.tsx",
+      "upstream_sha256": "5d5e30df3491baa94495a0d611a26ac488943e9571b0504471301f1965584f69",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "f2982ce3d5aec20bd02c346517ebfc99da892fc2f33b6b77e9713ce1045d19a7"
+    },
+    {
+      "path": "web/components/space/question-bank/QuestionBankSection.tsx",
+      "upstream_sha256": "07a60b510253608868713f2b40b5f13764790a9a0113985a967572e6e5b35132",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "cbf21c533b63d1384a26afbb7767ec0f4c997c0e1d2fc07d99077cd012e81b88"
+    },
+    {
+      "path": "web/components/space/question-bank/useQuestionBank.ts",
+      "upstream_sha256": "7049ac5cffdfc3b8f8d1782660f01686b6996f0516ddbea3ebec454838cf2d12",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "7a14fc57488feedfe2dec3af1aeceeb87dbe045a2f0af26702b130042be14ba5"
+    },
+    {
+      "path": "web/components/tasks/TaskPanelSection.tsx",
+      "upstream_sha256": "c21c3bdc37e07ce9b7f8da660e5986c68d087c89616c2379cdb828e40b5f5f64",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "2e43771cbe23b11ab621aca1c8f547fed7020c6613da2d50c87f483fd52c8c0a"
+    },
+    {
+      "path": "web/components/visualize/VisualizationViewer.tsx",
+      "upstream_sha256": "db039deb92ff468912d818ae1640acc40efc30131655ed78b0614be6ef24686f",
+      "local_sha256": "fd4604218b68dc379aa8afcbd42f27967106dadc70f4103c95411d57755d1dae",
+      "patch": "LOCAL_PATCHES/visualization-fullscreen-scope.patch",
+      "reason": "全屏Portal保留native-viewer作用域祖先，恢复宿主构建的定位和主题样式"
+    },
+    {
+      "path": "web/components/workspaces/SystemWorkspaceSnapshot.tsx",
+      "upstream_sha256": "76a84ae4da4d217901ba8df27caed59d8e61df378549a6f57cd31e1d5da0d644",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "05291466984613955202d420a1d6ad50fc78463297ef09792a9ac57a2c684673"
+    },
+    {
+      "path": "web/components/workspaces/WorkspaceResourcePicker.tsx",
+      "upstream_sha256": "08d4d844e1013be5eea2e46e531cbd6fb3b8960cecfae804db95d6bca40725a4",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "5b0ec2c94883e4bb51f4e6f9311ddb86b2cbbc0bd35de83808503417e36f280a"
+    },
+    {
+      "path": "web/context/AppShellContext.tsx",
+      "upstream_sha256": "cddfb5c261e2ac8068e0866641cf2d587d9e2ad353d870a75e6257dd9157ea97",
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "59694f38f3b9e631c6bdd2b9e84e9cbfedc5ad04efb08df1f50b98e8505d5e41"
+    },
+    {
+      "path": "web/contracts/generated/api.ts",
+      "upstream_sha256": "eb6801a57be098dbb207e368bbb397d94b818ff19929e63303497f1f79db2d7d",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "5e7aab3a87443b7e116bf33169068047a9ece90fa77a09c6a3d215858cfbd665"
+    },
+    {
+      "path": "web/contracts/generated/turn-protocol.ts",
+      "upstream_sha256": "d35881ab1081f2023a8a2f3d94df4b02ee3de143883f99974305b9ead4afa20d",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "31cbf140273b836be490a63e1012fef0adfcd51d4746093e01d2ba80d67f5aae"
+    },
+    {
+      "path": "web/contracts/schema/openapi.json",
+      "upstream_sha256": "5982bc08797fe7e5e52d8b8be65210f872626f422ebc40d8261ce6613cdb0ce8",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "726d7385ddb058df5e9e6b894c2445ef40565e39a1a49866d36091ae062dfb0c"
+    },
+    {
+      "path": "web/contracts/schema/turn-protocol.json",
+      "upstream_sha256": "5ac52c26ca45388f12c600b4a4be1b81563b6d59a3e8386f153f0f01f0ff3d78",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "cb646c7f45685ddf6b0744884d39017d5d1faa37a0ec0f5319bb16f23e78d734"
+    },
+    {
+      "path": "web/features/capabilities/useCapabilityCatalog.ts",
+      "upstream_sha256": "9a050fd4ee2b141502f0f805d09f977b9e9397435b13897c61c98cbcbba8b905",
+      "local_sha256": "213e1dcfc89b556575801d9a9878f204f7945200fb63d9b91845f9c545b8edff",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/features/chat/components/ChatWorkspace.tsx",
+      "upstream_sha256": "1a561bff6456f6f57a8308dcb2bc846fad5bb77034d1c157a91b687aa0ba5176",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "33758896bf5062ddd50909ab1feb42f6387a9a4094a1ad8cda4d250369e8a131"
+    },
+    {
+      "path": "web/features/chat/trace/TracePresentation.tsx",
+      "upstream_sha256": "8887f55925240b334bfc8990743d486a87202b873d19b6cfb3be72188cbf58d7",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "cbb7f575e7c8a71200c6a1a20b3dec74101623646afdf7a78653fd34ca843131"
+    },
+    {
+      "path": "web/features/heart/AssessmentEvidence.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "5e2a3e98ebf1a4b697cea2c5cb4fcf313f7852297e9d6b7be9ae698e4bed97ac"
+    },
+    {
+      "path": "web/features/heart/ChapterProgress.tsx",
+      "upstream_sha256": null,
+      "local_sha256": "8223d51bc412bd7def01a545a6003164374f718e929e978bd622acd8c89cabba",
+      "patch": "LOCAL_PATCHES/student-practice-answer-reveal.patch",
+      "reason": "累计差异：练习提交前不返回参考答案，首次揭晓持久记录，复习同步保留辅助状态"
+    },
+    {
+      "path": "web/features/heart/KnowledgeGraph.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "cbe93f2ec5b6a0371a549f3083727f7aa434f2d631140f27a3f61df230a0ff28"
+    },
+    {
+      "path": "web/features/heart/StudentAccountSettings.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "f3a01ad127a0b3a649d7f660386ad2b7bde7a2d8401d050c07ee674bff18d326"
+    },
+    {
+      "path": "web/features/heart/StudentAssessments.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "1ab649da8622d6706deb2011ef177f314db99d8daab4df46dbe481936ab930cf"
+    },
+    {
+      "path": "web/features/heart/StudentMemory.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-settings-task9.patch",
+      "reason": "任务 9：账号显示设置、教学偏好入口与模型配置安全读取",
+      "local_sha256": "825513228c9282e39c28ed6289aed113d2b7814e4ad13b9387df7dda9fb86153"
+    },
+    {
+      "path": "web/features/heart/StudentMemorySettings.tsx",
+      "upstream_sha256": null,
+      "local_sha256": "282575f83b02149f0bf27afae9de2023bc57750173739e32e78b05d175b228b9",
+      "patch": "LOCAL_PATCHES/student-memory-retrieval-and-observations.patch",
+      "reason": "累计差异：学生记忆检索、摘要失效及自动学习线索展示，并保留已接入的截图前置接口"
+    },
+    {
+      "path": "web/features/heart/graph/FocusOnNode.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "faa1ca26514b94b6b78280bcdbcf8ddff3912b639b6a639d5dbe779dc9e7e579"
+    },
+    {
+      "path": "web/features/heart/graph/GraphControl.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "b737f013febce860ef8d20af2abf71372c9f85b1075679d6e449de0ccd814196"
+    },
+    {
+      "path": "web/features/heart/graph/GraphViewer.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "3bfd11b5900516453f7cf8144eb5637326e8625c80e59bc4dafd6ece9d2d28ad"
+    },
+    {
+      "path": "web/features/heart/graph/constants.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "45c358259a731cef8de062998168e61e7ae813d1f373fd5a41e43648682443a2"
+    },
+    {
+      "path": "web/features/heart/graph/graphColor.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "42a340989fa71d024d353d4daf7529d5d6acb393f2e205939268b7da23f90e6e"
+    },
+    {
+      "path": "web/features/heart/graph/graphEdgeSafety.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "6e9bf9fd76a3aa51e6ebcf07510e539974cb6e91ea003cbacfa30a2b9807cead"
+    },
+    {
+      "path": "web/features/heart/graph/selectors.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "d03ce546b6438c4d3837afc86c3904fe8cd5fa27df3afa0583dfb4d0d7994d2f"
+    },
+    {
+      "path": "web/features/heart/graph/settings.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "67388c4df9954f38318f7fdfc71230e5e99463b1b78ed88d8c01d51249916628"
+    },
+    {
+      "path": "web/features/heart/graph/store.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "f2e5a60e51798eb0ebdca92fb9656a86357a6155362aa4d7e2bdf7f52a57026a"
+    },
+    {
+      "path": "web/features/heart/graph/types.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "d02c79fa397f10c3738408d1977d194fd1efd7cc0773c8f46c579f206ad7829d"
+    },
+    {
+      "path": "web/features/heart/graph/useIsDarkMode.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "50a212b28d3f43f687afa698083cb5fea8a4db74279819eec6defcd620782d2e"
+    },
+    {
+      "path": "web/features/heart/graph/useLightragGraph.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "4466280fbd69fffd8bd4b058a50dbff64472f58fcbc1caf029cdf9cca95dff26"
+    },
+    {
+      "path": "web/features/heart/memory/MemoryCard.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-memory-task7.patch",
+      "reason": "任务 7：LibreChat 记忆卡片、列表与删除确认的宿主适配",
+      "local_sha256": "64198d1021f2b3500d95a5a84aa499aaa4356107dc16b04f002e8363d9dba2d0"
+    },
+    {
+      "path": "web/features/heart/memory/MemoryCardActions.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-memory-task7.patch",
+      "reason": "任务 7：LibreChat 记忆卡片、列表与删除确认的宿主适配",
+      "local_sha256": "81a492a8afce067c1fd6781fb271d45c1f32533b51e103a9f815214fab2149d5"
+    },
+    {
+      "path": "web/features/heart/memory/MemoryEmptyState.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-memory-task7.patch",
+      "reason": "任务 7：LibreChat 记忆卡片、列表与删除确认的宿主适配",
+      "local_sha256": "b3e1f575fa6595cdd5f650dc24f5f2ee0a1b0d1406815ed1607e544edaf57db0"
+    },
+    {
+      "path": "web/features/heart/memory/MemoryList.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-memory-task7.patch",
+      "reason": "任务 7：LibreChat 记忆卡片、列表与删除确认的宿主适配",
+      "local_sha256": "214fe05295787e7bec180f08edb9e94cbb137a6cec57f7a388cde587f27d77f9"
+    },
+    {
+      "path": "web/features/heart/memory/types.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-memory-task7.patch",
+      "reason": "任务 7：LibreChat 记忆卡片、列表与删除确认的宿主适配",
+      "local_sha256": "99a1bded03269ffb0f1d4a45f93bce1cf7b4f785ca293bb70630ef94da3f2dee"
+    },
+    {
+      "path": "web/features/settings/sections/ArchivedChatsSettingsSection.tsx",
+      "upstream_sha256": "9d58ea3858a1410ce01bb7f4b549f53e69fa7e7b01fbfa9837aa5b07ea8f5efc",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "217048736e6a4c4c522ae5211b4eb57885e9fd256b6ce89525ec1c636302e790"
+    },
+    {
+      "path": "web/hooks/useModalDialog.ts",
+      "upstream_sha256": "6156106880f3824d492de137372917eaa69021e132e85fbcb92be0f72f2dbc55",
+      "local_sha256": "15458ce7e00c140d7097439cc205340dd1e5cdfc26be30e1941ba1c42452a8fe",
+      "patch": "LOCAL_PATCHES/student-white-gray-accessibility.patch",
+      "reason": "任务 1 固定白灰、对比度、移动键盘导航与可用学习入口"
+    },
+    {
+      "path": "web/hooks/useTopicSourceLibrary.ts",
+      "upstream_sha256": "d09788deb1182c6e5319f264046a298787063b9612bfef0c90b0fe3e35817a77",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "8e3abdf5210bcd285e3e549d6f11a0876734966faaa324047b8442faaec019b5"
+    },
+    {
+      "path": "web/hooks/useVoiceAutoplay.ts",
+      "upstream_sha256": "bce197a8f14e0b9ef56380409ef746abf12677b7d4b37002bf6c6ec390233584",
+      "local_sha256": "9f4a39af8e809a529348840de16ac55c7fc0d9c169e834c9bc4be208092cc98b",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/hooks/useVoiceMathSpeak.ts",
+      "upstream_sha256": "d3e6f9b4b6e414bc4002271e139d0213bffc9c8f4c969131bf5845045225cf83",
+      "local_sha256": "a4990a536ad7b1209776d9bf7884a11f2e6e58c2f9eddf0f0956da190afdf7a6",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/i18n/init.ts",
+      "upstream_sha256": "824506935b40b17624398374988f93b05b8942825d0f499cde0c32cfdfe43ba3",
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "06110f8ba641da69b1c0de43ab8d824474f435342a28aa0413a5b56bf9e772d7"
+    },
+    {
+      "path": "web/lib/attachment-limits.ts",
+      "upstream_sha256": "4c2c3fd9b86335c2ea9daa069eb0043b0c0a026c71c6c0ccf6fda0e6f6017c1e",
+      "local_sha256": "13c0558e463c14d6d5faa20e1b68ffdbd1c3422022b32d976da47f1cec8de382",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/lib/backend-forward.ts",
+      "upstream_sha256": "691823fdde48334db2d6c3f6dce69dc018efe505ce91200a111922cc866ee25a",
+      "local_sha256": "6982739fd2417cb24c15651e654492af44474b72256bdf068361f2054822a846",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "web/lib/capability-routes.ts",
+      "upstream_sha256": "04c82848d399b933ccd710ac1596d3661f882e0f586d8468541a1cf811af1524",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "bbad2f0ade047f328d54514cd200cfa41edba3843c07bf296b216a24c6ee704d"
+    },
+    {
+      "path": "web/lib/learning-dashboard.ts",
+      "upstream_sha256": "a7051d523ea444c5f6748df76ad7e5208a4ca0ee826517963ec71346cfbb9593",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "49870da29243d426239d47c23b69f5878fe09a61acfa37c8df2af25db5dc48ed"
+    },
+    {
+      "path": "web/lib/learning-journal-api.ts",
+      "upstream_sha256": "281ccad1cfb056a99af561363207771fe16f665b054bc63b546846ad2fc7f32d",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "90be3297d297df3395a8a42fbcdafdd175e3a23dbd016a7b09f7b43d842470ec"
+    },
+    {
+      "path": "web/lib/notebook-api.ts",
+      "upstream_sha256": "6d75df09aea659699a57e84fdfb96e27c8e5f7d146a786af62c7f163f18ceb84",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "01fe532d9cf5e537eb74253b4adbe16b7dec86da960e060e3235c9f0dbf7ed66"
+    },
+    {
+      "path": "web/lib/practice-api.ts",
+      "upstream_sha256": "fa2aa476e6c70c0bcd72dc9a461ec9e0415d67048ff3cae600cd087ad78c8939",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "5caa6bafaf10f4d2577c97fa8b940a33d04c88ca8d35a149c889d4b305cfdc4c"
+    },
+    {
+      "path": "web/lib/reading-age-presentation.ts",
+      "upstream_sha256": "fe072edebcc15eef13dfe6dec6e7a173abeea4b27ab5edae83d37a02d6e1de59",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "1d4a0842a9e9f9e760e0f652870a7333207e1d6f1f7b2333c0574bf4461c5de6"
+    },
+    {
+      "path": "web/lib/reading-api.ts",
+      "upstream_sha256": "e1a998ea4cc98e463aa7a932ffc941f9f418da5a93153ef554ef30efb4a2bc45",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "80a96cf70da4403f311f615b171a8bc0c704a40f8674ecfa7919ee3e0d74f28a"
+    },
+    {
+      "path": "web/lib/reading-citations.ts",
+      "upstream_sha256": "b635c965bdf8be8d42fa95be89aa5b67ca1c33f7a7d585854df99d14fcce1140",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "dbfcf3983389a85248cd658debce00d7ffc5756d1f30678cadd40f01261b215f"
+    },
+    {
+      "path": "web/lib/reading-selection.ts",
+      "upstream_sha256": "95bc5c96714da00f6a16068cdae5cd3fa2fc51520934f38b6dd6102ccb806fcc",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "a6b90759632362b108180587a34b57d8542f7cbf0cd00df4f502ab2103abb27c"
+    },
+    {
+      "path": "web/lib/reading-turn-state.ts",
+      "upstream_sha256": "639e40011e7163eff54fab00f4e64e4b87e80400e7b90ddee89eeb3ad1ca182b",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "8420d7944f75944ad6bc826698310b1acbbda3c421a2505a8210eccf07fe9b9c"
+    },
+    {
+      "path": "web/lib/space-items.ts",
+      "upstream_sha256": "54ed9be6782d3f634147d58aaf1688956f1064579de6dcf0c7657409b3d59081",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "0444ea03c2ce31282405cb1cbd09352f93aa6feeed98ea261ea65c8f215cb3cc"
+    },
+    {
+      "path": "web/lib/subagents-api.ts",
+      "upstream_sha256": "d204b3af256c6bc49eaed7592df20e73233ade84cb48fc5cbd7c99e6e45c236f",
+      "local_sha256": "dc735c1f98cda617d81ffecb480ac76cf3eefabf8c3ab78a16562de661bc07c2",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/lib/theme.ts",
+      "upstream_sha256": "de2f495003e4bd1b9aac7cf9d02cc0524299ea98bdef535f5df840072b98c8c0",
+      "local_sha256": "17795d5ab6fc92976bdc344c8ebef3cb673b9298afefcecb1d0db187463354d4",
+      "patch": "LOCAL_PATCHES/student-white-gray-accessibility.patch",
+      "reason": "任务 1 固定白灰、对比度、移动键盘导航与可用学习入口"
+    },
+    {
+      "path": "web/lib/tools-settings.ts",
+      "upstream_sha256": "761296c3576353225952f2921c5c648098ef93d4cef7b355bed7232cd93c6815",
+      "local_sha256": "688680f564ab9ac6dd9cb36690687e33c9fc23869e6d4b6a8520eb335584e539",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/lib/workspaces-api.ts",
+      "upstream_sha256": "9199361379a6a5b4f7bde60a6dad68e1aedb90d214f0892c759c2427d0083472",
+      "local_sha256": "cfd320028bcd5c461b59ddd315eea132652edc6178cee9635ce1fada141139a9",
+      "patch": "LOCAL_PATCHES/student-prefetch-access.patch",
+      "reason": "学生预取遵循现有学习账号权限，无个人模型仍可阅读教材"
+    },
+    {
+      "path": "web/locales/de/app.json",
+      "upstream_sha256": "f07fded0381939d08580ef1c10a6c71ce74d4fe68664ec446ba978cab34f7ac0",
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "636007d03e4d04af9205338a600a3348c661083627bb4f8810c50241c82fdb91"
+    },
+    {
+      "path": "web/locales/en/app.json",
+      "upstream_sha256": "3a635fdecd9ba6ba4b30acc34c662937fc217b2d0da425055722904c5ec958be",
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "1652e2e788989c9b460abc26143fdea57bd17a15a60ff91bac1a2a209d0b126e"
+    },
+    {
+      "path": "web/locales/fr/app.json",
+      "upstream_sha256": "82a1b525fb0045f3e0f27e7fd5eb4b8fe76744009c6f10dfe25b67a327129e22",
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "c758aa501dc7899abf513f8c8855be0b591e8af36fc0b50e39bcb04c5ec9b3d9"
+    },
+    {
+      "path": "web/locales/pl/app.json",
+      "upstream_sha256": "4103a26276875aa51c4a6303b73ed12e0d0c0c5355711ad2d2d54332726083db",
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "224842c45b873eac0b1d0202120459d6a9a4a9635d582bd3cb1fcfcc6ce5e6f3"
+    },
+    {
+      "path": "web/locales/uk/app.json",
+      "upstream_sha256": "155b0fafac1d8d3a7cd4e5dc91467eab3fed7f103ed79939cea37fd534210803",
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "47474f5cca2aed0ca92e8d27d167f8c6f755f2c96d808f2888d32e84f4490e20"
+    },
+    {
+      "path": "web/locales/zh/app.json",
+      "upstream_sha256": "06c48963520eea58048fee600ac5d82641268824b620f1cfe4bd28f8c0e92133",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "8decdf1c63b9da3f7db626979f629fe208a994ade6e6537551850f82aa95206f"
+    },
+    {
+      "path": "web/locales/zh/common.json",
+      "upstream_sha256": "83f4a817460a64ec8887ad394734c042c701464d272296d9c773813dbc5cbd24",
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "b65b3dd9f497f9368d50c1b5d10e67fb79301d9f96d5dd8f0d420be5c4a268b7"
+    },
+    {
+      "path": "web/package-lock.json",
+      "upstream_sha256": "0ff706d29e863827d42c2d399ce4e7c82e849925699af4ae7cf05f6b69631fb5",
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "4840c60609c5f49463cd22a3addddae23322649550d102d994b59782ffa2b462"
+    },
+    {
+      "path": "web/package.json",
+      "upstream_sha256": "186febbdee54a14e310b924f7a94bd589b8eb8b0499037311668d6b467f7232e",
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "e2957234b36274551e217cc50fbf1b5ae6437e6435d7db8b9635787d54035a28"
+    },
+    {
+      "path": "web/proxy.ts",
+      "upstream_sha256": "cd99dc6db0904323174874413d5bb58f3a7b1aab8f35b0868b42c2d66a120604",
+      "local_sha256": "fdd90fd73d478718fda904920bb595c2bfa311637310d7d5ce696cb45c58c748",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "web/public/zhixue-icon.svg",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "2e303ed308bc1c291b40b57d20894840cca34ee9436716959dc5862c6ef6e725"
+    },
+    {
+      "path": "web/public/zhixue-logo.png",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-zhixue-brand-probes.patch",
+      "reason": "知学品牌与模型验证反馈：原图、中文品牌、兼容请求编号、费用确认与持久提示",
+      "local_sha256": "29d3a2215dc12c5d4ed5d8520a134b077a42e05f8fc8f66936bd54de0ee8e58a"
+    },
+    {
+      "path": "web/scripts/generate-contracts.mjs",
+      "upstream_sha256": "57adca406512ebec9165f93c41e379c518b0537a84187e858216bf7fc3ffdc79",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "3b357263e991766399b2995dcb6aea5abf02f4b0d70246b4cba570b85d5be947"
+    },
+    {
+      "path": "web/scripts/run-node-tests.mjs",
+      "upstream_sha256": "f67c84ce249ae9cfa6607038f6be0cad0a8428aa90186df0dcc69f8870681f74",
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "b29930e4abeb42c4ddf3acf5fd2eb80355ee37aedb3d558daf29366cfa723315"
+    },
+    {
+      "path": "web/shared/api/client.ts",
+      "upstream_sha256": "f7461beec226d14fa5250f503831259aa17a8912e4ea2131e682303e22a4b62d",
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "7019b07c733dfe820e8cf721baa4006650f4a508785713645589ca91e6ac2a4e"
+    },
+    {
+      "path": "web/shared/api/errors.ts",
+      "upstream_sha256": "18a26e3597ca6de6875a9d8db94aa2729dc0dc08b89c260338209291ce0162e0",
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "4c1b681c472dd4dc874faadb55159b08e4ba6e142da75265af938f4dd7d24701"
+    },
+    {
+      "path": "web/tests/app-shell-language-adoption.spec.tsx",
+      "upstream_sha256": "2514fa74fa0618a490f155a21d50142f2e8a08f8a730cdd04a0907fcb9071dd8",
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "57bf8dee8ebffefceacd69f47b0239be96e0e80d55c8782338097a2d9f7a1ad1"
+    },
+    {
+      "path": "web/tests/assessment-evidence.spec.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "5a1ac3fb9207d67cfac229a76c4b6c7f0aa95991dd9fa94708425060acd40cc9"
+    },
+    {
+      "path": "web/tests/capability-access.test.ts",
+      "upstream_sha256": "8b9c683e4a9369e99c27484a166cc6f25489d99868534b5aa0b85a80444e1f73",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "00859b72f75ae1c365376999f172aa3b7879f96c38aac85f11d7f9aed5ba24bd"
+    },
+    {
+      "path": "web/tests/chapter-progress.spec.tsx",
+      "upstream_sha256": null,
+      "local_sha256": "1800867fa880cfd45e102ebe9cbecf19f70b192a7fff5a8e106b0096d5b2086f",
+      "patch": "LOCAL_PATCHES/student-chapter-progress.patch",
+      "reason": "按已确认教材知识点查看最近同步的厂家状态，提示未同步和读取失败，图谱不使用未确认实体映射"
+    },
+    {
+      "path": "web/tests/learner-navigation.spec.tsx",
+      "upstream_sha256": "644fca0ed1cc3b142cd165a668618c0a99dbc4df2d18a70248bb31c6454885cf",
+      "local_sha256": "658127fa9f6bbdf25535a1687c0b6419ec4354fd6baccacdb96e5a4f75051564",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "web/tests/learning-dashboard.spec.tsx",
+      "upstream_sha256": "0679eeedcbec1030a97b295adef5e26bb25b15e439a12ede6d4c87e3f9466df1",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "87aa8ca78bff6722f0a7226b3b308a0c67ca3d8bf6adcf70b88a4b9cd7e3cb43"
+    },
+    {
+      "path": "web/tests/learning-journal-panel.spec.tsx",
+      "upstream_sha256": "78068729a6f0220c5c04bd133eef3ac08685348fab549bd39736accec384b6c9",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "83677d3573942f35661e0266be56fca8ba1a41913f4c38c8c243838ebec1b6ac"
+    },
+    {
+      "path": "web/tests/learning-library-workspaces.spec.tsx",
+      "upstream_sha256": "e2bba8d08d30f9bcef35a98353487c52a5546d3e694d639137889b9edc3383cf",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "f3c1c7d28930e096f35559e0ae73f9c0aa8a1589e0abc4df97ff2aa10ffe24de"
+    },
+    {
+      "path": "web/tests/learning-scroll-restoration.spec.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "105bc627b15ef94aa8a88cc78e709082bfa799c403d15d1ea34381aed2834cd5"
+    },
+    {
+      "path": "web/tests/learning-source-library.spec.tsx",
+      "upstream_sha256": "873115457767deb8177d434413a7581225e4f156ab1056645e949a21ea3ea692",
+      "patch": "LOCAL_PATCHES/student-learning-task5.patch",
+      "reason": "任务 5：学习概览、路径与档案、按需证据和返回位置",
+      "local_sha256": "21e21fac4cea7b9add5354ea97e596a6e6a27464f82ba3b57c68fdb656eff8e1"
+    },
+    {
+      "path": "web/tests/partner-group-export.test.ts",
+      "upstream_sha256": "50ed68320259697d8de5f85cd3e83a161537aa8f6ad18e0e909f9c99cb17bfae",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "31df9ab675247c1ab884ad0dd84f89f5cb7ce281047c74d06a4d243498bc9930"
+    },
+    {
+      "path": "web/tests/pdf-cross-page-selection.spec.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "c077c325926fb48e6d2b8aa68c8b94bb6b1859f5462b49cd829668f475497718"
+    },
+    {
+      "path": "web/tests/practice-workflow.spec.tsx",
+      "upstream_sha256": "cd601f68d40ce842d4d9d869a15a1a9272b3ae52e4a4ac2aa510c557926c60a2",
+      "patch": "LOCAL_PATCHES/student-practice-task8.patch",
+      "reason": "任务 8：练习范围、草稿幂等、持久评估投递及截图期限",
+      "local_sha256": "5dd67e6a3315f89495ec50d0057faff74d63d70ddb82e9dc9e52746af30320e5"
+    },
+    {
+      "path": "web/tests/reading-add-invidious.spec.tsx",
+      "upstream_sha256": "cdce277f84c1bad5715db33bcf6772a413ab04c16871b57316be34eb63612a78",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口",
+      "local_sha256": "69f24423f98eb32b84538996c56e5b1ce1634d9aab34ea084548a3951d38bfd9"
+    },
+    {
+      "path": "web/tests/reading-citations.test.ts",
+      "upstream_sha256": "503a310026153d13dc9861d987d6d49cc0811ad9d0a9ba5e5a671943bff4607f",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "4f6537c975f81c72403ca1581363bea361556e839e0798c50f6e71b3aa5a2784"
+    },
+    {
+      "path": "web/tests/reading-composer-resources.spec.tsx",
+      "upstream_sha256": "ef2c12803fc2de60586a581297064861de9fe7e5efa293a5b01dd6b9803ced92",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "1d9716714bd882a42a47f6ea54765f2f4a213d2005592d8800ef9831fee6e9af"
+    },
+    {
+      "path": "web/tests/reading-learning-mode.spec.tsx",
+      "upstream_sha256": "22a47256d3101bddf1b38aa57a878d1f638f67a677e559914a07a8fdfaa16d55",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "3c65b9f134d905212876a61eb7ec775d1e515a7eb42c62f58e92c1f1da9d53fd"
+    },
+    {
+      "path": "web/tests/reading-turn-state.test.ts",
+      "upstream_sha256": "228c4b589771e2a1d1627079114bedd8ff77bf11c9c4bb95a6fcb29e0c280c11",
+      "patch": "LOCAL_PATCHES/student-reading-task4.patch",
+      "reason": "任务 4：教材身份与版本、按页选区、已核实原文引用回跳和证据边界",
+      "local_sha256": "300497c2abd3957f8a58960db53d2ae2f4ca4c6ee3e576ebfe58b20199e0ead1"
+    },
+    {
+      "path": "web/tests/sidebar-defaults.spec.tsx",
+      "upstream_sha256": "39ea5afc51fcb84e179677a2d168180493147e6e24de91ab93b24032f473a5ea",
+      "local_sha256": "059c23bf36515525a5e4e847589a39411697bee8597c4cf7fdc3efaaa741ce12",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "web/tests/sidebar-lazy-history.spec.tsx",
+      "upstream_sha256": "1cb4ab409cb078bc842db2d27b9db8a13ee6f1980d04d6f478d7001d5d7f6879",
+      "local_sha256": "5b0645a4539df7299ef926fa68e40026cca9cdb1d7fa7bac525f15af4d74e82a",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "任务 0 重整隔离树现有差异，固定完整上游到当前文件的可复核补丁"
+    },
+    {
+      "path": "web/tests/student-account-settings.spec.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "5e5b45990bd08b550325987004ed94cd317d5e6e1c803d4f7e7902630b6dd04b"
+    },
+    {
+      "path": "web/tests/student-assessments.spec.tsx",
+      "upstream_sha256": null,
+      "local_sha256": "ced3e3ef095dceb629d542f6fa8795607f2014edff0cd78e6d76d6afd097a167",
+      "patch": "LOCAL_PATCHES/student-reassessment-ui.patch",
+      "reason": "累计差异：一次成功复评、前后结论/来源保留，费用确认与幂等申请；修复模型初读覆盖输入及响应不明处理"
+    },
+    {
+      "path": "web/tests/student-chinese-errors.spec.ts",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "39e468a275cd431071386350ba879799d296e10cadbda394c9b858780cc4b602"
+    },
+    {
+      "path": "web/tests/student-graph-build.spec.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "2cd4543150d8fab418c8aeb1422e4ad5108e7b82deeaee237e97f32974c666d3"
+    },
+    {
+      "path": "web/tests/student-graph.spec.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-graph-task6.patch",
+      "reason": "任务 6：只读教材图谱、厂家状态投影与规范ID接线",
+      "local_sha256": "d195986e61d7b756de28a117f23fe871d2c46aacffa8219db44eb9c44dbf4d8e"
+    },
+    {
+      "path": "web/tests/student-memory.spec.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-memory-task7.patch",
+      "reason": "任务 7：LibreChat 记忆卡片、列表与删除确认的宿主适配",
+      "local_sha256": "d7358f4a58fef39b79f6db95743a68f82d3ded3670f72ef22e56fb624da60fce"
+    },
+    {
+      "path": "web/tests/student-model-page.spec.tsx",
+      "upstream_sha256": null,
+      "patch": "LOCAL_PATCHES/student-chinese-ui.patch",
+      "reason": "简体中文界面：固定语言、缓存迁移、首屏词条与错误翻译",
+      "local_sha256": "4c15eb97794462aea2d784731b0f2b00cd6b1b568d74c12c16087292fe07f897"
     }
   ],
   "files": {
@@ -412,7 +1868,7 @@
     "deeptutor/app/contracts.py": "c2a587660cb6af090aa389f220a9ce6b3f4f779d5bfe946193dd92a459510347",
     "deeptutor/app/engine.py": "821f8f0b119e699b32a412fa42fa56ae8f6f5327ec4bba09bfdb62ed8d329829",
     "deeptutor/app/facade.py": "c1b0551635fe9f85228d4242418d4916815ac25a4a004b919551358f60071d70",
-    "deeptutor/app/service.py": "94f879b27a4e9951977aa364c8a65104fa80a8163035d645540cb4e50ae226b1",
+    "deeptutor/app/service.py": "7fcf7ade63e1496482cbf739bcebd5ac3f02cd88dd154abebae438658cd291c7",
     "deeptutor/book/__init__.py": "c4146b5d3bb5dcf59d773e1c1dcb261da924aa584fd8beba6b71cba3d749f820",
     "deeptutor/book/agents/__init__.py": "1d3d2109e094cbd2b5af3142b8d5cbf8b6b599623d90dc20855d1504669c5011",
     "deeptutor/book/agents/ideation_agent.py": "1778e87ff212c1e4b5e863093bbebf5dc895114caf63cdf1f4e216da5dad065e",
@@ -1714,7 +3170,7 @@
     "tests/app/test_multiworker_turn_application.py": "c6fe123f9eb76862ed8d3bc8849a531e8f15b427b1070790fffecb16ec6a31fd",
     "tests/app/test_multiworker_turn_reply_after_queue_drop.py": "2db08ae7bbcccbfc4b094febdc9d4394d9b3a937c6fafe4ceacaff5de37a6fe0",
     "tests/app/test_startup_data_migrations.py": "9377e6db0f4dbda9ed9f6329f3613bd0ab78d0075b700dfb97cdfdca99c21411",
-    "tests/app/test_turn_application_service.py": "8f669a151864db382b5417c08227de8982e1be702d8d200bff12322dea15cae1",
+    "tests/app/test_turn_application_service.py": "62fba013f66ce0ad60c53e78731ee37614b365ea4ef523d7ee38d3b1785443f4",
     "tests/app/test_turn_parked_on_ask_user_is_reclaimable.py": "d46b81be489b4fa817a2aeaa91320b6ef94eda5a55eda5eafacc8b7b2b909152",
     "tests/app/test_waiting_turn_recovery.py": "a641fec1d1ca67143a446a3584e070b356e4f9bb6670b6472298b7e2e855e617",
     "tests/architecture/test_import_boundaries.py": "4f427abe556e15a29afae111d59b2b38f4a280e90a0297bceed414a72bc8de96",
@@ -2508,7 +3964,7 @@
     "web/app/handoff/page.tsx": "1ca67f0e88ab52969fc87d3ddd45e7a739d49721e0fc274f15fbae924e8b4d58",
     "web/app/layout.tsx": "69d440602705a2299e62241b3c35ce7ad6e894e3a7f3b47d506ce7a0729714ef",
     "web/components/Geogebra.tsx": "e5ee4075ab43b6226baec54892df6376f4493e02e5119b696faec5ddd42daffb",
-    "web/components/Mermaid.tsx": "14ac1c363ef917c20bec50f12b9034fc927ab18fc1a5cf64815cdbbee57b8d6e",
+    "web/components/Mermaid.tsx": "3841bd87eb6ff4b9618a9329ce0f1ddd2c968264b0d2cd6cb110eadab8f2168d",
     "web/components/SessionList.tsx": "1356dd0c91a7fa16e0aa8e85f3f9c7e0be9d6cb91ae4c73944ba1203b0d731b2",
     "web/components/ThemeScript.tsx": "654c42b7e4f31a108ebf81753eea1a5a16c693e795c582f6cfae567c49ccd5cf",
     "web/components/UserAvatar.tsx": "95a5223f6d59b0dc14c8716231ef9280b621e303e20c832145de3aa4dcd4f187",
@@ -2890,7 +4346,7 @@
     "web/components/tasks/TaskPanelSection.tsx": "c21c3bdc37e07ce9b7f8da660e5986c68d087c89616c2379cdb828e40b5f5f64",
     "web/components/ui/Button.tsx": "e2ebaad6de3bcbfdcd00a3bf44318797ad8d9e154597be0dad47542ba61746b8",
     "web/components/ui/ConfirmDialog.tsx": "f4de761b4848b1584e57e6493686be624f61f1ea1bfd2c5f4c432f1c8a898267",
-    "web/components/visualize/VisualizationViewer.tsx": "db039deb92ff468912d818ae1640acc40efc30131655ed78b0614be6ef24686f",
+    "web/components/visualize/VisualizationViewer.tsx": "fd4604218b68dc379aa8afcbd42f27967106dadc70f4103c95411d57755d1dae",
     "web/components/visualize/VisualizeConfigPanel.tsx": "16b767500d4f28dac75487a88e0929c197c12a498a20ba6b79eeeb2c6423ec63",
     "web/components/visualize/svg-theme.css": "bf84cca40351f0f7378ba9202e2f902cce6f479588ce76ecd4073ffaa33abd20",
     "web/components/watching/WatchingBrowser.tsx": "7e6554c9ebc9f2baa8808423744b1fed185c2db0d9682b8c25eb82c1d68fa249",
@@ -3798,5 +5254,658 @@
     "web/vendor/thinking-orbs/theme.ts": "b834846ed61924ff391850bf2f3145c5c803316d5533a85e2194994689fae8ed",
     "web/vendor/thinking-orbs/types.ts": "4f208c8f5b140b5c2345be8ad05e8bb3fec697f8f7a8708c3c7088550534a958",
     "web/vitest.config.mts": "10346d2f8f8ad974a2633b51a27ed13a88816489bc46b129a3f22f5d97c81f16"
-  }
+  },
+  "local_deletions": [
+    {
+      "path": "web/app/(admin)/admin/users/page.tsx",
+      "upstream_sha256": "1da9a409decd7ae86f015db24c22c6b99cbabe7eff4a3da1ac96048cf9797d84",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(admin)/layout.tsx",
+      "upstream_sha256": "a1a261719ee00777a09659553c72382909b1a76db18de978539873a84a97f5a2",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(auth)/register/page.tsx",
+      "upstream_sha256": "c1845065060b27cfda72be25bc6a7c16679cae9080075da958f853d4f362ac52",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/agents/layout.tsx",
+      "upstream_sha256": "59bc3c87b278ad683edf7d4139fad602ea7b7d53e11deae538ea83b5092bee5c",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/agents/page.tsx",
+      "upstream_sha256": "140b8c78aca3b680fb1c3ade8fd910a2f93281f5b0187d653c2d103d4a1a7e3c",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/memory/graph/page.tsx",
+      "upstream_sha256": "8e673b803e02ffdacd2f5056a614cbd88398ebefefaa4c5d0825d51caf23d3bc",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/memory/l1/page.tsx",
+      "upstream_sha256": "0c624b3538a05c8245e5a0380e6ec8664313118939c52272da0077e8500dd27d",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/memory/l2/[surface]/page.tsx",
+      "upstream_sha256": "23bd97d9a8c697194a2d0efe8412b2efcf3b1ed85d04a301c8dd2fcf3263f85c",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/memory/l2/page.tsx",
+      "upstream_sha256": "b76ebebc19e1232584991e0e5745096ab6c22189452c23e41bb47ad901250ed0",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/memory/l3/[slot]/page.tsx",
+      "upstream_sha256": "ffc2e7131b3a535e8be01ae7976cb697e35e250af28c7dcbeea5ac5c7b2f930b",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/memory/l3/page.tsx",
+      "upstream_sha256": "d8353b0cdc32dc9eb841445107ee6336046b427c46ef556c3cecb28fd7250d36",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/memory/resolve/page.tsx",
+      "upstream_sha256": "3b7fce3e47546072f3609eb424a59268241befff4a8bc20244e9131c5c851e66",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/session-handoff/page.tsx",
+      "upstream_sha256": "506ff59ec401ce148ba1d37d51b50f33366d3af6063bc28a142b2841855007b7",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/space/chat-history/page.tsx",
+      "upstream_sha256": "fda04fd67431e4bea5b3f2127fd2ecaaa4323ea65582e6e22ccefb3a84b9619a",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/space/cli-apps/page.tsx",
+      "upstream_sha256": "d5ac9295bb5174df87fa9b231928c0d4f9a589baaf761c3466933ce2f3d1fcf0",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/space/journal/page.tsx",
+      "upstream_sha256": "0bf6a856f8630bd1ca4508d6f3d81dfa8226e80ad4c1b58b98433e26816c4955",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/space/layout.tsx",
+      "upstream_sha256": "84a7e6e7884ce60ab01ef25cf5ffeb113b250f4d066011aee4472e825b21e335",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/space/mcp/page.tsx",
+      "upstream_sha256": "8ae82e1bfc93031391df3b83fdfddbd77bfe5307f511f48ac37b3c0caa143380",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/space/page.tsx",
+      "upstream_sha256": "e5a2e1f71bce5339eea65e1a383f7e5f1816fa3129fdb1f9b06c15a7794e7e0b",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/space/personas/page.tsx",
+      "upstream_sha256": "c7a377a7fa469034686c648ceeac185ffa5b7ebd2a794682e7c833bb597ac266",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/space/questions/page.tsx",
+      "upstream_sha256": "597433dff5646f43b93cec44e4ce4cd800505108c9544cfc7829a5ee4f149458",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(utility)/space/skills/page.tsx",
+      "upstream_sha256": "a3324c5de6cfe2166f7cac02d9503c37c9d41b4c8acde685eaa1bcf3defd7dec",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(workspace)/co-writer/[docId]/page.tsx",
+      "upstream_sha256": "ccc3f1ff552dc2d1c0497e2104adfaee8a248b6c9f9c7dc21e38b271e17904d3",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(workspace)/co-writer/page.tsx",
+      "upstream_sha256": "c707d84dd2dc5968c6901231e14d871acbd47c678539d6867daa2bb213c601b2",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(workspace)/co-writer/sampleTemplate.ts",
+      "upstream_sha256": "ab456f6bb77b0e5a26a1c9659925eb4d8fa271a9dba6341dbf70d3a45789fd80",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(workspace)/kanban/page.tsx",
+      "upstream_sha256": "5507cdf46affe3059dd3ce79767cf53ff85c468ea6e119807d98cfb322317e3e",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(workspace)/partners/[partnerId]/page.tsx",
+      "upstream_sha256": "e5bcfd409165921bb7cc6e80c077e1a023a2439f1d41deecde30aed250aedbd1",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(workspace)/partners/groups/[groupId]/page.tsx",
+      "upstream_sha256": "60faefb9ac9accb5ff9f723849f924f291c5aec5ab4e39c8fee25f2cdf2fb727",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(workspace)/partners/groups/new/page.tsx",
+      "upstream_sha256": "6f31f77340042640e00cac010c5c2da643821757178673e547ad9fe604249078",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(workspace)/partners/new/page.tsx",
+      "upstream_sha256": "09716cbfa3dcf082b68e49d1ea11fee97acd84922d3251a61d79d7579f4116a2",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(workspace)/partners/page.tsx",
+      "upstream_sha256": "cf66391b82b64e35d14824e0f55bd5f2783a0ea2bf55ed480ebaf8665ec42e35",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/app/(workspace)/whisper/page.tsx",
+      "upstream_sha256": "c26095975203a9dbaa4b2e0ee8ca3a7c00454cec3d697165d5ad8314150ff85c",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/components/agents/AgentsHub.tsx",
+      "upstream_sha256": "d2b8789768ac9a5c03aea2436924bd9f066817f390ebd27beac07789123ca057",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/auth/AdminLink.tsx",
+      "upstream_sha256": "459d8e941409c9d627bacb78c26de6a046fb979cdb3c3888732e02048febd1c0",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/chat/home/PartnerGroupSelector.tsx",
+      "upstream_sha256": "10b9c6b3e289ea6b268da4ef4db263ea85230f45cf3550070434414c26adb229",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/chat/home/PartnerSelector.tsx",
+      "upstream_sha256": "224e82271aa7d22e655b0f3883df92296653a6472c63c10efdfb7bf5a2d8dd82",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/memory/MemoryArchivedBanner.tsx",
+      "upstream_sha256": "77a908021794db5f28af820f2b6c01e3344529dcf5cc9bad84c7fa585de812b9",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/memory/MemoryGraph.tsx",
+      "upstream_sha256": "e25ee14cfc304b2f612157fc6eb1b1e0fe1f37052abd63c945405ca69b3553fb",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/memory/MemoryHub.tsx",
+      "upstream_sha256": "69994d473991157a96da38e891375ebbbda41d7d32d63407fe9bde36f29dceab",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/memory/MemoryL1Workbench.tsx",
+      "upstream_sha256": "f17ee6603a28860653038d5d6d642e322d3227f38450dec589ed3d86dffe7e0d",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/memory/MemoryRunPanel.tsx",
+      "upstream_sha256": "f235e1cedc2b542f6e880bb9280d7d3e7463672787814afbfa1bae0de522cddf",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/memory/MemorySection.tsx",
+      "upstream_sha256": "4941c6359362145926eef23386c606c9d90a539629a1ffb3bc81f4f5b708951a",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/memory/MemoryWorkbench.tsx",
+      "upstream_sha256": "b31c11d030ee5534a518148cf64484ccfd16506e48a74301f4fbfeb3a38f43ee",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/memory/useMemoryRun.ts",
+      "upstream_sha256": "f38f4e8a8ada38357ffb91638baccf8275a61f919d34bb80bbf9ee09382b776a",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/AssetPicker.tsx",
+      "upstream_sha256": "e7746e1d4000d3b0150af23052670bed622f34555485741dce49fd4a31dca855",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/ChannelIcon.tsx",
+      "upstream_sha256": "9e9e8946b4df18bdc42d44a4f79858ffa319326083dfa2c4198e69379ac25f8b",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/ChannelOnboardingPanel.tsx",
+      "upstream_sha256": "3045a3b59f511acef6ea6aca2dae91c78c0bf547ec7cccef2ca86da6d396f168",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/ChannelRuntimeStatus.tsx",
+      "upstream_sha256": "ae962dbb71f12943e73883bd7c94bbee6d0267793520e967c5d48272143c3e38",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/FaceEditor.tsx",
+      "upstream_sha256": "ca8b85792bb88a339e06b7d8e6ce58ea9135f324350beec8d02e4768e2b3d546",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/PartnerArchives.tsx",
+      "upstream_sha256": "95308f803d1547c492242966dc50f1d74b9f59325b26d28ff260823533382d23",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/PartnerChannels.tsx",
+      "upstream_sha256": "2b4eb356a88eb3648a7d34075064e4c8318520a10610983df32df64df23b395e",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/PartnerConfigure.tsx",
+      "upstream_sha256": "8a14715156a46fab7f18d308eb0f1a51efbc55f83e13f1f1803a9b012f4b447e",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/PartnerLinkModal.tsx",
+      "upstream_sha256": "615c13b3e85be97d8caea7eb663a725ed54430d3acf38b1346b3e6bbac32ea2d",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/PartnerModelPicker.tsx",
+      "upstream_sha256": "22bc864550f0ebb25a878bfbea6fb7fe87e155679657ad19faece91cba631b20",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/PartnerModelSelect.tsx",
+      "upstream_sha256": "747d298364873e93d2fc2e03e015f9c6a4b3992a913cd82edbfcabd909c471ff",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/PartnerWorkspacePicker.tsx",
+      "upstream_sha256": "5661d8ae65166b2c61cadecfb13541af62291756cdd70f1c2646d811348b9afb",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/SoulEditor.tsx",
+      "upstream_sha256": "81c5c7deb3ed3b4e5289a31da6b3922071117354b03b8559da65ac72748ad8eb",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/SoulPicker.tsx",
+      "upstream_sha256": "78305c5ca6dcd1a6efc375a3fb85eff36c0875964b7e7d701c8170aa9f710815",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/ToolPicker.tsx",
+      "upstream_sha256": "3b95d9e7f8a2ccc64af34f211dcca559ff0e418ea2bce7216e5a5f0b0d158716",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/WeixinQrLogin.tsx",
+      "upstream_sha256": "6d528b166149260e6867974781cfebca525aedc8860fca4dcd754266f471eb64",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/group/DiscussionModePicker.tsx",
+      "upstream_sha256": "c9953280403292a22970e1b62fb8a03d496d754586006b6f163cbf7cd76a3444",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/group/GroupSessionPicker.tsx",
+      "upstream_sha256": "5fe193b3e86cb642e808d7c6a77434ec16b9cf849196507b86f44d6007c49c8f",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/partners/schema-form.tsx",
+      "upstream_sha256": "7ac4130a9e3e5783049f1039588344ff1c69b13c88f601d4f75cf96e3c40baf2",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/ChatHistorySection.tsx",
+      "upstream_sha256": "09d79ea007259ae448ed58dcd36ab498ef0c9bc2143a7d30b91bc7d09e6c94f6",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/EduHubImportModal.tsx",
+      "upstream_sha256": "e73725ff87773cf61ecc0a645cabd6cf32c1f00b151b22c5d8614b73734645ed",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/ImportWizard.tsx",
+      "upstream_sha256": "78e0e5dab4fc20e311fdd907850d387fda96c6e4aa5cb4afa9a05b8a93a64496",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/McpStoreSection.tsx",
+      "upstream_sha256": "d56e5a08fdb457065a70012db3ce3e4239e248d41e4a2e31e7c8de552e3a7f74",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/MyAgentsSection.tsx",
+      "upstream_sha256": "3429495641f25d91f4aed8701f6ed1e2204eb13aa9b97464af68df21ce8c4ee2",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/PersonasSection.tsx",
+      "upstream_sha256": "0f4a98b29f9cca0d5c5c987cce3d74807145bc3a4530a51906e24438f01cdd2f",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/ScopeEditorModal.tsx",
+      "upstream_sha256": "23093be29e7a7378626e727f04266c971f711896508340371a6623bf48ba1df5",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/ScopePicker.tsx",
+      "upstream_sha256": "ba62577a6723a1fd1ec1352bb80d33c632c26dea4b3fdb7b4eb188018e6a1304",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/SkillLibraryScope.tsx",
+      "upstream_sha256": "388e01fb33798e16d0a62f52a8035bed6e761aa6d5e1ead4c6b5f50d2f3b7eac",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/SkillsSection.tsx",
+      "upstream_sha256": "106bd8e727d2bcb42aecf0478265ad4bc3b4aaf15399aa8c99b7078a6f61d7d4",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/SpaceDashboard.tsx",
+      "upstream_sha256": "741b8d6bc12d96dd7afdc1907485186daffe3438661333b59f99b7dba918d021",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/space/SpaceMain.tsx",
+      "upstream_sha256": "91d09b39ea748dbddd61a085e1678960b05361d982bd112b6d9b195a7cc129ca",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/whisper/WhisperComposer.tsx",
+      "upstream_sha256": "da1970f044c3774ce14ae32163ce4f24e2796ab768dfb409faa132e8367d6b05",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/whisper/WhisperMessageList.tsx",
+      "upstream_sha256": "6012a706308c2481bef3d7a659537de9fcba9ca535567206c541d0cd67947510",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/components/whisper/WhisperRoomChip.tsx",
+      "upstream_sha256": "0cd486dc2fda34c2f7d50a422eac7c6ec7e185ba0fb4ce511dd0e73cc9b10a3c",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/features/co-writer/components/CoWriterWorkspace.tsx",
+      "upstream_sha256": "9cdd3d1b0c74ccdf3b2be350857d0c00d4a80f4100835c00227f8f9e53f4d97a",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/features/co-writer/hooks/useDocumentLifecycle.ts",
+      "upstream_sha256": "867050669729e88ec2a0a333b5fe14143a1f97954976d9dc115168bd4da6983c",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/features/co-writer/hooks/useSelectionEdit.ts",
+      "upstream_sha256": "23c655d4a423729e85b380c4c24ab2d6d48b9b2b4c2be2de85748bd37d542451",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/features/co-writer/hooks/useSplitPane.ts",
+      "upstream_sha256": "d7c7b156d95c2ba22e691c377ae5a3b1f9befd378821e06f9e961a41dad9e9fd",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/features/co-writer/hooks/useSynchronizedScroll.ts",
+      "upstream_sha256": "5036ccd87a9b82af9eb94edb6d8247bd8c9da881b311f840833528c878a598c8",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/features/co-writer/model/editor-state.ts",
+      "upstream_sha256": "57628674cbafc823e159e7a256451a9329a37c9316c5674b7afb53e437742112",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/features/co-writer/storage/drafts.ts",
+      "upstream_sha256": "e133f5094fb06afb725c51a03140e2817ac783886bc25479d2b99054ea98cdde",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/tests/admin-user-batches.test.ts",
+      "upstream_sha256": "488cde4cc42be5f20a2ff181599f6c355faf1725c535b4c9990df5d96eea98e8",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/tests/admin-user-presets.test.ts",
+      "upstream_sha256": "6adcc5d9594ba19285d3860d37537be581965d9eac3e7bb221154ec7f13ad518",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/tests/chat-history-search.spec.tsx",
+      "upstream_sha256": "d3ea44e5ed1788522488f82a7d895b0cb7339301d448e7403df6de9aa395c985",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/tests/co-writer-editor-state.test.ts",
+      "upstream_sha256": "b465ce7a1492cecc877380723a08ea478601524a028dbeffecb97a8e21f2a0b1",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/tests/co-writer-lazy-notebook.spec.tsx",
+      "upstream_sha256": "10d25ef0f6bab05c12496545476c16863bce7372bcf5e2e02692f5a4587ea938",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/tests/co-writer-model-selection.spec.tsx",
+      "upstream_sha256": "5fefa0bcb038f814a2349ad1e590b6cdfc313c0278bb8bceaac797b017ba7d58",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/tests/integration/co-writer-workspace.spec.tsx",
+      "upstream_sha256": "ea7e11fbce14ea72769dc84c9b4fbab783f80d9858c6644fa79e88dcebe0e24f",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/tests/partner-continuity.spec.tsx",
+      "upstream_sha256": "6e5b04beb53f31c9a2bebc60f37c4352fa9afe3b5ce21976193a5850b31bc076",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/tests/partner-direct-chat.test.ts",
+      "upstream_sha256": "c8a6364c270ddd00a9ce6f67b3aae4d3f71e95bb143443d09061fbdd7ac6de8e",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/tests/partner-group-export-session.spec.tsx",
+      "upstream_sha256": "c27f8f72fd0b957cd3c912f96746910cb1ab1ce605fed536917726a4c8a713ff",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/tests/partner-workspace-picker.spec.tsx",
+      "upstream_sha256": "c3b399cc2ac48010ca7c2ae6ecf40ec32222707b5d4ef6ecb3dfda236277c7d7",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/tests/partners-channel-onboarding.test.ts",
+      "upstream_sha256": "c7956a208ac0a5363c8771c4fde3120404fc611cad2ec083e79c7b61e5063b00",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/tests/practice-entrypoints.spec.tsx",
+      "upstream_sha256": "811e256cb4844094b3810f512c912231eee29643e9789cc11670d329a1cffee1",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/tests/space-dashboard-capability-gate.test.ts",
+      "upstream_sha256": "0e7995409bc1947a2d3a6dfc616ce05c6c3e72784c122f43918b03be7c013d0a",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    },
+    {
+      "path": "web/tests/task-board.spec.tsx",
+      "upstream_sha256": "560d9c757d6fd4a3ad82697738db13cccbb20b0c351f93e93627b276d1a6b0c6",
+      "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+      "reason": "学生界面已裁剪模块及对应测试"
+    },
+    {
+      "path": "web/tests/whisper-i18n.test.ts",
+      "upstream_sha256": "1ec1311566b74a2986709b27bf2f1225606aabc8a94802779234a7f42b2edebb",
+      "patch": "LOCAL_PATCHES/student-navigation-task3.patch",
+      "reason": "任务 3：学生导航与交互裁剪；保留共享学习组件，移除退休模块和个人教材导入入口"
+    }
+  ],
+  "imported_baseline_layers": [
+    {
+      "path": "deeptutor/services/llm/factory.py",
+      "imported_sha256": "77d21699b9d78c9eb6d8bd72ba5f6b226a1bbf89e67881f6831f5ab42097f81f",
+      "pre_import_upstream_sha256": "dee92bc40f741c566d9bbbd665bbf5172a08793cf231074d7784ed1457647050",
+      "patch": "LOCAL_PATCHES/llm-config-adapter.patch"
+    },
+    {
+      "path": "deeptutor/utils/secret_files.py",
+      "imported_sha256": "74080146c26fc3d8aadc5d7de48ac70ae1289c4caccb23dfb8a11fafb1096342",
+      "pre_import_upstream_sha256": "ed15926577a979462d78f05f6143b9b48bf5ffdf7de76526b7a3f63769527e31",
+      "patch": "LOCAL_PATCHES/windows-private-mode.patch"
+    },
+    {
+      "path": "deeptutor/multi_user/paths.py",
+      "imported_sha256": "a0d1b84e8ebeaa1b56d2baa2bc65ea275ac651cdbcc100dc616706456beaf70c",
+      "pre_import_upstream_sha256": "c32d6bb6262192a325966c2e789ce6055cf1c7db8dbf7918e330097201f57f49",
+      "patch": "LOCAL_PATCHES/reuse-scoped-path-service.patch"
+    },
+    {
+      "path": "deeptutor/app/service.py",
+      "imported_sha256": "7fcf7ade63e1496482cbf739bcebd5ac3f02cd88dd154abebae438658cd291c7",
+      "pre_import_upstream_sha256": "94f879b27a4e9951977aa364c8a65104fa80a8163035d645540cb4e50ae226b1",
+      "patch": "LOCAL_PATCHES/knowledge-base-preference-inheritance.patch"
+    },
+    {
+      "path": "tests/app/test_turn_application_service.py",
+      "imported_sha256": "62fba013f66ce0ad60c53e78731ee37614b365ea4ef523d7ee38d3b1785443f4",
+      "pre_import_upstream_sha256": "8f669a151864db382b5417c08227de8982e1be702d8d200bff12322dea15cae1",
+      "patch": "LOCAL_PATCHES/knowledge-base-preference-inheritance.patch"
+    },
+    {
+      "path": "web/components/Mermaid.tsx",
+      "imported_sha256": "3841bd87eb6ff4b9618a9329ce0f1ddd2c968264b0d2cd6cb110eadab8f2168d",
+      "pre_import_upstream_sha256": "14ac1c363ef917c20bec50f12b9034fc927ab18fc1a5cf64815cdbbee57b8d6e",
+      "patch": "LOCAL_PATCHES/mermaid-render-recovery.patch"
+    },
+    {
+      "path": "web/components/visualize/VisualizationViewer.tsx",
+      "imported_sha256": "fd4604218b68dc379aa8afcbd42f27967106dadc70f4103c95411d57755d1dae",
+      "pre_import_upstream_sha256": "db039deb92ff468912d818ae1640acc40efc30131655ed78b0614be6ef24686f",
+      "patch": "LOCAL_PATCHES/visualization-fullscreen-scope.patch"
+    }
+  ],
+  "baseline_note": "files 保留最初导入树的哈希。imported_baseline_layers 记录导入前已应用补丁，local_changes 记录当前文件哈希。"
 }

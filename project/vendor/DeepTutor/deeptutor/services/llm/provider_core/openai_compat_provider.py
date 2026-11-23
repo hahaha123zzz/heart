@@ -190,6 +190,11 @@ class OpenAICompatProvider(LLMProvider):
         self._provider_name = provider_name
         self._wire_api = normalize_wire_api(wire_api)
 
+        from deeptutor.multi_user.context import get_current_user_or_none
+
+        current_user = get_current_user_or_none()
+        if current_user is not None and not current_user.is_admin:
+            configure_env = False
         if configure_env and primary_key and spec and spec.env_key:
             self._setup_env(primary_key, api_base)
 

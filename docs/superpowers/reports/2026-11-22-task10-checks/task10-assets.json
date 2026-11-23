@@ -1,0 +1,57 @@
+{
+  "asset_root": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\knowledge\\courses\\experimental-psychology-3",
+  "files": [
+    {
+      "path": "pdf_manifest.json",
+      "sha256": "6930ba41884a04d448dd5ce117f630ba974caceffeed987070a0195b63423b84"
+    },
+    {
+      "path": "chapters\\chapter_01\\chapter_01.generated.pdf",
+      "sha256": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e"
+    },
+    {
+      "path": "chapters\\chapter_02\\chapter_02.generated.pdf",
+      "sha256": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7"
+    },
+    {
+      "path": "chapters\\chapter_03\\chapter_03.generated.pdf",
+      "sha256": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089"
+    },
+    {
+      "path": "chapters\\chapter_04\\chapter_04.generated.pdf",
+      "sha256": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f"
+    },
+    {
+      "path": "chapters\\chapter_05\\chapter_05.generated.pdf",
+      "sha256": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026"
+    },
+    {
+      "path": "chapters\\chapter_06\\chapter_06.generated.pdf",
+      "sha256": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08"
+    },
+    {
+      "path": "chapters\\chapter_07\\chapter_07.generated.pdf",
+      "sha256": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c"
+    },
+    {
+      "path": "chapters\\chapter_08\\chapter_08.generated.pdf",
+      "sha256": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f"
+    },
+    {
+      "path": "chapters\\chapter_09\\chapter_09.generated.pdf",
+      "sha256": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83"
+    },
+    {
+      "path": "chapters\\chapter_10\\chapter_10.generated.pdf",
+      "sha256": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af"
+    },
+    {
+      "path": "chapters\\chapter_11\\chapter_11.generated.pdf",
+      "sha256": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34"
+    },
+    {
+      "path": "sample\\chapter_04.generated.pdf",
+      "sha256": "88d3e8a62110be519eff43b717544114ef095a4ef99f772343cc53475b851c8d"
+    }
+  ]
+}

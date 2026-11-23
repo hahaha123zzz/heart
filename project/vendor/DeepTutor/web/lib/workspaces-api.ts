@@ -1,3 +1,4 @@
+import { fetchAuthStatus } from '@/lib/auth'
 import { apiFetch, apiUrl } from '@/lib/api'
 import { invalidateClientCache, withClientCache } from '@/lib/client-cache'
 import { notifySessionsChanged } from '@/lib/session-events'
@@ -24,7 +25,8 @@ export interface WorkspaceResourceOption {
 }
 export type WorkspaceResourceCatalog = Record<keyof WorkspaceResources, WorkspaceResourceOption[]>
 
-export function getWorkspaceResources(workspaceId = ''): Promise<WorkspaceResourceCatalog> {
+export async function getWorkspaceResources(workspaceId = ''): Promise<WorkspaceResourceCatalog> {
+  if ((await fetchAuthStatus())?.learning_policy) return { skills: [], mcp: [], knowledge_bases: [] }
   return request(
     `/api/settings/workspace/resources?workspace_id=${encodeURIComponent(workspaceId)}`
   )
@@ -52,7 +54,8 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return payload as T
 }
 
-export function listWorkspaces(force = false): Promise<ChatWorkspaceRegistration[]> {
+export async function listWorkspaces(force = false): Promise<ChatWorkspaceRegistration[]> {
+  if ((await fetchAuthStatus())?.learning_policy) return []
   return withClientCache(
     'workspaces:list',
     async () => {

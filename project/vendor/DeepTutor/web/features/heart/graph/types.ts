@@ -1,0 +1,6 @@
+export type Snapshot={job_id?:string;assessed_mastered:boolean;learning_stage:string;next_review_at:string|null;synced_at:string}
+export type StudentState={kind:string;mapping_status:string;knowledge_point_id?:string;objective_id?:string;mapping_id?:string;knowledge_point_ids?:string[];snapshot?:Snapshot|null;sync_pending?:boolean;sync_blocked?:boolean;review_due?:boolean}
+export type GraphNode={id:string;type:string;description:string;chapter:number;state:StudentState}
+export type GraphPayload={course_id:string;release_id:string;release_status:string;catalog_version:string;mapping_version:string;catalog_available:boolean;nodes:GraphNode[];edges:{source:string;target:string;weight:number;description:string;relation:string}[];truncated:boolean;edges_truncated:boolean;limit:number;chapter:number;document:{id:string;version:string;chapter:number}}
+export type NodeDetail=GraphPayload&{node:GraphNode;sources:{id:string;text:string;file:string;heading:string}[];mappings:{id:string;kc_id:string;objective_id:string;document_version:string}[]}
+export const stateLabel=(kind:string)=>({mastered:'厂家最近同步结论：已达到掌握要求',not_mastered:'厂家最近同步结论：尚未达到掌握要求',unknown:'已确认映射，暂无已同步测评',ambiguous:'存在多个对应目标，暂不判断',unmapped:'尚未确认对应知识点',version_unavailable:'目录或映射版本不可核对'}[kind]??'未知状态')

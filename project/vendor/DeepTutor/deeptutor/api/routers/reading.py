@@ -227,6 +227,9 @@ class MaterialInfo(BaseModel):
     source_type: str = "upload"
     source_url: str = ""
     revision: int = 1
+    document_id: str = ""
+    version: str = ""
+    page_map: dict[str, int] = Field(default_factory=dict)
     annotation_count: int = 0
 
 

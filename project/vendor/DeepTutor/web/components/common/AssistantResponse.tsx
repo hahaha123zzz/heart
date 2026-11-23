@@ -15,6 +15,7 @@ import {
 import {
   linkifyLocatorCitations,
   verifiedReadingLocators,
+  verifiedReadingQuotes,
 } from "@/lib/reading-citations";
 import { linkifyMediaTimestamps } from "@/lib/reading-media-citations";
 import { parseModelThinkingSegments } from "@/lib/think-segments";
@@ -76,6 +77,7 @@ function AssistantResponseImpl({
           materialId: readingMaterialId,
           materialRevision: readingMaterialRevision,
           allowedLocators: verifiedLocators,
+          quotes: verifiedReadingQuotes(events, readingMaterialId, readingMaterialRevision),
           ...(material?.material_id === readingMaterialId &&
           (!readingMaterialRevision ||
             material.revision === readingMaterialRevision)
@@ -85,6 +87,7 @@ function AssistantResponseImpl({
       : displayContent;
   }, [
     displayContent,
+    events,
     material,
     readingMaterialId,
     readingMaterialRevision,

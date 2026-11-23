@@ -147,9 +147,10 @@ const EMPTY_FILTERS: ReviewFilters = {
  *    filing a question does not make the page jump.
  */
 export function useQuestionBank(
-  options: { courseId?: string; mistakesOnly?: boolean } = {},
+  options: { courseId?: string; mistakesOnly?: boolean;knowledgePointId?:string;masteryPathId?:string } = {},
 ): QuestionBankController {
   const courseId = options.courseId ?? "";
+  const knowledgePointId=options.knowledgePointId??"",masteryPathId=options.masteryPathId??"";
   const mistakesOnly = options.mistakesOnly ?? false;
   const [page, setPage] = useState(0);
   const [items, setItems] = useState<NotebookEntry[]>([]);
@@ -188,6 +189,7 @@ export function useQuestionBank(
     try {
       const response = await listNotebookEntries({
         ...buildQuestionBankFilter(scope, reviewFilters, search, sort, courseId),
+        knowledge_point_id:knowledgePointId||undefined,mastery_path_id:masteryPathId||undefined,
         mistakes_only: mistakesOnly,
         offset: page * PAGE_SIZE,
       });
@@ -217,18 +219,18 @@ export function useQuestionBank(
         setRefreshing(false);
       }
     }
-  }, [courseId, scope, reviewFilters, search, sort, mistakesOnly, page]);
+  }, [courseId,knowledgePointId,masteryPathId, scope, reviewFilters, search, sort, mistakesOnly, page]);
 
   const loadMeta = useCallback(async () => {
     const [nextCategories, nextStats, nextMaterials] = await Promise.allSettled([
       listCategories(courseId),
-      getQuestionBankStats(courseId),
+      knowledgePointId||masteryPathId?getQuestionBankStats(courseId,knowledgePointId,masteryPathId):getQuestionBankStats(courseId),
       listQuestionBankMaterials(courseId),
     ]);
     if (nextCategories.status === "fulfilled") setCategories(nextCategories.value);
     if (nextStats.status === "fulfilled") setStats(nextStats.value);
     if (nextMaterials.status === "fulfilled") setMaterials(nextMaterials.value);
-  }, [courseId]);
+  }, [courseId,knowledgePointId,masteryPathId]);
 
   useEffect(() => {
     void loadEntries();

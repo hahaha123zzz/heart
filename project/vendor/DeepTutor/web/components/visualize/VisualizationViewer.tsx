@@ -639,6 +639,8 @@ export default function VisualizationViewer({
       {fullscreen &&
         supportsFullscreen &&
         createPortal(
+          // Portal 脱离消息容器后，仍需为宿主作用域样式保留独立祖先。
+          <div className="native-viewer">
           <div
             className="fixed inset-0 z-[120] flex flex-col bg-black/85 p-4 backdrop-blur-sm"
             onClick={() => setFullscreen(false)}
@@ -669,6 +671,7 @@ export default function VisualizationViewer({
                 <CanvasVisualization result={result} />
               </div>
             </div>
+          </div>
           </div>,
           document.body,
         )}

@@ -45,6 +45,13 @@ from .search import bounded_search_excerpt, normalize_search_query
 from .workspace_preferences import upgrade_workspace_preferences
 
 
+_session_delete_observer=None
+
+def set_session_delete_observer(observer):
+    global _session_delete_observer
+    _session_delete_observer=observer
+
+
 def _json_dumps(value: Any) -> str:
     # default=str: a single non-serializable object inside an event payload
     # (e.g. a dataclass smuggled into tool args) must degrade to its repr,
@@ -1934,6 +1941,9 @@ class SQLiteSessionStore:
 
     def _delete_session_sync(self, session_id: str) -> bool:
         with self._connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            if _session_delete_observer is not None:
+                _session_delete_observer(conn,session_id)
             cur = conn.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
             conn.commit()
         return cur.rowcount > 0
@@ -3187,6 +3197,8 @@ class SQLiteSessionStore:
         conn: sqlite3.Connection,
         session_id: str | None,
         items: list[dict[str, Any]],
+        *,
+        allow_missing_session: bool = False,
     ) -> int:
         if not items:
             return 0
@@ -3200,7 +3212,9 @@ class SQLiteSessionStore:
                 ).fetchone()
                 is None
             ):
-                raise ValueError(f"Session not found: {navigation_session}")
+                if not allow_missing_session:
+                    raise ValueError(f"Session not found: {navigation_session}")
+                navigation_session = None
             question = (item.get("question") or "").strip()
             question_id = (item.get("question_id") or "").strip()
             if not question or not question_id:
@@ -3460,7 +3474,8 @@ class SQLiteSessionStore:
                 ).fetchone()
                 is None
             ):
-                raise ValueError(f"Session not found: {navigation_session}")
+                # 删除聊天不撤销已经形成的评估，只移除导航外键。
+                navigation_session = None
             if str(attempt.get("source") or "") == "immersive_reading":
                 row = conn.execute(
                     "SELECT COUNT(*) AS count FROM assessment_attempts "
@@ -3507,7 +3522,9 @@ class SQLiteSessionStore:
                 ),
             )
             upserted = (
-                self._upsert_notebook_entries_in_conn(conn, session_id, [item]) if is_latest else 0
+                self._upsert_notebook_entries_in_conn(
+                    conn, session_id, [item], allow_missing_session=True
+                ) if is_latest else 0
             )
             row = conn.execute(
                 "SELECT id FROM notebook_entries WHERE origin_type = ? "
@@ -4115,7 +4132,7 @@ class SQLiteSessionStore:
             ),
         )
 
-    def _question_bank_stats_sync(self, session_ids: Sequence[str] | None = None) -> dict[str, int]:
+    def _question_bank_stats_sync(self, session_ids: Sequence[str] | None = None, knowledge_point_id="", mastery_path_id="") -> dict[str, int]:
         with self._connect() as conn:
             # Same ``None`` vs ``[]`` contract as the listing: absent means "do
             # not scope", empty means "scoped to nothing". The rail's counts sit
@@ -4127,6 +4144,10 @@ class SQLiteSessionStore:
                 placeholders = ",".join("?" for _ in session_ids) or "NULL"
                 where += f" AND session_id IN ({placeholders})"
                 params = list(session_ids)
+            for column,value in (("knowledge_point_id",knowledge_point_id),("mastery_path_id",mastery_path_id)):
+                if value:
+                    where += f" AND {column} = ?"
+                    params.append(value)
             row = conn.execute(
                 f"""
                 SELECT
@@ -4178,11 +4199,12 @@ class SQLiteSessionStore:
     async def question_bank_stats(
         self,
         session_ids: Sequence[str] | None = None,
+        knowledge_point_id: str = "",mastery_path_id: str = "",
     ) -> dict[str, int]:
         """Counts behind the bank's filter chips (and the agent's overview)."""
         return await self._run(
             self._question_bank_stats_sync,
-            None if session_ids is None else tuple(session_ids),
+            None if session_ids is None else tuple(session_ids),knowledge_point_id,mastery_path_id,
         )
 
     def _list_question_bank_materials_sync(

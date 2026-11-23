@@ -1,0 +1,24 @@
+{
+  "old_release": "candidate-runtime-20261122",
+  "new_release": "local8000-20261122",
+  "scope": "localhost:8000 only",
+  "production_ecs_changed": false,
+  "phase_seconds": {
+    "initial_stop": 0.45,
+    "new_start": 134.34,
+    "rollback_start": 40.75,
+    "relaunch_start": 52.11
+  },
+  "backup_manifest_sha256": "90c02d10249cb086973f4a078a114e15863d05f700ecd9e24cc39af2df3d12e1",
+  "private_backup_path": "E:\\项目\\heart\\.worktrees\\student-frontend-reuse-20261117\\.runtime\\student-release-20261122\\private\\backups\\local-cutover-ae0983ee",
+  "actual_three_database_restore_verified": true,
+  "restored_graph_nodes": 7138,
+  "restored_graph_edges": 14741,
+  "controlled_new_record_id": "1",
+  "new_record_survived_rollback": true,
+  "new_record_survived_relaunch": true,
+  "controlled_record_removed_from_active_view": true,
+  "textbook_assets_unchanged": true,
+  "source_snapshots_still_verified": true,
+  "ready": true
+}

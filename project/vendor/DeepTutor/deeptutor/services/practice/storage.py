@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
+from hashlib import sha256
 import json
 from pathlib import Path
 import sqlite3
@@ -16,6 +17,14 @@ from .scheduler import DAY, Rating, day_bounds, schedule
 _DUE_AT_SQL = """(CASE WHEN (n.resolved=1 OR n.is_correct=1)
     AND COALESCE(r.review_count, 0)=0 THEN n.updated_at + 259200
     ELSE COALESCE(r.due_at, n.created_at) END)"""
+
+
+_review_export = None
+
+
+def set_review_export(export):
+    global _review_export
+    _review_export = export
 
 
 class ReviewConflict(ValueError):
@@ -50,6 +59,19 @@ def initialize_practice(conn: sqlite3.Connection) -> None:
             outcome_json TEXT NOT NULL
         );
         CREATE INDEX IF NOT EXISTS idx_practice_history ON practice_review_events(entry_id, reviewed_at);
+        CREATE TABLE IF NOT EXISTS practice_answer_reveals (
+            entry_id INTEGER NOT NULL REFERENCES notebook_entries(id) ON DELETE CASCADE,
+            question_hash TEXT NOT NULL,
+            review_version INTEGER NOT NULL,
+            first_answer_hash TEXT NOT NULL,
+            revealed_at REAL NOT NULL,
+            PRIMARY KEY(entry_id, question_hash)
+        );
+        CREATE TABLE IF NOT EXISTS practice_review_outbox (
+            event_id TEXT PRIMARY KEY,
+            request_id TEXT NOT NULL UNIQUE,
+            payload_json TEXT NOT NULL
+        );
         CREATE TABLE IF NOT EXISTS practice_imports (
             token TEXT PRIMARY KEY,
             filename TEXT NOT NULL,
@@ -66,9 +88,11 @@ def initialize_practice(conn: sqlite3.Connection) -> None:
             SELECT NEW.id, NEW.created_at, NEW.created_at + 86400
             WHERE NOT EXISTS(SELECT 1 FROM practice_review_state WHERE entry_id=NEW.id);
         END;
-        CREATE TRIGGER IF NOT EXISTS practice_invalidate_question
-        AFTER UPDATE OF question, options_json, correct_answer ON notebook_entries
-        WHEN OLD.question != NEW.question OR OLD.options_json != NEW.options_json OR OLD.correct_answer != NEW.correct_answer
+        DROP TRIGGER IF EXISTS practice_invalidate_question;
+        CREATE TRIGGER practice_invalidate_question
+        AFTER UPDATE OF question, question_type, options_json, correct_answer ON notebook_entries
+        WHEN OLD.question != NEW.question OR OLD.question_type != NEW.question_type
+          OR OLD.options_json != NEW.options_json OR OLD.correct_answer != NEW.correct_answer
         BEGIN
             UPDATE practice_review_state SET version=version+1 WHERE entry_id=NEW.id;
         END;
@@ -113,7 +137,7 @@ class PracticeStore:
             conn.close()
 
     @staticmethod
-    def _scope(session_ids: list[str] | None) -> tuple[str, list]:
+    def _scope(session_ids: list[str] | None, knowledge_point_id="", mastery_path_id="") -> tuple[str, list]:
         # Independent imports/document questions have no chat to delete. They
         # stay visible in the global bank, while an explicit course/session
         # scope continues to select conversation-backed entries only.
@@ -122,14 +146,19 @@ class PracticeStore:
         if session_ids is not None:
             sql += " AND n.session_id IN (" + (",".join("?" for _ in session_ids) or "NULL") + ")"
             params.extend(session_ids)
+        for column, value in (("knowledge_point_id", knowledge_point_id), ("mastery_path_id", mastery_path_id)):
+            if value:
+                if len(value) > 128: raise ValueError("Practice scope is too long")
+                sql += f" AND n.{column} = ?"
+                params.append(value)
         return sql, params
 
     def overview(
-        self, timezone: str, session_ids: list[str] | None = None, now: float | None = None
+        self, timezone: str, session_ids: list[str] | None = None, now: float | None = None, *, knowledge_point_id="", mastery_path_id=""
     ) -> dict:
         now = time.time() if now is None else now
         start, end = day_bounds(timezone, now)
-        scope, params = self._scope(session_ids)
+        scope, params = self._scope(session_ids, knowledge_point_id, mastery_path_id)
         with self.connect() as conn:
             row = conn.execute(
                 f"""
@@ -159,10 +188,11 @@ class PracticeStore:
         days: int = 30,
         session_ids: list[str] | None = None,
         now: float | None = None,
+        *, knowledge_point_id="", mastery_path_id="",
     ) -> dict:
         from .analytics import analytics
 
-        scope, params = self._scope(session_ids)
+        scope, params = self._scope(session_ids, knowledge_point_id, mastery_path_id)
         with self.connect() as conn:
             return analytics(
                 conn, timezone, days, time.time() if now is None else now, scope, params
@@ -175,10 +205,11 @@ class PracticeStore:
         category_id: int | None = None,
         limit: int = 20,
         now: float | None = None,
+        *, knowledge_point_id="", mastery_path_id="",
     ) -> list[int]:
         now = time.time() if now is None else now
         day_bounds(timezone, now)
-        scope, params = self._scope(session_ids)
+        scope, params = self._scope(session_ids, knowledge_point_id, mastery_path_id)
         if category_id is not None:
             scope += " AND EXISTS(SELECT 1 FROM notebook_entry_categories c WHERE c.entry_id=n.id AND c.category_id=?)"
             params.append(category_id)
@@ -223,6 +254,50 @@ class PracticeStore:
                 is not None
             )
 
+    @staticmethod
+    def _question_hash(entry):
+        fields = (entry["question"], entry["question_type"],
+                  json.loads(entry["options_json"] or "{}"), entry["correct_answer"])
+        return sha256(json.dumps(fields, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+
+    @staticmethod
+    def _answer_hash(answer):
+        return sha256(answer.encode()).hexdigest()
+
+    def record_answer_exposures(self, entries: list[dict]) -> None:
+        with self.connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            for entry in entries:
+                if not (entry.get("correct_answer") or entry.get("explanation") or entry.get("ai_judgment")):
+                    continue
+                snapshot = {**entry, "options_json": json.dumps(entry.get("options") or {})}
+                # 记录实际返回的题目快照；空哈希表示此前未提交作答。
+                conn.execute("""INSERT OR IGNORE INTO practice_answer_reveals
+                    SELECT n.id, ?, COALESCE(r.version, 0), '', ?
+                    FROM notebook_entries n LEFT JOIN practice_review_state r ON r.entry_id=n.id
+                    WHERE n.id=?""", (self._question_hash(snapshot), time.time(), entry["id"]))
+
+    def reveal_answer(self, entry_id: int, answer: str, version: int | None = None) -> dict:
+        from deeptutor.learning.service import require_assessment_capability
+        from .answers import check_answer
+
+        with self.connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            entry = conn.execute("""SELECT n.*, COALESCE(r.version, 0) AS review_version
+                FROM notebook_entries n LEFT JOIN sessions s ON s.id=n.session_id
+                LEFT JOIN practice_review_state r ON r.entry_id=n.id
+                WHERE n.id=? AND (n.session_id IS NULL OR s.deleted_at IS NULL)""", (entry_id,)).fetchone()
+            if entry is None:
+                raise LookupError("Question not found")
+            if version is not None and entry["review_version"] != version:
+                raise ReviewConflict("This question changed in another tab. Reload it before reviewing again.")
+            require_assessment_capability()
+            conn.execute("INSERT OR IGNORE INTO practice_answer_reveals VALUES (?, ?, ?, ?, ?)",
+                         (entry_id, self._question_hash(entry), entry["review_version"],
+                          self._answer_hash(answer), time.time()))
+            return {"correct": check_answer(dict(entry), answer),
+                    "correct_answer": entry["correct_answer"], "explanation": entry["explanation"]}
+
     def review(
         self,
         entry_id: int,
@@ -266,6 +341,9 @@ class PracticeStore:
                 raise ReviewConflict(
                     "This question changed in another tab. Reload it before reviewing again."
                 )
+            from deeptutor.learning.service import require_assessment_capability
+
+            require_assessment_capability()
             # Objective answers are checked again at the transaction boundary.
             from .answers import check_answer
 
@@ -307,6 +385,15 @@ class PracticeStore:
             )
             if rating == "again":
                 conn.execute("UPDATE notebook_entries SET resolved=0 WHERE id=?", (entry_id,))
+            reveal = conn.execute("""SELECT review_version, first_answer_hash, revealed_at
+                FROM practice_answer_reveals WHERE entry_id=? AND question_hash=?""",
+                (entry_id, self._question_hash(entry))).fetchone()
+            assistance = {"status": "not_verified"}
+            if reveal is not None:
+                first_answer = reveal["first_answer_hash"] == self._answer_hash(answer)
+                assisted = reveal["review_version"] != version or not first_answer
+                assistance = {"status": "assisted" if assisted else "answer_committed_before_reveal",
+                              "first_reveal_at": reveal["revealed_at"]}
             outcome = {
                 **next_state,
                 "entry_id": entry_id,
@@ -314,8 +401,15 @@ class PracticeStore:
                 "correct": correct,
                 "rating": rating,
                 "self_report": self_report,
+                "assistance": assistance,
                 "mastered": rating in {"good", "easy"},
             }
+            if _review_export is not None:
+                payload = _review_export(conn, dict(entry), outcome, answer, now)
+                if payload is not None:
+                    conn.execute("INSERT INTO practice_review_outbox VALUES (?, ?, ?)",
+                                 (uuid.uuid4().hex, request_id, json.dumps(payload, ensure_ascii=False)))
+                    outcome["learning_sync"] = "pending"
             conn.execute(
                 "INSERT INTO practice_review_events VALUES(?, ?, ?, ?, ?, ?)",
                 (request_id, entry_id, rating, answer, now, json.dumps(outcome)),

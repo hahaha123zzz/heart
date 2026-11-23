@@ -1,4 +1,4 @@
-import { ApiError, type AppError, type AppErrorScope } from "./errors";
+import { ApiError, translateApiMessage, type AppError, type AppErrorScope } from "./errors";
 import { browserReturnPath, loginHref } from "../auth/return-url";
 import { scopedUrl } from "@/lib/workspace-scope";
 
@@ -218,7 +218,7 @@ export async function asJsonOrThrow(response: Response): Promise<any> {
     } catch {
       /* the body was not JSON; the status line is all we have */
     }
-    throw new Error(detail);
+    throw new Error(translateApiMessage(detail));
   }
   return response.json();
 }

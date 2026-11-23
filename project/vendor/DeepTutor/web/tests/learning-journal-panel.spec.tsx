@@ -48,3 +48,13 @@ describe("Learning journal overview", () => {
     await waitFor(() => expect(screen.queryByText("Old workspace secret")).toBeNull());
   });
 });
+
+it("loads more records on demand but rejects a changed journal snapshot", async () => {
+  vi.mocked(getLearningJournal).mockResolvedValueOnce({ ...empty, updated_at: "one", records: [{ id: "1", title: "First", insight: "", created_at: "" }], next_offset: 20 })
+    .mockResolvedValueOnce({ ...empty, updated_at: "two", records: [{ id: "2", title: "Changed", insight: "", created_at: "" }] });
+  render(<LearningJournalPanel />);
+  await screen.findByText("First");expect(getLearningJournal).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByRole("button", { name: "加载更多辅导记录" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("档案已更新");
+  expect(screen.queryByText("Changed")).toBeNull();
+});

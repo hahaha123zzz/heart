@@ -17,10 +17,12 @@ import {
   type PracticeRating,
 } from '@/lib/practice-api'
 
+import {readRun,writeRun,readAnswer,writeAnswer,type Submission} from './practice-resume'
+
 const RATINGS: { value: PracticeRating; label: string; description: string }[] = [
   { value: 'again', label: 'Again', description: 'Practice again this round' },
   { value: 'hard', label: 'Hard', description: 'I needed a hint' },
-  { value: 'good', label: 'Mastered', description: 'Review in a few days' },
+  { value: 'good', label: 'Remembered', description: 'Review in a few days' },
   { value: 'easy', label: 'Easy', description: 'I knew it confidently' },
 ]
 
@@ -29,24 +31,29 @@ export function PracticeSession({
   questions,
   onClose,
   backLabel,
+  resumeKey=null,
 }: {
   ids?: number[]
   questions?: PracticeRef[]
   onClose: () => void
   backLabel?: string
+  resumeKey?: string|null
 }) {
+  const [restored]=useState(()=>readRun(resumeKey))
   const [queue, setQueue] = useState<PracticeRef[]>(
-    () => questions ?? (ids ?? []).map(id => ({ id }))
+    () => restored?.queue ?? questions ?? (ids ?? []).map(id => ({ id }))
   )
-  const [total] = useState(queue.length)
-  const [skipped, setSkipped] = useState(0)
+  const [total] = useState(restored?.total??queue.length)
+  const [skipped, setSkipped] = useState(restored?.skipped??0)
   const { t } = useTranslation()
-  const [index, setIndex] = useState(0)
-  const [saved, setSaved] = useState(0)
+  const [index, setIndex] = useState(restored?.index??0)
+  const [syncNotice, setSyncNotice] = useState("")
+  const [saved, setSaved] = useState(restored?.saved??0)
   const [saving, setSaving] = useState(false)
-  const [nextDue, setNextDue] = useState<number | null>(null)
+  const [nextDue, setNextDue] = useState<number | null>(restored?.nextDue??null)
   const dueDates = useRef(new Map<string, number>())
   const complete = index >= queue.length
+  useEffect(()=>{writeRun(resumeKey,{queue,index,total,saved,skipped,nextDue})},[resumeKey,queue,index,total,saved,skipped,nextDue])
   return (
     <section className="mx-auto max-w-3xl">
       <div className="mb-5 flex items-center justify-between gap-3">
@@ -69,6 +76,7 @@ export function PracticeSession({
         aria-label={t('Practice progress')}
         className="mb-6 h-1.5 w-full accent-primary"
       />
+      {syncNotice && <p role="status" className="mb-4 text-sm text-muted-foreground">{syncNotice}</p>}
       {complete ? (
         <div className="rounded-2xl border border-border bg-card px-6 py-12 text-center">
           <CheckCircle2 className="mx-auto mb-4 text-emerald-600" size={32} />
@@ -99,11 +107,14 @@ export function PracticeSession({
       ) : (
         <PracticeTurn
           key={`${index}:${queue[index].content_workspace_id}:${queue[index].id}`}
+          draftKey={resumeKey?`${resumeKey}:answer:${queue[index].content_workspace_id||""}:${queue[index].id}`:null}
           id={queue[index].id}
           workspaceId={queue[index].content_workspace_id}
           workspaceName={queue[index].content_workspace_name}
           onBusy={setSaving}
-          onSaved={(due, rating) => {
+          onSaved={(due, rating, sync) => {
+            if (sync === "pending") setSyncNotice("复习已保存。学习档案将在后台同步，状态可能暂未更新。")
+            if (sync === "catalog_changed") setSyncNotice("复习已保存。教材目录已更新，本次记录未计入当前目录。")
             if (rating === 'again') setQueue(current => [...current, current[index]])
             else setSaved(value => value + 1)
             if (due !== null) {
@@ -127,6 +138,7 @@ export function PracticeSession({
 
 function PracticeTurn({
   id,
+  draftKey,
   workspaceId,
   workspaceName,
   onSaved,
@@ -134,34 +146,37 @@ function PracticeTurn({
   onBusy,
 }: {
   id: number
+  draftKey:string|null
   workspaceId?: string
   workspaceName?: string
-  onSaved: (due: number | null, rating: PracticeRating) => void
+  onSaved: (due: number | null, rating: PracticeRating, sync?: string) => void
   onSkip: () => void
   onBusy: (busy: boolean) => void
 }) {
   const { t } = useTranslation()
   const [question, setQuestion] = useState<PracticeQuestion | null>(null)
   const [answer, setAnswer] = useState('')
-  const [revealed, setRevealed] = useState(false)
+  const [reference, setReference] = useState<{ correct_answer: string; explanation: string } | null>(null)
+  const revealed = reference !== null
   const [correct, setCorrect] = useState<boolean | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [conflict, setConflict] = useState(false)
   const [reload, setReload] = useState(0)
   const pending = useRef(false)
-  const submission = useRef<{
-    request_id: string
-    version: number
-    rating: PracticeRating
-    answer: string
-    self_report?: boolean
-  } | null>(null)
+  const submission = useRef<Submission|null>(null)
+  const [draftLoaded,setDraftLoaded]=useState(false)
   useEffect(() => {
     let active = true
     void getPracticeQuestion(id, workspaceId)
       .then(result => {
-        if (active) setQuestion(result)
+        if (active) {
+          const draft=readAnswer(draftKey)
+          if(draft&&(draft.version===result.state.version||draft.submission)){
+            setAnswer(draft.answer);submission.current=draft.submission
+          }else writeAnswer(draftKey,null)
+          setQuestion(result);setDraftLoaded(true)
+        }
       })
       .catch(err => {
         if (active) setError(String(err.message || err))
@@ -169,7 +184,8 @@ function PracticeTurn({
     return () => {
       active = false
     }
-  }, [id, reload, workspaceId])
+  }, [id, reload, workspaceId,draftKey])
+  useEffect(()=>{if(draftLoaded&&question)writeAnswer(draftKey,{version:submission.current?.version??question.state.version,answer,submission:submission.current})},[answer,draftLoaded,question,draftKey])
   async function reveal() {
     if (pending.current || !question) return
     pending.current = true
@@ -177,11 +193,12 @@ function PracticeTurn({
     onBusy(true)
     setError('')
     try {
-      const verdict = await checkPracticeAnswer(id, answer, workspaceId)
+      const verdict = await checkPracticeAnswer(id, answer, workspaceId, question.state.version)
       setCorrect(verdict.correct)
-      setRevealed(true)
+      setReference(verdict)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
+      if (err instanceof PracticeRequestError && err.status === 409) setConflict(true)
     } finally {
       pending.current = false
       setBusy(false)
@@ -202,9 +219,11 @@ function PracticeTurn({
       answer,
       self_report: selfReport,
     }
+    writeAnswer(draftKey,{version:submission.current.version,answer:submission.current.answer,submission:submission.current})
     try {
       const result = await savePracticeReview(id, submission.current, workspaceId)
-      onSaved(result.due_at, result.rating)
+      writeAnswer(draftKey,null)
+      onSaved(result.due_at, result.rating, result.learning_sync)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
       if (err instanceof PracticeRequestError && err.status === 409) setConflict(true)
@@ -215,9 +234,11 @@ function PracticeTurn({
     }
   }
   function reset() {
+    writeAnswer(draftKey,null)
+    setDraftLoaded(false)
     setQuestion(null)
     setAnswer('')
-    setRevealed(false)
+    setReference(null)
     setCorrect(null)
     setError('')
     setConflict(false)
@@ -273,7 +294,7 @@ function PracticeTurn({
             <p className="mt-3 text-xs text-muted-foreground">{t('Select all correct answers')}</p>
           )}
           {choices.length > 0 ? (
-            <fieldset disabled={revealed || busy} className="mt-6 grid gap-2">
+            <fieldset disabled={revealed || busy || Boolean(submission.current)} className="mt-6 grid gap-2">
               <legend className="sr-only">{t('Your answer')}</legend>
               {choices.map(([key, text]) => {
                 const selected = multi ? answer.split(',').includes(key) : answer === key
@@ -315,7 +336,7 @@ function PracticeTurn({
               <textarea
                 value={answer}
                 onChange={event => setAnswer(event.target.value)}
-                disabled={revealed || busy}
+                disabled={revealed || busy || Boolean(submission.current)}
                 maxLength={20000}
                 rows={5}
                 placeholder={t('Try recalling the answer before revealing it.')}
@@ -323,23 +344,16 @@ function PracticeTurn({
               />
             </label>
           )}
+          {submission.current&&<button disabled={busy||conflict} type="button" onClick={()=>void rate(submission.current!.rating,submission.current!.self_report)} className="mt-4 rounded-lg border border-border px-4 py-2">核对上次提交结果</button>}
           {!revealed ? (
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                disabled={busy}
+                disabled={busy || Boolean(submission.current)}
                 onClick={() => void reveal()}
                 className="rounded-xl bg-primary px-4 py-2.5 text-sm text-primary-foreground disabled:opacity-50"
               >
                 {busy ? t('Checking…') : t('Check and reveal answer')}
-              </button>
-              <button
-                type="button"
-                disabled={busy || conflict}
-                onClick={() => void rate('good', true)}
-                className="rounded-xl border border-border px-4 py-2.5 text-sm hover:bg-muted"
-              >
-                {t('I have mastered this')}
               </button>
               <button
                 type="button"
@@ -363,15 +377,15 @@ function PracticeTurn({
                 <div className="text-sm">
                   <Markdown
                     content={
-                      entry.correct_answer ||
+                      reference?.correct_answer ||
                       t(
                         'No reference answer was saved. Use the original source to check your work.'
                       )
                     }
                   />
-                  {entry.explanation && (
+                  {reference?.explanation && (
                     <div className="mt-3 border-t border-border pt-3">
-                      <Markdown content={entry.explanation} />
+                      <Markdown content={reference.explanation} />
                     </div>
                   )}
                 </div>
@@ -391,12 +405,12 @@ function PracticeTurn({
                     onClick={() => void rate(correct ? 'good' : 'again')}
                     className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-40"
                   >
-                    {correct ? t('Mastered · Next question') : t('Practice again')}
+                    {correct ? t('Next question') : t('Practice again')}
                   </button>
                 </div>
               ) : (
                 <div>
-                  <h3 className="text-sm font-medium">{t('How well did you remember?')}</h3>
+                  <h3 className="text-sm font-medium">{t('How well did you remember?')}</h3><p className="mt-2 text-xs text-muted-foreground">自评仅安排这道题的复习，不修改知识点掌握结论。</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {t(
                       'Mastered questions leave this round and return when your next review is due.'

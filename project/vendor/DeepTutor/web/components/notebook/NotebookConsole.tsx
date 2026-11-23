@@ -254,7 +254,7 @@ export default function NotebookConsole({
       <aside className="flex w-[250px] shrink-0 flex-col border-r border-[var(--border)]">
         <div className="flex flex-col gap-2.5 px-3 pb-2.5 pt-3">
           <Link
-            href="/space"
+            href="/learning"
             className="group inline-flex w-fit items-center gap-1.5 text-[12px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
           >
             <ArrowLeft

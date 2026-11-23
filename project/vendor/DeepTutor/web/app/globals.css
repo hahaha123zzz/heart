@@ -99,14 +99,14 @@
     --secondary: #f0f1f3;
     --secondary-foreground: #1f2328;
     --muted: #eef0f2;
-    --muted-foreground: #6b7280;
+    --muted-foreground: #5d6470;
     --accent: #e9ebee;
     --accent-foreground: #1f2328;
     --destructive: #c53a2c;
     --destructive-foreground: #ffffff;
     --border: #e3e5e8;
-    --input: #e3e5e8;
-    --ring: #9aa0a6;
+    --input: #858b94;
+    --ring: #626973;
     --overlay: rgba(17, 24, 39, 0.45);
     --success: #237a4b;
     --success-foreground: #14532d;
@@ -174,14 +174,14 @@
     --secondary: #f0f1f3;
     --secondary-foreground: #1f2328;
     --muted: #eef0f2;
-    --muted-foreground: #6b7280;
+    --muted-foreground: #5d6470;
     --accent: #e9ebee;
     --accent-foreground: #1f2328;
     --destructive: #d92d20;
     --destructive-foreground: #ffffff;
     --border: #e3e5e8;
-    --input: #e3e5e8;
-    --ring: #9aa0a6;
+    --input: #858b94;
+    --ring: #626973;
     --overlay: rgba(17, 24, 39, 0.45);
     --success: #16794b;
     --success-foreground: #14532d;
@@ -1214,6 +1214,26 @@ a[href^="#dt-locator-"] {
 }
 a[href^="#dt-locator-"]:hover {
   background: color-mix(in srgb, var(--primary) 22%, transparent);
+}
+.prose sup.reading-citation-markers,
+sup.reading-citation-markers {
+  position: relative;
+  top: -0.36em;
+  margin-inline: 0.08em;
+  font-size: 0.72em;
+  line-height: 0;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+a[href^="#dt-material-"] {
+  border-radius: 3px;
+  color: var(--primary);
+  text-decoration: none;
+  vertical-align: baseline;
+}
+a[href^="#dt-material-"]:hover {
+  background: color-mix(in srgb, var(--primary) 16%, transparent);
+  text-decoration: underline;
 }
 
 /* Slimmer scrollbars inside the reader so the document, not the chrome,

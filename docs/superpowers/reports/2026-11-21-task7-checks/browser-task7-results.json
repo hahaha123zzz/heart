@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "anonymous memory operations require authentication",
+    "no-Key preference management, source detail and cancelled deletion",
+    "two-account memory isolation and stable-ID deletion boundary",
+    "ordinary chat creates grounded self-report with evaluation disabled",
+    "delete persists across reload and old self-report replay",
+    "switch stops model memory reads and automatic writes; reopening does not backscan",
+    "PG memory read failure allows chat without memory and later recovery",
+    "quoted cases and third-party claims do not become personal facts",
+    "disabled memory still allows manual preference add and delete",
+    "search, 390px layout and native memory editor rejection",
+    "memory service read failure has retry and does not show stale cards"
+  ],
+  "failures": [],
+  "pageErrors": [],
+  "model": "local httpx.MockTransport; no external generation call"
+}

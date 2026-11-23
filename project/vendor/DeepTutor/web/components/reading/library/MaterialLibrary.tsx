@@ -22,6 +22,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -60,6 +61,7 @@ const GRID =
 
 export function MaterialLibraryPage() {
   const { t, i18n } = useTranslation();
+  const { loading: authLoading, learningPolicy } = useAuthStatus();
   const [allMaterials, setMaterials] = useState<ReadingLibraryMaterial[]>([]);
   const [counts, setCounts] = useState<ReadingLibraryCounts | null>(null);
   const [collections, setCollections] = useState<ReadingWorkspace[]>([]);
@@ -139,6 +141,7 @@ export function MaterialLibraryPage() {
       view="materials"
       materialCount={tally.all}
       collectionCount={collections.length}
+      showAction={!authLoading && !learningPolicy}
       actionLabel={t("Upload material")}
       onAction={creation.begin}
     >

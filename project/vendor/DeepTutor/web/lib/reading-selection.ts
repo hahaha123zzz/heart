@@ -217,3 +217,19 @@ export function locatorOfSelection(
   }
   return null;
 }
+
+
+/** 每页独立裁剪 DOM Range，禁止把后一页的矩形归一化到前一页。 */
+export function pdfSelectionPages(range: Range, root: HTMLElement): Array<{ locator: number; quote: string; rects: NormalisedRect[] }> {
+  return Array.from(root.querySelectorAll<HTMLElement>("[data-reader-unit]")).flatMap(page => {
+    const layer = page.querySelector(".textLayer");
+    if (!layer || !range.intersectsNode(layer)) return [];
+    const part = document.createRange();
+    part.selectNodeContents(layer);
+    if (layer.contains(range.startContainer)) part.setStart(range.startContainer, range.startOffset);
+    if (layer.contains(range.endContainer)) part.setEnd(range.endContainer, range.endOffset);
+    const quote = cleanQuote(part.toString());
+    const rects = normaliseRects(Array.from(part.getClientRects()), page.getBoundingClientRect());
+    return quote && rects.length ? [{ locator: Number(page.dataset.readerUnit), quote, rects }] : [];
+  });
+}

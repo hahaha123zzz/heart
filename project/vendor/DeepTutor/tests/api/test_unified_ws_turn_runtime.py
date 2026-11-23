@@ -104,11 +104,13 @@ def _model_catalog() -> dict:
         {"config": {"consult_partner_id": None, "partner_discussion_group_id": "group-1"}},
     ],
 )
+@pytest.mark.parametrize("observer_fails", [False, True])
 @pytest.mark.asyncio
 async def test_turn_runtime_replays_events_and_materializes_messages(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
     consultation,
+    observer_fails,
 ) -> None:
     store = SQLiteSessionStore(tmp_path / "chat_history.db")
     runtime = TurnRuntimeManager(store)
@@ -125,6 +127,18 @@ async def test_turn_runtime_replays_events_and_materializes_messages(
     }
     captured: dict[str, object] = {}
     publish_order: list[str] = []
+    from deeptutor.services.session.turns import executor
+
+    async def completed_observer(execution, context, events, user_message_id):
+        captured["observer_after_done"] = "done" in publish_order
+        assert context.metadata["persisted_assistant_message_id"]
+        assert type(context.metadata["persisted_assistant_has_content"]) is bool
+        captured["observer_user_message_id"] = user_message_id
+        captured["observer_persisted_status"] = (await store.get_turn(execution.turn_id))["status"]
+        if observer_fails:
+            raise RuntimeError("test observer failure")
+
+    monkeypatch.setattr(executor, "_completion_observer", completed_observer)
     original_publish = runtime._publish_live_event
 
     async def publish_with_status_capture(execution, event):
@@ -251,6 +265,8 @@ async def test_turn_runtime_replays_events_and_materializes_messages(
 
     assert captured["turn_status_when_done_published"] == "completed"
     assert captured["title_started_after_done"] is True
+    assert captured["observer_after_done"] is True
+    assert captured["observer_persisted_status"] == "completed"
 
     detail = await store.get_session_with_messages(session["id"])
     assert detail is not None
@@ -259,6 +275,7 @@ async def test_turn_runtime_replays_events_and_materializes_messages(
     # optimistic negative ids in place instead of refetching the session.
     user_row, assistant_row = detail["messages"]
     assert done_event["metadata"]["user_message_id"] == user_row["id"]
+    assert captured["observer_user_message_id"] == user_row["id"]
     assert done_event["metadata"]["assistant_message_id"] == assistant_row["id"]
     assert user_row["metadata"]["client_submission_id"] == "browser-submission-123"
     assert user_row["metadata"]["turn_id"] == turn["id"]

@@ -537,3 +537,83 @@ def test_active_error_on_another_question_does_not_weaken_correct_answer(tmp_pat
         )
     assert progress.error_records[0].status == "retrying"
     assert [event.quality for event in progress.learning_evidence] == [0.0, 0.0, 1.0]
+
+
+@pytest.mark.parametrize("status", ["not_verified", "assisted"])
+@pytest.mark.parametrize("passed", [True, False])
+def test_nonindependent_qualitative_keeps_gate_and_schedule_and_is_idempotent(tmp_path, status, passed):
+    from deeptutor.learning.policy import learning_stage
+    store = LearningStore(root=tmp_path)
+    service = LearningService(store)
+    progress = _make_progress()
+    service.record_qualitative(progress, "kp1", passed=True, scheduler=SpacedRepetitionScheduler())
+    before = progress.model_dump(mode="json")
+    context = {"independent": False, "assistance_status": status, "job_id": "job-test"}
+    for _ in range(2):
+        result = service.record_qualitative_for_path(progress.book_id, "kp1", passed=passed,
+            session_id="s", turn_id="t-background", assessment_context=context)
+    assert len(result.learning_evidence) == len(progress.learning_evidence) + 1
+    assert result.qualitative_mastery == progress.qualitative_mastery
+    assert result.mastery_levels == progress.mastery_levels
+    assert result.model_dump(mode="json")["repetition_states"] == before["repetition_states"]
+    assert result.model_dump(mode="json")["review_queue"] == before["review_queue"]
+    assert result.learning_evidence[-1].hints_used == int(status == "assisted")
+    assert result.learning_evidence[-1].visual_context == context
+    assert learning_stage(result, "kp1") == "independently_demonstrated"
+
+
+@pytest.mark.parametrize("passed", [True, False])
+def test_authenticated_student_native_qualitative_requires_server_qualification(tmp_path, passed):
+    from types import SimpleNamespace
+    from deeptutor.multi_user.context import set_current_user, reset_current_user
+    store = LearningStore(root=tmp_path)
+    service = LearningService(store)
+    progress = _make_progress()
+    service.save(progress)
+    token = set_current_user(SimpleNamespace(is_admin=False))
+    try:
+        result = service.record_qualitative_for_path(progress.book_id, "kp1", passed=passed,
+            evidence="模型反馈不等于学生作答", session_id="native-session", turn_id="native-turn",
+            scheduler=SpacedRepetitionScheduler())
+    finally:
+        reset_current_user(token)
+    assert result.qualitative_mastery == {} and not result.repetition_states
+    assert result.learning_evidence[-1].visual_context["independent"] is False
+    assert result.learning_evidence[-1].visual_context["assistance_status"] == "not_verified"
+
+
+def test_reassessment_requires_same_objective_and_only_one_replacement(tmp_path):
+    from deeptutor.learning.service import MasteryInteractionError
+    store = LearningStore(root=tmp_path)
+    service = LearningService(store)
+    progress = _make_progress()
+    service.save(progress)
+    original = service.record_qualitative_for_path(progress.book_id, "kp1", passed=True,
+        session_id="s", turn_id="initial", assessment_context={"independent": False, "job_id": "original"})
+    evidence_id = original.learning_evidence[0].evidence_id
+    context = {"independent": False, "job_id": "review", "supersedes_evidence_id": evidence_id}
+    for _ in range(2):
+        reviewed = service.record_qualitative_for_path(progress.book_id, "kp1", passed=False,
+            session_id="s", turn_id="review", assessment_context=context)
+    assert len(reviewed.learning_evidence) == 2 and not reviewed.qualitative_mastery
+    assert reviewed.learning_evidence[0].result == "correct" and reviewed.learning_evidence[1].result == "partial"
+    with pytest.raises(MasteryInteractionError, match="successful reassessment"):
+        service.record_qualitative_for_path(progress.book_id, "kp1", passed=True, session_id="s", turn_id="other",
+            assessment_context={**context, "job_id": "other-review"})
+    with pytest.raises(MasteryInteractionError, match="does not belong"):
+        service.record_qualitative_for_path(progress.book_id, "kp1", passed=True, session_id="s", turn_id="missing",
+            assessment_context={**context, "supersedes_evidence_id": "missing"})
+
+
+def test_qualified_evidence_reassessment_is_blocked_until_replay_is_supported(tmp_path):
+    from deeptutor.learning.service import MasteryInteractionError
+    store = LearningStore(root=tmp_path)
+    service = LearningService(store)
+    progress = _make_progress()
+    service.save(progress)
+    original = service.record_qualitative_for_path(progress.book_id, "kp1", passed=True,
+        session_id="s", turn_id="qualified")
+    with pytest.raises(MasteryInteractionError, match="qualification replay"):
+        service.record_qualitative_for_path(progress.book_id, "kp1", passed=False, session_id="s", turn_id="review",
+            assessment_context={"independent": False, "job_id": "review", "supersedes_evidence_id": original.learning_evidence[-1].evidence_id})
+    assert store.load(progress.book_id).qualitative_mastery["kp1"] is True

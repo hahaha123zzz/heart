@@ -1,0 +1,165 @@
+{
+  "task": 9,
+  "date": "2026-11-22",
+  "complete": true,
+  "python_tests": 121,
+  "component_tests": {
+    "passed": 25,
+    "files": 5
+  },
+  "node_tests": 1272,
+  "browser": {
+    "checks": [
+      "anonymous settings require login and ten accounts start empty and isolated",
+      "account display settings persist across reload without crossing accounts",
+      "personal model saves masked metadata and never returns a raw key",
+      "capability checks require cost consent and stay separate and version bound",
+      "evaluation and memory switches are independent and persisted",
+      "teaching preference templates require confirmation and use the one memory source",
+      "key deletion persists and admin registration and embedding remain unavailable",
+      "390px settings remain readable and logout clears authenticated access"
+    ],
+    "failures": [],
+    "pageErrors": [],
+    "controlledCapabilities": true
+  },
+  "integration": {
+    "accounts": 10,
+    "initialization_idempotent": true,
+    "controlled_capability_boundary": true,
+    "probe_calls": [
+      {
+        "owner": "heart-review-01",
+        "capability": "chat",
+        "model": "task9-alpha"
+      },
+      {
+        "owner": "heart-review-01",
+        "capability": "assessment",
+        "model": "task9-alpha"
+      },
+      {
+        "owner": "heart-review-01",
+        "capability": "vision",
+        "model": "task9-alpha"
+      }
+    ]
+  },
+  "typecheck_exit_code": 0,
+  "build_exit_code": 0,
+  "contracts_exit_codes": [
+    0,
+    0
+  ],
+  "matched_frontend_source_files": 952,
+  "provenance": {
+    "baseline_files": 3764,
+    "local_changes": 194,
+    "local_deletions": 101,
+    "task9": [
+      {
+        "path": "web/app/(settings)/settings/model/page.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/StudentAccountSettings.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/StudentMemory.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/student-account-settings.spec.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/student-model-page.spec.tsx",
+        "action": "modify"
+      }
+    ],
+    "hash_errors": [],
+    "reverse_patch_check": true
+  },
+  "host_source_hashes": [
+    {
+      "path": "integrations/deeptutor/heart_model_api.py",
+      "sha256": "d534edf9b067c99706e16c13fd4f6b970e238cd3fcd10c4d9bbca24826e082dd"
+    }
+  ],
+  "limits": [
+    "本轮能力检查为受控本地边界；真实模型证据见任务二/六/八",
+    "未运行全仓全部 Vitest",
+    "未进行线上切换"
+  ],
+  "check_artifacts": [
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/browser-task9-results.json",
+      "sha256": "b190945430f3d074bf99fb5ccd229ad530b0178a2220cfd9159d6ee4dd6c9b67"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/browser-task9.js",
+      "sha256": "dda4214150ae58e496a91a25f5d56b89a6baf8900db09701cc7533f0aa6c22be"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/check_task9.py",
+      "sha256": "651c98a28593df55a680359c54adf64d6f34b928d93718adece385538b36b14e"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/README.md",
+      "sha256": "197536afe522e244b98aad0871df481e69801520e15f236a8201d769bcc00c37"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-accounts.log",
+      "sha256": "2a7d10eb998a03acea4e744ba9551fc742715437977e0a72c1cea4316a281dc0"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-browser.log",
+      "sha256": "6bd39c9661aa1909b11c0ea14e5e3d2cf5451dcd8e2ad4b7b8ef2ec45fc7c91b"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-build.log",
+      "sha256": "bde40e34ea842a5c587a54b3b2b314f87e4d0a88a1f2d1d89a742c3fa35cb5ad"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-contract-check.log",
+      "sha256": "a6a863c4980c6400dbb97dcf733e37b642500c18471bc559f9eef52a07b7e237"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-contracts.log",
+      "sha256": "7b9947fcff047c93556b8767c2ca08cdaeeca17cb1f2829f44782c50b76884cf"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-integration-results.json",
+      "sha256": "869dc3d155b34cdf0aaa5144073fcef9e5a81f21af1d3b5b6277f5afebb74cb9"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-model-python.log",
+      "sha256": "e0257f274bb7495645d43a60b8cd7600288cdb9eb9b81ccb8a20bae946172298"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-node.log",
+      "sha256": "27b5e177f576ec91b88bbcf20480539e98491b1927cc6e86ed37bf7838d68c4a"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-provenance.json",
+      "sha256": "9454fa6f7fb1264d1b6b38b812c1340360615542cf2a0faeeeafda35a6716827"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-provenance.log",
+      "sha256": "6046ec4e51181d8595375486e41c4b0039f15de8df83a76ada281d48f0d73e52"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-provenance.py",
+      "sha256": "2d61b05984ffd7e90b30bfa8fc6b01a6c488552eda2a1356c1de7c4ca8480c4e"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-typecheck.log",
+      "sha256": "2230e90d45b9c1814de2d3d7f36c69df8930ee83dc9b214ba7ced20e68f127a4"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task9-checks/task9-unit.log",
+      "sha256": "c1dd4f8bcc93fe9ef4030f49ae068bf6a4614c54192f3d6ac8b3052fb759aa34"
+    }
+  ]
+}

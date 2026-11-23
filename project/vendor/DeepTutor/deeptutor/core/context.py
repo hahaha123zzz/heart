@@ -29,6 +29,9 @@ class Attachment:
     # Populated by ``extract_documents_from_records`` so the frontend can
     # show "what the LLM saw" when previewing office files.
     extracted_text: str = ""
+    # Server-classified origin. Runtime-only: this is never persisted with
+    # user-visible message attachment records.
+    origin: str = "user_submission"
 
 
 @dataclass(frozen=True, slots=True)

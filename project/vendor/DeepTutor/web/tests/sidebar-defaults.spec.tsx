@@ -24,8 +24,6 @@ it("new profiles see two primary entries and no folded features", () => {
   expect(resolved.customized).toBe(false);
   expect(SECONDARY_NAV.map(item => item.href)).toEqual([
     "/settings",
-    "/learning/graph",
-    "/settings/model",
   ]);
 });
 

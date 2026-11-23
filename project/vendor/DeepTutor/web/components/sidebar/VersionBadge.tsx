@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type MouseEventHandler } from "react";
 import { useTranslation } from "react-i18next";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 import Tooltip from "@/shared/ui/Tooltip";
 
 import {
@@ -17,10 +18,12 @@ interface VersionBadgeProps {
 
 export function VersionBadge({ onNavigate }: VersionBadgeProps) {
   const { t } = useTranslation();
+  const { loading, learningPolicy } = useAuthStatus();
   const [status, setStatus] = useState<AppUpdateStatus | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (loading || learningPolicy) return;
     let active = true;
     const controller = new AbortController();
     const unsubscribe = subscribeAppUpdateStatus((signal) => {
@@ -41,7 +44,9 @@ export function VersionBadge({ onNavigate }: VersionBadgeProps) {
       controller.abort();
       unsubscribe();
     };
-  }, []);
+  }, [loading, learningPolicy]);
+
+  if (loading || learningPolicy) return null;
 
   const state = error
     ? { dot: "bg-red-500", label: t("Status check failed") }

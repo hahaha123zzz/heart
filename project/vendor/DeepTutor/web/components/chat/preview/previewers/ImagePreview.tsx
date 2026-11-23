@@ -15,9 +15,11 @@ import { Loader2 } from "lucide-react";
 export default function ImagePreview({
   url,
   filename,
+  onUnavailable,
 }: {
   url: string;
   filename: string;
+  onUnavailable?:()=>void;
 }) {
   const { t } = useTranslation();
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
@@ -45,7 +47,7 @@ export default function ImagePreview({
       )}
       {state === "error" ? (
         <div className="text-[12px] text-[var(--muted-foreground)]">
-          {t("Failed to load image.")}
+          {url.includes("/files/attachments/")?"原图已过期、已删除或暂时无法读取。必要的文字证据仍保留。":t("Failed to load image.")}
         </div>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
@@ -54,7 +56,7 @@ export default function ImagePreview({
           alt={filename}
           className="max-h-full max-w-full object-contain"
           onLoad={() => setState("ready")}
-          onError={() => setState("error")}
+          onError={() => {setState("error");onUnavailable?.();}}
         />
       )}
     </div>

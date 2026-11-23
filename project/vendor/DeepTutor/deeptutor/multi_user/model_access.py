@@ -73,6 +73,10 @@ def redacted_model_access(user_id: str | None = None) -> dict[str, list[dict[str
     user = get_current_user()
     if user_id is None:
         user_id = user.id
+    from .personal_models import external_llm_profiles, personal_llm_rows
+
+    if external_llm_profiles() is not None:
+        return {"llm": personal_llm_rows() if user_id == user.id else []}
     grant = load_grant(user_id)
     catalog = admin_catalog()
     result: dict[str, list[dict[str, Any]]] = {"llm": []}

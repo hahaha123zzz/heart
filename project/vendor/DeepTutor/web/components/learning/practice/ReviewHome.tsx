@@ -15,6 +15,7 @@ import {
 import { LearningShell, LearningErrorState } from '../LearningShell'
 import { useLearningCreation } from '../LibraryWorkspace'
 import { PracticeSession } from './PracticeSession'
+import {usePracticeRun,writeRun} from './practice-resume'
 import { PracticeImport } from './PracticeImport'
 import { PracticeInsights } from './PracticeInsights'
 
@@ -26,6 +27,7 @@ export function ReviewHome() {
   const [error, setError] = useState('')
   const [revision, setRevision] = useState(0)
   const [session, setSession] = useState<PracticeRef[] | null>(null)
+  const resumeKey=usePracticeRun(setSession)
   const [starting, setStarting] = useState(false)
   const [importing, setImporting] = useState(false)
   const [notice, setNotice] = useState('')
@@ -82,6 +84,7 @@ export function ReviewHome() {
     }
   }
   const completed = () => {
+    writeRun(resumeKey,null)
     setSession(null)
     setRevision(value => value + 1)
     void refresh()
@@ -106,7 +109,7 @@ export function ReviewHome() {
       {creation.dialog}
       {session ? (
         <div className="mt-8">
-          <PracticeSession questions={session} onClose={completed} />
+          <PracticeSession key={resumeKey} resumeKey={resumeKey} questions={session} onClose={completed} />
         </div>
       ) : (
         <div className="mt-7 space-y-6">

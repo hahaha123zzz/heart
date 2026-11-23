@@ -114,7 +114,7 @@ class MemoryIndexRepository:
                 row.content_hash=digest;row.created_at=created;row.embedding=[];row.embedding_model=""
                 row.active=True
             for key,row in old.items():
-                if key not in seen:
+                if key not in seen and row.source_kind != "student_memory":
                     row.active=False
 
     def expire_cards(self, student_id, point=None, epoch=None):

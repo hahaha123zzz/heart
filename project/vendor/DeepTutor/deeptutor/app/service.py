@@ -49,6 +49,11 @@ class TurnApplicationService:
         if get_workspace_scope() is None and "workspace_id" in payload:
             with workspace_context(payload.get("workspace_id")):
                 return await self.start_turn(payload)
+        viewport = payload.get("reading_viewport")
+        if isinstance(viewport, dict) and viewport.get("document_id"):
+            from integrations.deeptutor.legacy_reader_turn import verify_legacy_reader_turn
+            payload = await verify_legacy_reader_turn(payload)
+            request = TurnRequest.model_validate(payload)
         store, runtime = self._resolve()
         reserve = getattr(store, "reserve_submission", None)
         submission_turn = getattr(store, "submission_turn", None)
@@ -102,10 +107,12 @@ class TurnApplicationService:
                 "question_notebook_references": list(
                     payload.get("question_notebook_references") or []
                 ),
-                "knowledge_bases": list(payload.get("knowledge_bases") or []),
+                **({"knowledge_bases": list(payload["knowledge_bases"] or [])}
+                   if "knowledge_bases" in payload else {}),
                 "partner_group_references": list(payload.get("partner_group_references") or []),
             },
         )
+        session = await store.get_session(session["id"]) or session
         # Keep historical source references even when the current turn no
         # longer selects them. Migration must preserve earlier citations too.
         previous = (session.get("preferences") or {}).get("workspace_dependencies", {})

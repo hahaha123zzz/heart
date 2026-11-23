@@ -77,7 +77,19 @@ def main() -> None:
     install_generation_bridge(app)
     install_agentic_bridge(app)
     install_heart_model(app, args.home)
+    from integrations.deeptutor.legacy_reader_api import install_legacy_reader
+    install_legacy_reader(app)
+    from integrations.deeptutor.catalog_binding import install_catalog_binding
+    install_catalog_binding()
+    from integrations.deeptutor.heart_rag import install_heart_tools
+    from integrations.deeptutor.tool_policy import install_tool_policy
+    install_heart_tools()
+    install_tool_policy()
+    from integrations.deeptutor.assessment_worker import install_assessment_worker
+    install_assessment_worker(app)
     install_heart_memory(app)
+    from integrations.deeptutor.attachment_retention import install as install_attachment_retention
+    install_attachment_retention(app)
     install_knowledge_bridge(app, args.home.resolve())
     if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '1') == '1':
         from integrations.deeptutor.native_bridge import install_native_bridge

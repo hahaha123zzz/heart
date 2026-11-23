@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { fetchAuthStatus } from "@/lib/auth";
 import { apiFetch, apiUrl } from "@/lib/api";
 
 const GLOBAL_EVENT = "deeptutor:voice-math-speak";
@@ -12,8 +13,10 @@ let inflight: Promise<boolean> | null = null;
 function fetchPreference(): Promise<boolean> {
   if (cached !== null) return Promise.resolve(cached);
   if (!inflight) {
-    inflight = apiFetch(apiUrl("/api/settings"))
-      .then((r) => (r.ok ? r.json() : null))
+    inflight = fetchAuthStatus().then((status) =>
+      status?.learning_policy ? null : apiFetch(apiUrl("/api/settings")),
+    )
+      .then((r) => (r?.ok ? r.json() : null))
       .then((payload) => {
         const next = payload?.ui?.voice_math_speak !== false;
         cached = next;

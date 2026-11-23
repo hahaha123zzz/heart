@@ -1,5 +1,6 @@
 'use client'
 
+import { useAuthStatus } from '@/hooks/useAuthStatus'
 import { pageGridClass } from '@/components/layout/FeaturePage'
 import Link from 'next/link'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
@@ -22,6 +23,14 @@ const titleClass = 'text-[16px] font-semibold tracking-[-0.02em]'
 export function LearningWays() {
   const { t } = useTranslation()
   const reduceMotion = useReducedMotion()
+  const { loading, learningPolicy } = useAuthStatus()
+  const surfaces = LEARNING_SURFACES.filter(surface => {
+    if (surface.kind === 'mastery') return false
+    if (!learningPolicy) return true
+    const allowed = learningPolicy.allowedSurfaces ?? ['chat', 'reading']
+    if (surface.kind === 'watching') return false
+    return allowed.includes(surface.kind === 'practice' ? 'chat' : surface.kind)
+  })
   const [openKind, setOpenKind] = useState<LearningKind | null>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const id = useId()
@@ -39,7 +48,7 @@ export function LearningWays() {
           {t('Ways to learn')}
         </h2>
         <div className={pageGridClass(5)}>
-          {LEARNING_SURFACES.map(surface => {
+          {!loading && surfaces.map(surface => {
             const opened = openKind === surface.kind
             return (
               <motion.div

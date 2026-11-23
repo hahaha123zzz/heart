@@ -1,0 +1,384 @@
+{
+  "task": 10,
+  "date": "2026-11-22",
+  "complete": true,
+  "scope": "user-authorized localhost:8000",
+  "online_deployed": false,
+  "online_deferred_by_user": true,
+  "url": "http://127.0.0.1:8000",
+  "python_tests": {
+    "release": 4,
+    "screenshot_retention": 21
+  },
+  "joint_browser": {
+    "checks": [
+      "anonymous practice and evaluation requests are rejected",
+      "joint default chat completes through the native websocket",
+      "joint actual Chinese textbook opens and selected passage reaches tutoring",
+      "joint memory preference persists without creating a mastery claim",
+      "default evaluation is enabled and question data are owner-bound",
+      "point and path scopes agree across bank summary queue and analytics",
+      "practice draft survives reload without exposing reference or manual mastery",
+      "lost submission response resumes with the same request ID and saves exactly once",
+      "H review sync recovers in background and scope remains after returning",
+      "path entry preserves its practice scope and return location",
+      "incomplete screenshot requests clarification and creates no assessment",
+      "complete screenshot continues tutoring and is assessed as assisted after navigation",
+      "one successful reassessment keeps original result and uses the explicit cost confirmation",
+      "attribution gets one correction then discards without a score",
+      "expired screenshot is denied and the chat remains readable",
+      "deleting source conversation preserves published evidence and labels the source deleted",
+      "390px practice remains usable and has no uncaught browser error"
+    ],
+    "failures": [],
+    "pageErrors": [],
+    "practiceRequests": [
+      {
+        "request_id": "524bbe20-c2f9-4f9f-9212-9974e45f6b1b",
+        "version": 0,
+        "rating": "good",
+        "answer": "B",
+        "self_report": false
+      },
+      {
+        "request_id": "524bbe20-c2f9-4f9f-9212-9974e45f6b1b",
+        "version": 0,
+        "rating": "good",
+        "answer": "B",
+        "self_report": false
+      }
+    ],
+    "controlledFixtures": [
+      "self-authored questions with historical due times",
+      "local grading model and real DeepSeek screenshot result replay",
+      "one H review sync and one assessment publication outage"
+    ],
+    "assessmentJob": "e6561315-4e81-4070-ac75-48e45ab5305c"
+  },
+  "local_browser": {
+    "checks": [
+      "local 8000 is the new authenticated frontend and old shell files are unavailable",
+      "all ten durable accounts log in with no old chat scores paths or personal key",
+      "local learning navigation model and memory pages use actual services",
+      "actual fixed graph remains version valid with no fabricated mastery",
+      "actual textbook PDF opens and practice starts empty"
+    ],
+    "failures": [],
+    "pageErrors": [],
+    "externalModelCalls": 0
+  },
+  "isolation_integration": {
+    "controlled_model": true,
+    "review_events": 1,
+    "completed": 2,
+    "discarded": 1,
+    "calls": [
+      {
+        "job_id": "e6561315-4e81-4070-ac75-48e45ab5305c",
+        "model": "review-alpha",
+        "correction": "",
+        "point": "kc-3-1"
+      },
+      {
+        "job_id": "9f8028cf-c28a-4394-8cc8-5f51c3f84f46",
+        "model": "review-alpha",
+        "correction": "",
+        "point": "kc-3-1"
+      },
+      {
+        "job_id": "2e8b639b-1667-4a12-910f-5687979a78be",
+        "model": "review-alpha",
+        "correction": "",
+        "point": "kc-3-1"
+      },
+      {
+        "job_id": "2e8b639b-1667-4a12-910f-5687979a78be",
+        "model": "review-alpha",
+        "correction": "knowledge_point_mismatch",
+        "point": "kc-3-1"
+      }
+    ],
+    "default_evaluation_enabled": true,
+    "real_vision_artifact_replayed": true
+  },
+  "dual_store_restore": {
+    "worker_home_verified": true,
+    "three_postgres_dumps_restored": true,
+    "private_encryption_key_backed_up_and_reloaded": true,
+    "same_auth_identity": true,
+    "model_decryption": true,
+    "textbook_pdf_unchanged": true,
+    "restored_turn_continued": true,
+    "source_post_checkpoint_records_preserved": true,
+    "temporary_databases_only": true
+  },
+  "actual_local_rollout": {
+    "old_release": "candidate-runtime-20261122",
+    "new_release": "local8000-20261122",
+    "scope": "localhost:8000 only",
+    "production_ecs_changed": false,
+    "phase_seconds": {
+      "initial_stop": 0.45,
+      "new_start": 134.34,
+      "rollback_start": 40.75,
+      "relaunch_start": 52.11
+    },
+    "backup_manifest_sha256": "90c02d10249cb086973f4a078a114e15863d05f700ecd9e24cc39af2df3d12e1",
+    "private_backup_path": "E:\\项目\\heart\\.worktrees\\student-frontend-reuse-20261117\\.runtime\\student-release-20261122\\private\\backups\\local-cutover-ae0983ee",
+    "actual_three_database_restore_verified": true,
+    "restored_graph_nodes": 7138,
+    "restored_graph_edges": 14741,
+    "controlled_new_record_id": "1",
+    "new_record_survived_rollback": true,
+    "new_record_survived_relaunch": true,
+    "controlled_record_removed_from_active_view": true,
+    "textbook_assets_unchanged": true,
+    "source_snapshots_still_verified": true,
+    "ready": true
+  },
+  "active_release": {
+    "release_id": "local8000-20261122",
+    "release_path": "E:\\项目\\heart\\.worktrees\\student-frontend-reuse-20261117\\.runtime\\student-release-20261122\\releases\\local8000",
+    "previous_release_id": "candidate-runtime-20261122",
+    "restart_required": true,
+    "student_data_changed": false
+  },
+  "deployment_controller_hashes": [
+    {
+      "path": "control/manage_student_local.py",
+      "sha256": "87f8e721dce8d21fb4c03493bf818a2644ed3c812ebd898cee072ce26029573e"
+    },
+    {
+      "path": "control/run_student_release.py",
+      "sha256": "d5b1e77689f3508a8603f1cb6a87b0ccddcd4edf9a5e35839d547b06a40a765e"
+    },
+    {
+      "path": "control/runtime-tools.json",
+      "sha256": "77788398da0a1a0daf22912267d66c2d4010ffe6f277229c47f5fdeed276012f"
+    },
+    {
+      "path": "control/student-local.ps1",
+      "sha256": "0caf3aedf2d5c7145453a6b310cca7817ad8b3566d00ffe1d582cfebc0f9f00c"
+    },
+    {
+      "path": "control/student_release.py",
+      "sha256": "6dbed174bd0da9e25b6df1f19ad6e21875365dcde96c1edb704117b4532f544e"
+    }
+  ],
+  "packaging_revision_differences": [
+    "project/integration/discrete-math-tutor/deploy/STUDENT_CUTOVER.md",
+    "project/integration/discrete-math-tutor/deploy/manage_student_local.py",
+    "project/integration/discrete-math-tutor/deploy/run_student_release.py",
+    "project/integration/discrete-math-tutor/deploy/setup_student_local.py"
+  ],
+  "source_release_manifest_sha256": "33113111da767d1adf1880c53173fe0d4cc248a10331e09a5afb5b22d3632985",
+  "windows_runtime_build_hashes": [
+    {
+      "path": "server.js",
+      "sha256": "7802c2759ffc614e19eb589374d6e30c7ea3ee67f127a344a9399c0e329e9439"
+    },
+    {
+      "path": ".next/BUILD_ID",
+      "sha256": "c4bc59a05b4de27b0e70081e5b2ba4b3b20f783a6606c69f4ca0031fa4f0d7c2"
+    },
+    {
+      "path": "package.json",
+      "sha256": "e2957234b36274551e217cc50fbf1b5ae6437e6435d7db8b9635787d54035a28"
+    },
+    {
+      "path": "node_modules/next/package.json",
+      "sha256": "63cb8d0319386c6610cbfd33e008f44a3c08ce9dad4bf6276a8e9cc93b1acab3"
+    }
+  ],
+  "textbook_hashes": {
+    "asset_root": "E:\\项目\\heart\\project\\integration\\discrete-math-tutor\\knowledge\\courses\\experimental-psychology-3",
+    "files": [
+      {
+        "path": "pdf_manifest.json",
+        "sha256": "6930ba41884a04d448dd5ce117f630ba974caceffeed987070a0195b63423b84"
+      },
+      {
+        "path": "chapters\\chapter_01\\chapter_01.generated.pdf",
+        "sha256": "34f4dfc2dd1418397cbc35aa4a2c0b404a11102cf919287b6fd2bfa5be021c7e"
+      },
+      {
+        "path": "chapters\\chapter_02\\chapter_02.generated.pdf",
+        "sha256": "840d14cbc821fe3ea5b3735da78c76c51ad021abed9c57bcf8d5a18d945fa0e7"
+      },
+      {
+        "path": "chapters\\chapter_03\\chapter_03.generated.pdf",
+        "sha256": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089"
+      },
+      {
+        "path": "chapters\\chapter_04\\chapter_04.generated.pdf",
+        "sha256": "9cc34c2cc7f4324a43c4005276e675629f3575096de9300e5224e6db19cd8a7f"
+      },
+      {
+        "path": "chapters\\chapter_05\\chapter_05.generated.pdf",
+        "sha256": "b2080dca48af0b5965d5b9bdab9b0bf8ae22561dccda92fa850adc01d221c026"
+      },
+      {
+        "path": "chapters\\chapter_06\\chapter_06.generated.pdf",
+        "sha256": "c522d903683c7aa77f68cf0229d317ab50b147ded4c89b494aadb465f4cc3e08"
+      },
+      {
+        "path": "chapters\\chapter_07\\chapter_07.generated.pdf",
+        "sha256": "bd19706972c451ff9c1a932eb6f5e5797a9777033461d5140222bc2b2efdc02c"
+      },
+      {
+        "path": "chapters\\chapter_08\\chapter_08.generated.pdf",
+        "sha256": "c4a13e9a76794cf80c9cb28a08ed7e14bc6b5dc011251eefc8392537e882fe8f"
+      },
+      {
+        "path": "chapters\\chapter_09\\chapter_09.generated.pdf",
+        "sha256": "c2ed84353303265c809abcf038019444a4f1d0f225af8842be104cf1f0f63b83"
+      },
+      {
+        "path": "chapters\\chapter_10\\chapter_10.generated.pdf",
+        "sha256": "41699ed32071ff0403bba419befe47d46c9157644b071c473ac9398eb57b44af"
+      },
+      {
+        "path": "chapters\\chapter_11\\chapter_11.generated.pdf",
+        "sha256": "b463bfa15e81956e2ce9e921cda0385969eddf04b8413809e306116f5339be34"
+      },
+      {
+        "path": "sample\\chapter_04.generated.pdf",
+        "sha256": "88d3e8a62110be519eff43b717544114ef095a4ef99f772343cc53475b851c8d"
+      }
+    ]
+  },
+  "credential_delivery": "private local file only; secrets not archived",
+  "limits": [
+    "两个本地封装修订采用同一业务源码及既有 Windows 依赖环境，不是线上历史包",
+    "线上 ECS、Linux 与 Caddy 切换依用户要求暂缓",
+    "未运行全仓全部 Vitest；390px 是视口模拟",
+    "辅助未核实不放行独立掌握",
+    "本轮无外部生成调用；实际视觉/评分证据见任务二/六/八"
+  ],
+  "check_artifacts": [
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/browser-local8000.js",
+      "sha256": "4b1920894ca2773bb6f188e7dba08b5344bb168edc086b9010da65fca0370ec5"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/browser-task10-results.json",
+      "sha256": "d4ffa10e0c0e55d29f3a00260d6df61f25ef6fa913d96751e32554178b5a9158"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/browser-task10.js",
+      "sha256": "ed13bd243b5844b3f35b25e49bb7606d27da45397048b43b96a5d68ca0d5cdbe"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/check_task10_local_rollout.py",
+      "sha256": "2d2af307891669fbbb713c281a49fc6c2136bed3203720c8d359a637b7039a85"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/check_task10_packaged.py",
+      "sha256": "54c24291261e54554c5ffde61b44e23ed42e60d6d54f819f4193098783e9a938"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/check_task10_restore.py",
+      "sha256": "144e8f7e55145c3c24786ddb5e69b7787e25711419a5eedbaa741aedac8b5a81"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/heart-student@.service",
+      "sha256": "473d440e5036fbff1e56363d1fb20e562f871f9ec02859e8e170438fc1bd6575"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/LOCAL_TEST.md",
+      "sha256": "ee26b9f4538ea1e0c1ae9797cb0d1c2e9083e74b2ba9cd36d51ad29ab19cb5fa"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/manage_student_local.py",
+      "sha256": "87f8e721dce8d21fb4c03493bf818a2644ed3c812ebd898cee072ce26029573e"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/MATRIX.md",
+      "sha256": "2955204e59f942a6e2cb341b75ff22b6d2e52cd66a9c0079ad491bbd2f5ce23a"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/README.md",
+      "sha256": "b80a497b0974266ee22d3ec1ba554a6661af59f2867f6f06252a62739c8ab12e"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/run_student_release.py",
+      "sha256": "d5b1e77689f3508a8603f1cb6a87b0ccddcd4edf9a5e35839d547b06a40a765e"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/runtime-tools.json",
+      "sha256": "77788398da0a1a0daf22912267d66c2d4010ffe6f277229c47f5fdeed276012f"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/setup_student_local.py",
+      "sha256": "a677f62d0f8fa7e88ccbd022afd7293ad36a3e1db4e459267ae924dc0195c744"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/student-local.ps1",
+      "sha256": "0caf3aedf2d5c7145453a6b310cca7817ad8b3566d00ffe1d582cfebc0f9f00c"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/Student.Caddyfile",
+      "sha256": "f99483638bfc7d5f270875a0624a5d9a2df0ac7a5203f7686ae461e86b63fa84"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/STUDENT_CUTOVER.md",
+      "sha256": "8d1b43d671bc8c578ce4988457a153e4914002fbb946344e47882dc606db6dba"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/student_release.py",
+      "sha256": "6dbed174bd0da9e25b6df1f19ad6e21875365dcde96c1edb704117b4532f544e"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-assets.json",
+      "sha256": "2d053b5c992484fdd5ee331dfc68311a25303605729b4ee72b607b4ced1f1d6a"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-browser.log",
+      "sha256": "2d17ffaeaeefe750fe58f68a0e275ad4185b285be73eccae033a9d330c0f5a3a"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-integration-results.json",
+      "sha256": "6d189441e9a43fabc5f1b32f58c458d7c55de456c8279393da659c5f6bde880f"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-local-browser.json",
+      "sha256": "ab97de32ccf29b5fef0abd5512e4680b4c853fbcd84951eefba616eccfec91a2"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-local-browser.log",
+      "sha256": "996114b08c08d058193de44f13dc1548ded7560644ae889f653cbe0bff7a367c"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-local-rollout.json",
+      "sha256": "5328de96616f3e15d7715dec060bcaab3812fa0069d7f93322a98d254b213446"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-local-rollout.log",
+      "sha256": "b76db82ea7f19209b661cf3e7efe89e4e42236ec0eacde99ce503f008499afea"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-local-setup.log",
+      "sha256": "580df0d1a69d99e343a2c369883f7e0747023cd5083b0b895897fe1a01da65c4"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-local-start.log",
+      "sha256": "f03db2f0af55d97da1d4d31e9f91218262a19c2a5c4edd78580f3ed17b454520"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-release-tests.log",
+      "sha256": "5ed27e5b178f58b40a773d5435ac637d95105c2a93e5c0ef727af08c5423f094"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-restore-results.json",
+      "sha256": "fa5b5b521c1d7aa3d0d70737a1beeafe7fb7e7f2720a335345c8c0c6fb92b397"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-restore.log",
+      "sha256": "cabf05845d5840896985ff0b1f824672b2106f4f4aeed0392f5f3c4cc719c749"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-22-task10-checks/task10-retention.log",
+      "sha256": "e092bd0aa5cd60db3425fd8d0e11184a0ae1a265e2fee62580d88ab1bd353806"
+    }
+  ]
+}

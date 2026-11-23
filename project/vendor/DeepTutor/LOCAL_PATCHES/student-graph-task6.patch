@@ -1,0 +1,1808 @@
+diff --git a/project/vendor/DeepTutor/web/features/heart/KnowledgeGraph.tsx b/project/vendor/DeepTutor/web/features/heart/KnowledgeGraph.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/KnowledgeGraph.tsx
+@@ -0,0 +1,84 @@
++"use client";
++import dynamic from 'next/dynamic'
++import Link from 'next/link'
++import { useRouter, useSearchParams } from 'next/navigation'
++import { useEffect, useState } from 'react'
++import { apiFetch } from '@/lib/api'
++import { useAuthStatus } from '@/hooks/useAuthStatus'
++import { LearningShell } from '@/components/learning/LearningShell'
++import { setPendingPrompt } from '@/lib/pending-prompt'
++import { ChapterProgress } from './ChapterProgress'
++import { AssessmentEvidence } from './AssessmentEvidence'
++import useLightragGraph, { stateColor } from './graph/useLightragGraph'
++import { useGraphStore } from './graph/store'
++import { stateLabel, type NodeDetail } from './graph/types'
++const GraphViewer=dynamic(()=>import('./graph/GraphViewer'),{ssr:false,loading:()=> <p role="status">正在加载图形组件…</p>})
++const button='rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50'
++export default function KnowledgeGraph(){
++  const router=useRouter(),params=useSearchParams(),auth=useAuthStatus()
++  const chapterValue=Number(params.get('chapter')||1),chapter=chapterValue>=1&&chapterValue<=11?chapterValue:1
++  const query=params.get('q')||'',focus=params.get('focus')||''
++  const [draft,setDraft]=useState(query),[revision,setRevision]=useState(0),[filter,setFilter]=useState('all')
++  const [detail,setDetail]=useState<NodeDetail>(),[detailError,setDetailError]=useState(''),[detailRevision,setDetailRevision]=useState(0)
++  const [actionError,setActionError]=useState(''),[busy,setBusy]=useState(false)
++  const url='/api/graph/subgraph?'+new URLSearchParams({chapter:String(chapter),q:query,focus,limit:'80',refresh:String(revision)})
++  const {data,error,loading}=useLightragGraph(url,auth.statusAvailable?auth.userId:null)
++  const selected=useGraphStore.use.selectedNode()
++  const requestedNode=params.get('node')||''
++  useEffect(()=>{if(data&&requestedNode&&data.nodes.some(n=>n.id===requestedNode))useGraphStore.getState().setSelectedNode(requestedNode,true)},[data,requestedNode])
++  useEffect(()=>{if(selected&&selected!==requestedNode){const next=new URLSearchParams(params.toString());next.set('node',selected);router.replace('/learning/graph?'+next.toString(),{scroll:false})}},[selected,requestedNode,params,router])
++  useEffect(()=>setDraft(query),[query])
++  const navigate=(changes:Record<string,string>)=>{const next=new URLSearchParams(params.toString());for(const [k,v] of Object.entries(changes)){if(v)next.set(k,v);else next.delete(k)}router.replace('/learning/graph?'+next.toString(),{scroll:false})}
++  useEffect(()=>{
++    const controller=new AbortController();setDetail(undefined);setDetailError('');setActionError('')
++    if(!selected||!data)return ()=>controller.abort()
++    const p=new URLSearchParams({id:selected,chapter:String(chapter),release_id:data.release_id})
++    apiFetch('/api/graph/node?'+p,{signal:controller.signal,cache:'no-store'}).then(async response=>{if(!response.ok)throw new Error('节点详情读取失败，请重试。');return response.json() as Promise<NodeDetail>}).then(value=>{if(!controller.signal.aborted)setDetail(value)}).catch(reason=>{if(!controller.signal.aborted)setDetailError(String(reason.message||reason))})
++    return ()=>controller.abort()
++  },[selected,data,chapter,detailRevision])
++  const guidance=async(practice=false)=>{
++    if(!detail||busy)return;setBusy(true);setActionError('')
++    try{
++      const kc=detail.node.state.knowledge_point_id
++      if(!kc){setPendingPrompt(`请根据《实验心理学》第${chapter}章讲解“${selected}”。该实体尚无唯一确认的知识点映射，仅作讲解，不计入掌握。`,'chat');router.push('/chat');return}
++      const source=detail.sources.map(s=>s.text).join('\n').slice(0,7500)
++      const response=await apiFetch('/api/mastery-paths/topics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:selected,goal:`${practice?'练习':'学习'}《实验心理学》第${chapter}章的${selected}`,sources:[{client_ref:'graph-source',kind:'file',source_id:detail.document.id,label:`第${chapter}章教材原文`,excerpt:source,metadata:{document_id:detail.document.id,version:detail.document.version,graph_release_id:detail.release_id,mapping_version:detail.mapping_version}}],modules:[{name:selected,knowledge_points:[{id:kc,name:selected,type:'concept',topic_source_refs:['graph-source']}]}]})})
++      if(!response.ok)throw new Error('辅导路径创建失败，请重试。')
++      const topic=await response.json();setPendingPrompt(`请${practice?'围绕这个知识点出一道题，等我作答后按教材依据反馈':'依据教材讲解这个知识点，先了解我已经会什么'}。知识点 ID：${kc}。`,'mastery_path');router.push('/learning/mastery/'+encodeURIComponent(topic.path_id)+'/sessions')
++    }catch(reason){setActionError(reason instanceof Error?reason.message:'无法打开辅导，请重试。')}finally{setBusy(false)}
++  }
++  const filtered=data?.nodes.filter(n=>filter==='all'||(filter==='due'?n.state.review_due:n.state.kind===filter))??[]
++  return <LearningShell title="教材知识图谱" subtitle="教材结构由固定图谱提供；学习状态只展示当前账号已同步的厂家结论，关联关系不代表先修或掌握。">
++    <div className="flex flex-wrap items-end gap-3">
++      <label className="text-sm">章节<select aria-label="章节" value={chapter} onChange={e=>navigate({chapter:e.target.value,q:'',focus:'',node:''})} className={'ml-2 '+button}>{Array.from({length:11},(_,i)=><option key={i+1} value={i+1}>第 {i+1} 章</option>)}</select></label>
++      <form className="flex min-w-0 flex-wrap gap-2" onSubmit={e=>{e.preventDefault();navigate({q:draft,focus:''})}}><input aria-label="搜索概念" value={draft} onChange={e=>setDraft(e.target.value)} maxLength={64} className={'min-w-0 max-w-full '+button}/><button className={button}>搜索</button></form>
++      <button className={button} onClick={()=>setRevision(v=>v+1)}>刷新图谱与状态</button>
++      {focus&&<button className={button} onClick={()=>navigate({focus:''})}>返回章节范围</button>}
++    </div>
++    {loading&&<p role="status" className="my-3">正在读取教材图谱与当前学习状态…</p>}
++    {error&&<p role="alert" className="my-3">{error}</p>}
++    {data&&<>
++      {data.release_status==='approved_isolated_snapshot'&&<p className="my-3 text-sm text-muted-foreground">当前为已批准的隔离验收快照，正式教材服务未切换。</p>}
++      {!data.catalog_available&&<p role="alert">目录或映射版本不可核对，节点不展示为已掌握。</p>}
++      {(data.truncated||data.edges_truncated)&&<p role="status" className="my-3 text-sm">部分显示：当前最多 {data.limit} 个节点、600 条关联，请缩小章节或概念范围。</p>}
++      {!data.nodes.length&&<p className="my-5">当前范围暂无图谱节点。请更换章节或搜索条件。</p>}
++      <div className="my-4 flex flex-wrap gap-3 text-xs" aria-label="图谱状态图例">{['mastered','not_mastered','unknown','unmapped','ambiguous'].map(kind=><span key={kind} className="inline-flex items-center gap-1"><span className="h-3 w-3 rounded-full" style={{background:stateColor(kind)}}/>{stateLabel(kind)}</span>)}</div>
++      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]"><section className="min-w-0"><GraphViewer/>
++        <div className="my-3 flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold">概念列表（可替代图形操作）</h2><label className="text-sm">显示状态<select aria-label="筛选学习状态" value={filter} onChange={e=>setFilter(e.target.value)} className={'ml-2 '+button}>{[['all','全部'],['mastered','厂家已掌握'],['unknown','无测评记录'],['unmapped','未映射'],['ambiguous','歧义映射'],['due','到期复习']].map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label></div>
++        <ul className="max-h-80 divide-y divide-border overflow-y-auto rounded-lg border border-border" aria-label="教材概念列表">{filtered.map(n=><li key={n.id}><button type="button" aria-pressed={selected===n.id} onClick={()=>useGraphStore.getState().setSelectedNode(n.id,true)} className="w-full px-3 py-3 text-left text-sm hover:bg-muted"><span className="font-medium">{n.id}</span><span className="mt-1 block text-xs text-muted-foreground">{stateLabel(n.state.kind)}{n.state.review_due?'；已到复习时间':''}{n.state.sync_pending?'；有新结果待同步':''}{n.state.sync_blocked?'；新结果同步受阻':''}</span></button></li>)}</ul>
++        {!filtered.length&&data.nodes.length>0&&<p className="mt-3 text-sm">本次已加载范围没有符合条件的节点。</p>}
++      </section><aside className="min-w-0 break-words rounded-xl border border-border p-4" aria-label="节点详情">
++        {!selected?<p>在图形或概念列表中选择节点。</p>:detailError?<><p role="alert">{detailError}</p><button className={button} onClick={()=>setDetailRevision(v=>v+1)}>重试节点详情</button></>:!detail?<p role="status">正在读取节点证据…</p>:<div className="space-y-3 text-sm"><h2 className="text-lg font-semibold">{detail.node.id}</h2><p>{detail.node.description||'暂无实体说明。'}</p><p>{stateLabel(detail.node.state.kind)}</p>{detail.node.state.review_due&&<p>厂家记录的复习时间已到。</p>}{detail.node.state.sync_pending&&<p>有新的厂家结果待同步；当前仍为上次同步记录。</p>}{detail.node.state.sync_blocked&&<p>新结果同步受阻；请勿把上次状态当作最新结论。</p>}
++          {detail.node.state.snapshot&&<p>上次同步：{new Date(detail.node.state.snapshot.synced_at).toLocaleString('zh-CN')}{detail.node.state.snapshot.next_review_at&&<>；厂家复习时间：{new Date(detail.node.state.snapshot.next_review_at).toLocaleString('zh-CN')}</>}</p>}
++          {detail.node.state.snapshot?.job_id&&<AssessmentEvidence jobId={detail.node.state.snapshot.job_id}/> }
++          {detail.mappings.map(m=><p key={m.id}>确认映射 {m.id}：{m.kc_id} → 目标 {m.objective_id}</p>)}
++          <details><summary className="cursor-pointer">查看原文依据与版本</summary><p className="mt-2 break-all text-xs">图谱 {detail.release_id}<br/>目录 {detail.catalog_version}<br/>映射 {detail.mapping_version}<br/>教材 {detail.document.version}</p>{detail.sources.map(s=><blockquote key={s.id} className="my-3 whitespace-pre-wrap border-l-2 border-border pl-3 text-xs">{s.heading}\n{s.text}</blockquote>)}</details>
++          <div className="flex flex-wrap gap-2"><button disabled={busy} className={button} onClick={()=>void guidance(false)}>{busy?'正在打开…':'按此概念辅导'}</button>{detail.node.state.mapping_status==='confirmed'&&<button disabled={busy} className={button} onClick={()=>void guidance(true)}>练习此知识点</button>}<button className={button} onClick={()=>navigate({focus:detail.node.id,q:''})}>聚焦邻近概念</button><a href={'/api/graph/document?'+new URLSearchParams({chapter:String(chapter),release_id:detail.release_id})} target="_blank" rel="noopener noreferrer" className={button}>打开本章教材 PDF</a><Link href="/learning/journal" className={button}>学习档案与证据</Link></div>{actionError&&<p role="alert">{actionError}</p>}
++          <p className="text-xs text-muted-foreground">教材原文仅作为依据展示；未映射或歧义节点保持未知，不由关联推断成绩。</p>
++        </div>}
++      </aside></div>
++      <details className="mt-4 rounded-lg border border-border p-3 text-sm"><summary>本次教材关联（不代表先修关系）</summary><ul>{data.edges.map((e,i)=><li key={i} className="my-2">{e.source} — {e.target}：{e.description||'教材关联，未声明关系类型。'}</li>)}</ul></details>
++    </>}
++    <ChapterProgress key={chapter+':'+revision} chapter={chapter}/>
++  </LearningShell>
++}
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/FocusOnNode.tsx b/project/vendor/DeepTutor/web/features/heart/graph/FocusOnNode.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/FocusOnNode.tsx
+@@ -0,0 +1,54 @@
++import { useCamera, useSigma } from '@react-sigma/core'
++import { useEffect } from 'react'
++import { useGraphStore } from './store'
++
++/**
++ * Component that highlights a node and centers the camera on it.
++ */
++const FocusOnNode = ({ node, move }: { node: string | null; move?: boolean }) => {
++  const sigma = useSigma()
++  const { gotoNode } = useCamera()
++
++  /**
++   * When the selected item changes, highlighted the node and center the camera on it.
++   */
++  useEffect(() => {
++    const graph = sigma.getGraph();
++
++    if (move) {
++      if (node && graph.hasNode(node)) {
++        try {
++          graph.setNodeAttribute(node, 'highlighted', true);
++          gotoNode(node);
++        } catch (error) {
++          console.error('Error focusing on node:', error);
++        }
++      } else {
++        // If no node is selected but move is true, reset to default view
++        sigma.setCustomBBox(null);
++        sigma.getCamera().animate({ x: 0.5, y: 0.5, ratio: 1 }, { duration: 0 });
++      }
++      useGraphStore.getState().setMoveToSelectedNode(false);
++    } else if (node && graph.hasNode(node)) {
++      try {
++        graph.setNodeAttribute(node, 'highlighted', true);
++      } catch (error) {
++        console.error('Error highlighting node:', error);
++      }
++    }
++
++    return () => {
++      if (node && graph.hasNode(node)) {
++        try {
++          graph.setNodeAttribute(node, 'highlighted', false);
++        } catch (error) {
++          console.error('Error cleaning up node highlight:', error);
++        }
++      }
++    }
++  }, [node, move, sigma, gotoNode])
++
++  return null
++}
++
++export default FocusOnNode
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/GraphControl.tsx b/project/vendor/DeepTutor/web/features/heart/graph/GraphControl.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/GraphControl.tsx
+@@ -0,0 +1,502 @@
++import { useRegisterEvents, useSetSettings, useSigma } from '@react-sigma/core'
++import { AbstractGraph } from 'graphology-types'
++import forceAtlas2 from 'graphology-layout-forceatlas2'
++import FA2LayoutSupervisor from 'graphology-layout-forceatlas2/worker'
++import { useEffect, useRef } from 'react'
++
++import { EdgeType, NodeType } from './useLightragGraph'
++import useIsDarkMode from './useIsDarkMode'
++import * as Constants from './constants'
++
++import { useSettingsStore } from './settings'
++import { useGraphStore } from './store'
++
++const isButtonPressed = (ev: MouseEvent | TouchEvent) => {
++  if (ev.type.startsWith('mouse')) {
++    if ((ev as MouseEvent).buttons !== 0) {
++      return true
++    }
++  }
++  return false
++}
++
++const GraphControl = ({ disableHoverEffect }: { disableHoverEffect?: boolean }) => {
++  const sigma = useSigma<NodeType, EdgeType>()
++  const registerEvents = useRegisterEvents<NodeType, EdgeType>()
++  const setSettings = useSetSettings<NodeType, EdgeType>()
++
++  const isDarkTheme = useIsDarkMode()
++  const hideUnselectedEdges = useSettingsStore.use.enableHideUnselectedEdges()
++  const enableEdgeEvents = useSettingsStore.use.enableEdgeEvents()
++  const renderEdgeLabels = useSettingsStore.use.showEdgeLabel()
++  const renderLabels = useSettingsStore.use.showNodeLabel()
++  const minEdgeSize = useSettingsStore.use.minEdgeSize()
++  const maxEdgeSize = useSettingsStore.use.maxEdgeSize()
++  const selectedNode = useGraphStore.use.selectedNode()
++  const focusedNode = useGraphStore.use.focusedNode()
++  const selectedEdge = useGraphStore.use.selectedEdge()
++  const focusedEdge = useGraphStore.use.focusedEdge()
++  const sigmaGraph = useGraphStore.use.sigmaGraph()
++  const graphEdgeCount = useGraphStore.use.graphEdgeCount()
++
++  // Mirror GraphViewer's gating: above EDGE_PERF_LIMIT the sigma instance is
++  // (re)built without the edge picking buffer, so edge events cannot fire even
++  // though the user setting may be on. Use this — not the raw setting — for
++  // event registration and the reducers, so we never run the costly edge-focus
++  // path against a graph that can't actually pick edges.
++  const effectiveEdgeEvents = enableEdgeEvents && graphEdgeCount <= Constants.EDGE_PERF_LIMIT
++
++  // The graph the initial FA2 layout has already been run for. Used to run the
++  // layout once PER GRAPH, not once per sigma instance (a theme change rebuilds
++  // the instance and re-runs the bind effect with the SAME graph).
++  const laidOutGraphRef = useRef<unknown>(null)
++
++  // Last (sigma instance, curved decision) the edge-type effect applied. A
++  // rebuild (theme toggle / edge-events gating) creates a fresh sigma whose
++  // defaultEdgeType reverts to its construction default ('rect'), so we must
++  // re-apply when the INSTANCE changed too — not only when the decision flips.
++  const edgeTypeRef = useRef<{ sigma: unknown; curved: boolean } | null>(null)
++
++  /**
++   * When component mounts or the graph changes
++   * => bind graph to sigma and run the initial layout
++   *
++   * PERFORMANCE: the initial ForceAtlas2 layout runs in a WEB WORKER with
++   * settings inferred from the graph size (inferSettings enables Barnes-Hut
++   * above ~2k nodes). The previous implementation called the synchronous
++   * `assign()` on the main thread with DEFAULT settings — i.e. without
++   * Barnes-Hut, where every iteration is O(V²) pairwise repulsion. At 73k
++   * nodes that is billions of operations per iteration, times 15 iterations,
++   * on the UI thread: the tab froze for minutes after every load.
++   */
++  useEffect(() => {
++    if (!(sigmaGraph && sigma)) return
++
++    try {
++      if (typeof sigma.setGraph === 'function') {
++        sigma.setGraph(sigmaGraph as unknown as AbstractGraph<NodeType, EdgeType>)
++        console.log('Binding graph to sigma instance')
++      } else {
++        console.error('Sigma missing setGraph function')
++      }
++    } catch (error) {
++      console.error('Error setting graph on sigma instance:', error)
++    }
++
++    if (sigmaGraph.order === 0) return
++
++    // Run the initial layout once PER GRAPH. A theme toggle recreates the sigma
++    // instance (settings change -> SigmaContainer rebuild) and re-runs this
++    // effect with the SAME graph, which already carries settled positions —
++    // re-running FA2 there would replay the relaxation animation on every theme
++    // switch. Only (re)bind in that case; skip the layout.
++    //
++    // The ref is marked "laid out" only when the budget timer fires (layout
++    // settled), NOT before start: if a rebuild interrupts the layout mid-run
++    // (e.g. edge-events gating crosses the threshold during the first load),
++    // the new instance re-runs FA2 from where it was instead of freezing on a
++    // half-relaxed layout. Rebuilds after settling still match and skip.
++    if (laidOutGraphRef.current === sigmaGraph) return
++
++    let layout: { start: () => void; stop: () => void; kill: () => void } | null = null
++    try {
++      layout = new FA2LayoutSupervisor(sigmaGraph as never, {
++        settings: forceAtlas2.inferSettings(sigmaGraph.order)
++      })
++      layout.start()
++      // Become the single layout owner. If a previous layout is somehow still
++      // registered, this kills it so only one supervisor mutates coordinates.
++      useGraphStore.getState().setActiveLayoutSupervisor(layout)
++      console.log(`FA2 worker layout started (${sigmaGraph.order} nodes)`)
++    } catch (error) {
++      console.error('Error starting FA2 worker layout:', error)
++      return
++    }
++
++    // Time budget instead of an iteration count: the UI stays interactive
++    // while the layout settles in the background, then we stop it.
++    const budgetMs = Constants.workerBudgetMs(sigmaGraph.order)
++    const timer = window.setTimeout(() => {
++      try {
++        layout?.stop()
++        // Mark this graph as laid out only now (settled), so a rebuild during
++        // the budget window re-runs the layout rather than skipping it.
++        laidOutGraphRef.current = sigmaGraph
++        console.log('FA2 worker layout stopped after budget')
++        // Release the shared slot so the store invariant "activeLayoutSupervisor
++        // != null => a layout is running" holds (the budget just stopped this
++        // one); no-op for the slot if a manually selected layout already took over.
++        useGraphStore.getState().releaseLayoutSupervisor(layout)
++        // Clear any stale custom bbox (set by node dragging) and refresh so
++        // the camera normalization fits the settled layout.
++        sigma.setCustomBBox(null)
++        sigma.refresh()
++      } catch (error) {
++        console.error('Error stopping FA2 worker layout:', error)
++      }
++    }, budgetMs)
++
++    return () => {
++      window.clearTimeout(timer)
++      // Release the slot if we still own it (a manually selected worker layout
++      // may have taken over and already killed `layout`); otherwise just kill
++      // our own supervisor without disturbing the newer layout.
++      useGraphStore.getState().releaseLayoutSupervisor(layout)
++    }
++  }, [sigma, sigmaGraph])
++
++  /**
++   * Ensure the sigma instance is set in the store
++   */
++  useEffect(() => {
++    if (sigma) {
++      const currentInstance = useGraphStore.getState().sigmaInstance
++      // Update when the instance CHANGED, not only when it's unset. A theme
++      // toggle, an effectiveEdgeEvents flip, or crossing the edge threshold
++      // rebuilds the SigmaContainer (old instance killed, new one created); if
++      // we only wrote on an empty store the killed instance would linger there
++      // and consumers (e.g. expand reading sigmaInstance.getCamera()) would act
++      // on a dead Sigma.
++      if (currentInstance !== sigma) {
++        console.log('Setting sigma instance from GraphControl')
++        useGraphStore.getState().setSigmaInstance(sigma)
++      }
++    }
++  }, [sigma])
++
++  /**
++   * With hideEdgesOnMove, edges are skipped while the camera is moving. sigma's
++   * built-in post-drag refresh (mouse handleUp) fires on a setTimeout(0), but a
++   * drag with inertia is still animating then, so it renders WITHOUT edges and
++   * nothing refreshes once movement settles — edges stay hidden until the next
++   * interaction (the "edges vanish after a small pan and don't come back" bug;
++   * a stage click doesn't help because it isn't a drag, but a hover re-renders).
++   *
++   * Watch the camera's `updated` event AND the mouse captor's `mouseup`, and
++   * once things go quiet, refresh ONLY when sigma is truly idle. We mirror
++   * sigma's exact `moving` condition (camera.isAnimated() || mouse.isMoving ||
++   * draggedEvents || wheelDirection); if any is still set when the timer fires,
++   * we re-arm and wait, so the refresh always lands on a frame where edges are
++   * actually drawn. The mouseup trigger only fires when the release ends a drag
++   * (draggedEvents > 0): a plain click never hides edges, so refreshing on it
++   * would be a wasted full re-indexation. Between them, the camera path covers
++   * every camera-animation-driven move (pan inertia, zoom, moveToSelectedNode)
++   * and the mouseup path covers drags with no post-release animation, so any
++   * selection-change render that lands on a "moving" frame is recovered by
++   * whichever of the two is concurrently active.
++   */
++  useEffect(() => {
++    if (!sigma) return
++    const camera = sigma.getCamera()
++    const mouse = sigma.getMouseCaptor()
++    let timer: number | null = null
++    const stillMoving = () =>
++      camera.isAnimated() ||
++      mouse.isMoving ||
++      mouse.draggedEvents > 0 ||
++      mouse.currentWheelDirection !== 0
++    const refreshWhenIdle = () => {
++      if (timer !== null) window.clearTimeout(timer)
++      timer = window.setTimeout(() => {
++        timer = null
++        if (stillMoving()) {
++          refreshWhenIdle() // not settled yet — keep waiting
++          return
++        }
++        try {
++          sigma.refresh()
++        } catch {
++          /* sigma instance already killed */
++        }
++      }, 80)
++    }
++    // Only let a *drag* release re-trigger the idle refresh. A plain click never
++    // hides edges (no movement), so refreshing on it is pure wasted full
++    // re-indexation. draggedEvents is still set at this point — sigma resets it
++    // in its own post-mouseup setTimeout(0), which runs after this handler.
++    const refreshOnDragEnd = () => {
++      if (mouse.draggedEvents > 0) refreshWhenIdle()
++    }
++    camera.on('updated', refreshWhenIdle)
++    mouse.on('mouseup', refreshOnDragEnd)
++    return () => {
++      if (timer !== null) window.clearTimeout(timer)
++      camera.removeListener('updated', refreshWhenIdle)
++      mouse.removeListener('mouseup', refreshOnDragEnd)
++    }
++  }, [sigma])
++
++  /**
++   * Adapt edge geometry to graph size: curves for small graphs (nicer to read),
++   * straight rectangles above EDGE_PERF_LIMIT (curve tessellation is costly).
++   *
++   * Edges carry no per-edge `type`, so switching `defaultEdgeType` + a full
++   * `refresh()` (which re-adds edges through applyEdgeDefaults) re-selects the
++   * program for the whole graph without touching attributes or rebuilding.
++   *
++   * The ref tracks BOTH the sigma instance and the decision: re-apply when the
++   * instance changed (a rebuild resets defaultEdgeType to 'rect') OR when the
++   * curved/straight decision flipped; skip otherwise so routine expand/prune
++   * within one band don't trigger a full refresh.
++   */
++  useEffect(() => {
++    if (!sigma) return
++    const curved = graphEdgeCount > 0 && graphEdgeCount <= Constants.EDGE_PERF_LIMIT
++    const prev = edgeTypeRef.current
++    if (prev && prev.sigma === sigma && prev.curved === curved) return
++    edgeTypeRef.current = { sigma, curved }
++    setSettings({ defaultEdgeType: curved ? 'curvedNoArrow' : 'rect' })
++    try {
++      sigma.refresh()
++    } catch {
++      /* sigma instance already killed */
++    }
++  }, [sigma, graphEdgeCount, setSettings])
++
++  /**
++   * When edge events become gated off (count crossed above EDGE_PERF_LIMIT),
++   * drop any residual edge focus/selection so the UI (property panel, reducers)
++   * doesn't keep a now-unpickable edge highlighted. Node selection is untouched.
++   */
++  useEffect(() => {
++    if (effectiveEdgeEvents) return
++    const { selectedEdge, focusedEdge, setSelectedEdge, setFocusedEdge } = useGraphStore.getState()
++    if (selectedEdge !== null) setSelectedEdge(null)
++    if (focusedEdge !== null) setFocusedEdge(null)
++  }, [effectiveEdgeEvents])
++
++  /**
++   * When component mounts
++   * => register events
++   */
++  useEffect(() => {
++    const { setFocusedNode, setSelectedNode, setFocusedEdge, setSelectedEdge, clearSelection } =
++      useGraphStore.getState()
++
++    type NodeEvent = { node: string; event: { original: MouseEvent | TouchEvent } }
++    type EdgeEvent = { edge: string; event: { original: MouseEvent | TouchEvent } }
++
++    const events: Record<string, any> = {
++      enterNode: (event: NodeEvent) => {
++        if (!isButtonPressed(event.event.original)) {
++          const graph = sigma.getGraph()
++          if (graph.hasNode(event.node)) {
++            setFocusedNode(event.node)
++          }
++        }
++      },
++      leaveNode: (event: NodeEvent) => {
++        if (!isButtonPressed(event.event.original)) {
++          setFocusedNode(null)
++        }
++      },
++      clickNode: (event: NodeEvent) => {
++        const graph = sigma.getGraph()
++        if (graph.hasNode(event.node)) {
++          setSelectedNode(event.node)
++          setSelectedEdge(null)
++        }
++      },
++      clickStage: () => clearSelection()
++    }
++
++    if (effectiveEdgeEvents) {
++      events.clickEdge = (event: EdgeEvent) => {
++        setSelectedEdge(event.edge)
++        setSelectedNode(null)
++      }
++      events.enterEdge = (event: EdgeEvent) => {
++        if (!isButtonPressed(event.event.original)) {
++          setFocusedEdge(event.edge)
++        }
++      }
++      events.leaveEdge = (event: EdgeEvent) => {
++        if (!isButtonPressed(event.event.original)) {
++          setFocusedEdge(null)
++        }
++      }
++    }
++
++    registerEvents(events)
++  }, [registerEvents, effectiveEdgeEvents, sigma])
++
++  /**
++   * When edge size settings change, recalculate edge sizes.
++   * Batched via updateEachEdgeAttributes (one pass, one graphology event)
++   * instead of one event-emitting setEdgeAttribute per edge.
++   */
++  useEffect(() => {
++    if (sigma && sigmaGraph) {
++      const graph = sigma.getGraph()
++
++      let minWeight = Number.MAX_SAFE_INTEGER
++      let maxWeight = 0
++      graph.forEachEdge((edge) => {
++        const weight = graph.getEdgeAttribute(edge, 'originalWeight') || 1
++        if (typeof weight === 'number') {
++          minWeight = Math.min(minWeight, weight)
++          maxWeight = Math.max(maxWeight, weight)
++        }
++      })
++
++      const weightRange = maxWeight - minWeight
++      const sizeScale = maxEdgeSize - minEdgeSize
++      graph.updateEachEdgeAttributes(
++        (_edge, attr) => {
++          if (weightRange > 0) {
++            const weight = typeof attr.originalWeight === 'number' ? attr.originalWeight : 1
++            attr.size = minEdgeSize + sizeScale * Math.pow((weight - minWeight) / weightRange, 0.5)
++          } else {
++            attr.size = minEdgeSize
++          }
++          return attr
++        },
++        { attributes: ['size'] }
++      )
++
++      sigma.refresh()
++    }
++  }, [sigma, sigmaGraph, minEdgeSize, maxEdgeSize])
++
++  /**
++   * When focus/selection changes
++   * => set the sigma reducers
++   *
++   * PERFORMANCE:
++   * - When nothing is focused or selected, reducers are set to null: running
++   *   a JS callback (with an object spread) for all 73k nodes and all edges
++   *   on every refresh is pure overhead when there is nothing to highlight.
++   * - The focused node's neighborhood is precomputed ONCE into a Set. The
++   *   previous code called graph.neighbors(focused).includes(node) INSIDE the
++   *   node reducer — allocating the full neighbor array and scanning it
++   *   linearly for every single node of the graph, per refresh.
++   */
++  useEffect(() => {
++    const labelColor = isDarkTheme ? Constants.labelColorDarkTheme : undefined
++    const edgeColor = isDarkTheme ? Constants.edgeColorDarkTheme : undefined
++
++    const graph = sigma.getGraph()
++    const graphOrder = graph ? graph.order : 0
++    const effectiveRenderLabels = renderLabels && graphOrder <= Constants.LABEL_RENDER_LIMIT
++
++    const _focusedNode = focusedNode || selectedNode
++    // Ignore any residual edge focus/selection when edge events are gated off
++    // (e.g. an edge was selected on a small graph, then expand pushed it past
++    // EDGE_PERF_LIMIT): otherwise the edge-focused reducer branch below would
++    // still run the per-edge highlight pass on a large graph — exactly the cost
++    // we disabled edge events to avoid.
++    const _focusedEdge = effectiveEdgeEvents ? focusedEdge || selectedEdge : null
++
++    if (disableHoverEffect || (!_focusedNode && !_focusedEdge)) {
++      setSettings({
++        enableEdgeEvents: effectiveEdgeEvents,
++        renderEdgeLabels,
++        renderLabels: effectiveRenderLabels,
++        nodeReducer: null,
++        edgeReducer: null
++      })
++      return
++    }
++
++    // Precompute the highlight context once, outside the reducers.
++    const neighborSet = new Set<string>()
++    let focusedNodeValid = false
++    if (_focusedNode && graph.hasNode(_focusedNode)) {
++      focusedNodeValid = true
++      graph.forEachNeighbor(_focusedNode, (neighbor) => neighborSet.add(neighbor))
++    }
++    let focusedEdgeSource = ''
++    let focusedEdgeTarget = ''
++    let focusedEdgeValid = false
++    if (!focusedNodeValid && _focusedEdge && graph.hasEdge(_focusedEdge)) {
++      focusedEdgeValid = true
++      focusedEdgeSource = graph.source(_focusedEdge)
++      focusedEdgeTarget = graph.target(_focusedEdge)
++    }
++
++    const edgeHighlightColor = isDarkTheme
++      ? Constants.edgeColorHighlightedDarkTheme
++      : Constants.edgeColorHighlightedLightTheme
++
++    setSettings({
++      enableEdgeEvents: effectiveEdgeEvents,
++      renderEdgeLabels,
++      renderLabels: effectiveRenderLabels,
++
++      nodeReducer: (node, data) => {
++        const newData: NodeType & { labelColor?: string; borderColor?: string } = {
++          ...data,
++          highlighted: false,
++          labelColor
++        }
++
++        if (focusedNodeValid) {
++          if (node === _focusedNode || neighborSet.has(node)) {
++            newData.highlighted = true
++            if (node === selectedNode) {
++              newData.borderColor = Constants.nodeBorderColorSelected
++            }
++            if (isDarkTheme) {
++              newData.labelColor = Constants.LabelColorHighlightedDarkTheme
++            }
++          } else {
++            newData.color = Constants.nodeColorDisabled
++          }
++        } else if (focusedEdgeValid) {
++          if (node === focusedEdgeSource || node === focusedEdgeTarget) {
++            newData.highlighted = true
++            newData.size = 3
++            if (isDarkTheme) {
++              newData.labelColor = Constants.LabelColorHighlightedDarkTheme
++            }
++          } else {
++            newData.color = Constants.nodeColorDisabled
++          }
++        }
++        return newData
++      },
++
++      edgeReducer: (edge, data) => {
++        const newData = { ...data, hidden: false, labelColor, color: edgeColor }
++
++        if (focusedNodeValid) {
++          // No graph.extremities() here: it allocates an array per edge.
++          const touchesFocused =
++            graph.source(edge) === _focusedNode || graph.target(edge) === _focusedNode
++          if (hideUnselectedEdges) {
++            if (!touchesFocused) newData.hidden = true
++          } else if (touchesFocused) {
++            newData.color = edgeHighlightColor
++          }
++        } else if (focusedEdgeValid) {
++          if (edge === selectedEdge) {
++            newData.color = Constants.edgeColorSelected
++          } else if (edge === _focusedEdge) {
++            newData.color = edgeHighlightColor
++          } else if (hideUnselectedEdges) {
++            newData.hidden = true
++          }
++        }
++        return newData
++      }
++    })
++  }, [
++    selectedNode,
++    focusedNode,
++    selectedEdge,
++    focusedEdge,
++    setSettings,
++    sigma,
++    sigmaGraph,
++    disableHoverEffect,
++    isDarkTheme,
++    hideUnselectedEdges,
++    effectiveEdgeEvents,
++    renderEdgeLabels,
++    renderLabels
++  ])
++
++  return null
++}
++
++export default GraphControl
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/GraphViewer.tsx b/project/vendor/DeepTutor/web/features/heart/graph/GraphViewer.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/GraphViewer.tsx
+@@ -0,0 +1,87 @@
++"use client";
++import { Component, useState, useEffect, type ReactNode } from 'react'
++import { SigmaContainer, useCamera } from '@react-sigma/core'
++import type { Settings as SigmaSettings } from 'sigma/settings'
++import { EdgeArrowProgram, EdgeLineProgram, EdgeRectangleProgram, NodePointProgram, NodeCircleProgram } from 'sigma/rendering'
++import { NodeBorderProgram } from '@sigma/node-border'
++import { EdgeCurvedArrowProgram, createEdgeCurveProgram } from '@sigma/edge-curve'
++import GraphControl from './GraphControl'
++import FocusOnNode from './FocusOnNode'
++import { useGraphStore } from './store'
++import { labelColorDarkTheme,labelColorLightTheme,edgeColorDarkTheme } from './constants'
++import '@react-sigma/core/lib/style.css'
++const createSigmaSettings = (
++  isDarkTheme: boolean,
++  enableEdgeEvents: boolean
++): Partial<SigmaSettings> => ({
++  allowInvalidContainer: true,
++  // Nodes use the border program so every node gets a white ring (the
++  // @sigma/node-border default reads `borderColor` for the ring, `color` for
++  // the fill; ring thickness is a fixed 10% of the radius). Single GPU draw
++  // call -- cheap even at 70k+ nodes. (Earlier "border blanks the canvas"
++  // reports were actually the fetch effect never firing -- once that was
++  // fixed, the border program rendered fine.)
++  defaultNodeType: 'border',
++  // 'rect' (EdgeRectangleProgram) draws straight quads that RESPECT the edge
++  // size attribute; EdgeLineProgram renders fixed ~1px GL lines and ignores
++  // size entirely. Rectangles are still far cheaper than tessellated curves.
++  defaultEdgeType: 'rect',
++  renderEdgeLabels: false,
++  // Skip edge rendering while panning/zooming - big win on large graphs.
++  hideEdgesOnMove: true,
++  edgeProgramClasses: {
++    rect: EdgeRectangleProgram,
++    line: EdgeLineProgram,
++    arrow: EdgeArrowProgram,
++    curvedArrow: EdgeCurvedArrowProgram,
++    // kept registered for backward compatibility with edges that still
++    // carry type: 'curvedNoArrow'
++    curvedNoArrow: createEdgeCurveProgram()
++  },
++  nodeProgramClasses: {
++    point: NodePointProgram,
++    default: NodePointProgram,
++    circle: NodeCircleProgram,
++    border: NodeBorderProgram
++  },
++  labelGridCellSize: 60,
++  labelRenderedSizeThreshold: 12,
++  // Off by default (edge picking renders edges to an extra buffer every frame —
++  // costly on large graphs); turning on the "Edge Events" setting rebuilds the
++  // instance with the picking buffer so edges become hover/click-selectable.
++  enableEdgeEvents,
++  // Without per-edge reducers (disabled when nothing is focused), edges with
++  // no color attribute fall back to this.
++  defaultEdgeColor: isDarkTheme ? edgeColorDarkTheme : '#d3d3d3',
++  labelColor: {
++    color: isDarkTheme ? labelColorDarkTheme : labelColorLightTheme,
++    attribute: 'labelColor'
++  },
++  edgeLabelColor: {
++    color: isDarkTheme ? labelColorDarkTheme : labelColorLightTheme,
++    attribute: 'labelColor'
++  },
++  edgeLabelSize: 8,
++  labelSize: 12
++})
++
++
++const studentSettings=createSigmaSettings(false,true)
++class CanvasBoundary extends Component<{children:ReactNode},{failed:boolean}> {
++  state={failed:false}
++  static getDerivedStateFromError(){return {failed:true}}
++  render(){return this.state.failed?<p role="status" className="p-5 text-sm">图形视图不可用，请使用下方概念列表查看、搜索和打开详情。</p>:this.props.children}
++}
++function ZoomControl(){
++  const {zoomIn,zoomOut,reset}=useCamera({duration:200,factor:1.5})
++  return <div className="absolute bottom-3 left-3 z-10 flex gap-2 rounded-lg border border-border bg-background p-2 text-sm"><button aria-label="放大图谱" onClick={()=>zoomIn()}>＋</button><button aria-label="缩小图谱" onClick={()=>zoomOut()}>－</button><button onClick={()=>reset()}>适应视图</button></div>
++}
++export default function GraphViewer(){
++  const [webgl,setWebgl]=useState<boolean|null>(null)
++  const selected=useGraphStore.use.selectedNode();const move=useGraphStore.use.moveToSelectedNode();const graph=useGraphStore.use.sigmaGraph()
++  useEffect(()=>{try{const gl=document.createElement('canvas').getContext('webgl2');setWebgl(Boolean(gl));gl?.getExtension('WEBGL_lose_context')?.loseContext()}catch{setWebgl(false)}},[])
++  if(!graph?.order)return null
++  if(webgl===false)return <p role="status" className="rounded-lg border border-border p-5 text-sm">WebGL 不可用，请使用概念列表查看和选择节点。</p>
++  if(webgl===null)return <p role="status">正在准备图形视图…</p>
++  return <CanvasBoundary><div className="relative h-[440px] min-w-0 overflow-hidden rounded-xl border border-border" aria-label="教材概念关系图"><SigmaContainer settings={studentSettings} style={{height:'100%',width:'100%',background:'#fff'}}><GraphControl/><FocusOnNode node={selected} move={move}/><ZoomControl/></SigmaContainer></div></CanvasBoundary>
++}
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/constants.ts b/project/vendor/DeepTutor/web/features/heart/graph/constants.ts
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/constants.ts
+@@ -0,0 +1,15 @@
++export const labelColorDarkTheme = '#FFFFFF'
++export const LabelColorHighlightedDarkTheme = '#000000'
++export const labelColorLightTheme = '#000'
++export const nodeColorDisabled = '#E2E2E2'
++export const nodeBorderColor = '#EEEEEE'
++export const nodeBorderColorSelected = '#F57F17'
++export const edgeColorDarkTheme = '#888888'
++export const edgeColorSelected = '#F57F17'
++export const edgeColorHighlightedDarkTheme = '#F57F17'
++export const edgeColorHighlightedLightTheme = '#F57F17'
++export const minNodeSize = 4
++export const maxNodeSize = 20
++export const LABEL_RENDER_LIMIT = 2000
++export const EDGE_PERF_LIMIT = 5000
++export const workerBudgetMs = (order: number): number => Math.min(1500 + order / 10, 10000)
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/graphColor.ts b/project/vendor/DeepTutor/web/features/heart/graph/graphColor.ts
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/graphColor.ts
+@@ -0,0 +1,241 @@
++const DEFAULT_NODE_COLOR = '#5D6D7E'
++
++// Null-prototype maps: keys come from extracted entity types, so they can
++// collide with Object.prototype members. On a plain object literal,
++// `TYPE_SYNONYMS['__proto__']` returns the inherited Object.prototype (an
++// object) and `['constructor']` returns the Object function instead of
++// undefined; those non-string values then flow into the type→color Map as
++// keys and crash the Legend (`key.toLowerCase()`). A null-prototype object has
++// no inherited members, so any unknown key reads as undefined.
++const TYPE_SYNONYMS: Record<string, string> = Object.assign(Object.create(null), {
++  unknown: 'unknown',
++  未知: 'unknown',
++
++  other: 'other',
++  其它: 'other',
++
++  concept: 'concept',
++  object: 'concept',
++  type: 'concept',
++  category: 'concept',
++  model: 'concept',
++  project: 'concept',
++  condition: 'concept',
++  rule: 'concept',
++  regulation: 'concept',
++  article: 'concept',
++  law: 'concept',
++  legalclause: 'concept',
++  policy: 'concept',
++  disease: 'concept',
++  概念: 'concept',
++  对象: 'concept',
++  类别: 'concept',
++  分类: 'concept',
++  模型: 'concept',
++  项目: 'concept',
++  条件: 'concept',
++  规则: 'concept',
++  法律: 'concept',
++  法律条款: 'concept',
++  条文: 'concept',
++  政策: 'policy',
++  疾病: 'concept',
++
++  method: 'method',
++  process: 'method',
++  方法: 'method',
++  过程: 'method',
++
++  artifact: 'artifact',
++  technology: 'artifact',
++  tech: 'artifact',
++  product: 'artifact',
++  equipment: 'artifact',
++  device: 'artifact',
++  stuff: 'artifact',
++  component: 'artifact',
++  material: 'artifact',
++  chemical: 'artifact',
++  drug: 'artifact',
++  medicine: 'artifact',
++  food: 'artifact',
++  weapon: 'artifact',
++  arms: 'artifact',
++  人工制品: 'artifact',
++  人造物品: 'artifact',
++  技术: 'technology',
++  科技: 'technology',
++  产品: 'artifact',
++  设备: 'artifact',
++  装备: 'artifact',
++  物品: 'artifact',
++  材料: 'artifact',
++  化学: 'artifact',
++  药物: 'artifact',
++  食品: 'artifact',
++  武器: 'artifact',
++  军火: 'artifact',
++
++  naturalobject: 'naturalobject',
++  natural: 'naturalobject',
++  phenomena: 'naturalobject',
++  substance: 'naturalobject',
++  plant: 'naturalobject',
++  自然对象: 'naturalobject',
++  自然物体: 'naturalobject',
++  自然现象: 'naturalobject',
++  物质: 'naturalobject',
++  物体: 'naturalobject',
++
++  data: 'data',
++  figure: 'data',
++  value: 'data',
++  数据: 'data',
++  数字: 'data',
++  数值: 'data',
++
++  content: 'content',
++  book: 'content',
++  video: 'content',
++  内容: 'content',
++  作品: 'content',
++  书籍: 'content',
++  视频: 'content',
++
++  organization: 'organization',
++  org: 'organization',
++  company: 'organization',
++  组织: 'organization',
++  公司: 'organization',
++  机构: 'organization',
++  组织机构: 'organization',
++
++  event: 'event',
++  事件: 'event',
++  activity: 'event',
++  活动: 'event',
++
++  person: 'person',
++  people: 'person',
++  human: 'person',
++  role: 'person',
++  人物: 'person',
++  人类: 'person',
++  人: 'person',
++  角色: 'person',
++
++  creature: 'creature',
++  animal: 'creature',
++  beings: 'creature',
++  being: 'creature',
++  alien: 'creature',
++  ghost: 'creature',
++  动物: 'creature',
++  生物: 'creature',
++  神仙: 'creature',
++  鬼怪: 'creature',
++  妖怪: 'creature',
++
++  location: 'location',
++  geography: 'location',
++  geo: 'location',
++  place: 'location',
++  address: 'location',
++  地点: 'location',
++  位置: 'location',
++  地址: 'location',
++  地理: 'location',
++  地域: 'location'
++})
++
++const NODE_TYPE_COLORS: Record<string, string> = Object.assign(Object.create(null), {
++  person: '#4169E1',
++  creature: '#bd7ebe',
++  organization: '#00cc00',
++  location: '#cf6d17',
++  event: '#00bfa0',
++  concept: '#e3493b',
++  method: '#b71c1c',
++  content: '#0f558a',
++  data: '#0000ff',
++  artifact: '#4421af',
++  naturalobject: '#b2e061',
++  other: '#f4d371',
++  unknown: '#b0b0b0'
++})
++
++const EXTENDED_COLORS = [
++  '#84a3e1',
++  '#5a2c6d',
++  '#2F4F4F',
++  '#003366',
++  '#9b3a31',
++  '#00CED1',
++  '#b300b3',
++  '#0f705d',
++  '#ff99cc',
++  '#6ef7b3',
++  '#cd071e'
++]
++
++const PREDEFINED_COLOR_SET = new Set(Object.values(NODE_TYPE_COLORS))
++
++interface ResolveNodeColorResult {
++  color: string
++  map: Map<string, string>
++  updated: boolean
++}
++
++export const resolveNodeColor = (
++  nodeType: unknown,
++  currentMap: Map<string, string> | undefined
++): ResolveNodeColorResult => {
++  const typeColorMap = currentMap ?? new Map<string, string>()
++  // entity_type is untrusted graph data. ainsert_custom_kg() writes the
++  // caller-supplied value straight onto the node without type validation, so
++  // /graphs can serve an object, array, number or boolean here. Guard against
++  // any non-string before calling a string method on it, and fall back to
++  // 'unknown' for empty/non-string values.
++  const normalizedType =
++    typeof nodeType === 'string' && nodeType ? nodeType.toLowerCase() : 'unknown'
++  const standardType = TYPE_SYNONYMS[normalizedType]
++  const cacheKey = standardType || normalizedType
++
++  if (typeColorMap.has(cacheKey)) {
++    return {
++      color: typeColorMap.get(cacheKey) || DEFAULT_NODE_COLOR,
++      map: typeColorMap,
++      updated: false
++    }
++  }
++
++  if (standardType) {
++    const color = NODE_TYPE_COLORS[standardType] || DEFAULT_NODE_COLOR
++    const newMap = new Map(typeColorMap)
++    newMap.set(standardType, color)
++    return {
++      color,
++      map: newMap,
++      updated: true
++    }
++  }
++
++  const usedExtendedColors = new Set(
++    Array.from(typeColorMap.values()).filter((color) => !PREDEFINED_COLOR_SET.has(color))
++  )
++
++  const unusedColor = EXTENDED_COLORS.find((color) => !usedExtendedColors.has(color))
++  const color = unusedColor || DEFAULT_NODE_COLOR
++
++  const newMap = new Map(typeColorMap)
++  newMap.set(normalizedType, color)
++
++  return {
++    color,
++    map: newMap,
++    updated: true
++  }
++}
++
++export { DEFAULT_NODE_COLOR }
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/graphEdgeSafety.ts b/project/vendor/DeepTutor/web/features/heart/graph/graphEdgeSafety.ts
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/graphEdgeSafety.ts
+@@ -0,0 +1,64 @@
++import type { UndirectedGraph } from 'graphology'
++
++// Helpers that work around two graphology 0.26.0 bugs, both rooted in the same
++// thing: a node's adjacency is a PLAIN object keyed by neighbor names, and our
++// node ids are extracted entity names that can collide with JS internals
++// ('constructor', 'toString', '__proto__', 'hasOwnProperty', 'source', ...).
++
++// Prototype-safe replacement for `graph.hasEdge(source, target)`.
++//
++// Bug #1 (why not hasEdge): the two-arg hasEdge does an unguarded
++// `nodeData.undirected.hasOwnProperty(target)` METHOD call, so once a node gains
++// a neighbor literally named 'hasOwnProperty' that adjacency entry shadows the
++// method and every subsequent hasEdge on that node throws
++// "hasOwnProperty is not a function" — aborting the whole graph build.
++//
++// `graph.edge(source, target)` reaches the same adjacency by property lookup
++// (`sourceData.undirected[target]`) instead of a method call, so it never throws
++// and returns the edge key (or undefined). But property lookup walks the
++// prototype chain, which opens bug #2: adding an edge to a neighbor literally
++// named '__proto__' runs `adjacency['__proto__'] = edgeData`, reassigning that
++// adjacency object's PROTOTYPE to the EdgeData instance. Afterwards
++// `edge(source, 'source')` / `edge(source, 'target')` read the inherited
++// EdgeData.source/.target node objects and return a real-looking node key for an
++// edge that does NOT exist — a phantom duplicate that makes callers silently
++// drop a genuine edge to an entity named 'source'/'target'.
++//
++// So we do not trust edge()'s key blindly: the Map-backed single-arg
++// `hasEdge(edgeKey)` confirms the returned key is a genuine edge (a Map lookup
++// walks no prototype chain), collapsing any phantom node key to false. The
++// hasNode guards keep this a true drop-in for hasEdge (edge() throws NotFound on
++// an absent endpoint, whereas hasEdge returns false); hasNode is Map-backed and
++// prototype-safe.
++export const hasEdgeSafe = (graph: UndirectedGraph, source: string, target: string): boolean => {
++  if (!graph.hasNode(source) || !graph.hasNode(target)) return false
++  const edgeKey = graph.edge(source, target)
++  return edgeKey !== undefined && graph.hasEdge(edgeKey)
++}
++
++// Add an undirected edge, working around bug #3 in the same family: the non-multi
++// duplicate check does a bare `adjacency[target]` object lookup, so a TARGET
++// node named like an Object.prototype property ('constructor', 'toString',
++// '__proto__', 'hasOwnProperty', ...) makes addEdge throw "already exists" even
++// though no such edge exists. The broken check only runs on the source side, and
++// on an undirected graph the flipped edge is the same edge — so adding it
++// reversed recovers it. Returns the dynamic edge id, or null if both orientations
++// fail (e.g. both endpoints are prototype-named, or the edge is a genuine
++// duplicate). Callers are expected to have pre-checked hasEdgeSafe, so a real
++// duplicate is never masked.
++export const addUndirectedEdgeSafe = (
++  graph: UndirectedGraph,
++  source: string,
++  target: string,
++  attributes: Record<string, unknown>
++): string | null => {
++  try {
++    return graph.addEdge(source, target, attributes)
++  } catch {
++    try {
++      return graph.addEdge(target, source, attributes)
++    } catch {
++      return null
++    }
++  }
++}
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/selectors.ts b/project/vendor/DeepTutor/web/features/heart/graph/selectors.ts
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/selectors.ts
+@@ -0,0 +1,7 @@
++import type { StoreApi, UseBoundStore } from 'zustand'
++export function createSelectors<T extends object>(store: UseBoundStore<StoreApi<T>>) {
++  const result = store as typeof store & { use: { [K in keyof T]: () => T[K] } }
++  result.use = {} as typeof result.use
++  for (const key of Object.keys(store.getState()) as (keyof T)[]) result.use[key] = () => store(state => state[key])
++  return result
++}
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/settings.ts b/project/vendor/DeepTutor/web/features/heart/graph/settings.ts
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/settings.ts
+@@ -0,0 +1,4 @@
++import { create } from 'zustand'
++import { createSelectors } from './selectors'
++// 只保留只读图谱显示配置，不导入原版后台设置和存储。
++export const useSettingsStore = createSelectors(create(() => ({ enableHideUnselectedEdges: false, enableEdgeEvents: true, showEdgeLabel: false, showNodeLabel: true, minEdgeSize: 0.5, maxEdgeSize: 2 })))
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/store.ts b/project/vendor/DeepTutor/web/features/heart/graph/store.ts
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/store.ts
+@@ -0,0 +1,34 @@
++import { create } from 'zustand'
++import type { UndirectedGraph } from 'graphology'
++import type Sigma from 'sigma'
++import type { NodeType, EdgeType } from './useLightragGraph'
++import { createSelectors } from './selectors'
++export type RawNodeType = { id: string; labels: string[]; properties: Record<string, unknown>; size: number; degree: number; color?: string }
++export type RawEdgeType = { id: string; source: string; target: string; properties: Record<string, unknown>; dynamicId?: string }
++export class RawGraph {
++  nodes: RawNodeType[] = []
++  edges: RawEdgeType[] = []
++  nodeIdMap: Record<string, number> = Object.create(null)
++  edgeIdMap: Record<string, number> = Object.create(null)
++  edgeDynamicIdMap: Record<string, number> = Object.create(null)
++  getNode = (id: string) => this.nodes[this.nodeIdMap[id]]
++  getEdge = (id: string) => this.edges[this.edgeDynamicIdMap[id]]
++}
++type Supervisor = { kill: () => void }
++type State = {
++  selectedNode: string | null; focusedNode: string | null; selectedEdge: string | null; focusedEdge: string | null; moveToSelectedNode: boolean
++  sigmaGraph: UndirectedGraph | null; rawGraph: RawGraph | null; sigmaInstance: Sigma<NodeType, EdgeType> | null; graphEdgeCount: number; isLayoutComputing: boolean
++  typeColorMap: Map<string,string>; activeLayoutSupervisor: Supervisor | null
++  setSelectedNode: (id: string | null, move?: boolean) => void; setFocusedNode: (id: string | null) => void; setSelectedEdge: (id: string | null) => void; setFocusedEdge: (id: string | null) => void
++  setMoveToSelectedNode: (move: boolean) => void; clearSelection: () => void; setSigmaInstance: (instance: Sigma<NodeType, EdgeType> | null) => void
++  setActiveLayoutSupervisor: (handle: Supervisor | null) => void; releaseLayoutSupervisor: (handle: Supervisor | null) => void; setIsLayoutComputing: (value: boolean) => void
++  reset: () => void
++}
++export const useGraphStore = createSelectors(create<State>((set,get) => ({
++  selectedNode:null,focusedNode:null,selectedEdge:null,focusedEdge:null,moveToSelectedNode:false,sigmaGraph:null,rawGraph:null,sigmaInstance:null,graphEdgeCount:0,isLayoutComputing:false,typeColorMap:new Map(),activeLayoutSupervisor:null,
++  setSelectedNode:(id,move=false)=>set({selectedNode:id,moveToSelectedNode:move}),setFocusedNode:id=>set({focusedNode:id}),setSelectedEdge:id=>set({selectedEdge:id}),setFocusedEdge:id=>set({focusedEdge:id}),
++  setMoveToSelectedNode:move=>set({moveToSelectedNode:move}),clearSelection:()=>set({selectedNode:null,focusedNode:null,selectedEdge:null,focusedEdge:null}),setSigmaInstance:instance=>set({sigmaInstance:instance}),
++  setActiveLayoutSupervisor:next=>{const prev=get().activeLayoutSupervisor;if(prev&&prev!==next)try{prev.kill()}catch{/* worker 已结束 */}set({activeLayoutSupervisor:next})},
++  releaseLayoutSupervisor:handle=>{if(get().activeLayoutSupervisor===handle)get().setActiveLayoutSupervisor(null);else try{handle?.kill()}catch{/* worker 已结束 */}},setIsLayoutComputing:value=>set({isLayoutComputing:value}),
++  reset:()=>{get().setActiveLayoutSupervisor(null);set({selectedNode:null,focusedNode:null,selectedEdge:null,focusedEdge:null,moveToSelectedNode:false,sigmaGraph:null,rawGraph:null,sigmaInstance:null,graphEdgeCount:0,typeColorMap:new Map(),isLayoutComputing:false})},
++})))
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/types.ts b/project/vendor/DeepTutor/web/features/heart/graph/types.ts
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/types.ts
+@@ -0,0 +1,6 @@
++export type Snapshot={job_id?:string;assessed_mastered:boolean;learning_stage:string;next_review_at:string|null;synced_at:string}
++export type StudentState={kind:string;mapping_status:string;knowledge_point_id?:string;objective_id?:string;mapping_id?:string;knowledge_point_ids?:string[];snapshot?:Snapshot|null;sync_pending?:boolean;sync_blocked?:boolean;review_due?:boolean}
++export type GraphNode={id:string;type:string;description:string;chapter:number;state:StudentState}
++export type GraphPayload={course_id:string;release_id:string;release_status:string;catalog_version:string;mapping_version:string;catalog_available:boolean;nodes:GraphNode[];edges:{source:string;target:string;weight:number;description:string;relation:string}[];truncated:boolean;edges_truncated:boolean;limit:number;chapter:number;document:{id:string;version:string;chapter:number}}
++export type NodeDetail=GraphPayload&{node:GraphNode;sources:{id:string;text:string;file:string;heading:string}[];mappings:{id:string;kc_id:string;objective_id:string;document_version:string}[]}
++export const stateLabel=(kind:string)=>({mastered:'厂家最近同步结论：已达到掌握要求',not_mastered:'厂家最近同步结论：尚未达到掌握要求',unknown:'已确认映射，暂无已同步测评',ambiguous:'存在多个对应目标，暂不判断',unmapped:'尚未确认对应知识点',version_unavailable:'目录或映射版本不可核对'}[kind]??'未知状态')
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/useIsDarkMode.ts b/project/vendor/DeepTutor/web/features/heart/graph/useIsDarkMode.ts
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/useIsDarkMode.ts
+@@ -0,0 +1,2 @@
++// 学生端沿用固定白灰主题。
++export default function useIsDarkMode() { return false }
+diff --git a/project/vendor/DeepTutor/web/features/heart/graph/useLightragGraph.tsx b/project/vendor/DeepTutor/web/features/heart/graph/useLightragGraph.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/graph/useLightragGraph.tsx
+@@ -0,0 +1,216 @@
++import { UndirectedGraph } from 'graphology'
++import { useEffect, useState } from 'react'
++import { apiFetch } from '@/lib/api'
++import { useGraphStore, RawGraph } from './store'
++import { resolveNodeColor, DEFAULT_NODE_COLOR } from './graphColor'
++import { hasEdgeSafe, addUndirectedEdgeSafe } from './graphEdgeSafety'
++import type { GraphPayload } from './types'
++const NODE_BORDER_COLOR = '#FFFFFF'
++const hashNodeIdToPosition = (id: string): { x: number; y: number } => {
++  let h1 = 0xdeadbeef ^ id.length
++  let h2 = 0x41c6ce57 ^ id.length
++  for (let i = 0; i < id.length; i++) {
++    const ch = id.charCodeAt(i)
++    h1 = Math.imul(h1 ^ ch, 2654435761)
++    h2 = Math.imul(h2 ^ ch, 1597334677)
++  }
++  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909)
++  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909)
++  return { x: (h1 >>> 0) / 4294967296, y: (h2 >>> 0) / 4294967296 }
++}
++
++// Yield to the browser WITHOUT setTimeout's nested-timer clamp.
++// `await setTimeout(0)` in a loop is clamped to >= 4ms per call by the HTML
++// spec once timers nest more than 5 deep, so batched yielding via setTimeout
++// adds (items / batchSize) * 4ms of pure idle time on top of the real work.
++// scheduler.yield() (where available) or a MessageChannel message resolves in
++// microseconds instead.
++const yieldToBrowser = (): Promise<void> => {
++  const scheduler = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler
++  if (scheduler?.yield) return scheduler.yield()
++  return new Promise<void>((resolve) => {
++    const { port1, port2 } = new MessageChannel()
++    port1.onmessage = () => {
++      port1.close()
++      resolve()
++    }
++    port2.postMessage(null)
++  })
++}
++
++// Cooperative time-slicing: run synchronously until the frame budget is spent,
++// then yield ONCE. Keeps the page responsive while wasting almost no time.
++const FRAME_BUDGET_MS = 12
++const CHECK_EVERY = 256 // power of two; performance.now() is sampled sparsely
++
++// Per-type node colors, performance-safe. The original implementation
++// resolved the palette (and potentially wrote to the zustand store) ONCE PER
++// NODE; this resolver calls resolveNodeColor once per DISTINCT entity type
++// (graphs have dozens of types, not thousands of them) and commits the
++// type->color map to the store in a single write, which also keeps the
++// Legend functional.
++const createTypeColorResolver = () => {
++  let typeColorMap = useGraphStore.getState().typeColorMap
++  const cache = new Map<string, string>()
++  let mapUpdated = false
++
++  return {
++    colorFor(entityType: unknown): string {
++      // entity_type is untrusted graph data and may be a non-string; keep the
++      // cache key a string and let resolveNodeColor handle the raw value.
++      const key = typeof entityType === 'string' ? entityType : ''
++      let color = cache.get(key)
++      if (color === undefined) {
++        const resolved = resolveNodeColor(entityType, typeColorMap)
++        if (resolved.updated) {
++          typeColorMap = resolved.map
++          mapUpdated = true
++        }
++        color = resolved.color || DEFAULT_NODE_COLOR
++        cache.set(key, color)
++      }
++      return color
++    },
++    commit() {
++      if (mapUpdated) {
++        useGraphStore.setState({ typeColorMap })
++        mapUpdated = false
++      }
++    }
++  }
++}
++
++// Parse an edge's `weight` property into a finite number, preserving a
++// legitimate 0. `Number(x) || 1` would coerce a real weight of 0 (the thinnest
++// edge) to 1; use a finite check so 0 survives and only undefined/NaN fall back.
++const parseEdgeWeight = (properties: Record<string, unknown> | undefined): number => {
++  const w = Number(properties?.weight)
++  return Number.isFinite(w) ? w : 1
++}
++
++// Build a node label defensively: a malformed payload node missing its
++// `labels` array must not throw (labels.join) and abort the whole graph build
++// — fall back to the node id so the rest of the graph still renders.
++const safeNodeLabel = (labels: unknown, fallbackId: string): string =>
++  Array.isArray(labels) ? labels.join(', ') : fallbackId
++
++export type NodeType = {
++  x: number
++  y: number
++  label: string
++  size: number
++  color: string
++  highlighted?: boolean
++}
++export type EdgeType = {
++  label: string
++  originalWeight?: number
++  size?: number
++  color?: string
++  hidden?: boolean
++}
++
++// Create a new graph instance with the raw graph data
++export const createSigmaGraph = async (rawGraph: RawGraph | null): Promise<UndirectedGraph | null> => {
++  if (!rawGraph || !rawGraph.nodes.length) return null
++
++  const graph = new UndirectedGraph()
++  const typeColors = createTypeColorResolver()
++  let sliceStart = performance.now()
++
++  const nodes = rawGraph.nodes
++  for (let i = 0; i < nodes.length; i++) {
++    // Yield only when ~12ms of real work has accumulated, not every N items.
++    if ((i & (CHECK_EVERY - 1)) === 0 && performance.now() - sliceStart > FRAME_BUDGET_MS) {
++      await yieldToBrowser()
++      sliceStart = performance.now()
++    }
++
++    const rawNode = nodes[i]
++    // Defensive: a duplicate id in the payload would make addNode throw
++    if (graph.hasNode(rawNode.id)) continue
++
++    const { x, y } = hashNodeIdToPosition(rawNode.id)
++    rawNode.color = typeColors.colorFor(rawNode.properties?.entity_type)
++
++    graph.addNode(rawNode.id, {
++      label: safeNodeLabel(rawNode.labels, rawNode.id),
++      color: rawNode.color,
++      x,
++      y,
++      size: rawNode.size,
++      borderColor: NODE_BORDER_COLOR
++    })
++  }
++
++  // Single store write for the whole build (keeps the Legend in sync)
++  typeColors.commit()
++
++  rawGraph.edgeDynamicIdMap = Object.create(null) as Record<string, number>
++  let skippedEdges = 0
++
++  const edges = rawGraph.edges
++  for (let i = 0; i < edges.length; i++) {
++    if ((i & (CHECK_EVERY - 1)) === 0 && performance.now() - sliceStart > FRAME_BUDGET_MS) {
++      await yieldToBrowser()
++      sliceStart = performance.now()
++    }
++
++    const rawEdge = edges[i]
++    // Truncated BFS responses contain many dangling/duplicate edges. Three
++    // cheap hash lookups beat a thrown-and-caught exception per bad edge
++    // (exception throw/stack capture is orders of magnitude more expensive).
++    if (
++      !graph.hasNode(rawEdge.source) ||
++      !graph.hasNode(rawEdge.target) ||
++      hasEdgeSafe(graph, rawEdge.source, rawEdge.target)
++    ) {
++      continue
++    }
++
++    // `rawEdge.type` is the storage-level relationship type ("DIRECTED" for
++    // every edge); the human-readable relation name is properties.keywords.
++    // originalWeight feeds GraphControl's thickness scaling.
++    const attributes = {
++      label: (rawEdge.properties?.keywords as string | undefined) || undefined,
++      originalWeight: parseEdgeWeight(rawEdge.properties)
++    }
++    const dynamicId = addUndirectedEdgeSafe(graph, rawEdge.source, rawEdge.target, attributes)
++    if (dynamicId === null) {
++      skippedEdges++
++      continue
++    }
++    rawEdge.dynamicId = dynamicId
++    rawGraph.edgeDynamicIdMap[rawEdge.dynamicId] = i
++  }
++
++  if (skippedEdges > 0) {
++    console.warn(`[useLightragGraph] ${skippedEdges} edges could not be added to the graph`)
++  }
++
++  return graph
++}
++
++
++export default function useLightragGraph(url: string, owner: string | null) {
++  const [data,setData]=useState<GraphPayload>();const [loaded,setLoaded]=useState('');const ownerKey=String(owner)+':'+url;const [error,setError]=useState('');const [loading,setLoading]=useState(true)
++  useEffect(()=>{
++    const controller=new AbortController();useGraphStore.getState().reset();setData(undefined);setError('');setLoading(true)
++    if(!owner){setLoading(false);return ()=>controller.abort()}
++    async function load(){
++      try{
++        const response=await apiFetch(url,{signal:controller.signal,cache:'no-store'});if(!response.ok)throw new Error(response.status===409?'教材图谱版本已变化，请刷新。':'图谱加载失败，请重试。')
++        const value=await response.json() as GraphPayload;if(controller.signal.aborted)return
++        const raw=new RawGraph();raw.nodes=value.nodes.map(n=>({id:n.id,labels:[n.id],properties:{entity_type:n.type},degree:0,size:8}));raw.edges=value.edges.map((e,i)=>({id:String(i),source:e.source,target:e.target,properties:{weight:e.weight,keywords:'教材关联'}}))
++        raw.nodes.forEach((n,i)=>{raw.nodeIdMap[n.id]=i});raw.edges.forEach((e,i)=>{raw.edgeIdMap[e.id]=i;if(raw.getNode(e.source))raw.getNode(e.source).degree++;if(raw.getNode(e.target))raw.getNode(e.target).degree++})
++        const graph=await createSigmaGraph(raw);if(controller.signal.aborted)return
++        if(graph)for(const node of value.nodes)graph.setNodeAttribute(node.id,'color',stateColor(node.state.kind))
++        useGraphStore.setState({rawGraph:raw,sigmaGraph:graph,graphEdgeCount:graph?.size??0});setData(value);setLoaded(ownerKey)
++      }catch(reason){if(!controller.signal.aborted)setError(reason instanceof Error?reason.message:'图谱加载失败，请重试。')}
++      finally{if(!controller.signal.aborted)setLoading(false)}
++    }
++    void load();return ()=>{controller.abort();useGraphStore.getState().reset()}
++  },[url,owner])
++  return {data:loaded===ownerKey?data:undefined,error,loading:loading||(Boolean(owner)&&loaded!==ownerKey&&!error)}
++}
++export const stateColor=(kind:string)=>({mastered:'#23856b',not_mastered:'#bd7b35',unknown:'#607084',ambiguous:'#9259a6',unmapped:'#b5bcc5',version_unavailable:'#b5bcc5'}[kind]??'#b5bcc5')
+diff --git a/project/vendor/DeepTutor/web/package-lock.json b/project/vendor/DeepTutor/web/package-lock.json
+--- a/project/vendor/DeepTutor/web/package-lock.json
++++ b/project/vendor/DeepTutor/web/package-lock.json
+@@ -8,7 +8,10 @@
+       "name": "opentutor-web",
+       "version": "1.0.0",
+       "dependencies": {
++        "@react-sigma/core": "5.0.6",
+         "@recogito/text-annotator": "4.2.5",
++        "@sigma/edge-curve": "3.1.0",
++        "@sigma/node-border": "3.0.0",
+         "chart.js": "^4.5.1",
+         "clsx": "^2.1.1",
+         "cytoscape": "^3.33.1",
+@@ -16,6 +19,8 @@
+         "epubjs": "^0.3.93",
+         "exceljs": "^4.4.0",
+         "framer-motion": "^12.24.0",
++        "graphology": "0.26.0",
++        "graphology-layout-forceatlas2": "0.10.1",
+         "html2canvas": "^1.4.1",
+         "i18next": "^25.8.0",
+         "jspdf": "^4.2.0",
+@@ -23,7 +28,7 @@
+         "mdast-util-from-markdown": "^2.0.2",
+         "mermaid": "^11.14.0",
+         "next": "^16.2.3",
+-        "pdfjs-dist": "^6.2.108",
++        "pdfjs-dist": "6.2.108",
+         "react": "^19.0.0",
+         "react-chartjs-2": "^5.3.1",
+         "react-dom": "^19.0.0",
+@@ -34,7 +39,9 @@
+         "rehype-raw": "^7.0.0",
+         "remark-gfm": "^4.0.0",
+         "remark-math": "^6.0.0",
+-        "tailwind-merge": "^3.4.0"
++        "sigma": "3.0.3",
++        "tailwind-merge": "^3.4.0",
++        "zustand": "5.1.0"
+       },
+       "devDependencies": {
+         "@playwright/test": "^1.53.2",
+@@ -1990,6 +1997,17 @@
+         "node": ">=18"
+       }
+     },
++    "node_modules/@react-sigma/core": {
++      "version": "5.0.6",
++      "resolved": "https://registry.npmjs.org/@react-sigma/core/-/core-5.0.6.tgz",
++      "integrity": "sha512-Xu2qXyvDZIhmvGC1n8d7Kcxm5Ntcz4HbPIM7CPDD2e4h3s/oxVpVPX7wtsNreJRRPj9mK+3oqB6SWXNI4mTqVg==",
++      "license": "MIT",
++      "peerDependencies": {
++        "graphology": "^0.26.0",
++        "react": "^18.0.0 || ^19.0.0",
++        "sigma": "^3.0.2"
++      }
++    },
+     "node_modules/@recogito/text-annotator": {
+       "version": "4.2.5",
+       "resolved": "https://registry.npmjs.org/@recogito/text-annotator/-/text-annotator-4.2.5.tgz",
+@@ -2364,6 +2382,24 @@
+       "integrity": "sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==",
+       "dev": true,
+       "license": "MIT"
++    },
++    "node_modules/@sigma/edge-curve": {
++      "version": "3.1.0",
++      "resolved": "https://registry.npmjs.org/@sigma/edge-curve/-/edge-curve-3.1.0.tgz",
++      "integrity": "sha512-OFWkfAXEsm+X8l1K4K49cC0psB0gQ+gqxKA08HG5piNPdzrDZ5gG9Gza6htZ5AirOVwd/4/uq/gPpD5En+H+3Q==",
++      "license": "MIT",
++      "peerDependencies": {
++        "sigma": ">=3.0.0-beta.10"
++      }
++    },
++    "node_modules/@sigma/node-border": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/@sigma/node-border/-/node-border-3.0.0.tgz",
++      "integrity": "sha512-mE3zUfjvJVuAMhSjiP/zdlkqe0OVTETxd04XHUwof01YqdzTk0OB4ACJIhWrwgsBXl7tTd9lPuKoroafLh8MtQ==",
++      "license": "MIT",
++      "peerDependencies": {
++        "sigma": ">=3.0.0-beta.17"
++      }
+     },
+     "node_modules/@standard-schema/spec": {
+       "version": "1.1.0",
+@@ -6550,6 +6586,15 @@
+         "es5-ext": "~0.10.14"
+       }
+     },
++    "node_modules/events": {
++      "version": "3.3.0",
++      "resolved": "https://registry.npmjs.org/events/-/events-3.3.0.tgz",
++      "integrity": "sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.8.x"
++      }
++    },
+     "node_modules/exceljs": {
+       "version": "4.4.0",
+       "resolved": "https://registry.npmjs.org/exceljs/-/exceljs-4.4.0.tgz",
+@@ -7109,6 +7154,46 @@
+       "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz",
+       "integrity": "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==",
+       "license": "ISC"
++    },
++    "node_modules/graphology": {
++      "version": "0.26.0",
++      "resolved": "https://registry.npmjs.org/graphology/-/graphology-0.26.0.tgz",
++      "integrity": "sha512-8SSImzgUUYC89Z042s+0r/vMibY7GX/Emz4LDO5e7jYXhuoWfHISPFJYjpRLUSJGq6UQ6xlenvX1p/hJdfXuXg==",
++      "license": "MIT",
++      "dependencies": {
++        "events": "^3.3.0"
++      },
++      "peerDependencies": {
++        "graphology-types": ">=0.24.0"
++      }
++    },
++    "node_modules/graphology-layout-forceatlas2": {
++      "version": "0.10.1",
++      "resolved": "https://registry.npmjs.org/graphology-layout-forceatlas2/-/graphology-layout-forceatlas2-0.10.1.tgz",
++      "integrity": "sha512-ogzBeF1FvWzjkikrIFwxhlZXvD2+wlY54lqhsrWprcdPjopM2J9HoMweUmIgwaTvY4bUYVimpSsOdvDv1gPRFQ==",
++      "license": "MIT",
++      "dependencies": {
++        "graphology-utils": "^2.1.0"
++      },
++      "peerDependencies": {
++        "graphology-types": ">=0.19.0"
++      }
++    },
++    "node_modules/graphology-types": {
++      "version": "0.24.8",
++      "resolved": "https://registry.npmjs.org/graphology-types/-/graphology-types-0.24.8.tgz",
++      "integrity": "sha512-hDRKYXa8TsoZHjgEaysSRyPdT6uB78Ci8WnjgbStlQysz7xR52PInxNsmnB7IBOM1BhikxkNyCVEFgmPKnpx3Q==",
++      "license": "MIT",
++      "peer": true
++    },
++    "node_modules/graphology-utils": {
++      "version": "2.5.2",
++      "resolved": "https://registry.npmjs.org/graphology-utils/-/graphology-utils-2.5.2.tgz",
++      "integrity": "sha512-ckHg8MXrXJkOARk56ZaSCM1g1Wihe2d6iTmz1enGOz4W/l831MBCKSayeFQfowgF8wd+PQ4rlch/56Vs/VZLDQ==",
++      "license": "MIT",
++      "peerDependencies": {
++        "graphology-types": ">=0.23.0"
++      }
+     },
+     "node_modules/hachure-fill": {
+       "version": "0.5.2",
+@@ -12273,6 +12358,16 @@
+       "integrity": "sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==",
+       "dev": true,
+       "license": "ISC"
++    },
++    "node_modules/sigma": {
++      "version": "3.0.3",
++      "resolved": "https://registry.npmjs.org/sigma/-/sigma-3.0.3.tgz",
++      "integrity": "sha512-5H0zFlx6/NTQpqBg4Rm569ZOpnBOXMaS25UQThIWMU3XyzI5AhmorK/gnl87BvJBLhQd0tW4C0LIp3enWzMoNw==",
++      "license": "MIT",
++      "dependencies": {
++        "events": "^3.3.0",
++        "graphology-utils": "^2.5.2"
++      }
+     },
+     "node_modules/simple-icons": {
+       "version": "16.27.1",
+@@ -14171,6 +14266,35 @@
+         "zod": "^3.25.0 || ^4.0.0"
+       }
+     },
++    "node_modules/zustand": {
++      "version": "5.1.0",
++      "resolved": "https://registry.npmjs.org/zustand/-/zustand-5.1.0.tgz",
++      "integrity": "sha512-ciJZlP48M1PTQbVQq81CGVFxHTLpZNrFjKqwjtCU34AWuXTZT/jrF3p9+fI84Cf1eSCMLapxqBy/SNTfwOBuqA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=12.20.0"
++      },
++      "peerDependencies": {
++        "@types/react": ">=18.0.0",
++        "immer": ">=9.0.6",
++        "react": ">=18.0.0",
++        "use-sync-external-store": ">=1.2.0"
++      },
++      "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        },
++        "immer": {
++          "optional": true
++        },
++        "react": {
++          "optional": true
++        },
++        "use-sync-external-store": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/zwitch": {
+       "version": "2.0.4",
+       "resolved": "https://registry.npmjs.org/zwitch/-/zwitch-2.0.4.tgz",
+diff --git a/project/vendor/DeepTutor/web/package.json b/project/vendor/DeepTutor/web/package.json
+--- a/project/vendor/DeepTutor/web/package.json
++++ b/project/vendor/DeepTutor/web/package.json
+@@ -33,7 +33,10 @@
+     "build:brand-icons": "tsx ./scripts/build-brand-icons.mts"
+   },
+   "dependencies": {
++    "@react-sigma/core": "5.0.6",
+     "@recogito/text-annotator": "4.2.5",
++    "@sigma/edge-curve": "3.1.0",
++    "@sigma/node-border": "3.0.0",
+     "chart.js": "^4.5.1",
+     "clsx": "^2.1.1",
+     "cytoscape": "^3.33.1",
+@@ -41,6 +44,8 @@
+     "epubjs": "^0.3.93",
+     "exceljs": "^4.4.0",
+     "framer-motion": "^12.24.0",
++    "graphology": "0.26.0",
++    "graphology-layout-forceatlas2": "0.10.1",
+     "html2canvas": "^1.4.1",
+     "i18next": "^25.8.0",
+     "jspdf": "^4.2.0",
+@@ -48,7 +53,7 @@
+     "mdast-util-from-markdown": "^2.0.2",
+     "mermaid": "^11.14.0",
+     "next": "^16.2.3",
+-    "pdfjs-dist": "^6.2.108",
++    "pdfjs-dist": "6.2.108",
+     "react": "^19.0.0",
+     "react-chartjs-2": "^5.3.1",
+     "react-dom": "^19.0.0",
+@@ -59,7 +64,9 @@
+     "rehype-raw": "^7.0.0",
+     "remark-gfm": "^4.0.0",
+     "remark-math": "^6.0.0",
+-    "tailwind-merge": "^3.4.0"
++    "sigma": "3.0.3",
++    "tailwind-merge": "^3.4.0",
++    "zustand": "5.1.0"
+   },
+   "overrides": {
+     "epubjs": {
+diff --git a/project/vendor/DeepTutor/web/scripts/run-node-tests.mjs b/project/vendor/DeepTutor/web/scripts/run-node-tests.mjs
+--- a/project/vendor/DeepTutor/web/scripts/run-node-tests.mjs
++++ b/project/vendor/DeepTutor/web/scripts/run-node-tests.mjs
+@@ -1,60 +1,61 @@
+-import { readdirSync, rmSync, statSync } from "node:fs";
+-import { spawnSync } from "node:child_process";
+-import path from "node:path";
+-import { fileURLToPath } from "node:url";
+-
+-const __filename = fileURLToPath(import.meta.url);
+-const __dirname = path.dirname(__filename);
+-const webRoot = path.resolve(__dirname, "..");
+-const distRoot = path.join(webRoot, "dist", "node-tests");
+-const testRoot = path.join(distRoot, "tests");
+-
+-function run(cmd, args) {
+-  const result = spawnSync(cmd, args, {
+-    cwd: webRoot,
+-    stdio: "inherit",
+-    env: process.env,
+-  });
+-  if (result.status !== 0) {
+-    process.exit(result.status ?? 1);
+-  }
+-}
+-
+-function collectTests(dir) {
+-  const entries = readdirSync(dir)
+-    .map((name) => path.join(dir, name))
+-    .sort((a, b) => a.localeCompare(b));
+-  const files = [];
+-  for (const entry of entries) {
+-    const stats = statSync(entry);
+-    if (stats.isDirectory()) {
+-      files.push(...collectTests(entry));
+-      continue;
+-    }
+-    if (entry.endsWith(".test.js")) {
+-      files.push(entry);
+-    }
+-  }
+-  return files;
+-}
+-
+-rmSync(distRoot, { recursive: true, force: true });
+-
+-run(process.execPath, [
+-  path.join(webRoot, "node_modules", "typescript", "bin", "tsc"),
+-  "-p",
+-  "tsconfig.node-tests.json",
+-]);
+-
+-const testFiles = collectTests(testRoot);
+-if (testFiles.length === 0) {
+-  console.error("No compiled node tests found.");
+-  process.exit(1);
+-}
+-
+-run(process.execPath, [
+-  "-r",
+-  "./scripts/register-node-test-aliases.cjs",
+-  "--test",
+-  ...testFiles,
+-]);
++import { readdirSync, rmSync, statSync } from "node:fs";
++import { spawnSync } from "node:child_process";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const __filename = fileURLToPath(import.meta.url);
++const __dirname = path.dirname(__filename);
++const webRoot = path.resolve(__dirname, "..");
++const distRoot = path.join(webRoot, "dist", "node-tests");
++const testRoot = path.join(distRoot, "tests");
++
++function run(cmd, args) {
++  const result = spawnSync(cmd, args, {
++    cwd: webRoot,
++    stdio: "inherit",
++    env: process.env,
++  });
++  if (result.error) console.error(result.error.message);
++  if (result.status !== 0) {
++    process.exit(result.status ?? 1);
++  }
++}
++
++function collectTests(dir) {
++  const entries = readdirSync(dir)
++    .map((name) => path.join(dir, name))
++    .sort((a, b) => a.localeCompare(b));
++  const files = [];
++  for (const entry of entries) {
++    const stats = statSync(entry);
++    if (stats.isDirectory()) {
++      files.push(...collectTests(entry));
++      continue;
++    }
++    if (entry.endsWith(".test.js")) {
++      files.push(entry);
++    }
++  }
++  return files;
++}
++
++rmSync(distRoot, { recursive: true, force: true });
++
++run(process.execPath, [
++  path.join(webRoot, "node_modules", "typescript", "bin", "tsc"),
++  "-p",
++  "tsconfig.node-tests.json",
++]);
++
++const testFiles = collectTests(testRoot);
++if (testFiles.length === 0) {
++  console.error("No compiled node tests found.");
++  process.exit(1);
++}
++
++run(process.execPath, [
++  "-r",
++  "./scripts/register-node-test-aliases.cjs",
++  "--test",
++  ...testFiles.map(file => path.relative(webRoot, file)),
++]);
+diff --git a/project/vendor/DeepTutor/web/tests/student-graph-build.spec.tsx b/project/vendor/DeepTutor/web/tests/student-graph-build.spec.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/tests/student-graph-build.spec.tsx
+@@ -0,0 +1,16 @@
++import { beforeEach, expect, it } from 'vitest'
++import { RawGraph, useGraphStore } from '@/features/heart/graph/store'
++import { createSigmaGraph } from '@/features/heart/graph/useLightragGraph'
++beforeEach(()=>useGraphStore.getState().reset())
++it('keeps real entity names safe and discards duplicate and dangling edges',async()=>{
++ const raw=new RawGraph();raw.nodes=['正常','constructor','hasOwnProperty','__proto__'].map(id=>({id,labels:[id],properties:{entity_type:'概念'},size:8,degree:0}))
++ raw.edges=[{source:'正常',target:'constructor'},{source:'正常',target:'constructor'},{source:'正常',target:'hasOwnProperty'},{source:'正常',target:'__proto__'},{source:'missing',target:'正常'}].map((e,i)=>({...e,id:String(i),properties:{weight:0}}))
++ const graph=await createSigmaGraph(raw);expect(graph?.order).toBe(4);expect(graph?.size).toBe(3);expect(graph?.edges().map(e=>graph.getEdgeAttribute(e,'originalWeight'))).toEqual([0,0,0])
++})
++it('uses stable positions and treats empty data as empty',async()=>{
++ const raw=new RawGraph();raw.nodes=[{id:'甲',labels:['甲'],properties:{},size:8,degree:0}]
++ const a=await createSigmaGraph(raw),b=await createSigmaGraph(raw);expect(a?.getNodeAttribute('甲','x')).toBe(b?.getNodeAttribute('甲','x'));expect(await createSigmaGraph(new RawGraph())).toBeNull()
++})
++it('releases the active native layout when graph scope changes',()=>{
++ let killed=0;useGraphStore.getState().setActiveLayoutSupervisor({kill:()=>killed++});useGraphStore.getState().reset();expect(killed).toBe(1);expect(useGraphStore.getState().selectedNode).toBeNull()
++})
+diff --git a/project/vendor/DeepTutor/web/tests/student-graph.spec.tsx b/project/vendor/DeepTutor/web/tests/student-graph.spec.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/tests/student-graph.spec.tsx
+@@ -0,0 +1,31 @@
++import React from 'react'
++import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
++import { beforeEach, expect, it, vi } from 'vitest'
++import KnowledgeGraph from '@/features/heart/KnowledgeGraph'
++import { useGraphStore } from '@/features/heart/graph/store'
++const mocks=vi.hoisted(()=>({query:'chapter=3',fetch:vi.fn(),replace:vi.fn(),push:vi.fn()}))
++vi.mock('next/navigation',()=>({useSearchParams:()=>new URLSearchParams(mocks.query),useRouter:()=>({replace:mocks.replace,push:mocks.push}),usePathname:()=>'/learning/graph'}))
++vi.mock('next/dynamic',()=>({default:()=>()=> <p>图形视图测试边界</p>}))
++vi.mock('@/hooks/useAuthStatus',()=>({useAuthStatus:()=>({userId:'student-a',statusAvailable:true,loading:false})}))
++vi.mock('@/lib/api',()=>({apiFetch:mocks.fetch,apiUrl:(url:string)=>url}))
++vi.mock('@/features/heart/ChapterProgress',()=>({ChapterProgress:()=>null}))
++vi.mock('react-i18next',()=>({useTranslation:()=>({t:(key:string)=>key,i18n:{language:'zh'}})}))
++const payload={course_id:'experimental-psychology-3',release_id:'version',release_status:'approved_isolated_snapshot',catalog_version:'catalog',mapping_version:'mapping',catalog_available:true,nodes:[{id:'相关设计',type:'概念',description:'教材说明',chapter:3,state:{kind:'unknown',mapping_status:'confirmed',knowledge_point_id:'kc-3-1',objective_id:'kc-3-1',snapshot:null,sync_pending:true}}],edges:[],truncated:true,edges_truncated:false,limit:80,chapter:3,document:{id:'doc',version:'pdf-version',chapter:3}}
++beforeEach(()=>{vi.clearAllMocks();mocks.query='chapter=3';useGraphStore.getState().reset();mocks.fetch.mockImplementation(async(url:string)=>new Response(JSON.stringify(url.startsWith('/api/graph/node')?{...payload,node:payload.nodes[0],sources:[{id:'source',text:'可核对原文',file:'chapter_03.generated.pdf',heading:'相关设计'}],mappings:[{id:'M004',kc_id:'kc-3-1',objective_id:'kc-3-1',document_version:'pdf-version'}]}:payload)))})
++it('keeps unknown and pending statuses explicit and reads details only on selection',async()=>{
++ render(<KnowledgeGraph/>);expect(await screen.findByText(/部分显示/)).toBeInTheDocument();expect(mocks.fetch.mock.calls.some(([url])=>String(url).includes('/node?'))).toBe(false)
++ fireEvent.click(screen.getByRole('button',{name:/相关设计.*无已同步测评/}));expect(await screen.findByText('教材说明')).toBeInTheDocument();expect(screen.getByText(/当前仍为上次同步记录/)).toBeInTheDocument();expect(screen.getByRole('link',{name:'打开本章教材 PDF'})).toHaveAttribute('href',expect.stringContaining('release_id=version'));expect(screen.getByRole('button',{name:'练习此知识点'})).toBeInTheDocument()
++ expect(mocks.fetch.mock.calls.some(([url])=>String(url).includes('/node?'))).toBe(true)
++})
++it('shows a request error and can refresh to an actual empty graph',async()=>{
++ mocks.fetch.mockResolvedValueOnce(new Response('{}',{status:503}));render(<KnowledgeGraph/>);expect(await screen.findByRole('alert')).toHaveTextContent('图谱加载失败')
++ mocks.fetch.mockResolvedValue(new Response(JSON.stringify({...payload,nodes:[],truncated:false})));fireEvent.click(screen.getByRole('button',{name:'刷新图谱与状态'}));expect(await screen.findByText(/当前范围暂无图谱节点/)).toBeInTheDocument()
++})
++it('aborts replaced scopes and ignores the late previous response',async()=>{
++ let release!:(value:Response)=>void;const pending=new Promise<Response>(resolve=>{release=resolve});mocks.fetch.mockReturnValueOnce(pending)
++ const view=render(<KnowledgeGraph/>);const oldSignal=mocks.fetch.mock.calls[0][1].signal as AbortSignal
++ mocks.query='chapter=4';view.rerender(<KnowledgeGraph/>);expect(oldSignal.aborted).toBe(true)
++ await waitFor(()=>expect(screen.getByRole('button',{name:/相关设计/})).toBeInTheDocument())
++ await act(async()=>{release(new Response(JSON.stringify({...payload,nodes:[{...payload.nodes[0],id:'迟到的旧图'}]})));await pending})
++ expect(screen.queryByText('迟到的旧图')).toBeNull()
++})

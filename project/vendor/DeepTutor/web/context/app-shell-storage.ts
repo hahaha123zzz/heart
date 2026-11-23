@@ -73,6 +73,7 @@ const RESPONSE_LANGUAGE_ALIASES: Record<string, ResponseLanguage> = {
 export const ACTIVE_SESSION_STORAGE_KEY = "deeptutor.activeSessionId.tab";
 export const LANGUAGE_STORAGE_KEY = "deeptutor-language";
 export const RESPONSE_LANGUAGE_STORAGE_KEY = "deeptutor-response-language";
+export const DEFAULT_CHAT_REPLY_LANGUAGE: ResponseLanguage = "zh";
 export const SIDEBAR_COLLAPSED_STORAGE_KEY = "deeptutor.sidebarCollapsed";
 export const CHAT_RESPONSE_TIMEOUT_STORAGE_KEY =
   "deeptutor.chatResponseTimeout";

@@ -1,0 +1,564 @@
+diff --git a/project/vendor/DeepTutor/deeptutor/api/routers/practice.py b/project/vendor/DeepTutor/deeptutor/api/routers/practice.py
+index c38e364..42a603d 100644
+--- a/project/vendor/DeepTutor/deeptutor/api/routers/practice.py
++++ b/project/vendor/DeepTutor/deeptutor/api/routers/practice.py
+@@ -13,7 +13,7 @@ from defusedxml.ElementTree import ParseError
+ from fastapi import APIRouter, File, Form, HTTPException, Query, Response, UploadFile
+ from pydantic import BaseModel, Field
+ 
+-from deeptutor.services.practice.answers import check_answer
++from deeptutor.learning.service import MasteryInteractionError
+ from deeptutor.services.practice.importing import MAX_BYTES, preview
+ from deeptutor.services.practice.scheduler import Rating, day_bounds
+ from deeptutor.services.practice.storage import PracticeStore, ReviewConflict
+@@ -70,6 +70,7 @@ class PracticeAnalytics(BaseModel):
+ 
+ class AnswerRequest(BaseModel):
+     answer: str = Field(default="", max_length=20000)
++    version: int | None = Field(default=None, ge=0)
+ 
+ 
+ class ReviewRequest(AnswerRequest):
+@@ -100,6 +101,11 @@ async def _entry(entry_id: int) -> dict:
+     return entry
+ 
+ 
++def _before_reveal(entry: dict) -> dict:
++    return {**entry, "correct_answer": "", "explanation": "", "user_answer": "",
++            "user_answer_images": [], "ai_judgment": ""}
++
++
+ @router.get("/summary", response_model=PracticeSummary)
+ async def summary(timezone: str = "UTC", course_id: str = "", all_workspaces: bool = False):
+     if all_workspaces and not course_id:
+@@ -173,7 +179,7 @@ async def queue(
+         if entry:
+             questions.append(
+                 {
+-                    "entry": entry,
++                    "entry": _before_reveal(entry),
+                     "state": await asyncio.to_thread(practice.state, entry_id),
+                     "content_workspace_id": current_workspace_id(),
+                 }
+@@ -231,13 +237,18 @@ async def practice_question(entry_id: int):
+     state = await asyncio.to_thread(
+         PracticeStore(get_sqlite_session_store().db_path).state, entry_id
+     )
+-    return {"entry": entry, "state": state}
++    return {"entry": _before_reveal(entry), "state": state}
+ 
+ 
+ @router.post("/questions/{entry_id}/check")
+ async def check(entry_id: int, payload: AnswerRequest):
+-    entry = await _entry(entry_id)
+-    return {"correct": check_answer(entry, payload.answer)}
++    try:
++        store = PracticeStore(get_sqlite_session_store().db_path)
++        return await asyncio.to_thread(store.reveal_answer, entry_id, payload.answer, payload.version)
++    except (MasteryInteractionError, ReviewConflict) as exc:
++        raise HTTPException(409, str(exc)) from None
++    except LookupError as exc:
++        raise HTTPException(404, str(exc)) from exc
+ 
+ 
+ @router.post("/questions/{entry_id}/review")
+@@ -252,6 +263,8 @@ async def review(entry_id: int, payload: ReviewRequest):
+             payload.answer,
+             self_report=payload.self_report,
+         )
++    except MasteryInteractionError as exc:
++        raise HTTPException(409, str(exc)) from None
+     except LookupError as exc:
+         raise HTTPException(404, str(exc)) from exc
+     except ReviewConflict as exc:
+diff --git a/project/vendor/DeepTutor/deeptutor/services/practice/storage.py b/project/vendor/DeepTutor/deeptutor/services/practice/storage.py
+index e7c6a89..5d8a176 100644
+--- a/project/vendor/DeepTutor/deeptutor/services/practice/storage.py
++++ b/project/vendor/DeepTutor/deeptutor/services/practice/storage.py
+@@ -3,6 +3,7 @@
+ from __future__ import annotations
+ 
+ from contextlib import contextmanager
++from hashlib import sha256
+ import json
+ from pathlib import Path
+ import sqlite3
+@@ -18,6 +19,14 @@ _DUE_AT_SQL = """(CASE WHEN (n.resolved=1 OR n.is_correct=1)
+     ELSE COALESCE(r.due_at, n.created_at) END)"""
+ 
+ 
++_review_export = None
++
++
++def set_review_export(export):
++    global _review_export
++    _review_export = export
++
++
+ class ReviewConflict(ValueError):
+     """A different tab or source changed this question since it was opened."""
+ 
+@@ -50,6 +59,19 @@ def initialize_practice(conn: sqlite3.Connection) -> None:
+             outcome_json TEXT NOT NULL
+         );
+         CREATE INDEX IF NOT EXISTS idx_practice_history ON practice_review_events(entry_id, reviewed_at);
++        CREATE TABLE IF NOT EXISTS practice_answer_reveals (
++            entry_id INTEGER NOT NULL REFERENCES notebook_entries(id) ON DELETE CASCADE,
++            question_hash TEXT NOT NULL,
++            review_version INTEGER NOT NULL,
++            first_answer_hash TEXT NOT NULL,
++            revealed_at REAL NOT NULL,
++            PRIMARY KEY(entry_id, question_hash)
++        );
++        CREATE TABLE IF NOT EXISTS practice_review_outbox (
++            event_id TEXT PRIMARY KEY,
++            request_id TEXT NOT NULL UNIQUE,
++            payload_json TEXT NOT NULL
++        );
+         CREATE TABLE IF NOT EXISTS practice_imports (
+             token TEXT PRIMARY KEY,
+             filename TEXT NOT NULL,
+@@ -66,9 +88,11 @@ def initialize_practice(conn: sqlite3.Connection) -> None:
+             SELECT NEW.id, NEW.created_at, NEW.created_at + 86400
+             WHERE NOT EXISTS(SELECT 1 FROM practice_review_state WHERE entry_id=NEW.id);
+         END;
+-        CREATE TRIGGER IF NOT EXISTS practice_invalidate_question
+-        AFTER UPDATE OF question, options_json, correct_answer ON notebook_entries
+-        WHEN OLD.question != NEW.question OR OLD.options_json != NEW.options_json OR OLD.correct_answer != NEW.correct_answer
++        DROP TRIGGER IF EXISTS practice_invalidate_question;
++        CREATE TRIGGER practice_invalidate_question
++        AFTER UPDATE OF question, question_type, options_json, correct_answer ON notebook_entries
++        WHEN OLD.question != NEW.question OR OLD.question_type != NEW.question_type
++          OR OLD.options_json != NEW.options_json OR OLD.correct_answer != NEW.correct_answer
+         BEGIN
+             UPDATE practice_review_state SET version=version+1 WHERE entry_id=NEW.id;
+         END;
+@@ -223,6 +247,37 @@ class PracticeStore:
+                 is not None
+             )
+ 
++    @staticmethod
++    def _question_hash(entry):
++        fields = (entry["question"], entry["question_type"],
++                  json.loads(entry["options_json"] or "{}"), entry["correct_answer"])
++        return sha256(json.dumps(fields, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
++
++    @staticmethod
++    def _answer_hash(answer):
++        return sha256(answer.encode()).hexdigest()
++
++    def reveal_answer(self, entry_id: int, answer: str, version: int | None = None) -> dict:
++        from deeptutor.learning.service import require_assessment_capability
++        from .answers import check_answer
++
++        with self.connect() as conn:
++            conn.execute("BEGIN IMMEDIATE")
++            entry = conn.execute("""SELECT n.*, COALESCE(r.version, 0) AS review_version
++                FROM notebook_entries n LEFT JOIN sessions s ON s.id=n.session_id
++                LEFT JOIN practice_review_state r ON r.entry_id=n.id
++                WHERE n.id=? AND (n.session_id IS NULL OR s.deleted_at IS NULL)""", (entry_id,)).fetchone()
++            if entry is None:
++                raise LookupError("Question not found")
++            if version is not None and entry["review_version"] != version:
++                raise ReviewConflict("This question changed in another tab. Reload it before reviewing again.")
++            require_assessment_capability()
++            conn.execute("INSERT OR IGNORE INTO practice_answer_reveals VALUES (?, ?, ?, ?, ?)",
++                         (entry_id, self._question_hash(entry), entry["review_version"],
++                          self._answer_hash(answer), time.time()))
++            return {"correct": check_answer(dict(entry), answer),
++                    "correct_answer": entry["correct_answer"], "explanation": entry["explanation"]}
++
+     def review(
+         self,
+         entry_id: int,
+@@ -266,6 +321,9 @@ class PracticeStore:
+                 raise ReviewConflict(
+                     "This question changed in another tab. Reload it before reviewing again."
+                 )
++            from deeptutor.learning.service import require_assessment_capability
++
++            require_assessment_capability()
+             # Objective answers are checked again at the transaction boundary.
+             from .answers import check_answer
+ 
+@@ -307,6 +365,15 @@ class PracticeStore:
+             )
+             if rating == "again":
+                 conn.execute("UPDATE notebook_entries SET resolved=0 WHERE id=?", (entry_id,))
++            reveal = conn.execute("""SELECT review_version, first_answer_hash, revealed_at
++                FROM practice_answer_reveals WHERE entry_id=? AND question_hash=?""",
++                (entry_id, self._question_hash(entry))).fetchone()
++            assistance = {"status": "not_verified"}
++            if reveal is not None:
++                first_answer = reveal["first_answer_hash"] == self._answer_hash(answer)
++                assisted = reveal["review_version"] != version or not first_answer
++                assistance = {"status": "assisted" if assisted else "answer_committed_before_reveal",
++                              "first_reveal_at": reveal["revealed_at"]}
+             outcome = {
+                 **next_state,
+                 "entry_id": entry_id,
+@@ -314,8 +381,15 @@ class PracticeStore:
+                 "correct": correct,
+                 "rating": rating,
+                 "self_report": self_report,
++                "assistance": assistance,
+                 "mastered": rating in {"good", "easy"},
+             }
++            if _review_export is not None:
++                payload = _review_export(conn, dict(entry), outcome, answer, now)
++                if payload is not None:
++                    conn.execute("INSERT INTO practice_review_outbox VALUES (?, ?, ?)",
++                                 (uuid.uuid4().hex, request_id, json.dumps(payload, ensure_ascii=False)))
++                    outcome["learning_sync"] = "pending"
+             conn.execute(
+                 "INSERT INTO practice_review_events VALUES(?, ?, ?, ?, ?, ?)",
+                 (request_id, entry_id, rating, answer, now, json.dumps(outcome)),
+diff --git a/project/vendor/DeepTutor/tests/api/test_practice.py b/project/vendor/DeepTutor/tests/api/test_practice.py
+index 13d4e75..ab8aadf 100644
+--- a/project/vendor/DeepTutor/tests/api/test_practice.py
++++ b/project/vendor/DeepTutor/tests/api/test_practice.py
+@@ -393,3 +393,63 @@ def test_analytics_local_midnight_dst_zero_days_and_deleted_sources(bank):
+     with repo.connect() as conn:
+         conn.execute("UPDATE sessions SET deleted_at=? WHERE id='lesson'", (now,))
+     assert repo.analytics("America/New_York", 7, now=now)["sources"] == []
++
++
++
++def test_assessment_capability_guard_blocks_new_reviews_but_keeps_saved_replay(bank, monkeypatch):
++    from types import SimpleNamespace
++    from deeptutor.learning import service
++    from deeptutor.multi_user.context import set_current_user, reset_current_user
++    from fastapi import HTTPException
++    store, repo, _ = bank
++    entry = seed(store)
++    state = repo.state(entry["id"])
++    saved = repo.review(entry["id"], "saved-review-guard", state["version"], "good", "B")
++    def deny(user):
++        raise service.MasteryInteractionError("评分已暂停，请验证评估能力。")
++    monkeypatch.setattr(service, "_external_assessment_guard", deny)
++    token = set_current_user(SimpleNamespace(is_admin=False))
++    try:
++        assert repo.review(entry["id"], "saved-review-guard", state["version"], "good", "B") == saved
++        with pytest.raises(service.MasteryInteractionError):
++            repo.review(entry["id"], "new-review-guard", saved["version"], "good", "B")
++        with pytest.raises(HTTPException) as error:
++            asyncio.run(practice.check(entry["id"], practice.AnswerRequest(answer="B")))
++        assert error.value.status_code == 409
++    finally:
++        reset_current_user(token)
++    assert repo.state(entry["id"])["version"] == saved["version"]
++
++
++
++def test_reference_answer_is_released_after_recording_the_first_submission(bank):
++    store, repo, client = bank
++    entry = seed(store, explanation="Unique reference explanation")
++    ident = entry["id"]
++    for candidate in [client.get(f"/practice/questions/{ident}").json(), *client.get("/practice/queue").json()]:
++        assert candidate["entry"]["correct_answer"] == ""
++        assert candidate["entry"]["explanation"] == ""
++        assert candidate["entry"]["user_answer"] == ""
++    version = repo.state(ident)["version"]
++    url = f"/practice/questions/{ident}/check"
++    assert client.post(url, json={"answer": "A", "version": version + 1}).status_code == 409
++    first = client.post(url, json={"answer": "A", "version": version}).json()
++    assert first == {"correct": False, "correct_answer": "B", "explanation": "Unique reference explanation"}
++    assert client.post(url, json={"answer": "B", "version": version}).json()["correct"] is True
++    review = repo.review(ident, "reveal-then-edit", version, "good", "B")
++    assert review["assistance"]["status"] == "assisted"
++    next_review = repo.review(ident, "later-round", review["version"], "again", "A")
++    assert next_review["assistance"]["status"] == "assisted"
++
++
++def test_original_answer_is_recorded_as_pre_reveal_without_claiming_independence(bank):
++    store, repo, client = bank
++    ident = seed(store)["id"]
++    version = repo.state(ident)["version"]
++    client.post(f"/practice/questions/{ident}/check", json={"answer": "B", "version": version}).raise_for_status()
++    result = repo.review(ident, "original-first-answer", version, "good", "B")
++    assert result["assistance"]["status"] == "answer_committed_before_reveal"
++    assert "independent" not in result["assistance"]
++    direct = seed(store, question_id="direct-q")
++    skipped_check = repo.review(direct["id"], "direct-without-check", repo.state(direct["id"])["version"], "good", "B")
++    assert skipped_check["assistance"] == {"status": "not_verified"}
+diff --git a/project/vendor/DeepTutor/web/lib/practice-api.ts b/project/vendor/DeepTutor/web/lib/practice-api.ts
+index 52ae062..01878b7 100644
+--- a/project/vendor/DeepTutor/web/lib/practice-api.ts
++++ b/project/vendor/DeepTutor/web/lib/practice-api.ts
+@@ -98,8 +98,8 @@ export const getPracticeQueue = (courseId = '', workspaceId?: string) =>
+   )
+ export const getPracticeQuestion = (id: number, workspaceId?: string) =>
+   request<PracticeQuestion>(`/questions/${id}`, undefined, workspaceId)
+-export const checkPracticeAnswer = (id: number, answer: string, workspaceId?: string) =>
+-  request<{ correct: boolean | null }>(`/questions/${id}/check`, json({ answer }), workspaceId)
++export const checkPracticeAnswer = (id: number, answer: string, workspaceId?: string, version?: number) =>
++  request<{ correct: boolean | null; correct_answer: string; explanation: string }>(`/questions/${id}/check`, json({ answer, version }), workspaceId)
+ export const savePracticeReview = (
+   id: number,
+   body: {
+@@ -111,7 +111,7 @@ export const savePracticeReview = (
+   },
+   workspaceId?: string
+ ) =>
+-  request<{ due_at: number; correct: boolean | null; rating: PracticeRating; is_mistake: boolean }>(
++  request<{ due_at: number; correct: boolean | null; rating: PracticeRating; is_mistake: boolean; learning_sync?: "pending" | "synced" | "catalog_changed" }>(
+     `/questions/${id}/review`,
+     json(body),
+     workspaceId
+diff --git a/project/vendor/DeepTutor/web/components/learning/practice/PracticeSession.tsx b/project/vendor/DeepTutor/web/components/learning/practice/PracticeSession.tsx
+index 048a305..fe0e37e 100644
+--- a/project/vendor/DeepTutor/web/components/learning/practice/PracticeSession.tsx
++++ b/project/vendor/DeepTutor/web/components/learning/practice/PracticeSession.tsx
+@@ -42,6 +42,7 @@ export function PracticeSession({
+   const [skipped, setSkipped] = useState(0)
+   const { t } = useTranslation()
+   const [index, setIndex] = useState(0)
++  const [syncNotice, setSyncNotice] = useState("")
+   const [saved, setSaved] = useState(0)
+   const [saving, setSaving] = useState(false)
+   const [nextDue, setNextDue] = useState<number | null>(null)
+@@ -69,6 +70,7 @@ export function PracticeSession({
+         aria-label={t('Practice progress')}
+         className="mb-6 h-1.5 w-full accent-primary"
+       />
++      {syncNotice && <p role="status" className="mb-4 text-sm text-muted-foreground">{syncNotice}</p>}
+       {complete ? (
+         <div className="rounded-2xl border border-border bg-card px-6 py-12 text-center">
+           <CheckCircle2 className="mx-auto mb-4 text-emerald-600" size={32} />
+@@ -103,7 +105,9 @@ export function PracticeSession({
+           workspaceId={queue[index].content_workspace_id}
+           workspaceName={queue[index].content_workspace_name}
+           onBusy={setSaving}
+-          onSaved={(due, rating) => {
++          onSaved={(due, rating, sync) => {
++            if (sync === "pending") setSyncNotice("复习已保存。学习档案将在后台同步，状态可能暂未更新。")
++            if (sync === "catalog_changed") setSyncNotice("复习已保存。教材目录已更新，本次记录未计入当前目录。")
+             if (rating === 'again') setQueue(current => [...current, current[index]])
+             else setSaved(value => value + 1)
+             if (due !== null) {
+@@ -136,14 +140,15 @@ function PracticeTurn({
+   id: number
+   workspaceId?: string
+   workspaceName?: string
+-  onSaved: (due: number | null, rating: PracticeRating) => void
++  onSaved: (due: number | null, rating: PracticeRating, sync?: string) => void
+   onSkip: () => void
+   onBusy: (busy: boolean) => void
+ }) {
+   const { t } = useTranslation()
+   const [question, setQuestion] = useState<PracticeQuestion | null>(null)
+   const [answer, setAnswer] = useState('')
+-  const [revealed, setRevealed] = useState(false)
++  const [reference, setReference] = useState<{ correct_answer: string; explanation: string } | null>(null)
++  const revealed = reference !== null
+   const [correct, setCorrect] = useState<boolean | null>(null)
+   const [busy, setBusy] = useState(false)
+   const [error, setError] = useState('')
+@@ -177,11 +182,12 @@ function PracticeTurn({
+     onBusy(true)
+     setError('')
+     try {
+-      const verdict = await checkPracticeAnswer(id, answer, workspaceId)
++      const verdict = await checkPracticeAnswer(id, answer, workspaceId, question.state.version)
+       setCorrect(verdict.correct)
+-      setRevealed(true)
++      setReference(verdict)
+     } catch (err) {
+       setError(err instanceof Error ? err.message : String(err))
++      if (err instanceof PracticeRequestError && err.status === 409) setConflict(true)
+     } finally {
+       pending.current = false
+       setBusy(false)
+@@ -204,7 +210,7 @@ function PracticeTurn({
+     }
+     try {
+       const result = await savePracticeReview(id, submission.current, workspaceId)
+-      onSaved(result.due_at, result.rating)
++      onSaved(result.due_at, result.rating, result.learning_sync)
+     } catch (err) {
+       setError(err instanceof Error ? err.message : String(err))
+       if (err instanceof PracticeRequestError && err.status === 409) setConflict(true)
+@@ -217,7 +223,7 @@ function PracticeTurn({
+   function reset() {
+     setQuestion(null)
+     setAnswer('')
+-    setRevealed(false)
++    setReference(null)
+     setCorrect(null)
+     setError('')
+     setConflict(false)
+@@ -363,15 +369,15 @@ function PracticeTurn({
+                 <div className="text-sm">
+                   <Markdown
+                     content={
+-                      entry.correct_answer ||
++                      reference?.correct_answer ||
+                       t(
+                         'No reference answer was saved. Use the original source to check your work.'
+                       )
+                     }
+                   />
+-                  {entry.explanation && (
++                  {reference?.explanation && (
+                     <div className="mt-3 border-t border-border pt-3">
+-                      <Markdown content={entry.explanation} />
++                      <Markdown content={reference.explanation} />
+                     </div>
+                   )}
+                 </div>
+@@ -391,7 +397,7 @@ function PracticeTurn({
+                     onClick={() => void rate(correct ? 'good' : 'again')}
+                     className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-40"
+                   >
+-                    {correct ? t('Mastered · Next question') : t('Practice again')}
++                    {correct ? t('Next question') : t('Practice again')}
+                   </button>
+                 </div>
+               ) : (
+diff --git a/project/vendor/DeepTutor/web/features/heart/ChapterProgress.tsx b/project/vendor/DeepTutor/web/features/heart/ChapterProgress.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/ChapterProgress.tsx
+@@ -0,0 +1,62 @@
++"use client";
++
++import { useEffect, useState } from "react";
++import { apiUrl, requestJson } from "@/shared/api/client";
++
++type Progress = {
++  catalog_available: boolean;
++  points: {
++    id: string;
++    name: string;
++    snapshot: { assessed_mastered: boolean; learning_stage: string; next_review_at: string | null; synced_at: string } | null;
++    practice_review?: { correct: boolean | null; self_report: boolean; assistance_status?: string; next_review_at: string } | null;
++    sync_pending: boolean;
++    sync_blocked: boolean;
++  }[];
++};
++
++export function ChapterProgress({ chapter }: { chapter: number }) {
++  const [data, setData] = useState<Progress>();
++  const [failed, setFailed] = useState(false);
++  const [loading, setLoading] = useState(true);
++  const [reload, setReload] = useState(0);
++  useEffect(() => {
++    const controller = new AbortController();
++    setLoading(true);
++    requestJson<Progress>(apiUrl(`/api/heart/learning/chapter-progress?chapter=${chapter}`), {
++      signal: controller.signal, cache: "no-store",
++    }).then(value => { if (!controller.signal.aborted) { setData(value); setFailed(false); } })
++      .catch(() => { if (!controller.signal.aborted) setFailed(true); })
++      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
++    return () => controller.abort();
++  }, [chapter, reload]);
++  return (
++    <section aria-labelledby="chapter-progress" className="my-5 rounded-xl border border-border p-4">
++      <div className="flex flex-wrap items-center justify-between gap-2">
++        <h2 id="chapter-progress" className="font-semibold">本章学习状态</h2>
++        <button type="button" disabled={loading} className="rounded-md border border-border px-3 py-1 text-sm disabled:opacity-50"
++          onClick={() => setReload(value => value + 1)}>刷新学习状态</button>
++      </div>
++      <p className="mt-2 text-sm text-muted-foreground">按教材知识点显示最近同步的学习记录。确认图谱实体对应关系后，才会在节点上显示个人状态。</p>
++      {loading && <p role="status" className="mt-3 text-sm">正在读取学习状态…</p>}
++      {failed && <p role="alert" className="mt-3 text-sm">学习状态读取失败{data ? "，下方记录可能已过时" : "，请刷新重试"}。</p>}
++      {data && !data.catalog_available && <p className="mt-3 text-sm">知识点目录暂不可用。</p>}
++      {data?.catalog_available && data.points.length === 0 && <p className="mt-3 text-sm">本章暂无已确认知识点。</p>}
++      <ul className="mt-3 divide-y divide-border text-sm">
++        {data?.points.map(point => <li key={point.id} className="space-y-1 py-3">
++          <p className="font-medium">{point.name}</p>
++          {point.sync_pending && <p>有评估结果待同步</p>}
++          {point.sync_blocked && <p>有评估结果同步受阻</p>}
++          {point.snapshot ? <>
++            <p>{point.snapshot.assessed_mastered ? "最近同步时已达到掌握要求" : point.snapshot.learning_stage === "practiced_with_help" ? "最近同步时有辅助练习记录" : "最近同步时尚未达到掌握要求"}</p>
++            {point.snapshot.next_review_at && <p>记录中的复习时间：<time dateTime={point.snapshot.next_review_at}>{new Date(point.snapshot.next_review_at).toLocaleString("zh-CN")}</time></p>}
++            <p className="text-muted-foreground">同步于 <time dateTime={point.snapshot.synced_at}>{new Date(point.snapshot.synced_at).toLocaleString("zh-CN")}</time></p>
++          </> : <p className="text-muted-foreground">暂无已同步的学习状态</p>}
++          {point.practice_review && <p>
++            最近同步的题库复习：{point.practice_review.self_report ? "学生自评" : point.practice_review.correct === true ? "答对" : point.practice_review.correct === false ? "答错" : "未判分"}{point.practice_review.assistance_status === "assisted" ? "（已查看答案）" : ""}。题库下次复习：<time dateTime={point.practice_review.next_review_at}>{new Date(point.practice_review.next_review_at).toLocaleString("zh-CN")}</time>
++          </p>}
++        </li>)}
++      </ul>
++    </section>
++  );
++}
+diff --git a/project/vendor/DeepTutor/web/tests/practice-workflow.spec.tsx b/project/vendor/DeepTutor/web/tests/practice-workflow.spec.tsx
+index 8c8d146..f14f547 100644
+--- a/project/vendor/DeepTutor/web/tests/practice-workflow.spec.tsx
++++ b/project/vendor/DeepTutor/web/tests/practice-workflow.spec.tsx
+@@ -45,13 +45,13 @@ beforeEach(() => {
+       updated_at: 100,
+       question: "Which ocean?",
+       options: { A: "Pacific", B: "Atlantic" },
+-      correct_answer: "B",
+-      explanation: "Reference explanation",
++      correct_answer: "",
++      explanation: "",
+       question_type: "single_choice",
+     },
+     state: { version: 2, review_count: 1, is_mistake: true, due_at: 100 },
+   });
+-  vi.mocked(api.checkPracticeAnswer).mockResolvedValue({ correct: true });
++  vi.mocked(api.checkPracticeAnswer).mockResolvedValue({ correct: true, correct_answer: "B", explanation: "Reference explanation" });
+   vi.mocked(api.savePracticeReview).mockResolvedValue({
+     due_at: 200000,
+     is_mistake: true,
+@@ -74,10 +74,10 @@ it("hides reference answers, waits for the server, and only counts saved reviews
+   fireEvent.click(screen.getByRole("radio", { name: "B Atlantic" }));
+   fireEvent.click(screen.getByRole("button", { name: "Check and reveal answer" }));
+   await screen.findByText("Reference explanation");
+-  expect(api.checkPracticeAnswer).toHaveBeenCalledWith(8, "B", undefined);
+-  fireEvent.click(screen.getByRole("button", { name: "Mastered · Next question" }));
++  expect(api.checkPracticeAnswer).toHaveBeenCalledWith(8, "B", undefined, 2);
++  fireEvent.click(screen.getByRole("button", { name: "Next question" }));
+   expect(screen.queryByText("Practice complete")).not.toBeInTheDocument();
+-  expect(screen.getByRole("button", { name: "Mastered · Next question" })).toBeDisabled();
++  expect(screen.getByRole("button", { name: "Next question" })).toBeDisabled();
+   await act(async () =>
+     finish({ due_at: 200000, is_mistake: true, correct: true, rating: "good" }),
+   );
+@@ -94,10 +94,10 @@ it("keeps a failed save retryable with the same submission ID", async () => {
+   render(<PracticeSession ids={[8]} onClose={vi.fn()} />);
+   fireEvent.click(await screen.findByRole("radio", { name: "B Atlantic" }));
+   fireEvent.click(screen.getByRole("button", { name: "Check and reveal answer" }));
+-  fireEvent.click(await screen.findByRole("button", { name: "Mastered · Next question" }));
++  fireEvent.click(await screen.findByRole("button", { name: "Next question" }));
+   await screen.findByText("Network interrupted");
+   expect(screen.queryByText("Practice complete")).not.toBeInTheDocument();
+-  fireEvent.click(screen.getByRole("button", { name: "Mastered · Next question" }));
++  fireEvent.click(screen.getByRole("button", { name: "Next question" }));
+   await screen.findByText("Practice complete");
+   expect(vi.mocked(api.savePracticeReview).mock.calls[0]).toEqual(
+     vi.mocked(api.savePracticeReview).mock.calls[1],
+@@ -105,12 +105,12 @@ it("keeps a failed save retryable with the same submission ID", async () => {
+ });
+ 
+ it("does not allow a success rating when the server marked the answer wrong", async () => {
+-  vi.mocked(api.checkPracticeAnswer).mockResolvedValue({ correct: false });
++  vi.mocked(api.checkPracticeAnswer).mockResolvedValue({ correct: false, correct_answer: "B", explanation: "Reference explanation" });
+   render(<PracticeSession ids={[8]} onClose={vi.fn()} />);
+   fireEvent.click(await screen.findByRole("radio", { name: "A Pacific" }));
+   fireEvent.click(screen.getByRole("button", { name: "Check and reveal answer" }));
+   await screen.findByText("Needs another try");
+-  expect(screen.queryByRole("button", { name: "Mastered · Next question" })).not.toBeInTheDocument();
++  expect(screen.queryByRole("button", { name: "Next question" })).not.toBeInTheDocument();
+   expect(screen.getByRole("button", { name: "Practice again" })).not.toBeDisabled();
+ });
+ 
+@@ -121,14 +121,14 @@ it("requires reloading a stale question instead of retrying its old version", as
+   render(<PracticeSession ids={[8]} onClose={vi.fn()} />);
+   fireEvent.click(await screen.findByRole("radio", { name: "B Atlantic" }));
+   fireEvent.click(screen.getByRole("button", { name: "Check and reveal answer" }));
+-  fireEvent.click(await screen.findByRole("button", { name: "Mastered · Next question" }));
++  fireEvent.click(await screen.findByRole("button", { name: "Next question" }));
+   fireEvent.click(await screen.findByRole("button", { name: "Reload question" }));
+   await waitFor(() => expect(api.getPracticeQuestion).toHaveBeenCalledTimes(2));
+   expect(screen.queryByText("Reference explanation")).not.toBeInTheDocument();
+ });
+ 
+ it("keeps forgotten questions in the round and removes only mastered questions", async () => {
+-  vi.mocked(api.checkPracticeAnswer).mockResolvedValueOnce({ correct: false });
++  vi.mocked(api.checkPracticeAnswer).mockResolvedValueOnce({ correct: false, correct_answer: "B", explanation: "Reference explanation" });
+   vi.mocked(api.savePracticeReview).mockResolvedValueOnce({ due_at: 200, is_mistake: true, correct: false, rating: "again" });
+   render(<PracticeSession questions={[{ id: 8, content_workspace_id: "source-a" }]} onClose={vi.fn()} />);
+   fireEvent.click(await screen.findByRole("radio", { name: "A Pacific" }));

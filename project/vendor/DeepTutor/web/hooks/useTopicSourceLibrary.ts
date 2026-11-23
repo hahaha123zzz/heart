@@ -1,6 +1,7 @@
 'use client'
 
 import type { LearningOrigin } from '@/lib/learning-library'
+import { fetchAuthStatus } from '@/lib/auth'
 import { apiFetch, apiUrl } from '@/lib/api'
 import { scopedUrl } from '@/lib/workspace-scope'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -54,6 +55,7 @@ export interface SourceCandidate extends LearningOrigin {
 }
 
 export interface SourceLibrary {
+  restricted?: boolean;
   books: SourceCandidate[]
   notebooks: SourceCandidate[]
   knowledgeBases: SourceCandidate[]
@@ -101,18 +103,23 @@ export function useTopicSourceLibrary(tr: Translate) {
   useEffect(() => {
     let disposed = false
     const kinds = ['books', 'notebooks', 'knowledge', 'chats', 'practice', 'drafts'] as const
-    Promise.all([
+    fetchAuthStatus().catch(() => null).then(status => {
+      const restricted = !status || Boolean(status.learning_policy)
+      return Promise.all([
       Promise.allSettled(
         kinds.map(kind =>
-          sourceRequest<{ items: Record<string, unknown>[]; unavailable_workspaces: string[] }>(
+          restricted && !['notebooks', 'chats', 'practice'].includes(kind)
+            ? Promise.resolve({ items: [], unavailable_workspaces: [] })
+            : sourceRequest<{ items: Record<string, unknown>[]; unavailable_workspaces: string[] }>(
             `/api/dashboard/source-library/${kind}`,
             ''
           )
         )
       ),
-      listPartners().catch(() => []),
-      listPartnerGroups().catch(() => []),
-    ]).then(([results, partners, groups]) => {
+      restricted ? Promise.resolve([]) : listPartners().catch(() => []),
+      restricted ? Promise.resolve([]) : listPartnerGroups().catch(() => []),
+    ]).then(([results, partners, groups]) => ({ results, partners, groups, restricted }))
+    }).then(({ results, partners, groups, restricted }) => {
       if (disposed) return
       const failures: string[] = []
       const rows = (index: number) => {
@@ -141,6 +148,7 @@ export function useTopicSourceLibrary(tr: Translate) {
         available: row.available !== false && !row.unreadable,
       })
       setLibrary({
+        restricted,
         books: rows(0).map(row => candidate(row, 'book', row.id, row.title)),
         notebooks: rows(1).map(row => candidate(row, 'notebook', row.id, row.name)),
         knowledgeBases: rows(2)

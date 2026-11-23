@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VENDOR = ROOT.parents[1] / "vendor/DeepTutor"
 LOCK_NAME = f"requirements-deeptutor-{sys.platform}-py{sys.version_info[0]}{sys.version_info[1]}.lock.txt"
 # 教材检索在 worker 内按词法索引运行；向量模型留在宿主 GPU 环境，避免 CPU 推理拖慢回合。
-EXTRA: list[str] = []
+EXTRA = ["SQLAlchemy>=2.0.0", "psycopg[binary]>=3.3,<4", "cryptography"]
 
 
 def main():

@@ -20,6 +20,7 @@ class NativeReadingScopeTests(unittest.TestCase):
             connection=connect(*args,**kwargs);self.connections.append(connection);return connection
         self.connect_patch=patch('sqlite3.connect',side_effect=tracked);self.connect_patch.start()
         self.original_catalog=ReadingCatalogStore
+        self.original_store=ReadingStore
         self.catalog=patch('deeptutor.reading.ReadingCatalogStore',side_effect=lambda:ReadingCatalogStore(self.root/self.owner))
         self.store=patch('deeptutor.reading.ReadingStore',side_effect=lambda:ReadingStore(self.root/self.owner))
         self.original_documents=course_reading._course_documents
@@ -70,3 +71,19 @@ class NativeReadingScopeTests(unittest.TestCase):
         with patch('knowledge.course_config.PSYCHOLOGY_DIR',self.root),              patch('knowledge.pdf_reader.documents',return_value=[{'document_id':'doc','chapter_id':1,'version':'0'*64}]),              patch('knowledge.pdf_reader.pdf_path',return_value=self.pdf):
             with self.assertRaisesRegex(ValueError,'版本不一致'):
                 self.original_documents()
+
+    def test_document_identity_reaches_native_detail_and_rejects_wrong_bytes(self):
+        from deeptutor.reading import ReadingStore
+        from deeptutor.reading.models import ReadingError, MaterialManifest
+        result=course_reading.ensure_course_reading()
+        material=result['materials'][0]
+        store=self.original_store(self.root/'A')
+        manifest=store.manifest(material['material_id'])
+        self.assertEqual(manifest.document_id,'doc')
+        self.assertEqual(manifest.version,material['version'])
+        bound=store.bind_document(manifest.material_id,'doc',manifest.version,{'1':7})
+        self.assertEqual(MaterialManifest.from_dict(bound.to_dict()).page_map,{'1':7})
+        with self.assertRaises(ReadingError):
+            store.bind_document(manifest.material_id,'doc',manifest.version[:16]+'0'*48,{})
+        with self.assertRaises(ReadingError):
+            store.bind_document(manifest.material_id,'doc',manifest.version,{'2':1})

@@ -44,6 +44,73 @@ class Student(Base):
     expires_at: Mapped[Optional[dt.datetime]] = mapped_column(DateTime, nullable=True)
 
 
+class StudentModelCredential(Base):
+    """个人模型凭据仅保存密文，username 与学生主键一致。"""
+
+    __tablename__ = "student_model_credentials"
+    student_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    base_url: Mapped[str] = mapped_column(String(2048))
+    model: Mapped[str] = mapped_column(String(128))
+    ciphertext: Mapped[str] = mapped_column(Text)
+    tail: Mapped[str] = mapped_column(String(4))
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class StudentModelCheck(Base):
+    """按个人配置版本记录显式能力检查与运行时暂停原因，不保存 Key。"""
+    __tablename__ = "student_model_checks"
+    __table_args__ = (UniqueConstraint("student_id", "request_id"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    student_id: Mapped[str] = mapped_column(String(64), index=True)
+    vendor_user_id: Mapped[str] = mapped_column(String(128))
+    request_id: Mapped[str] = mapped_column(String(36))
+    credential_version: Mapped[str] = mapped_column(String(64), index=True)
+    capability: Mapped[str] = mapped_column(String(16))
+    status: Mapped[str] = mapped_column(String(16))
+    error_code: Mapped[str] = mapped_column(String(64), default="")
+    lease_until: Mapped[Optional[dt.datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
+class StudentMemorySetting(Base):
+    """学生长期记忆开关与厂家身份绑定；与评估开关分开保存。"""
+    __tablename__ = "student_memory_settings"
+    student_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    vendor_user_id: Mapped[str] = mapped_column(String(128))
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    revision: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class AssessmentQueueSetting(Base):
+    __tablename__ = "assessment_queue_settings"
+    student_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    revision: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class AssessmentJobRow(Base):
+    """后台评估任务只留输入与配置版本，不复制 Key。"""
+    __tablename__ = "assessment_jobs"
+    __table_args__ = (UniqueConstraint("student_id", "source_id"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(64), index=True)
+    vendor_user_id: Mapped[str] = mapped_column(String(128))
+    source_id: Mapped[str] = mapped_column(String(200))
+    input: Mapped[dict] = mapped_column(JSON)
+    input_hash: Mapped[str] = mapped_column(String(64))
+    rule_version: Mapped[str] = mapped_column(String(128))
+    status: Mapped[str] = mapped_column(String(24), index=True)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    ready_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+    lease_token: Mapped[str] = mapped_column(String(36), default="")
+    lease_until: Mapped[Optional[dt.datetime]] = mapped_column(DateTime, nullable=True)
+    credential_version: Mapped[str] = mapped_column(String(64), default="")
+    used_model: Mapped[str] = mapped_column(String(128), default="")
+    result: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    last_error: Mapped[str] = mapped_column(String(64), default="")
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=_now)
+
+
 class TestBuildStateRow(Base):
     """Fingerprint for clearing only test accounts after a code update."""
 

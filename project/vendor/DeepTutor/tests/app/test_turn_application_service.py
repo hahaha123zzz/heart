@@ -324,3 +324,25 @@ async def test_second_worker_cancel_is_consumed_by_owner_worker(tmp_path) -> Non
         fencing_token=lease.fencing_token,
     )
     await coordinator.release_turn(lease)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("selection", [None, [], ["selected-book"]])
+async def test_course_knowledge_selection_survives_two_application_turns(submission_service, selection):
+    from deeptutor.services.courses import CourseService
+
+    service, store, _coordinator, _registry, _calls = submission_service
+    courses = CourseService()
+    course = courses.create(name="教材继承回归")
+    courses.attach_resource(course.id, kind="knowledge_base", ref_id="course-book")
+    session = await store.ensure_session("course-inheritance")
+    expected = ["course-book"] if selection is None else selection
+    for index in range(2):
+        payload = {"content": "解释自变量", "session_id": session["id"], "course_id": course.id}
+        if index == 0 and selection is not None:
+            payload["knowledge_bases"] = selection
+        _, turn = await service.start_turn(payload)
+        [event async for event in service.subscribe_turn(turn["id"])]
+        saved = await store.get_session(session["id"])
+        assert saved["preferences"]["knowledge_bases"] == expected
+        assert saved["preferences"]["workspace_dependencies"]["knowledge_bases"] == expected

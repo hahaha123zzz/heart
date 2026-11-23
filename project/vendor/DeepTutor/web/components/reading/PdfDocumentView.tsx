@@ -21,7 +21,7 @@ import { domRangeForQuote } from "@/lib/reading-quote-locator";
 import {
   cleanQuote,
   selectionTextWithoutLineNumbers,
-  locatorOfSelection,
+  pdfSelectionPages,
   normaliseRects,
 } from "@/lib/reading-selection";
 import { PdfPage } from "./PdfPage";
@@ -32,6 +32,7 @@ const RENDER_MARGIN = 1;
 const PAGE_GAP = 16;
 
 export interface SelectionPayload {
+  pages?: Array<{ locator: number; quote: string; rects: NormalisedRect[] }>;
   locator: number;
   quote: string;
   /**
@@ -426,36 +427,14 @@ export function PdfDocumentView({
       return;
     }
 
-    // Attribute the selection to the page it started on, and measure against
-    // that page's box so the rects are in its own normalised space.
-    const startElement =
-      range.startContainer.nodeType === Node.ELEMENT_NODE
-        ? (range.startContainer as HTMLElement)
-        : range.startContainer.parentElement;
-    const page = startElement?.closest<HTMLElement>("[data-reader-unit]");
-    const locator = locatorOfSelection([
-      Number(page?.dataset.readerUnit ?? "0") || null,
-    ]);
-    if (!page || !locator) {
-      onSelection(null);
-      return;
-    }
-
-    const box = page.getBoundingClientRect();
+    const pages = pdfSelectionPages(range, root);
+    if (!pages.length) { onSelection(null); return; }
+    const { locator, rects } = pages[0];
     const clientRects = [...range.getClientRects()];
-    const rects = normaliseRects(clientRects, {
-      left: box.left,
-      top: box.top,
-      width: box.width,
-      height: box.height,
-    });
-    if (!rects.length) {
-      onSelection(null);
-      return;
-    }
     const last = clientRects[clientRects.length - 1];
     const text = selectionTextWithoutLineNumbers(range);
     onSelection({
+      pages,
       locator,
       quote,
       ...(text ? { text } : {}),
@@ -482,6 +461,9 @@ export function PdfDocumentView({
   return (
     <div
       ref={scrollRef}
+      tabIndex={0}
+      role="region"
+      aria-label={t("教材阅读区")}
       onMouseUp={handlePointerUp}
       // The desk the pages lie on. This was `bg-[var(--muted)]/40`, which
       // compiles to nothing here — a var() colour has no channels for the

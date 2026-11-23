@@ -123,3 +123,15 @@ class CourseSourceReadTests(unittest.IsolatedAsyncioTestCase):
         other=UnifiedContext()
         rejected=await ReadSourceTool().execute(source_id=source_id,source_index=other.metadata.get('source_index'))
         self.assertFalse(rejected.success)
+
+
+class NativeLearningCourseScopeTests(unittest.TestCase):
+    def test_native_account_requires_both_reading_surface_and_assigned_material(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from integrations.deeptutor.tool_policy import learning_course_scope
+        with patch('deeptutor.multi_user.context.get_current_user_or_none',return_value=SimpleNamespace(is_admin=False)), patch('deeptutor.multi_user.learning_access.current_learning_policy',return_value={'allowed_surfaces':['chat','reading'],'reading':{'material_ids':['assigned']}}):
+            self.assertTrue(learning_course_scope())
+        for policy in [None,{'allowed_surfaces':['chat'],'reading':{'material_ids':['assigned']}},{'allowed_surfaces':['reading'],'reading':{'material_ids':[]}}]:
+            with patch('deeptutor.multi_user.context.get_current_user_or_none',return_value=SimpleNamespace(is_admin=False)),patch('deeptutor.multi_user.learning_access.current_learning_policy',return_value=policy):
+                self.assertFalse(learning_course_scope())

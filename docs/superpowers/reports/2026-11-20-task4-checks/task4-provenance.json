@@ -1,0 +1,129 @@
+{
+  "baseline_files": 3764,
+  "local_changes": 134,
+  "local_deletions": 101,
+  "task4": [
+    {
+      "path": "deeptutor/api/routers/reading.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/capabilities/reading/capability.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/capabilities/reading/prompts/en/reading.yaml",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/capabilities/reading/prompts/zh/reading.yaml",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/core/turn_request.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/reading/models.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/reading/store.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/services/session/_turn_runtime_shared.py",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/common/AssistantResponse.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/reading/PdfDocumentView.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/reading/ReaderPane.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/reading/workspace/ReadingComposer.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/reading/workspace/ReadingWorkspace.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/contracts/generated/api.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/contracts/generated/turn-protocol.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/contracts/schema/openapi.json",
+      "action": "modify"
+    },
+    {
+      "path": "web/contracts/schema/turn-protocol.json",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/reading-age-presentation.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/reading-api.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/reading-citations.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/reading-selection.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/reading-turn-state.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/package-lock.json",
+      "action": "modify"
+    },
+    {
+      "path": "web/package.json",
+      "action": "modify"
+    },
+    {
+      "path": "web/scripts/generate-contracts.mjs",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/pdf-cross-page-selection.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/reading-citations.test.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/reading-composer-resources.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/reading-learning-mode.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/reading-turn-state.test.ts",
+      "action": "modify"
+    }
+  ],
+  "hash_errors": [],
+  "reverse_patch_check": true
+}

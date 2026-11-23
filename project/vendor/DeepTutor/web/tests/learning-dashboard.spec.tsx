@@ -1,7 +1,14 @@
 import React from 'react'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
+import { fetchAuthStatus } from '@/lib/auth'
+import { learningLibrary } from '@/lib/learning-library'
 import { LearningDashboard } from '@/components/learning/LearningDashboard'
+
+vi.mock('@/lib/learning-library', () => ({ learningLibrary: vi.fn() }))
+vi.mock('@/lib/auth', () => ({ fetchAuthStatus: vi.fn(async () => null) }))
+vi.mock('@/hooks/useAuthStatus', () => ({ useAuthStatus: () => ({ loading: false, learningPolicy: null }) }))
+vi.mock('@/features/heart/StudentAssessments', () => ({ StudentAssessments: () => null }))
 
 const mock = vi.hoisted(() => ({
   books: vi.fn(),
@@ -175,4 +182,15 @@ it.each([
   fireEvent.click(await screen.findByRole('button', { name: new RegExp(label) }))
   expect(screen.queryByRole('button', { name: 'Workspace' })).toBeNull()
   expect(screen.getByRole('link', { name: 'Start' })).toHaveAttribute('href', route)
+})
+
+it('student overview uses cross-workspace libraries and retains origin links', async () => {
+  vi.mocked(fetchAuthStatus).mockResolvedValueOnce({ learning_policy: {} } as never)
+  vi.mocked(learningLibrary).mockImplementation(async kind => ({ items: kind === 'reading' ? [{ workspace_id: 'read', title: 'Course text', content_workspace_id: 'course' }] : [], unavailable_workspaces: [] }) as never)
+  render(<LearningDashboard />)
+  const link = await screen.findByRole('link', { name: /Course text/ })
+  expect(link.getAttribute('href')).toContain('dt_workspace=course')
+  expect(learningLibrary).toHaveBeenCalledWith('mastery')
+  expect(learningLibrary).toHaveBeenCalledWith('reading')
+  expect(screen.queryByText('0%')).toBeNull()
 })

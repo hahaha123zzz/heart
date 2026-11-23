@@ -57,6 +57,9 @@ export interface MaterialInfo {
   source_type?: string;
   source_url?: string;
   revision?: number;
+  document_id?: string;
+  version?: string;
+  page_map?: Record<string, number>;
   annotation_count: number;
 }
 

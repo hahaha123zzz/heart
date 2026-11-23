@@ -57,11 +57,11 @@ async def get_attachment(
         # guards against an unexpected configuration.
         raise HTTPException(status_code=501, detail="Attachment backend not servable")
 
-    target = store.resolve_path(
-        session_id=session_id,
-        attachment_id=attachment_id,
-        filename=filename,
-    )
+    from deeptutor.services.storage.attachment_store import AttachmentExpiredError
+    try:
+        target = store.resolve_path(session_id=session_id,attachment_id=attachment_id,filename=filename)
+    except AttachmentExpiredError:
+        raise HTTPException(410,"原图已过期或已删除，必要的文字证据仍保留。") from None
     if target is None:
         raise HTTPException(status_code=404, detail="Attachment not found")
 

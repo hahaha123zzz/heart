@@ -88,7 +88,8 @@ async def memory_lifespan(app):
         worker.start()
     app.state.memory_worker=worker
     mem0_worker=None
-    if os.getenv("MEM0_ENABLED","0")=="1":
+    # 原生模式由学生 worker 仅索引 student_memory，避免旧来源和第二个索引器。
+    if not native_enabled() and os.getenv("MEM0_ENABLED","0")=="1":
         from memory.mem0_indexer import Mem0Indexer
         from memory.mem0_store import Mem0Store
         mem0_worker=Mem0Indexer(app.state.memory.repo,Mem0Store(enabled=True))

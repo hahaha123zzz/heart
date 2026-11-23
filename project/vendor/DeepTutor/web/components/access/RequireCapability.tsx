@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -18,6 +19,7 @@ export function LockedFeatureNotice({
   capability: Capability;
 }) {
   const { t } = useTranslation();
+  const { isLearningAccount } = useCapabilityAccess();
   const modelLabel = t(CAPABILITY_LABEL[capability]);
 
   return (
@@ -29,12 +31,18 @@ export function LockedFeatureNotice({
         <h2 className="text-base font-semibold text-[var(--foreground)]">
           {t("Feature locked")}
         </h2>
-        <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
-          {t(
-            "Your account doesn't have {{model}} assigned yet. Please contact your administrator to get access.",
-            { model: modelLabel },
-          )}
-        </p>
+        {isLearningAccount ? (
+          <Link href="/settings/model" className="text-sm text-primary underline">
+            配置个人模型后开始辅导
+          </Link>
+        ) : (
+          <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
+            {t(
+              "Your account doesn't have {{model}} assigned yet. Please contact your administrator to get access.",
+              { model: modelLabel },
+            )}
+          </p>
+        )}
       </div>
     </div>
   );

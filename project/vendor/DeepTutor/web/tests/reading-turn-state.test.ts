@@ -103,6 +103,7 @@ test("closing the document clears its viewport too", () => {
 
   assert.deepEqual(readingTurnFields(READING_WORKSPACE_MODE), {});
   assert.deepEqual(getReadingTurnState(), {
+    selectionPages: [],
     workspaceId: null,
     materialId: null,
     materialRevision: null,
@@ -124,6 +125,7 @@ test("carries the private workspace and clears it independently", () => {
   setReadingWorkspace(null);
   assert.deepEqual(readingTurnFields(READING_WORKSPACE_MODE), {});
   assert.deepEqual(getReadingTurnState(), {
+    selectionPages: [],
     workspaceId: null,
     materialId: null,
     materialRevision: null,
@@ -167,4 +169,14 @@ test("carries precise media time, including the beginning", () => {
     readingTurnFields(READING_WORKSPACE_MODE).reading_viewport?.time_seconds,
     0,
   );
+});
+
+
+test("material changes invalidate text and per-page regions, including a revision change", () => {
+  setReadingMaterial("abcdef1234567890", 1);
+  setReadingViewport({ locator: 1, selection: "第一行 第二页", selectionPages: [{ locator: 1, quote: "第一行", rects: [[0.1, 0.2, 0.5, 0.3]] }, { locator: 2, quote: "第二页", rects: [[0.1, 0.1, 0.4, 0.2]] }] });
+  assert.equal(readingTurnFields(READING_WORKSPACE_MODE).reading_viewport?.selection_pages?.length, 2);
+  setReadingMaterial("abcdef1234567890", 2);
+  assert.equal(getReadingTurnState().selection, "");
+  assert.deepEqual(getReadingTurnState().selectionPages, []);
 });

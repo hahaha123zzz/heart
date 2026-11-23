@@ -1,0 +1,1 @@
+{"real_mem0": true, "storage": "temporary PostgreSQL pgvector", "embedding": "cached local ONNX CPU", "index_write": true, "search": true, "owner_isolation": true, "delete_before_index_catches_up": true, "index_delete": true}

@@ -64,6 +64,10 @@ class NativeScopeRequest(BaseModel):
     session_id: Annotated[str, Field(min_length=1, max_length=64)]
 
 
+class NativeSessionLookup(NativeScopeRequest):
+    native_session_id: Identifier
+
+
 class MemoryOperation(BaseModel):
     model_config = ConfigDict(extra='forbid')
     action: Literal['overview', 'read', 'write', 'delete_entry'] = 'overview'
@@ -90,6 +94,23 @@ class NativeTurnKey(BaseModel):
 class NativeTaskCheck(NativeTurnKey):
     memory_epoch: int = Field(ge=0)
     material_versions: dict[Identifier, Identifier] = Field(max_length=32)
+
+
+class CourseSearchRequest(NativeTaskCheck):
+    """宿主受控课程查询；只接受任务身份与检索参数，禁止路径/KB标识。"""
+    model_config = ConfigDict(extra="forbid")
+    query: str = Field(min_length=1, max_length=4000)
+    mode: Literal["naive", "local", "global", "hybrid", "mix"] = "hybrid"
+    limit: StrictInt = Field(default=6, ge=1, le=12)
+    chapter_id: StrictInt | None = Field(default=None, ge=1, le=11)
+    section_id: StrictInt | None = Field(default=None, ge=1, le=64)
+
+    @field_validator("query")
+    @classmethod
+    def nonblank(cls, value):
+        if not value.strip():
+            raise ValueError("检索问题不能为空")
+        return value
 
 
 class NativeTurnStart(NativeTaskCheck, NativeTurnOptions):

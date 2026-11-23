@@ -1,0 +1,11 @@
+{
+  "worker_home_verified": true,
+  "three_postgres_dumps_restored": true,
+  "private_encryption_key_backed_up_and_reloaded": true,
+  "same_auth_identity": true,
+  "model_decryption": true,
+  "textbook_pdf_unchanged": true,
+  "restored_turn_continued": true,
+  "source_post_checkpoint_records_preserved": true,
+  "temporary_databases_only": true
+}

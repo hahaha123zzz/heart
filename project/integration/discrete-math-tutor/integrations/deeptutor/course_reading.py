@@ -7,26 +7,43 @@ from __future__ import annotations
 
 from threading import Lock
 from hashlib import file_digest
+import json
+from pathlib import Path
 
 _LOCK = Lock()
 
 
-def _course_documents():
+def _course_documents(asset_root: Path | None = None):
     from knowledge.course_config import COURSE_ID, COURSE_TITLE, PSYCHOLOGY_DIR
-    from knowledge.pdf_reader import documents, pdf_path
 
-    if not PSYCHOLOGY_DIR.is_dir():
+    if asset_root is None and not PSYCHOLOGY_DIR.is_dir():
         raise ValueError(f"教材目录不存在：{PSYCHOLOGY_DIR.name}")
     rows = []
-    for record in documents():
-        path = pdf_path(record)
+    if asset_root is None:
+        from knowledge.pdf_reader import documents, pdf_path
+        records = documents()
+    else:
+        records = json.loads((asset_root / "pdf_manifest.json").read_text(encoding="utf-8"))
+    if asset_root is not None and (COURSE_ID != "experimental-psychology-3" or len(records) != 11
+            or {row.get("chapter_id") for row in records} != set(range(1, 12))
+            or any(row.get("course_id") != COURSE_ID for row in records)):
+        raise ValueError("教材目录不是完整的实验心理学正式教材")
+    for record in records:
+        if asset_root is None:
+            path = pdf_path(record)
+        else:
+            chapter = record["chapter_id"]
+            path = asset_root / "chapters" / f"chapter_{chapter:02d}" / f"chapter_{chapter:02d}.generated.pdf"
+            if not path.resolve().is_relative_to(asset_root.resolve()):
+                raise ValueError("教材文件不在指定目录内")
         if not path.is_file():
             raise ValueError(f"教材 PDF 不存在：{path.name}")
         with path.open('rb') as stream:
             if file_digest(stream, 'sha256').hexdigest() != record['version']:
                 raise ValueError('教材 PDF 与正式版本不一致')
         rows.append({"document_id": record["document_id"], "version": record['version'], "chapter_id": record.get("chapter_id"),
-                     "title": record.get("title") or path.stem, "path": path})
+                     "title": record.get("title") or path.stem, "path": path,
+                     "page_map": record.get("page_map") or {str(p["page"]): p["page"] for p in record.get("pages", [])}})
     if not rows:
         raise ValueError("课程没有可导入的教材 PDF")
     return COURSE_ID, COURSE_TITLE, rows
@@ -34,9 +51,13 @@ def _course_documents():
 
 def ensure_course_reading() -> dict:
     """导入并返回 {course_id, course_title, workspace_id, active_material_id, materials}。"""
+    return import_course_reading(_course_documents())
+
+
+def import_course_reading(prepared: tuple) -> dict:
     from deeptutor.reading import ReadingCatalogStore, ReadingStore
 
-    course_id, course_title, rows = _course_documents()
+    course_id, course_title, rows = prepared
     with _LOCK:
         catalog = ReadingCatalogStore()
         store = ReadingStore()
@@ -44,6 +65,9 @@ def ensure_course_reading() -> dict:
         for row in rows:
             # 原生库按内容哈希幂等，并在当前用户/工作区中读写；同名文件不代表同一版本。
             manifest = store.ingest(row["path"])
+            if manifest.material_id != row["version"][:len(manifest.material_id)]:
+                raise ValueError("教材导入时内容已变化")
+            manifest = store.bind_document(manifest.material_id, row["document_id"], row["version"], row.get("page_map", {}))
             existing = catalog.find_material_by_content(manifest.material_id)
             if existing is None or existing.status != 'ready':
                 existing = catalog.register_manifest(manifest)

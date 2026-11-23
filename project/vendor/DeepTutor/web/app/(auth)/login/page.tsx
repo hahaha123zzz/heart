@@ -1,5 +1,7 @@
 "use client";
 
+import BrandLogo from "@/components/common/BrandLogo";
+
 import { Suspense, useCallback, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
@@ -49,7 +51,7 @@ function LoginPageContent() {
     if (result.ok) {
       router.replace(resolvedNext());
     } else {
-      setError(result.error ?? t("Login failed"));
+      setError(t(result.error ?? "Login failed", { defaultValue: t("Login failed") }));
       setLoading(false);
     }
   }
@@ -58,9 +60,7 @@ function LoginPageContent() {
     <div className="w-full max-w-sm">
       {/* Logo / Title */}
       <div className="text-center mb-8">
-        <h1 className="font-serif text-2xl font-semibold text-[var(--foreground)] tracking-tight">
-          DeepTutor
-        </h1>
+        <h1 className="flex justify-center"><BrandLogo className="h-16 w-[172px]" /></h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           {t("Sign in to your account")}
         </p>
@@ -96,7 +96,7 @@ function LoginPageContent() {
                          placeholder:text-[var(--muted-foreground)]
                          focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent
                          transition-shadow text-sm"
-              placeholder="you@example.com"
+              placeholder={t("Enter your username")}
             />
           </div>
 

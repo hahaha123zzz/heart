@@ -28,10 +28,12 @@ def _rectangles(glyphs):
                  x2=min(1, box[2]+.0005), y2=min(1, box[3]+.0005)) for (page, _), box in lines.items()]
 
 
-def pdf_characters(path):
+def pdf_characters(path, *, page_number=None):
     text, glyphs, pages = [], [], []
     with fitz.open(path) as pdf:
-        for number, page in enumerate(pdf, 1):
+        page_numbers = range(1, len(pdf) + 1) if page_number is None else (page_number,)
+        for number in page_numbers:
+            page = pdf[number - 1]
             matrix=page.rotation_matrix
             width,height=page.rect.width,page.rect.height
             pages.append({'page': number, 'rotation': page.rotation, 'width': width, 'height': height})
@@ -49,6 +51,16 @@ def pdf_characters(path):
                                                rect.x1/width, rect.y1/height])
                     text.append('\n');glyphs.append(None)
     return ''.join(text), glyphs, pages
+
+
+def locate_pdf_page_quote(path, page_number, quote):
+    """只在被引用的 PDF 页内匹配原文，重复匹配时不猜坐标。"""
+    text, glyphs, _ = pdf_characters(path, page_number=page_number)
+    matches = selection_ranges(text, quote)
+    if len(matches) != 1:
+        return []
+    start, end = matches[0]
+    return _rectangles([glyph for glyph in glyphs[start:end] if glyph])
 
 
 def build_index(target, course_dir=PSYCHOLOGY_DIR):

@@ -566,6 +566,9 @@ class ReadingStore:
                 source_type=existing.source_type,
                 source_url=existing.source_url,
                 revision=existing.revision + 1,
+                document_id=existing.document_id,
+                version=existing.version,
+                page_map=existing.page_map,
             )
             _atomic_write(
                 stage_dir / MANIFEST_NAME,
@@ -840,6 +843,25 @@ class ReadingStore:
         if manifest is None:
             raise MaterialNotFound(f"material {material_id!r} not found")
         return manifest
+
+    def bind_document(self, material_id: str, document_id: str, version: str, page_map: dict[str, int]) -> MaterialManifest:
+        """将校验过的教材身份绑定到内容；不改批注和阅读位置。"""
+        if not document_id or not re.fullmatch(r"[0-9a-f]{64}", version):
+            raise ReadingError("Invalid document identity")
+        with self._locked(material_id):
+            manifest = self.manifest(material_id)
+            raw = self.raw_path(material_id)
+            if raw is None or hashlib.sha256(raw.read_bytes()).hexdigest() != version:
+                raise ReadingError("Document version does not match material content")
+            if any(not str(k).isdigit() or not 1 <= int(k) <= manifest.unit_count
+                   or not isinstance(v, int) or isinstance(v, bool) or v < 1 for k, v in page_map.items()):
+                raise ReadingError("Invalid document page map")
+            if manifest.document_id and (manifest.document_id != document_id or manifest.version != version):
+                raise ReadingError("Material already belongs to another document version")
+            bound = dataclass_replace(manifest, document_id=document_id, version=version, page_map=page_map)
+            _atomic_write(self._dir(material_id) / MANIFEST_NAME,
+                          json.dumps(bound.to_dict(), ensure_ascii=False, indent=2))
+            return bound
 
     def exists(self, material_id: str) -> bool:
         try:

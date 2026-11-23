@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { fetchAuthStatus } from "@/lib/auth";
 import { apiFetch, apiUrl } from "@/lib/api";
 import {
   DEFAULT_MAX_ATTACHMENT_BYTES,
@@ -40,9 +41,11 @@ let inflight: Promise<AttachmentLimits> | null = null;
 function loadAttachmentLimits(): Promise<AttachmentLimits> {
   if (cached) return Promise.resolve(cached);
   if (!inflight) {
-    inflight = apiFetch(apiUrl("/api/settings/chat-attachments"))
+    inflight = fetchAuthStatus().then((status) =>
+      status?.learning_policy ? null : apiFetch(apiUrl("/api/settings/chat-attachments")),
+    )
       .then(async (response) => {
-        if (!response.ok) return DEFAULT_ATTACHMENT_LIMITS;
+        if (!response?.ok) return DEFAULT_ATTACHMENT_LIMITS;
         const data = (await response.json().catch(() => null)) as {
           effective?: { max_file_bytes?: number; max_total_bytes?: number };
         } | null;

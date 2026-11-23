@@ -171,7 +171,7 @@ export default function CourseDetailPage() {
 
   const removeSession = useCallback(
     async (sessionId: string) => {
-      if (!window.confirm(t("Permanently delete this chat and its tutor threads? This cannot be undone."))) return;
+      if (!window.confirm(t("Permanently delete this chat and its tutor threads? This cannot be undone.")+"\n\n已形成的评估和必要作答证据会保留；已建评估仍可能继续调用个人模型、产生费用并新增证据。")) return;
       await deleteSession(sessionId);
       await load();
     },

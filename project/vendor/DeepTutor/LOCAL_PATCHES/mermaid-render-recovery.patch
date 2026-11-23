@@ -1,0 +1,62 @@
+--- a/web/components/Mermaid.tsx
++++ b/web/components/Mermaid.tsx
+@@ -78,7 +78,6 @@
+ 
+ export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
+   const { t } = useTranslation();
+-  const containerRef = useRef<HTMLDivElement>(null);
+   const [svg, setSvg] = useState<string>("");
+   const [error, setError] = useState<string | null>(null);
+   const [stable, setStable] = useState(false);
+@@ -109,23 +108,30 @@
+ 
+     let cancelled = false;
+     const renderChart = async () => {
+-      if (!chart.trim() || !containerRef.current) return;
++      if (!chart.trim()) return;
+ 
+-      try {
+-        const mermaid = await loadMermaid();
+-        applyMermaidTheme(mermaid);
+-        cleanupMermaidOrphans(id);
+-        const { svg: renderedSvg } = await mermaid.render(id, chart.trim());
+-        if (!cancelled) {
+-          setSvg(renderedSvg);
+-          setError(null);
+-        }
+-      } catch (err) {
+-        cleanupMermaidOrphans(id);
+-        if (!cancelled) {
++      for (let attempt = 0; attempt < 2 && !cancelled; attempt++) {
++        // 每次尝试独占 ID，避免更新时清理仍在绘制或已显示的 SVG。
++        const renderId = `${id}-${++mermaidIdCounter}`;
++        try {
++          const mermaid = await loadMermaid();
++          if (cancelled) return;
++          applyMermaidTheme(mermaid);
++          const { svg: renderedSvg } = await mermaid.render(renderId, chart.trim());
++          if (!cancelled) {
++            setSvg(renderedSvg);
++            setError(null);
++          }
++          return;
++        } catch (err) {
++          cleanupMermaidOrphans(renderId);
++          if (cancelled) return;
++          // 暂态运行错误使用新容器重试一次；语法错误保留原始诊断。
++          if (attempt === 0 && err instanceof TypeError) continue;
+           setError(
+             err instanceof Error ? err.message : t("Failed to render diagram"),
+           );
++          return;
+         }
+       }
+     };
+@@ -169,7 +175,6 @@
+ 
+   return (
+     <div
+-      ref={containerRef}
+       className={`my-6 flex justify-center overflow-x-auto ${className}`}
+       dangerouslySetInnerHTML={{ __html: svg }}
+     />

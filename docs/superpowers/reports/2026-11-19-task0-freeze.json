@@ -1,0 +1,1279 @@
+{
+  "date": "2026-11-19",
+  "head": "f1d9661872bb657405d86532ec244468acd59d28",
+  "branch": "codex/student-frontend-reuse-20261117",
+  "upstream": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "upstream_file_count": 3764,
+  "registered_changes": 82,
+  "tracked_changes": [
+    {
+      "path": "docs/superpowers/plans/2026-11-13-student-frontend-reuse.md",
+      "sha256": "369e085b983db7a95e7ab562721b8be76f1bb72ef39b7ecdb98fe0612dda2413"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-13-student-frontend-baseline.md",
+      "sha256": "7732ad3d1ceef093bf8e653597ad520a03cd67276388a0b40426ebb08fb718fc"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/.env.example",
+      "sha256": "f182750615db4297d86f2d5b8d2f1e0a62fa6b1461f372026841fa070ab54be5"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/database/memory_index.py",
+      "sha256": "fd5ed1a635451f5824c4320ad8deb675a857299baeac1cb1d939b0e7ca44fb28"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/database/models.py",
+      "sha256": "ae7434c12901f286715308712e213337a5e9d40a28b581431a2f36e217d1a2e7"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/graph_api.py",
+      "sha256": "1e2844bc2e3f30428f43e477a2bd1d3729cc64ee4dbff27b9cb6acddb4098166"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/integrations/deeptutor/course_reading.py",
+      "sha256": "8534e2f526eadabc0f00d2932aa57efe1e8ff5b66ddd5ae62479572729d6d6f7"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/integrations/deeptutor/heart_memory_api.py",
+      "sha256": "a4f4a0a1e4f0697e7b9f4b57a90a9c34a5326b015437f677bce0fa99b7480e0b"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/integrations/deeptutor/heart_model_api.py",
+      "sha256": "cab4733a59edbde46bec1a4a9c9c94d6c5aa7b7da2de0e2b95ce87a55ece89da"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/integrations/deeptutor/learning_binding_adapter.py",
+      "sha256": "888c2793c0f48221216f694a20926d53f08c6d11d55ddc2f0fb8b8a68760afc6"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/integrations/deeptutor/learning_tool_adapter.py",
+      "sha256": "9b256718d5d243e3c8c5b5964e7985f303134c32881fb6852f582df87eeef6d0"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/integrations/deeptutor/native_contract.py",
+      "sha256": "3760bcb534005ceb4affbc1f59cc0dd33080135e711157b03dc3301b4297dde3"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/integrations/deeptutor/worker.py",
+      "sha256": "da3e529a82e7bd32a34bb50257699c05998ed4885d3a7115fc55fc7d3a424b97"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/course_config.py",
+      "sha256": "5be5c3a1436b47278bf0e1d35e41dd80d1ead0c1345a964a9e3fd0e2b40cc293"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/course_navigation.py",
+      "sha256": "8c891eebb655c6f8cf582a1571142ebcd9f2ac1e43eada0dc26dbfc09518c773"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/knowledge/hybrid_retrieval.py",
+      "sha256": "42379343de85142659e8c1d4972efecc0c1b32175860e8b9ac1c9e0a88e6f77e"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/memory/mem0_indexer.py",
+      "sha256": "2b2a0cd8e73096d4db40a9c102d715b36e0e74e5b34a51a42c8b1870f343fceb"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/models/input_understanding.py",
+      "sha256": "a6130e7d26481e48d1ded0bb5b2d675c44513c224ff9d06156f175389e511cc4"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/scripts/setup_deeptutor.py",
+      "sha256": "94ecf5a9015274a54308c940f52c1408a236dcad5061162ba0f7d2fa13f2155a"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/tests/test_course_navigation.py",
+      "sha256": "ec3df3c5f9651d095c504aaacc27a29d232c109ad0c75a97a0621c97eea93e77"
+    },
+    {
+      "path": "project/integration/discrete-math-tutor/tests/test_quality_guard.py",
+      "sha256": "59e742b16ffaa1aa40a72b32e96ceb302e31b21e74179b214b4b082dadfc2162"
+    },
+    {
+      "path": "project/vendor/DeepTutor/UPSTREAM_SNAPSHOT.json",
+      "sha256": "4a0f9fdc90d350fd69105fe9a962468a7acbad46fda1d30bdd0bb86131f39b7d"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/agents/question/pipeline.py",
+      "sha256": "17305acebd3df0033e5d9e5d30fb284cc1a44e2d835f46b6984cda47fea98c28"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/api/routers/practice.py",
+      "sha256": "38fecfb24703e20e7da53377339254950c1c0e08bdd92c6705d32ae219eb18fa"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/api/routers/question_notebook.py",
+      "sha256": "dddb50b1efd0d0d9fb704a1106440eadbab77027aafeb55fc2707d430adad893"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/app/container.py",
+      "sha256": "79c2f017b296dc45e9a724e3b85c341469d837e62180ba252fad09c321312c56"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/app/service.py",
+      "sha256": "7fcf7ade63e1496482cbf739bcebd5ac3f02cd88dd154abebae438658cd291c7"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/capabilities/mastery/tools.py",
+      "sha256": "236dfc8e67726ebb624f8d867f07fb30341f253b8f4daf77420a0399897d4d0c"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/learning/service.py",
+      "sha256": "c96514ff5ba98cedbf9e470611f9beac0f9ccc63bf9e0f45a31088bca4a03fb6"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/learning/storage.py",
+      "sha256": "79a8d55b9670eb68031d0319e04d31cbd3bee46ab90c3afdf53af68131e25408"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/learning/tests/test_assessment.py",
+      "sha256": "60286343c8d565c70f0c10a132631147a37ce4bfde9d692391e3085dfe3fe2ac"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/learning/tests/test_guided_mastery_updates.py",
+      "sha256": "a4f99ed3ed7819f53ddbfd430c0a13cdf01dd9c1a36b00357c59e805aff69a50"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/learning/tests/test_mastery_tools.py",
+      "sha256": "dcae19e65fe5d9365613750306ec1d91a66e1e8a745e5998ad4b11ccbf75bdfa"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/multi_user/model_access.py",
+      "sha256": "e8763a7a5dc54cb48de8877069397e483764ea0aac8c00cb34313946dab797f1"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/multi_user/personal_models.py",
+      "sha256": "933d8f05da06ba01fda0f95400a0e7e27e6943d5bda7f70ba854de1c9f538e4a"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/plugins/registry.py",
+      "sha256": "36eb7a73c540070eafc63f01853614e78a7da7cc1a78742b03594119c8c2e02b"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/runtime/agentic/client.py",
+      "sha256": "e15faf417b2d948bfcd2e2767e047243b6dba48112872b112a03a2cb2e4c8526"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/runtime/coordination/memory.py",
+      "sha256": "03032d8a5ba6ec62aa8964e71976cf927d55fd86c397f9298c4598e9ebec05ed"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/runtime/turn_engine.py",
+      "sha256": "3899946ddcf384760e1afedc55e9cd04fc6d4fb61d8316f158c9b6c43d0aa203"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/config/provider_runtime.py",
+      "sha256": "24a54eefc8b9c3d0c8515c99536ec4deb5fd81d8f31522b3519b742ad50d5f67"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/llm/multimodal.py",
+      "sha256": "ed6a10e70fb96b05e3b06c5b4486764c6745f4f88a8f16366216714487b98b21"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/llm/openai_http_client.py",
+      "sha256": "94acf22bdf5dfa86eca84a0312908635c9e4dad0622aa2807442ceee127712a0"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/llm/provider_core/base.py",
+      "sha256": "67246d61d7624516e7e46af789b59d5b5f0721bc915ed807aac34fc3760a108c"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/llm/provider_core/openai_compat_provider.py",
+      "sha256": "ea7e9f20f59aa7eadd96ea99ddb8fc5fd7b11d9ef3509b6ab5778a699ef5e64e"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/llm/provider_factory.py",
+      "sha256": "f8e07d8ebed1119450f2d4d01d8565890cb7cb5d01cab160fa8d037cbdff5950"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/memory/paths.py",
+      "sha256": "d3d484416db02c55e9daab2ceba6cc6d6cd81683adc7ee38c7dbe34801a5e802"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/memory/store.py",
+      "sha256": "bfc28f787f2ed978c3eec57d055044d159f41fd811dc90f6e3f08ac989c2177b"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/practice/storage.py",
+      "sha256": "b96d64b31a08d03be60100085536d5c5f5fdad5d2d76d7aa32d4c958b582f555"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/session/context_builder.py",
+      "sha256": "e6cabbe5751b3fa3beda283dd5e92cc5bae203a3790d5ae8505d10bbcc9bbd39"
+    },
+    {
+      "path": "project/vendor/DeepTutor/deeptutor/services/session/turns/executor.py",
+      "sha256": "924a606fd38bd78a35355d29babe31ea3d6f1eb2cc955f2138c5ea3397dcec0e"
+    },
+    {
+      "path": "project/vendor/DeepTutor/tests/agents/question/test_pipeline.py",
+      "sha256": "75530176d253d1c6bce9652e680ec7779cc221645692aa53503b23987c68c4cd"
+    },
+    {
+      "path": "project/vendor/DeepTutor/tests/api/test_practice.py",
+      "sha256": "4af4a222d0d3bc69e4d2b1daad638e47a3f7b198da021ae1c2c6e85e1b730833"
+    },
+    {
+      "path": "project/vendor/DeepTutor/tests/api/test_unified_ws_turn_runtime.py",
+      "sha256": "5128842b322c9d0f39a9bb33c6bc37b795944fb7f8c8248c434c5ce9996cd21f"
+    },
+    {
+      "path": "project/vendor/DeepTutor/tests/app/test_turn_application_service.py",
+      "sha256": "62fba013f66ce0ad60c53e78731ee37614b365ea4ef523d7ee38d3b1785443f4"
+    },
+    {
+      "path": "project/vendor/DeepTutor/tests/plugins/test_registry.py",
+      "sha256": "9413c4d3806c7251b20ed52dd96b997ca25265df51f5010094b4b3d592502ec0"
+    },
+    {
+      "path": "project/vendor/DeepTutor/tests/runtime/coordination/test_memory_coordinator.py",
+      "sha256": "21ff8902ab5b36d661be4133845774a17407b35dc1eaa8ae0632bc37289cadeb"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/app/(settings)/settings/layout.tsx",
+      "sha256": "4b1924b5fb1f63ceba9d35688dd4c0f28d2da2d04a6dbe07f27390e48d756ee6"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/app/(settings)/settings/model/page.tsx",
+      "sha256": "4878fb450aada48fdd701c8fb8b7f466ff8065ff752dbd9ca4a2e66361731708"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/Mermaid.tsx",
+      "sha256": "3841bd87eb6ff4b9618a9329ce0f1ddd2c968264b0d2cd6cb110eadab8f2168d"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/access/CapabilityAccessContext.tsx",
+      "sha256": "df0b9b6059ba0b3830e46c708630ab643792c18c81f5a3aeb4a6518dceba1244"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/access/CapabilityGate.tsx",
+      "sha256": "ea0c6c1266a51844e3ceef52153f024ab97e4a69aef57fefbb5e0bc52383abbe"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/access/RequireCapability.tsx",
+      "sha256": "82818c0432d0938dea94a035a71323d38acc235142c461fee47d152869d46e88"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/chat/home/ChatComposer.tsx",
+      "sha256": "b43582776697180ce0b10010de7a45b6da2d603bc81e2ab5537a93c5be3cf182"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/chat/home/StandaloneComposer.tsx",
+      "sha256": "34a15e095743942b37a4ebdedda5388eebb9d7737582f08f3425d8bbb8513e47"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/learning/LearningDashboard.tsx",
+      "sha256": "e399155a6c610b4f3eaa1afee1f43250f3c9443b989b377538b063c6d1b18ed0"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/learning/practice/PracticeSession.tsx",
+      "sha256": "4da5e5271602b741451ff1322a47a41ec6cc8e14faa9ade365ea16234f4f861c"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/sidebar/VersionBadge.tsx",
+      "sha256": "89ce3f3c53d6423021b7269192a9b365e1020fe5c7306d60f63507ef85a80de8"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/sidebar/nav-entries.ts",
+      "sha256": "85fed74976471c43190231094f8a6b1b8fb294a72c0e96efce9786ec69a75819"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/components/visualize/VisualizationViewer.tsx",
+      "sha256": "fd4604218b68dc379aa8afcbd42f27967106dadc70f4103c95411d57755d1dae"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/features/capabilities/useCapabilityCatalog.ts",
+      "sha256": "213e1dcfc89b556575801d9a9878f204f7945200fb63d9b91845f9c545b8edff"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/features/chat/components/ChatWorkspace.tsx",
+      "sha256": "05ddfb22441b7f108fb6bac102844afe6ca7b46552642ed07185b8d6e7525816"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/features/heart/KnowledgeGraph.tsx",
+      "sha256": "df24d994a0a47eaf0f1e9da52464e272180aa71bfb4af6c34022a8c4d3a4cc91"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/features/heart/StudentMemory.tsx",
+      "sha256": "18e101ef2169c228de9be841cd01a72b9b84a7ac0be90d88edc713f45074b106"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/hooks/useVoiceAutoplay.ts",
+      "sha256": "9f4a39af8e809a529348840de16ac55c7fc0d9c169e834c9bc4be208092cc98b"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/hooks/useVoiceMathSpeak.ts",
+      "sha256": "a4990a536ad7b1209776d9bf7884a11f2e6e58c2f9eddf0f0956da190afdf7a6"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/lib/attachment-limits.ts",
+      "sha256": "13c0558e463c14d6d5faa20e1b68ffdbd1c3422022b32d976da47f1cec8de382"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/lib/capability-routes.ts",
+      "sha256": "6e17b8d8dac6cbdbf58439680f7c071125f320fbaedbfe2aa4848fdc95a41b5c"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/lib/practice-api.ts",
+      "sha256": "ee92540b2399f5d8a4cac27b4f150fc5bf863257698faec24a3e18904bbad783"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/lib/subagents-api.ts",
+      "sha256": "dc735c1f98cda617d81ffecb480ac76cf3eefabf8c3ab78a16562de661bc07c2"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/lib/tools-settings.ts",
+      "sha256": "688680f564ab9ac6dd9cb36690687e33c9fc23869e6d4b6a8520eb335584e539"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/lib/workspaces-api.ts",
+      "sha256": "cfd320028bcd5c461b59ddd315eea132652edc6178cee9635ce1fada141139a9"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/tests/capability-access.test.ts",
+      "sha256": "1097065845f0abdf1f2213c1ee26adafb82ce4b458614f8f0dca798596b43c01"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/tests/learning-dashboard.spec.tsx",
+      "sha256": "fdd865845aaba4a0623d5b4bd3cf6f83aace31b02f8defa2cd9862da61b67c2f"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/tests/practice-workflow.spec.tsx",
+      "sha256": "f984f56ac51250d35a2f0e8fe6a1f7b5efd5663ebdad767e6d9dd79b97e2585e"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/tests/sidebar-defaults.spec.tsx",
+      "sha256": "059c23bf36515525a5e4e847589a39411697bee8597c4cf7fdc3efaaa741ce12"
+    },
+    {
+      "path": "project/vendor/DeepTutor/web/tests/sidebar-lazy-history.spec.tsx",
+      "sha256": "5b0645a4539df7299ef926fa68e40026cca9cdb1d7fa7bac525f15af4d74e82a"
+    }
+  ],
+  "status": [
+    "M docs/superpowers/plans/2026-11-13-student-frontend-reuse.md",
+    " M docs/superpowers/reports/2026-11-13-student-frontend-baseline.md",
+    " M project/integration/discrete-math-tutor/.env.example",
+    " M project/integration/discrete-math-tutor/database/memory_index.py",
+    " M project/integration/discrete-math-tutor/database/models.py",
+    " M project/integration/discrete-math-tutor/graph_api.py",
+    " M project/integration/discrete-math-tutor/integrations/deeptutor/course_reading.py",
+    " M project/integration/discrete-math-tutor/integrations/deeptutor/heart_memory_api.py",
+    " M project/integration/discrete-math-tutor/integrations/deeptutor/heart_model_api.py",
+    " M project/integration/discrete-math-tutor/integrations/deeptutor/learning_binding_adapter.py",
+    " M project/integration/discrete-math-tutor/integrations/deeptutor/learning_tool_adapter.py",
+    " M project/integration/discrete-math-tutor/integrations/deeptutor/native_contract.py",
+    " M project/integration/discrete-math-tutor/integrations/deeptutor/worker.py",
+    " M project/integration/discrete-math-tutor/knowledge/course_config.py",
+    " M project/integration/discrete-math-tutor/knowledge/hybrid_retrieval.py",
+    " M project/integration/discrete-math-tutor/memory/mem0_indexer.py",
+    " M project/integration/discrete-math-tutor/scripts/setup_deeptutor.py",
+    " M project/vendor/DeepTutor/UPSTREAM_SNAPSHOT.json",
+    " M project/vendor/DeepTutor/deeptutor/agents/question/pipeline.py",
+    " M project/vendor/DeepTutor/deeptutor/api/routers/practice.py",
+    " M project/vendor/DeepTutor/deeptutor/api/routers/question_notebook.py",
+    " M project/vendor/DeepTutor/deeptutor/app/container.py",
+    " M project/vendor/DeepTutor/deeptutor/app/service.py",
+    " M project/vendor/DeepTutor/deeptutor/capabilities/mastery/tools.py",
+    " M project/vendor/DeepTutor/deeptutor/learning/service.py",
+    " M project/vendor/DeepTutor/deeptutor/learning/storage.py",
+    " M project/vendor/DeepTutor/deeptutor/learning/tests/test_assessment.py",
+    " M project/vendor/DeepTutor/deeptutor/learning/tests/test_guided_mastery_updates.py",
+    " M project/vendor/DeepTutor/deeptutor/learning/tests/test_mastery_tools.py",
+    " M project/vendor/DeepTutor/deeptutor/multi_user/model_access.py",
+    " M project/vendor/DeepTutor/deeptutor/multi_user/personal_models.py",
+    " M project/vendor/DeepTutor/deeptutor/plugins/registry.py",
+    " M project/vendor/DeepTutor/deeptutor/runtime/agentic/client.py",
+    " M project/vendor/DeepTutor/deeptutor/runtime/coordination/memory.py",
+    " M project/vendor/DeepTutor/deeptutor/runtime/turn_engine.py",
+    " M project/vendor/DeepTutor/deeptutor/services/config/provider_runtime.py",
+    " M project/vendor/DeepTutor/deeptutor/services/llm/multimodal.py",
+    " M project/vendor/DeepTutor/deeptutor/services/llm/openai_http_client.py",
+    " M project/vendor/DeepTutor/deeptutor/services/llm/provider_core/base.py",
+    " M project/vendor/DeepTutor/deeptutor/services/llm/provider_core/openai_compat_provider.py",
+    " M project/vendor/DeepTutor/deeptutor/services/llm/provider_factory.py",
+    " M project/vendor/DeepTutor/deeptutor/services/memory/paths.py",
+    " M project/vendor/DeepTutor/deeptutor/services/memory/store.py",
+    " M project/vendor/DeepTutor/deeptutor/services/practice/storage.py",
+    " M project/vendor/DeepTutor/deeptutor/services/session/context_builder.py",
+    " M project/vendor/DeepTutor/deeptutor/services/session/turns/executor.py",
+    " M project/vendor/DeepTutor/tests/agents/question/test_pipeline.py",
+    " M project/vendor/DeepTutor/tests/api/test_practice.py",
+    " M project/vendor/DeepTutor/tests/api/test_unified_ws_turn_runtime.py",
+    " M project/vendor/DeepTutor/tests/app/test_turn_application_service.py",
+    " M project/vendor/DeepTutor/tests/plugins/test_registry.py",
+    " M project/vendor/DeepTutor/tests/runtime/coordination/test_memory_coordinator.py",
+    " M project/vendor/DeepTutor/web/app/(settings)/settings/layout.tsx",
+    " M project/vendor/DeepTutor/web/app/(settings)/settings/model/page.tsx",
+    " M project/vendor/DeepTutor/web/components/Mermaid.tsx",
+    " M project/vendor/DeepTutor/web/components/access/CapabilityAccessContext.tsx",
+    " M project/vendor/DeepTutor/web/components/access/CapabilityGate.tsx",
+    " M project/vendor/DeepTutor/web/components/access/RequireCapability.tsx",
+    " M project/vendor/DeepTutor/web/components/chat/home/ChatComposer.tsx",
+    " M project/vendor/DeepTutor/web/components/chat/home/StandaloneComposer.tsx",
+    " M project/vendor/DeepTutor/web/components/learning/LearningDashboard.tsx",
+    " M project/vendor/DeepTutor/web/components/learning/practice/PracticeSession.tsx",
+    " M project/vendor/DeepTutor/web/components/sidebar/VersionBadge.tsx",
+    " M project/vendor/DeepTutor/web/components/sidebar/nav-entries.ts",
+    " M project/vendor/DeepTutor/web/components/visualize/VisualizationViewer.tsx",
+    " M project/vendor/DeepTutor/web/features/capabilities/useCapabilityCatalog.ts",
+    " M project/vendor/DeepTutor/web/features/chat/components/ChatWorkspace.tsx",
+    " M project/vendor/DeepTutor/web/features/heart/KnowledgeGraph.tsx",
+    " M project/vendor/DeepTutor/web/features/heart/StudentMemory.tsx",
+    " M project/vendor/DeepTutor/web/hooks/useVoiceAutoplay.ts",
+    " M project/vendor/DeepTutor/web/hooks/useVoiceMathSpeak.ts",
+    " M project/vendor/DeepTutor/web/lib/attachment-limits.ts",
+    " M project/vendor/DeepTutor/web/lib/capability-routes.ts",
+    " M project/vendor/DeepTutor/web/lib/practice-api.ts",
+    " M project/vendor/DeepTutor/web/lib/subagents-api.ts",
+    " M project/vendor/DeepTutor/web/lib/tools-settings.ts",
+    " M project/vendor/DeepTutor/web/lib/workspaces-api.ts",
+    " M project/vendor/DeepTutor/web/tests/capability-access.test.ts",
+    " M project/vendor/DeepTutor/web/tests/learning-dashboard.spec.tsx",
+    " M project/vendor/DeepTutor/web/tests/practice-workflow.spec.tsx",
+    " M project/vendor/DeepTutor/web/tests/sidebar-defaults.spec.tsx",
+    " M project/vendor/DeepTutor/web/tests/sidebar-lazy-history.spec.tsx",
+    "?? docs/superpowers/reports/2026-11-17-student-frontend-execution/",
+    "?? docs/superpowers/reports/2026-11-18-approved-kc-catalog.json",
+    "?? docs/superpowers/reports/2026-11-18-kc-catalog-review.md",
+    "?? docs/superpowers/reports/2026-11-18-student-frontend-browser-check.json",
+    "?? docs/superpowers/reports/2026-11-18-student-frontend-execution.md",
+    "?? docs/superpowers/reports/2026-11-18-student-frontend-graph-browser-check.json",
+    "?? docs/superpowers/reports/2026-11-18-student-frontend-practice-browser-check.json",
+    "?? docs/superpowers/reports/2026-11-18-student-frontend-practice-reveal-browser-check.json",
+    "?? docs/superpowers/reports/2026-11-18-student-frontend-reassessment-browser-check.json",
+    "?? docs/superpowers/reports/2026-11-18-student-memory-browser-check.json",
+    "?? docs/superpowers/reports/2026-11-19-student-memory-mem0-browser-check.json",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/assessment_intake.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/assessment_jobs.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/assessment_publication.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/assessment_worker.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/course_search_api.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/learning_projection.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/legacy_migration.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/model_capabilities.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/model_credentials.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/model_http.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/native_learning_view.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/native_learning_write.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/native_practice.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/practice_sync.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/screenshot_intake.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/student_memory.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/vendor_snapshot.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/warmup.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/wsl_sandbox.py",
+    "?? project/integration/discrete-math-tutor/integrations/deeptutor/wsl_sandbox_runner.py",
+    "?? project/integration/discrete-math-tutor/scripts/assign_review_reading.py",
+    "?? project/integration/discrete-math-tutor/scripts/provision_review_accounts.py",
+    "?? project/integration/discrete-math-tutor/tests/test_review_account_provisioning.py",
+    "?? project/integration/discrete-math-tutor/tests/test_screenshot_intake.py",
+    "?? project/integration/discrete-math-tutor/tests/test_student_memory_bridge.py",
+    "?? project/integration/discrete-math-tutor/tests/test_student_model_credentials.py",
+    "?? project/integration/discrete-math-tutor/tests/test_student_model_http.py",
+    "?? project/integration/discrete-math-tutor/tests/test_worker_vendor_snapshot.py",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-assessment-observer.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-assessment-publication.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-assessment-ui.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-chapter-progress.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-chat-reference-assistance.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-chat-teaching-assistance.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-learning-record-access.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-memory-retrieval-and-observations.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-native-qualification.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-navigation-settings.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-notebook-answer-exposure.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-personal-model.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-pg-memory-foundation.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-practice-answer-reveal.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-practice-sync.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-prefetch-access.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-reassessment-qualification.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-reassessment-ui.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-screenshot-input-preparation.patch",
+    "?? project/vendor/DeepTutor/LOCAL_PATCHES/student-verified-image-input.patch",
+    "?? project/vendor/DeepTutor/web/features/heart/ChapterProgress.tsx",
+    "?? project/vendor/DeepTutor/web/features/heart/StudentAssessments.tsx",
+    "?? project/vendor/DeepTutor/web/features/heart/StudentMemorySettings.tsx",
+    "?? project/vendor/DeepTutor/web/features/heart/StudentModelCapabilities.tsx",
+    "?? project/vendor/DeepTutor/web/tests/chapter-progress.spec.tsx",
+    "?? project/vendor/DeepTutor/web/tests/student-assessments.spec.tsx",
+    "?? project/vendor/DeepTutor/web/tests/student-memory.spec.tsx",
+    "?? project/vendor/DeepTutor/web/tests/student-model-capabilities.spec.tsx",
+    "?? project/vendor/DeepTutor/web/tests/student-model-page.spec.tsx",
+    "?? project/vendor/DeepTutor/web/tests/student-settings-layout.spec.tsx"
+  ],
+  "routes": [
+    {
+      "source": "app/(auth)/login/page.tsx",
+      "imports": [
+        "react",
+        "next/navigation",
+        "react-i18next",
+        "@/lib/auth",
+        "@/shared/auth/return-url"
+      ]
+    },
+    {
+      "source": "app/(settings)/settings/[section]/page.tsx",
+      "imports": [
+        "@/components/settings/SettingsPageContent"
+      ]
+    },
+    {
+      "source": "app/(settings)/settings/model/page.tsx",
+      "imports": [
+        "react",
+        "@/features/heart/StudentMemorySettings",
+        "@/features/heart/StudentModelCapabilities",
+        "@/features/heart/StudentAssessments"
+      ]
+    },
+    {
+      "source": "app/(settings)/settings/page.tsx",
+      "imports": [
+        "react",
+        "next/navigation",
+        "@/features/settings/navigation/settings-pages",
+        "@/features/settings/navigation/settings-scroll"
+      ]
+    },
+    {
+      "source": "app/(utility)/avatar-preview/page.tsx",
+      "imports": [
+        "react",
+        "react-i18next",
+        "@/components/sidebar/SessionAvatar"
+      ]
+    },
+    {
+      "source": "app/(utility)/courses/[courseId]/page.tsx",
+      "imports": [
+        "@/components/layout/FeaturePage",
+        "react",
+        "next/link",
+        "next/navigation",
+        "lucide-react",
+        "react-i18next",
+        "@/components/courses/CourseConventions",
+        "@/components/courses/CourseDialog",
+        "@/components/courses/CourseNextStep",
+        "@/components/courses/CourseProgress",
+        "@/components/courses/CourseResources",
+        "@/components/courses/CourseSyllabus",
+        "@/components/courses/OrganizedSessionList",
+        "@/components/ui/ConfirmDialog",
+        "@/lib/courses-api",
+        "@/lib/session-api"
+      ]
+    },
+    {
+      "source": "app/(utility)/courses/page.tsx",
+      "imports": [
+        "@/components/courses/CoursesShelf"
+      ]
+    },
+    {
+      "source": "app/(utility)/knowledge-bases/[kbName]/page.tsx",
+      "imports": [
+        "react",
+        "lucide-react",
+        "@/components/knowledge/KnowledgePage"
+      ]
+    },
+    {
+      "source": "app/(utility)/knowledge-bases/page.tsx",
+      "imports": [
+        "react",
+        "lucide-react",
+        "@/components/knowledge/KnowledgePage"
+      ]
+    },
+    {
+      "source": "app/(utility)/memory/page.tsx",
+      "imports": [
+        "@/features/heart/StudentMemory"
+      ]
+    },
+    {
+      "source": "app/(utility)/notebooks/[notebookId]/page.tsx",
+      "imports": [
+        "../NotebooksRoute"
+      ]
+    },
+    {
+      "source": "app/(utility)/notebooks/page.tsx",
+      "imports": [
+        "./NotebooksRoute"
+      ]
+    },
+    {
+      "source": "app/(utility)/profile/page.tsx",
+      "imports": [
+        "@/components/layout/FeaturePage",
+        "react",
+        "next/link",
+        "next/navigation",
+        "react",
+        "lucide-react",
+        "react-i18next",
+        "@/lib/auth",
+        "@/lib/profile-api",
+        "@/components/UserAvatar",
+        "@/lib/avatar",
+        "@/lib/datetime",
+        "@/lib/account-role"
+      ]
+    },
+    {
+      "source": "app/(utility)/settings/progress/page.tsx",
+      "imports": [
+        "@/components/layout/FeaturePage",
+        "react",
+        "react-i18next",
+        "@/lib/learning-records-api",
+        "@/lib/reading-workspace-api"
+      ]
+    },
+    {
+      "source": "app/(workspace)/chat/[sessionId]/page.tsx",
+      "imports": [
+        "@/features/chat/components/ChatWorkspace"
+      ]
+    },
+    {
+      "source": "app/(workspace)/chat/page.tsx",
+      "imports": [
+        "@/features/chat/components/ChatWorkspace"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/books/[bookId]/page.tsx",
+      "imports": [
+        "../BooksRoute"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/books/[bookId]/pages/[pageId]/page.tsx",
+      "imports": [
+        "../../../BooksRoute"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/books/page.tsx",
+      "imports": [
+        "./BooksRoute"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/graph/page.tsx",
+      "imports": [
+        "@/features/heart/KnowledgeGraph"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/mastery/[pathId]/page.tsx",
+      "imports": [
+        "@/components/layout/FeaturePage",
+        "@/lib/workspace-scope",
+        "@/lib/learning-routes",
+        "react",
+        "next/link",
+        "next/navigation",
+        "react-i18next",
+        "lucide-react",
+        "@/lib/mastery-mode",
+        "@/components/space/learning/LearnerProfileCard",
+        "@/components/space/learning/ModuleOutline",
+        "@/components/space/learning/ConfirmDialog",
+        "@/components/space/learning/EditTopicRouteDialog",
+        "@/components/space/learning/LearningBoard",
+        "@/components/space/learning/format",
+        "@/components/space/learning/PathTitle",
+        "@/components/space/learning/ReviewTrail",
+        "@/components/space/learning/SessionCamp",
+        "@/hooks/useMasteryPathActivity",
+        "@/lib/learning-api",
+        "@/lib/pending-prompt",
+        "@/components/space/learning/next-step-copy"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/mastery/[pathId]/sessions/[sessionId]/page.tsx",
+      "imports": [
+        "next/navigation",
+        "@/components/space/learning/MasteryStudy"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/mastery/[pathId]/sessions/page.tsx",
+      "imports": [
+        "next/navigation",
+        "@/components/space/learning/MasteryStudy",
+        "@/lib/mastery-mode"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/mastery/page.tsx",
+      "imports": [
+        "react",
+        "next/navigation",
+        "lucide-react",
+        "react-i18next",
+        "@/components/courses/CourseScope",
+        "@/components/space/learning/CreateTopicWizard",
+        "@/components/space/learning/format",
+        "@/components/space/learning/format",
+        "@/components/space/learning/TopicAtlas",
+        "@/lib/workspace-scope",
+        "@/lib/learning-library",
+        "@/components/learning/LibraryWorkspace",
+        "@/lib/learning-api",
+        "@/lib/mastery-mode",
+        "@/lib/pending-prompt"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/page.tsx",
+      "imports": [
+        "@/components/learning/LearningDashboard"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/practice/page.tsx",
+      "imports": [
+        "react",
+        "@/components/learning/practice/PracticePage",
+        "@/components/learning/LearningShell"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/reading/[workspaceId]/page.tsx",
+      "imports": [
+        "@/components/reading/workspace/ReadingWorkspace"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/reading/[workspaceId]/sessions/[sessionId]/page.tsx",
+      "imports": [
+        "@/components/reading/workspace/ReadingWorkspace"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/reading/[workspaceId]/sessions/page.tsx",
+      "imports": [
+        "@/components/reading/workspace/ReadingWorkspace"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/reading/folders/[folderId]/page.tsx",
+      "imports": [
+        "@/components/reading/library/ReadingFolder"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/reading/materials/page.tsx",
+      "imports": [
+        "@/components/reading/library/MaterialLibrary"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/reading/page.tsx",
+      "imports": [
+        "react",
+        "@/components/reading/library/ReadingLibrary"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/watching/[sessionId]/page.tsx",
+      "imports": [
+        "@/components/reading/workspace/LegacyWatchingSession"
+      ]
+    },
+    {
+      "source": "app/(workspace)/learning/watching/page.tsx",
+      "imports": [
+        "next/navigation",
+        "@/lib/learning-routes"
+      ]
+    },
+    {
+      "source": "app/(workspace)/page.tsx",
+      "imports": [
+        "next/navigation"
+      ]
+    },
+    {
+      "source": "app/handoff/page.tsx",
+      "imports": [
+        "react",
+        "next/navigation",
+        "lucide-react",
+        "react-i18next",
+        "@/shared/auth/return-url",
+        "@/lib/session-handoff-api"
+      ]
+    }
+  ],
+  "dependency_hashes": {
+    "project\\vendor\\DeepTutor\\web\\package.json": "186febbdee54a14e310b924f7a94bd589b8eb8b0499037311668d6b467f7232e",
+    "project\\vendor\\DeepTutor\\web\\package-lock.json": "0ff706d29e863827d42c2d399ce4e7c82e849925699af4ae7cf05f6b69631fb5",
+    "project\\vendor\\DeepTutor\\requirements.txt": "b8fde3a4d98677b6d547141be3001dd43499eabce30062b9dd2a0928adcd964a",
+    "project\\integration\\discrete-math-tutor\\requirements.txt": "30a7840429a070802c832318e5065364bc2a46c6b917813e87dd06a237c90e5e"
+  },
+  "dependency_mode": "node_modules Junction and shared Python environments, not isolated reinstall",
+  "recovered_patch_files": [
+    "LOCAL_PATCHES/knowledge-base-preference-inheritance.patch",
+    "LOCAL_PATCHES/mermaid-render-recovery.patch",
+    "LOCAL_PATCHES/visualization-fullscreen-scope.patch"
+  ],
+  "missing_patch_files": [],
+  "source_reconciliation": {
+    "verified_files": 3764,
+    "registered_deletions": 46,
+    "unexplained_differences": 0,
+    "patch": "LOCAL_PATCHES/task0-source-reconciliation.patch",
+    "reverse_patch_check": "passed",
+    "registered_changes": 82,
+    "added_file_patch": "LOCAL_PATCHES/task0-added-source-reconciliation.patch",
+    "pre_import_layers": 7
+  },
+  "initial_baseline_test_result": {
+    "passed": 19,
+    "failed": 14,
+    "subtests_passed": 39,
+    "failure_groups": {
+      "fixture_missing_llm": 12,
+      "removed_requests_supplementary_proof_import": 1,
+      "cursor_version_guard": 1
+    }
+  },
+  "baseline_test_result": {
+    "passed": 48,
+    "failed": 0,
+    "subtests_passed": 56,
+    "scope": [
+      "test_course_navigation.py",
+      "test_course_release.py",
+      "test_turn_router.py",
+      "test_worker_vendor_snapshot.py"
+    ],
+    "note": "47 passed in combined run; snapshot fixture retried in unique basetemp and passed after shared temp-directory permission failure"
+  },
+  "initial_unregistered_or_missing": [
+    {
+      "path": "deeptutor/agents/question/pipeline.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "17305acebd3df0033e5d9e5d30fb284cc1a44e2d835f46b6984cda47fea98c28",
+      "expected_sha256": "ed6017fd8a6b6081b66102fbb9a0a408d968893cdbf7ba31930b63e7317b09b1",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/app/container.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "79c2f017b296dc45e9a724e3b85c341469d837e62180ba252fad09c321312c56",
+      "expected_sha256": "95d4f1e021cf0557423bc333c9353024f9d8a609a8282d46c5ea93407d779e25",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/app/facade.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "cfd8974197f2cf80a088b50e02aa2d3f1d6621a0d4ef0e238bda02b5a14ad630",
+      "expected_sha256": "c1b0551635fe9f85228d4242418d4916815ac25a4a004b919551358f60071d70",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/learning/service.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "c96514ff5ba98cedbf9e470611f9beac0f9ccc63bf9e0f45a31088bca4a03fb6",
+      "expected_sha256": "d03efd00d5c981b882ceab72205623d4c644dc460604b37e1d9acb5f1e917beb",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/multi_user/model_access.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "e8763a7a5dc54cb48de8877069397e483764ea0aac8c00cb34313946dab797f1",
+      "expected_sha256": "0e01483f05daf9aed87ab5be0376a6bc212fe651369ad271eb34c55a56fcac86",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/multi_user/personal_models.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "933d8f05da06ba01fda0f95400a0e7e27e6943d5bda7f70ba854de1c9f538e4a",
+      "expected_sha256": "d7b3aca0580acc94e57924a80d5d8fbb282944d987f4a1a3382c1b5bacef6a99",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/plugins/registry.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "36eb7a73c540070eafc63f01853614e78a7da7cc1a78742b03594119c8c2e02b",
+      "expected_sha256": "2df9afd067235ef93b4a50699f3417e4eddd927af36504b5d304406cd971f332",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/runtime/agentic/client.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "e15faf417b2d948bfcd2e2767e047243b6dba48112872b112a03a2cb2e4c8526",
+      "expected_sha256": "7e35cde05d017c7e386d022983ccff0c69007ae957ed6a12ac42fc2824feb004",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/runtime/coordination/memory.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "03032d8a5ba6ec62aa8964e71976cf927d55fd86c397f9298c4598e9ebec05ed",
+      "expected_sha256": "c8979e2ecf2461328d866c80489b9613d7a406464bbabe7bde842cdb357221b1",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/services/config/provider_runtime.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "24a54eefc8b9c3d0c8515c99536ec4deb5fd81d8f31522b3519b742ad50d5f67",
+      "expected_sha256": "68cafcc06f148a1783aac93f1d72d5dbb5b38dd2bd3ee00f18967df091b9bf47",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/services/llm/openai_http_client.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "94acf22bdf5dfa86eca84a0312908635c9e4dad0622aa2807442ceee127712a0",
+      "expected_sha256": "6f3a940ff2e8262a166a507247b99c79a7896f1393c4cdf7a07859c606ddc3cf",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/services/llm/provider_core/openai_compat_provider.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "ea7e9f20f59aa7eadd96ea99ddb8fc5fd7b11d9ef3509b6ab5778a699ef5e64e",
+      "expected_sha256": "47413d577aa1c93b7f6f82c472d425dbfd2729573d383af487370809c48d8efb",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "deeptutor/services/llm/provider_factory.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "f8e07d8ebed1119450f2d4d01d8565890cb7cb5d01cab160fa8d037cbdff5950",
+      "expected_sha256": "d68452be1643656ee435e19148eb498928beb0c7f44b5e51794f779981df5e9d",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "tests/agents/question/test_pipeline.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "75530176d253d1c6bce9652e680ec7779cc221645692aa53503b23987c68c4cd",
+      "expected_sha256": "339f0f35f70af1a49739e71d58ec978a33218ac0cc525ea3b85521358afba966",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "tests/plugins/test_registry.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "9413c4d3806c7251b20ed52dd96b997ca25265df51f5010094b4b3d592502ec0",
+      "expected_sha256": "20df5ecabfb23899180953e19d31a31b8ac8ade2eb213263e4ee82cf86278e3d",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "tests/runtime/coordination/test_memory_coordinator.py",
+      "state": "hash_mismatch",
+      "actual_sha256": "21ff8902ab5b36d661be4133845774a17407b35dc1eaa8ae0632bc37289cadeb",
+      "expected_sha256": "4f4acd06aa9f569ce35155f48bb1cb4ec326db2eb500843f4028273ee26c9e6c",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/app/(admin)/admin/users/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(admin)/layout.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(auth)/login/page.tsx",
+      "state": "hash_mismatch",
+      "actual_sha256": "0a1ff34b0ab558904f5ede83fa38029e1338dfd2ece900964e1aa10916f8b3ee",
+      "expected_sha256": "7a9d8039d5bff8bed70c8e9e53bdbbaaebc93391472021669d790dfd7278f82d",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/app/(auth)/register/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(settings)/settings/layout.tsx",
+      "state": "hash_mismatch",
+      "actual_sha256": "4b1924b5fb1f63ceba9d35688dd4c0f28d2da2d04a6dbe07f27390e48d756ee6",
+      "expected_sha256": "f6aaaa5a5e275011bad9fbda71083108c8efc06324a24892698f711f8dec417a",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/app/(utility)/agents/layout.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/agents/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/memory/graph/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/memory/l1/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/memory/l2/[surface]/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/memory/l2/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/memory/l3/[slot]/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/memory/l3/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/memory/page.tsx",
+      "state": "hash_mismatch",
+      "actual_sha256": "3a81a3333cb870dc28a731d2ea96030f876287e064cd3b3723b6af3d4b479580",
+      "expected_sha256": "c64716484e525f53d4a7b8ffc142e1654703e7e2245b5e5177f927269b3cb193",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/app/(utility)/memory/resolve/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/session-handoff/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/space/chat-history/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/space/cli-apps/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/space/journal/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/space/layout.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/space/mcp/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/space/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/space/personas/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/space/questions/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(utility)/space/skills/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(workspace)/co-writer/[docId]/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(workspace)/co-writer/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(workspace)/co-writer/sampleTemplate.ts",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(workspace)/kanban/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(workspace)/partners/[partnerId]/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(workspace)/partners/groups/[groupId]/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(workspace)/partners/groups/new/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(workspace)/partners/new/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(workspace)/partners/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/(workspace)/whisper/page.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/app/globals.css",
+      "state": "hash_mismatch",
+      "actual_sha256": "26bfdabf9626e5f74c0d74bce0259610a65766125b2641351e64af7e9ede6e09",
+      "expected_sha256": "6dfe4d60967ef2bedb531f94979cacaa48c98507b29aa641ff38f5eb88cc8901",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/components/sidebar/nav-entries.ts",
+      "state": "hash_mismatch",
+      "actual_sha256": "85fed74976471c43190231094f8a6b1b8fb294a72c0e96efce9786ec69a75819",
+      "expected_sha256": "e247de879e9dac02e189649494168ba299a09200676abf61b128c6f76ec8e9c6",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/features/co-writer/components/CoWriterWorkspace.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/features/co-writer/hooks/useDocumentLifecycle.ts",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/features/co-writer/hooks/useSelectionEdit.ts",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/features/co-writer/hooks/useSplitPane.ts",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/features/co-writer/hooks/useSynchronizedScroll.ts",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/features/co-writer/model/editor-state.ts",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/features/co-writer/storage/drafts.ts",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/lib/backend-forward.ts",
+      "state": "hash_mismatch",
+      "actual_sha256": "6982739fd2417cb24c15651e654492af44474b72256bdf068361f2054822a846",
+      "expected_sha256": "691823fdde48334db2d6c3f6dce69dc018efe505ce91200a111922cc866ee25a",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/proxy.ts",
+      "state": "hash_mismatch",
+      "actual_sha256": "fdd90fd73d478718fda904920bb595c2bfa311637310d7d5ce696cb45c58c748",
+      "expected_sha256": "cd99dc6db0904323174874413d5bb58f3a7b1aab8f35b0868b42c2d66a120604",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/tests/co-writer-editor-state.test.ts",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/tests/co-writer-lazy-notebook.spec.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/tests/co-writer-model-selection.spec.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/tests/integration/co-writer-workspace.spec.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/tests/learner-navigation.spec.tsx",
+      "state": "hash_mismatch",
+      "actual_sha256": "658127fa9f6bbdf25535a1687c0b6419ec4354fd6baccacdb96e5a4f75051564",
+      "expected_sha256": "644fca0ed1cc3b142cd165a668618c0a99dbc4df2d18a70248bb31c6454885cf",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/tests/partner-group-export-session.spec.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/tests/practice-entrypoints.spec.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    },
+    {
+      "path": "web/tests/sidebar-defaults.spec.tsx",
+      "state": "hash_mismatch",
+      "actual_sha256": "059c23bf36515525a5e4e847589a39411697bee8597c4cf7fdc3efaaa741ce12",
+      "expected_sha256": "39ea5afc51fcb84e179677a2d168180493147e6e24de91ab93b24032f473a5ea",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/tests/sidebar-lazy-history.spec.tsx",
+      "state": "hash_mismatch",
+      "actual_sha256": "5b0645a4539df7299ef926fa68e40026cca9cdb1d7fa7bac525f15af4d74e82a",
+      "expected_sha256": "1cb4ab409cb078bc842db2d27b9db8a13ee6f1980d04d6f478d7001d5d7f6879",
+      "audit_classification": "已有本地修改，原补丁登记与当前哈希不同"
+    },
+    {
+      "path": "web/tests/task-board.spec.tsx",
+      "state": "missing",
+      "audit_classification": "已裁剪源码，登记当前缺失状态"
+    }
+  ],
+  "unregistered_or_missing": []
+}

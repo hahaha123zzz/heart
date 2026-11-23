@@ -133,3 +133,40 @@ async def test_background_leader_is_singleton_and_transferable() -> None:
     successor = await coordinator.acquire_leader("worker-b")
     assert successor is not None
     assert successor.fencing_token > leader.fencing_token
+
+
+@pytest.mark.asyncio
+async def test_explicit_release_removes_recovery_candidate_but_keeps_replay() -> None:
+    coordinator = MemoryCoordinator(lease_ttl_seconds=30)
+    lease = await coordinator.acquire_turn("done", "session", "worker")
+    event = await coordinator.publish_event("done", {"type": "done", "metadata": {"status": "completed"}})
+    assert await coordinator.release_turn(lease) is True
+    assert await coordinator.list_expired_turn_ids() == []
+    assert await coordinator.read_events("done") == [event]
+    assert await coordinator.acquire_turn("next", "session", "worker") is not None
+
+
+@pytest.mark.asyncio
+async def test_expired_owner_cannot_release_recovery_candidate(monkeypatch) -> None:
+    clock = [100.0]
+    monkeypatch.setattr("deeptutor.runtime.coordination.memory.time.time", lambda: clock[0])
+    coordinator = MemoryCoordinator(lease_ttl_seconds=1)
+    lease = await coordinator.acquire_turn("lost", "session", "worker")
+    clock[0] = 102.0
+    assert await coordinator.release_turn(lease) is False
+    assert await coordinator.list_expired_turn_ids() == ["lost"]
+
+
+@pytest.mark.asyncio
+async def test_stale_release_cannot_remove_successor_recovery_candidate(monkeypatch) -> None:
+    clock = [100.0]
+    monkeypatch.setattr("deeptutor.runtime.coordination.memory.time.time", lambda: clock[0])
+    coordinator = MemoryCoordinator(lease_ttl_seconds=1)
+    stale = await coordinator.acquire_turn("same-turn", "session", "old")
+    clock[0] = 102.0
+    successor = await coordinator.acquire_turn("same-turn", "session", "new")
+    assert successor.fencing_token > stale.fencing_token
+    assert await coordinator.release_turn(stale) is False
+    assert await coordinator.get_lease("same-turn") == successor
+    clock[0] = 104.0
+    assert await coordinator.list_expired_turn_ids() == ["same-turn"]

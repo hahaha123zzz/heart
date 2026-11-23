@@ -16,6 +16,22 @@ _active = ContextVar('heart_teaching_tool_policy', default=False)
 _citation_offset = ContextVar('heart_citation_offset', default=0)
 
 
+def learning_course_scope():
+    """原生学生回合也使用已授权固定教材；不依赖旧宿主转发上下文。"""
+    from deeptutor.multi_user.context import get_current_user_or_none
+    from deeptutor.multi_user.learning_access import current_learning_policy
+    user=get_current_user_or_none()
+    if user is None or user.is_admin:
+        return False
+    policy=current_learning_policy()
+    return bool(policy and 'reading' in policy.get('allowed_surfaces',['chat','reading'])
+                and (policy.get('reading') or {}).get('material_ids'))
+
+
+def active_scope():
+    return _active.get() or learning_course_scope()
+
+
 def hidden_names():
     from deeptutor.tools.builtin_specs import BUILTIN_TOOL_SPECS
     return HIDDEN_TOOLS | {spec.name for spec in BUILTIN_TOOL_SPECS
@@ -42,10 +58,10 @@ def install_tool_policy():
     @wraps(original_augment)
     def augment(pipeline, name, args, context):
         kwargs = original_augment(pipeline, name, args, context)
-        if _active.get() and name == 'rag':
+        if active_scope() and name == 'rag':
             kwargs['_heart_context'] = context
             context.metadata.setdefault('_heart_citation_offset', _citation_offset.get())
-        elif _active.get() and name == 'read_source':
+        elif active_scope() and name == 'read_source':
             kwargs['source_index'] = context.metadata.get('source_index') or {}
         return kwargs
     original_extensions = extensions.all_loop_capabilities
@@ -53,34 +69,34 @@ def install_tool_policy():
     @wraps(original_extensions)
     def all_extensions():
         values = original_extensions()
-        return tuple(value for value in values if value.name not in HIDDEN_EXTENSIONS) if _active.get() else values
+        return tuple(value for value in values if value.name not in HIDDEN_EXTENSIONS) if active_scope() else values
 
     @wraps(original_get)
     def get(registry, name):
-        if _active.get() and not visible(name):
+        if active_scope() and not visible(name):
             return None
         return original_get(registry, name)
 
     @wraps(original_list)
     def list_tools(registry):
         names = original_list(registry)
-        return [name for name in names if visible(name)] if _active.get() else names
+        return [name for name in names if visible(name)] if active_scope() else names
 
     @wraps(original_deferred)
     def deferred(registry):
         tools = original_deferred(registry)
-        return [tool for tool in tools if visible(tool.name)] if _active.get() else tools
+        return [tool for tool in tools if visible(tool.name)] if active_scope() else tools
 
     @wraps(original_execute)
     async def execute(registry, name, /, **kwargs):
-        if _active.get() and not visible(name):
+        if active_scope() and not visible(name):
             raise KeyError('工具未在当前教学项目中启用')
         return await original_execute(registry, name, **kwargs)
 
     @wraps(original_compose)
     def compose(pipeline, context):
         names = original_compose(pipeline, context)
-        if _active.get():
+        if active_scope():
             names = [name for name in names if visible(name)]
             # 宿主教材使用已有索引，不依赖原生 KB 记录；仍遵守阶段白名单和独占能力。
             if not pipeline._exclusive_capability_active(context):

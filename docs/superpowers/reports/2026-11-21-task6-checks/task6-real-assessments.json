@@ -1,0 +1,108 @@
+{
+  "real_model": true,
+  "destination": "api.deepseek.com",
+  "model": "deepseek-flash",
+  "course_id": "experimental-psychology-3",
+  "document_id": "experimental-psychology-3:chapter-03",
+  "document_version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089",
+  "practice_origin": "agent-authored textbook-grounded acceptance exercise; not an official textbook problem",
+  "accounts": [
+    {
+      "name": "heart-review-01",
+      "job_id": "9b2939b4-60ff-4d5b-b028-8aeb39641f46",
+      "path_id": "topic_f1fa8fbad3304eafa33c20f1bd803723",
+      "session_id": "7ded67e5-b72f-4f67-9be3-ffd025372944",
+      "answer": "相关设计对变量进行测量，考察变量间的共同变化，不像真正实验那样操纵变量和控制条件。正相关指两个变量同方向变化，负相关指一个增加时另一个减少。相关系数绝对值越大说明联系越密切，但相关不能单凭自身确定因果，可能有共同的其他原因。",
+      "passed": true,
+      "feedback": "学生用自己的话说明了相关设计的核心特征：通过测量考察变量间的共同变化，而非操纵变量；正相关为同方向变化、负相关为反方向变化，相关系数绝对值越大联系越密切。这些表述与教材关于相关含义、正负相关及相关系数取值范围的界定一致，解释正确且较充分。关于“相关不能单凭自身确定因果”一句在所提供的教材原文中没有对应依据，不纳入本次评分依据，但不影响主营概念点的通过。",
+      "citations": [
+        {
+          "quote": "相关(correlation)是指一个变量的数值变化与另一个变量的数值变化同步",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089"
+        },
+        {
+          "quote": "正相关(positive correlation),是指一个变量的值增大,另一个变量的对应值也增大,换言之,两个变量值的变化方向是相同的。",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089"
+        },
+        {
+          "quote": "负相关(negative correlation),是指一个变量的值增大,而另一个变量的值减小,换言之,两个变量的值变化方向是相反的。",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089"
+        },
+        {
+          "quote": "r的绝对值越接近于1,相关程度越高,它们之间的关系越密切。",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089"
+        }
+      ],
+      "state": {
+        "id": "kc-3-1",
+        "name": "相关设计",
+        "snapshot": {
+          "assessed_mastered": false,
+          "learning_stage": "practiced_not_demonstrated",
+          "next_review_at": null,
+          "synced_at": "2026-11-21T08:52:44.883352+00:00",
+          "mapping_version": "9ad48beea151ab0042b63a332411fa87a6890398814c272c6e80aa2d29d507e3",
+          "graph_release_id": "aff825f68e24136fa0d9b5c832bcca44502db36140a3624c99ca010a44bde80c",
+          "catalog_version": "8e70e39f23ee3a77b47ecf3f5639995bed1bb0458c4dda096fcbd13130dad19f",
+          "rule_version": "vendor-qualitative-grounded-v1",
+          "job_id": "9b2939b4-60ff-4d5b-b028-8aeb39641f46"
+        },
+        "practice_review": null,
+        "sync_pending": false,
+        "sync_blocked": false
+      },
+      "capability_checked": true,
+      "publication_replay_did_not_duplicate": true
+    },
+    {
+      "name": "heart-review-02",
+      "job_id": "7627338e-4287-4366-8d95-53fc232e0ae1",
+      "path_id": "topic_5a188662b3294218bde9c3d2daa3e86b",
+      "session_id": "6e8088ec-49f2-4d76-b1fc-31e7daef355f",
+      "answer": "相关设计就是操纵自变量并严格控制其他变量的真正实验。只要两个变量显著相关，就可以确定前一个变量造成后一个变量变化，负相关则证明变量之间没有任何联系。",
+      "passed": false,
+      "feedback": "未通过。学生将相关设计表述为“操纵自变量并严格控制其他变量的真正实验”，且将显著相关直接当作因果证据，并称负相关证明变量间没有任何联系。教材指出相关是一个变量的数值变化与另一个变量同步；负相关只表示两个变量变化方向相反，零相关才表示变化互相独立。因此该作答对相关设计、因果推断边界及负相关含义均理解错误。",
+      "citations": [
+        {
+          "quote": "相关(correlation)是指一个变量的数值变化与另一个变量的数值变化同步(夏克赫,等,2014)。",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089"
+        },
+        {
+          "quote": "负相关(negative correlation),是指一个变量的值增大,而另一个变量的值减小,换言之,两个变量的值变化方向是相反的。",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089"
+        },
+        {
+          "quote": "零相关(zero correlation)是指两个变量值的变化是互相独立的,即一个变量值的变化与另一个变量值的变化无关。",
+          "document_id": "experimental-psychology-3:chapter-03",
+          "version": "88df6987e161067aee4cdcb419e4b356467fa352dc88549eb168abbd17cd4089"
+        }
+      ],
+      "state": {
+        "id": "kc-3-1",
+        "name": "相关设计",
+        "snapshot": {
+          "assessed_mastered": false,
+          "learning_stage": "practiced_not_demonstrated",
+          "next_review_at": null,
+          "synced_at": "2026-11-21T08:52:55.742758+00:00",
+          "mapping_version": "9ad48beea151ab0042b63a332411fa87a6890398814c272c6e80aa2d29d507e3",
+          "graph_release_id": "aff825f68e24136fa0d9b5c832bcca44502db36140a3624c99ca010a44bde80c",
+          "catalog_version": "8e70e39f23ee3a77b47ecf3f5639995bed1bb0458c4dda096fcbd13130dad19f",
+          "rule_version": "vendor-qualitative-grounded-v1",
+          "job_id": "7627338e-4287-4366-8d95-53fc232e0ae1"
+        },
+        "practice_review": null,
+        "sync_pending": false,
+        "sync_blocked": false
+      },
+      "capability_checked": true,
+      "publication_replay_did_not_duplicate": true
+    }
+  ]
+}

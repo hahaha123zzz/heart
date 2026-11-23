@@ -1,0 +1,314 @@
+{
+  "task": 5,
+  "date": "2026-11-21",
+  "test_execution_date": "2026-11-20",
+  "complete": true,
+  "worktree": "E:\\项目\\heart\\.worktrees\\student-frontend-reuse-20261117",
+  "typecheck_exit_code": 0,
+  "build_exit_code": 0,
+  "contracts_check_exit_code": 0,
+  "backend_contract_check_exit_code": 0,
+  "node_tests": {
+    "passed": 1272,
+    "failed": 0
+  },
+  "component_tests": {
+    "files": 11,
+    "passed": 52,
+    "failed": 0
+  },
+  "python_tests": {
+    "evidence_and_pagination": 7,
+    "native_policy_journal_and_workspace": 106,
+    "existing_reassessment": 7,
+    "account_provisioning": 1,
+    "total": 121,
+    "failed": 0
+  },
+  "browser": {
+    "checks": [
+      "anonymous learning and journal require authentication",
+      "empty account has no invented progress or other account journal",
+      "native source indexes are available only within learner surface",
+      "native path creation and owner isolation",
+      "rename and module editor persist vendor records",
+      "detail view returns to its selected board",
+      "empty native path has no mastery percentage",
+      "overview and library share the same vendor path",
+      "native journal paginates on demand and preserves handoff",
+      "learning journal scroll returns to previous position",
+      "journal error is visible and refresh recovers",
+      "module tutoring uses native sessions and local model transport",
+      "reset requires confirmation and uses vendor reset",
+      "390px journal has no horizontal overflow",
+      "no browser runtime errors"
+    ],
+    "failures": [],
+    "pageErrors": [],
+    "httpFailures": [
+      [
+        "/api/learning-journal",
+        503
+      ]
+    ]
+  },
+  "production_source_match": {
+    "files": 946,
+    "errors": [],
+    "build_id": "UmZykyMXnB0rGJxhMcpZp",
+    "dependency_target": "E:\\项目\\heart\\.worktrees\\student-frontend-reuse-20261117\\project\\integration\\discrete-math-tutor\\.runtime\\task2-clean-bac19b6c\\DeepTutor\\web\\node_modules"
+  },
+  "provenance": {
+    "baseline_files": 3764,
+    "local_changes": 156,
+    "local_deletions": 101,
+    "task5": [
+      {
+        "path": "deeptutor/api/routers/auth.py",
+        "action": "modify"
+      },
+      {
+        "path": "deeptutor/api/routers/learning_journal.py",
+        "action": "modify"
+      },
+      {
+        "path": "deeptutor/multi_user/grants.py",
+        "action": "modify"
+      },
+      {
+        "path": "tests/multi_user/test_learning_policy.py",
+        "action": "modify"
+      },
+      {
+        "path": "tests/multi_user/test_learning_surface_map.py",
+        "action": "modify"
+      },
+      {
+        "path": "web/app/(workspace)/learning/journal/page.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/app/(workspace)/learning/mastery/[pathId]/page.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/layout/FeaturePage.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/learning/LearningDashboard.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/learning/LearningScrollRestoration.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/learning/LearningWays.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/learning/LibraryWorkspace.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/space/LearningJournalPanel.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/space/learning/TopicMapCard.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/components/space/learning/TopicWizardSteps.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/contracts/generated/api.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/contracts/schema/openapi.json",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/AssessmentEvidence.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/StudentAssessments.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/hooks/useTopicSourceLibrary.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/lib/capability-routes.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/lib/learning-dashboard.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/lib/learning-journal-api.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/assessment-evidence.spec.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/capability-access.test.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/learning-dashboard.spec.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/learning-journal-panel.spec.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/learning-library-workspaces.spec.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/learning-scroll-restoration.spec.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/learning-source-library.spec.tsx",
+        "action": "modify"
+      }
+    ],
+    "hash_errors": [],
+    "reverse_patch_check": true
+  },
+  "host_changes": [
+    {
+      "path": "integrations/deeptutor/assessment_jobs.py",
+      "sha256": "716898eb80b5f931d1278effe4da60d97c55bbd33575bf736687553167002000"
+    },
+    {
+      "path": "integrations/deeptutor/learning_projection.py",
+      "sha256": "331244703f113ce4587962be25e24495a661cda11fe7efcda346c8dddc92831a"
+    },
+    {
+      "path": "integrations/deeptutor/heart_model_api.py",
+      "sha256": "b88e6c3db4a7d318c4fe7b11f4cc40bc040d88ea47699f80faf12da52f24c7eb"
+    },
+    {
+      "path": "integrations/deeptutor/native_learning_view.py",
+      "sha256": "0c9dce054c22a6d05f9ba903bbcd72588f076a4c62459711af5b2dff37559b76"
+    },
+    {
+      "path": "scripts/assign_review_reading.py",
+      "sha256": "7e66b4a34f58c70fb925cc104d4009daac5b73992aff13b6bad7302a5ad1f32d"
+    },
+    {
+      "path": "scripts/provision_student_reading.py",
+      "sha256": "d550c624eb78c970c2b9bd31260c32ff635ce62ee88626300ac081c84f86319c"
+    },
+    {
+      "path": "tests/test_student_learning_journal.py",
+      "sha256": "ad3c2602e65b19d0d4f205cccaea0712cac5bc03877abf2e1245543e59405595"
+    },
+    {
+      "path": "tests/test_native_journal_page.py",
+      "sha256": "3c8ad40112ebe108c8cf749e21c9fbf4d017cddfd63af1f64c270977abb19398"
+    }
+  ],
+  "diff_check_exit_code": 0,
+  "limits": [
+    "本地模型传输替身；厂家会话、路径、档案及浏览器为实际链路",
+    "390px 为视口模拟，未用实体手机",
+    "未运行全仓所有 Vitest",
+    "正式服务与正式账号权限未切换；本项目初始化和评审教材授权脚本显式允许 mastery_path",
+    "图片处理暂缓，旧聊天未迁入"
+  ],
+  "check_artifacts": [
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/browser-harness.py",
+      "sha256": "917d6e9d0bff6f96b0015dc34d1a0872927145ae07fd7ac5be4b8261115aded2"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/browser-results.json",
+      "sha256": "f5962d7129d57b0a1157029a95b7200144484f2810c89e240e930833ac1e10de"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/browser-task5.js",
+      "sha256": "4a388f3596fdca2554db645d690bb8a14c8e7a64293a0dc8a54e737b24a5da19"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/provenance.py",
+      "sha256": "d7a3a63e651ffef2512540ad101e2139ca1c87698f51ab09ff3e23ed936ea544"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/README.md",
+      "sha256": "98ceeba0c12c804e95394e28498edd97edb9b8890c5a134181ea6eb3411facce"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-accounts-python.log",
+      "sha256": "0256849f10d41c4133eeb96d20db5ff093871d516d47b9f7f2f97a8677b192a9"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-backend-contracts.log",
+      "sha256": "06ecff3a81adaefeef670300c967ac8071d9fed3cc9350e38f2540c03b6592ff"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-browser.log",
+      "sha256": "9912f85ecc6cdf0102fb411a2aa014191e65ae0e467b318a78e559b7a25e7578"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-build.log",
+      "sha256": "91ddebf1474bb7d60360c765b0a480bffa7eaaf5f4881fe3c5dba0c914e12bd4"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-contracts.log",
+      "sha256": "7b9947fcff047c93556b8767c2ca08cdaeeca17cb1f2829f44782c50b76884cf"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-native-python.log",
+      "sha256": "6c0adb012c52ec76e688ff1a4b22effba680d64ba5409b87e0a80c849182b5c7"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-node.log",
+      "sha256": "f5845fe5c0dbcc15506b9db659183189dd595067beb70e4f4e279ab861a09ac0"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-provenance.json",
+      "sha256": "979ef77566717f59af20ceea458f2143aafeb6b60c460b1b14a67595efa561cb"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-provenance.log",
+      "sha256": "38527e97523f41674f7334c094b57ff7dd0ec4368d42c78890a5b97983c3a054"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-python.log",
+      "sha256": "4ae027f0427f0b55bad66768665659968e77c42e83a5bf131a7f5e5129d119bd"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-reassessment-python.log",
+      "sha256": "34559b37e036fbffdc9e02cf299e9bc6c612d059b250471c69a5be3ea46731de"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-source-match.json",
+      "sha256": "b6b3f72cfad1194a586931211f7e6f9d166246deecae40fab3570d41df05241b"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-typecheck.log",
+      "sha256": "2230e90d45b9c1814de2d3d7f36c69df8930ee83dc9b214ba7ced20e68f127a4"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task5-checks/task5-unit.log",
+      "sha256": "9b44adb981a7eb3eb7fe6ad053cd446ebd96fbe6eeac47a5d81f1078c045a115"
+    }
+  ]
+}

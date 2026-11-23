@@ -123,12 +123,6 @@ export default function TaskPanelSection({
           {rows(assigned, false)}
         </div>
       )}
-      <Link
-        href="/kanban"
-        className="inline-block text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-      >
-        {t('tasks.openBoard')}
-      </Link>
     </section>
   )
 }

@@ -349,9 +349,13 @@ class LLMProvider(ABC):
         from deeptutor.services.llm.metrics import measure_provider_call
         from deeptutor.services.llm.multimodal import (
             has_image_parts,
+            require_image_capability,
             strip_image_parts,
             strip_image_parts_inplace,
         )
+
+        if has_image_parts(messages) and require_image_capability(model or self.get_default_model()):
+            allow_image_fallback = False
 
         raw_call = call
 

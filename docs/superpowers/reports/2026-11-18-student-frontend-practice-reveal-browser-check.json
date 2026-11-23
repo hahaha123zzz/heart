@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": [
+    "取题响应无参考答案",
+    "实际答题、判分、保存及待同步提示",
+    "390px 下练习完成页无横向溢出",
+    "后台重试并确认同一次提交同步成功",
+    "章节面板显示题库结论与下次复习",
+    "双账号复习档案隔离"
+  ],
+  "date": "2026-11-18",
+  "browser": "可见 Chromium / Playwright",
+  "viewport": "390×844",
+  "pre_reveal_status": "answer_committed_before_reveal",
+  "scope": "临时账号、题库和数据库，实际练习提交、后台故障重试和章节读取。"
+}

@@ -1,0 +1,262 @@
+{
+  "task": 1,
+  "date": "2026-11-19",
+  "browser": "visible Chromium via Playwright",
+  "core_pages": {
+    "pages": [
+      {
+        "path": "/chat",
+        "width": 1440,
+        "metrics": {
+          "width": 1440,
+          "scroll": 1440,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\nNew chat\nStart a conversation to rename\nSave to Notebook\nDownload chat history as Markdown\nWrite Markdown in chat\nSession activity, attachments & previews\nWhat would you like to learn?\nChat\nChat\nDefault workspace\nDefault workspace\nResources\nSelect model\nSelect model\nRecord voice\nSend"
+        },
+        "violations": []
+      },
+      {
+        "path": "/learning",
+        "width": 1440,
+        "metrics": {
+          "width": 1440,
+          "scroll": 1440,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\n我的学习\n\nOne tutor, your own way to learn.\n\n知识图谱\n学习记忆\n个人模型设置\nWays to learn\nBooks\n\nGenerate, browse and study your AI-authored books.\n\nMastery Path\n\nLearn through a living mastery map\n\nPractice\n\nYour question bank, mistakes and daily reviews.\n\nImmersive Reading\n\nRead your materials with a tutor by your side.\n\n聊天评估记录\n刷新记录\n\n显示最近 20 条记录。评估通过后，还需核验是否独立作答，才可作为掌握依据。\n\n还没有评估记录。有教材依据的有效作答会在后台评估。\n\nSome learning activity could not be loaded: Bookssource list separatorMastery Pathsource list separatorImmersive Reading.\nRetry"
+        },
+        "violations": []
+      },
+      {
+        "path": "/memory",
+        "width": 1440,
+        "metrics": {
+          "width": 1440,
+          "scroll": 1440,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\n我的记忆\n\n查看、删除记忆，或主动添加学习偏好。长期记忆开关请到设置页调整；关闭后仍可管理这里的内容。\n\n搜索记忆\n添加偏好\n学习偏好\n\n你确认过的讲解方式与节奏。\n\n还没有内容。\n\n学习画像\n\n只有明确来源的学习信息才会显示，不代表掌握成绩。\n\n还没有内容。"
+        },
+        "violations": []
+      },
+      {
+        "path": "/settings/model",
+        "width": 1440,
+        "metrics": {
+          "width": 1440,
+          "scroll": 1440,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "返回我的学习\n我的模型\n\n对话、讲解与出题使用你自己的 OpenAI-compatible Key。教材检索与建库仍由平台维护。\n\n当前：review-alpha · https://1.1.1.1/v1 · ••••ture\nBase URL（必须 HTTPS）\n模型名称\nAPI Key\n保存\n删除\n模型能力验证\n\n每次选一项，会用你的个人模型发送一次收费请求，不自动重试。样例通过不代表真实教材评分或复杂图片识别已验收。\n\n评分和复评须先通过结构化评估样例。更换 Key 或模型后需要重新验证；评估未通过不阻止继续尝试聊天。\n\n我已了解并同意本次所选能力验证产生的模型调用费用\n基础文本响应：尚未验证\n验证基础文本响应\n结构化评估样例：尚未验证\n验证结构化评估样例\n工具调用样例：尚未验证\n验证工具调用样例\n图像输入样例：尚未验证\n验证图像输入样例\n重新读取验证状态\n聊天自动评估\n\n在后台用你的个人模型评估有教材依据的作答，会产生额外调用费用。每条候选作答评估一次，归属错误时最多修正一次。\n\n开启聊天自动评估\n\n关闭后取消尚未开始的评估；已开始的请求和已保存的结果仍会处理完成。重新开启不会补评关闭期间的聊天。\n\n长期记忆\n开启长期记忆供辅导使用\n\n关闭后辅导不读取长期记忆，也不自动新增。旧内容仍可查看、删除，并可手动添加偏好。重新开启不会补扫旧聊天，与聊天自动评估分别控制。\n\n自动整理覆盖已同步的评分和聊天中明确说出的部分学习困难。这些记忆用于辅导，不改变掌握成绩。\n\n图片题需要支持图像输入的模型；不支持时请换模型。Key 只保存密文，读取接口只返回末四位。"
+        },
+        "violations": []
+      },
+      {
+        "path": "/learning/practice",
+        "width": 1440,
+        "metrics": {
+          "width": 1440,
+          "scroll": 1440,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\nPersonalized Learning\nPractice\n\nA little recall today. Remember more tomorrow.\n\nImport questions\nToday's review\nReview scope\nAll workspaces\nDefault workspace\n—\nReady to review\n\nMastered questions leave this round and return when your next review is due.\n\nStart today's review\n—\nReviewed today\n—\nScheduled for later\n—\nQuestion Bank\n\nRecall first, then check. Forgotten questions come back in this round.\n\nManage question bank\nPractice analytics"
+        },
+        "violations": []
+      },
+      {
+        "path": "/learning/graph",
+        "width": 1440,
+        "metrics": {
+          "width": 1440,
+          "scroll": 1440,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\n教材知识图谱\n\n按章节展示教材中的概念与关系；节点点击可看说明。\n\n章节\n第 1 章\n第 2 章\n第 3 章\n第 4 章\n第 5 章\n第 6 章\n第 7 章\n第 8 章\n第 9 章\n第 10 章\n第 11 章\n查询\n\n本章暂无图谱节点。\n\n点击节点查看详情。\n\n本章学习状态\n刷新学习状态\n\n按教材知识点显示最近同步的学习记录。确认图谱实体对应关系后，才会在节点上显示个人状态。\n\n变量概述\n\n暂无已同步的学习状态\n\n自变量及控制\n\n暂无已同步的学习状态\n\n因变量及控制\n\n暂无已同步的学习状态\n\n额外变量及控制\n\n暂无已同步的学习状态\n\n实验的效度与信度\n\n暂无已同步的学习状态"
+        },
+        "violations": []
+      },
+      {
+        "path": "/learning/reading/rw_1eacded646864a55b51c180577095782",
+        "width": 1440,
+        "metrics": {
+          "width": 1440,
+          "scroll": 1440,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\nExpand contents\n实验心理学\nRename collection\nAdd material\nQuiz me on this page\nFullscreen learning\nMore\nNew conversation\nFocus reading companion\nImmersive reading\nOpening document…\n\nRead and ask as you go\n\nSelect any passage to ask about it, explain it or translate it — or just ask below. Answers point back to the page they come from.\n\nChat\nChat\nSelect model\nRecord voice\nSend"
+        },
+        "violations": []
+      },
+      {
+        "path": "/chat",
+        "width": 390,
+        "metrics": {
+          "width": 390,
+          "scroll": 390,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\nNew chat\nStart a conversation to rename\nSave to Notebook\nDownload chat history as Markdown\nWrite Markdown in chat\nSession activity, attachments & previews\nBurning the midnight oil?\nChat\nChat\nDefault workspace\nSelect model\nRecord voice\nSend"
+        },
+        "violations": []
+      },
+      {
+        "path": "/learning",
+        "width": 390,
+        "metrics": {
+          "width": 390,
+          "scroll": 390,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\n我的学习\n\nOne tutor, your own way to learn.\n\n知识图谱\n学习记忆\n个人模型设置\nWays to learn\nBooks\n\nGenerate, browse and study your AI-authored books.\n\nMastery Path\n\nLearn through a living mastery map\n\nPractice\n\nYour question bank, mistakes and daily reviews.\n\nImmersive Reading\n\nRead your materials with a tutor by your side.\n\n聊天评估记录\n刷新记录\n\n显示最近 20 条记录。评估通过后，还需核验是否独立作答，才可作为掌握依据。\n\n还没有评估记录。有教材依据的有效作答会在后台评估。\n\nSome learning activity could not be loaded: Bookssource list separatorMastery Pathsource list separatorImmersive Reading.\nRetry"
+        },
+        "violations": []
+      },
+      {
+        "path": "/memory",
+        "width": 390,
+        "metrics": {
+          "width": 390,
+          "scroll": 390,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\n我的记忆\n\n查看、删除记忆，或主动添加学习偏好。长期记忆开关请到设置页调整；关闭后仍可管理这里的内容。\n\n搜索记忆\n添加偏好\n学习偏好\n\n你确认过的讲解方式与节奏。\n\n还没有内容。\n\n学习画像\n\n只有明确来源的学习信息才会显示，不代表掌握成绩。\n\n还没有内容。"
+        },
+        "violations": []
+      },
+      {
+        "path": "/settings/model",
+        "width": 390,
+        "metrics": {
+          "width": 390,
+          "scroll": 390,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "返回我的学习\n我的模型\n\n对话、讲解与出题使用你自己的 OpenAI-compatible Key。教材检索与建库仍由平台维护。\n\n当前：review-alpha · https://1.1.1.1/v1 · ••••ture\nBase URL（必须 HTTPS）\n模型名称\nAPI Key\n保存\n删除\n模型能力验证\n\n每次选一项，会用你的个人模型发送一次收费请求，不自动重试。样例通过不代表真实教材评分或复杂图片识别已验收。\n\n评分和复评须先通过结构化评估样例。更换 Key 或模型后需要重新验证；评估未通过不阻止继续尝试聊天。\n\n我已了解并同意本次所选能力验证产生的模型调用费用\n基础文本响应：尚未验证\n验证基础文本响应\n结构化评估样例：尚未验证\n验证结构化评估样例\n工具调用样例：尚未验证\n验证工具调用样例\n图像输入样例：尚未验证\n验证图像输入样例\n重新读取验证状态\n聊天自动评估\n\n在后台用你的个人模型评估有教材依据的作答，会产生额外调用费用。每条候选作答评估一次，归属错误时最多修正一次。\n\n开启聊天自动评估\n\n关闭后取消尚未开始的评估；已开始的请求和已保存的结果仍会处理完成。重新开启不会补评关闭期间的聊天。\n\n长期记忆\n开启长期记忆供辅导使用\n\n关闭后辅导不读取长期记忆，也不自动新增。旧内容仍可查看、删除，并可手动添加偏好。重新开启不会补扫旧聊天，与聊天自动评估分别控制。\n\n自动整理覆盖已同步的评分和聊天中明确说出的部分学习困难。这些记忆用于辅导，不改变掌握成绩。\n\n图片题需要支持图像输入的模型；不支持时请换模型。Key 只保存密文，读取接口只返回末四位。"
+        },
+        "violations": []
+      },
+      {
+        "path": "/learning/practice",
+        "width": 390,
+        "metrics": {
+          "width": 390,
+          "scroll": 390,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\nPersonalized Learning\nPractice\n\nA little recall today. Remember more tomorrow.\n\nImport questions\nToday's review\nReview scope\nAll workspaces\nDefault workspace\n0\nReady to review\n\nMastered questions leave this round and return when your next review is due.\n\nStart today's review\n0\nReviewed today\n0\nScheduled for later\n0\nQuestion Bank\n\nRecall first, then check. Forgotten questions come back in this round.\n\nManage question bank\nPractice analytics"
+        },
+        "violations": []
+      },
+      {
+        "path": "/learning/graph",
+        "width": 390,
+        "metrics": {
+          "width": 390,
+          "scroll": 390,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\n教材知识图谱\n\n按章节展示教材中的概念与关系；节点点击可看说明。\n\n章节\n第 1 章\n第 2 章\n第 3 章\n第 4 章\n第 5 章\n第 6 章\n第 7 章\n第 8 章\n第 9 章\n第 10 章\n第 11 章\n查询\n\n本章暂无图谱节点。\n\n点击节点查看详情。\n\n本章学习状态\n刷新学习状态\n\n按教材知识点显示最近同步的学习记录。确认图谱实体对应关系后，才会在节点上显示个人状态。\n\n变量概述\n\n暂无已同步的学习状态\n\n自变量及控制\n\n暂无已同步的学习状态\n\n因变量及控制\n\n暂无已同步的学习状态\n\n额外变量及控制\n\n暂无已同步的学习状态\n\n实验的效度与信度\n\n暂无已同步的学习状态"
+        },
+        "violations": []
+      },
+      {
+        "path": "/learning/reading/rw_1eacded646864a55b51c180577095782",
+        "width": 390,
+        "metrics": {
+          "width": 390,
+          "scroll": 390,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\nExpand contents\n实验心理学\nRename collection\nAdd material\nFullscreen learning\nMore\nNew conversation\nchapter_01.generated\nBack\nForward\nPage 1 / 42\nBookmark this page\nOpening document…"
+        },
+        "violations": []
+      }
+    ],
+    "errors": [],
+    "keyboard": [
+      "1440 model form tab order",
+      "1440 PDF focus and PageDown",
+      "mobile navigation enter, focus trap, escape, close and restore",
+      "390 model form tab order",
+      "390 PDF focus and PageDown"
+    ],
+    "scanned": true
+  },
+  "learning_followup": {
+    "pages": [
+      {
+        "path": "/learning",
+        "width": 1440,
+        "metrics": {
+          "width": 1440,
+          "scroll": 1440,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\n我的学习\n\nOne tutor, your own way to learn.\n\n知识图谱\n学习记忆\n个人模型设置\nWays to learn\nMastery Path\n\nLearn through a living mastery map\n\nPractice\n\nYour question bank, mistakes and daily reviews.\n\nImmersive Reading\n\nRead your materials with a tutor by your side.\n\n聊天评估记录\n刷新记录\n\n显示最近 20 条记录。评估通过后，还需核验是否独立作答，才可作为掌握依据。\n\n还没有评估记录。有教材依据的有效作答会在后台评估。\n\nRecent activity\n实验心理学\nImmersive Reading\n53 seconds ago"
+        },
+        "violations": []
+      },
+      {
+        "path": "/learning",
+        "width": 390,
+        "metrics": {
+          "width": 390,
+          "scroll": 390,
+          "classes": "__variable_8eaea4 __variable_c19f6d theme-snow",
+          "bg": "#f7f8f9",
+          "fg": "#1f2328",
+          "scheme": "light",
+          "body": "对话\n我的学习\nNo conversations yet\nheart-review-01\nMy profile\nSign out\nSettings\n我的学习\n\nOne tutor, your own way to learn.\n\n知识图谱\n学习记忆\n个人模型设置\nWays to learn\nMastery Path\n\nLearn through a living mastery map\n\nPractice\n\nYour question bank, mistakes and daily reviews.\n\nImmersive Reading\n\nRead your materials with a tutor by your side.\n\n聊天评估记录\n刷新记录\n\n显示最近 20 条记录。评估通过后，还需核验是否独立作答，才可作为掌握依据。\n\n还没有评估记录。有教材依据的有效作答会在后台评估。\n\nRecent activity\n实验心理学\nImmersive Reading\n55 seconds ago"
+        },
+        "violations": []
+      }
+    ],
+    "errors": [],
+    "keyboard": [
+      "mobile navigation enter, focus trap, escape, close and restore"
+    ],
+    "scanned": true
+  },
+  "tests": {
+    "component_tests_passed": 32,
+    "typecheck": "passed",
+    "targeted_eslint": "0 errors; existing logo-alt translation warnings"
+  },
+  "limits": [
+    "390px browser viewport emulation, no physical phone test",
+    "graph uses empty-node response fixture",
+    "PDF scan includes opening/loading state; source PDF and tutoring verified in preceding integration run",
+    "external generative model not called"
+  ]
+}

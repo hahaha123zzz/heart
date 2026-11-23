@@ -1,0 +1,20 @@
+{
+  "base": "f1d9661872bb657405d86532ec244468acd59d28",
+  "carried_files": [
+    "project/vendor/DeepTutor/UPSTREAM_SNAPSHOT.json",
+    "project/vendor/DeepTutor/deeptutor/agents/question/pipeline.py",
+    "project/vendor/DeepTutor/deeptutor/app/container.py",
+    "project/vendor/DeepTutor/deeptutor/app/service.py",
+    "project/vendor/DeepTutor/deeptutor/plugins/registry.py",
+    "project/vendor/DeepTutor/deeptutor/runtime/coordination/memory.py",
+    "project/vendor/DeepTutor/tests/agents/question/test_pipeline.py",
+    "project/vendor/DeepTutor/tests/app/test_turn_application_service.py",
+    "project/vendor/DeepTutor/tests/plugins/test_registry.py",
+    "project/vendor/DeepTutor/tests/runtime/coordination/test_memory_coordinator.py",
+    "project/vendor/DeepTutor/web/components/Mermaid.tsx",
+    "project/vendor/DeepTutor/web/components/visualize/VisualizationViewer.tsx",
+    "docs/superpowers/plans/2026-11-13-student-frontend-reuse.md",
+    "docs/superpowers/reports/2026-11-13-student-frontend-baseline.md"
+  ],
+  "note": "Only listed tracked files copied. No runtime credentials, databases, attachments or untracked assets copied."
+}

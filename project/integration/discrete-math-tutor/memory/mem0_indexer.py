@@ -13,23 +13,27 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Mem0Indexer:
-    def __init__(self, repo, store, interval=2, batch=32):
+    def __init__(self, repo, store, interval=2, batch=32, source_kind=None):
         self.repo = repo
         self.store = store
         self.interval = interval
         self.batch = batch
+        self.source_kind = source_kind
         self._stop = threading.Event()
         self._thread = None
 
     def _pending(self):
         with session_scope() as session:
-            rows = session.scalars(select(MemoryDocumentRow).where(or_(
+            query = select(MemoryDocumentRow).where(or_(
                 and_(MemoryDocumentRow.active,
                      or_(MemoryDocumentRow.mem0_id.is_(None),
                          MemoryDocumentRow.mem0_synced_hash.is_(None),
                          MemoryDocumentRow.mem0_synced_hash != MemoryDocumentRow.content_hash)),
                 and_(MemoryDocumentRow.active.is_(False), MemoryDocumentRow.mem0_id.is_not(None)),
-            )).limit(self.batch)).all()
+            ))
+            if self.source_kind is not None:
+                query = query.where(MemoryDocumentRow.source_kind == self.source_kind)
+            rows = session.scalars(query.limit(self.batch)).all()
             return [{
                 "id": row.id, "student_id": row.student_id, "content": row.content,
                 "source_kind": row.source_kind, "source_id": row.source_id,

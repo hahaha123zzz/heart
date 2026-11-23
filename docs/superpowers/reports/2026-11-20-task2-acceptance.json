@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-20",
+  "task": 2,
+  "clean_install": {
+    "node": "v24.15.0",
+    "npm": "11.12.1",
+    "packages": 942,
+    "npm_ci_exit": 0,
+    "build_exit": 0,
+    "log_directory": "E:\\项目\\heart\\.worktrees\\student-frontend-reuse-20261117\\project\\integration\\discrete-math-tutor\\.runtime\\task2-clean-bac19b6c",
+    "package_lock_sha256": "0ff706d29e863827d42c2d399ce4e7c82e849925699af4ae7cf05f6b69631fb5"
+  },
+  "tests": {
+    "vendor_websocket": 32,
+    "vitest_components": 28,
+    "node_protocol_targeted": 78
+  },
+  "browser": {
+    "checks": [
+      "anonymous page and worker HTTP boundary",
+      "two real browser logins and no-Key reading, chat guidance, and distinct masked model settings",
+      "fixed materials and cross-account access through same-origin proxy",
+      "student cookie reaches the host graph route through the same origin",
+      "ordinary chat streams through same-origin WebSocket",
+      "session deep link, reload, back and forward preserve delivered response",
+      "textbook PDF and tutoring render inside the student reading page",
+      "student page has no uncaught browser errors",
+      "student UI skips all twelve restricted prefetch paths"
+    ],
+    "pageErrors": [],
+    "sockets": [
+      "127.0.0.1:60927",
+      "127.0.0.1:60927"
+    ],
+    "socketEvents": [
+      [
+        "session",
+        null
+      ],
+      [
+        "stage_start",
+        null
+      ],
+      [
+        "progress",
+        null
+      ],
+      [
+        "content",
+        null
+      ],
+      [
+        "progress",
+        null
+      ],
+      [
+        "stage_end",
+        null
+      ],
+      [
+        "result",
+        null
+      ],
+      [
+        "done",
+        null
+      ],
+      [
+        "session_meta",
+        null
+      ],
+      [
+        "session",
+        null
+      ],
+      [
+        "stage_start",
+        null
+      ],
+      [
+        "progress",
+        null
+      ],
+      [
+        "content",
+        null
+      ],
+      [
+        "progress",
+        null
+      ],
+      [
+        "stage_end",
+        null
+      ],
+      [
+        "result",
+        null
+      ],
+      [
+        "done",
+        null
+      ]
+    ],
+    "consoleErrors": [
+      "Failed to load sessions TypeError: Failed to fetch\n    at d (http://127.0.0.1:60927/_next/static/chunks/7776-eae960790aec85e3.js:1:1310)\n    at force (http://127.0.0.1:60927/_next/static/chunks/4583-e32486b67668583f.js:1:855)\n    at i (http://127.0.0",
+      "Failed to load sessions TypeError: Failed to fetch\n    at d (http://127.0.0.1:60927/_next/static/chunks/1159-0d00355895e3ffe9.js:1:9371)\n    at force (http://127.0.0.1:60927/_next/static/chunks/382-c5649e95745fcf6a.js:1:4615)\n    at n (http://127.0.0"
+    ],
+    "httpFailures": [],
+    "restrictedRequests": [],
+    "passed": true
+  },
+  "actual_model": {
+    "passed": true,
+    "checks": [
+      "actual model reply with clickable verified citation",
+      "citation opens actual textbook",
+      "response and citation persist after reload"
+    ],
+    "model": "deepseek-flash",
+    "destination": "api.deepseek.com",
+    "citation": "#dt-material-34f4dfc2dd141839-revision-1-locator-1"
+  },
+  "inflight": {
+    "passed": true
+  },
+  "model_http_requests": 9,
+  "cost_amount": "provider invoice amount unavailable",
+  "account_evidence": "2026-11-18-student-frontend-execution.md permanent review accounts and fixed materials sections",
+  "limits": [
+    "Full legacy node suite includes deleted whisper page checks and fails; task 2 targeted suite passes",
+    "Development cold compilation and PDF opening timed out; production bundle passes",
+    "Route changes can log aborted fetch requests without uncaught page errors",
+    "Images remain deferred"
+  ]
+}

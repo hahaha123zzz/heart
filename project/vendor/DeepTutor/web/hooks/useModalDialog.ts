@@ -16,6 +16,7 @@ export function useModalDialog(
   onClose: () => void,
   closeDisabled = false,
   returnFocusRef?: RefObject<HTMLElement | null>,
+  enabled = true,
 ): RefObject<HTMLDivElement | null> {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
@@ -31,7 +32,7 @@ export function useModalDialog(
 
   useEffect(() => {
     const dialog = dialogRef.current;
-    if (!dialog) return;
+    if (!enabled || !dialog) return;
     const previousFocus =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
@@ -80,7 +81,7 @@ export function useModalDialog(
       document.removeEventListener("keydown", onKeyDown);
       if (returnFocus?.isConnected) returnFocus.focus();
     };
-  }, [returnFocusRef]);
+  }, [enabled, returnFocusRef]);
 
   return dialogRef;
 }

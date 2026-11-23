@@ -1,0 +1,29 @@
+{
+  "baseline_files": 3764,
+  "local_changes": 194,
+  "local_deletions": 101,
+  "task9": [
+    {
+      "path": "web/app/(settings)/settings/model/page.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/StudentAccountSettings.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/StudentMemory.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/student-account-settings.spec.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/student-model-page.spec.tsx",
+      "action": "modify"
+    }
+  ],
+  "hash_errors": [],
+  "reverse_patch_check": true
+}

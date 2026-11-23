@@ -1,0 +1,43 @@
+{
+  "checks": [
+    "anonymous graph and document requests require native authentication",
+    "actual textbook graph and native Sigma renderer load without graph management",
+    "real model assessment snapshots are owner-bound and versioned",
+    "server caps, release rejection and partial-display message are enforced",
+    "empty scope stays empty and chapter switches discard old selection",
+    "controlled ambiguous and due boundaries do not edit persisted records",
+    "graph read failure can be retried against the actual service",
+    "390px concept view stays within viewport"
+  ],
+  "failures": [
+    {
+      "label": "confirmed mapping detail exposes actual source and verified textbook file",
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('complementary', { name: '节点详情' }).getByRole('heading', { name: '相关设计', exact: true })\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 60000ms\n  - waiting for getByRole('complementary', { name: '节点详情' }).getByRole('heading', { name: '相关设计', exact: true })\n\n    at captureRawStack (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright-core\\lib\\coreBundle.js:3172:17)\n    at callMatcherAsStep (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright\\lib\\matchers\\expect.js:12875:57)\n    at Object.toBeVisible (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright\\lib\\matchers\\expect.js:12865:23)\n    at C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:13:288\n    at async check (C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:5:36)\n    at async C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:13:1"
+    },
+    {
+      "label": "graph selection and scope survive leaving and returning",
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('complementary', { name: '节点详情' }).getByRole('heading', { name: '相关设计', exact: true })\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 60000ms\n  - waiting for getByRole('complementary', { name: '节点详情' }).getByRole('heading', { name: '相关设计', exact: true })\n\n    at captureRawStack (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright-core\\lib\\coreBundle.js:3172:17)\n    at callMatcherAsStep (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright\\lib\\matchers\\expect.js:12875:57)\n    at Object.toBeVisible (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright\\lib\\matchers\\expect.js:12865:23)\n    at C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:14:298\n    at async check (C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:5:36)\n    at async C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:14:1"
+    },
+    {
+      "label": "WebGL-disabled browser retains searchable selectable concept list",
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText(/确认映射 M004/)\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 60000ms\n  - waiting for getByText(/确认映射 M004/)\n\n    at captureRawStack (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright-core\\lib\\coreBundle.js:3172:17)\n    at callMatcherAsStep (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright\\lib\\matchers\\expect.js:12875:57)\n    at Object.toBeVisible (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright\\lib\\matchers\\expect.js:12865:23)\n    at C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:17:773\n    at async check (C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:5:36)\n    at async C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:17:1"
+    },
+    {
+      "label": "confirmed concept opens native guidance with stable knowledge point ID",
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '按此概念辅导' })\u001b[22m\n\n    at C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:21:288\n    at async check (C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:5:36)\n    at async C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:21:1"
+    },
+    {
+      "label": "no uncaught browser error",
+      "error": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 5\n\n- Array []\n+ Array [\n+   \"Minified React error #31; visit https://react.dev/errors/31?args[]=object%20with%20keys%20%7Blevel%2C%20heading%2C%20parent_headings%7D for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\",\n+   \"Minified React error #31; visit https://react.dev/errors/31?args[]=object%20with%20keys%20%7Blevel%2C%20heading%2C%20parent_headings%7D for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\",\n+   \"Minified React error #31; visit https://react.dev/errors/31?args[]=object%20with%20keys%20%7Blevel%2C%20heading%2C%20parent_headings%7D for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\",\n+ ]\n    at captureRawStack (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright-core\\lib\\coreBundle.js:3172:17)\n    at callMatcherAsStep (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright\\lib\\matchers\\expect.js:12875:57)\n    at Object.toEqual (C:\\Users\\free\\.agents\\skills\\playwright\\node_modules\\playwright\\lib\\matchers\\expect.js:12865:23)\n    at C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:22:76\n    at check (C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:5:42)\n    at C:\\Users\\free\\.agents\\skills\\playwright\\.temp-execution-1795251198098.js:22:7"
+    }
+  ],
+  "pageErrors": [
+    "Minified React error #31; visit https://react.dev/errors/31?args[]=object%20with%20keys%20%7Blevel%2C%20heading%2C%20parent_headings%7D for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+    "Minified React error #31; visit https://react.dev/errors/31?args[]=object%20with%20keys%20%7Blevel%2C%20heading%2C%20parent_headings%7D for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+    "Minified React error #31; visit https://react.dev/errors/31?args[]=object%20with%20keys%20%7Blevel%2C%20heading%2C%20parent_headings%7D for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+  ],
+  "controlled_states": [
+    "ambiguous mapping response",
+    "due-time response; no persisted result altered"
+  ]
+}

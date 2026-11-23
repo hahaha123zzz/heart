@@ -1,0 +1,145 @@
+{
+  "baseline_files": 3764,
+  "local_changes": 192,
+  "local_deletions": 101,
+  "task8": [
+    {
+      "path": "deeptutor/api/routers/attachments.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/api/routers/auth.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/api/routers/practice.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/api/routers/question_notebook.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/services/practice/storage.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/services/session/sqlite_store.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/services/session/turns/executor.py",
+      "action": "modify"
+    },
+    {
+      "path": "deeptutor/services/storage/attachment_store.py",
+      "action": "modify"
+    },
+    {
+      "path": "tests/api/test_attachment_learning_surface.py",
+      "action": "modify"
+    },
+    {
+      "path": "tests/api/test_practice.py",
+      "action": "modify"
+    },
+    {
+      "path": "web/app/(utility)/courses/[courseId]/page.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/app/(workspace)/learning/mastery/[pathId]/page.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/chat/home/SessionActivityPanel.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/chat/preview/FilePreviewDrawer.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/chat/preview/previewers/ImagePreview.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/learning/practice/PracticeInsights.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/learning/practice/PracticePage.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/learning/practice/PracticeSession.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/learning/practice/ReviewHome.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/learning/practice/practice-resume.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/sidebar/UtilitySidebar.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/sidebar/WorkspaceSidebar.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/space/question-bank/QuestionBankSection.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/components/space/question-bank/useQuestionBank.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/contracts/generated/api.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/contracts/schema/openapi.json",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/KnowledgeGraph.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/heart/StudentAssessments.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/features/settings/sections/ArchivedChatsSettingsSection.tsx",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/notebook-api.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/lib/practice-api.ts",
+      "action": "modify"
+    },
+    {
+      "path": "web/locales/en/app.json",
+      "action": "modify"
+    },
+    {
+      "path": "web/locales/zh/app.json",
+      "action": "modify"
+    },
+    {
+      "path": "web/tests/practice-workflow.spec.tsx",
+      "action": "modify"
+    }
+  ],
+  "hash_errors": [],
+  "reverse_patch_check": true
+}

@@ -482,6 +482,61 @@
       "title": "ReadingReference",
       "type": "object"
     },
+    "ReadingSelectionPage": {
+      "additionalProperties": false,
+      "description": "一页内的选区，坐标以阅读器显示的裁剪框归一化。",
+      "properties": {
+        "locator": {
+          "minimum": 1,
+          "title": "Locator",
+          "type": "integer"
+        },
+        "quote": {
+          "maxLength": 2000,
+          "title": "Quote",
+          "type": "string"
+        },
+        "rects": {
+          "items": {
+            "maxItems": 4,
+            "minItems": 4,
+            "prefixItems": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "maxItems": 128,
+          "title": "Rects",
+          "type": "array"
+        }
+      },
+      "required": [
+        "locator",
+        "quote",
+        "rects"
+      ],
+      "title": "ReadingSelectionPage",
+      "type": "object"
+    },
     "ReadingViewport": {
       "additionalProperties": false,
       "properties": {
@@ -509,6 +564,14 @@
           ],
           "default": null,
           "title": "Selection"
+        },
+        "selection_pages": {
+          "items": {
+            "$ref": "#/$defs/ReadingSelectionPage"
+          },
+          "maxItems": 40,
+          "title": "Selection Pages",
+          "type": "array"
         }
       },
       "title": "ReadingViewport",

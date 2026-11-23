@@ -73,6 +73,16 @@ export type Revision = number;
 export type ReadingReferences = ReadingReference[];
 export type Locator = number | null;
 export type Selection = string | null;
+export type Locator1 = number;
+export type Quote = string;
+/**
+ * @maxItems 128
+ */
+export type Rects = [unknown, unknown, unknown, unknown][];
+/**
+ * @maxItems 40
+ */
+export type SelectionPages = ReadingSelectionPage[];
 export type ReadingWorkspaceId = string | null;
 export type Regenerate = boolean;
 export type RegeneratedFromMessageId = number | string | null;
@@ -411,6 +421,18 @@ export interface ReadingReference {
 export interface ReadingViewport {
   locator?: Locator;
   selection?: Selection;
+  selection_pages?: SelectionPages;
+}
+/**
+ * 一页内的选区，坐标以阅读器显示的裁剪框归一化。
+ *
+ * This interface was referenced by `TurnProtocolDocument`'s JSON-Schema
+ * via the `definition` "ReadingSelectionPage".
+ */
+export interface ReadingSelectionPage {
+  locator: Locator1;
+  quote: Quote;
+  rects: Rects;
 }
 /**
  * This interface was referenced by `TurnProtocolDocument`'s JSON-Schema

@@ -64,6 +64,22 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+_completion_observer = None
+_completion_preparer = None
+
+
+def set_completion_observer(observer):
+    """宿主仅观察完成回合；评分工作由持久后台消费者执行。"""
+    global _completion_observer
+    _completion_observer = observer
+
+
+def set_completion_preparer(preparer):
+    """仅持久化完成候选；不在前台执行评估模型。"""
+    global _completion_preparer
+    _completion_preparer=preparer
+
+
 class TurnExecutor:
     if TYPE_CHECKING:
         store: SessionStoreProtocol
@@ -145,6 +161,7 @@ class TurnExecutor:
         turn_id = execution.turn_id
         attachments = []
         attachment_records = []
+        user_submission_attachment_ids: set[str] = set()
         assistant_events: list[dict[str, Any]] = []
         assistant_content = ""
         provider_response_state: dict[str, Any] | None = None
@@ -313,6 +330,7 @@ class TurnExecutor:
                     "id": item.get("id", "") or _uuid.uuid4().hex[:12],
                 }
                 attachment_records.append(record)
+                user_submission_attachment_ids.add(str(record["id"]))
 
             # Persist original bytes to the attachment store before extraction
             # so the frontend preview drawer can fetch the file later. The
@@ -411,24 +429,11 @@ class TurnExecutor:
                 on_progress=_attachment_progress,
             )
 
-            # Immersive reading: the page the user is currently looking at
-            # rides along as image attachments, so a vision model sees what
-            # the question is about. A drawn page (vector diagram — common in
-            # slide-exported PDFs) leads with a full-page render, since its
-            # figures only exist as vectors and the embedded rasters alone
-            # would be meaningless fragments; the page's embedded figures
-            # follow. Total stays within READING_VIEWPORT_MAX_IMAGES (the
-            # render takes one slot). Keyed on the resolved workspace mode —
-            # the web composer sends capability "chat" with workspace_mode
-            # "immersive_reading", and the mode resolver falls back to the
-            # capability name for direct callers, so both shapes land here.
-            if workspace_mode == "immersive_reading":
-                attachment_records.extend(
-                    _reading_viewport_image_attachments(
-                        _reading_material_id(payload.get("reading_material_id")),
-                        _reading_viewport(payload.get("reading_viewport")),
-                    )
-                )
+            # Reading turns stay text-grounded by default. The current page is
+            # identified by server-validated material/locator context; do not
+            # silently convert it into screenshot input or display page rasters
+            # as user attachments. Explicit image/crop submissions use the
+            # normal attachment path above.
 
             # Embedded images harvested out of office documents during
             # extraction arrive with base64 and no URL — host them too so
@@ -470,6 +475,11 @@ class TurnExecutor:
                     mime_type=r.get("mime_type", ""),
                     id=r.get("id", ""),
                     extracted_text=r.get("extracted_text", ""),
+                    origin=(
+                        "user_submission"
+                        if str(r.get("id") or "") in user_submission_attachment_ids
+                        else "document_extraction"
+                    ),
                 )
                 for r in attachment_records
             ]
@@ -513,6 +523,7 @@ class TurnExecutor:
                         filename=rec.get("filename", ""),
                         mime_type=rec.get("mime_type", ""),
                         id=rec.get("id", ""),
+                        origin="conversation_history",
                     )
                     for rec in prior_images
                 )
@@ -1191,6 +1202,10 @@ class TurnExecutor:
             # becomes visible. The DONE envelope itself is then appended and
             # synchronously flushed, so a reconnect can never observe a
             # terminal row with a missing durable event prefix.
+            if not is_regenerate and turn_status == "completed" and _completion_preparer is not None:
+                context.metadata["persisted_assistant_message_id"] = assistant_message_id
+                context.metadata["persisted_assistant_has_content"] = bool(assistant_content.strip())
+                await _completion_preparer(execution, context, assistant_events, accepted_user_message_id)
             await self._flush_buffered_events(execution)
             transitioned = await self._transition_execution(
                 execution,
@@ -1205,6 +1220,13 @@ class TurnExecutor:
             await self._publish_live_event(execution, pending_done_event)
             stream_done_sent = True
             await self._flush_buffered_events(execution)
+            if not is_regenerate and turn_status == "completed" and _completion_observer is not None:
+                try:
+                    context.metadata["persisted_assistant_message_id"] = assistant_message_id
+                    context.metadata["persisted_assistant_has_content"] = bool(assistant_content.strip())
+                    await _completion_observer(execution, context, assistant_events, accepted_user_message_id)
+                except Exception:
+                    logger.warning("Completed-turn observer failed; foreground reply is already saved")
             if not is_regenerate and turn_status == "completed":
                 # Title generation is post-turn metadata. Keep it after DONE
                 # so the composer and duration clock stop as soon as the

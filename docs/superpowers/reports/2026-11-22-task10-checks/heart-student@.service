@@ -1,0 +1,18 @@
+[Unit]
+Description=Heart student %i
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=heart
+WorkingDirectory=/opt/heart/student
+ExecStart=/opt/heart/control/bin/python /opt/heart/control/run_student_release.py --root /opt/heart/student --service %i --run
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+KillMode=mixed
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

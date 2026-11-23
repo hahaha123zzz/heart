@@ -1,0 +1,298 @@
+{
+  "task": 6,
+  "date": "2026-11-21",
+  "complete": true,
+  "graph_release_id": "aff825f68e24136fa0d9b5c832bcca44502db36140a3624c99ca010a44bde80c",
+  "approved_mappings": 16,
+  "catalog_points": 37,
+  "light_rag_commit": "25141aa7180fe20f5d9f20e425f80b7b0db880e6",
+  "python_tests": {
+    "graph_and_catalog": 10,
+    "tool_policy": 7,
+    "assessment_regression": 99
+  },
+  "node_tests": 1272,
+  "component_tests": 31,
+  "typecheck_exit_code": 0,
+  "build_exit_code": 0,
+  "contracts_exit_code": 0,
+  "browser": {
+    "checks": [
+      "anonymous graph and document requests require native authentication",
+      "actual textbook graph and native Sigma renderer load without graph management",
+      "fresh accounts do not inherit the previous real assessment records",
+      "confirmed mapping detail exposes actual source and verified textbook file",
+      "graph selection and scope survive leaving and returning",
+      "server caps, release rejection and partial-display message are enforced",
+      "empty scope stays empty and chapter switches discard old selection",
+      "WebGL-disabled browser retains searchable selectable concept list",
+      "controlled ambiguous and due boundaries do not edit persisted records",
+      "graph read failure can be retried against the actual service",
+      "390px concept view stays within viewport",
+      "confirmed concept opens native guidance with stable knowledge point ID",
+      "no uncaught browser error"
+    ],
+    "failures": [],
+    "pageErrors": [],
+    "controlled_states": [
+      "ambiguous mapping response",
+      "due-time response; no persisted result altered"
+    ],
+    "navigations": [
+      "http://127.0.0.1:60305/login?next=%2Fsettings%2Fmodel",
+      "http://127.0.0.1:60305/login?next=%2Fsettings%2Fmodel",
+      "http://127.0.0.1:60305/settings/model",
+      "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+      "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+      "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1&node=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+      "http://127.0.0.1:60305/learning/journal",
+      "http://127.0.0.1:60305/learning/journal",
+      "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1&node=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+      "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1&node=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+      "http://127.0.0.1:60305/learning/graph?chapter=1",
+      "http://127.0.0.1:60305/learning/graph?chapter=1",
+      "http://127.0.0.1:60305/learning/graph?chapter=3&q=no-such-concept-task6",
+      "http://127.0.0.1:60305/learning/graph?chapter=3&q=no-such-concept-task6",
+      "http://127.0.0.1:60305/learning/graph?chapter=2",
+      "http://127.0.0.1:60305/learning/graph?chapter=3",
+      "http://127.0.0.1:60305/learning/graph?chapter=3",
+      "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+      "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+      "http://127.0.0.1:60305/learning/graph?chapter=3&q=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1&node=%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1",
+      "http://127.0.0.1:60305/learning/mastery/topic_0f94ebc87a4c4940afeb7dd07cda80f8/sessions"
+    ],
+    "pathRequests": [
+      {
+        "status": 200,
+        "url": "http://127.0.0.1:60305/api/mastery-paths/topics?dt_workspace="
+      }
+    ]
+  },
+  "real_assessment": {
+    "accounts": 2,
+    "passed": [
+      true,
+      false
+    ],
+    "independent_mastery": false
+  },
+  "production_source_files_matched": 945,
+  "provenance": {
+    "baseline_files": 3764,
+    "local_changes": 171,
+    "local_deletions": 101,
+    "task6": [
+      {
+        "path": "web/features/heart/KnowledgeGraph.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/FocusOnNode.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/GraphControl.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/GraphViewer.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/constants.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/graphColor.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/graphEdgeSafety.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/selectors.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/settings.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/store.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/types.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/useIsDarkMode.ts",
+        "action": "modify"
+      },
+      {
+        "path": "web/features/heart/graph/useLightragGraph.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/package-lock.json",
+        "action": "modify"
+      },
+      {
+        "path": "web/package.json",
+        "action": "modify"
+      },
+      {
+        "path": "web/scripts/run-node-tests.mjs",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/student-graph-build.spec.tsx",
+        "action": "modify"
+      },
+      {
+        "path": "web/tests/student-graph.spec.tsx",
+        "action": "modify"
+      }
+    ],
+    "hash_errors": [],
+    "reverse_patch_check": true
+  },
+  "limits": [
+    "未运行全仓 Vitest",
+    "到期和歧义为浏览器响应边界夹具，不是持久成绩",
+    "正式服务未切换，图片暂缓"
+  ],
+  "host_changes": [
+    {
+      "path": "graph_api.py",
+      "sha256": "77da8fdb80112e5029ee7eaa74d7182f75d50f7e32e0613aad68468955c2b7ea"
+    },
+    {
+      "path": "knowledge/student_graph.py",
+      "sha256": "cba9ea01399cddcc147c365b7c582b26c1f8ca0ced8a3b0b668e1311ae1803d3"
+    },
+    {
+      "path": "knowledge/graph_release.json",
+      "sha256": "c7b6c7edc0de523038177b4a4d08da4933bdf673e1019f8b5e45adf81d1e6e7e"
+    },
+    {
+      "path": "knowledge/graph_mappings.json",
+      "sha256": "9ad48beea151ab0042b63a332411fa87a6890398814c272c6e80aa2d29d507e3"
+    },
+    {
+      "path": "integrations/deeptutor/assessment_intake.py",
+      "sha256": "b14cae5ba59905365a4b63c495f498d792f157baf77d6c4170875cac4e77b2b6"
+    },
+    {
+      "path": "integrations/deeptutor/assessment_publication.py",
+      "sha256": "7ee325811d839a05d9dcb6dc62e34394d717273f268224093085cf08538be5b6"
+    },
+    {
+      "path": "integrations/deeptutor/learning_projection.py",
+      "sha256": "8f6f4afcf96052cb4dbc6156097aaddd29922762a641480f95789242efb03c23"
+    },
+    {
+      "path": "integrations/deeptutor/tool_policy.py",
+      "sha256": "6cc924012e0a503298284ee4c0f9740837972bc573b5b6010b883212d14433f6"
+    },
+    {
+      "path": "integrations/deeptutor/worker.py",
+      "sha256": "2c0e4da474f2eb11666bcc3985cd93ecf3f9c6b5ee907333ad77d30fe0db30ae"
+    },
+    {
+      "path": "integrations/deeptutor/catalog_binding.py",
+      "sha256": "13c21ed0d9f85ad2c59ea1d0e46ae231b1cfceec9556e2bca94703f15d09588a"
+    },
+    {
+      "path": "tests/test_student_graph.py",
+      "sha256": "f69e5f13e30f239fbe9f26d5545121bae482196096d4575310078678f81ce7b1"
+    },
+    {
+      "path": "tests/test_catalog_binding.py",
+      "sha256": "b95b681d5a14d1b159a3bfd0c55ecdf1d4a6c67eed3db3433cb68c7b07f8c314"
+    },
+    {
+      "path": "tests/test_native_tool_policy.py",
+      "sha256": "da0c047a163165cd45377544d33152d220c9e6237f2114de38d3dfd52ed9b1f2"
+    }
+  ],
+  "check_artifacts": [
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/browser-task6-final-results.json",
+      "sha256": "7a5d6f228b559d1d74b9e03aa6a038f4600e1b46e95fb4b9f5673e5ff2c9ed2e"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/browser-task6-results.json",
+      "sha256": "b268c9b3562208535acac2188c6bb4c5ad4abe03e099bc89dba99a1fb4e93557"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/browser-task6.js",
+      "sha256": "8eca88468a14a18465e23f8b6a1624855daa89548a33a3c97493d1068bb5371b"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/check_task6.py",
+      "sha256": "aa5dc7ca4032d1d240f24430237f6f00820bf658fedfff273c799e794df16d60"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/check_task6_readonly.py",
+      "sha256": "1495ab98992dd7c38e145b956a4dedfe5205ac46550a699e8aca205fcda46f27"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/README.md",
+      "sha256": "ed16b185ebbf970c1441326a80e049d2c7b9bda29735f7754b368cb05298144c"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-assessment-python.log",
+      "sha256": "5c722f422fa48b07156ccba8d9b9f8f9b6581a0a6648439ff4572fa2c8eeb893"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-build-final.log",
+      "sha256": "0293782b22b28d61d5e6371e70ddcf5de30b59e075ca4de4aaad6fa581299403"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-contracts.log",
+      "sha256": "7b9947fcff047c93556b8767c2ca08cdaeeca17cb1f2829f44782c50b76884cf"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-node-exit.json",
+      "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-node.log",
+      "sha256": "026c633a0eda921bca140615cfda1ce496878957bde165cc480508e40a1b4645"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-provenance.json",
+      "sha256": "02e601d217e338aad60e02dbafc3415f0b99f2de02bc7cd81e348f1e1d34bc6b"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-provenance.log",
+      "sha256": "ce69465cb1a12ec3f723ab66574f1b21bd412878212a8a58d4147e2528552ff6"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-provenance.py",
+      "sha256": "470bd39021042c60b3a7839d0ba11b5a36d17171863a292b693bda38a64d1479"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-python-final.log",
+      "sha256": "f1020c38f1a06f059b84a005d785b60458636201bf1313597e0f53124b325b17"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-real-assessments.json",
+      "sha256": "e37cf07cc29e0f1e500e1fd1dbdf61d6ad1241f39bab68ba40c6ca0fff6ecbfe"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-related-unit.log",
+      "sha256": "9d48d3aade54fb4a45172ff689a563aa31d9ee872003f7c534b5ac6035043483"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-tool-python.log",
+      "sha256": "6f46e0758969312c9a7e25f1a1495601bff5db378b7d03c53740b35b8c85da2f"
+    },
+    {
+      "path": "docs/superpowers/reports/2026-11-21-task6-checks/task6-typecheck-final.log",
+      "sha256": "2230e90d45b9c1814de2d3d7f36c69df8930ee83dc9b214ba7ced20e68f127a4"
+    }
+  ]
+}

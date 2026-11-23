@@ -1,0 +1,548 @@
+diff --git a/project/vendor/DeepTutor/deeptutor/services/memory/store.py b/project/vendor/DeepTutor/deeptutor/services/memory/store.py
+--- a/project/vendor/DeepTutor/deeptutor/services/memory/store.py
++++ b/project/vendor/DeepTutor/deeptutor/services/memory/store.py
+@@ -430,9 +430,19 @@
+ 
+ 
+ _singleton: MemoryStore | None = None
++_external_memory_store = None
++
++
++def set_external_memory_store(loader) -> None:
++    global _external_memory_store
++    _external_memory_store = loader
+ 
+ 
+ def get_memory_store() -> MemoryStore:
++    if _external_memory_store is not None:
++        store = _external_memory_store()
++        if store is not None:
++            return store
+     global _singleton
+     if _singleton is None:
+         _singleton = MemoryStore()
+diff --git a/project/vendor/DeepTutor/deeptutor/services/memory/paths.py b/project/vendor/DeepTutor/deeptutor/services/memory/paths.py
+--- a/project/vendor/DeepTutor/deeptutor/services/memory/paths.py
++++ b/project/vendor/DeepTutor/deeptutor/services/memory/paths.py
+@@ -60,7 +60,21 @@
+ L3_SLOTS: tuple[L3Slot, ...] = get_args(L3Slot)
+ 
+ 
++_external_root_guard = None
++
++
++class MemoryAccessDisabledError(PermissionError):
++    pass
++
++
++def set_external_memory_root_guard(guard) -> None:
++    global _external_root_guard
++    _external_root_guard = guard
++
++
+ def memory_root() -> Path:
++    if _external_root_guard is not None:
++        _external_root_guard()
+     override = _memory_path_service.get()
+     service = override if override is not None else get_path_service()
+     return service.get_memory_dir()
+diff --git a/project/vendor/DeepTutor/web/features/heart/StudentMemory.tsx b/project/vendor/DeepTutor/web/features/heart/StudentMemory.tsx
+--- a/project/vendor/DeepTutor/web/features/heart/StudentMemory.tsx
++++ b/project/vendor/DeepTutor/web/features/heart/StudentMemory.tsx
+@@ -1,137 +1,72 @@
+ "use client";
+ 
+-import { useCallback, useEffect, useState } from "react";
++import { useEffect, useState } from "react";
+ 
+-interface Entry {
+-  id: string;
+-  text: string;
+-}
+-
+-interface MemoryPayload {
+-  preferences: Entry[];
+-  profile: Entry[];
+-}
+-
++interface Entry { id: string; text: string; source?: string; created_at?: string; }
++interface MemoryPayload { preferences: Entry[]; profile: Entry[]; has_more?: boolean; }
+ const EMPTY: MemoryPayload = { preferences: [], profile: [] };
+ 
+ export default function StudentMemory() {
+   const [data, setData] = useState<MemoryPayload>(EMPTY);
+   const [text, setText] = useState("");
++  const [query, setQuery] = useState("");
+   const [status, setStatus] = useState("");
++  const [error, setError] = useState("");
+   const [busy, setBusy] = useState(false);
+-
+-  const load = useCallback(async () => {
+-    const response = await fetch("/api/heart/memory", { credentials: "same-origin" });
+-    if (response.ok) setData(await response.json());
+-    else setStatus("无法读取记忆");
+-  }, []);
+-
++  const [loaded, setLoaded] = useState(false);
++  const [reload, setReload] = useState(0);
+   useEffect(() => {
+-    void load();
+-  }, [load]);
+-
+-  async function addPreference(event: React.FormEvent) {
+-    event.preventDefault();
+-    const value = text.trim();
+-    if (!value) return;
+-    setBusy(true);
+-    setStatus("");
++    const controller = new AbortController();
++    setData(EMPTY); setLoaded(false); setError("");
++    fetch(`/api/heart/memory?q=${encodeURIComponent(query.trim())}`, { credentials: "same-origin", cache: "no-store", signal: controller.signal })
++      .then(response => { if (!response.ok) throw new Error("memory_unavailable"); return response.json(); })
++      .then((value: MemoryPayload) => { if (!controller.signal.aborted) { setData(value); setLoaded(true); } })
++      .catch(() => { if (!controller.signal.aborted) setError("无法读取记忆，请重新读取；聊天仍可继续。"); });
++    return () => controller.abort();
++  }, [query, reload]);
++  async function mutate(url: string, method: string, body?: string) {
++    if (busy || !loaded) return;
++    setBusy(true); setError(""); setStatus("");
+     try {
+-      const response = await fetch("/api/heart/memory/preference", {
+-        method: "POST",
+-        credentials: "same-origin",
+-        headers: { "Content-Type": "application/json" },
+-        body: JSON.stringify({ text: value }),
+-      });
+-      const payload = await response.json().catch(() => ({}));
+-      if (!response.ok) {
+-        setStatus(payload.detail ?? "保存失败");
+-        return;
+-      }
+-      setData((current) => ({ ...current, preferences: payload.preferences ?? current.preferences }));
+-      setText("");
+-      setStatus("已添加");
+-    } finally {
+-      setBusy(false);
+-    }
++      const response = await fetch(url, { method, credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : undefined, body });
++      const result = await response.json().catch(() => ({}));
++      if (!response.ok) { setLoaded(false); setData(EMPTY); setError(result.detail ?? "操作失败，请重新读取后再试。"); return; }
++      if (method === "POST") setText("");
++      setStatus(method === "POST" ? "已添加" : "已删除"); setReload(value => value + 1);
++    } catch {
++      setLoaded(false); setData(EMPTY); setError("未能确认操作结果，请重新读取记忆；不会自动重复提交。");
++    } finally { setBusy(false); }
+   }
+-
+-  async function remove(kind: "preference" | "profile", id: string) {
+-    setBusy(true);
+-    setStatus("");
+-    try {
+-      const response = await fetch(`/api/heart/memory/${kind}/${encodeURIComponent(id)}`, {
+-        method: "DELETE",
+-        credentials: "same-origin",
+-      });
+-      if (!response.ok) {
+-        setStatus("删除失败");
+-        return;
+-      }
+-      await load();
+-      setStatus("已删除");
+-    } finally {
+-      setBusy(false);
+-    }
++  function section(title: string, hint: string, entries: Entry[], kind: "preference" | "profile") {
++    return <section className="mt-8">
++      <h2 className="text-base font-semibold">{title}</h2><p className="mt-1 text-sm text-muted-foreground">{hint}</p>
++      {loaded && entries.length === 0 && <p className="mt-3 text-sm text-muted-foreground">{query ? "没有匹配内容。" : "还没有内容。"}</p>}
++      <ul className="mt-3 space-y-2">{entries.map(item => <li key={item.id} className="rounded-xl border border-border bg-card p-4 text-sm">
++        <div className="flex items-start justify-between gap-4">
++          <span className="min-w-0 whitespace-pre-wrap break-words">{item.text}</span>
++          <button type="button" disabled={busy || !loaded} aria-label={`删除${item.text}`} onClick={() => void mutate(`/api/heart/memory/${kind}/${encodeURIComponent(item.id)}`, "DELETE")} className="shrink-0 rounded-md border border-border px-2 py-1 text-xs disabled:opacity-50">删除</button>
++        </div>
++        <details className="mt-3"><summary className="cursor-pointer">查看详情</summary>
++          {item.source && <p className="mt-2">来源：{item.source === "explicit_user" ? "你主动添加" : item.source === "student_statement" ? "学生自述" : "来源尚未确认"}</p>}
++          {item.created_at && <time className="mt-1 block text-xs text-muted-foreground" dateTime={item.created_at}>添加时间：{new Date(item.created_at + (/[zZ]|[+-]\d\d:\d\d$/.test(item.created_at) ? "" : "Z")).toLocaleString("zh-CN")}</time>}
++          <p className="mt-2 text-muted-foreground">记忆用于调整辅导方式，不代表已通过知识点测评。</p>
++        </details>
++      </li>)}</ul>
++    </section>;
+   }
+-
+-  const card =
+-    "rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm text-[var(--foreground)]";
+-
+-  function section(title: string, hint: string, items: Entry[], kind: "preference" | "profile") {
+-    return (
+-      <section className="mt-8">
+-        <h2 className="text-base font-semibold text-[var(--foreground)]">{title}</h2>
+-        <p className="mt-1 text-sm text-[var(--muted-foreground)]">{hint}</p>
+-        {items.length === 0 ? (
+-          <p className="mt-3 text-sm text-[var(--muted-foreground)]">还没有内容。</p>
+-        ) : (
+-          <ul className="mt-3 space-y-2">
+-            {items.map((item) => (
+-              <li key={item.id} className={`${card} flex items-start justify-between gap-4`}>
+-                <span className="whitespace-pre-wrap">{item.text}</span>
+-                <button
+-                  type="button"
+-                  disabled={busy}
+-                  onClick={() => remove(kind, item.id)}
+-                  className="shrink-0 rounded-md border border-[var(--border)] px-2 py-1 text-xs text-[var(--muted-foreground)] disabled:opacity-50"
+-                >
+-                  删除
+-                </button>
+-              </li>
+-            ))}
+-          </ul>
+-        )}
+-      </section>
+-    );
+-  }
+-
+-  return (
+-    <div className="mx-auto w-full max-w-3xl px-6 py-8">
+-      <h1 className="text-xl font-semibold text-[var(--foreground)]">我的记忆</h1>
+-      <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+-        这里是从学习过程中整理出的偏好与画像。你可以查看、删除，也可以主动补充学习偏好。
+-      </p>
+-
+-      <form onSubmit={addPreference} className="mt-6 flex gap-2">
+-        <input
+-          value={text}
+-          onChange={(event) => setText(event.target.value)}
+-          placeholder="例如：讲题时多举例子，先给结论再展开"
+-          className="w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm text-[var(--foreground)]"
+-        />
+-        <button
+-          type="submit"
+-          disabled={busy || !text.trim()}
+-          className="shrink-0 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] disabled:opacity-50"
+-        >
+-          添加偏好
+-        </button>
+-      </form>
+-      {status && <p className="mt-2 text-sm text-[var(--muted-foreground)]">{status}</p>}
+-
+-      {section("学习偏好", "你确认过的讲解方式与节奏。", data.preferences, "preference")}
+-      {section("学习画像", "根据学习记录整理的画像，删除后不再用于生成。", data.profile, "profile")}
+-    </div>
+-  );
++  return <div className="mx-auto w-full max-w-3xl px-6 py-8">
++    <h1 className="text-xl font-semibold">我的记忆</h1>
++    <p className="mt-2 text-sm text-muted-foreground">查看、删除记忆，或主动添加学习偏好。长期记忆开关请到设置页调整；关闭后仍可管理这里的内容。</p>
++    <label className="mt-6 block text-sm">搜索记忆<input aria-label="搜索记忆" value={query} maxLength={100} onChange={event => setQuery(event.target.value)} className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2" /></label>
++    <form onSubmit={event => { event.preventDefault(); if (text.trim()) void mutate("/api/heart/memory/preference", "POST", JSON.stringify({ text: text.trim() })); }} className="mt-4 flex flex-wrap gap-2">
++      <input aria-label="学习偏好" value={text} maxLength={500} onChange={event => setText(event.target.value)} placeholder="例如：讲题时多举例子，先给结论再展开" className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm" />
++      <button type="submit" disabled={busy || !loaded || !text.trim()} className="shrink-0 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-50">添加偏好</button>
++    </form>
++    {!loaded && !error && <p role="status" className="mt-3 text-sm">正在读取记忆…</p>}
++    {status && <p role="status" className="mt-3 text-sm">{status}</p>}
++    {error && <div className="mt-3 text-sm"><p role="alert">{error}</p><button type="button" onClick={() => setReload(value => value + 1)} className="mt-2 rounded-md border border-border px-3 py-1.5">重新读取记忆</button></div>}
++    {data.has_more && <p className="mt-3 text-sm text-muted-foreground">当前显示最近 200 条匹配记忆，请缩小搜索范围查看其他内容。</p>}
++    {section("学习偏好", "你确认过的讲解方式与节奏。", data.preferences, "preference")}
++    {section("学习画像", "只有明确来源的学习信息才会显示，不代表掌握成绩。", data.profile, "profile")}
++  </div>;
+ }
+diff --git a/project/vendor/DeepTutor/web/features/heart/StudentMemorySettings.tsx b/project/vendor/DeepTutor/web/features/heart/StudentMemorySettings.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/features/heart/StudentMemorySettings.tsx
+@@ -0,0 +1,43 @@
++"use client";
++
++import { useEffect, useState } from "react";
++import { apiUrl, requestJson } from "@/shared/api/client";
++
++export default function StudentMemorySettings() {
++  const [enabled, setEnabled] = useState<boolean | null>(null);
++  const [busy, setBusy] = useState(false);
++  const [error, setError] = useState("");
++  const [reload, setReload] = useState(0);
++  useEffect(() => {
++    const controller = new AbortController();
++    setEnabled(null); setError("");
++    requestJson<{ enabled: boolean }>(apiUrl("/api/heart/memory/settings"), { signal: controller.signal, cache: "no-store" })
++      .then(value => { if (!controller.signal.aborted) setEnabled(value.enabled); })
++      .catch(() => { if (!controller.signal.aborted) setError("无法读取长期记忆开关，请重新读取。"); });
++    return () => controller.abort();
++  }, [reload]);
++  async function change() {
++    if (enabled === null || busy) return;
++    setBusy(true); setError("");
++    try {
++      const result = await requestJson<{ enabled: boolean }>(apiUrl("/api/heart/memory/settings"), {
++        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: !enabled }),
++      });
++      setEnabled(result.enabled);
++    } catch {
++      setEnabled(null); setError("未能确认保存结果，请重新读取开关；不会自动重复提交。");
++    } finally { setBusy(false); }
++  }
++  return <section className="mt-8 rounded-xl border border-border p-4">
++    <h2 className="font-semibold">长期记忆</h2>
++    <label className="mt-3 flex items-center gap-2 text-sm">
++      <input type="checkbox" checked={enabled === true} disabled={enabled === null || busy} onChange={() => void change()} />
++      开启长期记忆供辅导使用
++    </label>
++    <p className="mt-2 text-sm text-muted-foreground">关闭后辅导不读取长期记忆，也不自动新增。旧内容仍可查看、删除，并可手动添加偏好。重新开启不会补扫旧聊天，与聊天自动评估分别控制。</p>
++    <p className="mt-2 text-sm text-muted-foreground">目前支持手动添加偏好，自动整理学习信息尚未启用。</p>
++    {enabled === null && !error && <p role="status" className="mt-2 text-sm">正在读取开关…</p>}
++    {error && <p role="alert" className="mt-2 text-sm">{error}</p>}
++    {enabled === null && error && <button type="button" className="mt-2 rounded-md border border-border px-3 py-1.5 text-sm" onClick={() => setReload(value => value + 1)}>重新读取长期记忆开关</button>}
++  </section>;
++}
+diff --git a/project/vendor/DeepTutor/web/app/(settings)/settings/model/page.tsx b/project/vendor/DeepTutor/web/app/(settings)/settings/model/page.tsx
+--- a/project/vendor/DeepTutor/web/app/(settings)/settings/model/page.tsx
++++ b/project/vendor/DeepTutor/web/app/(settings)/settings/model/page.tsx
+@@ -1,9 +1,13 @@
+ "use client";
+ 
+ import { useEffect, useState } from "react";
++import StudentMemorySettings from "@/features/heart/StudentMemorySettings";
++import StudentModelCapabilities from "@/features/heart/StudentModelCapabilities";
++import { StudentEvaluationSettings } from "@/features/heart/StudentAssessments";
+ 
+ interface ModelState {
+   configured: boolean;
++  credential_version?: string;
+   base_url?: string;
+   model?: string;
+   api_key_masked?: string;
+@@ -17,20 +21,28 @@
+   const [apiKey, setApiKey] = useState("");
+   const [status, setStatus] = useState("");
+   const [busy, setBusy] = useState(false);
++  const [loaded, setLoaded] = useState(false);
++  const [reload, setReload] = useState(0);
+ 
+   useEffect(() => {
+-    fetch("/api/heart/model", { credentials: "same-origin" })
+-      .then((response) => (response.ok ? response.json() : { configured: false }))
++    const controller = new AbortController();
++    setLoaded(false);
++    fetch("/api/heart/model", { credentials: "same-origin", signal: controller.signal, cache: "no-store" })
++      .then(response => { if (!response.ok) throw new Error("model_read_failed"); return response.json(); })
+       .then((value: ModelState) => {
++        if (controller.signal.aborted) return;
+         setState(value);
+         setBaseUrl(value.base_url ?? "");
+         setModel(value.model ?? "");
++        setLoaded(true);
+       })
+-      .catch(() => setStatus("无法读取当前配置"));
+-  }, []);
++      .catch(() => { if (!controller.signal.aborted) setStatus("无法读取当前配置，请重新读取后再编辑。"); });
++    return () => controller.abort();
++  }, [reload]);
+ 
+   async function save(event: React.FormEvent) {
+     event.preventDefault();
++    if (busy || !loaded) return;
+     setBusy(true);
+     setStatus("");
+     try {
+@@ -45,9 +57,11 @@
+         setStatus(payload.detail ?? "保存失败");
+         return;
+       }
+-      setState({ configured: true, base_url: baseUrl, model, api_key_masked: payload.api_key_masked });
++      setState({ configured: true, base_url: baseUrl, model, api_key_masked: payload.api_key_masked, credential_version: payload.credential_version });
+       setApiKey("");
+       setStatus("已保存，后续对话使用这个 Key");
++    } catch {
++      setApiKey(""); setLoaded(false); setStatus("未能确认保存结果，请重新读取配置后再操作。");
+     } finally {
+       setBusy(false);
+     }
+@@ -64,6 +78,8 @@
+       } else {
+         setStatus("删除失败");
+       }
++    } catch {
++      setLoaded(false); setStatus("未能确认删除结果，请重新读取配置后再操作。");
+     } finally {
+       setBusy(false);
+     }
+@@ -84,32 +100,34 @@
+         </div>
+       )}
+ 
+-      <form onSubmit={save} className="mt-6 space-y-4">
++      {!loaded && !status && <p role="status" className="mt-4 text-sm">正在读取模型配置…</p>}
++      {!loaded && status && <button type="button" className="mt-4 rounded-md border border-border px-3 py-2 text-sm" onClick={() => { setStatus(""); setReload(value => value + 1); }}>重新读取模型配置</button>}
++      <form aria-busy={!loaded || busy} onSubmit={save} className="mt-6 space-y-4">
+         <label className="block">
+           <span className="text-sm font-medium text-[var(--foreground)]">Base URL（必须 HTTPS）</span>
+-          <input className={`${field} mt-1`} value={baseUrl} required
++          <input className={`${field} mt-1`} value={baseUrl} required disabled={!loaded || busy}
+                  placeholder="https://api.example.com/v1"
+                  onChange={(event) => setBaseUrl(event.target.value)} />
+         </label>
+         <label className="block">
+           <span className="text-sm font-medium text-[var(--foreground)]">模型名称</span>
+-          <input className={`${field} mt-1`} value={model} required
++          <input className={`${field} mt-1`} value={model} required disabled={!loaded || busy}
+                  placeholder="gpt-4o-mini"
+                  onChange={(event) => setModel(event.target.value)} />
+         </label>
+         <label className="block">
+           <span className="text-sm font-medium text-[var(--foreground)]">API Key</span>
+-          <input className={`${field} mt-1`} value={apiKey} type="password" required
++          <input className={`${field} mt-1`} value={apiKey} type="password" required disabled={!loaded || busy}
+                  placeholder={state.configured ? "输入新 Key 以替换" : "sk-..."}
+                  onChange={(event) => setApiKey(event.target.value)} />
+         </label>
+         <div className="flex items-center gap-3">
+-          <button type="submit" disabled={busy}
++          <button type="submit" disabled={busy || !loaded}
+                   className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] disabled:opacity-50">
+             保存
+           </button>
+           {state.configured && (
+-            <button type="button" onClick={remove} disabled={busy}
++            <button type="button" onClick={remove} disabled={busy || !loaded}
+                     className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] disabled:opacity-50">
+               删除
+             </button>
+@@ -118,6 +136,10 @@
+         </div>
+       </form>
+ 
++      {loaded && state.configured && state.credential_version && <StudentModelCapabilities version={state.credential_version} onConfigurationChanged={() => { setStatus("配置已更新，正在重新读取。"); setReload(value => value + 1); }} />}
++      <StudentEvaluationSettings />
++      <StudentMemorySettings />
++
+       <p className="mt-6 text-xs text-[var(--muted-foreground)]">
+         图片题需要支持图像输入的模型；不支持时请换模型。Key 只保存密文，读取接口只返回末四位。
+       </p>
+diff --git a/project/vendor/DeepTutor/web/tests/student-memory.spec.tsx b/project/vendor/DeepTutor/web/tests/student-memory.spec.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/tests/student-memory.spec.tsx
+@@ -0,0 +1,79 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, expect, it, vi } from "vitest";
++import StudentMemory from "@/features/heart/StudentMemory";
++import StudentMemorySettings from "@/features/heart/StudentMemorySettings";
++
++const request = vi.hoisted(() => vi.fn());
++vi.mock("@/shared/api/client", () => ({ apiUrl: (path: string) => path, requestJson: request }));
++beforeEach(() => request.mockReset());
++afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
++
++it("keeps an unknown memory switch disabled and re-reads after an uncertain write", async () => {
++  request.mockResolvedValueOnce({ enabled: true }).mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ enabled: false });
++  render(<StudentMemorySettings />);
++  const toggle = screen.getByRole("checkbox", { name: "开启长期记忆供辅导使用" });
++  expect(toggle).toBeDisabled();
++  await waitFor(() => expect(toggle).toBeChecked());
++  fireEvent.click(toggle);
++  expect(await screen.findByRole("alert")).toHaveTextContent("未能确认保存结果");
++  expect(toggle).toBeDisabled();
++  fireEvent.click(screen.getByRole("button", { name: "重新读取长期记忆开关" }));
++  await waitFor(() => expect(toggle).not.toBeChecked());
++  const writes = request.mock.calls.filter(([, options]) => options.method === "PUT");
++  expect(writes).toHaveLength(1);
++  expect(writes[0][1].body).toBe('{"enabled":false}');
++});
++
++it("does not allow changes when the memory setting cannot be read", async () => {
++  request.mockRejectedValueOnce(new Error("offline"));
++  render(<StudentMemorySettings />);
++  expect(await screen.findByRole("alert")).toHaveTextContent("无法读取长期记忆开关");
++  expect(screen.getByRole("checkbox")).toBeDisabled();
++});
++
++it("shows verified source and time, searches on the server, and deletes by stable id", async () => {
++  const card = { id: "42", text: "多举例", source: "explicit_user", created_at: "2026-11-18T10:00:00" };
++  const fetcher = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [card], profile: [] }) })
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [card], profile: [] }) })
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ deleted: "42" }) })
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [], profile: [] }) });
++  vi.stubGlobal("fetch", fetcher);
++  render(<StudentMemory />);
++  expect(await screen.findByText("多举例")).toBeInTheDocument();
++  expect(screen.getByText("来源：你主动添加")).toBeInTheDocument();
++  expect(screen.getByText(/添加时间/)).toBeInTheDocument();
++  fireEvent.change(screen.getByLabelText("搜索记忆"), { target: { value: "举例" } });
++  await waitFor(() => expect(fetcher).toHaveBeenCalledWith("/api/heart/memory?q=%E4%B8%BE%E4%BE%8B", expect.objectContaining({ cache: "no-store" })));
++  await screen.findByText("多举例");
++  fireEvent.click(screen.getByRole("button", { name: "删除多举例" }));
++  await waitFor(() => expect(fetcher).toHaveBeenCalledWith("/api/heart/memory/preference/42", expect.objectContaining({ method: "DELETE" })));
++  await waitFor(() => expect(screen.queryByText("多举例")).toBeNull());
++});
++
++it("handles a failed memory load without an unhandled rejection or write", async () => {
++  const fetcher = vi.fn().mockRejectedValueOnce(new Error("offline"))
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [], profile: [] }) });
++  vi.stubGlobal("fetch", fetcher);
++  render(<StudentMemory />);
++  expect(await screen.findByRole("alert")).toHaveTextContent("无法读取记忆");
++  expect(screen.getByRole("button", { name: "添加偏好" })).toBeDisabled();
++  fireEvent.click(screen.getByRole("button", { name: "重新读取记忆" }));
++  await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
++  expect(fetcher.mock.calls.every(([, options]) => !options.method)).toBe(true);
++});
++
++
++it("clears stale entries and waits for a read after an uncertain deletion", async () => {
++  const fetcher = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [{ id: "5", text: "待删除偏好" }], profile: [] }) })
++    .mockRejectedValueOnce(new Error("offline"))
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ preferences: [], profile: [] }) });
++  vi.stubGlobal("fetch", fetcher);
++  render(<StudentMemory />);
++  fireEvent.click(await screen.findByRole("button", { name: "删除待删除偏好" }));
++  expect(await screen.findByRole("alert")).toHaveTextContent("未能确认操作结果");
++  expect(screen.queryByText("待删除偏好")).toBeNull();
++  expect(screen.getByRole("button", { name: "添加偏好" })).toBeDisabled();
++  fireEvent.click(screen.getByRole("button", { name: "重新读取记忆" }));
++  await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
++  expect(fetcher.mock.calls.filter(([, options]) => options.method === "DELETE")).toHaveLength(1);
++});
+diff --git a/project/vendor/DeepTutor/web/tests/student-model-page.spec.tsx b/project/vendor/DeepTutor/web/tests/student-model-page.spec.tsx
+new file mode 100644
+--- /dev/null
++++ b/project/vendor/DeepTutor/web/tests/student-model-page.spec.tsx
+@@ -0,0 +1,41 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, expect, it, vi } from "vitest";
++import StudentModelPage from "@/app/(settings)/settings/model/page";
++vi.mock("@/features/heart/StudentAssessments", () => ({ StudentEvaluationSettings: () => null }));
++vi.mock("@/features/heart/StudentMemorySettings", () => ({ default: () => null }));
++vi.mock("@/features/heart/StudentModelCapabilities", () => ({ default: () => null }));
++afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
++
++it("disables model fields until the initial read finishes so late data cannot overwrite edits", async () => {
++  let finish!: (value: unknown) => void;
++  vi.stubGlobal("fetch", vi.fn(() => new Promise(resolve => { finish = resolve; })));
++  render(<StudentModelPage />);
++  expect(screen.getByLabelText("Base URL（必须 HTTPS）")).toBeDisabled();
++  expect(screen.getByRole("button", { name: "保存" })).toBeDisabled();
++  finish({ ok: true, json: async () => ({ configured: false }) });
++  await waitFor(() => expect(screen.getByLabelText("Base URL（必须 HTTPS）")).toBeEnabled());
++});
++
++it("keeps a failed configuration read disabled until an explicit retry succeeds", async () => {
++  vi.stubGlobal("fetch", vi.fn().mockRejectedValueOnce(new Error("offline"))
++    .mockResolvedValueOnce({ ok: true, json: async () => ({ configured: false }) }));
++  render(<StudentModelPage />);
++  fireEvent.click(await screen.findByRole("button", { name: "重新读取模型配置" }));
++  await waitFor(() => expect(screen.getByRole("button", { name: "保存" })).toBeEnabled());
++});
++
++it("requires reading back after a lost save response and clears the typed key", async () => {
++  const fetcher = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ configured: false }) })
++    .mockRejectedValueOnce(new Error("lost response"));
++  vi.stubGlobal("fetch", fetcher);
++  render(<StudentModelPage />);
++  const save = screen.getByRole("button", { name: "保存" });
++  await waitFor(() => expect(save).toBeEnabled());
++  fireEvent.change(screen.getByLabelText("Base URL（必须 HTTPS）"), { target: { value: "https://example.com/v1" } });
++  fireEvent.change(screen.getByLabelText("模型名称"), { target: { value: "test-model" } });
++  fireEvent.change(screen.getByLabelText("API Key"), { target: { value: "test-only-key" } });
++  fireEvent.click(save);
++  expect(await screen.findByText("未能确认保存结果，请重新读取配置后再操作。")).toBeInTheDocument();
++  expect(save).toBeDisabled(); expect(screen.getByLabelText("API Key")).toHaveValue("");
++  expect(fetcher).toHaveBeenCalledTimes(2);
++});

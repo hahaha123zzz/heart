@@ -5885,5 +5885,10 @@
   "settings.providerServices.customDescription": "L’URL doit implémenter l’API choisie. Ajoutez ensuite les identifiants et les autres types de services avec leurs adaptateurs.",
   "settings.providerServices.addHint": "Les étiquettes indiquent les intégrations, pas les autorisations du compte. Une connexion peut servir plusieurs types de modèles ; les comptes et produits peuvent rester séparés.",
   "settings.providerServices.catalogListed": "Liste des modèles obtenue. Testez un modèle pour vérifier l’accès à l’inférence.",
-  "settings.providerServices.partial": "Seule une partie de la liste a été obtenue. Les types manquants restent inconnus et peuvent être ajoutés manuellement."
+  "settings.providerServices.partial": "Seule une partie de la liste a été obtenue. Les types manquants restent inconnus et peuvent être ajoutés manuellement.",
+  "关闭导航": "Close navigation",
+  "教材阅读区": "Textbook reading area",
+  "辅导消息": "Tutoring messages",
+  "选择已授权教材": "Select assigned textbook",
+  "Enter your username": "Enter your username"
 }

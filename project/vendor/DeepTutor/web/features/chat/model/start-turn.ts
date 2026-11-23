@@ -45,7 +45,23 @@ export interface StartTurnInput {
   readingMaterialId?: string | null;
   readingMaterialRevision?: number | null;
   readingWorkspaceId?: string | null;
-  readingViewport?: ReadingViewport | null;
+  readingViewport?: (ReadingViewport & {
+    chapter_id?: number;
+    document_id?: string;
+    legacy_reader_selection?: {
+      document_id: string;
+      version: string;
+      kind: "text" | "area";
+      rects: Array<{
+        page: number;
+        x1: number;
+        y1: number;
+        x2: number;
+        y2: number;
+      }>;
+      attachment_filename?: string;
+    };
+  }) | null;
   timedMediaId?: string | null;
   timedMediaViewport?: TimedMediaViewport | null;
   parentMessageId?: number | null;

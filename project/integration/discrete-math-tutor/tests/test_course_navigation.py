@@ -209,7 +209,7 @@ class NavigationTaskTests(unittest.TestCase):
         self.patch.start()
         self.memory = MemoryManager()
         self.repo = LearningTaskRepository()
-        self.service = TaskService(SimpleNamespace(memory=self.memory), self.repo)
+        self.service = TaskService(SimpleNamespace(memory=self.memory, llm=None), self.repo)
         self.contexts = []
 
     def tearDown(self):
@@ -252,7 +252,7 @@ class NavigationTaskTests(unittest.TestCase):
         self.assertTrue(repeated.pop('reader_action_replay'))
         self.assertEqual(first, repeated)
         self.assertEqual(len(self.contexts), 1)
-        self.service = TaskService(SimpleNamespace(memory=self.memory), LearningTaskRepository())
+        self.service = TaskService(SimpleNamespace(memory=self.memory, llm=None), LearningTaskRepository())
         second = self.run_turn('继续下一个知识点', 'b')
         self.assertNotEqual(first['course_navigation']['id'], second['course_navigation']['id'])
         self.assertTrue(second['course_navigation']['explained'])

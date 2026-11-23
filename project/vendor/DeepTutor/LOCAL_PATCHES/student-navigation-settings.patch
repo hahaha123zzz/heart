@@ -1,0 +1,177 @@
+diff --git a/project/vendor/DeepTutor/web/app/(settings)/settings/layout.tsx b/project/vendor/DeepTutor/web/app/(settings)/settings/layout.tsx
+index 2a1b0ae..bcbd25b 100644
+--- a/project/vendor/DeepTutor/web/app/(settings)/settings/layout.tsx
++++ b/project/vendor/DeepTutor/web/app/(settings)/settings/layout.tsx
+@@ -1,3 +1,7 @@
++"use client";
++
++import Link from "next/link";
++import { redirect, usePathname } from "next/navigation";
+ import SettingsMain from "@/components/settings/SettingsMain";
+ import {
+   ModelCatalogProvider,
+@@ -5,7 +9,7 @@ import {
+   SettingsProvider,
+   UiSettingsProvider,
+ } from "@/features/settings/store";
+-import { SettingsAccessProvider } from "@/features/settings/navigation/SettingsAccessProvider";
++import { SettingsAccessProvider, useSettingsAccess } from "@/features/settings/navigation/SettingsAccessProvider";
+ import { SettingsTourOverlay } from "@/components/settings/SettingsTourOverlay";
+ 
+ export default function SettingsLayout({
+@@ -13,9 +17,24 @@ export default function SettingsLayout({
+ }: Readonly<{
+   children: React.ReactNode;
+ }>) {
++  return <SettingsAccessProvider><SettingsContent>{children}</SettingsContent></SettingsAccessProvider>;
++}
++
++function SettingsContent({ children }: Readonly<{ children: React.ReactNode }>) {
++  const access = useSettingsAccess();
++  const pathname = usePathname();
++  if (!access.resolved) return <div aria-busy="true">正在读取账号设置…</div>;
++  if (access.hideAdminOnly) {
++    if (pathname !== "/settings/model") redirect("/settings/model");
++    return (
++      <main className="min-h-dvh bg-background p-6 text-foreground">
++        <Link href="/learning" className="inline-block rounded-md px-3 py-2 text-sm hover:bg-accent">返回我的学习</Link>
++        {children}
++      </main>
++    );
++  }
+   return (
+     <SettingsProvider>
+-      <SettingsAccessProvider>
+         <UiSettingsProvider>
+           <ModelCatalogProvider>
+             <SettingsDraftProvider>
+@@ -26,7 +45,6 @@ export default function SettingsLayout({
+             </SettingsDraftProvider>
+           </ModelCatalogProvider>
+         </UiSettingsProvider>
+-      </SettingsAccessProvider>
+     </SettingsProvider>
+   );
+ }
+diff --git a/project/vendor/DeepTutor/web/components/learning/LearningDashboard.tsx b/project/vendor/DeepTutor/web/components/learning/LearningDashboard.tsx
+index a67ce67..9ec22bf 100644
+--- a/project/vendor/DeepTutor/web/components/learning/LearningDashboard.tsx
++++ b/project/vendor/DeepTutor/web/components/learning/LearningDashboard.tsx
+@@ -1,5 +1,6 @@
+ 'use client'
+ 
++import Link from 'next/link'
+ import { pageGridClass } from '@/components/layout/FeaturePage'
+ import { useEffect, useState } from 'react'
+ import { BookOpen, Route } from 'lucide-react'
+@@ -87,11 +88,16 @@ export function LearningDashboard() {
+   return (
+     <LearningShell
+       back={false}
+-      title={t('Personalized Learning')}
++      title="我的学习"
+       subtitle={t('One tutor, your own way to learn.')}
+     >
+       {/* The ways in lead the page: everything below them assumes you already
+           chose one. Each opens its own introduction before it commits you. */}
++      <nav aria-label="学习记录与设置" className="mb-6 flex flex-wrap gap-3 text-sm">
++        <Link href="/learning/graph" className="rounded-lg border border-border px-4 py-2 hover:bg-accent">知识图谱</Link>
++        <Link href="/memory" className="rounded-lg border border-border px-4 py-2 hover:bg-accent">学习记忆</Link>
++        <Link href="/settings/model" className="rounded-lg border border-border px-4 py-2 hover:bg-accent">个人模型设置</Link>
++      </nav>
+       <LearningWays />
+       {failed.length > 0 && (
+         <LearningErrorState
+diff --git a/project/vendor/DeepTutor/web/components/sidebar/nav-entries.ts b/project/vendor/DeepTutor/web/components/sidebar/nav-entries.ts
+index a6dc267..4360e0b 100644
+--- a/project/vendor/DeepTutor/web/components/sidebar/nav-entries.ts
++++ b/project/vendor/DeepTutor/web/components/sidebar/nav-entries.ts
+@@ -2,8 +2,6 @@ import { LEARNING_HUB } from '@/lib/learning-routes'
+ import {
+   GraduationCap,
+   House,
+-  KeyRound,
+-  Network,
+   Settings,
+   type LucideIcon,
+ } from 'lucide-react'
+@@ -37,7 +35,7 @@ export interface NavEntry {
+ export const PRIMARY_NAV: NavEntry[] = [
+   {
+     href: '/chat',
+-    label: 'Home',
++    label: '对话',
+     icon: House,
+     tooltipKey: 'Home tooltip',
+     requires: 'llm',
+@@ -45,7 +43,7 @@ export const PRIMARY_NAV: NavEntry[] = [
+   },
+   {
+     href: LEARNING_HUB,
+-    label: 'Personalized Learning',
++    label: '我的学习',
+     icon: GraduationCap,
+     tooltipKey: 'One tutor, your own way to learn.',
+     surfaces: ['reading', 'chat', 'books'],
+@@ -54,18 +52,6 @@ export const PRIMARY_NAV: NavEntry[] = [
+ 
+ export const SECONDARY_NAV: NavEntry[] = [
+   { href: '/settings', label: 'Settings', icon: Settings },
+-  {
+-    href: '/learning/graph',
+-    label: '知识图谱',
+-    icon: Network,
+-    surfaces: ['reading', 'chat'],
+-  },
+-  {
+-    href: '/settings/model',
+-    label: '我的模型',
+-    icon: KeyRound,
+-    surfaces: ['chat'],
+-  },
+ ]
+ 
+ export const DEFAULT_COLLAPSED_NAV = PRIMARY_NAV.filter(entry => entry.defaultCollapsed).map(
+diff --git a/project/vendor/DeepTutor/web/tests/sidebar-defaults.spec.tsx b/project/vendor/DeepTutor/web/tests/sidebar-defaults.spec.tsx
+index ef6010f..f6b6370 100644
+--- a/project/vendor/DeepTutor/web/tests/sidebar-defaults.spec.tsx
++++ b/project/vendor/DeepTutor/web/tests/sidebar-defaults.spec.tsx
+@@ -24,8 +24,6 @@ it("new profiles see two primary entries and no folded features", () => {
+   expect(resolved.customized).toBe(false);
+   expect(SECONDARY_NAV.map(item => item.href)).toEqual([
+     "/settings",
+-    "/learning/graph",
+-    "/settings/model",
+   ]);
+ });
+ 
+diff --git a/project/vendor/DeepTutor/web/tests/sidebar-lazy-history.spec.tsx b/project/vendor/DeepTutor/web/tests/sidebar-lazy-history.spec.tsx
+index 60c52cf..5298fbb 100644
+--- a/project/vendor/DeepTutor/web/tests/sidebar-lazy-history.spec.tsx
++++ b/project/vendor/DeepTutor/web/tests/sidebar-lazy-history.spec.tsx
+@@ -73,10 +73,10 @@ it("loads conversation history while navigation remains usable, then preserves s
+   const history = await screen.findByText("Retained session");
+   const scroller = history.closest(".overflow-y-auto");
+   expect(scroller).toContainElement(
+-    screen.getByRole("link", { name: "Personalized Learning" }),
++    screen.getByRole("link", { name: "我的学习" }),
+   );
+   expect(scroller).not.toContainElement(
+-    screen.getByRole("link", { name: "Home" }),
++    screen.getByRole("link", { name: "对话" }),
+   );
+   expect(scroller).not.toContainElement(
+     screen.getByRole("link", { name: "Settings" }),
+@@ -110,9 +110,9 @@ it("keeps Home pinned even when a previous layout folded it into More", () => {
+     }),
+   );
+   render(<SidebarShell />);
+-  expect(screen.getAllByRole("link", { name: "Home" })).toHaveLength(1);
+-  expect(screen.queryByRole("button", { name: "Arrange Home" })).toBeNull();
+-  fireEvent.click(screen.getByRole("link", { name: "Home" }));
++  expect(screen.getAllByRole("link", { name: "对话" })).toHaveLength(1);
++  expect(screen.queryByRole("button", { name: "Arrange 对话" })).toBeNull();
++  fireEvent.click(screen.getByRole("link", { name: "对话" }));
+   expect(fixture.push).toHaveBeenCalledWith("/chat");
+ });
+ 

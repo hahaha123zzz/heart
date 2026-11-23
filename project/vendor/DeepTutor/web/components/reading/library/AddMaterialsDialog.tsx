@@ -21,6 +21,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import { WatchingBrowser } from "@/components/watching/WatchingBrowser";
+import { fetchAuthStatus } from "@/lib/auth";
 import { uploadMaterial } from "@/lib/reading-api";
 import {
   addReadingWorkspaceMaterial,
@@ -78,6 +79,14 @@ export function AddMaterialsDialog({
   onDone: (result: { workspace?: ReadingWorkspace }) => void;
 }) {
   const { t } = useTranslation();
+  const [allowImport, setAllowImport] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void fetchAuthStatus().then(status => {
+      if (active) setAllowImport(Boolean(status && (!status.learning_policy || status.learning_policy.reading?.allow_upload)));
+    });
+    return () => { active = false; };
+  }, []);
   const fileInput = useRef<HTMLInputElement | null>(null);
   const [title, setTitle] = useState("");
   const [items, setItems] = useState<PendingItem[]>([]);
@@ -389,6 +398,7 @@ export function AddMaterialsDialog({
             </label>
           )}
 
+          {allowImport && (<>
           <input
             ref={fileInput}
             type="file"
@@ -465,6 +475,8 @@ export function AddMaterialsDialog({
             {t("Browse Invidious")}
           </button>
 
+          </>)}
+
           {!!items.length && (
             <ul className="mt-3.5 space-y-1.5">
               {items.map((item) => (
@@ -491,7 +503,7 @@ export function AddMaterialsDialog({
             className="mt-4 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3.5 text-[11.5px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           >
             <Library size={13} />
-            {t("Choose from material you already uploaded")}
+            {allowImport ? t("Choose from material you already uploaded") : t("选择已授权教材")}
             <span className="ml-auto">{showPicker ? "−" : "›"}</span>
           </button>
           {showPicker && <LibraryPicker onPick={pickLibrary} />}

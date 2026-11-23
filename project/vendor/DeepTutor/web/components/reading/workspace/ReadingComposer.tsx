@@ -44,7 +44,7 @@ export function ReadingComposer({
   placeholder: string;
   /** Offered question the composer lets the learner take with Tab. */
   placeholderCompletion?: string;
-  selection: { quote: string; locator: number } | null;
+  selection: { quote: string; locator: number; pages?: import("@/lib/reading-turn-state").ReadingSelectionPage[] } | null;
   /** Clears the pending selection once the message is on its way. */
   onSent: () => void;
   /** The learner dropped the quoted passage before sending. */
@@ -83,6 +83,7 @@ export function ReadingComposer({
           setReadingViewport({
             locator: selection.locator,
             selection: selection.quote,
+            selectionPages: selection.pages,
           });
         }
         // The composer's own "@ reference an earlier session" picker and this
@@ -168,7 +169,7 @@ export function ReadingComposer({
         selection ? (
           <QuotedPassage
             quote={selection.quote}
-            onRemove={onRemoveSelection}
+            onRemove={() => { setReadingViewport({ selection: "" }); onRemoveSelection(); }}
           />
         ) : null
       }

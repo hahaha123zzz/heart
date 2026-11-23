@@ -32,6 +32,9 @@ export const ROUTE_CAPABILITIES: ReadonlyArray<{
  * sibling route like "/booket" can never be swallowed by the BOOKS_HOME prefix.
  */
 export function capabilityForPath(pathname: string): Capability | null {
+  // 概览、档案和路径管理读取已有记录；只有实际辅导会话需要个人模型。
+  if ([LEARNING_HUB, `${LEARNING_HUB}/graph`, `${LEARNING_HUB}/journal`, `${LEARNING_HUB}/mastery`].includes(pathname)
+      || /^\/learning\/mastery\/[^/]+\/?$/.test(pathname)) return null;
   const match = ROUTE_CAPABILITIES.find(
     (r) => pathname === r.prefix || pathname.startsWith(`${r.prefix}/`),
   );

@@ -42,7 +42,8 @@ export function PracticeInsights({ courseId, revision, workspaceId }: { courseId
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [retry, setRetry] = useState(0);
-  const scope = `${workspaceId}:${courseId}:${days}`;
+  const knowledgePointId=search.get("knowledge_point_id")||"",masteryPathId=search.get("mastery_path_id")||"";
+  const scope = `${workspaceId}:${courseId}:${days}:${knowledgePointId}:${masteryPathId}`;
   const data = result?.scope === scope ? result.data : null;
   function setView(key: string, value: string) {
     const query = new URLSearchParams(search.toString());
@@ -56,7 +57,7 @@ export function PracticeInsights({ courseId, revision, workspaceId }: { courseId
       const request = ++sequence;
       setLoading(true);
       try {
-        const next = await getPracticeAnalytics(courseId, days, workspaceId);
+        const next = await (knowledgePointId||masteryPathId?getPracticeAnalytics(courseId, days, workspaceId, {knowledge_point_id:knowledgePointId,mastery_path_id:masteryPathId}):getPracticeAnalytics(courseId,days,workspaceId));
         if (active && request === sequence) {
           setResult({ scope, data: next });
           setError("");

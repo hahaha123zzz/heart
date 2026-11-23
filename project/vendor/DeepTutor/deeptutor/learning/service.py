@@ -247,6 +247,22 @@ def assign_objective_identities(
     }
 
 
+_external_assessment_guard = None
+
+
+def set_external_assessment_guard(guard):
+    """宿主可在评分开始前检查当前账号能力；已存结果的重放不再计费。"""
+    global _external_assessment_guard
+    _external_assessment_guard = guard
+
+
+def require_assessment_capability():
+    from deeptutor.multi_user.context import get_current_user_or_none
+    user = get_current_user_or_none()
+    if user is not None and not user.is_admin and _external_assessment_guard is not None:
+        _external_assessment_guard(user)
+
+
 class MasteryInteractionError(RuntimeError):
     """Base error for invalid durable question lifecycle transitions."""
 
@@ -529,6 +545,7 @@ class LearningService:
         visual_context: dict[str, Any] | None = None,
     ) -> bool:
         """Mutate one aggregate with a grade without performing I/O."""
+        require_assessment_capability()
         is_correct = bool(expected_answer) and grade_answer(
             user_answer, expected_answer, question_type
         )
@@ -1774,6 +1791,7 @@ class LearningService:
         replay uses. This keeps the persisted state reproducible and lets an
         initial failure schedule the prompt repair it demonstrably needs.
         """
+        require_assessment_capability()
         self.record_qualitative_in_memory(
             progress,
             kp_id,
@@ -1793,7 +1811,17 @@ class LearningService:
         scheduler: SpacedRepetitionScheduler | None = None,
         session_id: str = "",
         turn_id: str = "",
+        assessment_context: dict | None = None,
     ) -> LearningProgress:
+        if assessment_context is None:
+            require_assessment_capability()
+            from deeptutor.multi_user.context import get_current_user_or_none
+
+            user = get_current_user_or_none()
+            if user is not None and not user.is_admin:
+                # 学生原生入口也必须有服务端独立资格；模型传入 passed 不能替代核验。
+                assessment_context = {"independent": False, "assistance_status": "not_verified",
+                                      "qualification_reason": "source_and_assistance_unverified"}
         def record(tx):
             from deeptutor.learning.policy import QUALITATIVE_TYPES, find_knowledge_point
 
@@ -1806,6 +1834,17 @@ class LearningService:
                 raise MasteryInteractionError(
                     f"Objective {kp.name!r} must be graded with mastery_quiz + mastery_grade"
                 )
+            supersedes = (assessment_context or {}).get("supersedes_evidence_id")
+            if supersedes:
+                previous = next((item for item in tx.progress.learning_evidence if item.evidence_id == supersedes), None)
+                if previous is None or previous.knowledge_point_id != kp_id:
+                    raise MasteryInteractionError("Reassessment source does not belong to this objective")
+                if previous.visual_context.get("independent") is not False:
+                    raise MasteryInteractionError("Qualified evidence requires qualification replay before reassessment")
+                current_job = (assessment_context or {}).get("job_id")
+                if any(item.visual_context.get("supersedes_evidence_id") == supersedes
+                       and item.visual_context.get("job_id") != current_job for item in tx.progress.learning_evidence):
+                    raise MasteryInteractionError("This assessment already has a successful reassessment")
             applied = self.record_qualitative_in_memory(
                 tx.progress,
                 kp_id,
@@ -1814,15 +1853,17 @@ class LearningService:
                 scheduler=scheduler,
                 session_id=session_id,
                 turn_id=turn_id,
+                assessment_context=assessment_context,
             )
             if not applied:
                 return
             tx.touch()
             tx.emit(
-                "mastery.assessed",
+                "mastery.assessed" if assessment_context is None or assessment_context.get("independent") is True else "assessment.recorded",
                 {
                     "knowledge_point_id": kp_id,
                     "passed": bool(passed),
+                    "independent": assessment_context is None or assessment_context.get("independent") is True,
                 },
                 session_id=session_id,
                 turn_id=turn_id,
@@ -1855,6 +1896,7 @@ class LearningService:
         scheduler: SpacedRepetitionScheduler | None = None,
         session_id: str = "",
         turn_id: str = "",
+        assessment_context: dict | None = None,
     ) -> bool:
         evidence_id = ""
         if session_id or turn_id:
@@ -1864,6 +1906,17 @@ class LearningService:
             ).hex
             if any(item.evidence_id == evidence_id for item in progress.learning_evidence):
                 return False
+        if assessment_context is not None and assessment_context.get("independent") is not True:
+            # 未核验或有辅助的作答只留证据，不改变掌握和复习计划。
+            progress.learning_evidence.append(LearningEvidence(
+                evidence_id=evidence_id, knowledge_point_id=kp_id,
+                assessment_type="qualitative", result="correct" if passed else "partial",
+                session_id=session_id, turn_id=turn_id,
+                hints_used=int(assessment_context.get("assistance_status") == "assisted"),
+                visual_context=dict(assessment_context),
+            ))
+            progress.updated_at = time.time()
+            return True
         progress.qualitative_mastery[kp_id] = bool(passed)
         progress.deferred_objectives.pop(kp_id, None)
         current = progress.mastery_levels.get(kp_id, 0.0)

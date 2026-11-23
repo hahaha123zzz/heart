@@ -5,7 +5,7 @@ from agents.context_sufficiency import EvidenceDecision
 from agents.conversation_router import RoutingResult
 from agents.evidence_extractor import AnalysisResult
 from agents.quality_checker import QualityResult, QualityChecker
-from agents.response_generator import requests_supplementary_proof
+from agents.reply_budget import requests_supplementary_proof
 from agents.strategy_router import InstructionalMove
 from agents.teaching_planner import TeachingPlan
 from models.student_state import StudentState

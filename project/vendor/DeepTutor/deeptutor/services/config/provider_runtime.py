@@ -710,12 +710,10 @@ def _with_personal_llm_profiles(catalog: dict[str, Any]) -> dict[str, Any]:
     layer must keep resolving in contexts where multi-user state is absent
     (CLI, tests, background jobs).
     """
-    try:
-        from deeptutor.multi_user.personal_models import merge_personal_llm_profiles
+    from deeptutor.multi_user.personal_models import merge_personal_llm_profiles
 
-        return merge_personal_llm_profiles(catalog)
-    except Exception:
-        return catalog
+    # 宿主凭据读取失败必须阻断解析，不能退回共享 Key。
+    return merge_personal_llm_profiles(catalog)
 
 
 def _model_capabilities(model: dict[str, Any] | None) -> dict[str, bool]:

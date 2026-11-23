@@ -429,6 +429,9 @@ export function ReadingCompanion({
         // No rule above the composer: the last lines fade out instead, so the
         // composer floats over the conversation as it does on /chat. The
         // bottom padding keeps that fade over empty space, not the last line.
+        tabIndex={0}
+        role="region"
+        aria-label={t("辅导消息")}
         className="min-h-0 flex-1 overflow-y-auto px-4 pb-10 pt-4 [scrollbar-gutter:stable]"
         style={{
           WebkitMaskImage: COMPOSER_FADE,

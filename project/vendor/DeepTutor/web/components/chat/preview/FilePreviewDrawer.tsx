@@ -79,6 +79,7 @@ export default function FilePreviewDrawer({
   // react-markdown's reconciliation — if both run at once, the markdown
   // work eats every frame and the chat squeeze visibly stalls. Deferring
   // the body keeps the main thread free for the slide animations.
+  const [unavailableUrl,setUnavailableUrl]=useState<string|null>(null);
   const [bodyMounted, setBodyMounted] = useState(false);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
 
@@ -142,7 +143,7 @@ export default function FilePreviewDrawer({
   const previewUrl = renderedSource
     ? resolveSourceUrl(renderedSource, apiUrl)
     : null;
-  const downloadUrl = previewUrl;
+  const downloadUrl = unavailableUrl===previewUrl?null:previewUrl;
   const previewKind = renderedSource ? previewKindFor(renderedSource) : null;
 
   const [copied, setCopied] = useState(false);
@@ -325,6 +326,7 @@ export default function FilePreviewDrawer({
                 source={renderedSource}
                 previewUrl={previewUrl}
                 kind={previewKind}
+                onUnavailable={()=>setUnavailableUrl(previewUrl)}
               />
             )}
           </div>
@@ -343,7 +345,9 @@ const PreviewBody = memo(function PreviewBody({
   source,
   previewUrl,
   kind,
+  onUnavailable,
 }: {
+  onUnavailable?:()=>void;
   source: FilePreviewSource;
   previewUrl: string | null;
   kind: ReturnType<typeof previewKindFor> | null;
@@ -401,7 +405,7 @@ const PreviewBody = memo(function PreviewBody({
         />
       );
     case "image":
-      return <ImagePreview url={previewUrl} filename={filename} />;
+      return <ImagePreview key={previewUrl} url={previewUrl} filename={filename} onUnavailable={onUnavailable} />;
     case "video":
       return <VideoPreview url={previewUrl} filename={filename} />;
     case "svg":

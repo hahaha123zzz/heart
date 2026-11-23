@@ -62,13 +62,13 @@ def write_policy(username: str, material_id: str, *, allow_upload: bool = False)
     wanted = {
         "age_band": "9-12",
         "locked_persona": "teacher",
-        "allowed_capabilities": ["chat", "immersive_reading"],
+        "allowed_capabilities": ["chat", "immersive_reading", "mastery_path"],
         "default_capability": "chat",
         "allowed_surfaces": ["chat", "reading"],
         "reading": {
             "allow_upload": allow_upload,
             "material_ids": [material_id] if material_id else [],
-            "extensions": [],
+            "extensions": ["read_aloud"],
         },
     }
     if grant.get("learning_policy") == wanted:

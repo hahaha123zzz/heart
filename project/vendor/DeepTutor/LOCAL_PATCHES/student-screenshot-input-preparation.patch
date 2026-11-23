@@ -1,0 +1,33 @@
+diff --git a/project/vendor/DeepTutor/deeptutor/runtime/turn_engine.py b/project/vendor/DeepTutor/deeptutor/runtime/turn_engine.py
+index 8ae9741..a43a0a4 100644
+--- a/project/vendor/DeepTutor/deeptutor/runtime/turn_engine.py
++++ b/project/vendor/DeepTutor/deeptutor/runtime/turn_engine.py
+@@ -5,7 +5,15 @@ from __future__ import annotations
+ from collections.abc import AsyncIterator
+ 
+ from deeptutor.core.context import UnifiedContext
+-from deeptutor.core.stream import StreamEvent
++from deeptutor.core.stream import StreamEvent, StreamEventType
++
++
++_external_input_preparer = None
++
++
++def set_external_input_preparer(preparer) -> None:
++    global _external_input_preparer
++    _external_input_preparer = preparer
+ 
+ 
+ class TurnEngine:
+@@ -17,6 +25,11 @@ class TurnEngine:
+     async def execute(self, context: UnifiedContext) -> AsyncIterator[StreamEvent]:
+         # Lazy loading avoids provider/plugin import side effects at process
+         # boot and leaves one stable patch point for tests and embedders.
++        if _external_input_preparer is not None:
++            async for event in _external_input_preparer(context):
++                yield event
++                if event.type == StreamEventType.DONE:
++                    return
+         from deeptutor.runtime.orchestrator import ChatOrchestrator
+ 
+         orchestrator = (

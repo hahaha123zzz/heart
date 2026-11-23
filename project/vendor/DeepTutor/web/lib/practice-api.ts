@@ -3,6 +3,8 @@ import { apiFetch, apiUrl } from '@/lib/api'
 import type { NotebookEntry } from '@/lib/notebook-api'
 
 const ROOT = '/api/question-notebook/practice'
+export type PracticeScope={knowledge_point_id?:string;mastery_path_id?:string}
+function scopeQuery(scope?:PracticeScope){const query=new URLSearchParams(Object.entries(scope??{}).filter(([,value])=>Boolean(value)) as [string,string][]).toString();return query?"&"+query:""}
 export type PracticeRating = 'again' | 'hard' | 'good' | 'easy'
 export interface PracticeSummary {
   total: number
@@ -38,9 +40,9 @@ export interface PracticeAnalytics {
   sources: (PracticeCounts & { source: string })[]
   totals: PracticeCounts
 }
-export const getPracticeAnalytics = (courseId = '', days = 30, workspaceId?: string) =>
+export const getPracticeAnalytics = (courseId = '', days = 30, workspaceId?: string, scope?:PracticeScope) =>
   request<PracticeAnalytics>(
-    `/analytics?${params(courseId)}&days=${days}&all_workspaces=${workspaceId === '*'}`,
+    `/analytics?${params(courseId)}&days=${days}${scopeQuery(scope)}&all_workspaces=${workspaceId === '*'}`,
     undefined,
     workspaceId === '*' ? '' : workspaceId
   )
@@ -84,22 +86,22 @@ function params(courseId = ''): string {
     course_id: courseId,
   }).toString()
 }
-export const getPracticeSummary = (courseId = '', workspaceId?: string) =>
+export const getPracticeSummary = (courseId = '', workspaceId?: string, scope?:PracticeScope) =>
   request<PracticeSummary>(
-    `/summary?${params(courseId)}&all_workspaces=${workspaceId === '*'}`,
+    `/summary?${params(courseId)}${scopeQuery(scope)}&all_workspaces=${workspaceId === '*'}`,
     undefined,
     workspaceId === '*' ? '' : workspaceId
   )
-export const getPracticeQueue = (courseId = '', workspaceId?: string) =>
+export const getPracticeQueue = (courseId = '', workspaceId?: string, scope?:PracticeScope) =>
   request<PracticeQuestion[]>(
-    `/queue?${params(courseId)}&all_workspaces=${workspaceId === '*'}`,
+    `/queue?${params(courseId)}${scopeQuery(scope)}&all_workspaces=${workspaceId === '*'}`,
     undefined,
     workspaceId === '*' ? '' : workspaceId
   )
 export const getPracticeQuestion = (id: number, workspaceId?: string) =>
   request<PracticeQuestion>(`/questions/${id}`, undefined, workspaceId)
-export const checkPracticeAnswer = (id: number, answer: string, workspaceId?: string) =>
-  request<{ correct: boolean | null }>(`/questions/${id}/check`, json({ answer }), workspaceId)
+export const checkPracticeAnswer = (id: number, answer: string, workspaceId?: string, version?: number) =>
+  request<{ correct: boolean | null; correct_answer: string; explanation: string }>(`/questions/${id}/check`, json({ answer, version }), workspaceId)
 export const savePracticeReview = (
   id: number,
   body: {
@@ -111,7 +113,7 @@ export const savePracticeReview = (
   },
   workspaceId?: string
 ) =>
-  request<{ due_at: number; correct: boolean | null; rating: PracticeRating; is_mistake: boolean }>(
+  request<{ due_at: number; correct: boolean | null; rating: PracticeRating; is_mistake: boolean; learning_sync?: "pending" | "synced" | "catalog_changed" }>(
     `/questions/${id}/review`,
     json(body),
     workspaceId
