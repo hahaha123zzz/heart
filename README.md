@@ -73,6 +73,15 @@ TEST_POSTGRES_ADMIN_URL=...
 
 方式 A 直接连这三个库；方式 B 的 `setup_student_local.py` 会另建一对 `heart_local8000_*` 隔离库，只需要给它一个可建库的管理连接（`TEST_POSTGRES_ADMIN_URL`）。
 
+### 易错点：建了空库 ≠ 有数据
+
+- `CREATE DATABASE` + `CREATE EXTENSION vector` 只是把空房间建出来；会话、学习进度、记忆卡片在表数据里，空库打开就是空白页面。
+- 本机 8000 实际连接的是 `heart_local8000_<hash>` 和 `heart_local8000_course_<hash>`（`setup_student_local.py` 自动创建），**不是** `heart_psychology`；手工建 `heart_psychology` 不会复现本机内容。
+- `heart_rag` 只建库和扩展还不够：LightRAG 的 11 张表要初始化，教材索引（11 文档 / 1239 chunks）要重建或从备份恢复，否则引用检索为空。
+- 旧 `heart` 库里的记录不会自动迁移到新库；把 `.env` 改指向新库后，旧数据看起来就像丢了。
+- 想复现本机内容要恢复 `heart_psychology`、`heart_rag` 的 `pg_dump -Fc`，再恢复 `DEEPTUTOR_HOME` 和 `private/runtime.env`；只建库只能得到可打开的空白页面。
+- 不要手工建库写 `.env` 与 `setup_student_local.py` 混用：会同时存在 `heart_psychology` 和 `heart_local8000_*` 两套库，数据各存一半，排查时极易误判为丢失。
+
 ## 6. `.env` 与密钥
 
 ```powershell
