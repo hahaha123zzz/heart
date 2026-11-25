@@ -31,8 +31,9 @@ def plan(root:Path,service:str,values:dict):
  host=release/HROOT;vendor=release/VROOT
  env.update(DEEPTUTOR_NATIVE_ENABLED="1",DEEPTUTOR_AUTOSTART="0",CLEANUP_EXPIRED_ON_STARTUP="0",DEEPTUTOR_BACKEND_URL=worker_url,DEEPTUTOR_HOST_URL=host_url)
  env["PYTHONPATH"]=os.pathsep.join([str(host),str(vendor),*filter(None,env.get("HEART_RUNTIME_EARLY_PATHS","").split(os.pathsep))])
- python=Path(env["HEART_RUNTIME_PYTHON"]) if env.get("HEART_RUNTIME_PYTHON") else root/"environments"/manifest["release_id"]/("Scripts/python.exe" if os.name=="nt" else "bin/python")
  if service in {"host","worker"}:
+  python_key="HEART_WORKER_PYTHON" if service=="worker" else "HEART_RUNTIME_PYTHON"
+  python=Path(env.get(python_key) or env.get("HEART_RUNTIME_PYTHON") or root/"environments"/manifest["release_id"]/("Scripts/python.exe" if os.name=="nt" else "bin/python"))
   if not python.is_file():raise ValueError("target_python_environment_missing")
   if service=="host":
    args=["uvicorn","main:app","--host","127.0.0.1","--port",host_port]

@@ -58,7 +58,10 @@ class NativeRuntimeTests(unittest.IsolatedAsyncioTestCase):
         from deeptutor.services.session.turns.title_service import SessionTitleService
         from deeptutor.services.workspace.context import current_workspace_id
 
-        self.temp = tempfile.TemporaryDirectory()
+        # Windows can keep the reading catalog briefly locked after the
+        # upstream runtime closes; do not turn a successful test into cleanup
+        # noise while the OS releases that handle.
+        self.temp = tempfile.TemporaryDirectory(ignore_cleanup_errors=os.name == 'nt')
         self.home = Path(self.temp.name)
         self.env = patch.dict(os.environ, DEEPTUTOR_HOME=str(self.home), DEEPSEEK_API_KEY='fixture-key', DEEPSEEK_MODEL='fixture-model')
         self.env.start()

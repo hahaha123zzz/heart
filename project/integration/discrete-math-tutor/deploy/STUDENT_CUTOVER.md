@@ -6,7 +6,7 @@
 
 `student_release.py bundle --repo <repo> --output <deployment>/releases/<id> --release-id <id>` 冻结 H、厂家后端、网页源码及许可证；`verify --release <path>` 逐项核对 SHA-256。源码包包含 knowledge Python 模块及发布元数据；不包含 .env、密码、厂家 home、数据库或教材正文/PDF/图库资产。它是源码快照，不能把 Windows node_modules/standalone 当作 Linux 已验收运行包。
 
-目标需准备 Python 3.12/3.13、Node 24.15.0、独立的依赖环境，并在目标 OS 执行 web 的 npm ci、契约检查、类型检查与 npm run build；复制 .next/static 和 public 到 standalone 对应目录。H、厂家、网页三层必须来自同一个快照。Python 依赖应按目标系统验证；本仓库 Windows lock 不能作为 Linux lock 使用。
+目标需准备 Python 3.11 或更高版本、Node 24.15.0、宿主与 worker 各自的依赖环境，并在目标 OS 执行 web 的 npm ci、契约检查、类型检查与 npm run build；复制 .next/static 和 public 到 standalone 对应目录。H、厂家、网页三层必须来自同一个快照。Python 依赖应按目标系统验证；本仓库 Windows lock 不能作为 Linux lock 使用。
 
 ## 持久资源与绑定
 
@@ -36,7 +36,7 @@ verify 上一版完整运行包；select --release <old> --expected-current <new
 
 私密运行参数放 <deployment>/private/runtime.env（Linux 0600），Python 依赖环境放 <deployment>/environments/<release_id>，HEART_RUNTIME_NODE 指向目标系统 Node 绝对路径。启动器要求所有持久资源在 releases 之外；网页进程仅继承必要代理参数，不继承 PG URL、模型加密密钥或项目模型 Key。目标预检缺失时拒绝启动。先完成三个 --check，再执行经授权的 systemctl restart heart-student@host heart-student@worker heart-student@web。
 
-启动器还要求已准备 enabled=true 的本地认证、已有账号表和原 auth_secret，禁止未初始化身份时自动打开注册/匿名入口。后台 auth 的 enabled 环境显式开启，保留既有 token secret；mem0 本地历史文件固定到部署外的厂家 home。
+启动器还要求已准备 enabled=true 的本地认证、已有账号表和原 auth_secret，禁止未初始化身份时自动打开注册/匿名入口。后台 auth 的 enabled 环境显式开启，保留既有 token secret；mem0 本地历史文件固定到部署外的厂家 home。`DATABASE_URL` 与 `COURSE_DATABASE_URL` 必须指向不同数据库；`HEART_WORKER_PYTHON` 应指向已安装上游 worker 依赖的环境。
 
 ## 本轮目标更新（2026-11-22）
 

@@ -71,6 +71,24 @@ def test_missing_and_wrong_encryption_key_fail_closed(store, monkeypatch):
         store.read("key-test", decrypt=True)
 
 
+def test_native_bridge_account_without_personal_key_can_use_host_grant(store, monkeypatch):
+    from integrations.deeptutor.heart_model_api import _personal_profiles
+    from deeptutor.multi_user.context import reset_current_user, set_current_user
+
+    token = set_current_user(
+        SimpleNamespace(id="native-user", username="heart_native_test", is_admin=False)
+    )
+    try:
+        assert _personal_profiles(SimpleNamespace(
+            id="native-user", username="heart_native_test", is_admin=False
+        )) is None
+        assert _personal_profiles(SimpleNamespace(
+            id="student", username="ordinary-student", is_admin=False
+        )) == []
+    finally:
+        reset_current_user(token)
+
+
 @pytest.fixture
 def personal_runtime(store, monkeypatch):
     from deeptutor.multi_user import personal_models

@@ -25,6 +25,12 @@ reader/node_modules/
 knowledge/pdf/crops/
 frontend/visualizations/drawio/
 
+# Textbook assets and generated reader content remain external.
+knowledge/pdf/
+knowledge/textbook_text/
+knowledge/exercises/
+frontend/textbook/
+
 # GPU 运行库与本机验证标记
 .venv-gpu/
 

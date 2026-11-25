@@ -44,7 +44,9 @@ class HeartCourseRagTool(BaseTool):
         except Exception as exc:  # noqa: BLE001 - 检索失败要回到模型而不是中断回合
             return ToolResult(content=f"教材检索暂不可用：{type(exc).__name__}", success=False)
         rows = await asyncio.to_thread(_authorized_course_rows, rows)
-        rows = rows[:limit]
+        # Citation verification expands parent blocks; keep the candidate set
+        # bounded or it rejects the whole turn as too broad.
+        rows = rows[:max(12, limit * 2)]
         if not rows:
             return ToolResult(content="已授权的教材范围内没有足够匹配原文；不要编造依据。",
                               metadata={"query": query})
@@ -53,6 +55,7 @@ class HeartCourseRagTool(BaseTool):
             sources = await asyncio.to_thread(prepare_retrieval, query, rows, kwargs.get('_heart_context'), kb_name)
         except (ValueError, OSError):
             return ToolResult(content='本次检索原文未能通过正式证据核验，请缩小问题范围后重试。', success=False)
+        sources = sources[:limit]
         if not sources:
             return ToolResult(content='没有可核验的教材证据，不要编造原文。', success=False)
         linked_sources = []

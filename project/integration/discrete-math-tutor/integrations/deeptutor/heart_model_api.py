@@ -53,7 +53,10 @@ def _personal_profiles(user) -> list[dict] | None:
         return None
     record = credentials.runtime_config(user.username)
     if record is None:
-        return []
+        # Native bridge accounts receive an explicit host-model grant for each
+        # authorized turn. Returning None lets that grant resolve; ordinary
+        # students keep fail-closed personal-model behavior.
+        return None if str(user.username).startswith("heart_native_") else []
     return [{"id": "heart-student-" + user.id, "name": "我的模型", "binding": "openai",
              "owner_bound": True, "base_url": _check_endpoint(record["base_url"]),
              "api_key": record["api_key"], "wire_api": "chat_completions",

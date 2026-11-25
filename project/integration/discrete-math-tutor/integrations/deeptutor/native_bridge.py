@@ -22,6 +22,9 @@ def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode()).hexdigest()
 
 
+_reading_ready: set[str] = set()
+
+
 def normalize_turn_options(options):
     """把旧课程库名与产品别名归一为唯一课程KB；其他KB保持原顺序。"""
     from .course_rag_provider import canonical_names
@@ -31,6 +34,23 @@ def normalize_turn_options(options):
     if names:
         options['knowledge_bases'] = canonical_names(names)
     return options
+
+
+def native_learning_policy(existing=None):
+    policy = dict(existing) if isinstance(existing, dict) else {}
+    policy.update({
+        "age_band": policy.get("age_band") or "9-12",
+        "locked_persona": "teacher",
+        "allowed_capabilities": ["chat", "immersive_reading"],
+        "default_capability": "chat",
+        "allowed_surfaces": ["chat", "reading"],
+        "reading": {
+            "allow_upload": False,
+            "material_ids": ["*"],
+            "extensions": ["read_aloud"],
+        },
+    })
+    return policy
 
 
 # 宿主课程约定会注入每个原生回合的系统提示；引用编号与图表索引都在这里恢复。
@@ -169,6 +189,7 @@ class NativeTurnBridge:
         models = grant.setdefault('models', {}).setdefault('llm', [])
         models[:] = [item for item in models if item.get('profile_id') != profile_id] + [
             {'profile_id': profile_id, 'model_ids': ['host-model']}]
+        grant["learning_policy"] = native_learning_policy(grant.get("learning_policy"))
         if load_grant(user_id) != grant: save_grant(user_id, grant)
         return {'user_id': user_id}, {'profile_id': profile_id, 'model_id': 'host-model'}
 
@@ -188,6 +209,10 @@ class NativeTurnBridge:
         from deeptutor.services.workspace.context import workspace_context
 
         with self.user_scope(binding['user_id']):
+            if binding['user_id'] not in _reading_ready:
+                from .course_reading import ensure_course_reading
+                await asyncio.to_thread(ensure_course_reading)
+                _reading_ready.add(binding['user_id'])
             row = db.execute('SELECT workspace_id, native_course_id FROM native_courses WHERE user_id=? AND course_id=?',
                 (binding['user_id'], request.course_id)).fetchone()
             name = request.course_title[:40] + ' · native-' + digest(request.course_id)[:16]

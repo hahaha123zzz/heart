@@ -9,6 +9,19 @@ from knowledge.source_mapping import source_spans
 
 HEADING=re.compile(r'^(?:[一二三四五六七八九十]+、|\([一二三四五六七八九十]+\)|\d+\.)')
 
+
+def _compact(value):
+    return ''.join(str(value or '').split())
+
+
+def _query_concepts(query):
+    text = _compact(query)
+    text = re.sub(r'[?？。！!]+$', '', text)
+    text = re.sub(r'^(?:请问|请解释|解释一下|什么叫做|什么是)', '', text)
+    text = re.sub(r'(?:是什么意思|的含义是什么|的定义是什么|是什么|的含义|的定义|的基本模式)$', '', text)
+    return [part for part in re.split(r'(?:和|与|、)', text) if len(part) >= 3]
+
+
 def _group(blocks,index):
     first=blocks[index];text=first['text'].strip()
     level=1 if re.match(r'^[一二三四五六七八九十]+、',text) else 2 if text.startswith('(') else 3
@@ -27,6 +40,7 @@ def documents():
 
 def retrieve(query,fallback_chunks,*,limit=6,preferred_types=()):
     query=query.replace('配对设计','配对组设计')
+    query_concepts = _query_concepts(query)
     engine = os.getenv('RAG_RETRIEVAL_ENGINE', 'legacy')
     if engine not in ('legacy', 'local_llamaindex'): raise ValueError('RAG_RETRIEVAL_ENGINE无效')
     if engine == 'local_llamaindex':
@@ -46,28 +60,32 @@ def retrieve(query,fallback_chunks,*,limit=6,preferred_types=()):
             if len(text)>65 or not HEADING.match(text):continue
             title=''.join(HEADING.sub('',text).split()).removeprefix('什么是')
             title=re.sub(r'(?:的)?(?:含义|定义|基本模式)$','',title)
-            matched={term for term in title.split('和') if len(term)>=3 and term in ''.join(query.split())}
+            matched={term for term in query_concepts if term in title}
+            priority=0 if any(term==title for term in query_concepts) else 1
+            if not matched:
+                matched={term for term in title.split('和') if len(term)>=3 and term in _compact(query)}
+                priority=2
             if not matched:continue
             group=_group(blocks,index)
             if len(group)<2:continue
             content='\n'.join('\n'.join(' | '.join(row) for row in b['rows']) if b['kind']=='table' else b['text'] for b in group)
             parent=f'experimental-psychology-3:ch{chapter:02d}:b{block["block_index"]}'
-            anchors.append((len(title),matched,TextbookChunk(document['source'],block['section'],content,terms_for(content),
+            anchors.append((priority,len(title),matched,TextbookChunk(document['source'],block['section'],content,terms_for(content),
                 section_id=block['section_id'],chunk_id=parent+':anchor',parent_id=parent,chapter_id=chapter,
                 page=pages[(chapter,block['section_id'])],block_start=block['block_index'],block_end=group[-1]['block_index'],
                 source_spans=source_spans(group,content))))
-    ranked=sorted(anchors,key=lambda a:a[0],reverse=True)
+    ranked=sorted(anchors,key=lambda anchor:(anchor[0],anchor[1]))
     selected=[];covered=set()
     # 先覆盖本轮每个显式概念，再补同一概念的定义/基本模式。
     for anchor in ranked:
-        if any(not any(term in seen for seen in covered) for term in anchor[1]):
-            selected.append(anchor);covered.update(anchor[1])
+        if any(not any(term in seen for seen in covered) for term in anchor[2]):
+            selected.append(anchor);covered.update(anchor[2])
         if len(selected)>=limit:break
     budget=min(limit,max(2,len(selected)+1))
     for anchor in ranked:
         if len(selected)>=budget:break
         if anchor not in selected:selected.append(anchor)
-    result=[chunk for _,_,chunk in selected]
+    result=[chunk for _,_,_,chunk in selected]
     for chunk in chunks:
         blocks=by_chapter.get(chunk.chapter_id,[])
         group=[b for b in blocks if chunk.block_start<=b['block_index']<=chunk.block_end]

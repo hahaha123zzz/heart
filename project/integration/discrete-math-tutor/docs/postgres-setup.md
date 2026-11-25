@@ -15,13 +15,15 @@
 CREATE ROLE heart LOGIN PASSWORD '<pw>' CREATEDB;
 CREATE DATABASE heart OWNER heart;
 CREATE DATABASE heart_psychology OWNER heart;
+CREATE DATABASE heart_psychology_course OWNER heart;
 CREATE DATABASE heart_rag OWNER heart;
 ```
 
 | 库 | 用途 |
 |---|---|
 | `heart` | 旧课程业务库（空库） |
-| `heart_psychology` | 当前心理学课程：账本、卡片、mem0 向量 |
+| `heart_psychology` | 学习数据：账本、卡片、mem0 向量 |
+| `heart_psychology_course` | 课程数据；必须与 `heart_psychology` 分开 |
 | `heart_rag` | LightRAG 的 11 张表 |
 
 扩展（superuser 执行，每个用到的库一次）：

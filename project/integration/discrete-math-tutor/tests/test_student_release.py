@@ -67,6 +67,24 @@ def test_runtime_plan_keeps_secrets_out_of_frontend_and_rejects_missing_build(tm
  with pytest.raises(ValueError,match="mutable_resource_inside_release"):plan(root,"web",env)
 
 
+def test_runtime_plan_uses_separate_host_and_worker_python(tmp_path,monkeypatch):
+ monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]/"deploy"))
+ from run_student_release import plan
+ source=tmp_path/"source"
+ for root in (HROOT,VROOT):
+  (source/root).mkdir(parents=True);(source/root/"main.py").write_text("safe")
+ root=tmp_path/"deploy";release=root/"releases/current";bundle(source,release,"current");select(root,release,None)
+ home=tmp_path/"home";(home/"data/user/settings").mkdir(parents=True);(home/"data/system/auth").mkdir(parents=True)
+ (home/"data/user/settings/auth.json").write_text('{"enabled":true}')
+ (home/"data/system/auth/users.json").write_text('{"admin":{"role":"admin"}}')
+ (home/"data/system/auth/auth_secret").write_text("private-secret")
+ host_python=tmp_path/"host-python.exe";host_python.touch()
+ worker_python=tmp_path/"worker-python.exe";worker_python.touch()
+ env={"DEEPTUTOR_HOME":str(home),"TUTOR_PSYCHOLOGY_DIR":str(tmp_path/"assets"),"COURSE_DATABASE_URL":"private-course","DATABASE_URL":"private-main","POSTGRES_HOST":"private-host","POSTGRES_DATABASE":"private-rag","HEART_MODEL_ENCRYPTION_KEY":"private-encryption","DEEPTUTOR_BRIDGE_TOKEN":"b"*40,"HEART_RUNTIME_PYTHON":str(host_python),"HEART_WORKER_PYTHON":str(worker_python)}
+ host,_,_=plan(root,"host",env);worker,_,_=plan(root,"worker",env)
+ assert host[0]==str(host_python) and worker[0]==str(worker_python)
+
+
 def test_knowledge_python_and_release_metadata_are_code_but_course_assets_stay_external(tmp_path):
  source=tmp_path/"source"
  for root in (HROOT,VROOT):(source/root).mkdir(parents=True)

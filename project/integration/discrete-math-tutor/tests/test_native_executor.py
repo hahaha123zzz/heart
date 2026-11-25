@@ -42,8 +42,10 @@ class NativeExecutorTests(Q5TestBase):
         self.guard=patch('knowledge.request_resources.resolve_resources', return_value=ResourceSnapshot([]))
         self.guard.start()
         self.documents=patch('knowledge.pdf_reader.documents',return_value=[]);self.documents.start()
+        self.prefetch=patch('integrations.deeptutor.native_executor._prefetched_course_grounding',return_value=([],[]))
+        self.prefetch.start()
     def tearDown(self):
-        self.documents.stop();self.guard.stop();super().tearDown()
+        self.prefetch.stop();self.documents.stop();self.guard.stop();super().tearDown()
     def request(self, **kwargs):
         return ChatRequest(**({'student_id':'s','session_id':'sess','request_id':'r-native','message':'解释变量'}|kwargs))
     def test_options_reach_native_and_saved_request_does_not_execute_twice(self):

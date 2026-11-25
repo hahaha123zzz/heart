@@ -9,6 +9,16 @@
 > 本机 8000 端口的学生端是「宿主 API + 上游 worker + Next 工作台」三服务，由源码快照 + 外部数据/密钥组合而成。
 > **克隆后不能直接得到同样的体验**：构建产物、教材资产、数据库、账号、模型缓存和密钥都不在 Git 里。下面按顺序列出需要补的东西。
 
+## 最容易出错的地方
+
+- 心理学模式的 `DATABASE_URL` 与 `COURSE_DATABASE_URL` 必须是两个不同的 PostgreSQL 库，不能照抄成同一个连接串。
+- 宿主和 worker 应使用各自匹配的 Python 环境；不要把 `.venv-deeptutor` 省略成宿主 Python，也不建议把两个环境随意拼在一起。
+- 三服务启动前必须先执行 `student_release.py select` 写入 `active-release.json`，只打包和 `verify` 还不够。
+- `.next/` 构建产物、教材、数据库和 `.env` 都不在 Git 中；只拉代码不能直接得到完整内容。
+- 桥接令牌只允许由服务进程环境读取，不能写进前端源码、页面、日志或公开静态文件。
+- 启用 `DEEPTUTOR_NATIVE_ENABLED=1` 后，健康检查中的旧 `memory_worker` 可能显示关闭；这是原生链替代宿主旧后台 worker 的正常状态，不代表依赖缺失。
+- 三服务模式下 `DEEPTUTOR_HOST_URL` 必须指向宿主 `18000`，不能指向网页 `8000`；否则 worker 回查授权时会得到 404。
+
 ## 仓库里没有的东西
 
 | 缺少项 | 位置 / 说明 |
@@ -24,7 +34,7 @@
 
 ## 1. 系统依赖
 
-- Python 3.13（本机验证版本）或目标系统对应版本
+- Python 3.11 或更高版本（当前本机已验证 3.14；项目依赖不支持 3.10）
 - Node **24.15.0**（本机已验证；构建与 `.next/standalone/server.js` 运行都用它）
 - PostgreSQL **18 + pgvector**，建库与扩展见 [`docs/postgres-setup.md`](project/integration/discrete-math-tutor/docs/postgres-setup.md)
 - 可选：WSL Ubuntu（代码执行沙箱）；不启用时相关工具不可用
@@ -60,11 +70,11 @@ npm run build
 
 ## 5. PostgreSQL
 
-按 `docs/postgres-setup.md` 创建角色 `heart`、三个库，并在用到的库上执行 `CREATE EXTENSION vector`。然后配置：
+按 `docs/postgres-setup.md` 创建角色 `heart`、四个库，并在用到的库上执行 `CREATE EXTENSION vector`。学习库与课程库必须分开，然后配置：
 
 ```ini
 DATABASE_URL=postgresql+psycopg://heart:<pw>@127.0.0.1:5432/heart_psychology
-COURSE_DATABASE_URL=postgresql+psycopg://heart:<pw>@127.0.0.1:5432/heart_psychology
+COURSE_DATABASE_URL=postgresql+psycopg://heart:<pw>@127.0.0.1:5432/heart_psychology_course
 TEST_POSTGRES_URL=...
 TEST_POSTGRES_ADMIN_URL=...
 ```
@@ -106,10 +116,12 @@ cd project/integration/discrete-math-tutor
 # 1) 打源码快照并校验（不含 .env、密码、数据库、教材资产）
 python deploy/student_release.py bundle --repo <repo> --output <deploy>/releases/<id> --release-id <id>
 python deploy/student_release.py verify --release <deploy>/releases/<id>
+python deploy/student_release.py select --root <deploy> --release <deploy>/releases/<id>
 
 # 2) 初始化部署：建独立 PG 库、写 private/runtime.env、建复核账号并授权教材章节
 python deploy/setup_student_local.py --root <deploy> --project-env .env `
-    --assets <教材目录> --python <python.exe> --node <node.exe>
+    --assets <教材目录> --python <宿主python.exe> `
+    --worker-python <deeptutor_python.exe> --node <node.exe>
 
 # 3) 预检 + 起三服务（就绪后才返回）
 python deploy/run_student_release.py --root <deploy> --service host   --check
