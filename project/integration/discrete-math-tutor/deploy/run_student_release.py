@@ -1,6 +1,6 @@
 """从受控发行选择启动一种服务；--check 只核验，--run 才替换当前进程。"""
 from __future__ import annotations
-import argparse,json,os,sys
+import argparse,json,os,sys,time
 from pathlib import Path
 from dotenv import dotenv_values
 try:
@@ -8,10 +8,13 @@ try:
 except ImportError:
  from student_release import verify,HROOT,VROOT
 
-def plan(root:Path,service:str,values:dict):
+def plan(root:Path,service:str,values:dict,timing:dict|None=None):
  root=root.resolve(strict=True);active=json.loads((root/"active-release.json").read_text("utf-8"));release=Path(active["release_path"]).resolve(strict=True)
  if not release.is_relative_to(root/"releases"):raise ValueError("invalid_active_release")
+ began=time.perf_counter()
  manifest=verify(release)
+ if timing is not None:timing.update(release_seconds=time.perf_counter()-began,
+  file_count=len(manifest["files"]),release_id=manifest["release_id"],service=service)
  if manifest["release_id"]!=active["release_id"]:raise ValueError("active_identity_mismatch")
  env={**os.environ,**{k:v for k,v in values.items() if isinstance(v,str)}}
  for key in ("DEEPTUTOR_HOME","TUTOR_PSYCHOLOGY_DIR","COURSE_DATABASE_URL","DATABASE_URL","POSTGRES_HOST","POSTGRES_DATABASE","HEART_MODEL_ENCRYPTION_KEY","DEEPTUTOR_BRIDGE_TOKEN"):

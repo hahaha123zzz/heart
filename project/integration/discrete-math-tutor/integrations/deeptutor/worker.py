@@ -6,6 +6,7 @@ import asyncio
 import os
 from pathlib import Path
 import sys
+import time
 
 HOST_ROOT = Path(__file__).resolve().parents[2]
 VENDOR_ROOT = HOST_ROOT.parents[1] / "vendor" / "DeepTutor"
@@ -42,6 +43,11 @@ def use_cpu_inference_when_needed() -> None:
 
 
 def main() -> None:
+    sys.path.insert(0, str(HOST_ROOT))
+    from knowledge.startup_trace import current
+    trace = current()
+    began = time.perf_counter()
+    trace.record('worker.entry', parent='worker', seconds=0)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=18001)
     parser.add_argument("--home", type=Path, default=DEFAULT_HOME)
@@ -54,12 +60,14 @@ def main() -> None:
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
     import deeptutor
+    trace.record('worker.vendor_import', parent='worker', seconds=time.perf_counter() - began)
     if not Path(deeptutor.__file__).resolve().is_relative_to(VENDOR_ROOT.resolve()):
         raise RuntimeError("加载到仓库外的 DeepTutor，停止启动")
     import uvicorn
     from deeptutor.runtime.mode import RunMode, set_mode
     set_mode(RunMode.SERVER)
     from deeptutor.api.main import app
+    trace.record('worker.app_import', parent='worker', seconds=time.perf_counter() - began)
     # worker 按文件路径启动；宿主目录只用于加载适配层，上游仍来自固定副本。
     sys.path.insert(0, str(HOST_ROOT))
     from integrations.deeptutor.wsl_sandbox import install as install_wsl_sandbox
@@ -95,11 +103,14 @@ def main() -> None:
         from integrations.deeptutor.native_bridge import install_native_bridge
         install_native_bridge(app, sessions)
         from integrations.deeptutor.heart_rag import warm_retrieval
-        warm_retrieval()
+        with trace.timed('worker.warm_retrieval', parent='worker'):
+            warm_retrieval()
     from integrations.deeptutor.warmup import install_worker_warmup, warm_worker
-    warm_worker()
+    with trace.timed('worker.warm_worker', parent='worker'):
+        warm_worker()
     install_worker_warmup(app)
     app.add_middleware(HostBridgeBoundary)
+    trace.record('worker.listen', parent='worker', seconds=time.perf_counter() - began)
     uvicorn.run(app, host="127.0.0.1", port=args.port,
                 proxy_headers=False, access_log=False)
 

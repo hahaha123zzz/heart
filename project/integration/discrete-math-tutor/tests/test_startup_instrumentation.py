@@ -1,6 +1,6 @@
 """固定教材启动的四个内部时间点：入口、self.ready、start 完成、失败时不补零。"""
 import asyncio
-from contextlib import ExitStack, nullcontext
+from contextlib import ExitStack, chdir, nullcontext
 import json
 import os
 from pathlib import Path
@@ -98,6 +98,54 @@ class FixedBookStartupTraceTests(unittest.TestCase):
             self.assertEqual(recorded['fixed_book.start.failed']['fields']['error'], 'RuntimeError')
             self.assertNotIn('fixed_book.start.complete', recorded)
             self.assertIsNone(fixed_book.runtime)
+
+
+class CitationBranchTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        startup_trace.reset()
+
+    tearDown = setUp
+
+    async def test_existing_fixed_path_records_only_the_branch(self):
+        with TemporaryDirectory() as folder:
+            trace = startup_trace.Trace('host', path=Path(folder) / 'host.jsonl', sid='citation-fixed')
+            with patch('knowledge.grounded_citations.settings', return_value=Path('fixed.sqlite3')):
+                path = await fixed_book.prepare_citation(trace, 'release-1', Path(folder))
+            recorded = rows(folder)
+            self.assertEqual(path, Path('fixed.sqlite3'))
+            self.assertEqual(recorded['fixed_book.citation']['fields']['branch'], 'fixed_path')
+            self.assertNotIn('fixed_book.citation.build', recorded)
+
+    async def test_version_cache_hit_does_not_rebuild(self):
+        with TemporaryDirectory() as folder:
+            cached = Path(folder) / '.runtime/fixed-book/release-2/citations.sqlite3'
+            cached.parent.mkdir(parents=True)
+            cached.write_bytes(b'cached')
+            trace = startup_trace.Trace('host', path=Path(folder) / 'host.jsonl', sid='citation-cache')
+            with (patch('knowledge.grounded_citations.settings', return_value='live'),
+                  chdir(folder)):
+                path = await fixed_book.prepare_citation(trace, 'release-2', Path(folder))
+            recorded = rows(folder)
+            self.assertEqual(path, cached.resolve())
+            self.assertEqual(recorded['fixed_book.citation']['fields']['branch'], 'version_cache')
+            self.assertNotIn('fixed_book.citation.build', recorded)
+
+    async def test_missing_index_builds_and_publishes_atomically(self):
+        with TemporaryDirectory() as folder:
+            trace = startup_trace.Trace('host', path=Path(folder) / 'host.jsonl', sid='citation-build')
+            def build(target, course):
+                Path(target).parent.mkdir(parents=True, exist_ok=True)
+                Path(target).write_bytes(b'built')
+            with (patch('knowledge.grounded_citations.settings', return_value='live'),
+                  patch('knowledge.citation_index.build_index', side_effect=build),
+                  chdir(folder)):
+                path = await fixed_book.prepare_citation(trace, 'release-3', Path(folder))
+            recorded = rows(folder)
+            self.assertEqual(path, (Path(folder) / '.runtime/fixed-book/release-3/citations.sqlite3').resolve())
+            self.assertTrue(path.is_file())
+            self.assertEqual(recorded['fixed_book.citation']['fields']['branch'], 'build')
+            self.assertEqual(recorded['fixed_book.citation.build']['fields']['root'], 'citation_index')
+            self.assertEqual(list(path.parent.glob('*.sqlite3')), [path])
 
 
 if __name__ == '__main__':

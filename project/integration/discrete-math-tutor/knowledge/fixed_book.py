@@ -154,6 +154,33 @@ class ResidentGraph:
             self.rag = None
 
 
+async def prepare_citation(trace, release_id, course_dir):
+    """坐标索引分支：已有固定路径、命中按版本缓存、缺失后新建并原子发布。"""
+    from knowledge.citation_index import build_index
+    from knowledge.grounded_citations import settings
+    with trace.timed('fixed_book.citation', parent='fixed_book') as detail:
+        path = settings()
+        branch = 'fixed_path'
+        if path == 'live':
+            path = Path('.runtime/fixed-book') / release_id / 'citations.sqlite3'
+            if path.is_file():
+                branch = 'version_cache'
+            else:
+                branch = 'build'
+                from uuid import uuid4
+                with trace.timed('fixed_book.citation.build', parent='fixed_book.citation') as built:
+                    pending = path.with_name(uuid4().hex + '.sqlite3')
+                    try:
+                        await asyncio.to_thread(build_index, pending, course_dir)
+                        os.replace(pending, path)
+                    finally:
+                        pending.unlink(missing_ok=True)
+                    built['root'] = 'citation_index'
+            path = path.resolve()
+        detail['branch'] = branch
+        return path
+
+
 class FixedBookRuntime:
     def __init__(self):
         self.ready = False
@@ -209,28 +236,7 @@ class FixedBookRuntime:
             detail['root'] = 'host_textbook'
             detail['files'] = len(files)
         # 坐标索引是衍生数据，独立保存，不修改教材或已封存图谱。
-        from knowledge.citation_index import build_index
-        from knowledge.grounded_citations import settings
-        with trace.timed('fixed_book.citation', parent='fixed_book') as detail:
-            self.citation_path = settings()
-            branch = 'fixed_path'
-            if self.citation_path == 'live':
-                self.citation_path = Path('.runtime/fixed-book') / self.release['release_id'] / 'citations.sqlite3'
-                if self.citation_path.is_file():
-                    branch = 'version_cache'
-                else:
-                    branch = 'build'
-                    from uuid import uuid4
-                    with trace.timed('fixed_book.citation.build', parent='fixed_book.citation') as built:
-                        pending = self.citation_path.with_name(uuid4().hex + '.sqlite3')
-                        try:
-                            await asyncio.to_thread(build_index, pending, PSYCHOLOGY_DIR)
-                            os.replace(pending, self.citation_path)
-                        finally:
-                            pending.unlink(missing_ok=True)
-                        built['root'] = 'citation_index'
-                self.citation_path = self.citation_path.resolve()
-            detail['branch'] = branch
+        self.citation_path = await prepare_citation(trace, self.release['release_id'], PSYCHOLOGY_DIR)
         import json
         self.policy = json.loads((self.backend.candidate / 'policy.json').read_text(encoding='utf8'))
         with trace.timed('lightrag.embedding.config', parent='fixed_book') as detail:
