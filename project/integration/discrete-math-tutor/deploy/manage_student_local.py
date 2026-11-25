@@ -91,6 +91,7 @@ def main():
          host_port=ports["host"],worker_port=ports["worker"],web_port=ports["web"])
   os.environ["STARTUP_ID"]=sid;os.environ["STARTUP_TRACE_DIR"]=str(directory)
   keeper=probe(probe_record,ports,origin)
+  status="ok"
   try:
    for service in ("host","worker","web"):
     if service in records and matching(records[service]) is not None:continue
@@ -100,10 +101,11 @@ def main():
     record("control.release_verify",parent="control.service",seconds=timing.get("release_seconds",time.perf_counter()-began),
            target=service,release_id=timing.get("release_id"),files=timing.get("file_count"))
     env["STARTUP_SERVICE"]=service
+    spawn_at=time.perf_counter()
     with (logs/(service+".log")).open("ab") as log:
      process=subprocess.Popen(command,cwd=cwd,env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW if os.name=="nt" else 0,start_new_session=os.name!="nt")
     owner=psutil.Process(process.pid);records[service]={"pid":process.pid,"created_at":owner.create_time(),"command":owner.cmdline()};file.write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding="utf-8")
-    record("control.process_start",parent="control.service",seconds=time.perf_counter()-began,
+    record("control.process_start",parent="control.service",seconds=time.perf_counter()-spawn_at,
            target=service,pid=process.pid)
    with httpx.Client(trust_env=False,timeout=3) as client:
     for service,path in PROBES:
@@ -119,8 +121,13 @@ def main():
      else:raise RuntimeError("readiness_timeout:"+service)
      record("control.ready",parent="control.service",seconds=time.perf_counter()-began,
             target=service,attempts=attempts)
+  except BaseException as exc:
+   status="cancelled" if type(exc).__name__=="CancelledError" else "failed"
+   record("control.failed",parent="control",seconds=time.perf_counter()-origin,
+          status=status,error=type(exc).__name__)
+   raise
   finally:
    keeper.set()
-   record("control.done",parent="control",seconds=time.perf_counter()-origin)
+   record("control.done",parent="control",seconds=time.perf_counter()-origin,status=status)
   print(json.dumps({"url":"http://127.0.0.1:"+str(ports["web"]),"services":{name:row["pid"] for name,row in records.items()},"ready":True,"startup_id":sid,"trace":str(directory)}))
 if __name__=="__main__":main()
