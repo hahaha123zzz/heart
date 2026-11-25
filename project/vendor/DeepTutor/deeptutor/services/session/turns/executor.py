@@ -90,6 +90,15 @@ def _short_citation_stream(metadata):
     return ShortCitationStream(lambda: metadata.get("_heart_short_sources") or {})
 
 
+def _resolve_short_text(text, metadata):
+    """保存前再整体解析一次；流式分块漏掉的标记在这里补齐。"""
+    try:
+        from integrations.deeptutor.short_citations import resolve
+    except ImportError:
+        return text
+    return resolve(text, (metadata or {}).get("_heart_short_sources") or {})
+
+
 class TurnExecutor:
     if TYPE_CHECKING:
         store: SessionStoreProtocol
@@ -1139,6 +1148,7 @@ class TurnExecutor:
             if short_stream is not None:
                 persisted += short_stream.flush()
                 short_stream = None
+            persisted = _resolve_short_text(persisted, context.metadata)
             assistant_content = _repair_chinese_emphasis_for_persistence(
                 persisted,
                 str(payload.get("language", "en") or "en"),
@@ -1335,6 +1345,7 @@ class TurnExecutor:
             if short_stream is not None:
                 partial_content += short_stream.flush()
                 short_stream = None
+            partial_content = _resolve_short_text(partial_content, context.metadata)
             if partial_content or generated_attachments or assistant_events:
                 with contextlib.suppress(Exception):
                     assistant_message_id = await asyncio.shield(

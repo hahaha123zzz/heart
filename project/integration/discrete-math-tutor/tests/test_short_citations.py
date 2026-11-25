@@ -60,6 +60,11 @@ class ShortCitationTests(unittest.TestCase):
         self.assertEqual(stream.feed("\n```\n正文[S1]"),
                          f"```\n[S1]\n```\n正文{citation(5, 5)}")
 
+    def test_stream_holds_a_marker_split_after_the_bracket(self):
+        stream = ShortCitationStream(SOURCES)
+        self.assertEqual(stream.feed("答案["), "答案")
+        self.assertEqual(stream.feed("S1]。"), f"{citation(5, 5)}。")
+
     def test_stream_flush_keeps_an_incomplete_marker_plain(self):
         stream = ShortCitationStream(SOURCES)
         self.assertEqual(stream.feed("正文[S1"), "正文")

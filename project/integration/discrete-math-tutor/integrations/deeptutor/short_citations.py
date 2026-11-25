@@ -97,11 +97,16 @@ def to_numeric(text: str, sources) -> str:
 
 
 def _hold_start(text: str) -> int:
-    """流式输出中暂不发布的尾部：半个短 ID 或未闭合的代码块。"""
+    """流式输出中暂不发布的尾部：可能的短 ID 前缀或未闭合的代码块。"""
     start = len(text)
-    tail = re.search(r'\[S\d*(?:\s*[,，、]\s*S\d*)?$', text)
+    # token 流可能停在 "[", "[S", "[S1," 等前缀上，等下一块再判定。
+    tail = re.search(r'\[(?:S\d*(?:\s*[,，、]\s*S\d*)?)?$', text)
     if tail:
         start = tail.start()
+    # 末尾的反引号可能是尚未到齐的代码围栏。
+    ticks = re.search(r'`+$', text[:start])
+    if ticks:
+        start = min(start, ticks.start())
     fences = [match.start() for match in _BACKTICK.finditer(text[:start])]
     if len(fences) % 2:
         start = min(start, fences[-1])
