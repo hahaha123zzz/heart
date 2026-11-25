@@ -36,10 +36,13 @@ def _links(sources) -> dict[str, str]:
 
 def _replace(chunk: str, links: dict[str, str]) -> str:
     def render(match):
-        citations = [links[part.strip()] for part in re.split(r'[,，、]', match.group(1))
-                     if part.strip() in links]
-        # 未知 ID 保持原样：没有已披露来源就不生成正式链接。
-        return ''.join(citations) if citations else match.group(0)
+        parts = [part.strip() for part in re.split(r'[,，、]', match.group(1))]
+        known = [links[part] for part in parts if part in links]
+        unknown = [part for part in parts if part not in links]
+        # 未知 ID 保持可见；没有已披露来源就不生成正式链接。
+        if not known:
+            return match.group(0)
+        return ''.join(known) + ''.join(f'[{part}]' for part in unknown)
     return _SHORT.sub(render, chunk)
 
 

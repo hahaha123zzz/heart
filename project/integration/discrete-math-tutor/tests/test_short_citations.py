@@ -33,6 +33,8 @@ class ShortCitationTests(unittest.TestCase):
     def test_unknown_or_undisclosed_marker_stays_plain(self):
         self.assertEqual(resolve("伪造引用[S9]。", SOURCES), "伪造引用[S9]。")
         self.assertEqual(resolve("[S1]", [{"short_id": "S1", "reader_citation": ""}]), "[S1]")
+        # 已知与未知混写时，已知生成链接，未知保持可见。
+        self.assertEqual(resolve("对比[S1, S9]", SOURCES), f"对比{citation(5, 5)}[S9]")
 
     def test_code_examples_are_not_rewritten(self):
         text = "示例 `[S1]` 和\n```\n[S1]\n```\n正文[S1]"
