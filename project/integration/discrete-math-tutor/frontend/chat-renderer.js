@@ -13,6 +13,10 @@ const cleanAnswerText = value => String(value ?? '')
 // 富文本资源加载失败时保留原基础正文。
 window.renderTutorAnswer = (text, options = {}) => {
   text = cleanAnswerText(text);
+  if (window.TutorNativeMarkdown) {
+    try { return window.TutorNativeMarkdown.render(text, options); }
+    catch (error) { console.error('DeepTutor 正文渲染失败，回退宿主渲染', error); }
+  }
   if (window.TutorMarkdown) {
     try { return window.TutorMarkdown.render(text, options); }
     catch (error) { console.error('正文富文本解析失败，显示基础正文', error); }

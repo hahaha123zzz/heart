@@ -1,0 +1,56 @@
+{
+  "schema": "engineering-validation-v1",
+  "created_at": "2026-11-21T23:29:30.275612+08:00",
+  "python": "3.14.3 (tags/v3.14.3:323c59a, Feb  3 2026, 16:04:56) [MSC v.1944 64 bit (AMD64)]",
+  "passed": true,
+  "elapsed_seconds": 17.44,
+  "groups": {
+    "retrieval_core": {
+      "modules": [
+        "tests.test_local_rag",
+        "tests.test_rag_upgrade"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 11.04,
+      "stdout_tail": "",
+      "stderr_tail": "Reranker model 'missing' is configured, but the project's reranker dependency is unavailable; using embedding retrieval unchanged.\nReranker model 'broken' failed while scoring 1 candidates; using embedding retrieval unchanged: 重排分数数量或数值无效\nReranker model 'broken' failed while scoring 1 candidates; using embedding retrieval unchanged: 重排分数数量或数值无效\nReranker model 'broken' failed while scoring 1 candidates; using embedding retrieval unchanged: 重排分数数量或数值无效\nLlamaIndex BM25 retriever package is not installed; configured retrieval profile will run vector-only. Install 'llama-index-retrievers-bm25' to restore hybrid retrieval.\nRetrieval profile 'hybrid' requires BM25 but it is unavailable; running vector-only. Install 'llama-index-retrievers-bm25' or switch the profile to 'vector'.\n证明核验未完成：invalid_schema (ValidationError)\n----------------------------------------------------------------------\nRan 39 tests in 4.855s\n\nOK\n"
+    },
+    "query_semantic": {
+      "modules": [
+        "tests.test_query_understanding",
+        "tests.test_query_semantic_shadow",
+        "tests.test_vector_retrieval_shadow",
+        "tests.test_quoted_phrase_retrieval"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 3.37,
+      "stdout_tail": "",
+      "stderr_tail": "----------------------------------------------------------------------\nRan 15 tests in 1.043s\n\nOK\n"
+    },
+    "answer_quality": {
+      "modules": [
+        "tests.test_answer_accuracy_eval",
+        "tests.test_answer_accuracy_holdout",
+        "tests.test_answer_ranking",
+        "tests.test_mock_replies"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 0.51,
+      "stdout_tail": "",
+      "stderr_tail": "----------------------------------------------------------------------\nRan 20 tests in 0.019s\n\nOK\n"
+    },
+    "release_guard": {
+      "modules": [
+        "tests.test_answer_release"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "elapsed_seconds": 2.51,
+      "stdout_tail": "",
+      "stderr_tail": "----------------------------------------------------------------------\nRan 7 tests in 0.095s\n\nOK\n"
+    }
+  }
+}

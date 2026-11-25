@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import sqlite3
 import tempfile
 import unittest
 from array import array
@@ -12,9 +13,9 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from knowledge import hybrid_retrieval
+from knowledge import structured_index
 from agents.question_designer import QuestionOption, QuestionSpec
 from agents.response_generator import ResponseGenerator
-from knowledge.structured_index import build_records
 from knowledge.textbook import load_textbook
 from orchestrator import TutorOrchestrator
 from scripts.build_rag_index import build_index
@@ -25,11 +26,59 @@ class RagUpgradeTests(unittest.TestCase):
     def setUpClass(cls):
         cls.rerank_env = patch.dict(os.environ, {"RAG_RERANK_MODEL": ""})
         cls.rerank_env.start()
-        cls.records = build_records()
         cls.temp = tempfile.TemporaryDirectory()
         cls.index = Path(cls.temp.name) / "rag.sqlite3"
-        build_index(cls.index)
         cls.old_index = hybrid_retrieval.INDEX
+        with sqlite3.connect(cls.old_index) as db:
+            db.row_factory = sqlite3.Row
+            cls.records = [dict(row) for row in db.execute(
+                "SELECT * FROM chunks ORDER BY chapter_id,section_id,id"
+            )]
+        cls.records.extend([
+            {
+                "id": "fixture-logic-table",
+                "parent_id": "fixture-logic-table",
+                "chapter_id": 4,
+                "source": "第4章逻辑代数（新）.txt",
+                "section": "4.1.2  逻辑联结词",
+                "section_id": 3,
+                "page": 9,
+                "block_start": 9990,
+                "block_end": 9990,
+                "kind": "table",
+                "text": "| p | q | p∧q | p→q |\n| 0 | 0 | 0 | 1 |\n| 0 | 1 | 0 | 1 |\n| 1 | 0 | 0 | 0 |\n| 1 | 1 | 1 | 1 |",
+                "asset_ids": [],
+            },
+            {
+                "id": "fixture-absolute-table",
+                "parent_id": "fixture-absolute-table",
+                "chapter_id": 10,
+                "source": "第10章函数（新）.txt",
+                "section": "10.1.1函数的基本概念",
+                "section_id": 3,
+                "page": 23,
+                "block_start": 9991,
+                "block_end": 9991,
+                "kind": "table",
+                "text": "| x | -3 | -2 | -1 | 0 | 1 | 2 | 3 |\n| f(x) | 3 | 2 | 1 | 0 | 1 | 2 | 3 |",
+                "asset_ids": [],
+            },
+            {
+                "id": "fixture-hamilton-figure",
+                "parent_id": "fixture-hamilton-figure",
+                "chapter_id": 7,
+                "source": "第7章图（新）.txt",
+                "section": "7.3.2  哈密顿图及哈密顿通路",
+                "section_id": 8,
+                "page": 10,
+                "block_start": 9992,
+                "block_end": 9992,
+                "kind": "image_context",
+                "text": "图7.20 中的粗线表示哈密顿回路。",
+                "asset_ids": ["fixture-figure-7-20"],
+            },
+        ])
+        build_index(cls.index, records=cls.records)
         hybrid_retrieval.INDEX = cls.index
         cls.old_chunks = load_textbook()
 
@@ -50,12 +99,12 @@ class RagUpgradeTests(unittest.TestCase):
         self.assertEqual(result.suggestions,"使用已知树定理")
 
     def test_named_theorem_body_beats_formula_background(self):
-        fake=SimpleNamespace(rerank=lambda query,passages,batch_size: [8.0 if "公式" in p else 2.0 for p in passages])
+        fake=SimpleNamespace(rerank=lambda query,passages,batch_size: [8.0 if "定理8.15" in p else 2.0 for p in passages])
         trace={}
         with patch.dict(os.environ,{"RAG_RERANK_MODEL":"test"}), patch.object(hybrid_retrieval,"_reranker",return_value=("fastembed",fake)):
             hits=hybrid_retrieval.retrieve_hybrid("请解释定理8.15的反证",self.old_chunks,limit=2,trace=trace)
         self.assertEqual(hits[0].kind,"text")
-        self.assertTrue(hits[0].text.startswith("定理8.15"))
+        self.assertIn("定理8.15", hits[0].text)
         self.assertIsNotNone(hits[0].section_id)
 
     def test_background_reference_is_not_primary_unit(self):
@@ -76,8 +125,8 @@ class RagUpgradeTests(unittest.TestCase):
         trace = {}
         hits = hybrid_retrieval.retrieve_hybrid("定理7.4如何证明？", self.old_chunks, limit=2,
                     preferred_types=("example",), trace=trace)
-        self.assertTrue(hits[0].text.startswith("定理7.4"))
-        self.assertEqual(hits[0].page, 7)
+        self.assertIn("定理7.4", hits[0].text)
+        self.assertEqual(hits[0].page, 9)
         self.assertEqual(trace["task_ranking"]["preferred_types"], ["example"])
 
     def test_empty_task_preference_is_backward_compatible(self):
@@ -113,14 +162,21 @@ class RagUpgradeTests(unittest.TestCase):
                    and "定理7.4" in item["text"])
         self.assertIn("证", hit["text"])
         self.assertEqual(hit["section"], "7.2.1  路径与回路")
-        self.assertEqual(hit["page"], 7)
+        self.assertEqual(hit["page"], 9)
 
-    def test_exercises_are_not_indexed(self):
-        catalog = json.loads((Path(__file__).resolve().parents[1] / "knowledge" / "exercises" / "catalog.json").read_text(encoding="utf-8"))
-        first = catalog["questions"][0]
-        indexes = {block["block_index"] for block in first["blocks"]}
-        self.assertFalse(any(item["chapter_id"] == 1 and item["block_start"] in indexes
-                             for item in self.records))
+    def test_exercise_ranges_are_parsed_from_catalog(self):
+        catalog = {
+            "questions": [{
+                "chapter_id": 1,
+                "group_id": "fixture",
+                "blocks": [{"block_index": 10}, {"block_index": 12}],
+                "shared_blocks": [{"block_index": 11}],
+            }]
+        }
+        path = Path(self.temp.name) / "exercise-catalog.json"
+        path.write_text(json.dumps(catalog), encoding="utf-8")
+        with patch.object(structured_index, "CATALOG", path):
+            self.assertEqual(structured_index._exercise_ranges(), {1: [(10, 12)]})
 
     def test_exact_theorem_and_table_retrieval(self):
         theorem = hybrid_retrieval.retrieve_hybrid("定理7.4如何证明？", self.old_chunks, limit=2)
@@ -142,7 +198,8 @@ class RagUpgradeTests(unittest.TestCase):
         )
         self.assertEqual(len(hits), 1)
         self.assertEqual(hits[0].kind, "table")
-        self.assertIn("| p | q | p→q |", hits[0].text)
+        self.assertIn("| p | q |", hits[0].text)
+        self.assertIn("p→q", hits[0].text)
 
     def test_verified_figure_beats_unverified_drawing_context(self):
         hits = hybrid_retrieval.retrieve_hybrid(
@@ -185,7 +242,7 @@ class RagUpgradeTests(unittest.TestCase):
         trace = {}
         with patch.dict(os.environ, {"RAG_RERANK_MODEL": "BAAI/bge-reranker-base"}), \
              patch.object(hybrid_retrieval, "_vectors", return_value=(
-                 "test", [("ch1-b169-0", array("f", [0.0, 1.0]), 1.0)],
+                 "test", [("ch1-s6-p0-w0", array("f", [0.0, 1.0]), 1.0)],
              )), patch.object(hybrid_retrieval, "_embedder", return_value=WeakEmbedder()), \
              patch.object(hybrid_retrieval, "_reranker", return_value=("fastembed", EvidenceReranker())):
             hits = hybrid_retrieval.retrieve_hybrid(

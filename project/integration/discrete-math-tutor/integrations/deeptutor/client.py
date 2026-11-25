@@ -34,7 +34,11 @@ class DeepTutorBackend:
         self.opener = build_opener(ProxyHandler({}), _NoRedirect())
 
     def _get(self, path: str) -> dict:
-        request = Request(self.base_url + path, headers={"Accept": "application/json"})
+        headers = {"Accept": "application/json"}
+        token = os.getenv("DEEPTUTOR_BRIDGE_TOKEN", "")
+        if token:
+            headers["X-Heart-Bridge-Token"] = token
+        request = Request(self.base_url + path, headers=headers)
         return self._send(request)
 
     def _send(self, request: Request) -> dict:
@@ -127,6 +131,9 @@ class DeepTutorBackend:
             return {"connected": False, "backend_ready": False, "model_execution_verified": False}
 
     def capabilities(self) -> list[dict]:
+        # The first catalog build enumerates every registered upstream
+        # capability and regularly exceeds the lightweight service timeout.
+        self.timeout = max(self.timeout, 30)
         items = self._get("/api/capabilities/registered").get("capabilities")
         if not isinstance(items, list):
             raise BackendUnavailable("DeepTutor 能力目录响应无效")

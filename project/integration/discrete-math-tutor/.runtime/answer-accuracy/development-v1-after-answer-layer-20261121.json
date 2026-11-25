@@ -1,0 +1,1428 @@
+{
+  "schema": "answer-accuracy-report-v1",
+  "created_at": "2026-11-21T20:22:02.164164+08:00",
+  "dataset": "development-v1",
+  "dataset_note": "Development regression set. Do not describe it as an independent blind set.",
+  "cases_file": "C:\\Users\\zzq\\Desktop\\heart-test-data-20261031-94ba9ca\\project\\integration\\discrete-math-tutor\\tests\\data\\e2e_answer_accuracy_v1.json",
+  "cases_sha256": "a69154aa7aa15f85701dd8a9ab9b2c3d11bf7dc89e157ab19cdb35951e6840a8",
+  "index_sha256": "6b7c8ea73464480ed8742a955d1c0f623d2dd08e34ca5f8fe315c544f3cb72f6",
+  "pdf_manifest_sha256": "306a04b5baf0cbf410076431729b963d48cbd105496d05903a429a411ca9c9fa",
+  "scenario_count": 16,
+  "turn_count": 16,
+  "dry_run": false,
+  "service_health": {
+    "status": "ok",
+    "course_id": "discrete-math",
+    "version": "0.8.0",
+    "mock_mode": true,
+    "purged_expired_accounts": 0,
+    "rag_runtime": {
+      "configured": {
+        "reranker": "cpu",
+        "embedding": "cpu"
+      },
+      "sessions": {},
+      "cuda_cache_path": null
+    },
+    "fixed_book": {
+      "enabled": false,
+      "ready": false,
+      "startup_seconds": null
+    },
+    "memory_worker": {
+      "enabled": true,
+      "running": true,
+      "generation_mode": "rule"
+    }
+  },
+  "elapsed_seconds": 14.34,
+  "summary": {
+    "total_scenarios": 16,
+    "total_cases": 16,
+    "in_scope_cases": 12,
+    "out_of_scope_cases": 4,
+    "retrieval_hit_rate": 0.5,
+    "answer_accuracy": 0.0,
+    "citation_support_rate": 0.0,
+    "false_refusal_rate": 0.5,
+    "unsupported_answer_rate": 0.5,
+    "out_of_scope_refusal_accuracy": 1.0,
+    "invalid_citation_count": 0,
+    "overall_answer_accuracy": 0.25,
+    "categories": {
+      "application": {
+        "cases": 2,
+        "answer_accuracy": 0.0,
+        "retrieval_hit_rate": 0.5
+      },
+      "definition": {
+        "cases": 3,
+        "answer_accuracy": 0.0,
+        "retrieval_hit_rate": 0.3333
+      },
+      "formula": {
+        "cases": 3,
+        "answer_accuracy": 0.0,
+        "retrieval_hit_rate": 0.6667
+      },
+      "paraphrase": {
+        "cases": 2,
+        "answer_accuracy": 0.0,
+        "retrieval_hit_rate": 0.5
+      },
+      "proof": {
+        "cases": 2,
+        "answer_accuracy": 0.0,
+        "retrieval_hit_rate": 0.5
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "c01",
+      "scenario_id": "c01",
+      "turn_index": 1,
+      "question": "有序对 (a,b) 与 (b,a) 一定相等吗？",
+      "category": "definition",
+      "expect_refusal": false,
+      "retrieval_hit": false,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": true,
+      "unsupported_answer": false,
+      "status": "quality_rejected",
+      "knowledge_point": null,
+      "reply": "本次未能确认可靠的教材引用证据，请缩小问题范围或选中教材原文后重试。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 1404.1
+    },
+    {
+      "id": "c02",
+      "scenario_id": "c02",
+      "turn_index": 1,
+      "question": "用数学归纳法证明命题时，归纳假设如何用于下一步？",
+      "category": "proof",
+      "expect_refusal": false,
+      "retrieval_hit": false,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": true,
+      "unsupported_answer": false,
+      "status": "quality_rejected",
+      "knowledge_point": null,
+      "reply": "本次未能确认可靠的教材引用证据，请缩小问题范围或选中教材原文后重试。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 1063.1
+    },
+    {
+      "id": "c03",
+      "scenario_id": "c03",
+      "turn_index": 1,
+      "question": "三种饮料与四种主食搭配，为什么使用乘法原理？",
+      "category": "application",
+      "expect_refusal": false,
+      "retrieval_hit": false,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": true,
+      "unsupported_answer": false,
+      "status": "quality_rejected",
+      "knowledge_point": null,
+      "reply": "本次未能确认可靠的教材引用证据，请缩小问题范围或选中教材原文后重试。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 1303.6
+    },
+    {
+      "id": "c04",
+      "scenario_id": "c04",
+      "turn_index": 1,
+      "question": "命题的否定与原命题在真值上有什么关系？",
+      "category": "formula",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": true,
+      "status": "answered",
+      "knowledge_point": "逻辑代数",
+      "reply": "根据本轮教材摘录：设p表示一命题，那么┐p表示命题p的否定。今后我们用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。[1]",
+      "textbook_sources": [
+        "第4章逻辑代数（新）.txt／4.1.2  逻辑联结词"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-04",
+            "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.12301610088574914,
+                "x2": 0.8506118123030462,
+                "y2": 0.13576135442375853
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.133983654538696,
+                "x2": 0.3560529426125919,
+                "y2": 0.14672890807670538
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.14495120819164284,
+                "x2": 0.9087773929884453,
+                "y2": 0.15769646172965224
+              },
+              {
+                "page": 6,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.9022790465795693,
+                "y2": 0.16866394289429001
+              }
+            ],
+            "text": "\n今后“联结词”一词均指逻辑联结词及其符号表示。逻辑代数中，重要的联结词有5个，它们已在例4.2中出现过。\n否定词(negation)“并非”（not），用符号\n┐表示。设p表示一命题，那么┐p表示命题p的否定。p真时┐p假，而p假时┐p真。┐p读作“并非p”或“非p”。今后我们\n用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 4,
+            "section_id": 3,
+            "section_title": "4.1.2  逻辑联结词",
+            "source": "第4章逻辑代数（新）.txt",
+            "image_refs": [
+              {
+                "id": "8948e6d15063bcf7bd5925eab39a60b17a1b0f636c62340f3215e88e8c11d26f",
+                "image_url": "/api/pdf/crops/8948e6d15063bcf7bd5925eab39a60b17a1b0f636c62340f3215e88e8c11d26f/image",
+                "label": "教材第 6 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "6d9d710cc98c80738a15248767ccf58189689ba7240d5cb73f5a713daed75c3f",
+            "quote": "今后“联结词”一词均指逻辑联结词及其符号表示。逻辑代数中，重要的联结词有5个，它们已在例4.2中出现过。\n否定词(negation)“并非”（not），用符号 ┐表示。设p表示一命题，那么┐p表示命题p的否定。p真时┐p假，而p假时┐p真。┐p读作“并非p”或“非p”。今后我们用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 6,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "6d9d710cc98c80738a15248767ccf58189689ba7240d5cb73f5a713daed75c3f",
+            "retrieval_source_id": "ch4-s3-p0-w0",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-04",
+            "document_version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 0,
+            "block_end": 196,
+            "quote": "今后“联结词”一词均指逻辑联结词及其符号表示。逻辑代数中，重要的联结词有5个，它们已在例4.2中出现过。\n否定词(negation)“并非”（not），用符号 ┐表示。设p表示一命题，那么┐p表示命题p的否定。p真时┐p假，而p假时┐p真。┐p读作“并非p”或“非p”。今后我们用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              6
+            ],
+            "page": 6,
+            "selections": [
+              {
+                "document_id": "chapter-04",
+                "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.12301610088574914,
+                    "x2": 0.8506118123030462,
+                    "y2": 0.13576135442375853
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.133983654538696,
+                    "x2": 0.3560529426125919,
+                    "y2": 0.14672890807670538
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.14495120819164284,
+                    "x2": 0.9087773929884453,
+                    "y2": 0.15769646172965224
+                  },
+                  {
+                    "page": 6,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.9022790465795693,
+                    "y2": 0.16866394289429001
+                  }
+                ],
+                "text": "\n今后“联结词”一词均指逻辑联结词及其符号表示。逻辑代数中，重要的联结词有5个，它们已在例4.2中出现过。\n否定词(negation)“并非”（not），用符号\n┐表示。设p表示一命题，那么┐p表示命题p的否定。p真时┐p假，而p假时┐p真。┐p读作“并非p”或“非p”。今后我们\n用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 4,
+                "section_id": 3,
+                "section_title": "4.1.2  逻辑联结词",
+                "source": "第4章逻辑代数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "8948e6d15063bcf7bd5925eab39a60b17a1b0f636c62340f3215e88e8c11d26f",
+                    "image_url": "/api/pdf/crops/8948e6d15063bcf7bd5925eab39a60b17a1b0f636c62340f3215e88e8c11d26f/image",
+                    "label": "教材第 6 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：设p表示一命题，那么┐p表示命题p的否定。今后我们用数1表示真值“真”，用数0表示真值“假”，用类似表4.1的所谓真值表来规定联结词的意义，描述复合命题的真值状况。",
+                "start": 0,
+                "end": 91,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 1473.3
+    },
+    {
+      "id": "c05",
+      "scenario_id": "c05",
+      "turn_index": 1,
+      "question": "个体域改变时，同一个全称命题的真假会变化吗？",
+      "category": "paraphrase",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": true,
+      "status": "answered",
+      "knowledge_point": "逻辑代数",
+      "reply": "根据本轮教材摘录：例5.7  公式 (xP(x)((xP(x) 在只有一个元素的个体域D上，总是D上永真的，但当D多于一个成员时，它不再是D上永真了。[1]",
+      "textbook_sources": [
+        "第5章逻辑代数（下）（新）.txt／5.2.1  谓词公式的真值规定"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-05",
+            "version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 23,
+                "x1": 0.5820949789095327,
+                "y1": 0.15591868029524197,
+                "x2": 0.7201184943704043,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.29384788602941175,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.8899529198398108,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.23561850052521008,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.9188361918986344,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.5170739684545693,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 23,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.3225234846868435,
+                "y2": 0.23446919232366203
+              }
+            ],
+            "text": "\n\n\n\n对任意公式集(，(┝\nA意义同前，可作类似的定义。\nA┝┥B表示“A(B”永真，称A逻辑等价B。A┝┥B当且仅当对一切域、解释和变元取值状况，A与B都具有相同的真值。\n例5.7  公式 (xP(x)((xP(x)\n在只有一个元素的个体域D上，总是D上永真的，但当D多于一个成员时，它不再是D上永真了。公式(x(P(x)∨┐P(x))，(xP(\nx)→(xP(x)都是永真式(注意，我们约定个体域不空)，因此可写为\n┝ (x(P(x)∨┐P(x))  ，  (xP(x)┝(xP(x)\n\n\n\n\n",
+            "chapter_id": 5,
+            "section_id": 6,
+            "section_title": "5.2.1  谓词公式的真值规定",
+            "source": "第5章逻辑代数（下）（新）.txt",
+            "image_refs": [
+              {
+                "id": "efb0373ac16bb6167fe4f6b288a9473da9d3fa94e180a5219e312286b36f17e1",
+                "image_url": "/api/pdf/crops/efb0373ac16bb6167fe4f6b288a9473da9d3fa94e180a5219e312286b36f17e1/image",
+                "label": "教材第 23 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "57d8eae1d65b807642be696438199b3cff7ef954cc64f69f8e7ad8d37c828de0",
+            "quote": "对任意公式集(，(┝ A意义同前，可作类似的定义。\nA┝┥B表示“A(B”永真，称A逻辑等价B。A┝┥B当且仅当对一切域、解释和变元取值状况，A与B都具有相同的真值。\n例5.7  公式 (xP(x)((xP(x) 在只有一个元素的个体域D上，总是D上永真的，但当D多于一个成员时，它不再是D上永真了。公式(x(P(x)∨┐P(x))，(xP(x)→(xP(x)都是永真式(注意，我们约定个体域不空)，因此可写为\n┝ (x(P(x)∨┐P(x))  ，  (xP(x)┝(xP(x)",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 23,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "57d8eae1d65b807642be696438199b3cff7ef954cc64f69f8e7ad8d37c828de0",
+            "retrieval_source_id": "ch5-s6-p0-w2",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-05",
+            "document_version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+            "source_block_id": null,
+            "section_id": 6,
+            "block_start": 0,
+            "block_end": 240,
+            "quote": "对任意公式集(，(┝ A意义同前，可作类似的定义。\nA┝┥B表示“A(B”永真，称A逻辑等价B。A┝┥B当且仅当对一切域、解释和变元取值状况，A与B都具有相同的真值。\n例5.7  公式 (xP(x)((xP(x) 在只有一个元素的个体域D上，总是D上永真的，但当D多于一个成员时，它不再是D上永真了。公式(x(P(x)∨┐P(x))，(xP(x)→(xP(x)都是永真式(注意，我们约定个体域不空)，因此可写为\n┝ (x(P(x)∨┐P(x))  ，  (xP(x)┝(xP(x)",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              23
+            ],
+            "page": 23,
+            "selections": [
+              {
+                "document_id": "chapter-05",
+                "version": "0ad7dfd9ef15f63b61a181fc875a452203807f47d6d7328e462923018e11037b",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 23,
+                    "x1": 0.5820949789095327,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.7201184943704043,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.29384788602941175,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.8899529198398108,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.23561850052521008,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.9188361918986344,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.5170739684545693,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 23,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.3225234846868435,
+                    "y2": 0.23446919232366203
+                  }
+                ],
+                "text": "\n\n\n\n对任意公式集(，(┝\nA意义同前，可作类似的定义。\nA┝┥B表示“A(B”永真，称A逻辑等价B。A┝┥B当且仅当对一切域、解释和变元取值状况，A与B都具有相同的真值。\n例5.7  公式 (xP(x)((xP(x)\n在只有一个元素的个体域D上，总是D上永真的，但当D多于一个成员时，它不再是D上永真了。公式(x(P(x)∨┐P(x))，(xP(\nx)→(xP(x)都是永真式(注意，我们约定个体域不空)，因此可写为\n┝ (x(P(x)∨┐P(x))  ，  (xP(x)┝(xP(x)\n\n\n\n\n",
+                "chapter_id": 5,
+                "section_id": 6,
+                "section_title": "5.2.1  谓词公式的真值规定",
+                "source": "第5章逻辑代数（下）（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "efb0373ac16bb6167fe4f6b288a9473da9d3fa94e180a5219e312286b36f17e1",
+                    "image_url": "/api/pdf/crops/efb0373ac16bb6167fe4f6b288a9473da9d3fa94e180a5219e312286b36f17e1/image",
+                    "label": "教材第 23 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：例5.7  公式 (xP(x)((xP(x) 在只有一个元素的个体域D上，总是D上永真的，但当D多于一个成员时，它不再是D上永真了。",
+                "start": 0,
+                "end": 75,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 1158.7
+    },
+    {
+      "id": "c06",
+      "scenario_id": "c06",
+      "turn_index": 1,
+      "question": "证明与演绎在是否允许额外前提上有何区别？",
+      "category": "proof",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": true,
+      "status": "answered",
+      "knowledge_point": "逻辑代数",
+      "reply": "根据本轮教材摘录：（1）(x A(x,y)                                 前提。（2）(y (x A(x,y)                              对（1）用定理6.7。[1]",
+      "textbook_sources": [
+        "第6章形式系统（新）.txt／6.1.2  系统内的推理：证明与演绎"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-06",
+            "version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.26559407184809236,
+                "x2": 0.34570691943769694,
+                "y2": 0.2783393344471404
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.2765616255010392,
+                "x2": 0.4416649303275998,
+                "y2": 0.2893068881000872
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.28752917915398607,
+                "x2": 0.37451030724789913,
+                "y2": 0.3002744417530341
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.2984967328069329,
+                "x2": 0.5057539472820377,
+                "y2": 0.3112419772839036
+              },
+              {
+                "page": 15,
+                "x1": 0.07513025210084033,
+                "y1": 0.3094642864598797,
+                "x2": 0.39654369091386554,
+                "y2": 0.3222095309368505
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n（1）(x A(x,y)                                 前提\n（2）(y (x A(x,y)                              对（1）用定理6.7\n（3）(y (x A(x,y)→(x A(x,x)                    公理\n（4）(x A(x,x)                                 对（2），（3）用分离规则\n6、模仿定理6.7的证明，给出定理6.8的证明。\n",
+            "chapter_id": 6,
+            "section_id": 3,
+            "section_title": "6.1.2  系统内的推理：证明与演绎",
+            "source": "第6章形式系统（新）.txt",
+            "image_refs": [
+              {
+                "id": "58e14ad45d13f2826eda3c9e21f0eb9562f9caa64eac0e883692e887c6a7bd3d",
+                "image_url": "/api/pdf/crops/58e14ad45d13f2826eda3c9e21f0eb9562f9caa64eac0e883692e887c6a7bd3d/image",
+                "label": "教材第 15 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "289eab54f1313a5c0aea323347af6466c0f80b39def8c284b2d593b14104f407",
+            "quote": "（1）(x A(x,y)                                 前提\n（2）(y (x A(x,y)                              对（1）用定理6.7\n（3）(y (x A(x,y)→(x A(x,x)                    公理\n（4）(x A(x,x)                                 对（2），（3）用分离规则\n6、模仿定理6.7的证明，给出定理6.8的证明。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 15,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "289eab54f1313a5c0aea323347af6466c0f80b39def8c284b2d593b14104f407",
+            "retrieval_source_id": "ch6-s3-p0-w10",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-06",
+            "document_version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 0,
+            "block_end": 235,
+            "quote": "（1）(x A(x,y)                                 前提\n（2）(y (x A(x,y)                              对（1）用定理6.7\n（3）(y (x A(x,y)→(x A(x,x)                    公理\n（4）(x A(x,x)                                 对（2），（3）用分离规则\n6、模仿定理6.7的证明，给出定理6.8的证明。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              15
+            ],
+            "page": 15,
+            "selections": [
+              {
+                "document_id": "chapter-06",
+                "version": "ce625d6643392d8e317cbee3fe16ca000ce8d5f5dea36a62a51faace1396d209",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.26559407184809236,
+                    "x2": 0.34570691943769694,
+                    "y2": 0.2783393344471404
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.2765616255010392,
+                    "x2": 0.4416649303275998,
+                    "y2": 0.2893068881000872
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.28752917915398607,
+                    "x2": 0.37451030724789913,
+                    "y2": 0.3002744417530341
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.2984967328069329,
+                    "x2": 0.5057539472820377,
+                    "y2": 0.3112419772839036
+                  },
+                  {
+                    "page": 15,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.3094642864598797,
+                    "x2": 0.39654369091386554,
+                    "y2": 0.3222095309368505
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n（1）(x A(x,y)                                 前提\n（2）(y (x A(x,y)                              对（1）用定理6.7\n（3）(y (x A(x,y)→(x A(x,x)                    公理\n（4）(x A(x,x)                                 对（2），（3）用分离规则\n6、模仿定理6.7的证明，给出定理6.8的证明。\n",
+                "chapter_id": 6,
+                "section_id": 3,
+                "section_title": "6.1.2  系统内的推理：证明与演绎",
+                "source": "第6章形式系统（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "58e14ad45d13f2826eda3c9e21f0eb9562f9caa64eac0e883692e887c6a7bd3d",
+                    "image_url": "/api/pdf/crops/58e14ad45d13f2826eda3c9e21f0eb9562f9caa64eac0e883692e887c6a7bd3d/image",
+                    "label": "教材第 15 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：（1）(x A(x,y)                                 前提。（2）(y (x A(x,y)                              对（1）用定理6.7。",
+                "start": 0,
+                "end": 113,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 1013.4
+    },
+    {
+      "id": "c07",
+      "scenario_id": "c07",
+      "turn_index": 1,
+      "question": "怎样从邻接矩阵判断两个顶点之间有边？",
+      "category": "paraphrase",
+      "expect_refusal": false,
+      "retrieval_hit": false,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": true,
+      "unsupported_answer": false,
+      "status": "quality_rejected",
+      "knowledge_point": null,
+      "reply": "本次未能确认可靠的教材引用证据，请缩小问题范围或选中教材原文后重试。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 964.8
+    },
+    {
+      "id": "c08",
+      "scenario_id": "c08",
+      "turn_index": 1,
+      "question": "连通无圈图为何是一棵树？",
+      "category": "definition",
+      "expect_refusal": false,
+      "retrieval_hit": false,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": true,
+      "unsupported_answer": false,
+      "status": "quality_rejected",
+      "knowledge_point": null,
+      "reply": "本次未能确认可靠的教材引用证据，请缩小问题范围或选中教材原文后重试。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 1132.1
+    },
+    {
+      "id": "c09",
+      "scenario_id": "c09",
+      "turn_index": 1,
+      "question": "一个关系什么时候具有反对称性？",
+      "category": "definition",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": true,
+      "status": "answered",
+      "knowledge_point": "关系",
+      "reply": "根据本轮教材摘录：但整数集合上的整除关系有传递性，无自反性和反对称性。[1]",
+      "textbook_sources": [
+        "第9章关系（新）.txt／9.1.3 关系的基本特性"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-09",
+            "version": "35a1daa3224fd49a81c68f3b8c6f03ecd4e1f919eb72078c63abc39a08beb7b9",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 17,
+                "x1": 0.5625201836594013,
+                "y1": 0.1997888949070294,
+                "x2": 0.9147806878610819,
+                "y2": 0.21253415750607743
+              },
+              {
+                "page": 17,
+                "x1": 0.07513025210084033,
+                "y1": 0.21075637607166717,
+                "x2": 0.34755882352941175,
+                "y2": 0.22350163867071518
+              },
+              {
+                "page": 17,
+                "x1": 0.07513025210084033,
+                "y1": 0.22172392972461402,
+                "x2": 0.89881430130646,
+                "y2": 0.23446919232366203
+              },
+              {
+                "page": 17,
+                "x1": 0.07513025210084033,
+                "y1": 0.23269148337756088,
+                "x2": 0.427390756302521,
+                "y2": 0.2454367459766089
+              },
+              {
+                "page": 17,
+                "x1": 0.07513025210084033,
+                "y1": 0.24365903703050773,
+                "x2": 0.5594487797071953,
+                "y2": 0.25640429962955574
+              },
+              {
+                "page": 17,
+                "x1": 0.07513025210084033,
+                "y1": 0.25462659068345456,
+                "x2": 0.11238991771024816,
+                "y2": 0.2673718532825026
+              }
+            ],
+            "text": "\n\n\n\n\n\n\n\n其上的相等关系是自反、对称、反对称、传递的；\n其上的全关系是自反、对称、传递的。\n（5）正整数集合上的整除关系是自反、反对称、传递的；但整数集合上的整除关系有传递性，无自反性和反对称性。\n三角形的相似、全等关系是自反、对称、传递的。\n关系的基本特性与关系图、关系矩阵有怎样的联系呢？表9.1详解之。\n表9.1\n\n\n",
+            "chapter_id": 9,
+            "section_id": 4,
+            "section_title": "9.1.3 关系的基本特性",
+            "source": "第9章关系（新）.txt",
+            "image_refs": [
+              {
+                "id": "f727b29b60ba06c609468eb3c754c6c6be3e28bca14d8a8368462d31a254d9e8",
+                "image_url": "/api/pdf/crops/f727b29b60ba06c609468eb3c754c6c6be3e28bca14d8a8368462d31a254d9e8/image",
+                "label": "教材第 17 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "0174a53e2f4eed02f5f1393d955ee52280e4409aa1c18f92ca4a439bbc3864cb",
+            "quote": "其上的相等关系是自反、对称、反对称、传递的；其上的全关系是自反、对称、传递的。\n（5）正整数集合上的整除关系是自反、反对称、传递的；但整数集合上的整除关系有传递性，无自反性和反对称性。\n三角形的相似、全等关系是自反、对称、传递的。\n关系的基本特性与关系图、关系矩阵有怎样的联系呢？表9.1详解之。\n表9.1",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 17,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "0174a53e2f4eed02f5f1393d955ee52280e4409aa1c18f92ca4a439bbc3864cb",
+            "retrieval_source_id": "ch9-s4-p0-w1",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-09",
+            "document_version": "35a1daa3224fd49a81c68f3b8c6f03ecd4e1f919eb72078c63abc39a08beb7b9",
+            "source_block_id": null,
+            "section_id": 4,
+            "block_start": 344,
+            "block_end": 497,
+            "quote": "其上的相等关系是自反、对称、反对称、传递的；其上的全关系是自反、对称、传递的。\n（5）正整数集合上的整除关系是自反、反对称、传递的；但整数集合上的整除关系有传递性，无自反性和反对称性。\n三角形的相似、全等关系是自反、对称、传递的。\n关系的基本特性与关系图、关系矩阵有怎样的联系呢？表9.1详解之。\n表9.1",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              17
+            ],
+            "page": 17,
+            "selections": [
+              {
+                "document_id": "chapter-09",
+                "version": "35a1daa3224fd49a81c68f3b8c6f03ecd4e1f919eb72078c63abc39a08beb7b9",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 17,
+                    "x1": 0.5625201836594013,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.9147806878610819,
+                    "y2": 0.21253415750607743
+                  },
+                  {
+                    "page": 17,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.21075637607166717,
+                    "x2": 0.34755882352941175,
+                    "y2": 0.22350163867071518
+                  },
+                  {
+                    "page": 17,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.22172392972461402,
+                    "x2": 0.89881430130646,
+                    "y2": 0.23446919232366203
+                  },
+                  {
+                    "page": 17,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.23269148337756088,
+                    "x2": 0.427390756302521,
+                    "y2": 0.2454367459766089
+                  },
+                  {
+                    "page": 17,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.24365903703050773,
+                    "x2": 0.5594487797071953,
+                    "y2": 0.25640429962955574
+                  },
+                  {
+                    "page": 17,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.25462659068345456,
+                    "x2": 0.11238991771024816,
+                    "y2": 0.2673718532825026
+                  }
+                ],
+                "text": "\n\n\n\n\n\n\n\n其上的相等关系是自反、对称、反对称、传递的；\n其上的全关系是自反、对称、传递的。\n（5）正整数集合上的整除关系是自反、反对称、传递的；但整数集合上的整除关系有传递性，无自反性和反对称性。\n三角形的相似、全等关系是自反、对称、传递的。\n关系的基本特性与关系图、关系矩阵有怎样的联系呢？表9.1详解之。\n表9.1\n\n\n",
+                "chapter_id": 9,
+                "section_id": 4,
+                "section_title": "9.1.3 关系的基本特性",
+                "source": "第9章关系（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "f727b29b60ba06c609468eb3c754c6c6be3e28bca14d8a8368462d31a254d9e8",
+                    "image_url": "/api/pdf/crops/f727b29b60ba06c609468eb3c754c6c6be3e28bca14d8a8368462d31a254d9e8/image",
+                    "label": "教材第 17 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：但整数集合上的整除关系有传递性，无自反性和反对称性。",
+                "start": 0,
+                "end": 35,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 1346.5
+    },
+    {
+      "id": "c10",
+      "scenario_id": "c10",
+      "turn_index": 1,
+      "question": "函数复合 f○g 中两个函数的应用次序是什么？",
+      "category": "formula",
+      "expect_refusal": false,
+      "retrieval_hit": false,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": true,
+      "unsupported_answer": false,
+      "status": "quality_rejected",
+      "knowledge_point": null,
+      "reply": "本次未能确认可靠的教材引用证据，请缩小问题范围或选中教材原文后重试。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 1042.5
+    },
+    {
+      "id": "c11",
+      "scenario_id": "c11",
+      "turn_index": 1,
+      "question": "A∧B 在什么条件下取真？",
+      "category": "formula",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": true,
+      "status": "answered",
+      "knowledge_point": "逻辑代数",
+      "reply": "根据本轮教材摘录：例4.4  如果p表示命题“你去了学校”q表示命题“我去了工厂”，那么p∧q表示命题“你去了学校并且我去了工厂”。[1]",
+      "textbook_sources": [
+        "第4章逻辑代数（新）.txt／4.1.2  逻辑联结词"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-04",
+            "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 7,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.14694116313517594,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 7,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.9154991588432247,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 7,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.31562605042016806,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 7,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.9224285468093487,
+                "y2": 0.20156660385313058
+              },
+              {
+                "page": 7,
+                "x1": 0.07513025210084033,
+                "y1": 0.1997888949070294,
+                "x2": 0.3454512641970851,
+                "y2": 0.21253415750607743
+              }
+            ],
+            "text": "\n\n\n1      例4.4\n如果p表示命题“你去了学校”q表示命题“我去了工厂”，那么p∧q表示命题“你去了学校并且我去了工厂”。p∧q为真，当且\n仅当你、我分别去了学校和工厂。\n析取词(disjunction)“或”（or）用符号∨表示。设p，q表示两命题，那么p∨q表示p和q的析取，即当p和q有一为真时，p∨\nq为真，只有当p和q均假时p∨q为假。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "chapter_id": 4,
+            "section_id": 3,
+            "section_title": "4.1.2  逻辑联结词",
+            "source": "第4章逻辑代数（新）.txt",
+            "image_refs": [
+              {
+                "id": "896ee05b1205048df712315f9dc0aac4a18c4b2c737a98d53976a505ca2977c6",
+                "image_url": "/api/pdf/crops/896ee05b1205048df712315f9dc0aac4a18c4b2c737a98d53976a505ca2977c6/image",
+                "label": "教材第 7 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "5c61e94d5b31baa870cfa7ec5cb37d5849ec9bb4d4786ede8cadb03406a698e8",
+            "quote": "1\t\t    例4.4  如果p表示命题“你去了学校”q表示命题“我去了工厂”，那么p∧q表示命题“你去了学校并且我去了工厂”。p∧q为真，当且仅当你、我分别去了学校和工厂。\n析取词(disjunction)“或”（or）用符号∨表示。设p，q表示两命题，那么p∨q表示p和q的析取，即当p和q有一为真时，p∨q为真，只有当p和q均假时p∨q为假。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 7,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "5c61e94d5b31baa870cfa7ec5cb37d5849ec9bb4d4786ede8cadb03406a698e8",
+            "retrieval_source_id": "ch4-s3-p0-w1",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-04",
+            "document_version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+            "source_block_id": null,
+            "section_id": 3,
+            "block_start": 0,
+            "block_end": 174,
+            "quote": "1\t\t    例4.4  如果p表示命题“你去了学校”q表示命题“我去了工厂”，那么p∧q表示命题“你去了学校并且我去了工厂”。p∧q为真，当且仅当你、我分别去了学校和工厂。\n析取词(disjunction)“或”（or）用符号∨表示。设p，q表示两命题，那么p∨q表示p和q的析取，即当p和q有一为真时，p∨q为真，只有当p和q均假时p∨q为假。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              7
+            ],
+            "page": 7,
+            "selections": [
+              {
+                "document_id": "chapter-04",
+                "version": "46cec40987211540e6d0d1b71eb6536010641b5493367a09540ebfdd5d1867bd",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 7,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.14694116313517594,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 7,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.9154991588432247,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 7,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.31562605042016806,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 7,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.9224285468093487,
+                    "y2": 0.20156660385313058
+                  },
+                  {
+                    "page": 7,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.1997888949070294,
+                    "x2": 0.3454512641970851,
+                    "y2": 0.21253415750607743
+                  }
+                ],
+                "text": "\n\n\n1      例4.4\n如果p表示命题“你去了学校”q表示命题“我去了工厂”，那么p∧q表示命题“你去了学校并且我去了工厂”。p∧q为真，当且\n仅当你、我分别去了学校和工厂。\n析取词(disjunction)“或”（or）用符号∨表示。设p，q表示两命题，那么p∨q表示p和q的析取，即当p和q有一为真时，p∨\nq为真，只有当p和q均假时p∨q为假。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                "chapter_id": 4,
+                "section_id": 3,
+                "section_title": "4.1.2  逻辑联结词",
+                "source": "第4章逻辑代数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "896ee05b1205048df712315f9dc0aac4a18c4b2c737a98d53976a505ca2977c6",
+                    "image_url": "/api/pdf/crops/896ee05b1205048df712315f9dc0aac4a18c4b2c737a98d53976a505ca2977c6/image",
+                    "label": "教材第 7 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：例4.4  如果p表示命题“你去了学校”q表示命题“我去了工厂”，那么p∧q表示命题“你去了学校并且我去了工厂”。",
+                "start": 0,
+                "end": 66,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 1190.2
+    },
+    {
+      "id": "c12",
+      "scenario_id": "c12",
+      "turn_index": 1,
+      "question": "若给每个整数对应其绝对值，这个映射是否单射？",
+      "category": "application",
+      "expect_refusal": false,
+      "retrieval_hit": true,
+      "answer_correct": false,
+      "citation_supports_answer": false,
+      "citation_integrity": {
+        "count": 1,
+        "invalid": [],
+        "valid": 1
+      },
+      "false_refusal": false,
+      "unsupported_answer": true,
+      "status": "answered",
+      "knowledge_point": "集合",
+      "reply": "根据本轮教材摘录：定理10.10  设<X, ≤1>，<Y, ≤2>为有序集，L(X为X中的≤1链，f：X→Y为单调映射，那么f ’(L)为Y中的≤2链。[1]",
+      "textbook_sources": [
+        "第10章函数（新）.txt／10.2.1 单射的、满射的和双射的函数"
+      ],
+      "pdf_references": [
+        {
+          "source_index": 0,
+          "label": "精确证据",
+          "selection_ref": {
+            "document_id": "chapter-10",
+            "version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+            "kind": "text",
+            "rects": [
+              {
+                "page": 24,
+                "x1": 0.07513025210084033,
+                "y1": 0.15591868029524197,
+                "x2": 0.8496378143054096,
+                "y2": 0.16866394289429001
+              },
+              {
+                "page": 24,
+                "x1": 0.07513025210084033,
+                "y1": 0.16688623394818883,
+                "x2": 0.21982773109243697,
+                "y2": 0.17963149654723687
+              },
+              {
+                "page": 24,
+                "x1": 0.07513025210084033,
+                "y1": 0.17785378760113568,
+                "x2": 0.9194430557379201,
+                "y2": 0.19059905020018372
+              },
+              {
+                "page": 24,
+                "x1": 0.07513025210084033,
+                "y1": 0.18882134125408254,
+                "x2": 0.4882386525899422,
+                "y2": 0.20156660385313058
+              }
+            ],
+            "text": "\n\n\n\n定理10.10  设<X, ≤1>，<Y, ≤2>为有序集，L(X为X中的≤1链，f：X→Y为单调映射，那么f ’(L)为Y中的≤2链。\n证明同样是简单的。\n定义10.11  设<X, ≤1>，<Y, ≤2>为完备序集，称f：X→Y为连续映射（continuous mapping），如果对X中每一≤1链L，f\n’(L)的上确界sup f ’(L)存在且等于f(supL)(supL为L的上确界)。\n\n\n\n\n\n",
+            "chapter_id": 10,
+            "section_id": 6,
+            "section_title": "10.2.1 单射的、满射的和双射的函数",
+            "source": "第10章函数（新）.txt",
+            "image_refs": [
+              {
+                "id": "c590c20aac28ddabf5406181087ad6f99d2a50e2ff6b656c7cad22a5e5eb92ad",
+                "image_url": "/api/pdf/crops/c590c20aac28ddabf5406181087ad6f99d2a50e2ff6b656c7cad22a5e5eb92ad/image",
+                "label": "教材第 24 页选区"
+              }
+            ],
+            "origin": "grounded_citation",
+            "location_kind": "exact",
+            "evidence_id": "e225a027dee7911ed38ddcb381a020ecab0672c0124ee0d9c961d0a80b5b4f31",
+            "quote": "定理10.10  设<X, ≤1>，<Y, ≤2>为有序集，L(X为X中的≤1链，f：X→Y为单调映射，那么f ’(L)为Y中的≤2链。\n证明同样是简单的。\n定义10.11  设<X, ≤1>，<Y, ≤2>为完备序集，称f：X→Y为连续映射（continuous mapping），如果对X中每一≤1链L，f ’(L)的上确界sup f ’(L)存在且等于f(supL)(supL为L的上确界)。",
+            "grounding_schema": "citation-grounding-v1",
+            "page": 24,
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo"
+          },
+          "evidence": {
+            "evidence_id": "e225a027dee7911ed38ddcb381a020ecab0672c0124ee0d9c961d0a80b5b4f31",
+            "retrieval_source_id": "ch10-s6-p0-w5",
+            "retrieval_source_index": 0,
+            "document_id": "chapter-10",
+            "document_version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+            "source_block_id": null,
+            "section_id": 6,
+            "block_start": 0,
+            "block_end": 199,
+            "quote": "定理10.10  设<X, ≤1>，<Y, ≤2>为有序集，L(X为X中的≤1链，f：X→Y为单调映射，那么f ’(L)为Y中的≤2链。\n证明同样是简单的。\n定义10.11  设<X, ≤1>，<Y, ≤2>为完备序集，称f：X→Y为连续映射（continuous mapping），如果对X中每一≤1链L，f ’(L)的上确界sup f ’(L)存在且等于f(supL)(supL为L的上确界)。",
+            "selected_target": false,
+            "location_status": "exact",
+            "degradation_reason": null,
+            "verification": "source_verified",
+            "pages": [
+              24
+            ],
+            "page": 24,
+            "selections": [
+              {
+                "document_id": "chapter-10",
+                "version": "ae1cf1a448a9bc1f934be320e2c2da50d125baa6665560212c2c19bc3a838259",
+                "kind": "text",
+                "rects": [
+                  {
+                    "page": 24,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.15591868029524197,
+                    "x2": 0.8496378143054096,
+                    "y2": 0.16866394289429001
+                  },
+                  {
+                    "page": 24,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.16688623394818883,
+                    "x2": 0.21982773109243697,
+                    "y2": 0.17963149654723687
+                  },
+                  {
+                    "page": 24,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.17785378760113568,
+                    "x2": 0.9194430557379201,
+                    "y2": 0.19059905020018372
+                  },
+                  {
+                    "page": 24,
+                    "x1": 0.07513025210084033,
+                    "y1": 0.18882134125408254,
+                    "x2": 0.4882386525899422,
+                    "y2": 0.20156660385313058
+                  }
+                ],
+                "text": "\n\n\n\n定理10.10  设<X, ≤1>，<Y, ≤2>为有序集，L(X为X中的≤1链，f：X→Y为单调映射，那么f ’(L)为Y中的≤2链。\n证明同样是简单的。\n定义10.11  设<X, ≤1>，<Y, ≤2>为完备序集，称f：X→Y为连续映射（continuous mapping），如果对X中每一≤1链L，f\n’(L)的上确界sup f ’(L)存在且等于f(supL)(supL为L的上确界)。\n\n\n\n\n\n",
+                "chapter_id": 10,
+                "section_id": 6,
+                "section_title": "10.2.1 单射的、满射的和双射的函数",
+                "source": "第10章函数（新）.txt",
+                "image_refs": [
+                  {
+                    "id": "c590c20aac28ddabf5406181087ad6f99d2a50e2ff6b656c7cad22a5e5eb92ad",
+                    "image_url": "/api/pdf/crops/c590c20aac28ddabf5406181087ad6f99d2a50e2ff6b656c7cad22a5e5eb92ad/image",
+                    "label": "教材第 24 页选区"
+                  }
+                ]
+              }
+            ],
+            "claims": [
+              {
+                "text": "根据本轮教材摘录：定理10.10  设<X, ≤1>，<Y, ≤2>为有序集，L(X为X中的≤1链，f：X→Y为单调映射，那么f ’(L)为Y中的≤2链。",
+                "start": 0,
+                "end": 77,
+                "markers": [
+                  1
+                ]
+              }
+            ],
+            "textbook_release": "cce8702929da16a1fc703c8f86400af34b5c3078a0ca042b38e63dd5637efe00",
+            "release_status": "demo",
+            "release_ready": false
+          }
+        }
+      ],
+      "elapsed_ms": 806.8
+    },
+    {
+      "id": "c13",
+      "scenario_id": "c13",
+      "turn_index": 1,
+      "question": "怎样用 Transformer 做机器翻译？",
+      "category": "out_of_scope",
+      "expect_refusal": true,
+      "retrieval_hit": null,
+      "answer_correct": true,
+      "citation_supports_answer": null,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "evidence_rejected",
+      "knowledge_point": "集合",
+      "reply": "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 92.5
+    },
+    {
+      "id": "c14",
+      "scenario_id": "c14",
+      "turn_index": 1,
+      "question": "糖尿病如何使用胰岛素治疗？",
+      "category": "out_of_scope",
+      "expect_refusal": true,
+      "retrieval_hit": null,
+      "answer_correct": true,
+      "citation_supports_answer": null,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "evidence_rejected",
+      "knowledge_point": "集合",
+      "reply": "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 115.1
+    },
+    {
+      "id": "c15",
+      "scenario_id": "c15",
+      "turn_index": 1,
+      "question": "股票的市盈率如何用于估值？",
+      "category": "out_of_scope",
+      "expect_refusal": true,
+      "retrieval_hit": null,
+      "answer_correct": true,
+      "citation_supports_answer": null,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "evidence_rejected",
+      "knowledge_point": "集合",
+      "reply": "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 99.4
+    },
+    {
+      "id": "c16",
+      "scenario_id": "c16",
+      "turn_index": 1,
+      "question": "动量守恒定律适用于什么条件？",
+      "category": "out_of_scope",
+      "expect_refusal": true,
+      "retrieval_hit": null,
+      "answer_correct": true,
+      "citation_supports_answer": null,
+      "citation_integrity": {
+        "count": 0,
+        "invalid": [],
+        "valid": 0
+      },
+      "false_refusal": false,
+      "unsupported_answer": false,
+      "status": "evidence_rejected",
+      "knowledge_point": "集合",
+      "reply": "目前没有检索到与这个问题直接相关的教材依据。你可以选中教材里的相关内容再问，或告诉我具体章节。",
+      "textbook_sources": [],
+      "pdf_references": [],
+      "elapsed_ms": 111.6
+    }
+  ]
+}

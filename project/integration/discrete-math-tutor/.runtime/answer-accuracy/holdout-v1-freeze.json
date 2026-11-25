@@ -1,0 +1,13 @@
+{
+  "schema": "answer-accuracy-report-v1",
+  "created_at": "2026-11-21T20:17:43.656618+08:00",
+  "dataset": "independent-engineering-holdout-v1",
+  "dataset_note": "Frozen engineering holdout. It has not been used for tuning and still requires independent teacher review before making educational-quality claims.",
+  "cases_file": "tests\\data\\e2e_answer_accuracy_holdout_v1.json",
+  "cases_sha256": "25ace0176904d1e8952f6f73ef4e1b1954a5e192c16643253a48074d5bd2d3c9",
+  "index_sha256": "6b7c8ea73464480ed8742a955d1c0f623d2dd08e34ca5f8fe315c544f3cb72f6",
+  "pdf_manifest_sha256": "306a04b5baf0cbf410076431729b963d48cbd105496d05903a429a411ca9c9fa",
+  "scenario_count": 55,
+  "turn_count": 60,
+  "dry_run": true
+}

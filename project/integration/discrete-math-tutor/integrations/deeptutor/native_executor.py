@@ -269,6 +269,7 @@ class NativeTurnExecutor:
             checked_task(request.student_id, request.session_id, task["id"], task["revision"], allow_active=True)
         guard()
         first_event = True
+        last_progress = None
         with closing(self.backend.native_events(binding["key"], after_seq=binding.get("after_seq", 0))) as events:
             for event in events:
                 if first_event and started is not None:
@@ -282,8 +283,34 @@ class NativeTurnExecutor:
                     raise ValueError("原生事件游标无效")
                 binding["after_seq"] = seq
                 if event.get("type") in ("stage_start", "stage_end", "progress", "tool_call") and progress:
-                    label = event.get("stage") or event.get("source") or "原生执行"
-                    progress(str(label), str(label), "正在原生运行时中执行，尚未正式保存。")
+                    metadata = event.get("metadata") or {}
+                    label = (metadata.get("label") or event.get("stage")
+                             or event.get("source") or "原生执行")
+                    progress_key = (event.get("stage"), label, metadata.get("call_id"),
+                                    metadata.get("call_state"))
+                    if progress_key != last_progress:
+                        last_progress = progress_key
+                        progress(str(label), str(label),
+                                 "正在原生运行时中执行，尚未正式保存。")
+                if (answer_event and event.get("type") == "content"
+                        and event.get("stage") == "responding"
+                        and isinstance(event.get("content"), str)
+                        and event["content"]):
+                    answer_event("answer_delta", {
+                        "answer_id": binding["turn_id"],
+                        "task_id": task["id"],
+                        "task_revision": task["revision"],
+                        "round_id": 1,
+                        "seq": seq,
+                        "role": "answer",
+                        "text": event["content"],
+                    })
+                if answer_event and event.get("type") == "error":
+                    metadata = event.get("metadata") or {}
+                    answer_event("error", {
+                        "message": (event.get("content") or metadata.get("message")
+                                    or metadata.get("error") or "DeepTutor 原生回合失败。")
+                    })
                 pending = _pending(event)
                 if pending:
                     self._checkpoint(task, binding)
@@ -319,13 +346,15 @@ class NativeTurnExecutor:
         from agents.agent_loop import LoopResult
         from agents.agent_loop_service import _publish_gate
         from agents.q3_navigation import LearningTarget
+        from knowledge.course_config import PSYCHOLOGY
         outcome = LoopResult(final_text=text, completed=True,
             sources=publication_sources(binding, state, task['context'].get('document_versions') or {}))
         target = LearningTarget("native:" + task["id"], task["knowledge_point"])
         from models.chat_request import ChatRequest
         original = ChatRequest.model_validate(task['payload'])
-        gate = _publish_gate(self.orchestrator, original, target, allow_model_knowledge=not bool(
-            original.selection or original.exercise_target or re.search(r"教材原文|原书怎么说|引用原文|具体研究结果", original.message)))
+        gate = _publish_gate(self.orchestrator, original, target, allow_model_knowledge=(
+            PSYCHOLOGY and not bool(original.selection or original.exercise_target
+                or re.search(r"教材原文|原书怎么说|引用原文|具体研究结果", original.message))))
         accepted, reason = gate(text, outcome)
         if not accepted:
             _, saved = self.repo.save(task=task, receipt_id=binding["receipt_id"], status="failed",

@@ -1,0 +1,2793 @@
+{
+  "schema": "vector-retrieval-shadow-v1",
+  "model": "BAAI/bge-small-zh-v1.5",
+  "vector_index": ".runtime\\vector-retrieval-shadow-v1.sqlite3",
+  "active_path_modified": false,
+  "semantic_threshold": 0.51,
+  "baseline": {
+    "section_recall_at_1": 0.5429,
+    "section_recall_at_3": 0.8857,
+    "out_of_scope_rejection_precision": 1.0,
+    "out_of_scope_rejection_recall": 0.6667,
+    "out_of_scope_rejection_f1": 0.8,
+    "latency_p50_ms": 31.55,
+    "latency_p95_ms": 204.49
+  },
+  "vector_hybrid": {
+    "section_recall_at_1": 0.6286,
+    "section_recall_at_3": 0.9143,
+    "out_of_scope_rejection_precision": 1.0,
+    "out_of_scope_rejection_recall": 0.9333,
+    "out_of_scope_rejection_f1": 0.9655,
+    "latency_p50_ms": 114.9,
+    "latency_p95_ms": 291.18
+  },
+  "semantic_section": {
+    "section_recall_at_1": 0.8286,
+    "section_recall_at_3": 0.9714,
+    "out_of_scope_rejection_precision": 1.0,
+    "out_of_scope_rejection_recall": 0.8667,
+    "out_of_scope_rejection_f1": 0.9286,
+    "latency_p50_ms": 32.29,
+    "latency_p95_ms": 34.04
+  },
+  "gates": {
+    "recall_at_3_beats_current_by_0_05": false,
+    "out_of_scope_f1_at_least_0_85": true,
+    "p95_latency_at_most_2000_ms": true
+  },
+  "can_enable": false,
+  "rows": [
+    {
+      "id": "v01",
+      "text": "集合外延公理说两个集合相等要看什么",
+      "section": "外延性公理与子集合",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 1,
+          "section_id": 4,
+          "title": "1.1.3  外延性公理与子集合"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 8,
+          "title": "1.2.3集合的笛卡儿积"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 9,
+          "title": "1.3.1集合的归纳定义"
+        }
+      ],
+      "baseline_ms": 52.52,
+      "vector": [
+        {
+          "chapter_id": 1,
+          "section_id": 4,
+          "title": "1.1.3  外延性公理与子集合"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 8,
+          "title": "1.2.3集合的笛卡儿积"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 2,
+          "title": "1.1.1集合及其元素"
+        }
+      ],
+      "vector_ms": 118.48,
+      "semantic": [
+        {
+          "chapter_id": 1,
+          "section_id": 4,
+          "title": "1.1.3  外延性公理与子集合",
+          "score": 0.777031
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 7,
+          "title": "1.2.2 幂集运算和广义并、交运算",
+          "score": 0.634662
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 3,
+          "title": "6.1.2  系统内的推理：证明与演绎",
+          "score": 0.632043
+        }
+      ],
+      "semantic_ms": 31.23
+    },
+    {
+      "id": "v02",
+      "text": "花名册式写法属于集合的哪种表示",
+      "section": "集合的表示",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 1,
+          "section_id": 3,
+          "title": "1.1.2集合的表示"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 9,
+          "title": "1.3.1集合的归纳定义"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 8,
+          "title": "1.2.3集合的笛卡儿积"
+        }
+      ],
+      "baseline_ms": 38.6,
+      "vector": [
+        {
+          "chapter_id": 1,
+          "section_id": 3,
+          "title": "1.1.2集合的表示"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 8,
+          "title": "1.2.3集合的笛卡儿积"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 9,
+          "title": "1.3.1集合的归纳定义"
+        }
+      ],
+      "vector_ms": 115.46,
+      "semantic": [
+        {
+          "chapter_id": 1,
+          "section_id": 8,
+          "title": "1.2.3集合的笛卡儿积",
+          "score": 0.657568
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 7,
+          "title": "1.2.2 幂集运算和广义并、交运算",
+          "score": 0.634324
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 3,
+          "title": "1.1.2集合的表示",
+          "score": 0.634239
+        }
+      ],
+      "semantic_ms": 33.51
+    },
+    {
+      "id": "v03",
+      "text": "差运算要求哪些元素同时满足两个条件",
+      "section": "并、交、差、补运算",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 9,
+          "title": "1.3.1集合的归纳定义"
+        }
+      ],
+      "baseline_ms": 33.1,
+      "vector": [
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 7,
+          "title": "1.2.2 幂集运算和广义并、交运算"
+        }
+      ],
+      "vector_ms": 113.64,
+      "semantic": [
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算",
+          "score": 0.651716
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算",
+          "score": 0.650705
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 7,
+          "title": "1.2.2 幂集运算和广义并、交运算",
+          "score": 0.606936
+        }
+      ],
+      "semantic_ms": 31.9
+    },
+    {
+      "id": "v04",
+      "text": "幂集的每个成员本身是什么",
+      "section": "幂集运算和广义并、交运算",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 1,
+          "section_id": 7,
+          "title": "1.2.2 幂集运算和广义并、交运算"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算"
+        }
+      ],
+      "baseline_ms": 29.91,
+      "vector": [
+        {
+          "chapter_id": 1,
+          "section_id": 7,
+          "title": "1.2.2 幂集运算和广义并、交运算"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算"
+        }
+      ],
+      "vector_ms": 114.73,
+      "semantic": [
+        {
+          "chapter_id": 1,
+          "section_id": 7,
+          "title": "1.2.2 幂集运算和广义并、交运算",
+          "score": 0.616445
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 8,
+          "title": "1.2.3集合的笛卡儿积",
+          "score": 0.567966
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 2,
+          "title": "1.1.1集合及其元素",
+          "score": 0.556493
+        }
+      ],
+      "semantic_ms": 30.84
+    },
+    {
+      "id": "v05",
+      "text": "有限集合的笛卡儿积元素个数怎样计算",
+      "section": "集合的笛卡儿积",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 1,
+          "section_id": 8,
+          "title": "1.2.3集合的笛卡儿积"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 3,
+          "title": "1.1.2集合的表示"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 4,
+          "title": "1.1.3  外延性公理与子集合"
+        }
+      ],
+      "baseline_ms": 204.49,
+      "vector": [
+        {
+          "chapter_id": 1,
+          "section_id": 8,
+          "title": "1.2.3集合的笛卡儿积"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 3,
+          "title": "1.1.2集合的表示"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 4,
+          "title": "1.1.3  外延性公理与子集合"
+        }
+      ],
+      "vector_ms": 291.18,
+      "semantic": [
+        {
+          "chapter_id": 1,
+          "section_id": 8,
+          "title": "1.2.3集合的笛卡儿积",
+          "score": 0.784601
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 11,
+          "title": "10.4.4  基数比较",
+          "score": 0.680666
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 10,
+          "title": "9.3.1  序关系和有序集",
+          "score": 0.6653
+        }
+      ],
+      "semantic_ms": 33.15
+    },
+    {
+      "id": "v06",
+      "text": "结构归纳中保性质是什么意思",
+      "section": "结构归纳原理",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 1,
+          "section_id": 9,
+          "title": "1.3.1集合的归纳定义"
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 3,
+          "title": "2.1.1结构归纳原理"
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 2,
+          "title": "2.1 归纳原理"
+        }
+      ],
+      "baseline_ms": 35.86,
+      "vector": [
+        {
+          "chapter_id": 1,
+          "section_id": 9,
+          "title": "1.3.1集合的归纳定义"
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 3,
+          "title": "2.1.1结构归纳原理"
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 2,
+          "title": "2.1 归纳原理"
+        }
+      ],
+      "vector_ms": 120.97,
+      "semantic": [
+        {
+          "chapter_id": 2,
+          "section_id": 3,
+          "title": "2.1.1结构归纳原理",
+          "score": 0.628113
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 4,
+          "title": "2.1.2数学归纳原理",
+          "score": 0.582927
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 8,
+          "title": "4.2.2  逻辑等价式和逻辑蕴涵式",
+          "score": 0.554606
+        }
+      ],
+      "semantic_ms": 31.78
+    },
+    {
+      "id": "v07",
+      "text": "第二数学归纳为什么假设更多前项",
+      "section": "数学归纳原理",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 1,
+          "section_id": 9,
+          "title": "1.3.1集合的归纳定义"
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 4,
+          "title": "2.1.2数学归纳原理"
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 2,
+          "title": "2.1 归纳原理"
+        }
+      ],
+      "baseline_ms": 33.68,
+      "vector": [
+        {
+          "chapter_id": 1,
+          "section_id": 9,
+          "title": "1.3.1集合的归纳定义"
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 4,
+          "title": "2.1.2数学归纳原理"
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 2,
+          "title": "2.1 归纳原理"
+        }
+      ],
+      "vector_ms": 118.68,
+      "semantic": [
+        {
+          "chapter_id": 2,
+          "section_id": 4,
+          "title": "2.1.2数学归纳原理",
+          "score": 0.662711
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 9,
+          "title": "1.3.1集合的归纳定义",
+          "score": 0.625804
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 9,
+          "title": "5.3  谓词公式的前束范式",
+          "score": 0.60569
+        }
+      ],
+      "semantic_ms": 32.37
+    },
+    {
+      "id": "v08",
+      "text": "鸽笼原理能证明存在哪类重复",
+      "section": "鸽笼原理的基本形式",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 2,
+          "section_id": 5,
+          "title": "2.2.1鸽笼原理的基本形式"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算"
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 3,
+          "title": "10.1.1函数的基本概念"
+        }
+      ],
+      "baseline_ms": 33.06,
+      "vector": [
+        {
+          "chapter_id": 2,
+          "section_id": 5,
+          "title": "2.2.1鸽笼原理的基本形式"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算"
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 3,
+          "title": "10.1.1函数的基本概念"
+        }
+      ],
+      "vector_ms": 117.55,
+      "semantic": [
+        {
+          "chapter_id": 2,
+          "section_id": 5,
+          "title": "2.2.1鸽笼原理的基本形式",
+          "score": 0.752031
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 4,
+          "title": "2.1.2数学归纳原理",
+          "score": 0.712083
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 1,
+          "title": "第2章 两个常用数学基本原理",
+          "score": 0.605721
+        }
+      ],
+      "semantic_ms": 30.85
+    },
+    {
+      "id": "v09",
+      "text": "分类相加和分步相乘分别对应什么",
+      "section": "加法原理和乘法原理",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 7,
+          "section_id": 4,
+          "title": "7.1.3  子图、补图及图同构"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 11,
+          "title": "7.4.2  路径矩阵与可达性矩阵"
+        }
+      ],
+      "baseline_ms": 28.45,
+      "vector": [
+        {
+          "chapter_id": 3,
+          "section_id": 3,
+          "title": "3.1.1 加法原理和乘法原理"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 13,
+          "title": "3.4.2 递归关系的求解"
+        }
+      ],
+      "vector_ms": 115.84,
+      "semantic": [
+        {
+          "chapter_id": 3,
+          "section_id": 3,
+          "title": "3.1.1 加法原理和乘法原理",
+          "score": 0.642102
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 4,
+          "title": "3.1.2包含排斥原理",
+          "score": 0.639072
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数",
+          "score": 0.620726
+        }
+      ],
+      "semantic_ms": 32.29
+    },
+    {
+      "id": "v10",
+      "text": "容斥公式中交集项为何出现",
+      "section": "包含排斥原理",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 1,
+          "section_id": 7,
+          "title": "1.2.2 幂集运算和广义并、交运算"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算"
+        }
+      ],
+      "baseline_ms": 33.37,
+      "vector": [
+        {
+          "chapter_id": 1,
+          "section_id": 7,
+          "title": "1.2.2 幂集运算和广义并、交运算"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算"
+        }
+      ],
+      "vector_ms": 116.79,
+      "semantic": [
+        {
+          "chapter_id": 3,
+          "section_id": 4,
+          "title": "3.1.2包含排斥原理",
+          "score": 0.613241
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 4,
+          "title": "1.1.3  外延性公理与子集合",
+          "score": 0.57634
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 7,
+          "title": "1.2.2 幂集运算和广义并、交运算",
+          "score": 0.568228
+        }
+      ],
+      "semantic_ms": 33.96
+    },
+    {
+      "id": "v11",
+      "text": "圆桌排列为何除以人数",
+      "section": "排列的计数",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 3,
+          "section_id": 5,
+          "title": "3.2.1 排列的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 10,
+          "title": "3.3.3禁位排列的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数"
+        }
+      ],
+      "baseline_ms": 31.11,
+      "vector": [
+        {
+          "chapter_id": 3,
+          "section_id": 5,
+          "title": "3.2.1 排列的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 10,
+          "title": "3.3.3禁位排列的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数"
+        }
+      ],
+      "vector_ms": 112.22,
+      "semantic": [
+        {
+          "chapter_id": 3,
+          "section_id": 5,
+          "title": "3.2.1 排列的计数",
+          "score": 0.666272
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数",
+          "score": 0.633971
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 10,
+          "title": "3.3.3禁位排列的计数",
+          "score": 0.610343
+        }
+      ],
+      "semantic_ms": 32.61
+    },
+    {
+      "id": "v12",
+      "text": "组合计数不考虑什么因素",
+      "section": "组合的计数",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 10,
+          "title": "3.3.3禁位排列的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 5,
+          "title": "3.2.1 排列的计数"
+        }
+      ],
+      "baseline_ms": 33.97,
+      "vector": [
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 10,
+          "title": "3.3.3禁位排列的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 5,
+          "title": "3.2.1 排列的计数"
+        }
+      ],
+      "vector_ms": 114.11,
+      "semantic": [
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数",
+          "score": 0.689927
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 4,
+          "title": "3.1.2包含排斥原理",
+          "score": 0.633252
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 1,
+          "title": "第3章 组合论基础------计数",
+          "score": 0.617357
+        }
+      ],
+      "semantic_ms": 32.99
+    },
+    {
+      "id": "v13",
+      "text": "重集排列允许元素怎样出现",
+      "section": "重集的排列",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 3,
+          "section_id": 8,
+          "title": "3.3.1 重集的排列"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 5,
+          "title": "3.2.1 排列的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 9,
+          "title": "3.3.2 重集的组合"
+        }
+      ],
+      "baseline_ms": 1772.5,
+      "vector": [
+        {
+          "chapter_id": 3,
+          "section_id": 8,
+          "title": "3.3.1 重集的排列"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 5,
+          "title": "3.2.1 排列的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 9,
+          "title": "3.3.2 重集的组合"
+        }
+      ],
+      "vector_ms": 1829.46,
+      "semantic": [
+        {
+          "chapter_id": 3,
+          "section_id": 8,
+          "title": "3.3.1 重集的排列",
+          "score": 0.703581
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 7,
+          "title": "3.3 重集的排列与组合",
+          "score": 0.683473
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 10,
+          "title": "9.3.1  序关系和有序集",
+          "score": 0.609033
+        }
+      ],
+      "semantic_ms": 29.4
+    },
+    {
+      "id": "v14",
+      "text": "递归关系的初始值有什么作用",
+      "section": "递归关系的求解",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 3,
+          "section_id": 12,
+          "title": "3.4.1 一个重要的递归关系"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 13,
+          "title": "3.4.2 递归关系的求解"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算"
+        }
+      ],
+      "baseline_ms": 35.35,
+      "vector": [
+        {
+          "chapter_id": 3,
+          "section_id": 12,
+          "title": "3.4.1 一个重要的递归关系"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 13,
+          "title": "3.4.2 递归关系的求解"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 11,
+          "title": "3.4 递归关系"
+        }
+      ],
+      "vector_ms": 117.15,
+      "semantic": [
+        {
+          "chapter_id": 3,
+          "section_id": 11,
+          "title": "3.4 递归关系",
+          "score": 0.711603
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 13,
+          "title": "3.4.2 递归关系的求解",
+          "score": 0.686456
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 5,
+          "title": "10.1.4  函数的递归定义",
+          "score": 0.679033
+        }
+      ],
+      "semantic_ms": 31.84
+    },
+    {
+      "id": "v15",
+      "text": "逻辑联结词的真值表有什么作用",
+      "section": "逻辑联结词",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 4,
+          "section_id": 3,
+          "title": "4.1.2  逻辑联结词"
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 6,
+          "title": "5.2.1  谓词公式的真值规定"
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 8,
+          "title": "4.2.2  逻辑等价式和逻辑蕴涵式"
+        }
+      ],
+      "baseline_ms": 29.88,
+      "vector": [
+        {
+          "chapter_id": 4,
+          "section_id": 3,
+          "title": "4.1.2  逻辑联结词"
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 6,
+          "title": "5.2.1  谓词公式的真值规定"
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 8,
+          "title": "4.2.2  逻辑等价式和逻辑蕴涵式"
+        }
+      ],
+      "vector_ms": 119.45,
+      "semantic": [
+        {
+          "chapter_id": 4,
+          "section_id": 3,
+          "title": "4.1.2  逻辑联结词",
+          "score": 0.726681
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 2,
+          "title": "4.1.1  命题",
+          "score": 0.670628
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 6,
+          "title": "4.2  逻辑等价式和逻辑蕴涵式",
+          "score": 0.660402
+        }
+      ],
+      "semantic_ms": 32.1
+    },
+    {
+      "id": "v16",
+      "text": "逻辑蕴涵式和等价式如何区分",
+      "section": "逻辑等价式和逻辑蕴涵式",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 9,
+          "section_id": 8,
+          "title": "9.2.2  等价关系与划分"
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 8,
+          "title": "4.2.2  逻辑等价式和逻辑蕴涵式"
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 6,
+          "title": "4.2  逻辑等价式和逻辑蕴涵式"
+        }
+      ],
+      "baseline_ms": 32.43,
+      "vector": [
+        {
+          "chapter_id": 9,
+          "section_id": 8,
+          "title": "9.2.2  等价关系与划分"
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 8,
+          "title": "4.2.2  逻辑等价式和逻辑蕴涵式"
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 6,
+          "title": "4.2  逻辑等价式和逻辑蕴涵式"
+        }
+      ],
+      "vector_ms": 117.81,
+      "semantic": [
+        {
+          "chapter_id": 4,
+          "section_id": 8,
+          "title": "4.2.2  逻辑等价式和逻辑蕴涵式",
+          "score": 0.839318
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 6,
+          "title": "4.2  逻辑等价式和逻辑蕴涵式",
+          "score": 0.736831
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 9,
+          "title": "4.3  范式",
+          "score": 0.699475
+        }
+      ],
+      "semantic_ms": 32.12
+    },
+    {
+      "id": "v17",
+      "text": "主合取范式由极大项怎样连接",
+      "section": "主析取范式与主合取范式",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 4,
+          "section_id": 11,
+          "title": "4.4.2  主析取范式与主合取范式"
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 10,
+          "title": "4.4.1  析取范式和合取范式"
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 3,
+          "title": "4.1.2  逻辑联结词"
+        }
+      ],
+      "baseline_ms": 33.53,
+      "vector": [
+        {
+          "chapter_id": 4,
+          "section_id": 11,
+          "title": "4.4.2  主析取范式与主合取范式"
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 10,
+          "title": "4.4.1  析取范式和合取范式"
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 3,
+          "title": "4.1.2  逻辑联结词"
+        }
+      ],
+      "vector_ms": 119.57,
+      "semantic": [
+        {
+          "chapter_id": 4,
+          "section_id": 11,
+          "title": "4.4.2  主析取范式与主合取范式",
+          "score": 0.70007
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 10,
+          "title": "4.4.1  析取范式和合取范式",
+          "score": 0.656516
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 6,
+          "title": "7.2.2  连通性",
+          "score": 0.638225
+        }
+      ],
+      "semantic_ms": 29.85
+    },
+    {
+      "id": "v18",
+      "text": "自由变元和约束变元怎样区分",
+      "section": "量词及其辖域",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 5,
+          "section_id": 5,
+          "title": "5.1.4  谓词公式及语句的形式化"
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 4,
+          "title": "5.1.3  量词及其辖域"
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 8,
+          "title": "5.2.3  关于永真式的几个基本原理"
+        }
+      ],
+      "baseline_ms": 28.58,
+      "vector": [
+        {
+          "chapter_id": 5,
+          "section_id": 4,
+          "title": "5.1.3  量词及其辖域"
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 8,
+          "title": "5.2.3  关于永真式的几个基本原理"
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 5,
+          "title": "5.1.4  谓词公式及语句的形式化"
+        }
+      ],
+      "vector_ms": 108.84,
+      "semantic": [
+        {
+          "chapter_id": 5,
+          "section_id": 4,
+          "title": "5.1.3  量词及其辖域",
+          "score": 0.730641
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 8,
+          "title": "5.2.3  关于永真式的几个基本原理",
+          "score": 0.627098
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 11,
+          "title": "4.4.2  主析取范式与主合取范式",
+          "score": 0.616507
+        }
+      ],
+      "semantic_ms": 30.6
+    },
+    {
+      "id": "v19",
+      "text": "永真式在任意解释下真值如何",
+      "section": "重言式",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 5,
+          "section_id": 7,
+          "title": "5.2.2  谓词演算永真式"
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 8,
+          "title": "5.2.3  关于永真式的几个基本原理"
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 6,
+          "title": "5.2.1  谓词公式的真值规定"
+        }
+      ],
+      "baseline_ms": 31.35,
+      "vector": [
+        {
+          "chapter_id": 5,
+          "section_id": 7,
+          "title": "5.2.2  谓词演算永真式"
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 8,
+          "title": "5.2.3  关于永真式的几个基本原理"
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 6,
+          "title": "5.2.1  谓词公式的真值规定"
+        }
+      ],
+      "vector_ms": 117.11,
+      "semantic": [
+        {
+          "chapter_id": 5,
+          "section_id": 6,
+          "title": "5.2.1  谓词公式的真值规定",
+          "score": 0.764241
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 8,
+          "title": "4.2.2  逻辑等价式和逻辑蕴涵式",
+          "score": 0.713995
+        },
+        {
+          "chapter_id": 5,
+          "section_id": 8,
+          "title": "5.2.3  关于永真式的几个基本原理",
+          "score": 0.702863
+        }
+      ],
+      "semantic_ms": 33.44
+    },
+    {
+      "id": "v20",
+      "text": "形式系统公理和定理有什么区别",
+      "section": "谓词演算形式系统FC",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 6,
+          "section_id": 1,
+          "title": "第6章  形式系统与推理技术"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 2,
+          "title": "6.1 谓词演算形式系统FC"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND"
+        }
+      ],
+      "baseline_ms": 31.55,
+      "vector": [
+        {
+          "chapter_id": 6,
+          "section_id": 1,
+          "title": "第6章  形式系统与推理技术"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 2,
+          "title": "6.1 谓词演算形式系统FC"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND"
+        }
+      ],
+      "vector_ms": 114.9,
+      "semantic": [
+        {
+          "chapter_id": 6,
+          "section_id": 1,
+          "title": "第6章  形式系统与推理技术",
+          "score": 0.738285
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 2,
+          "title": "6.1 谓词演算形式系统FC",
+          "score": 0.731119
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 3,
+          "title": "6.1.2  系统内的推理：证明与演绎",
+          "score": 0.721052
+        }
+      ],
+      "semantic_ms": 32.45
+    },
+    {
+      "id": "v21",
+      "text": "证明与演绎对前提要求有何不同",
+      "section": "系统内的推理：证明与演绎",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 6,
+          "section_id": 3,
+          "title": "6.1.2  系统内的推理：证明与演绎"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 1,
+          "title": "第6章  形式系统与推理技术"
+        }
+      ],
+      "baseline_ms": 30.89,
+      "vector": [
+        {
+          "chapter_id": 6,
+          "section_id": 3,
+          "title": "6.1.2  系统内的推理：证明与演绎"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 1,
+          "title": "第6章  形式系统与推理技术"
+        }
+      ],
+      "vector_ms": 120.99,
+      "semantic": [
+        {
+          "chapter_id": 6,
+          "section_id": 3,
+          "title": "6.1.2  系统内的推理：证明与演绎",
+          "score": 0.685612
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算",
+          "score": 0.612344
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 8,
+          "title": "4.2.2  逻辑等价式和逻辑蕴涵式",
+          "score": 0.60988
+        }
+      ],
+      "semantic_ms": 31.89
+    },
+    {
+      "id": "v22",
+      "text": "ND系统的消去规则作用是什么",
+      "section": "自然推理形式系统ND",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 6,
+          "section_id": 3,
+          "title": "6.1.2  系统内的推理：证明与演绎"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 1,
+          "title": "第6章  形式系统与推理技术"
+        }
+      ],
+      "baseline_ms": 28.76,
+      "vector": [
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 3,
+          "title": "6.1.2  系统内的推理：证明与演绎"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 2,
+          "title": "6.1 谓词演算形式系统FC"
+        }
+      ],
+      "vector_ms": 111.19,
+      "semantic": [
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND",
+          "score": 0.624523
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 3,
+          "title": "6.1.2  系统内的推理：证明与演绎",
+          "score": 0.568106
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 5,
+          "title": "9.1.4  关系特性闭包",
+          "score": 0.518227
+        }
+      ],
+      "semantic_ms": 34.16
+    },
+    {
+      "id": "v23",
+      "text": "结点度数与关联边数有什么关系",
+      "section": "结点的度",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 4,
+          "title": "9.1.3 关系的基本特性"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 5,
+          "title": "9.1.4  关系特性闭包"
+        }
+      ],
+      "baseline_ms": 37.84,
+      "vector": [
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 4,
+          "title": "9.1.3 关系的基本特性"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 10,
+          "title": "9.3.1  序关系和有序集"
+        }
+      ],
+      "vector_ms": 115.84,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度",
+          "score": 0.723584
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 6,
+          "title": "7.2.2  连通性",
+          "score": 0.648529
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 4,
+          "title": "9.1.3 关系的基本特性",
+          "score": 0.643539
+        }
+      ],
+      "semantic_ms": 32.45
+    },
+    {
+      "id": "v24",
+      "text": "图的补图在完全图中取什么部分",
+      "section": "子图、补图及图同构",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 7,
+          "section_id": 4,
+          "title": "7.1.3  子图、补图及图同构"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 2,
+          "title": "7.1.1  图的基本概念"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算"
+        }
+      ],
+      "baseline_ms": 30.83,
+      "vector": [
+        {
+          "chapter_id": 7,
+          "section_id": 4,
+          "title": "7.1.3  子图、补图及图同构"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 2,
+          "title": "7.1.1  图的基本概念"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算"
+        }
+      ],
+      "vector_ms": 110.38,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 4,
+          "title": "7.1.3  子图、补图及图同构",
+          "score": 0.650801
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 3,
+          "title": "8.1.2  匹配",
+          "score": 0.637838
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 2,
+          "title": "8.1.1 二分图的基本概念",
+          "score": 0.61342
+        }
+      ],
+      "semantic_ms": 33.26
+    },
+    {
+      "id": "v25",
+      "text": "路径长度为一时对应图里的什么",
+      "section": "路径与回路",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 7,
+          "section_id": 11,
+          "title": "7.4.2  路径矩阵与可达性矩阵"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 5,
+          "title": "7.2.1  路径与回路"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度"
+        }
+      ],
+      "baseline_ms": 27.33,
+      "vector": [
+        {
+          "chapter_id": 7,
+          "section_id": 11,
+          "title": "7.4.2  路径矩阵与可达性矩阵"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 5,
+          "title": "7.2.1  路径与回路"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度"
+        }
+      ],
+      "vector_ms": 116.77,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 5,
+          "title": "7.2.1  路径与回路",
+          "score": 0.638788
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 7,
+          "title": "7.3.1欧拉图及欧拉路径",
+          "score": 0.600562
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 6,
+          "title": "7.2.2  连通性",
+          "score": 0.597679
+        }
+      ],
+      "semantic_ms": 33.84
+    },
+    {
+      "id": "v26",
+      "text": "强连通图任意两点怎样可达",
+      "section": "连通性",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 7,
+          "section_id": 9,
+          "title": "7.4 图的矩阵表示"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 2,
+          "title": "7.1.1  图的基本概念"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 11,
+          "title": "7.4.2  路径矩阵与可达性矩阵"
+        }
+      ],
+      "baseline_ms": 37.09,
+      "vector": [
+        {
+          "chapter_id": 7,
+          "section_id": 9,
+          "title": "7.4 图的矩阵表示"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 2,
+          "title": "7.1.1  图的基本概念"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 11,
+          "title": "7.4.2  路径矩阵与可达性矩阵"
+        }
+      ],
+      "vector_ms": 116.76,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 6,
+          "title": "7.2.2  连通性",
+          "score": 0.728756
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 2,
+          "title": "8.1.1 二分图的基本概念",
+          "score": 0.612915
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 11,
+          "title": "7.4.2  路径矩阵与可达性矩阵",
+          "score": 0.604691
+        }
+      ],
+      "semantic_ms": 31.43
+    },
+    {
+      "id": "v27",
+      "text": "欧拉图每个顶点度数有什么特征",
+      "section": "欧拉图及欧拉路径",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 7,
+          "section_id": 7,
+          "title": "7.3.1欧拉图及欧拉路径"
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 5,
+          "title": "8.2.2  欧拉公式和库拉托夫斯基定理"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度"
+        }
+      ],
+      "baseline_ms": 39.2,
+      "vector": [
+        {
+          "chapter_id": 7,
+          "section_id": 7,
+          "title": "7.3.1欧拉图及欧拉路径"
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 5,
+          "title": "8.2.2  欧拉公式和库拉托夫斯基定理"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度"
+        }
+      ],
+      "vector_ms": 120.12,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 7,
+          "title": "7.3.1欧拉图及欧拉路径",
+          "score": 0.682788
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 5,
+          "title": "8.2.2  欧拉公式和库拉托夫斯基定理",
+          "score": 0.63237
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度",
+          "score": 0.6319
+        }
+      ],
+      "semantic_ms": 31.81
+    },
+    {
+      "id": "v28",
+      "text": "哈密顿图经过每个顶点几次",
+      "section": "哈密顿图及哈密顿通路",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 7,
+          "section_id": 8,
+          "title": "7.3.2  哈密顿图及哈密顿通路"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 2,
+          "title": "7.1.1  图的基本概念"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度"
+        }
+      ],
+      "baseline_ms": 37.88,
+      "vector": [
+        {
+          "chapter_id": 7,
+          "section_id": 8,
+          "title": "7.3.2  哈密顿图及哈密顿通路"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 2,
+          "title": "7.1.1  图的基本概念"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度"
+        }
+      ],
+      "vector_ms": 120.85,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 8,
+          "title": "7.3.2  哈密顿图及哈密顿通路",
+          "score": 0.741536
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 4,
+          "title": "7.1.3  子图、补图及图同构",
+          "score": 0.568434
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度",
+          "score": 0.564043
+        }
+      ],
+      "semantic_ms": 32.69
+    },
+    {
+      "id": "v29",
+      "text": "邻接矩阵中重边怎样记录",
+      "section": "邻接矩阵",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 7,
+          "section_id": 9,
+          "title": "7.4 图的矩阵表示"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 10,
+          "title": "7.4.1 邻接矩阵"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 11,
+          "title": "7.4.2  路径矩阵与可达性矩阵"
+        }
+      ],
+      "baseline_ms": 30.28,
+      "vector": [
+        {
+          "chapter_id": 7,
+          "section_id": 9,
+          "title": "7.4 图的矩阵表示"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 10,
+          "title": "7.4.1 邻接矩阵"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 11,
+          "title": "7.4.2  路径矩阵与可达性矩阵"
+        }
+      ],
+      "vector_ms": 117.21,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 10,
+          "title": "7.4.1 邻接矩阵",
+          "score": 0.685943
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 11,
+          "title": "7.4.2  路径矩阵与可达性矩阵",
+          "score": 0.609738
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 4,
+          "title": "9.1.3 关系的基本特性",
+          "score": 0.595756
+        }
+      ],
+      "semantic_ms": 33.91
+    },
+    {
+      "id": "v30",
+      "text": "二分图匹配中的匹配边不能共用什么",
+      "section": "匹配",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 8,
+          "section_id": 2,
+          "title": "8.1.1 二分图的基本概念"
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 3,
+          "title": "8.1.2  匹配"
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 1,
+          "title": "第8章 二分图、平面图和树"
+        }
+      ],
+      "baseline_ms": 31.06,
+      "vector": [
+        {
+          "chapter_id": 8,
+          "section_id": 2,
+          "title": "8.1.1 二分图的基本概念"
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 3,
+          "title": "8.1.2  匹配"
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 1,
+          "title": "第8章 二分图、平面图和树"
+        }
+      ],
+      "vector_ms": 117.51,
+      "semantic": [
+        {
+          "chapter_id": 8,
+          "section_id": 3,
+          "title": "8.1.2  匹配",
+          "score": 0.717547
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 2,
+          "title": "8.1.1 二分图的基本概念",
+          "score": 0.669142
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 4,
+          "title": "7.1.3  子图、补图及图同构",
+          "score": 0.606926
+        }
+      ],
+      "semantic_ms": 31.97
+    },
+    {
+      "id": "v31",
+      "text": "生成树为何保留 n-1 条边",
+      "section": "生成树",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 8,
+          "section_id": 7,
+          "title": "8.3.1  树的基本概念"
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 8,
+          "title": "8.3.2 生成树"
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 1,
+          "title": "第8章 二分图、平面图和树"
+        }
+      ],
+      "baseline_ms": 35.75,
+      "vector": [
+        {
+          "chapter_id": 8,
+          "section_id": 7,
+          "title": "8.3.1  树的基本概念"
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 8,
+          "title": "8.3.2 生成树"
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 1,
+          "title": "第8章 二分图、平面图和树"
+        }
+      ],
+      "vector_ms": 116.82,
+      "semantic": [
+        {
+          "chapter_id": 8,
+          "section_id": 8,
+          "title": "8.3.2 生成树",
+          "score": 0.68462
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 9,
+          "title": "8.3.3  根树",
+          "score": 0.653653
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 7,
+          "title": "8.3.1  树的基本概念",
+          "score": 0.608657
+        }
+      ],
+      "semantic_ms": 32.8
+    },
+    {
+      "id": "v32",
+      "text": "等价关系商集的元素是什么",
+      "section": "等价关系与划分",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 9,
+          "section_id": 7,
+          "title": "9.2.1  等价关系与等价类"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 8,
+          "title": "9.2.2  等价关系与划分"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 6,
+          "title": "9.2  等价关系"
+        }
+      ],
+      "baseline_ms": 1124.12,
+      "vector": [
+        {
+          "chapter_id": 9,
+          "section_id": 7,
+          "title": "9.2.1  等价关系与等价类"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 8,
+          "title": "9.2.2  等价关系与划分"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 6,
+          "title": "9.2  等价关系"
+        }
+      ],
+      "vector_ms": 1204.19,
+      "semantic": [
+        {
+          "chapter_id": 9,
+          "section_id": 6,
+          "title": "9.2  等价关系",
+          "score": 0.770333
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 7,
+          "title": "9.2.1  等价关系与等价类",
+          "score": 0.713312
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 8,
+          "title": "9.2.2  等价关系与划分",
+          "score": 0.711222
+        }
+      ],
+      "semantic_ms": 33.1
+    },
+    {
+      "id": "v33",
+      "text": "偏序关系允许两个不同元素互相比较吗",
+      "section": "序关系和有序集",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 9,
+          "section_id": 10,
+          "title": "9.3.1  序关系和有序集"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 9,
+          "title": "9.3 序关系"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 5,
+          "title": "9.1.4  关系特性闭包"
+        }
+      ],
+      "baseline_ms": 37.38,
+      "vector": [
+        {
+          "chapter_id": 9,
+          "section_id": 10,
+          "title": "9.3.1  序关系和有序集"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 9,
+          "title": "9.3 序关系"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 8,
+          "title": "9.2.2  等价关系与划分"
+        }
+      ],
+      "vector_ms": 119.15,
+      "semantic": [
+        {
+          "chapter_id": 9,
+          "section_id": 10,
+          "title": "9.3.1  序关系和有序集",
+          "score": 0.66206
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 9,
+          "title": "9.3 序关系",
+          "score": 0.625394
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算",
+          "score": 0.620641
+        }
+      ],
+      "semantic_ms": 34.61
+    },
+    {
+      "id": "v34",
+      "text": "函数的合成次序怎样确定",
+      "section": "函数的合成",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 10,
+          "section_id": 2,
+          "title": "10.1 函数及函数的合成"
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 4,
+          "title": "10.1.3  函数的合成"
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 3,
+          "title": "10.1.1函数的基本概念"
+        }
+      ],
+      "baseline_ms": 33.47,
+      "vector": [
+        {
+          "chapter_id": 10,
+          "section_id": 2,
+          "title": "10.1 函数及函数的合成"
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 4,
+          "title": "10.1.3  函数的合成"
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 5,
+          "title": "10.1.4  函数的递归定义"
+        }
+      ],
+      "vector_ms": 114.12,
+      "semantic": [
+        {
+          "chapter_id": 10,
+          "section_id": 4,
+          "title": "10.1.3  函数的合成",
+          "score": 0.732614
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 6,
+          "title": "10.2.1 单射的、满射的和双射的函数",
+          "score": 0.689881
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算",
+          "score": 0.68401
+        }
+      ],
+      "semantic_ms": 31.78
+    },
+    {
+      "id": "v35",
+      "text": "可数集能与自然数一一对应吗",
+      "section": "有限集、可数集与不可数集",
+      "answerable": true,
+      "baseline": [
+        {
+          "chapter_id": 10,
+          "section_id": 8,
+          "title": "10.4.1 有限集、可数集与不可数集"
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 10,
+          "title": "10.4.3  有限集和无限集的基数"
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 9,
+          "title": "10.4.2  无限集的特性"
+        }
+      ],
+      "baseline_ms": 30.36,
+      "vector": [
+        {
+          "chapter_id": 10,
+          "section_id": 8,
+          "title": "10.4.1 有限集、可数集与不可数集"
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 10,
+          "title": "10.4.3  有限集和无限集的基数"
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 9,
+          "title": "10.4.2  无限集的特性"
+        }
+      ],
+      "vector_ms": 113.11,
+      "semantic": [
+        {
+          "chapter_id": 10,
+          "section_id": 8,
+          "title": "10.4.1 有限集、可数集与不可数集",
+          "score": 0.717035
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 9,
+          "title": "1.3.1集合的归纳定义",
+          "score": 0.707035
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 11,
+          "title": "10.4.4  基数比较",
+          "score": 0.695218
+        }
+      ],
+      "semantic_ms": 31.71
+    },
+    {
+      "id": "v36",
+      "text": "化学滴定终点颜色怎样判断",
+      "section": null,
+      "answerable": false,
+      "baseline": [],
+      "baseline_ms": 28.4,
+      "vector": [
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 4,
+          "title": "7.1.3  子图、补图及图同构"
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 8,
+          "title": "7.3.2  哈密顿图及哈密顿通路"
+        }
+      ],
+      "vector_ms": 114.28,
+      "semantic": [
+        {
+          "chapter_id": 8,
+          "section_id": 5,
+          "title": "8.2.2  欧拉公式和库拉托夫斯基定理",
+          "score": 0.565727
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 8,
+          "title": "4.2.2  逻辑等价式和逻辑蕴涵式",
+          "score": 0.513595
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 3,
+          "title": "7.1.2  结点的度",
+          "score": 0.510154
+        }
+      ],
+      "semantic_ms": 33.81
+    },
+    {
+      "id": "v37",
+      "text": "骨质疏松应该怎样补充钙和维生素 D",
+      "section": null,
+      "answerable": false,
+      "baseline": [
+        {
+          "chapter_id": 1,
+          "section_id": 6,
+          "title": "1.2.1 并、交、差、补运算"
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 3,
+          "title": "9.1.2 关系的基本运算"
+        },
+        {
+          "chapter_id": 1,
+          "section_id": 4,
+          "title": "1.1.3  外延性公理与子集合"
+        }
+      ],
+      "baseline_ms": 30.53,
+      "vector": [],
+      "vector_ms": 95.66,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 6,
+          "title": "7.2.2  连通性",
+          "score": 0.435373
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 4,
+          "title": "7.1.3  子图、补图及图同构",
+          "score": 0.433493
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 4,
+          "title": "3.1.2包含排斥原理",
+          "score": 0.433165
+        }
+      ],
+      "semantic_ms": 33.42
+    },
+    {
+      "id": "v38",
+      "text": "足球越位规则中的有效触球怎样判断",
+      "section": null,
+      "answerable": false,
+      "baseline": [
+        {
+          "chapter_id": 8,
+          "section_id": 9,
+          "title": "8.3.3  根树"
+        }
+      ],
+      "baseline_ms": 27.42,
+      "vector": [],
+      "vector_ms": 92.57,
+      "semantic": [
+        {
+          "chapter_id": 3,
+          "section_id": 10,
+          "title": "3.3.3禁位排列的计数",
+          "score": 0.505965
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数",
+          "score": 0.502528
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 6,
+          "title": "7.2.2  连通性",
+          "score": 0.495801
+        }
+      ],
+      "semantic_ms": 31.14
+    },
+    {
+      "id": "v39",
+      "text": "可转换债券在什么条件下转成股票",
+      "section": null,
+      "answerable": false,
+      "baseline": [],
+      "baseline_ms": 10.86,
+      "vector": [],
+      "vector_ms": 96.43,
+      "semantic": [
+        {
+          "chapter_id": 4,
+          "section_id": 11,
+          "title": "4.4.2  主析取范式与主合取范式",
+          "score": 0.520515
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 7,
+          "title": "9.2.1  等价关系与等价类",
+          "score": 0.494905
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 3,
+          "title": "6.1.2  系统内的推理：证明与演绎",
+          "score": 0.488816
+        }
+      ],
+      "semantic_ms": 33.13
+    },
+    {
+      "id": "v40",
+      "text": "无人机自动航线怎样实现障碍物避让",
+      "section": null,
+      "answerable": false,
+      "baseline": [],
+      "baseline_ms": 8.01,
+      "vector": [],
+      "vector_ms": 98.27,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 6,
+          "title": "7.2.2  连通性",
+          "score": 0.435334
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 5,
+          "title": "7.2.1  路径与回路",
+          "score": 0.407324
+        },
+        {
+          "chapter_id": 10,
+          "section_id": 7,
+          "title": "10.3  函数的逆",
+          "score": 0.404591
+        }
+      ],
+      "semantic_ms": 33.8
+    },
+    {
+      "id": "v41",
+      "text": "日式拉面的豚骨汤底需要熬多久",
+      "section": null,
+      "answerable": false,
+      "baseline": [],
+      "baseline_ms": 39.69,
+      "vector": [],
+      "vector_ms": 87.46,
+      "semantic": [
+        {
+          "chapter_id": 2,
+          "section_id": 5,
+          "title": "2.2.1鸽笼原理的基本形式",
+          "score": 0.370737
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 5,
+          "title": "8.2.2  欧拉公式和库拉托夫斯基定理",
+          "score": 0.359008
+        },
+        {
+          "chapter_id": 4,
+          "section_id": 5,
+          "title": "4.1.4  语句的形式化",
+          "score": 0.349855
+        }
+      ],
+      "semantic_ms": 31.64
+    },
+    {
+      "id": "v42",
+      "text": "演唱会现场混响时间应该如何控制",
+      "section": null,
+      "answerable": false,
+      "baseline": [],
+      "baseline_ms": 12.57,
+      "vector": [],
+      "vector_ms": 97.56,
+      "semantic": [
+        {
+          "chapter_id": 1,
+          "section_id": 8,
+          "title": "1.2.3集合的笛卡儿积",
+          "score": 0.416783
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 5,
+          "title": "2.2.1鸽笼原理的基本形式",
+          "score": 0.411214
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 10,
+          "title": "3.3.3禁位排列的计数",
+          "score": 0.387559
+        }
+      ],
+      "semantic_ms": 33.54
+    },
+    {
+      "id": "v43",
+      "text": "城市暴雨后道路积水有哪些成因",
+      "section": null,
+      "answerable": false,
+      "baseline": [],
+      "baseline_ms": 13.13,
+      "vector": [],
+      "vector_ms": 95.46,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 8,
+          "title": "7.3.2  哈密顿图及哈密顿通路",
+          "score": 0.363284
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 8,
+          "title": "3.3.1 重集的排列",
+          "score": 0.35825
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 5,
+          "title": "7.2.1  路径与回路",
+          "score": 0.356082
+        }
+      ],
+      "semantic_ms": 31.49
+    },
+    {
+      "id": "v44",
+      "text": "海藻养殖需要什么水温和光照条件",
+      "section": null,
+      "answerable": false,
+      "baseline": [
+        {
+          "chapter_id": 3,
+          "section_id": 12,
+          "title": "3.4.1 一个重要的递归关系"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 5,
+          "title": "3.2.1 排列的计数"
+        }
+      ],
+      "baseline_ms": 33.25,
+      "vector": [],
+      "vector_ms": 90.65,
+      "semantic": [
+        {
+          "chapter_id": 3,
+          "section_id": 12,
+          "title": "3.4.1 一个重要的递归关系",
+          "score": 0.443925
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 6,
+          "title": "7.2.2  连通性",
+          "score": 0.395258
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 5,
+          "title": "8.2.2  欧拉公式和库拉托夫斯基定理",
+          "score": 0.364196
+        }
+      ],
+      "semantic_ms": 32.83
+    },
+    {
+      "id": "v45",
+      "text": "劳动争议申请仲裁的时效期间是多少",
+      "section": null,
+      "answerable": false,
+      "baseline": [
+        {
+          "chapter_id": 3,
+          "section_id": 4,
+          "title": "3.1.2包含排斥原理"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 13,
+          "title": "3.4.2 递归关系的求解"
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 9,
+          "title": "3.3.2 重集的组合"
+        }
+      ],
+      "baseline_ms": 33.2,
+      "vector": [],
+      "vector_ms": 92.24,
+      "semantic": [
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND",
+          "score": 0.482668
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 3,
+          "title": "8.1.2  匹配",
+          "score": 0.440066
+        },
+        {
+          "chapter_id": 3,
+          "section_id": 4,
+          "title": "3.1.2包含排斥原理",
+          "score": 0.424133
+        }
+      ],
+      "semantic_ms": 34.04
+    },
+    {
+      "id": "v46",
+      "text": "飞机机翼结冰后怎样进行除冰",
+      "section": null,
+      "answerable": false,
+      "baseline": [],
+      "baseline_ms": 34.54,
+      "vector": [],
+      "vector_ms": 89.22,
+      "semantic": [
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND",
+          "score": 0.387847
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 5,
+          "title": "2.2.1鸽笼原理的基本形式",
+          "score": 0.365428
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 8,
+          "title": "8.3.2 生成树",
+          "score": 0.356679
+        }
+      ],
+      "semantic_ms": 31.06
+    },
+    {
+      "id": "v47",
+      "text": "敦煌壁画颜料成分怎样无损检测",
+      "section": null,
+      "answerable": false,
+      "baseline": [],
+      "baseline_ms": 9.21,
+      "vector": [],
+      "vector_ms": 96.51,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 4,
+          "title": "7.1.3  子图、补图及图同构",
+          "score": 0.485024
+        },
+        {
+          "chapter_id": 8,
+          "section_id": 5,
+          "title": "8.2.2  欧拉公式和库拉托夫斯基定理",
+          "score": 0.417231
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 2,
+          "title": "7.1.1  图的基本概念",
+          "score": 0.4076
+        }
+      ],
+      "semantic_ms": 31.8
+    },
+    {
+      "id": "v48",
+      "text": "羽毛球杀球时前臂怎样发力",
+      "section": null,
+      "answerable": false,
+      "baseline": [],
+      "baseline_ms": 7.66,
+      "vector": [],
+      "vector_ms": 93.59,
+      "semantic": [
+        {
+          "chapter_id": 3,
+          "section_id": 6,
+          "title": "3.2.2 组合的计数",
+          "score": 0.448216
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND",
+          "score": 0.419349
+        },
+        {
+          "chapter_id": 2,
+          "section_id": 5,
+          "title": "2.2.1鸽笼原理的基本形式",
+          "score": 0.410973
+        }
+      ],
+      "semantic_ms": 30.52
+    },
+    {
+      "id": "v49",
+      "text": "核磁共振成像中射频脉冲起什么作用",
+      "section": null,
+      "answerable": false,
+      "baseline": [],
+      "baseline_ms": 9.63,
+      "vector": [],
+      "vector_ms": 93.41,
+      "semantic": [
+        {
+          "chapter_id": 10,
+          "section_id": 6,
+          "title": "10.2.1 单射的、满射的和双射的函数",
+          "score": 0.413597
+        },
+        {
+          "chapter_id": 9,
+          "section_id": 4,
+          "title": "9.1.3 关系的基本特性",
+          "score": 0.400983
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 6,
+          "title": "7.2.2  连通性",
+          "score": 0.393979
+        }
+      ],
+      "semantic_ms": 32.38
+    },
+    {
+      "id": "v50",
+      "text": "汽车胎压监测系统怎样识别慢漏气",
+      "section": null,
+      "answerable": false,
+      "baseline": [
+        {
+          "chapter_id": 6,
+          "section_id": 4,
+          "title": "6.2 自然推理形式系统ND"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 2,
+          "title": "6.1 谓词演算形式系统FC"
+        },
+        {
+          "chapter_id": 6,
+          "section_id": 3,
+          "title": "6.1.2  系统内的推理：证明与演绎"
+        }
+      ],
+      "baseline_ms": 24.67,
+      "vector": [],
+      "vector_ms": 93.87,
+      "semantic": [
+        {
+          "chapter_id": 7,
+          "section_id": 5,
+          "title": "7.2.1  路径与回路",
+          "score": 0.448596
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 8,
+          "title": "7.3.2  哈密顿图及哈密顿通路",
+          "score": 0.437242
+        },
+        {
+          "chapter_id": 7,
+          "section_id": 6,
+          "title": "7.2.2  连通性",
+          "score": 0.434011
+        }
+      ],
+      "semantic_ms": 29.94
+    }
+  ]
+}

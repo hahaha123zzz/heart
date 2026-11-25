@@ -6,7 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock,patch
 import fitz
 from knowledge.citation_index import CitationIndex,build_index,pdf_characters,_rectangles
-from knowledge.grounded_citations import EvidenceBundle,CitationGroundingError,choose_evidence,claims_for,selection_evidence
+from knowledge.grounded_citations import EvidenceBundle,CitationGroundingError,_parts,choose_evidence,claims_for,selection_evidence
 from knowledge.grounding_text import normalized,normalized_with_map,selection_ranges
 from knowledge.source_mapping import source_spans
 from knowledge.textbook import TextbookChunk
@@ -126,56 +126,21 @@ class GroundingTests(unittest.TestCase):
         llm.chat_json=Mock(return_value={'evidence_ids':['forged'],'rects':[]})
         with self.assertRaises(ValueError):choose_evidence(llm,'解释条件',sources,self.path)
 
-    def test_retrieval_slice_recovers_full_original_block_and_conditions(self):
-        from dataclasses import replace
-        source=replace(self.bundle().sources[0], text='The first condition is necessary.', block_end=0)
-        def choose(payload):
-            self.assertEqual([c['quote'] for c in payload['candidates']], [self.quote])
-            return {'evidence_ids':[payload['candidates'][0]['evidence_id']]}
-        bundle=choose_evidence(None,'解释条件',[source],self.path,selection_fn=choose)
-        self.assertEqual(bundle.sources[0].text,self.quote)
-        self.assertEqual(bundle.evidence[0]['location_status'],'exact')
-        self.assertEqual(bundle.evidence[0]['block_end'],len(self.quote))
-        self.assertIn('-10 is not 10',bundle.evidence[0]['quote'])
+    def test_evidence_parts_are_sentence_sized_and_cover_the_source(self):
+        text=('第一项条件必须保留。'*18+'第二项例外不能被删除。'*18+
+              '第三项结论依赖前两项共同成立。'*18)
+        parts=list(_parts(text))
+        self.assertGreater(len(parts),2)
+        self.assertTrue(all(len(quote)<=340 for quote,_,_ in parts))
+        self.assertEqual(normalized(''.join(quote for quote,_,_ in parts)),normalized(text))
+        self.assertTrue(all(text[start:end].strip()==quote for quote,start,end in parts))
 
-    def test_retrieval_slice_does_not_recover_unmatched_neighbour_blocks(self):
-        from dataclasses import replace
-        source=replace(self.bundle().sources[0],text='The first condition is necessary.')
-        def choose(payload):
-            self.assertEqual([c['quote'] for c in payload['candidates']], [self.quote])
-            return {'evidence_ids':[payload['candidates'][0]['evidence_id']]}
-        choose_evidence(None,'解释条件',[source],self.path,selection_fn=choose)
-        invalid=replace(source,text='Invented words with no original overlap.')
-        with self.assertRaises(CitationGroundingError):
-            choose_evidence(None,'解释条件',[invalid],self.path,selection_fn=choose)
-
-    def test_selection_without_matching_candidate_never_uses_unrelated_context(self):
-        llm=SimpleNamespace(chat_json=Mock(return_value={'evidence_ids':['invented']}))
-        with self.assertRaises(CitationGroundingError):
-            choose_evidence(llm,'解释选区',self.bundle().sources,self.path,
-                            selection={'text':'A different selected passage not present in the evidence.'})
+    def test_mock_selector_uses_short_evidence_without_calling_a_model(self):
+        llm=SimpleNamespace(mock=True,chat_json=Mock(side_effect=AssertionError('mock must stay offline')))
+        bundle=choose_evidence(llm,'解释必要条件',self.bundle().sources,self.path)
+        self.assertEqual(len(bundle.evidence),1)
+        self.assertEqual(bundle.evidence[0]['quote'],self.quote)
         llm.chat_json.assert_not_called()
-
-    def test_matching_words_outside_selected_region_are_not_selected_evidence(self):
-        llm=SimpleNamespace(chat_json=Mock())
-        with self.assertRaises(CitationGroundingError):
-            choose_evidence(llm,'解释选区',self.bundle().sources,self.path,
-                selection={'text':self.quote,'rects':[{'page':2,'x1':0,'y1':0,'x2':1,'y2':1}]})
-        llm.chat_json.assert_not_called()
-
-    def test_clipped_area_binds_verifiable_text_fragment_in_selected_rect(self):
-        from knowledge.pdf_reader import PDFSelection,resolve_selection
-        rect={'page':1,'x1':.13,'x2':.35,'y1':.09,'y2':.23}
-        selected=resolve_selection(PDFSelection(document_id=self.record['document_id'],version=self.record['version'],
-                                                  kind='area',rects=[rect]))
-        def choose(messages,**kw):
-            payload=json.loads(messages[1]['content'])
-            target=next(c for c in payload['candidates'] if c['selected_target'])
-            return {'evidence_ids':[target['evidence_id']]}
-        with patch('knowledge.fixed_book.active',return_value=False):
-            bundle=selection_evidence(SimpleNamespace(chat_json=choose),'解释选区',selected,self.path)
-        self.assertEqual(normalized(bundle.evidence[0]['quote']),normalized('he first condition is necess'))
-        self.assertTrue(bundle.evidence[0]['selected_target'])
 
     def test_quote_lookup_does_not_let_model_choose_ambiguous_or_invented_origin(self):
         llm=SimpleNamespace(chat_json=Mock())

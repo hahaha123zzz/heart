@@ -1,0 +1,44 @@
+启动阶段：加载应用（累计 0.0s）
+启动阶段：读取检索索引（累计 5.1s）
+启动阶段：模型预热完成（累计 5.1s）
+RAG runtime: {'configured': {'reranker': 'cpu', 'embedding': 'cpu'}, 'sessions': {}, 'cuda_cache_path': None}
+INFO:     127.0.0.1:60117 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60133 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60135 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60140 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60143 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65240 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58135 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58138 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58158 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58161 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58171 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58179 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58182 - "DELETE /api/accounts/test/first-token-3aafd5f1931c4312b096 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59353 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59354 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59359 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62555 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62562 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62566 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62570 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62574 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62581 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62584 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62590 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62591 - "DELETE /api/accounts/test/first-token-e894fa83cb794f6b9045 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62602 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62603 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62611 - "DELETE /api/accounts/test/inspect-4a57ca196f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62635 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62636 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62637 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62640 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55690 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55693 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55696 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55702 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50062 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50080 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50082 - "POST /api/chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50102 - "DELETE /api/accounts/test/first-token-25da5ca73d914e54b190 HTTP/1.1" 200 OK

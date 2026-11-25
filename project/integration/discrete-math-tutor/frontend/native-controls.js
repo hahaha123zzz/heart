@@ -63,7 +63,7 @@ window.TutorNativeControls = (() => {
     capability.hidden = config.hidden = tools.hidden = resources.hidden = true;
     refresh.disabled = true; body.setAttribute("aria-busy", "true");
     try {
-    const response = await fetch("/api/deeptutor/catalog", {method:"POST", headers:{"Content-Type":"application/json"}, body:key, signal:AbortSignal.timeout(15000)});
+    const response = await fetch("/api/deeptutor/catalog", {method:"POST", headers:{"Content-Type":"application/json"}, body:key, signal:AbortSignal.timeout(60000)});
     if (!response.ok) throw new Error("原生能力目录暂未就绪");
     catalog = await response.json(); scopeKey = key;
     if (catalog.enabled === false) { container.hidden = true; return; }

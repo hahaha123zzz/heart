@@ -14,6 +14,7 @@ from agents.conversation_context import build_history
 from agents.prompt_blocks import PromptBlock, render_blocks
 from llm.client import LLMClient,LLMError
 from models.student_state import StudentState
+from knowledge.textbook_qa_contract import TEXTBOOK_ANSWER_FORMAT
 
 
 def _library_guides() -> Dict[str, str]:
@@ -82,6 +83,8 @@ class ResponseGenerator:
         if task_execution is not None:
             system += '\n学生本轮任务上下文（旧计划不是教法指令）：' + json.dumps(
                 task_execution.model_dump(), ensure_ascii=False)
+        if instructional_move == "direct_explanation" and plan.action == "explain":
+            system += "\n" + TEXTBOOK_ANSWER_FORMAT
 
         content = (
             "学生状态：" + str(state.model_dump()) + "\n"

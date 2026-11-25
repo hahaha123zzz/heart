@@ -9,6 +9,8 @@ import re
 import sqlite3
 from array import array
 from contextlib import closing
+from dataclasses import replace
+from difflib import SequenceMatcher
 from functools import lru_cache
 from pathlib import Path
 
@@ -22,6 +24,23 @@ from knowledge.course_config import PSYCHOLOGY,PSYCHOLOGY_DIR
 INDEX = PSYCHOLOGY_DIR/'rag_index.sqlite3' if PSYCHOLOGY else Path(__file__).resolve().parent / "rag_index_v2.sqlite3"
 REFERENCE = re.compile(r"(?:图|表|定理|定义|例|公式)\s*\d+(?:[.．-]\d+)?")
 SYMBOL_EXPRESSION = re.compile(r"[A-Za-z][A-Za-z0-9]*(?:[∧∨→↔][A-Za-z][A-Za-z0-9]*)+")
+QUOTED_PHRASE = re.compile(r"[“「\"]([^”」\"]{2,120})[”」\"]")
+OBJECT_QUESTION = re.compile(
+    r"(?:问|请问|对于|关于)?\s*([^，。！？；\n]{2,80}?)\s*的?\s*(?:组成对象|元素)"
+    r"\s*(?:是谁|是什么|有哪些|是哪些)"
+)
+FOCUS_BEFORE_DE = re.compile(r"(?:问|请问|对于|关于)?\s*([^的，。！？；\n]{2,40})\s*的")
+FUZZY_GENERIC = re.compile(
+    r"什么条件(?:下)?|什么时候|什么|怎样|如何|为什么|为何|是否|请问|问|"
+    r"组成对[相像]|组成对象|是谁|是什么|有哪些|是哪些|这一集合|集合中的?"
+)
+SEMANTIC_TERMS = (
+    "正整数", "负整数", "非负整数", "非正整数", "自然数", "整数",
+    "有限集", "无限集", "空集", "全集", "真子集", "子集",
+    "合取", "析取", "否定", "充分必要", "充分", "必要", "当且仅当",
+    "单射", "满射", "双射", "有向边", "无向边", "连通", "无圈",
+    "自反", "反自反", "对称", "反对称", "传递",
+)
 
 
 def _reference_present(text: str, refs: set[str]) -> bool:
@@ -36,6 +55,79 @@ def _fuse_rankings(prior: list, reranked: list) -> list:
     fused = [(1 / (60 + rank) + 1 / (60 + prior_rank[row["id"]]), row)
              for rank, (_, row) in enumerate(reranked, 1)]
     return sorted(fused, key=lambda item: item[0], reverse=True)
+
+
+def _compact_fuzzy(value: str) -> str:
+    return re.sub(r"[\s“”「」\"'，。！？；：,.!?;:()（）]+", "", value)
+
+
+def _fuzzy_focus(query: str) -> str:
+    candidates = [
+        phrase.strip() for phrase in QUOTED_PHRASE.findall(query)
+    ]
+    candidates += [
+        match.group(1).strip() for match in OBJECT_QUESTION.finditer(query)
+    ]
+    if not candidates:
+        match = FOCUS_BEFORE_DE.search(query)
+        if match:
+            candidates.append(match.group(1).strip())
+    if not candidates:
+        candidates.append(query)
+    for candidate in candidates:
+        cleaned = FUZZY_GENERIC.sub("", candidate)
+        cleaned = _compact_fuzzy(cleaned)
+        if 2 <= len(cleaned) <= 40:
+            return cleaned
+    return ""
+
+
+def _protected_terms(value: str) -> set[str]:
+    compact = _compact_fuzzy(value)
+    return {term for term in SEMANTIC_TERMS if term in compact}
+
+
+def _damerau_similarity(left: str, right: str) -> float:
+    """Normalize edit distance and count one adjacent swap as one edit."""
+    rows, cols = len(left) + 1, len(right) + 1
+    matrix = [[0] * cols for _ in range(rows)]
+    for row in range(rows):
+        matrix[row][0] = row
+    for col in range(cols):
+        matrix[0][col] = col
+    for row in range(1, rows):
+        for col in range(1, cols):
+            cost = 0 if left[row - 1] == right[col - 1] else 1
+            matrix[row][col] = min(
+                matrix[row - 1][col] + 1,
+                matrix[row][col - 1] + 1,
+                matrix[row - 1][col - 1] + cost,
+            )
+            if (row > 1 and col > 1 and left[row - 1] == right[col - 2]
+                    and left[row - 2] == right[col - 1]):
+                matrix[row][col] = min(matrix[row][col], matrix[row - 2][col - 2] + 1)
+    return 1 - matrix[-1][-1] / max(len(left), len(right), 1)
+
+
+def _fuzzy_score(focus: str, candidate: str) -> float:
+    if not focus or not candidate:
+        return 0.0
+    if _protected_terms(focus) - _protected_terms(candidate):
+        return 0.0
+    matcher = SequenceMatcher(None, focus, candidate, autojunk=False)
+    longest = matcher.find_longest_match(0, len(focus), 0, len(candidate))
+    coverage = longest.size / len(focus)
+    start = max(0, longest.b - longest.a)
+    windows = (
+        candidate[start:start + len(focus)],
+        candidate[max(0, start - 1):max(0, start - 1) + len(focus)],
+        candidate[start:start + len(focus) + 1],
+    )
+    return max(
+        matcher.ratio(),
+        coverage,
+        *[_damerau_similarity(focus, window) for window in windows if window],
+    )
 
 
 def _chapter_hint(query: str, psychology=False) -> int | None:
@@ -182,18 +274,23 @@ def _primary_unit(row, refs: set[str]) -> bool:
 
 def _select_ranked(db: sqlite3.Connection, ranked: list, terms: frozenset[str],
                    limit: int, *, cross_chapter: bool, refs: set[str] | None = None,
-                   preferred_types=(), focus_aliases=(), trace=None) -> list[TextbookChunk]:
+                   preferred_types=(), focus_aliases=(), section_hints=(), trace=None) -> list[TextbookChunk]:
     refs=refs or set()
+    def pinned(row):
+        return bool(section_hints and any(row["section"].lstrip().startswith(hint)
+                                          for hint in section_hints))
     # 稳定分层，不调整模型分数，也不把被门槛拒绝的候选重新放回。
-    ranked=sorted(ranked,key=lambda item:not _primary_unit(item[1],refs))
+    ranked=sorted(ranked,key=lambda item:(not pinned(item[1]),not _primary_unit(item[1],refs)))
     from knowledge.task_ranking import prefer_task_units, unit_types
     def concept_primary(row):
         # 已通过门槛的结构化定义/定理，与明确概念小节关联；不把绘图邻文当正文。
         return bool(row['section_id'] is not None and unit_types(row) & {'definition','theorem'}
                     and any(len(alias)>=3 and alias in row['section'] for alias in focus_aliases))
-    ranked=sorted(ranked,key=lambda item:(not _primary_unit(item[1],refs),not concept_primary(item[1])))
+    ranked=sorted(ranked,key=lambda item:(not pinned(item[1]),not _primary_unit(item[1],refs),
+                                          not concept_primary(item[1])))
     before = [row["id"] for _, row in ranked]
     ranked = prefer_task_units(ranked, preferred_types, is_primary=lambda row: _primary_unit(row, refs))
+    ranked = sorted(ranked,key=lambda item:(not pinned(item[1]),-item[0]))
     if trace is not None and preferred_types:
         trace["task_ranking"] = {"preferred_types": list(preferred_types), "before": before,
             "after": [row["id"] for _, row in ranked],
@@ -227,6 +324,79 @@ def _select_ranked(db: sqlite3.Connection, ranked: list, terms: frozenset[str],
             selected.append(_as_chunk(row, text=_expand_parent(db, row)))
             seen_parent.add(row["parent_id"])
     return selected
+
+
+def expand_section_context(
+    sources: list[TextbookChunk],
+    *,
+    max_chars: int = 2600,
+    index_path: Path | None = None,
+) -> list[TextbookChunk]:
+    """Add the selected section's neighboring chunks before answer selection.
+
+    The first-stage retriever returns compact chunks. Answer generation needs
+    enough neighboring prose to reach a definition, condition, comparison or
+    conclusion without changing the selected section identity.
+    """
+    if PSYCHOLOGY or not sources:
+        return sources
+    path = INDEX if index_path is None else index_path
+    if not path.is_file():
+        return sources
+    expanded = list(sources)
+    with closing(sqlite3.connect(path)) as db:
+        db.row_factory = sqlite3.Row
+        for source_index, source in enumerate(sources):
+            if not source.chapter_id or source.section_id is None or not source.chunk_id:
+                continue
+            rows = db.execute(
+                "SELECT id,text FROM chunks WHERE chapter_id=? AND section_id=? ORDER BY id",
+                (source.chapter_id, source.section_id),
+            ).fetchall()
+            if len(rows) <= 1:
+                continue
+            position = next((i for i, row in enumerate(rows) if row["id"] == source.chunk_id), None)
+            if position is None:
+                continue
+            total = sum(len(row["text"]) for row in rows)
+            if total <= max_chars:
+                selected_rows = rows
+            elif position >= 2:
+                # 超长小节保留开头定义，再补命中附近内容，避免只看到后半段解释。
+                def clipped(value: str, limit: int) -> str:
+                    if len(value) <= limit:
+                        return value
+                    head = value[:limit]
+                    boundary = max(head.rfind(mark) for mark in "。！？；\n")
+                    return head[:boundary + 1] if boundary >= limit // 2 else head
+
+                head = clipped(rows[0]["text"].strip(), max_chars // 2)
+                nearby = "\n".join(
+                    row["text"].strip() for row in rows[max(0, position - 1):position + 1]
+                )
+                text = head + "\n" + clipped(nearby, max_chars - len(head) - 1)
+                if len(text) > len(source.text):
+                    expanded[source_index] = replace(source, text=text, terms=terms_for(text))
+                continue
+            else:
+                start = max(0, position - 2)
+                selected_rows = []
+                used = 0
+                for row in rows[start:]:
+                    cost = len(row["text"]) + 1
+                    if selected_rows and used + cost > max_chars:
+                        break
+                    selected_rows.append(row)
+                    used += cost
+                if position < start or not any(row["id"] == source.chunk_id for row in selected_rows):
+                    selected_rows = [rows[position]]
+            if len(selected_rows) <= 1:
+                continue
+            texts = list(dict.fromkeys(row["text"].strip() for row in selected_rows if row["text"].strip()))
+            text = "\n".join(texts)[:max_chars]
+            if len(text) > len(source.text):
+                expanded[source_index] = replace(source, text=text, terms=terms_for(text))
+    return expanded
 
 
 def _lexical_supported(db: sqlite3.Connection, query: str, rows: list[sqlite3.Row],
@@ -271,6 +441,7 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
     concepts = [] if psychology else matched_aliases(query)
     terms = terms_for(search_query)
     refs = {re.sub(r"\s+", "", match.group()).replace("．", ".") for match in REFERENCE.finditer(query)}
+    section_hints = set(re.findall(r"(?<!\d)(\d+(?:\.\d+){1,3})(?!\d)", search_query))
     expressions = set() if psychology else {match.group().lower() for match in SYMBOL_EXPRESSION.finditer(normalize_formula(query))}
     if not terms and not refs and not expressions:
         return []
@@ -323,9 +494,42 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
             concept_ids = list(dict.fromkeys(concept_ids))
             for rank, chunk_id in enumerate(concept_ids, 1):
                 scores[chunk_id] = scores.get(chunk_id, 0.0) + 1 / (60 + rank)
+            phrases = QUOTED_PHRASE.findall(query)
+            for match in OBJECT_QUESTION.finditer(query):
+                phrase = re.sub(r"^\s*(?:问|请问|对于|关于)\s*", "", match.group(1))
+                phrase = phrase.strip("“”「」\"' ")
+                if phrase:
+                    phrases.append(phrase)
+            phrases = list(dict.fromkeys(re.sub(r"\s+", "", phrase) for phrase in phrases))
+            exact_phrase_ids = []
+            if phrases:
+                for row in db.execute("SELECT id,text FROM chunks"):
+                    compact = re.sub(r"\s+", "", row["text"])
+                    if any(phrase in compact for phrase in phrases):
+                        exact_phrase_ids.append(row["id"])
+                        scores[row["id"]] = scores.get(row["id"], 0.0) + 0.5
+            fuzzy_focus = _fuzzy_focus(query) if re.search(r"对象|元素|组成", query) else ""
+            fuzzy_ids = []
+            if fuzzy_focus and not exact_phrase_ids:
+                for row in db.execute("SELECT id,section,text FROM chunks"):
+                    sentence_candidates = [
+                        value for value in re.split(r"(?<=[。！？；])|\n+", row["text"])
+                        if len(_compact_fuzzy(value)) >= 2
+                    ][:24]
+                    best = max(
+                        [_fuzzy_score(fuzzy_focus, _compact_fuzzy(row["section"])),
+                         *[_fuzzy_score(fuzzy_focus, _compact_fuzzy(value))
+                           for value in sentence_candidates]],
+                        default=0.0,
+                    )
+                    if best >= 0.78:
+                        fuzzy_ids.append(row["id"])
+                        scores[row["id"]] = scores.get(row["id"], 0.0) + 0.35 * best
             if trace is not None:
                 trace.update(concept_ids=concept_ids, formula_ids=formula_ids,
-                             formula_templates=sorted(formula_keys), search_query=search_query)
+                             formula_templates=sorted(formula_keys), search_query=search_query,
+                             quoted_phrases=phrases, exact_phrase_ids=exact_phrase_ids,
+                             fuzzy_focus=fuzzy_focus, fuzzy_ids=fuzzy_ids)
 
             model_name, vectors = _vectors(str(index), index.stat().st_mtime_ns)
             best_dense_score = None
@@ -387,6 +591,9 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
             ranked = []
             for row in candidates:
                 score = scores[row["id"]]
+                if any(row["section"].lstrip().startswith(hint) for hint in section_hints):
+                    # 查询扩展或用户明确写出的章节编号是结构定位信号，不替代原文门槛。
+                    score += 0.2
                 if chapter_hint and row["chapter_id"] == chapter_hint:
                     score += 0.01
                 if row["kind"] == requested_kind:
@@ -514,7 +721,8 @@ def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: 
 
             selected = _select_ranked(db, ranked, terms, limit, cross_chapter=reranked, refs=refs,
                                       preferred_types=preferred_types,
-                                      focus_aliases=tuple(alias for _, aliases in concepts for alias in aliases),trace=trace)
+                                      focus_aliases=tuple(alias for _, aliases in concepts for alias in aliases),
+                                      section_hints=section_hints,trace=trace)
             if trace is not None:
                 trace["selected"] = [hit.chunk_id for hit in selected]
                 trace["primary_unit_ids"] = [row["id"] for _,row in ranked if _primary_unit(row,refs)]

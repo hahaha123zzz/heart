@@ -1,0 +1,66 @@
+{
+  "window650": {
+    "chunks": 455,
+    "hit2": 8,
+    "hit3": 8,
+    "positive": 12,
+    "false_evidence": 1,
+    "negative": 4,
+    "elapsed_ms": 227.3,
+    "misses": [
+      "c01",
+      "c04",
+      "c08",
+      "c11"
+    ]
+  },
+  "sentence340": {
+    "chunks": 857,
+    "hit2": 6,
+    "hit3": 7,
+    "positive": 12,
+    "false_evidence": 1,
+    "negative": 4,
+    "elapsed_ms": 203.3,
+    "misses": [
+      "c01",
+      "c04",
+      "c05",
+      "c08",
+      "c10",
+      "c11"
+    ]
+  },
+  "sentence220": {
+    "chunks": 1347,
+    "hit2": 7,
+    "hit3": 7,
+    "positive": 12,
+    "false_evidence": 1,
+    "negative": 4,
+    "elapsed_ms": 204.7,
+    "misses": [
+      "c01",
+      "c04",
+      "c08",
+      "c10",
+      "c11"
+    ]
+  },
+  "window400_overlap40": {
+    "chunks": 878,
+    "hit2": 7,
+    "hit3": 8,
+    "positive": 12,
+    "false_evidence": 1,
+    "negative": 4,
+    "elapsed_ms": 217.1,
+    "misses": [
+      "c01",
+      "c04",
+      "c08",
+      "c10",
+      "c11"
+    ]
+  }
+}

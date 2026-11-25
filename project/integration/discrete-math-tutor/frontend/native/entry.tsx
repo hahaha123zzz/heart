@@ -6,6 +6,16 @@ import {extractVisualizeResult} from '@/lib/visualize-types';
 import {extractQuizQuestions} from '@/lib/quiz-types';
 import {MasteryQuestionCard} from '@/components/chat/home/MasteryQuestionCard';
 import {collectMasteryQuestions,collectMasteryGrades,collectMasterySkips} from '@/lib/mastery-question';
+import SimpleMarkdownRenderer from '@/components/common/SimpleMarkdownRenderer';
+import {renderToStaticMarkup} from 'react-dom/server';
+
+window.TutorNativeMarkdown = {
+ render(content, options = {}) {
+  return renderToStaticMarkup(<SimpleMarkdownRenderer content={String(content ?? '')}
+   className={options.className || ''} variant={options.variant || 'default'}/>);
+ }
+};
+
 window.TutorNativeViewer = {
  mount(host, data) {
   host.classList.add('native-viewer');

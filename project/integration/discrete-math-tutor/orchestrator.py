@@ -41,9 +41,12 @@ from database.database import init_db
 from llm.client import LLMClient,LLMError
 from knowledge.figures import FIGURE_NUMBER, format_figure_context, retrieve_figures
 from knowledge.textbook import format_excerpts, load_textbook, retrieve
-from knowledge.hybrid_retrieval import retrieve_hybrid
+from knowledge.hybrid_retrieval import expand_section_context, retrieve_hybrid
 from knowledge.pdf_evidence import enrich_sources
 from knowledge.proof_units import expand_proof_sources
+from knowledge.query_understanding import understand as understand_query
+from knowledge.textbook_qa_contract import classify_question
+from knowledge.answer_release import decision as release_decision
 from memory.memory_manager import MemoryManager
 from knowledge.course_config import DEFAULT_GOAL,PSYCHOLOGY
 from agents.course_prompts import GATE
@@ -58,7 +61,21 @@ def retrieve_course(query,chunks,**kwargs):
             from integrations.deeptutor.knowledge_client import supplement
             result = supplement(query, result, limit=kwargs.get("limit", 6))
         return result
-    return retrieve_hybrid(query,chunks,**kwargs)
+    student_id = str(kwargs.pop("student_id", ""))
+    account_type = str(kwargs.pop("account_type", "production"))
+    release = release_decision(
+        "query_understanding",
+        student_id=student_id,
+        account_type=account_type,
+    )
+    if not release.active:
+        if release.shadow:
+            understand_query(query)
+        return retrieve_hybrid(query, chunks, **kwargs)
+    understanding = understand_query(query)
+    return expand_section_context(
+        retrieve_hybrid(understanding.retrieval_query, chunks, **kwargs)
+    )
 
 
 class TutorOrchestrator:
@@ -203,6 +220,23 @@ class TutorOrchestrator:
                 "textbook_sources": [], "image_refs": [], "pdf_image_refs": [], "pdf_references": [],
             }
 
+        # 教材问答边界先于普通教学流程：明确的新题、新计算和新证明不进入回答。
+        qa_contract = classify_question(message, has_context=bool(history))
+        if qa_contract.intent == "exercise_or_new_derivation":
+            save_exchange(qa_contract.reply)
+            return {
+                "reply": qa_contract.reply,
+                "answer_status": "out_of_scope",
+                "routing": routing.model_dump(),
+                "knowledge_point": active_point,
+                "student_state": self.memory.get_state(student_id, active_point).model_dump(),
+                "step_advanced": False,
+                "textbook_sources": [],
+                "image_refs": [],
+                "pdf_image_refs": [],
+                "pdf_references": [],
+            }
+
         # 0.1) 非学习消息：不进教学流程（简短共情 + 轻推回学习，不强行拉回）
         if routing.intent == "off_task":
             report("generating", "生成回答", "准备回复")
@@ -261,21 +295,36 @@ class TutorOrchestrator:
                           '按教材标题顺序逐点学习；本轮先说明当前位置，再讲该目标，不一次讲完整章，不宣称学生已经掌握。')}]
         query = (navigation['section_title'] + ' ' + navigation['title'] if navigation else
                  execution.retrieval_query if execution.target_refs else self._retrieval_query(message, point, routing, history))
-        citation_path=None
-        if PSYCHOLOGY:
-            from knowledge.grounded_citations import settings as citation_settings,choose_evidence
-            citation_path=citation_settings()
+        from knowledge.grounded_citations import settings as citation_settings,choose_evidence
+        citation_path=citation_settings()
         if citation_path and history and (routing.needs_context or is_self_report_understood(message)):
             # 历史只补检索指代，最终证据仍须来自当前版本教材；章节名不能代替刚才的具体对象。
             query+='\n最近对话所指内容（仅作检索线索）：'+re.sub(r'\[\d+\]','', '\n'.join(row['content'] for row in history[-4:]))[-1800:]
         resource_query = bool(re.search(r"(?:图|表)\s*\d+\s*[.．]\s*\d+|表格|真值表|函数表|公式|表达式|配图|插图|图片", message))
         report("retrieving", "检索教材", "查找相关正文、公式、表格和插图")
+        query_understanding = understand_query(message)
+        if (query_understanding.needs_clarification and not routing.needs_context
+                and not execution.target_refs):
+            reply = query_understanding.clarification
+            save_exchange(reply)
+            return {
+                "reply": reply,
+                "answer_status": "awaiting_clarification",
+                "routing": routing.model_dump(),
+                "knowledge_point": active_point,
+                "student_state": self.memory.get_state(student_id, active_point).model_dump(),
+                "step_advanced": False,
+                "textbook_sources": [],
+                "image_refs": [],
+                "pdf_references": [],
+            }
         if navigation:
             from knowledge.course_navigation import read_target
             sources = read_target(navigation)
         else:
             sources = retrieve_course(message if resource_query and not execution.target_refs else query, self.textbook_chunks,
-                                      limit=6 if PSYCHOLOGY else 2, preferred_types=execution.retrieval_types())
+                                      limit=6 if PSYCHOLOGY else 3, preferred_types=execution.retrieval_types(),
+                                      student_id=student_id, account_type=account_type)
         if is_stuck(message) and sources:
             chapter = sources[0].source
             basics = [
@@ -403,20 +452,19 @@ class TutorOrchestrator:
             }
         grounded_bundle = None
         grounded_references = None
-        if PSYCHOLOGY:
-            if citation_path:
-                report('citation-selection','选择支持原文','从检索上下文中选择可逐项核验的细粒度证据')
-                try:
-                    grounded_bundle=choose_evidence(self.llm,evidence_question,sources,citation_path,history=history)
-                    sources=grounded_bundle.sources
-                    evidence=[{'id':str(i),'source':s.source,'section':s.section,'text':s.text} for i,s in enumerate(sources,1)]
-                    pdf_supplement=None
-                except (ValueError,LLMError,OSError):
-                    reply='本次未能确认可靠的教材引用证据，请缩小问题范围或选中教材原文后重试。'
-                    save_exchange(reply)
-                    return {'reply':reply,'answer_status':'quality_rejected','step_advanced':False,
-                        'quality':{'passed':False,'issues':['引用证据选择未完成'],'suggestions':''},
-                        'textbook_sources':[],'pdf_references':[],'image_refs':[]}
+        if citation_path:
+            report('citation-selection','选择支持原文','从检索上下文中选择可逐项核验的细粒度证据')
+            try:
+                grounded_bundle=choose_evidence(self.llm,evidence_question,sources,citation_path,history=history)
+                sources=grounded_bundle.sources
+                evidence=[{'id':str(i),'source':s.source,'section':s.section,'text':s.text} for i,s in enumerate(sources,1)]
+                pdf_supplement=None
+            except (ValueError,LLMError,OSError):
+                reply='本次未能确认可靠的教材引用证据，请缩小问题范围或选中教材原文后重试。'
+                save_exchange(reply)
+                return {'reply':reply,'answer_status':'quality_rejected','step_advanced':False,
+                    'quality':{'passed':False,'issues':['引用证据选择未完成'],'suggestions':''},
+                    'textbook_sources':[],'pdf_references':[],'image_refs':[]}
         excerpts = format_excerpts(sources)
         figure_context = format_figure_context(figures)
         if pdf_supplement:
@@ -480,21 +528,7 @@ class TutorOrchestrator:
 
         # 2) 教学计划（State + Profile + Plan 三方决策）
         curriculum_done = bool(lesson_plan and lesson_plan.status == "completed")
-        from agents.adaptive_tutoring import enabled as unified_teaching_enabled
-        unified_strategy = None
-        strategy_context = task_context
-        if unified_teaching_enabled():
-            from agents.teaching_strategy import decide_for_context, align_legacy_plan
-            if strategy_context is None:
-                from models.task_context import TaskContext
-                strategy_context = TaskContext(student_id=student_id,request_id=event_id,
-                    message=message,knowledge_point=point,preferences=dict(profile.preferences))
-            unified_strategy = decide_for_context(strategy_context,execution,
-                assessment={'verdict':answer_diagnosis.verdict} if answer_diagnosis and diagnose_answer else None)
-            plan = TeachingPlan(goal='回应当前目标：'+point,strategy=unified_strategy.primary_strategy,
-                action='explain',difficulty='medium')
-            align_legacy_plan(unified_strategy,plan)
-        elif not direct_answer:
+        if not direct_answer:
             plan = self.teaching_planner.plan(
                 state, goal, current_step, curriculum_done, profile
             )
@@ -502,9 +536,7 @@ class TutorOrchestrator:
         # 2.2) Strategy Router：按学生 move + 状态 + 画像选本轮教学动作
         profile = self.memory.get_profile(student_id, point=point, difficulty=plan.difficulty, hint_level=plan.hint_level)
         recent_moves = self.memory.get_recent_moves(student_id)
-        if unified_strategy is not None:
-            move = InstructionalMove(instructional_move=unified_strategy.primary_strategy,action=plan.action)
-        elif not direct_answer:
+        if not direct_answer:
             move = self.strategy_router.select(
                 routing.student_move,
                 routing.move_status,
@@ -559,6 +591,10 @@ class TutorOrchestrator:
             "recent_moves": (recent_moves + [move.instructional_move])[-3:],
             "stuck_count": stuck_count,
         }
+        if (direct_answer and move.instructional_move == "direct_explanation"
+                and plan.action == "explain"):
+            # 四段式教材回答需要容纳依据、关键条件和引用，不能用普通短回复上限误拒。
+            check_context["reply_maximum_override"] = 500
         if SIMPLIFY_PATTERN.search(message) and previous_reply:
             # 页面阅读位置仍是当前章节，但“没听懂/再简单点”指向上一轮解释；
             # 不能把本轮目标退回章节标题，否则会换题并误判为偏题。
@@ -598,16 +634,6 @@ class TutorOrchestrator:
             lesson_text = "本轮围绕学生当前作答或困难反馈，课程进度仅作背景，不扩大到下一知识点。\n本轮反馈（诊断为暂定资料，不是新教材事实）：" + json.dumps(answer_feedback, ensure_ascii=False)
             check_context["answer_feedback"] = answer_feedback
             check_context["recent_moves"] = (recent_moves + [move.instructional_move])[-3:]
-        if unified_strategy is not None:
-            from agents.teaching_strategy import align_legacy_plan, strategy_prompt
-            align_legacy_plan(unified_strategy,plan,move)
-            if unified_strategy.interaction_boundary!='wait_for_student':
-                direct_content_question=True
-                question_spec=None
-                if answer_feedback.get('mode')=='check_self_report':
-                    answer_feedback={}
-                    check_context.pop('answer_feedback',None)
-            lesson_text += strategy_prompt(unified_strategy,selector_tool=False)
         if answer_feedback.get("mode") == "check_self_report":
             plan.goal = "围绕上一轮讲解的一个要点检查理解"
             check_context["feedback_target"] = previous_reply[:1200]
@@ -797,8 +823,7 @@ class TutorOrchestrator:
                 'textbook_sources':textbook_sources}) | {'relation_context':relation_location}
         guided_visualization = None
         from visualization.service import rollout_settings,VisualizationService
-        from visualization.learning_visuals import enabled_for
-        if enabled_for(message) or (not PSYCHOLOGY and rollout_settings()[0]!='off' and VisualizationService().enabled(student_id)):
+        if (PSYCHOLOGY and os.getenv('VISUALIZATION_ON_DEMAND','0')=='1') or (not PSYCHOLOGY and rollout_settings()[0]!='off' and VisualizationService().enabled(student_id)):
             try:
                 from visualization.on_demand import build_guide
                 guided_visualization=build_guide(self.llm,message,response,sources,execution,
@@ -810,11 +835,6 @@ class TutorOrchestrator:
         if guided_visualization:
             stored_reference=(stored_reference or {'pdf_references':pdf_references,
                 'textbook_sources':textbook_sources}) | {'guided_visualization':guided_visualization}
-        from agents.response_composition_adapters import published_snapshot, snapshot_kind
-        learning_response = published_snapshot(reply=response, response_id=event_id, target_id=point,
-            semantic_type=snapshot_kind(teaching_plan=plan, execution=execution))
-        if learning_response:
-            stored_reference = {**(stored_reference or {}), 'learning_response':learning_response}
         memory_commit = self.memory.commit_learning_turn(
             student_id=student_id, point=point, event_id=event_id, expected_token=expected_token, expected_epoch=expected_epoch,
             message=message, reply=response, state=state, lesson_plan=None if direct_answer else lesson_plan, decision=decision,
@@ -841,16 +861,9 @@ class TutorOrchestrator:
         elif memory_commit["status"] == "committed":
             self.memory.push_recent_move(student_id, move.instructional_move)
 
-        strategy_publication = None
-        if unified_strategy is not None:
-            from agents.teaching_strategy import publish_external_strategy
-            strategy_publication = publish_external_strategy(strategy_context,unified_strategy,response,
-                source_ids=[e.get('evidence_id','') for e in grounded_bundle.evidence] if grounded_bundle else [])
         return {
             "reply": response,
-            **({'learning_response':learning_response} if learning_response else {}),
             "answer_status": "answered",
-            **({'teaching_strategy_plan':strategy_publication} if strategy_publication else {}),
             "response_path": "direct_answer" if direct_answer else "tutoring",
             "memory_commit": memory_commit,
             "conversation_id": memory_commit.get("conversation_id"),

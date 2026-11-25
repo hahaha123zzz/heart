@@ -1,0 +1,59 @@
+启动阶段：加载应用（累计 0.0s）
+启动阶段：读取检索索引（累计 8.4s）
+启动阶段：模型预热完成（累计 8.4s）
+RAG runtime: {'configured': {'reranker': 'cpu', 'embedding': 'cpu'}, 'sessions': {}, 'cuda_cache_path': None}
+INFO:     127.0.0.1:56264 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56270 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56271 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56274 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56275 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56278 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56282 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56284 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56285 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56287 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56291 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50172 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50174 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54014 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63353 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63354 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63355 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63356 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64244 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58053 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58056 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58054 - "GET /api/deeptutor/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58060 - "GET /api/deeptutor/capabilities HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51352 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51353 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51357 - "DELETE /api/accounts/test/codex-probe-82f7af01 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51437 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51439 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51459 - "DELETE /api/accounts/test/codex-probe-9e87e72f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51483 - "POST /api/accounts/test HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51484 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51485 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51490 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51491 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51493 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51496 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51497 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51506 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51511 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51512 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51514 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51516 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51518 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51519 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51520 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51522 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51524 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51526 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51527 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51528 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51545 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51546 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51547 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51548 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51549 - "DELETE /api/accounts/test/codex-acc-8eda145206 HTTP/1.1" 200 OK

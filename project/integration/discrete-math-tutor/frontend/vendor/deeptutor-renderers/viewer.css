@@ -1,5 +1,8 @@
 .native-viewer{--border:#d7dedb;--background:#fff;--card:#fff;--foreground:#1e2926;--muted-foreground:#65716c;}
 .native-viewer iframe{width:100%;}.native-viewer *{box-sizing:border-box;}
+.visible {
+    visibility: visible
+}
 .collapse {
     visibility: collapse
 }
@@ -40,6 +43,22 @@
     margin-left: -0.5rem;
     margin-right: -0.5rem
 }
+.mx-0\.5 {
+    margin-left: 0.125rem;
+    margin-right: 0.125rem
+}
+.my-0\.5 {
+    margin-top: 0.125rem;
+    margin-bottom: 0.125rem
+}
+.my-1 {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem
+}
+.my-2 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem
+}
 .my-4 {
     margin-top: 1rem;
     margin-bottom: 1rem
@@ -48,14 +67,32 @@
     margin-top: 1.5rem;
     margin-bottom: 1.5rem
 }
+.mb-1\.5 {
+    margin-bottom: 0.375rem
+}
 .mb-2 {
     margin-bottom: 0.5rem
+}
+.mb-2\.5 {
+    margin-bottom: 0.625rem
 }
 .mb-3 {
     margin-bottom: 0.75rem
 }
+.mb-4 {
+    margin-bottom: 1rem
+}
+.ml-4 {
+    margin-left: 1rem
+}
 .ml-auto {
     margin-left: auto
+}
+.mr-1 {
+    margin-right: 0.25rem
+}
+.mr-2 {
+    margin-right: 0.5rem
 }
 .mt-0\.5 {
     margin-top: 0.125rem
@@ -75,8 +112,26 @@
 .mt-3 {
     margin-top: 0.75rem
 }
+.mt-4 {
+    margin-top: 1rem
+}
+.mt-5 {
+    margin-top: 1.25rem
+}
+.mt-6 {
+    margin-top: 1.5rem
+}
+.mt-7 {
+    margin-top: 1.75rem
+}
+.mt-8 {
+    margin-top: 2rem
+}
 .block {
     display: block
+}
+.inline-block {
+    display: inline-block
 }
 .inline {
     display: inline
@@ -87,6 +142,9 @@
 .inline-flex {
     display: inline-flex
 }
+.table {
+    display: table
+}
 .grid {
     display: grid
 }
@@ -96,8 +154,17 @@
 .aspect-video {
     aspect-ratio: 16 / 9
 }
+.h-4 {
+    height: 1rem
+}
+.h-\[14px\] {
+    height: 14px
+}
 .h-\[19px\] {
     height: 19px
+}
+.h-px {
+    height: 1px
 }
 .max-h-80 {
     max-height: 20rem
@@ -111,6 +178,12 @@
 .max-h-full {
     max-height: 100%
 }
+.w-4 {
+    width: 1rem
+}
+.w-\[14px\] {
+    width: 14px
+}
 .w-\[19px\] {
     width: 19px
 }
@@ -120,11 +193,17 @@
 .min-w-0 {
     min-width: 0px
 }
+.min-w-full {
+    min-width: 100%
+}
 .max-w-\[1600px\] {
     max-width: 1600px
 }
 .max-w-full {
     max-width: 100%
+}
+.max-w-none {
+    max-width: none
 }
 .flex-1 {
     flex: 1 1 0%
@@ -135,17 +214,32 @@
 .grow {
     flex-grow: 1
 }
+.transform {
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))
+}
 .cursor-default {
     cursor: default
 }
 .cursor-pointer {
     cursor: pointer
 }
+.cursor-zoom-in {
+    cursor: zoom-in
+}
+.select-none {
+    user-select: none
+}
 .resize-y {
     resize: vertical
 }
+.scroll-mt-20 {
+    scroll-margin-top: 5rem
+}
 .list-inside {
     list-style-position: inside
+}
+.list-decimal {
+    list-style-type: decimal
 }
 .list-disc {
     list-style-type: disc
@@ -199,6 +293,14 @@
     margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(0.75rem * var(--tw-space-y-reverse))
 }
+.divide-y > :not([hidden]) ~ :not([hidden]) {
+    --tw-divide-y-reverse: 0;
+    border-top-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+    border-bottom-width: calc(1px * var(--tw-divide-y-reverse))
+}
+.divide-\[var\(--border\)\] > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--border)
+}
 .overflow-auto {
     overflow: auto
 }
@@ -243,8 +345,14 @@
 .border-b {
     border-bottom-width: 1px
 }
+.border-l {
+    border-left-width: 1px
+}
 .border-l-2 {
     border-left-width: 2px
+}
+.border-l-\[3px\] {
+    border-left-width: 3px
 }
 .border-t {
     border-top-width: 1px
@@ -252,11 +360,17 @@
 .border-dashed {
     border-style: dashed
 }
+.border-none {
+    border-style: none
+}
 .border-\[var\(--border\)\] {
     border-color: var(--border)
 }
 .border-\[var\(--destructive\)\] {
     border-color: var(--destructive)
+}
+.border-\[var\(--muted-foreground\)\] {
+    border-color: var(--muted-foreground)
 }
 .border-\[var\(--primary\)\] {
     border-color: var(--primary)
@@ -280,6 +394,9 @@
 }
 .bg-\[var\(--background\)\] {
     background-color: var(--background)
+}
+.bg-\[var\(--border\)\] {
+    background-color: var(--border)
 }
 .bg-\[var\(--card\)\] {
     background-color: var(--card)
@@ -305,6 +422,9 @@
 }
 .bg-black\/85 {
     background-color: rgb(0 0 0 / 0.85)
+}
+.bg-current {
+    background-color: currentColor
 }
 .bg-red-50 {
     --tw-bg-opacity: 1;
@@ -334,6 +454,10 @@
 .px-1 {
     padding-left: 0.25rem;
     padding-right: 0.25rem
+}
+.px-1\.5 {
+    padding-left: 0.375rem;
+    padding-right: 0.375rem
 }
 .px-2 {
     padding-left: 0.5rem;
@@ -379,6 +503,12 @@
     padding-top: 1px;
     padding-bottom: 1px
 }
+.pl-0 {
+    padding-left: 0px
+}
+.pl-3 {
+    padding-left: 0.75rem
+}
 .pl-4 {
     padding-left: 1rem
 }
@@ -388,14 +518,39 @@
 .text-left {
     text-align: left
 }
+.align-baseline {
+    vertical-align: baseline
+}
+.align-middle {
+    vertical-align: middle
+}
 .font-mono {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+}
+.font-sans {
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
 }
 .font-serif {
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif
 }
+.text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem
+}
+.text-\[0\.78em\] {
+    font-size: 0.78em
+}
+.text-\[0\.85em\] {
+    font-size: 0.85em
+}
+.text-\[0\.875em\] {
+    font-size: 0.875em
+}
 .text-\[0\.92em\] {
     font-size: 0.92em
+}
+.text-\[0\.95em\] {
+    font-size: 0.95em
 }
 .text-\[10\.5px\] {
     font-size: 10.5px
@@ -421,13 +576,28 @@
 .text-\[15\.5px\] {
     font-size: 15.5px
 }
+.text-base {
+    font-size: 1rem;
+    line-height: 1.5rem
+}
+.text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem
+}
 .text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem
 }
+.text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem
+}
 .text-xs {
     font-size: 0.75rem;
     line-height: 1rem
+}
+.font-bold {
+    font-weight: 700
 }
 .font-medium {
     font-weight: 500
@@ -438,8 +608,14 @@
 .uppercase {
     text-transform: uppercase
 }
+.italic {
+    font-style: italic
+}
 .leading-5 {
     line-height: 1.25rem
+}
+.leading-\[1\.55\] {
+    line-height: 1.55
 }
 .leading-\[1\.6\] {
     line-height: 1.6
@@ -447,8 +623,17 @@
 .leading-relaxed {
     line-height: 1.625
 }
+.leading-snug {
+    line-height: 1.375
+}
 .tracking-\[-0\.01em\] {
     letter-spacing: -0.01em
+}
+.tracking-tight {
+    letter-spacing: -0.025em
+}
+.tracking-wide {
+    letter-spacing: 0.025em
 }
 .tracking-wider {
     letter-spacing: 0.05em
@@ -460,6 +645,9 @@
 .text-\[\#e5e7eb\] {
     --tw-text-opacity: 1;
     color: rgb(229 231 235 / var(--tw-text-opacity, 1))
+}
+.text-\[inherit\] {
+    color: inherit
 }
 .text-\[var\(--destructive\)\] {
     color: var(--destructive)
@@ -501,11 +689,20 @@
 .underline {
     text-decoration-line: underline
 }
+.no-underline {
+    text-decoration-line: none
+}
 .underline-offset-2 {
     text-underline-offset: 2px
 }
+.accent-\[var\(--primary\)\] {
+    accent-color: var(--primary)
+}
 .opacity-0 {
     opacity: 0
+}
+.opacity-10 {
+    opacity: 0.1
 }
 .opacity-80 {
     opacity: 0.8
@@ -516,6 +713,11 @@
 .shadow-2xl {
     --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
     --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
+}
+.shadow-sm {
+    --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
     box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
 }
 .outline-none {
@@ -551,6 +753,9 @@
 .placeholder\:text-\[color-mix\(in_srgb\2c var\(--muted-foreground\)_75\%\2c transparent\)\]::placeholder {
     color: color-mix(in srgb,var(--muted-foreground) 75%,transparent)
 }
+.last\:mb-0:last-child {
+    margin-bottom: 0px
+}
 .hover\:bg-\[color-mix\(in_srgb\2c var\(--foreground\)_3\.5\%\2c transparent\)\]:hover {
     background-color: color-mix(in srgb,var(--foreground) 3.5%,transparent)
 }
@@ -562,6 +767,12 @@
 }
 .hover\:text-\[var\(--foreground\)\]:hover {
     color: var(--foreground)
+}
+.hover\:underline:hover {
+    text-decoration-line: underline
+}
+.hover\:decoration-\[var\(--primary\)\]:hover {
+    text-decoration-color: var(--primary)
 }
 .hover\:opacity-90:hover {
     opacity: 0.9
@@ -613,4 +824,7 @@
         --tw-text-opacity: 1;
         color: rgb(248 113 113 / var(--tw-text-opacity, 1))
     }
+}
+.\[\&\>p\]\:mb-1>p {
+    margin-bottom: 0.25rem
 }

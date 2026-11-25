@@ -1,0 +1,71 @@
+{
+  "schema": "first-token-latency-v1",
+  "created_at": "2026-11-21T23:27:42.328058+08:00",
+  "samples": 10,
+  "successful_samples": 10,
+  "first_token_p50_ms": 2374.15,
+  "first_token_p95_ms": 3009.33,
+  "metric_source": "answer_delta_or_first_visible_body",
+  "rows": [
+    {
+      "question": "集合的并集怎样定义？",
+      "first_answer_delta_ms": 1929.54,
+      "answer_status": "answered",
+      "complete_ms": 1930.33
+    },
+    {
+      "question": "图中的顶点度数是什么？",
+      "first_answer_delta_ms": 2475.12,
+      "answer_status": "answered",
+      "complete_ms": 2475.51
+    },
+    {
+      "question": "什么是等价关系？",
+      "first_answer_delta_ms": 2952.67,
+      "answer_status": "answered",
+      "complete_ms": 2953.23
+    },
+    {
+      "question": "函数复合的次序怎样确定？",
+      "first_answer_delta_ms": 2313.99,
+      "answer_status": "answered",
+      "complete_ms": 2314.42
+    },
+    {
+      "question": "鸽笼原理说明什么？",
+      "first_answer_delta_ms": 2093.19,
+      "answer_status": "answered",
+      "complete_ms": 2093.7
+    },
+    {
+      "question": "集合的并集怎样定义？",
+      "first_answer_delta_ms": 2583.97,
+      "answer_status": "answered",
+      "complete_ms": 2584.34
+    },
+    {
+      "question": "图中的顶点度数是什么？",
+      "first_answer_delta_ms": 2487.38,
+      "answer_status": "answered",
+      "complete_ms": 2487.92
+    },
+    {
+      "question": "什么是等价关系？",
+      "first_answer_delta_ms": 3009.33,
+      "answer_status": "answered",
+      "complete_ms": 3009.74
+    },
+    {
+      "question": "函数复合的次序怎样确定？",
+      "first_answer_delta_ms": 2374.15,
+      "answer_status": "answered",
+      "complete_ms": 2374.48
+    },
+    {
+      "question": "鸽笼原理说明什么？",
+      "first_answer_delta_ms": 2060.08,
+      "answer_status": "answered",
+      "complete_ms": 2060.45
+    }
+  ]
+}

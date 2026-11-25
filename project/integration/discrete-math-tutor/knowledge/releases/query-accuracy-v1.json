@@ -1,0 +1,100 @@
+{
+  "schema": "answer-accuracy-release-v1",
+  "created_at": "2026-11-21T23:29:01.214027+08:00",
+  "source_commit": "fdfae7da-working-tree",
+  "course_id": "discrete-math",
+  "artifacts": [
+    {
+      "path": "knowledge/rag_index_v2.sqlite3",
+      "sha256": "6b7c8ea73464480ed8742a955d1c0f623d2dd08e34ca5f8fe315c544f3cb72f6"
+    },
+    {
+      "path": ".runtime/vector-retrieval-shadow-v1.sqlite3",
+      "sha256": "935c399442d13cde08974d2ef46ab127f6b9cd84e13c4a84fde222ba690e1c13"
+    },
+    {
+      "path": "knowledge/answer_release.py",
+      "sha256": "454bd85c06beecb60516492bfc28f6448b9df96be81fd41021f0b5f02b178f61"
+    },
+    {
+      "path": "knowledge/answer_ranking.py",
+      "sha256": "68daf86c9b989f37c0b4e1e7cdc0bf9332e763b91652c0fa8a5c2a5ff2def7c1"
+    },
+    {
+      "path": "knowledge/grounded_citations.py",
+      "sha256": "b155f2be1873352211334c0255a9b3b8aee45276b05ac90b3f747de05ee98264"
+    },
+    {
+      "path": "knowledge/hybrid_retrieval.py",
+      "sha256": "48f95946d508c6f41073071610b6736db27d79b072857e9e7a296c0b5b60d811"
+    },
+    {
+      "path": "knowledge/query_understanding.py",
+      "sha256": "d3ce4af0f5faed935fa8ca0ef4a833d83f7af4951a445dd3ce168f74e1582eb0"
+    },
+    {
+      "path": "knowledge/query_semantic_shadow.py",
+      "sha256": "2e281dd9a86d20758bb28c2bcca18270abb968ad1c302e9dfeb2b88558385e1e"
+    },
+    {
+      "path": "orchestrator.py",
+      "sha256": "a0fe01263fa332627def69d2ed934587fb5d7345dadd8c9689c1eebeb65bb636"
+    },
+    {
+      "path": "scripts/run_engineering_checks.py",
+      "sha256": "05dbd750a06ff93f9db72fe8116b1c0343c8c3d149acef4249f032b2fb7655e4"
+    },
+    {
+      "path": "scripts/run_release_health.py",
+      "sha256": "3b9b000b00939431de507f0f49089f700e896c59885a34166bc0008376a7fac1"
+    },
+    {
+      "path": "scripts/measure_first_token.py",
+      "sha256": "2acf4496f1ce0749a3cdd4bf1bdde6a3866ee32fa16814474f10dc26d9de3d3a"
+    },
+    {
+      "path": "tests/data/e2e_answer_accuracy_v1.json",
+      "sha256": "09202b8eef594e28e51999312ba9fec767c060c9cbb708a107b8bd47e9c5a556"
+    },
+    {
+      "path": "tests/data/e2e_answer_accuracy_holdout_v1.json",
+      "sha256": "25ace0176904d1e8952f6f73ef4e1b1954a5e192c16643253a48074d5bd2d3c9"
+    },
+    {
+      "path": "tests/data/e2e_answer_accuracy_holdout_v2.json",
+      "sha256": "3185ffa937c40cd514e205b6f30ba022c3459ccb6d9e1efe926f211d43f8a5d2"
+    },
+    {
+      "path": "tests/data/semantic_query_annotations_v1.jsonl",
+      "sha256": "203093cbd169bd638f687275fddb3b71613b298fc72991619a01fa14e888ab8b"
+    },
+    {
+      "path": "tests/data/vector_retrieval_holdout_v1.jsonl",
+      "sha256": "d9ef4ee720b2a36a74d83ab502273afc5f87a15108801b6d86fef7c7a29b5afe"
+    }
+  ],
+  "features": {
+    "query_understanding": {
+      "mode": "shadow",
+      "percent": 5,
+      "test_accounts_active": true
+    },
+    "semantic_section_resolver": {
+      "mode": "shadow",
+      "percent": 0,
+      "test_accounts_active": false
+    },
+    "vector_hybrid": {
+      "mode": "off",
+      "percent": 0,
+      "test_accounts_active": false
+    }
+  },
+  "thresholds": {
+    "minimum_samples": 20,
+    "maximum_unsupported_citation_rate": 0.15,
+    "maximum_out_of_scope_false_recall_rate": 0.1,
+    "maximum_first_token_p95_ms": 3000
+  },
+  "release_id": "124368881a6d3107d3199372a5b9c2cf46ef96f833470b5ef6ec3dfad6b4414e"
+}

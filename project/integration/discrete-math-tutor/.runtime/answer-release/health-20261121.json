@@ -1,0 +1,37 @@
+{
+  "schema": "answer-release-health-v1",
+  "created_at": "2026-11-21T23:29:06.915049+08:00",
+  "feature": "query_understanding",
+  "release_id": "124368881a6d3107d3199372a5b9c2cf46ef96f833470b5ef6ec3dfad6b4414e",
+  "manifest_ok": true,
+  "metrics": {
+    "samples": 81,
+    "in_scope_samples": 70,
+    "out_of_scope_samples": 11,
+    "unsupported_citation_rate": 0.5143,
+    "out_of_scope_false_recall_rate": 0.4545,
+    "first_token_p95_ms": 3009.33
+  },
+  "thresholds": {
+    "minimum_samples": 20,
+    "maximum_unsupported_citation_rate": 0.15,
+    "maximum_out_of_scope_false_recall_rate": 0.1,
+    "maximum_first_token_p95_ms": 3000
+  },
+  "assessment": {
+    "ready": true,
+    "healthy": false,
+    "reasons": [
+      "无依据回答率超限",
+      "教材外误召回率超限",
+      "首字延迟 P95 超限"
+    ]
+  },
+  "circuit": {
+    "global": false,
+    "features": [
+      "query_understanding"
+    ],
+    "updated_at": "2026-11-21T23:29:06.910852+08:00"
+  }
+}
