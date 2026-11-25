@@ -1819,10 +1819,10 @@ class LoadToolsTool(_PromptHintsMixin, BaseTool):
         return ToolDefinition(
             name="load_tools",
             description=(
-                "Load one or more Extended Tools (listed in the Extended "
-                "Tools section) so they become callable. Call this BEFORE "
-                "using any extended tool; loaded tools stay available for "
-                "the rest of the session."
+                "Load one or more on-demand tools (listed in the tool catalog "
+                "without their parameters, and in the Extended Tools section) "
+                "so they become callable. Call this BEFORE using any such "
+                "tool; loaded tools stay available for the rest of the session."
             ),
             parameters=[
                 ToolParameter(

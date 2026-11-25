@@ -5,7 +5,7 @@ ENABLED_CAPABILITIES = CHAT_CAPABILITIES | WORKSPACE_CAPABILITIES
 ENABLED_SKILLS = frozenset(('docx',))
 UNVERIFIED_TOOLS = frozenset(('web_search', 'paper_search', 'zotero_search', 'preprint',
     'research_lit', 'research_audit', 'web_fetch', 'github', 'imagegen', 'videogen',
-    'geogebra_analysis', 'consult_subagent', 'load_tools', 'knowledge_frontier'))
+    'geogebra_analysis', 'consult_subagent', 'knowledge_frontier'))
 
 
 def validate_options(options):

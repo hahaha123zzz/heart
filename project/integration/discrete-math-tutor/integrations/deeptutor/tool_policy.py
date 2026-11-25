@@ -4,6 +4,8 @@ from contextvars import ContextVar
 from functools import wraps
 import re
 
+from . import tool_disclosure as disclosure
+
 # 当前产品不使用这些外部集成；需要恢复时只修改此处，不删除固定上游源码。
 HIDDEN_TOOLS = frozenset((
     'obsidian_search','obsidian_read','obsidian_list','obsidian_backlinks','obsidian_links','obsidian_tags',
@@ -94,6 +96,8 @@ def install_tool_policy():
     original_execute, original_deferred = ToolRegistry.execute, ToolRegistry.deferred_tools
     original_compose = AgenticLoopPipeline._compose_enabled_tools
     original_augment = AgenticLoopPipeline._augment_tool_kwargs
+    original_schemas = AgenticLoopPipeline._build_llm_tool_schemas
+    original_manifest = AgenticLoopPipeline._tool_manifest
 
     @wraps(original_augment)
     def augment(pipeline, name, args, context):
@@ -105,6 +109,10 @@ def install_tool_policy():
             index = dict(context.metadata.get('source_index') or {})
             index.update(context.metadata.get('_heart_short_index') or {})
             kwargs['source_index'] = index
+        elif active_scope() and name == 'load_tools':
+            loader = disclosure.current_loader()
+            if loader is not None:
+                kwargs['_tool_loader'] = loader
         return kwargs
     original_extensions = extensions.all_loop_capabilities
 
@@ -133,6 +141,11 @@ def install_tool_policy():
     async def execute(registry, name, /, **kwargs):
         if active_scope() and not visible(name):
             raise KeyError('工具未在当前教学项目中启用')
+        try:
+            disclosure.require_loaded(disclosure.current_loader(), name)
+        except KeyError:
+            from deeptutor.core.tool_protocol import ToolResult
+            return ToolResult(content='该工具需要先调用 load_tools 加载。', success=False)
         return await original_execute(registry, name, **kwargs)
 
     @wraps(original_compose)
@@ -161,13 +174,33 @@ def install_tool_policy():
                 names = list(dict.fromkeys([*names, 'read_source']))
             elif not has_source_index:
                 names = [name for name in names if name != 'read_source']
+        if active_scope():
+            disclosure.prepare(pipeline, context, names)
         return names
+
+    @wraps(original_schemas)
+    def schemas(pipeline, enabled_tools, context):
+        return disclosure.filter_schemas(
+            disclosure.current_loader(), original_schemas(pipeline, enabled_tools, context))
+
+    @wraps(original_manifest)
+    def manifest(pipeline, enabled_tools):
+        text = original_manifest(pipeline, enabled_tools)
+        loader = disclosure.current_loader()
+        if loader is not None:
+            pending = sorted(loader.deferred - loader.loaded)
+            if pending:
+                text += "\n按需工具（调用前先用 load_tools 加载）：" + "、".join(
+                    f"`{name}`" for name in pending)
+        return text
 
     get._heart_tool_policy = True
     ToolRegistry.get, ToolRegistry.list_tools = get, list_tools
     ToolRegistry.execute, ToolRegistry.deferred_tools = execute, deferred
     AgenticLoopPipeline._compose_enabled_tools = compose
     AgenticLoopPipeline._augment_tool_kwargs = augment
+    AgenticLoopPipeline._build_llm_tool_schemas = schemas
+    AgenticLoopPipeline._tool_manifest = manifest
     extensions.all_loop_capabilities = all_extensions
 
 
