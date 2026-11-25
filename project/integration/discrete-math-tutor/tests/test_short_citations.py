@@ -1,7 +1,11 @@
 """短引用只把本轮已披露来源解析成正式链接。"""
 import unittest
 
-from integrations.deeptutor.short_citations import resolve
+from integrations.deeptutor.short_citations import (
+    ShortCitationStream,
+    resolve,
+    to_numeric,
+)
 
 
 def citation(chapter, page):
@@ -38,6 +42,31 @@ class ShortCitationTests(unittest.TestCase):
     def test_map_form_is_accepted_for_worker_context(self):
         mapping = {"S2": {"short_id": "S2", "reader_citation": citation(3, 7)}}
         self.assertEqual(resolve("见[S2]", mapping), f"见{citation(3, 7)}")
+
+    def test_unclosed_fence_is_treated_as_code_to_the_end(self):
+        self.assertEqual(resolve("```\n[S1]", SOURCES), "```\n[S1]")
+
+    def test_stream_holds_a_split_marker_until_complete(self):
+        stream = ShortCitationStream(SOURCES)
+        self.assertEqual(stream.feed("答案[S"), "答案")
+        self.assertEqual(stream.feed("1]。"), f"{citation(5, 5)}。")
+        self.assertEqual(stream.flush(), "")
+
+    def test_stream_never_links_inside_a_fence_split_across_chunks(self):
+        stream = ShortCitationStream(SOURCES)
+        self.assertEqual(stream.feed("示例\n```\n[S1]"), "示例\n")
+        self.assertEqual(stream.feed("\n```\n正文[S1]"),
+                         f"```\n[S1]\n```\n正文{citation(5, 5)}")
+
+    def test_stream_flush_keeps_an_incomplete_marker_plain(self):
+        stream = ShortCitationStream(SOURCES)
+        self.assertEqual(stream.feed("正文[S1"), "正文")
+        self.assertEqual(stream.flush(), "[S1")
+
+    def test_numeric_markers_follow_turn_indices(self):
+        text = "对比[S1, S2]，示例 `[S9]`，无据[S9]。"
+        self.assertEqual(to_numeric(text, SOURCES),
+                         "对比[1][2]，示例 `[S9]`，无据[S9]。")
 
 
 if __name__ == "__main__":

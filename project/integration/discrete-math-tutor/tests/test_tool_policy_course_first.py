@@ -17,6 +17,15 @@ def test_greeting_skips_prefetch():
     assert tool_policy.skip_kb_seed(_context('你好', kbs=[canonical_kb_name()])) is True
 
 
+def test_catalogue_question_skips_body_prefetch():
+    assert tool_policy.skip_kb_seed(_context('教材目录', kbs=[canonical_kb_name()])) is True
+
+
+def test_courtesy_and_short_followups_skip_prefetch():
+    for message in ('谢谢', '继续', '你好呀', '好的'):
+        assert tool_policy.skip_kb_seed(_context(message, kbs=[canonical_kb_name()])) is True
+
+
 def test_system_question_skips_prefetch():
     assert tool_policy.skip_kb_seed(_context('今天几号', kbs=[canonical_kb_name()])) is True
 

@@ -51,7 +51,7 @@ class LLMConfigUpdate(TypedDict, total=False):
     api_format: str
     reasoning_effort: str | None
     context_window: int | None
-    max_tokens: int
+    max_tokens: int | None
     temperature: float
     max_concurrency: int
     requests_per_minute: int
@@ -124,7 +124,7 @@ class LLMConfig:
     api_format: str = "auto"
     reasoning_effort: str | None = None
     context_window: int | None = None
-    max_tokens: int = 4096
+    max_tokens: int | None = None
     temperature: float = 0.7
     max_concurrency: int = 20
     requests_per_minute: int = 600

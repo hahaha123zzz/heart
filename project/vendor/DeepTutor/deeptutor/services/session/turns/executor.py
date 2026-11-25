@@ -80,13 +80,14 @@ def set_completion_preparer(preparer):
     _completion_preparer=preparer
 
 
-def _resolve_short_citations(text, metadata):
-    """宿主教材短引用只在宿主存在时解析；独立 DeepTutor 安装不受影响。"""
+def _short_citation_stream(metadata):
+    """宿主教材短引用只在宿主存在时按流解析；独立安装不受影响。"""
     try:
-        from integrations.deeptutor.short_citations import resolve
+        from integrations.deeptutor.short_citations import ShortCitationStream
     except ImportError:
-        return text
-    return resolve(text, (metadata or {}).get("_heart_short_sources") or {})
+        return None
+    sources = (metadata or {}).get("_heart_short_sources") or {}
+    return ShortCitationStream(sources) if sources else None
 
 
 class TurnExecutor:
@@ -173,6 +174,7 @@ class TurnExecutor:
         user_submission_attachment_ids: set[str] = set()
         assistant_events: list[dict[str, Any]] = []
         assistant_content = ""
+        short_stream = None
         provider_response_state: dict[str, Any] | None = None
         context: UnifiedContext | None = None
         # Per-round content segments + retracted call_ids: every chat-loop
@@ -1034,10 +1036,25 @@ class TurnExecutor:
             )
 
             pending_done_event: StreamEvent | None = None
+            short_stream = _short_citation_stream(context.metadata)
             async for event in self.turn_engine.execute(context):
                 if event.type == StreamEventType.SESSION:
                     continue
                 if event.type == StreamEventType.DONE:
+                    if short_stream is not None:
+                        tail = short_stream.flush()
+                        short_stream = None
+                        if tail:
+                            tail_event = StreamEvent(
+                                type=StreamEventType.CONTENT,
+                                source="short_citations",
+                                content=tail,
+                                metadata={"call_kind": "llm_final_response"},
+                            )
+                            tail_payload = await self._publish_live_event(execution, tail_event)
+                            _stamp_content_offset(tail_payload, _persisted_answer())
+                            assistant_events.append(tail_payload)
+                            content_segments.append((None, tail))
                     pending_done_event = event
                     if event.metadata.get("usage_summary"):
                         assistant_events.append(event.to_dict())
@@ -1048,10 +1065,11 @@ class TurnExecutor:
                             "capability_route": dict(capability_route),
                         }
                     continue
-                if event.type == StreamEventType.CONTENT and event.content:
-                    # 教材短 ID 在发布边界换成本轮已核验链接；代码块内示例保持原样。
-                    event.content = _resolve_short_citations(
-                        event.content, context.metadata.get("_heart_short_sources"))
+                if event.type == StreamEventType.CONTENT and event.content and short_stream is not None:
+                    # 跨块的半个短 ID、未闭合代码块先暂存，完整后再替换。
+                    event.content = short_stream.feed(event.content)
+                    if not event.content:
+                        continue
                 payload_event = await self._publish_live_event(execution, event)
                 if payload_event.get("type") not in {"done", "session"}:
                     # Cards and tool calls render between runs of answer
@@ -1117,8 +1135,12 @@ class TurnExecutor:
             # capability retracted (that text stayed in the trace). Apply
             # the CJK Markdown repair only after every streamed segment has
             # arrived, so no incomplete response is ever rewritten.
+            persisted = _persisted_answer()
+            if short_stream is not None:
+                persisted += short_stream.flush()
+                short_stream = None
             assistant_content = _repair_chinese_emphasis_for_persistence(
-                _persisted_answer(),
+                persisted,
                 str(payload.get("language", "en") or "en"),
             )
 
@@ -1310,6 +1332,9 @@ class TurnExecutor:
             # suppressed separately so the status update below always runs —
             # a turn left "running" gets mislabelled as a restart orphan.
             partial_content = _persisted_answer()
+            if short_stream is not None:
+                partial_content += short_stream.flush()
+                short_stream = None
             if partial_content or generated_attachments or assistant_events:
                 with contextlib.suppress(Exception):
                     assistant_message_id = await asyncio.shield(

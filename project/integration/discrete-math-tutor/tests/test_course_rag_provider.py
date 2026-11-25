@@ -277,6 +277,26 @@ def test_rag_tool_does_not_resend_passages_on_turn_cache_hit(monkeypatch):
     assert "已核验原文" not in result.content
 
 
+def test_rag_tool_does_not_advertise_unlinked_mixed_evidence(monkeypatch):
+    from integrations.deeptutor import heart_rag
+
+    unlinked = {**_source(), "index": 2, "short_id": "S2", "rag_source_id": "r2",
+                "text": "第二条未通过核验的原文。"}
+
+    async def found(*args, **kwargs):
+        return {"sources": [_source(), unlinked], "backend": "lightrag", "mode": "naive"}
+
+    monkeypatch.setattr(provider, "search_course", found)
+    monkeypatch.setattr(heart_rag, "_reader_citation",
+                        lambda source: "[教材第1章第3页](#dt-material-x)"
+                        if source["index"] == 1 else "")
+    result = asyncio.run(heart_rag.HeartCourseRagTool().execute(query="自变量是什么"))
+
+    assert "[S1]" in result.content
+    assert "[S2]" not in result.content
+    assert "1 条原文未通过" in result.content
+
+
 def test_rag_tool_refuses_when_no_source_can_be_linked(monkeypatch):
     from integrations.deeptutor import heart_rag
 

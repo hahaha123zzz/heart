@@ -105,6 +105,10 @@ class NativeToolPolicyTests(unittest.IsolatedAsyncioTestCase):
             self.assertFalse({'rag','kb_files','read_source'} & greeting)
             mixed=mounted(UnifiedContext(user_message='教材目录里解释一下自变量'))
             self.assertTrue({'rag','kb_files','read_source'} <= mixed)
+            locate=mounted(UnifiedContext(user_message='教材目录里自变量在哪一章'))
+            self.assertTrue({'rag','kb_files','read_source'} <= locate)
+            courtesy=mounted(UnifiedContext(user_message='谢谢'))
+            self.assertFalse({'rag','kb_files','read_source'} & courtesy)
             reading=mounted(UnifiedContext(user_message='你好',
                 metadata={'reading_viewport':{'locator':1}}))
             self.assertTrue({'rag','kb_files','read_source'} <= reading)
@@ -176,9 +180,10 @@ class CourseSourceReadTests(unittest.IsolatedAsyncioTestCase):
         loaded=await ReadSourceTool().execute(source_id=source_id,source_index=context.metadata['source_index'])
         self.assertTrue(loaded.success)
         self.assertIn(text,loaded.content)
-        short=next(key for key in context.metadata['source_index'] if key.startswith('S'))
+        short=next(iter(context.metadata['_heart_short_index']))
         self.assertIn(f'[{short}]',result.content)
-        loaded_short=await ReadSourceTool().execute(source_id=short,source_index=context.metadata['source_index'])
+        loaded_short=await ReadSourceTool().execute(source_id=short,
+            source_index={**context.metadata['source_index'],**context.metadata['_heart_short_index']})
         self.assertTrue(loaded_short.success)
         self.assertIn(text,loaded_short.content)
         other=UnifiedContext()

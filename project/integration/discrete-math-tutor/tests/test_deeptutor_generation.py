@@ -45,6 +45,12 @@ class GenerationContractTests(unittest.TestCase):
             LLMClient(mock=True).chat([{"role":"user","content":"你好"}])
             call.assert_not_called()
 
+    def test_unset_budget_is_not_serialized(self):
+        backend = DeepTutorBackend()
+        with patch.object(backend, "_post", return_value={"content":"ok","finish_reason":"stop"}) as post:
+            backend.generate([], model="test", temperature=.2)
+        self.assertNotIn("max_tokens", post.call_args.args[1])
+
     def test_gateway_requires_host_token(self):
         app = FastAPI(); install_generation_bridge(app)
         with TestClient(app) as client, patch.dict(os.environ, DEEPTUTOR_BRIDGE_TOKEN="x"*32):
@@ -65,6 +71,13 @@ class ProviderReuseTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(factory.call_args.args[0].max_tokens, 300)
         self.assertFalse(provider.chat_with_retry.call_args.kwargs["allow_image_fallback"])
         provider.aclose.assert_awaited_once()
+
+    async def test_unset_budget_reaches_provider_as_unset(self):
+        provider = SimpleNamespace(chat_with_retry=AsyncMock(return_value=SimpleNamespace(content="回答", finish_reason="stop", reasoning_content="", tool_calls=[])), aclose=AsyncMock())
+        request = GenerationRequest(model="test-model", messages=[{"role":"user","content":"教材问题"}])
+        with patch.dict(os.environ, DEEPSEEK_API_KEY="fixture-key", DEEPSEEK_MODEL="test-model"), patch("deeptutor.services.llm.provider_factory.build_isolated_provider", return_value=provider) as factory:
+            await generate(request)
+        self.assertIsNone(factory.call_args.args[0].max_tokens)
 
     async def test_provider_error_is_generic_and_closed(self):
         provider = SimpleNamespace(chat_with_retry=AsyncMock(side_effect=RuntimeError("private-key-and-prompt")), aclose=AsyncMock())

@@ -89,7 +89,8 @@ class HeartCourseRagTool(BaseTool):
         if result.get("cache_hit") and result.get("content"):
             # 同一回合相同查询：原文已在模型上下文里，只提示短 ID。
             _attach_citations(evidence, context)
-            return ToolResult(content=result["content"], sources=evidence,
+            return ToolResult(content=_evidence_content(result, evidence, kwargs.get("budget_chars")),
+                              sources=evidence,
                               metadata={"query": query, "backend": result.get("backend"),
                                         "mode": result.get("mode"), "cache_hit": True})
         linked = _attach_citations(evidence, context)
@@ -97,14 +98,27 @@ class HeartCourseRagTool(BaseTool):
             # 默认 LightRAG 路径必须给可点击角标；本地索引路径保留 read_source 兜底。
             return ToolResult(content="检索到的段落无法与当前教材阅读版本核对，本次不提供引用。",
                               success=False, metadata={"query": query, "error": "uncited"})
-        content = str(result.get("content") or "") or source_content(
-            evidence, kwargs.get("budget_chars"))
+        content = _evidence_content(result, evidence, kwargs.get("budget_chars"))
         logger.info("course_rag_tool backend=%s mode=%s sources=%d linked=%d chars=%d cache_hit=%s",
                     result.get("backend"), result.get("mode"), len(evidence), linked,
                     len(content), result.get("cache_hit"))
         return ToolResult(content=content, sources=evidence,
                           metadata={"query": query, "backend": result.get("backend"),
                                     "mode": result.get("mode"), "cache_hit": result.get("cache_hit")})
+
+
+def _evidence_content(result, evidence, budget_chars):
+    """只把能生成正式链接的证据写成短 ID；混合结果不留无法解析的编号。"""
+    from .course_rag_provider import source_content
+    content = str(result.get("content") or "") or source_content(evidence, budget_chars)
+    if result.get("backend") != "lightrag":
+        return content
+    linked = [source for source in evidence if source.get("reader_citation")]
+    if not linked or len(linked) == len(evidence):
+        return content
+    dropped = len(evidence) - len(linked)
+    return (source_content(linked, budget_chars)
+            + f"\n\n另有 {dropped} 条原文未通过阅读版本核验，不作为引用。")
 
 
 def _attach_citations(evidence, context):

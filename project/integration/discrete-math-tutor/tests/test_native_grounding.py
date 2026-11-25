@@ -54,4 +54,4 @@ class NativeGroundingTests(unittest.TestCase):
         second=prepare_retrieval('自变量是什么',[self.chunk],self.context,'实验心理学')
         self.assertEqual(first[0]['short_id'],f"S{first[0]['index']}")
         self.assertEqual([s['short_id'] for s in first],[s['short_id'] for s in second])
-        self.assertEqual(self.context.metadata['source_index'][first[0]['short_id']],self.chunk.text)
+        self.assertEqual(self.context.metadata['_heart_short_index'][first[0]['short_id']],self.chunk.text)

@@ -46,17 +46,19 @@ def visible(name):
 
 
 def skip_kb_seed(context):
-    """课程教材预检索只服务 chat 的课程问题。"""
+    """课程教材预检索只服务 chat 的课程问题；纯目录题不预取正文。"""
     from .course_rag_provider import canonical_kb_name
     if canonical_kb_name() not in (getattr(context, 'knowledge_bases', None) or []):
         return False
     from .course_scope import is_course_question
-    return (getattr(context, 'active_capability', None) not in (None, 'chat')
-            or not is_course_question(getattr(context, 'user_message', '')))
+    if (getattr(context, 'active_capability', None) not in (None, 'chat')
+            or not is_course_question(getattr(context, 'user_message', ''))):
+        return True
+    return not (textbook_tools(context) - {'kb_files'})
 
 
 CATALOG_INTENT = re.compile(r"目录|章节|章名|有哪些章|哪几章|共.{0,3}章|全书(?:结构|目录|章节)")
-EXPLAIN_INTENT = re.compile(r"解释|讲解|定义|概念|为什么|怎么|如何|比较|区别|原理|推导")
+EXPLAIN_INTENT = re.compile(r"解释|讲解|定义|概念|为什么|怎么|如何|比较|区别|原理|推导|什么|哪|在哪|是什么|多少|是否|吗")
 
 
 def textbook_tools(context):
@@ -100,7 +102,9 @@ def install_tool_policy():
             kwargs['_heart_context'] = context
             context.metadata.setdefault('_heart_citation_offset', _citation_offset.get())
         elif active_scope() and name == 'read_source':
-            kwargs['source_index'] = context.metadata.get('source_index') or {}
+            index = dict(context.metadata.get('source_index') or {})
+            index.update(context.metadata.get('_heart_short_index') or {})
+            kwargs['source_index'] = index
         return kwargs
     original_extensions = extensions.all_loop_capabilities
 
@@ -148,8 +152,8 @@ def install_tool_policy():
                     elif (context.allowed_builtin_tools is None or name in context.allowed_builtin_tools) and pipeline.tool_lookup.get(name) is not None:
                         names.append(name)
                 names = list(dict.fromkeys(names))
-            has_source_index = any(key.startswith('rag-') or key.startswith('S')
-                                   for key in context.metadata.get('source_index', {}))
+            has_source_index = bool(context.metadata.get('_heart_short_index')) or any(
+                key.startswith('rag-') for key in context.metadata.get('source_index', {}))
             # 原生循环在回合开始时固定 schema，检索和补读必须同时挂载。
             if (('rag' in names or has_source_index)
                     and (context.allowed_builtin_tools is None or 'read_source' in context.allowed_builtin_tools)

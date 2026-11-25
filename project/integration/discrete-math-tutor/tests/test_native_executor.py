@@ -178,3 +178,23 @@ class ArtifactAuthenticationTests(unittest.TestCase):
                 router.native_artifact('task','file','student','session','0'*64)
         self.assertEqual(raised.exception.status_code,403)
         self.assertEqual(calls,[])
+
+
+class PublicationResultTests(unittest.TestCase):
+    def test_short_id_answer_keeps_links_and_fills_source_labels(self):
+        from integrations.deeptutor.native_executor import _publication_result
+        labels = ['第5章第5页 · 自变量']
+        answer = '正文[教材第5章第5页](#dt-material-x "citation")'
+        public = _publication_result({}, answer, labels)
+        self.assertEqual(public['reply'], answer)
+        self.assertEqual(public['pdf_references'], [])
+        self.assertEqual(public['textbook_sources'], labels)
+
+    def test_gate_references_are_kept(self):
+        from integrations.deeptutor.native_executor import _publication_result
+        reference = {'source_index': 0, 'evidence': {}}
+        public = _publication_result(
+            {'pdf_references': [reference], 'textbook_sources': ['第1章']}, '正文', ['第2章'])
+        self.assertEqual(public['pdf_references'], [reference])
+        self.assertEqual(public['textbook_sources'], ['第1章'])
+        self.assertEqual(public['reply'], '正文')

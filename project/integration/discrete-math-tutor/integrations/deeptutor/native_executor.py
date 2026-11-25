@@ -48,6 +48,16 @@ def _source_label(source):
     return ' · '.join(part for part in (place, location.get('section') or '') if part)
 
 
+def _publication_result(publication, text, labels):
+    """短 ID 回答保留链接正文；引用投影缺字段时补本轮来源标签。"""
+    result = {**(publication or {}), "reply": text}
+    if not result.get("pdf_references"):
+        result["pdf_references"] = []
+    if not result.get("textbook_sources"):
+        result["textbook_sources"] = labels
+    return result
+
+
 def _clarification(payload):
     options = []
     questions = payload["questions"]
@@ -290,10 +300,12 @@ class NativeTurnExecutor:
                 context={**task["context"], "native_turn": binding}, memory_repo=self.memory.repo)
             return saved
         from .native_delivery import public_quiz, publication_sources, project_reader_actions
-        from .short_citations import resolve as resolve_short_citations
+        from .short_citations import resolve as resolve_short_citations, to_numeric
         capability = state.get('capability') or binding.get('start', {}).get('capability', request.capability)
         metadata = state.get('result') or {}
-        text = resolve_short_citations(str(state.get("reply") or "").strip(), state.get("sources") or ())
+        raw_text = str(state.get("reply") or "").strip()
+        sources = [*(binding.get("sources") or ()), *(state.get("sources") or ())]
+        text = resolve_short_citations(raw_text, sources)
         if capability == 'deep_question' and metadata.get('mode') != 'followup':
             try:
                 text = public_quiz(metadata)['response']
@@ -318,16 +330,16 @@ class NativeTurnExecutor:
             return saved
         gate = _publish_gate(self.orchestrator, original, target, allow_model_knowledge=not bool(
             original.selection or original.exercise_target or re.search(r"教材原文|原书怎么说|引用原文|具体研究结果", original.message)))
-        # 发布门禁只生成引用投影，不再因核验结果阻断交付。
+        # 发布门禁只生成引用投影，不再因核验结果阻断交付。门禁按 [n] 核验，
+        # 所以先用同一批来源把 [S1] 换成本轮编号，发布正文仍用解析后的链接。
         try:
-            gate(text, outcome)
+            gate(to_numeric(raw_text, sources), outcome)
         except Exception:
             logging.getLogger(__name__).warning("publish projection failed", exc_info=True)
         guard()
-        publication = getattr(outcome, "_publication", None) or {
-            "reply": text, "pdf_references": [],
-            "textbook_sources": [_source_label(source) for source in outcome.sources
-                                 if source.get('type') == 'heart_textbook_evidence']}
+        labels = [_source_label(source) for source in outcome.sources
+                  if source.get('type') == 'heart_textbook_evidence']
+        publication = _publication_result(getattr(outcome, "_publication", None), text, labels)
         result = {**publication, "engine": "deeptutor_app", "capability": capability,
             "native_turn_id": binding.get("turn_id"), "native_event_seq": binding.get("after_seq", 0),
             "native_result": _public_result(state.get("result") or {}, task, binding, state.get("sources") or [], capability=capability), "answer_status": "answered", "step_advanced": False}

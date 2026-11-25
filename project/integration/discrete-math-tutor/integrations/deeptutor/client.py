@@ -107,12 +107,14 @@ class DeepTutorBackend:
             raise BackendUnavailable("DeepTutor 回合事件响应无效")
         return result
 
-    def generate(self, messages, *, model, temperature, max_tokens, timeout=None, reasoning_effort=None, evidence=None, max_characters=None):
+    def generate(self, messages, *, model, temperature, max_tokens=None, timeout=None, reasoning_effort=None, evidence=None, max_characters=None):
         deadline = min(timeout if timeout is not None else 120, 180)
         self.timeout = deadline + 5
         payload = {"messages": messages, "model": model,
-            "temperature": temperature, "max_tokens": max_tokens, "timeout": deadline,
+            "temperature": temperature, "timeout": deadline,
             "reasoning_effort": reasoning_effort}
+        if max_tokens is not None:
+            payload["max_tokens"] = max_tokens
         if evidence is not None:
             import hashlib
             payload["evidence"] = evidence

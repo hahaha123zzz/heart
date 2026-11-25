@@ -16,7 +16,8 @@ SYSTEM_PATTERNS = (
     re.compile(r"今天|明天|昨天|现在几点|几号|星期几|日期|今年|几点"),
     re.compile(r"你是谁|你叫什么|你是什么模型|你是哪家|谁开发|你的名字"),
     re.compile(r"怎么用|怎么导出|怎么登录|密码|设置在哪|界面|按钮|注册|退出登录|付费|订阅|更新|安装"),
-    re.compile(r"^(?:你好|您好|嗨|在吗|早上好|中午好|晚上好|hi|hello)[!！。~～\s]*$", re.IGNORECASE),
+    re.compile(r"^(?:你好|您好|嗨|在吗|早上好|中午好|晚上好|hi|hello)[呀啊呢吧]?[!！。~～\s]*$", re.IGNORECASE),
+    re.compile(r"^(?:谢|谢谢|多谢|感谢|好的|好|嗯|收到|明白|了解|继续|可以|行|ok|okay|thanks|thank you)[!！。~～\s]*$", re.IGNORECASE),
 )
 
 

@@ -15,7 +15,7 @@ class GenerationRequest(BaseModel):
     messages: list[dict] = Field(min_length=1, max_length=32)
     model: str = Field(min_length=1, max_length=200)
     temperature: float = Field(default=.4, ge=0, le=2)
-    max_tokens: int = Field(default=1200, ge=1, le=16000)
+    max_tokens: int | None = Field(default=None, ge=1, le=16000)
     timeout: float = Field(default=120, ge=1, le=180)
     reasoning_effort: Literal["low", "high", "max"] | None = None
 
