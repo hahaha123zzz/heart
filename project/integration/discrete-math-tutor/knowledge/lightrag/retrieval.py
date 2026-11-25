@@ -166,10 +166,13 @@ class LightRagBackend:
             index_files=self.candidate/"index_files.json"
             if not index_files.is_file(): raise RuntimeError("候选索引缺少源签名文件")
             from . import storage as _storage
+            signature=digest(index_files)
             with trace.timed('lightrag.index_manifest', parent='lightrag.manifest') as index:
-                entries=_storage.verify_manifest(self.candidate/"index",source_signature=digest(index_files),
+                entries=_storage.verify_manifest(self.candidate/"index",source_signature=signature,
                     trace=trace, parent='lightrag.index_manifest')
                 index['namespaces']=len(entries)
+                index['signature']=signature
+                index['source_files']=len(manifest["files"])
             with trace.timed('lightrag.manifest.frozen_input', parent='lightrag.manifest') as frozen:
                 verify(self.candidate/"input",manifest["files"])
                 frozen['root']='candidate_input'
