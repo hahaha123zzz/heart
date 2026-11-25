@@ -6,7 +6,7 @@ from pathlib import Path
 
 def load(directory):
     rows=[]
-    for path in sorted(Path(directory).glob('*.jsonl')):
+    for path in sorted(Path(directory).rglob('*.jsonl')):
         rows.extend(json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip())
     return rows
 

@@ -8,7 +8,8 @@ from deploy.startup_report import duplicates, load, render, summaries
 
 
 def write(directory, sid, rows):
-    path = Path(directory) / (sid + '.jsonl')
+    path = Path(directory) / sid / (sid + '.jsonl')
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text('\n'.join(json.dumps(row, ensure_ascii=False) for row in rows) + '\n', encoding='utf-8')
 
 
