@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 from contextvars import ContextVar
 from functools import wraps
+import re
 
 # 当前产品不使用这些外部集成；需要恢复时只修改此处，不删除固定上游源码。
 HIDDEN_TOOLS = frozenset((
@@ -52,6 +53,33 @@ def skip_kb_seed(context):
     from .course_scope import is_course_question
     return (getattr(context, 'active_capability', None) not in (None, 'chat')
             or not is_course_question(getattr(context, 'user_message', '')))
+
+
+CATALOG_INTENT = re.compile(r"目录|章节|章名|有哪些章|哪几章|共.{0,3}章|全书(?:结构|目录|章节)")
+EXPLAIN_INTENT = re.compile(r"解释|讲解|定义|概念|为什么|怎么|如何|比较|区别|原理|推导")
+
+
+def textbook_tools(context):
+    """本回合应挂载的教材工具；短问和问候不挂教材工具。
+
+    目录题只给目录，概念题给检索和补读；两者都有时按混合意图补齐。
+    阅读视图和其他能力沿用原来的完整教材工具面。
+    """
+    from .course_scope import is_course_question
+    metadata = getattr(context, 'metadata', None) or {}
+    if metadata.get('reading_viewport'):
+        return {'rag', 'kb_files', 'read_source'}
+    if getattr(context, 'active_capability', None) not in (None, 'chat'):
+        return {'rag', 'kb_files', 'read_source'}
+    message = str(getattr(context, 'user_message', '') or '')
+    wanted = set()
+    catalog = bool(CATALOG_INTENT.search(message))
+    if catalog:
+        wanted.add('kb_files')
+    # 纯目录问题不携带正文；同时要求解释时才补检索。
+    if is_course_question(message) and not (catalog and not EXPLAIN_INTENT.search(message)):
+        wanted.update(('rag', 'read_source'))
+    return wanted
 
 
 def install_tool_policy():
@@ -112,15 +140,23 @@ def install_tool_policy():
             names = [name for name in names if visible(name)]
             # 宿主教材使用已有索引，不依赖原生 KB 记录；仍遵守阶段白名单和独占能力。
             if not pipeline._exclusive_capability_active(context):
+                wanted = textbook_tools(context)
                 for name in ('rag', 'kb_files'):
-                    if (context.allowed_builtin_tools is None or name in context.allowed_builtin_tools) and pipeline.tool_lookup.get(name) is not None:
+                    if name not in wanted:
+                        # 目录题不携带正文，短问也不挂教材工具。
+                        names = [item for item in names if item != name]
+                    elif (context.allowed_builtin_tools is None or name in context.allowed_builtin_tools) and pipeline.tool_lookup.get(name) is not None:
                         names.append(name)
                 names = list(dict.fromkeys(names))
+            has_source_index = any(key.startswith('rag-') or key.startswith('S')
+                                   for key in context.metadata.get('source_index', {}))
             # 原生循环在回合开始时固定 schema，检索和补读必须同时挂载。
-            if (('rag' in names or any(key.startswith('rag-') for key in context.metadata.get('source_index', {})))
+            if (('rag' in names or has_source_index)
                     and (context.allowed_builtin_tools is None or 'read_source' in context.allowed_builtin_tools)
                     and pipeline.tool_lookup.get('read_source') is not None):
                 names = list(dict.fromkeys([*names, 'read_source']))
+            elif not has_source_index:
+                names = [name for name in names if name != 'read_source']
         return names
 
     get._heart_tool_policy = True

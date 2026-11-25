@@ -46,7 +46,7 @@ class NativeToolPolicyTests(unittest.IsolatedAsyncioTestCase):
             _is_partner_turn=lambda ctx:False, _coexisting_rag_kbs=lambda ctx:['course'],
             _mastery_nav_available=lambda ctx:False, _capability_owned_tools=lambda ctx:(),
             _exclusive_capability_active=lambda ctx:False)
-        context=UnifiedContext()
+        context=UnifiedContext(user_message='自变量是什么')
         with teaching_tool_scope(), patch.object(module,'compose_enabled_tools',return_value=['rag']), patch.multiple(module,
                 user_has_memory=lambda:False,user_has_notebooks=lambda:False,
                 user_has_question_bank=lambda:False,partner_can_record_questions=lambda:False):
@@ -66,11 +66,12 @@ class NativeToolPolicyTests(unittest.IsolatedAsyncioTestCase):
             _is_partner_turn=lambda ctx:False, _coexisting_rag_kbs=lambda ctx:[],
             _mastery_nav_available=lambda ctx:False, _capability_owned_tools=lambda ctx:(),
             _exclusive_capability_active=lambda ctx:False)
-        context=UnifiedContext()
+        context=UnifiedContext(user_message='自变量是什么')
         with teaching_tool_scope(), patch.multiple(module,user_has_memory=lambda:False,
                 user_has_notebooks=lambda:False,user_has_question_bank=lambda:False,partner_can_record_questions=lambda:False):
             names=module.AgenticLoopPipeline._compose_enabled_tools(pipeline,context)
-            self.assertTrue({'rag','kb_files','read_source'} <= set(names))
+            self.assertTrue({'rag','read_source'} <= set(names))
+            self.assertNotIn('kb_files',names)
             context.allowed_builtin_tools=['workspace_list']
             names=module.AgenticLoopPipeline._compose_enabled_tools(pipeline,context)
             self.assertFalse({'rag','kb_files','read_source'} & set(names))
@@ -79,6 +80,34 @@ class NativeToolPolicyTests(unittest.IsolatedAsyncioTestCase):
             names=module.AgenticLoopPipeline._compose_enabled_tools(pipeline,context)
             self.assertNotIn('rag',names)
             self.assertNotIn('kb_files',names)
+
+    async def test_textbook_tools_follow_the_question_scene(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from deeptutor.core.context import UnifiedContext
+        from deeptutor.agents.loop import pipeline as module
+        registry=ToolRegistry();registry.load_builtins()
+        pipeline=SimpleNamespace(tool_lookup=registry,
+            _is_partner_turn=lambda ctx:False, _coexisting_rag_kbs=lambda ctx:[],
+            _mastery_nav_available=lambda ctx:False, _capability_owned_tools=lambda ctx:(),
+            _exclusive_capability_active=lambda ctx:False)
+        def mounted(context):
+            return set(module.AgenticLoopPipeline._compose_enabled_tools(pipeline,context))
+        with teaching_tool_scope(), patch.multiple(module,user_has_memory=lambda:False,
+                user_has_notebooks=lambda:False,user_has_question_bank=lambda:False,partner_can_record_questions=lambda:False):
+            concept=mounted(UnifiedContext(user_message='自变量是什么'))
+            self.assertTrue({'rag','read_source'} <= concept)
+            self.assertNotIn('kb_files',concept)
+            catalog=mounted(UnifiedContext(user_message='教材目录'))
+            self.assertIn('kb_files',catalog)
+            self.assertFalse({'rag','read_source'} & catalog)
+            greeting=mounted(UnifiedContext(user_message='你好'))
+            self.assertFalse({'rag','kb_files','read_source'} & greeting)
+            mixed=mounted(UnifiedContext(user_message='教材目录里解释一下自变量'))
+            self.assertTrue({'rag','kb_files','read_source'} <= mixed)
+            reading=mounted(UnifiedContext(user_message='你好',
+                metadata={'reading_viewport':{'locator':1}}))
+            self.assertTrue({'rag','kb_files','read_source'} <= reading)
 
     async def test_chat_seed_flag_and_citation_offset_follow_turn_scope(self):
         from types import SimpleNamespace
