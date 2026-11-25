@@ -31,6 +31,23 @@ def _pending(event):
     return payload.to_dict()
 
 
+def start_options(request):
+    """未选择知识库时不传空列表，交给课程默认教材。"""
+    options = request.model_dump(include=set(NativeTurnOptions.model_fields))
+    if not options.get('knowledge_bases'):
+        options.pop('knowledge_bases', None)
+    return options
+
+
+def _source_label(source):
+    location = source.get('location') or {}
+    chapter, page = source.get('chapter_id'), source.get('page')
+    place = f'第{chapter}章' if chapter else ''
+    if page:
+        place += f'第{page}页'
+    return ' · '.join(part for part in (place, location.get('section') or '') if part)
+
+
 def _clarification(payload):
     options = []
     questions = payload["questions"]
@@ -176,7 +193,7 @@ class NativeTurnExecutor:
                 mark("prepare_selection")
                 binding["sources"] = sources
                 preferences = request.style_overrides.model_dump(exclude_none=True) if request.style_overrides else None
-                native_options = request.model_dump(include=set(NativeTurnOptions.model_fields))
+                native_options = start_options(request)
                 if request.capability == 'immersive_reading' and not request.reading_viewport and request.reader_location:
                     native_options['reading_viewport'] = {'chapter_id': request.reader_location.chapter_id}
                 start = NativeTurnStart(**key, course_title=COURSE_TITLE, content=request.message,
@@ -184,6 +201,9 @@ class NativeTurnExecutor:
                     grounding=[obj.model_dump() for obj in resources.objects] + materials,
                     **native_options)
                 binding["start"] = start.model_dump(mode="json")
+                if not binding["start"].get("knowledge_bases"):
+                    # 不把空列表传给 worker，否则上游不会继承课程默认教材。
+                    binding["start"].pop("knowledge_bases", None)
                 self._checkpoint(task, binding)
                 started = self.backend.native_start(binding["start"])
                 mark("native_start")
@@ -270,9 +290,10 @@ class NativeTurnExecutor:
                 context={**task["context"], "native_turn": binding}, memory_repo=self.memory.repo)
             return saved
         from .native_delivery import public_quiz, publication_sources, project_reader_actions
+        from .short_citations import resolve as resolve_short_citations
         capability = state.get('capability') or binding.get('start', {}).get('capability', request.capability)
         metadata = state.get('result') or {}
-        text = str(state.get("reply") or "").strip()
+        text = resolve_short_citations(str(state.get("reply") or "").strip(), state.get("sources") or ())
         if capability == 'deep_question' and metadata.get('mode') != 'followup':
             try:
                 text = public_quiz(metadata)['response']
@@ -290,16 +311,23 @@ class NativeTurnExecutor:
         target = LearningTarget("native:" + task["id"], task["knowledge_point"])
         from models.chat_request import ChatRequest
         original = ChatRequest.model_validate(task['payload'])
-        gate = _publish_gate(self.orchestrator, original, target, allow_model_knowledge=not bool(
-            original.selection or original.exercise_target or re.search(r"教材原文|原书怎么说|引用原文|具体研究结果", original.message)))
-        accepted, reason = gate(text, outcome)
-        if not accepted:
+        if not text.strip():
             _, saved = self.repo.save(task=task, receipt_id=binding["receipt_id"], status="failed",
-                result={"engine": "deeptutor_app", "reply": reason, "answer_status": "quality_rejected", "step_advanced": False},
+                result={"engine": "deeptutor_app", "reply": "模型没有返回可发布回答。", "answer_status": "quality_rejected", "step_advanced": False},
                 context={**task["context"], "native_turn": binding}, memory_repo=self.memory.repo)
             return saved
+        gate = _publish_gate(self.orchestrator, original, target, allow_model_knowledge=not bool(
+            original.selection or original.exercise_target or re.search(r"教材原文|原书怎么说|引用原文|具体研究结果", original.message)))
+        # 发布门禁只生成引用投影，不再因核验结果阻断交付。
+        try:
+            gate(text, outcome)
+        except Exception:
+            logging.getLogger(__name__).warning("publish projection failed", exc_info=True)
         guard()
-        publication = getattr(outcome, "_publication", None) or {"reply": text, "pdf_references": [], "textbook_sources": []}
+        publication = getattr(outcome, "_publication", None) or {
+            "reply": text, "pdf_references": [],
+            "textbook_sources": [_source_label(source) for source in outcome.sources
+                                 if source.get('type') == 'heart_textbook_evidence']}
         result = {**publication, "engine": "deeptutor_app", "capability": capability,
             "native_turn_id": binding.get("turn_id"), "native_event_seq": binding.get("after_seq", 0),
             "native_result": _public_result(state.get("result") or {}, task, binding, state.get("sources") or [], capability=capability), "answer_status": "answered", "step_advanced": False}

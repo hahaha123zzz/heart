@@ -1489,11 +1489,16 @@ class AgenticLoopPipeline:
         query = (context.user_message or "").strip()
         if not kbs or not query:
             return ""
+        # 宿主课程预检索开关：非 chat、问候语或未绑定课程教材时不抢先检索。
+        if context.metadata.get("heart_skip_kb_seed"):
+            return ""
         if self._capability_skips_kb_seed(context):
             return ""
         if len(kbs) > KB_SEED_MAX_KBS:
             kbs = kbs[:KB_SEED_MAX_KBS]
-        results = await asyncio.gather(*(self._seed_search_one_kb(kb, query, stream) for kb in kbs))
+        results = await asyncio.gather(
+            *(self._seed_search_one_kb(kb, query, stream, context) for kb in kbs)
+        )
         sections: list[str] = []
         sources: list[dict[str, Any]] = []
         for kb, result in zip(kbs, results, strict=False):
@@ -1525,6 +1530,7 @@ class AgenticLoopPipeline:
         kb_name: str,
         query: str,
         stream: StreamBus,
+        context: UnifiedContext | None = None,
     ) -> tuple[str, list[dict[str, Any]]] | None:
         call_id = new_call_id(f"{self.event_source}-kb-seed")
         retrieve_meta = build_trace_metadata(
@@ -1537,9 +1543,18 @@ class AgenticLoopPipeline:
             trace_group="retrieve",
             query=query,
         )
+        lookup = getattr(self, "tool_lookup", None)
+        rag_tool = lookup.get("rag") if hasattr(lookup, "get") else None
+        heart_tool = getattr(rag_tool, "_heart_course_rag", False)
+        tool_args: dict[str, Any] = {"query": query, "kb_name": kb_name, "mode": "hybrid"}
+        if heart_tool:
+            # 宿主教材工具需要本轮会话和工作区；其他 RAG 工具不接收该参数。
+            tool_args["_heart_context"] = context
+            # 整条证据在工具内按预算投影，不再按字符硬切。
+            tool_args["budget_chars"] = KB_SEED_CHARS_PER_KB
         result = await self._execute_tool_call(
             "rag",
-            {"query": query, "kb_name": kb_name, "mode": "hybrid"},
+            tool_args,
             stream=stream,
             retrieve_meta=retrieve_meta,
         )
@@ -1548,10 +1563,16 @@ class AgenticLoopPipeline:
         metadata = result.get("metadata") or {}
         if metadata.get("error_type") or metadata.get("needs_reindex"):
             return None
-        text = str(metadata.get("content") or metadata.get("answer") or "").strip()
+        text = str(
+            (result.get("result_text") if heart_tool else "")
+            or metadata.get("content")
+            or metadata.get("answer")
+            or result.get("result_text")
+            or ""
+        ).strip()
         if not text:
             return None
-        if len(text) > KB_SEED_CHARS_PER_KB:
+        if len(text) > KB_SEED_CHARS_PER_KB and not heart_tool:
             text = text[:KB_SEED_CHARS_PER_KB].rstrip() + "\n...[truncated]"
         return text, list(result.get("sources") or [])
 

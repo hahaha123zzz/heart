@@ -80,6 +80,15 @@ def set_completion_preparer(preparer):
     _completion_preparer=preparer
 
 
+def _resolve_short_citations(text, metadata):
+    """宿主教材短引用只在宿主存在时解析；独立 DeepTutor 安装不受影响。"""
+    try:
+        from integrations.deeptutor.short_citations import resolve
+    except ImportError:
+        return text
+    return resolve(text, (metadata or {}).get("_heart_short_sources") or {})
+
+
 class TurnExecutor:
     if TYPE_CHECKING:
         store: SessionStoreProtocol
@@ -1039,6 +1048,10 @@ class TurnExecutor:
                             "capability_route": dict(capability_route),
                         }
                     continue
+                if event.type == StreamEventType.CONTENT and event.content:
+                    # 教材短 ID 在发布边界换成本轮已核验链接；代码块内示例保持原样。
+                    event.content = _resolve_short_citations(
+                        event.content, context.metadata.get("_heart_short_sources"))
                 payload_event = await self._publish_live_event(execution, event)
                 if payload_event.get("type") not in {"done", "session"}:
                     # Cards and tool calls render between runs of answer

@@ -747,7 +747,7 @@ def _apply_course_defaults(
     """Fill missing fields while preserving active session preferences."""
     updated = dict(payload)
     saved = preferences or {}
-    if "knowledge_bases" not in payload and "knowledge_bases" in saved:
+    if "knowledge_bases" not in payload and saved.get("knowledge_bases"):
         updated["knowledge_bases"] = saved["knowledge_bases"]
     elif "knowledge_bases" not in payload:
         knowledge_bases: list[str] = []

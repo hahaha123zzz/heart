@@ -44,22 +44,14 @@ def visible(name):
     return canonical not in hidden_names()
 
 
-def preferred_first_tool(context):
-    """First loop round must read the textbook for course questions."""
-    viewport = (getattr(context, 'metadata', None) or {}).get('reading_viewport') or {}
-    if viewport.get('locator'):
-        return 'read_material'
+def skip_kb_seed(context):
+    """课程教材预检索只服务 chat 的课程问题。"""
+    from .course_rag_provider import canonical_kb_name
+    if canonical_kb_name() not in (getattr(context, 'knowledge_bases', None) or []):
+        return False
     from .course_scope import is_course_question
-    return 'rag' if is_course_question(getattr(context, 'user_message', '')) else None
-
-
-def apply_first_tool_choice(pipeline, context, names):
-    """Set the forced first tool unless the capability already chose one."""
-    if getattr(pipeline, 'initial_tool_choice', None):
-        return
-    choice = preferred_first_tool(context)
-    if choice and choice in names:
-        pipeline.initial_tool_choice = choice
+    return (getattr(context, 'active_capability', None) not in (None, 'chat')
+            or not is_course_question(getattr(context, 'user_message', '')))
 
 
 def install_tool_policy():
@@ -113,6 +105,8 @@ def install_tool_policy():
 
     @wraps(original_compose)
     def compose(pipeline, context):
+        context.metadata['heart_skip_kb_seed'] = skip_kb_seed(context)
+        context.metadata.setdefault('_heart_citation_offset', _citation_offset.get())
         names = original_compose(pipeline, context)
         if active_scope():
             names = [name for name in names if visible(name)]
@@ -127,7 +121,6 @@ def install_tool_policy():
                     and (context.allowed_builtin_tools is None or 'read_source' in context.allowed_builtin_tools)
                     and pipeline.tool_lookup.get('read_source') is not None):
                 names = list(dict.fromkeys([*names, 'read_source']))
-            apply_first_tool_choice(pipeline, context, names)
         return names
 
     get._heart_tool_policy = True

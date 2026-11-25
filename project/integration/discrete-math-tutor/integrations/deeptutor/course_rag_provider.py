@@ -140,12 +140,22 @@ def _mark(projected, sources):
             'evidence_id': source.get('source_id')})
 
 
-def source_content(sources):
-    lines = [f"教材检索结果（{len(sources)} 条，引用写作 [序号]）："]
+def source_content(sources, budget_chars=None):
+    """按完整条目组装证据；放不下的条目只留可恢复的短 ID 和位置。"""
+    lines = [f"教材检索结果（{len(sources)} 条）。引用时在句末写短 ID，例如 [S1]；"
+             "服务端只对本轮已披露来源生成正式链接。"]
+    used = 0
     for source in sources:
+        identifier = source.get('short_id') or f"S{source['index']}"
         page = f"，第{source['page']}页" if source.get('page') else ""
         location = f"第{source['chapter_id']}章{page}，{source.get('location', {}).get('section', '')}"
-        lines.append(f"[{source['index']}] {location} (source_id={source['rag_source_id']})\n{source['text']}")
+        head = f"[{identifier}] {location} (source_id={source['rag_source_id']})"
+        block = f"{head}\n{source['text']}"
+        if budget_chars and used and used + len(block) > budget_chars:
+            lines.append(f"{head}\n（原文未展开；需要时用 read_source 读取 {identifier}。）")
+            continue
+        lines.append(block)
+        used += len(block)
     return '\n\n'.join(lines)
 
 
@@ -155,10 +165,18 @@ def _repeat(result, projected):
     fresh = [source for source in sources if _identity(source) not in projected]
     copied = copy.deepcopy(sources)
     if not fresh:
-        references = '；'.join(f"[{source['index']}] (source_id={source['rag_source_id']})" for source in sources)
+        references = '；'.join(f"[{source.get('short_id') or source['index']}] (source_id={source['rag_source_id']})" for source in sources)
         return {**result, 'sources': copied,
-                'content': f'本轮已返回相同教材原文（引用编号不变）：{references}。需要全文时用 read_source 补读。'}
+                'content': f'本轮已返回相同教材原文（短 ID 不变）：{references}。需要全文时用 read_source 补读。'}
     return {**result, 'sources': copied, 'content': source_content(fresh)}
+
+
+def _budgeted(result, budget_chars):
+    """只收窄证据正文；短提示和已符合预算的内容保持原样。"""
+    content = str(result.get('content') or '')
+    if not budget_chars or not result.get('sources') or len(content) <= budget_chars:
+        return result
+    return {**result, 'content': source_content(result['sources'], budget_chars)}
 
 
 def _native_user_payload(query, limit, mode, context):
@@ -182,7 +200,7 @@ def _native_user_payload(query, limit, mode, context):
             'chapter_id': None, 'section_id': None}
 
 
-async def search_course(query, limit=6, mode=DEFAULT_MODE, context=None):
+async def search_course(query, limit=6, mode=DEFAULT_MODE, context=None, budget_chars=None):
     """Worker entry: search the host's resident LightRAG.
 
     Host-native turns use the task receipt; ordinary native login accounts use
@@ -197,7 +215,8 @@ async def search_course(query, limit=6, mode=DEFAULT_MODE, context=None):
             return None
     pipeline = CoursePipeline(PROVIDER, None)
     return await pipeline.search(query, canonical_kb_name(), mode=mode, limit=limit,
-                                 _heart_context=context, _native_payload=native_payload)
+                                 _heart_context=context, _native_payload=native_payload,
+                                 budget_chars=budget_chars)
 
 
 class CoursePipeline:
@@ -225,6 +244,7 @@ class CoursePipeline:
             raise BackendUnavailable('课程教材查询缺少任务授权上下文')
         limit = max(1, min(int(kwargs.get('limit') or 6), 12))
         mode = str(kwargs.get('mode') or DEFAULT_MODE)
+        budget_chars = kwargs.get('budget_chars')
         chapter_id, section_id = kwargs.get('chapter_id'), kwargs.get('section_id')
         # 缓存只挂在当前回合的context.metadata：不跨用户、任务或分支。
         cache, tasks, projected = _turn_state(context)
@@ -237,7 +257,7 @@ class CoursePipeline:
         if cache is not None and key in cache:
             result = _repeat(cache[key], projected)
             _mark(projected, result.get('sources'))
-            return {**result, 'cache_hit': True}
+            return _budgeted({**result, 'cache_hit': True}, budget_chars)
         task = tasks.get(key) if tasks is not None else None
         if task is None:
             task = asyncio.create_task(self._execute(
@@ -254,10 +274,10 @@ class CoursePipeline:
             # 深拷贝：调用方（如图表附加）对sources的修改不能污染后续命中。
             cache[key] = {**result, 'sources': copy.deepcopy(result.get('sources') or [])}
         if projected is None or not result.get('sources'):
-            return {**result, 'cache_hit': False}
+            return _budgeted({**result, 'cache_hit': False}, budget_chars)
         projection = _repeat(result, projected)
         _mark(projected, result['sources'])
-        return {**projection, 'cache_hit': False}
+        return _budgeted({**projection, 'cache_hit': False}, budget_chars)
 
     async def _execute(self, query, kb_name, mode, limit, chapter_id, section_id, context,
                        learning, native_payload=None):

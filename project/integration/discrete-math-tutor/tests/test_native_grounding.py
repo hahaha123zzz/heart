@@ -49,3 +49,9 @@ class NativeGroundingTests(unittest.TestCase):
         with self.assertRaises(ValueError):publication_sources({}, {'sources':rows},{})
         bad=deepcopy(rows[0]);bad['source_id']='forged'
         with self.assertRaises(ValueError):publication_sources({}, {'sources':rows+[bad]},versions)
+    def test_short_ids_are_stable_and_readable_in_the_same_turn(self):
+        first=prepare_retrieval('自变量是什么',[self.chunk],self.context,'实验心理学')
+        second=prepare_retrieval('自变量是什么',[self.chunk],self.context,'实验心理学')
+        self.assertEqual(first[0]['short_id'],f"S{first[0]['index']}")
+        self.assertEqual([s['short_id'] for s in first],[s['short_id'] for s in second])
+        self.assertEqual(self.context.metadata['source_index'][first[0]['short_id']],self.chunk.text)

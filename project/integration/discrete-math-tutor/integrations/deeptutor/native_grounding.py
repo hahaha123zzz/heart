@@ -39,14 +39,19 @@ def prepare_retrieval(query, chunks, context, kb_name):
         if identity not in numbers:
             numbers[identity] = max([offset, *numbers.values()]) + 1
         index = numbers[identity]
+        short_id = f"S{index}"
         original = chunks[evidence['retrieval_source_index']]
         full_text = original.text
         read_id = 'rag-' + hashlib.sha256((kb_name+'\0'+str(original.chunk_id or '')+'\0'+full_text).encode()).hexdigest()[:24]
         metadata.setdefault('source_index', {})[read_id] = full_text
+        # 本轮短 ID：同一证据跨预检索/补查/续写复用同一编号，read_source 也认。
+        metadata.setdefault('source_index', {})[short_id] = full_text
         source = source_from_chunk(chunk, index - 1)
         source = replace(source, source_id=identity, document_id=evidence['document_id'],
             version=evidence['document_version'], quote=evidence['quote'],
             location={**source.location, 'evidence': evidence})
-        output.append({**source.to_dict(), 'type':'heart_textbook_evidence', 'index':index,
-            'chunk_id':original.chunk_id, 'rag_source_id':read_id})
+        row = {**source.to_dict(), 'type':'heart_textbook_evidence', 'index':index,
+            'short_id':short_id, 'chunk_id':original.chunk_id, 'rag_source_id':read_id}
+        metadata.setdefault('_heart_short_sources', {})[short_id] = row
+        output.append(row)
     return output

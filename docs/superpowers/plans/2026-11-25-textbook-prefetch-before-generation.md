@@ -1,55 +1,92 @@
-# 学生端默认绑定教材与生成前检索实施计划
+# 学生端默认教材与生成前预检索实施计划
 
 日期 2026-11-25
 工作树 student-frontend-reuse-20261117
-运行基线 lightrag-native-v4-20261124，来自本机部署的发行选择记录
+本计划替代 11 月 25 日早先版本的「新增宿主钩子/自定义预检索」方案。
 
-## 目标
+## 已确认的决定
 
-学生在课程工作台发起普通对话时，服务端默认绑定当前课程的正式《实验心理学》教材。即使新会话没有在前端选择知识库，学生端原生 /ws 回合也会在第一次回答模型请求前读取教材。模型收到经过授权和核验的原文、位置和引用后生成回答。
+1. 直接修改复用的 DeepTutor 代码；上游版本校验本次不删，功能验收后单独清理。
+2. 教材先注册成知识库；学生没选知识库时，继承课程挂载的教材 KB。
+3. 是否预检索用现成 `is_course_question` 规则判断；只对 `chat` 生效。
+4. 教材检索失败时，用模型自己的知识兜底（提示词已具备该规则）。
+5. 预检索不设额外超时。
+6. native 回合的最终发布检查不再拦截回答。
+7. 练习、测评、研究、`course_study` 沿用各自入口。
 
-默认绑定按普通课程聊天入口生效，包含后续追问。没有章节选区时，默认检索已授权教材全文。有明确阅读位置时，优先读取该位置。会话发送后进入普通聊天的问候也按这一定义处理。账号、设置等非对话入口，以及拥有独立执行流程的练习、测评和研究，沿用各自入口。
+## 现状（已核对）
 
-这份计划替代 11 月 23 日实施计划中的「首轮通过模型 API 强制调用教材工具」策略。现有教材索引、授权规则、检索模式配置和角标导航是此次接线的基础。
-
-## 现状与接线
-
-- 默认空的 knowledge_bases 会让通用 _retrieve_kb_seed_block 直接返回。现有 tool_policy.py 为课程题设置 initial_tool_choice，随后 agent_loop.py 把工具名转为供应商请求参数。DeepSeek 思考模式拒绝指定工具名，实测 HTTP 400，自动回退后是否检索由模型选择。
-- 推荐使用现有的 AgentLoop 生成前阶段。它在会话和活跃回合已经建立后、_build_loop_messages 之前运行。宿主 /course-search-native 正好要求已授权的用户、工作区、会话和活跃回合。
-- 复用当前课程搜索和证据处理链。数据依次经过课程工作台 /ws、回合内教材绑定、worker 主动执行读取、课程宿主 LightRAG、原文核验与引用映射、模型上下文和流式回答。阅读器已有真实定位时，优先走原生 read_material 对应的材料读取路径。
-
-| 位置 | 实施工作 |
-| --- | --- |
-| project/integration/discrete-math-tutor/integrations/deeptutor/tool_policy.py | 负责课程回合的默认绑定与生成前读取接线，移除课程专用的首轮强制工具赋值。 |
-| project/integration/discrete-math-tutor/integrations/deeptutor/heart_rag.py | 复用课程 rag 的 ToolResult、可点击角标和回合内调用预算。 |
-| project/integration/discrete-math-tutor/integrations/deeptutor/course_rag_provider.py 和 course_search_api.py | 复用现有后端、回合去重、宿主授权和异常分类。 |
-| project/vendor/DeepTutor/deeptutor/agents/loop/agent_loop.py 和 pipeline.py | 核对生成前调用点、上下文和来源事件。优先由宿主集成层适配已有钩子。 |
+- `register_course_sources()` 已把规范教材 KB 注册并挂到课程（course_rag_provider.py:378，native_bridge.py:234）。
+- 上游已有「本轮未传知识库时继承课程资源」的逻辑（_turn_runtime_shared.py:741）。真正的堵点是宿主 `native_executor.py:179` 总会传 `knowledge_bases: []`，上游因此认为学生明确选择了空列表。
+- 上游已有生成前预取 `_retrieve_kb_seed_block`（pipeline.py:1481）。两个缺陷：调用工具时没带 `_heart_context`，教材工具会退回旧本地索引；上游读 `metadata.content/answer`，而教材工具原文在 `result_text`（tool_dispatch.py:775）。
+- 提示词已写「没有检索到教材依据时，先说明，再用自己的知识回答并标为通识解释」（agentic_chat.yaml zh:51-52 / en:68-71）。
+- 现有发布门禁对普通题已允许通识兜底；它拦的是伪造引用、无来源却写编号、跨章缺证据。按决定 6，native 路径不再因这些原因拒绝发布。
+- 每轮教材检索预算为 2 批（heart_rag.py:51-58）；预检索占第 1 批。
 
 ## 实施步骤
 
-### 1. 在服务端绑定默认教材
+### 1. 默认教材绑定
 
-- [ ] 识别已登录、具备课程阅读授权的普通学生聊天回合。在课程作用域生效时取得 canonical_kb_name()，为当前回合补上固定教材绑定。前端未传知识库或传空列表时都能工作，已有同一教材绑定时按规范名称去重。浏览器提供的 KB 名、页码或阅读位置只作为输入，教材和范围授权由服务端核验。
-- [ ] 默认绑定保存在本轮有效上下文。检查教材绑定与 _prepare_kb_manifests、工具可见性和回合记录的顺序。历史会话空设置应在下一轮自动获得默认教材，原有会话偏好继续按现有契约存储。
+- [x] `native_executor.py` 启动选项：`knowledge_bases` 为空时不传给 worker，让上游继承课程挂载的教材 KB；非空选择原样保留。
+- [x] `_turn_runtime_shared._apply_course_defaults`：会话偏好里的空 `knowledge_bases` 视为未设置，继续用课程资源补默认。
+- [x] 接受一个副作用：默认 KB 会在首个回合写入会话偏好（request_preparer.py:629）。后续回合沿用该偏好。
 
-### 2. 在首次回答模型调用前执行教材读取
+### 2. 首次回答前的教材读取
 
-- [ ] 接入既有 _retrieve_kb_seed_block 阶段。确保会话与活跃回合已建立，程序只为默认教材发起一批初查。普通问答使用当前用户问题，追问可利用近期已授权对话中的对象和章节补全查询，整个步骤使用已有上下文或轻量规则。
-- [ ] 对带有效阅读位置的回合，使用现有原生材料读取与引用核验。需要扩大到全书时，同样走课程授权检索与本轮预算。选区或阅读位置失效时，向用户标明原因，引用继续受当前教材版本约束。
-- [ ] 复用 HeartRagTool 或它现有的课程调用路径，显式传递当前 UnifiedContext。核对 ToolResult.content 在执行器中的实际投影，复用 result_text 和 sources，保证真正送入模型。上游通用 seed 读取 metadata.content 或 metadata.answer，而当前课程工具主要以 ToolResult.content 返回原文，接线时必须验证这条字段差异。课程预检索走当前课程的模式配置，避免继承通用 seed 的硬编码模式。
-- [ ] 抑制同一教材的通用 seed 重跑，保留同轮相同查询的去重。普通课程回合最多一批初查和一批定向补查，程序发起的初查也计入现有预算。后续 rag 和 read_source 可按需使用。取消回合时，取消进行中的宿主请求，并沿用原阶段的恢复与落盘语义。
+- [x] `tool_policy.py` 在组装工具时写入 `context.metadata['heart_skip_kb_seed']`：只有绑定规范教材 KB、当前能力是 `chat`、且消息是课程问题时才预检索。
+- [x] `pipeline._retrieve_kb_seed_block`：发现该标记直接返回空；其余逻辑沿用上游的批量、截断和 `sources` 事件。
+- [x] `pipeline._seed_search_one_kb`：把当前 `UnifiedContext` 作为 `_heart_context` 传给宿主教材工具；只对带 `_heart_course_rag` 标记的工具传入，避免影响上游其他 RAG 工具。
+- [x] 原文提取改为优先 `result_text`，其次 `metadata.content/answer`。
+- [x] 不设预检索超时；失败返回空 seed，不向模型注入错误说明。
+- [x] 预检索前写入 `_heart_citation_offset`，避免与阅读选区来源的引用编号冲突。
 
-### 3. 把原文与出处交给模型并发布
+### 3. 取消首轮强制工具
 
-- [ ] 把已核验原文注入本轮现有的教材上下文块，保留来源 ID、教材版本、章节、页码或定位符，以及现有 Markdown 角标链接。把原文作为供参考的数据输入，遵循现有上下文长度限制。
-- [ ] 使用现有 progress、tool_call、tool_result、sources 记录预检索过程。事件标明由程序在生成前发起，并与本轮最终引用共享来源编号。验证模型没有发出任何工具调用时，教材来源仍随回答持久化，刷新可查，角标可点并高亮。
-- [ ] 取消课程首轮对 rag 或 read_material 的点名强制。普通聊天的首个回答模型请求使用 auto，或在没有任何可用工具时省略 tool_choice。检查中英文提示词，要求优先使用已提供的教材证据，并在不足时说明证据范围。由独立能力设置的工具策略沿用现有契约。
-- [ ] 保留无匹配原文、宿主未就绪或超时、未授权或版本失效的区分。普通概念解释可以按现有规则给出明确标注的通识解释。用户明确要求教材原文或出处时，仅发布已核验引用，证据缺失时说明原因。权限或版本失败时，相关候选和引用不得进入模型或浏览器。
+- [x] 删除 `tool_policy.preferred_first_tool`、`apply_first_tool_choice` 及其调用；保留 `is_course_question` 供预检索判断。
+- [x] 不动 `agentic_bridge.py` 的 `read_current_evidence` 和 `ask_questions` 能力的 `ask_user` 强制。
 
-## 验收与发布
+### 4. 发布与兜底
 
-- [ ] 单测优先更新 test_tool_policy_course_first.py、test_course_rag_provider.py、test_heart_rag_citations.py 和 test_course_grounding_prompt.py。原先断言「强制工具名」的测试改为验证回合默认绑定、预检索顺序和首次请求参数。给出两类明确断言，调用顺序为授权、教材结果、首次模型请求，以及模型请求确实携带本轮原文与引用。
-- [ ] 真实 /ws 用例覆盖新会话空知识库、旧会话追问、概念题、阅读器当前页或选区、已明确无匹配、宿主未就绪、未授权材料、取消，以及同轮重复检索。另用两账号验证可用材料范围和来源互相隔离。
-- [ ] 使用 deepseek-flash 思考模式回放「自变量是什么」和「解释信号检测论中的辨别力并给出处」。检查每轮的第一条回答模型请求、预检索批次数、引用点击与高亮。验收要求首轮无命名 tool_choice 引发的 HTTP 400，预检索完成后才调用回答模型，最少跑通一个模型无需补查且引用完好的回合。
-- [ ] 记录预检索耗时、第一次回答模型请求时间、首段正文和 done 时间。把延迟样本与教材命中和引用质量一起比较。
-- [ ] 实施阶段从版本化候选发行验收，保留当前发行作回退。发布和回退均使用已有发行工具，学生会话、授权、数据库和教材文件沿用原路径。
+- [x] `native_executor.py` 不再因发布门禁拒绝回答：保留空回答保护；门禁只用于生成引用投影，失败时用已核验来源生成 `textbook_sources` 标签并照常发布。
+- [x] `_publish_gate` 函数本身保留给其他入口，不删。
+
+### 5. 测试
+
+- [x] 新增默认绑定测试：空请求/空偏好回落到课程 KB；显式知识库保留；空请求字段不传给 worker。
+- [x] 新增预检索测试：传入了 `_heart_context`；优先使用 `result_text`；非 chat、问候语、无教材 KB 时不预检索。
+- [x] 更新 `test_tool_policy_course_first.py`：不再断言强制工具名，改为断言预检索开关。
+- [x] 保持 `test_course_grounding_prompt.py` 通过；现有 `test_course_rag_provider.py`、`test_heart_rag_citations.py` 不得回归。
+- [x] 运行命令：`.venv-deeptutor/Scripts/python.exe -B -m pytest tests -q`，工作树缺少 `.env` 与教材资产时需设置 `PYTHONPATH=<worktree>/project/vendor/DeepTutor` 和 `TUTOR_PSYCHOLOGY_DIR`。
+
+### 6. 真实验收
+
+- [ ] `/api/chat/stream` 新会话空知识库：确认 `rag` 预检索先于第一次回答模型请求，回答带可点击教材角标。
+- [ ] 旧会话追问、概念题、阅读器当前页/选区、无匹配、宿主未就绪、未授权材料、取消。
+- [ ] 两账号验证材料范围与来源隔离。
+- [ ] 记录预检索耗时、第一次回答模型请求时间、首段正文和 `done`；不设超时，异常时记录宿主 120 秒预算的实际表现。
+- [ ] 用 deepseek-flash 思考模式回放「自变量是什么」和「解释信号检测论中的辨别力并给出处」，确认首轮无命名 `tool_choice` 的 HTTP 400。
+
+## 本次不做
+
+- 不删除上游源码版本校验（验收后单独清理）。
+- 不新增 Jev 的「是否检索」判断；Jev 仍只负责检索模式。
+- 不覆盖 `course_study`、练习、测评、研究。
+- 不新增预检索超时和失败提示注入。
+
+## 执行记录 2026-11-25
+
+- 已改代码：`native_executor.py`、`tool_policy.py`、`heart_rag.py`、vendor `pipeline.py`、vendor `_turn_runtime_shared.py`。
+- 新增测试：`test_native_default_kb.py`、`test_kb_seed_course_context.py`；更新 `test_native_executor.py`、`test_native_tool_policy.py`、`test_tool_policy_course_first.py`。
+- 已通过：75 项课程/原生/引用相关测试，33 项默认绑定/预检索/发布/工具策略测试。
+- 工作树缺 `.env` 与教材资产，测试时使用主工作树的 `.env`、`TUTOR_PSYCHOLOGY_DIR` 指向主工作树教材目录，并注入 worktree 的 vendor `PYTHONPATH`。
+- 已知与本次无关的既有失败：`test_course_search_bridge.py` 4 项（`loop_failed: memory_save_failed`），`test_deeptutor_integration.py` 2 项（setup 脚本依赖安装断言与脚本现状不一致）。
+- 已构建候选发行 `textbook-prefetch-20261125`，`verify` 通过，`select` 后重启三服务；8000/18000/18001 健康。
+- 8000 真实浏览器验收（`heart-review-01`，deepseek-flash）：
+  - 「自变量是什么」43 秒回答，正文带「教材第5章第5页」「教材第5章第9页」可点击角标。
+  - 「解释信号检测论中的辨别力并给出处」带「教材第5章第38页」角标。
+  - 两轮均由模型主动调用 `rag`，没有出现预检索批次的 `sources` 事件；该界面走 vendor `/ws` 的阅读/知识库资源，不走宿主的课程默认教材绑定。
+- 宿主 `/api/chat/stream` 验收被既有环境问题阻塞：新建宿主学生会话在 worker `request_preparer` 报 `This model is not assigned to your account.`，返回 `native_unavailable`。该错误来自未修改的模型授权代码，属于本地账号/模型授权未预置，不是本次改动引入。
+- 结论：代码与单测完成；vendor 8000 界面在候选发行上正常。宿主 `/api/chat/stream` 的「默认教材 + 生成前预检索」真实验收需要在本地为目标学生预置模型授权后重跑。
+- 回退：`active-release.json` 的上一版为 `lightrag-native-v4-20261124`。
+
+

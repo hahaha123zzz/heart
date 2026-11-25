@@ -109,6 +109,22 @@ class NativeExecutorTests(Q5TestBase):
         self.assertEqual(self.executor.run(req)['answer_status'],'answered')
         self.assertEqual(self.backend.starts[0]['reading_viewport'],{'chapter_id':2})
 
+    def test_empty_knowledge_bases_are_not_sent_to_worker(self):
+        self.executor.run(self.request())
+        self.assertNotIn('knowledge_bases',self.backend.starts[0])
+
+    def test_publish_gate_no_longer_blocks_native_answer(self):
+        with patch('agents.agent_loop_service._publish_gate',
+                   return_value=lambda text,outcome:(False,'rejected')):
+            result=self.executor.run(self.request())
+        self.assertEqual(result['answer_status'],'answered')
+        self.assertEqual(result['reply'],'这是经过原生运行时生成的回答。')
+
+    def test_source_label_uses_chapter_page_and_section(self):
+        from integrations.deeptutor.native_executor import _source_label
+        self.assertEqual(_source_label({'chapter_id':2,'page':7,'location':{'section':'第一节'}}),
+                         '第2章第7页 · 第一节')
+
     def test_deleted_epoch_prevents_stream_publication(self):
         from database.database import session_scope
         from database.models import MemoryControlRow

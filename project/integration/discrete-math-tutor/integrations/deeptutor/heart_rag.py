@@ -22,6 +22,8 @@ class HeartCourseRagTool(BaseTool):
     no task authorization scope.
     """
 
+    _heart_course_rag = True
+
     def get_definition(self) -> ToolDefinition:
         return ToolDefinition(
             name="rag",
@@ -46,20 +48,11 @@ class HeartCourseRagTool(BaseTool):
         except (TypeError, ValueError):
             limit = 6
         context = kwargs.get("_heart_context")
-        metadata = getattr(context, "metadata", None)
-        if isinstance(metadata, dict):
-            calls = int(metadata.get("_heart_course_rag_calls") or 0) + 1
-            metadata["_heart_course_rag_calls"] = calls
-            if calls > 2:
-                # 首轮一批 + 一次定向补查；避免同一回合无限检索拖长等待。
-                return ToolResult(
-                    content="本轮教材检索已达到两批上限；请直接基于已返回的原文作答，"
-                            "缺少的部分明确说明，不要再次调用检索。",
-                    metadata={"query": query, "calls": calls})
         from .client import BackendUnavailable
-        from .course_rag_provider import search_course
+        from .course_rag_provider import search_course, source_content
         try:
-            result = await search_course(query, limit=limit, context=context)
+            result = await search_course(query, limit=limit, context=context,
+                                         budget_chars=kwargs.get("budget_chars"))
         except BackendUnavailable:
             logger.warning("course search lacks a native task scope", exc_info=True)
             return ToolResult(content="当前账号缺少教材检索授权；不要编造依据。", success=False,
@@ -94,41 +87,48 @@ class HeartCourseRagTool(BaseTool):
                               metadata={"query": query, "backend": result.get("backend"),
                                         "mode": result.get("mode"), "cache_hit": result.get("cache_hit")})
         if result.get("cache_hit") and result.get("content"):
-            # 同一回合相同查询：原文已在模型上下文里，只提示引用编号。
+            # 同一回合相同查询：原文已在模型上下文里，只提示短 ID。
+            _attach_citations(evidence, context)
             return ToolResult(content=result["content"], sources=evidence,
                               metadata={"query": query, "backend": result.get("backend"),
                                         "mode": result.get("mode"), "cache_hit": True})
-        citation_lines = []
-        linked = 0
-        for source in evidence:
-            citation = _reader_citation(source)
-            if citation:
-                source["reader_citation"] = citation
-                linked += 1
-            location = f"第{source['chapter_id']}章，第{_reader_page(source)}页，{source['location']['section']}"
-            head = citation or "（未能生成教材链接，答复时说明页码）"
-            citation_lines.append(
-                f"来源链接（答复句末必须原样复制这一整段 Markdown，只写“第X章第Y页”不算引用）：\n"
-                f"{head}\n"
-                f"位置：{location}，source_id={source.get('rag_source_id', '')}\n"
-                f"已核验原文：\n{source['text']}"
-            )
+        linked = _attach_citations(evidence, context)
         if result.get("backend") == "lightrag" and not linked:
             # 默认 LightRAG 路径必须给可点击角标；本地索引路径保留 read_source 兜底。
             return ToolResult(content="检索到的段落无法与当前教材阅读版本核对，本次不提供引用。",
                               success=False, metadata={"query": query, "error": "uncited"})
-        lines = [
-            f"教材检索结果（{len(evidence)} 条）。最终回答只引用已核验原文，"
-            "并原样复制每条来源提供的完整 Markdown 教材角标链接；不要把跨章节页码改成当前章节页码。",
-            *citation_lines,
-        ]
-        content = "\n\n".join(lines)
+        content = str(result.get("content") or "") or source_content(
+            evidence, kwargs.get("budget_chars"))
         logger.info("course_rag_tool backend=%s mode=%s sources=%d linked=%d chars=%d cache_hit=%s",
                     result.get("backend"), result.get("mode"), len(evidence), linked,
                     len(content), result.get("cache_hit"))
         return ToolResult(content=content, sources=evidence,
                           metadata={"query": query, "backend": result.get("backend"),
                                     "mode": result.get("mode"), "cache_hit": result.get("cache_hit")})
+
+
+def _attach_citations(evidence, context):
+    """生成正式链接并登记本轮短 ID，供发布边界解析 [S1]。"""
+    linked = 0
+    metadata = getattr(context, "metadata", None) if context is not None else None
+    short = metadata.get("_heart_short_sources") if isinstance(metadata, dict) else None
+    for source in evidence:
+        citation = _reader_citation(source)
+        if not citation:
+            continue
+        source["reader_citation"] = citation
+        linked += 1
+        identifier = str(source.get("short_id") or "")
+        if not identifier:
+            continue
+        if not isinstance(short, dict):
+            short = {}
+            if isinstance(metadata, dict):
+                metadata["_heart_short_sources"] = short
+        row = short.setdefault(identifier, {**source})
+        row["reader_citation"] = citation
+        row["page"] = _reader_page(source)
+    return linked
 
 
 def _retrieve_rows(query: str) -> list:

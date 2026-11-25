@@ -80,6 +80,33 @@ class NativeToolPolicyTests(unittest.IsolatedAsyncioTestCase):
             self.assertNotIn('rag',names)
             self.assertNotIn('kb_files',names)
 
+    async def test_chat_seed_flag_and_citation_offset_follow_turn_scope(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from deeptutor.core.context import UnifiedContext
+        from deeptutor.agents.loop import pipeline as module
+        from integrations.deeptutor.course_rag_provider import canonical_kb_name
+        registry=ToolRegistry();registry.load_builtins()
+        pipeline=SimpleNamespace(tool_lookup=registry,
+            _is_partner_turn=lambda ctx:False, _coexisting_rag_kbs=lambda ctx:[],
+            _mastery_nav_available=lambda ctx:False, _capability_owned_tools=lambda ctx:(),
+            _exclusive_capability_active=lambda ctx:False)
+        def context(message,capability='chat'):
+            return UnifiedContext(user_message=message,active_capability=capability,
+                                  knowledge_bases=[canonical_kb_name()])
+        with teaching_tool_scope(citation_offset=2), patch.multiple(module,user_has_memory=lambda:False,
+                user_has_notebooks=lambda:False,user_has_question_bank=lambda:False,partner_can_record_questions=lambda:False):
+            course=context('自变量是什么')
+            module.AgenticLoopPipeline._compose_enabled_tools(pipeline,course)
+            self.assertFalse(course.metadata['heart_skip_kb_seed'])
+            self.assertEqual(course.metadata['_heart_citation_offset'],2)
+            greeting=context('你好')
+            module.AgenticLoopPipeline._compose_enabled_tools(pipeline,greeting)
+            self.assertTrue(greeting.metadata['heart_skip_kb_seed'])
+            research=context('自变量是什么','deep_research')
+            module.AgenticLoopPipeline._compose_enabled_tools(pipeline,research)
+            self.assertTrue(research.metadata['heart_skip_kb_seed'])
+
     async def test_preloaded_deferred_tools_cannot_escape_scope(self):
         from deeptutor.core.tool_protocol import BaseTool, ToolDefinition, ToolResult
         class HiddenDeferred(BaseTool):
@@ -120,6 +147,11 @@ class CourseSourceReadTests(unittest.IsolatedAsyncioTestCase):
         loaded=await ReadSourceTool().execute(source_id=source_id,source_index=context.metadata['source_index'])
         self.assertTrue(loaded.success)
         self.assertIn(text,loaded.content)
+        short=next(key for key in context.metadata['source_index'] if key.startswith('S'))
+        self.assertIn(f'[{short}]',result.content)
+        loaded_short=await ReadSourceTool().execute(source_id=short,source_index=context.metadata['source_index'])
+        self.assertTrue(loaded_short.success)
+        self.assertIn(text,loaded_short.content)
         other=UnifiedContext()
         rejected=await ReadSourceTool().execute(source_id=source_id,source_index=other.metadata.get('source_index'))
         self.assertFalse(rejected.success)

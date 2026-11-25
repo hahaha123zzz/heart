@@ -16,7 +16,7 @@ def _check():
 
 def _source():
     return {
-        "index": 1, "rag_source_id": "r1", "chapter_id": 1, "page": 3,
+        "index": 1, "short_id": "S1", "rag_source_id": "r1", "chapter_id": 1, "page": 3,
         "section_id": 1, "document_id": "doc", "version": "a" * 64,
         "text": "自变量是研究者操纵的变量。", "quote": "自变量是研究者操纵的变量。",
         "location": {"section": "第一节", "block_start": 1, "block_end": 1},
@@ -239,10 +239,28 @@ def test_rag_tool_formats_lightrag_sources_with_citation(monkeypatch):
     monkeypatch.setattr(heart_rag, "_reader_citation", lambda source: "[教材第1章第3页](#dt-material-x)")
     result = asyncio.run(heart_rag.HeartCourseRagTool().execute(query="自变量是什么"))
 
-    assert "已核验原文" in result.content
-    assert "[教材第1章第3页](#dt-material-x)" in result.content
+    assert "[S1]" in result.content
+    assert "自变量是研究者操纵的变量。" in result.content
+    assert "[教材第1章第3页](#dt-material-x)" not in result.content
     assert result.metadata["mode"] == "naive"
     assert result.sources[0]["reader_citation"] == "[教材第1章第3页](#dt-material-x)"
+    assert result.sources[0]["short_id"] == "S1"
+
+
+def test_evidence_projection_keeps_whole_items_within_budget():
+    long_text = "自变量" * 200
+    sources = [
+        {"index": 1, "short_id": "S1", "chapter_id": 1, "page": 3,
+         "location": {"section": "第一节"}, "rag_source_id": "r1", "text": "A" * 300},
+        {"index": 2, "short_id": "S2", "chapter_id": 2, "page": 9,
+         "location": {"section": "第二节"}, "rag_source_id": "r2", "text": "B" * 300},
+    ]
+    content = provider.source_content(sources, budget_chars=600)
+
+    assert "[S1]" in content and "A" * 300 in content
+    assert "B" * 300 not in content
+    assert "read_source 读取 S2" in content
+    assert "[S2] 第2章，第9页" in content
 
 
 def test_rag_tool_does_not_resend_passages_on_turn_cache_hit(monkeypatch):
@@ -273,7 +291,7 @@ def test_rag_tool_refuses_when_no_source_can_be_linked(monkeypatch):
     assert "不提供引用" in result.content
 
 
-def test_rag_tool_caps_one_supplement_per_turn(monkeypatch):
+def test_rag_tool_allows_more_than_two_searches_per_turn(monkeypatch):
     from integrations.deeptutor import heart_rag
 
     calls = []
@@ -290,9 +308,9 @@ def test_rag_tool_caps_one_supplement_per_turn(monkeypatch):
     asyncio.run(tool.execute(query="那暂时性被试自变量呢", _heart_context=context))
     third = asyncio.run(tool.execute(query="再查一次", _heart_context=context))
 
-    assert len(calls) == 2
-    assert "两批上限" in third.content
-    assert third.sources == []
+    assert len(calls) == 3
+    assert third.success is True
+    assert len(third.sources) == 1
 
 
 def test_rag_tool_keeps_local_index_only_when_no_native_scope(monkeypatch):
@@ -307,7 +325,8 @@ def test_rag_tool_keeps_local_index_only_when_no_native_scope(monkeypatch):
     result = asyncio.run(heart_rag.HeartCourseRagTool().execute(query="自变量是什么"))
 
     assert result.success is True
-    assert "[教材第1章第3页](#dt-material-x)" in result.content
+    assert "[S1]" in result.content
+    assert result.sources[0]["reader_citation"] == "[教材第1章第3页](#dt-material-x)"
 
 
 def _endpoint(monkeypatch, backend):

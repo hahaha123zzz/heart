@@ -922,9 +922,11 @@ class ReadSourceTool(_PromptHintsMixin, BaseTool):
                     type="string",
                     description=(
                         "The source identifier from the Attached Sources "
-                        "manifest. Begins with one of: nb- (notebook record), "
+                        "manifest, or this turn's textbook short id (S1, S2...). "
+                        "Begins with one of: nb- (notebook record), "
                         "bk- (book reference), rd- (reading unit), hs- (history "
-                        "session), qb- (question-bank entry), at- (document attachment)."
+                        "session), qb- (question-bank entry), at- (document attachment), "
+                        "or S (textbook evidence short id)."
                     ),
                 ),
             ],
