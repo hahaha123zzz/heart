@@ -49,7 +49,7 @@ class Trace:
     @contextmanager
     def timed(self, stage, *, parent=None, **fields):
         """yield 一个 detail 字典；退出前把其内容并入已有计数。"""
-        started = time.monotonic()
+        started = time.perf_counter()
         detail = {}
         status = 'ok'
         try:
@@ -63,7 +63,7 @@ class Trace:
             detail.setdefault('error', type(exc).__name__)
             raise
         finally:
-            self.record(stage, parent=parent, seconds=time.monotonic() - started,
+            self.record(stage, parent=parent, seconds=time.perf_counter() - started,
                         status=status, **fields, **detail)
 
 
