@@ -69,38 +69,59 @@ class ResidentGraph:
         return invoke
 
     async def start(self):
-        from knowledge.lightrag import engine
-        from lightrag.utils import EmbeddingFunc
-        adapters = {role: self.dispatch(role) for role in self.roles}
-        adapters['embedding'] = EmbeddingFunc(embedding_dim=self.embedding.dim,
-            max_token_size=self.embedding.max_tokens, func=self.dispatch('embedding'))
-        self.rag = engine.build_rag(self.backend.candidate / 'index', query_roles=self.roles,
-            embedding_config=self.embedding, query_only=True, adapters=adapters)
-        try:
-            await engine.initialize(self.rag)
-            from knowledge.lightrag.paths import bind_candidate_sidecars
-            self.sidecars = bind_candidate_sidecars(self.rag, self.backend.candidate / 'index')
-            from knowledge.lightrag.ingress import load_verified_bundle, _contained_regular_file
-            from lightrag.utils_pipeline import sidecar_modality_path
-            import json
-            self.provenance = {}
-            working = self.backend.candidate / 'index'
-            for name in self.backend.source_map:
-                manifest, bundle = load_verified_bundle(working, name)
-                raw = json.loads((bundle / manifest['blocks']['path']).read_text(encoding='utf8'))
-                full = await self.rag.full_docs.get_by_id(engine._document_id(name))
-                modalities = {}
-                for kind in ('drawings', 'tables', 'equations'):
-                    sidecar = sidecar_modality_path((full or {}).get('sidecar_location'), kind)
-                    # 某章没有该类素材时，SDK 仍返回预期文件名。
-                    if sidecar and (Path(sidecar).exists() or Path(sidecar).is_symlink()):
-                        path = _contained_regular_file(working, Path(sidecar), label='startup sidecar')
-                        modalities[kind] = json.loads(path.read_text(encoding='utf8')).get(kind,{})
-                self.provenance[name] = {'raw':raw,'modalities':modalities}
-        except BaseException:
-            await engine.finalize(self.rag, cancel_pending=True)
-            self.rag = None
-            raise
+        from knowledge.startup_trace import current
+        trace = current()
+        with trace.timed('lightrag.resident.start', parent='fixed_book') as detail:
+            from knowledge.lightrag import engine
+            from lightrag.utils import EmbeddingFunc
+            adapters = {role: self.dispatch(role) for role in self.roles}
+            adapters['embedding'] = EmbeddingFunc(embedding_dim=self.embedding.dim,
+                max_token_size=self.embedding.max_tokens, func=self.dispatch('embedding'))
+            with trace.timed('lightrag.sdk.build', parent='lightrag.resident.start'):
+                self.rag = engine.build_rag(self.backend.candidate / 'index', query_roles=self.roles,
+                    embedding_config=self.embedding, query_only=True, adapters=adapters)
+            try:
+                with trace.timed('lightrag.sdk.initialize', parent='lightrag.resident.start'):
+                    await engine.initialize(self.rag)
+                from knowledge.lightrag.paths import bind_candidate_sidecars
+                with trace.timed('lightrag.sidecars', parent='lightrag.resident.start'):
+                    self.sidecars = bind_candidate_sidecars(self.rag, self.backend.candidate / 'index')
+                from knowledge.lightrag.ingress import load_verified_bundle, _contained_regular_file
+                from lightrag.utils_pipeline import sidecar_modality_path
+                import json
+                self.provenance = {}
+                working = self.backend.candidate / 'index'
+                slowest = (None, 0.0)
+                for name in self.backend.source_map:
+                    chapter = self.backend.source_map[name].get('chapter_id')
+                    stage = 'lightrag.provenance.chapter_%02d' % (chapter if isinstance(chapter, int) else 0)
+                    began = time.perf_counter()
+                    with trace.timed(stage, parent='lightrag.resident.start', chapter=chapter) as row:
+                        with trace.timed('lightrag.provenance.bundle', parent=stage):
+                            manifest, bundle = load_verified_bundle(working, name)
+                        with trace.timed('lightrag.provenance.document', parent=stage):
+                            full = await self.rag.full_docs.get_by_id(engine._document_id(name))
+                        raw = json.loads((bundle / manifest['blocks']['path']).read_text(encoding='utf8'))
+                        modalities = {}
+                        for kind in ('drawings', 'tables', 'equations'):
+                            sidecar = sidecar_modality_path((full or {}).get('sidecar_location'), kind)
+                            # 某章没有该类素材时，SDK 仍返回预期文件名。
+                            if sidecar and (Path(sidecar).exists() or Path(sidecar).is_symlink()):
+                                with trace.timed('lightrag.provenance.sidecar', parent=stage, modality=kind):
+                                    path = _contained_regular_file(working, Path(sidecar), label='startup sidecar')
+                                    modalities[kind] = json.loads(path.read_text(encoding='utf8')).get(kind,{})
+                        self.provenance[name] = {'raw':raw,'modalities':modalities}
+                        row['blocks'] = len(raw)
+                        row['modalities'] = len(modalities)
+                    elapsed = time.perf_counter() - began
+                    if elapsed > slowest[1]: slowest = (chapter, elapsed)
+                detail['chapters'] = len(self.provenance)
+                detail['slowest_chapter'] = slowest[0]
+                detail['slowest_seconds'] = round(slowest[1], 4)
+            except BaseException:
+                await engine.finalize(self.rag, cancel_pending=True)
+                self.rag = None
+                raise
 
     async def query(self, query, mode, metrics, bridge):
         from knowledge.lightrag.config import build_embedding_func, build_llm_model_func
@@ -143,6 +164,7 @@ class FixedBookRuntime:
     async def start(self):
         from knowledge.startup_trace import current
         trace = current()
+        entry_at = time.perf_counter()
         trace.record('fixed_book.entry', parent='fixed_book', seconds=0)
         from knowledge.course_config import PSYCHOLOGY_DIR, COURSE_ID
         self.source_root = PSYCHOLOGY_DIR
@@ -234,7 +256,7 @@ class FixedBookRuntime:
             detail['labels'] = len(labels)
             detail['entity_terms'] = len(self.backend.entity_terms)
         self.ready = True
-        trace.record('fixed_book.ready_flag', parent='fixed_book', seconds=time.monotonic() - self.started)
+        trace.record('fixed_book.ready_flag', parent='fixed_book', seconds=time.perf_counter() - entry_at)
         try:
             # 快速路径同样预热，缓存签名从本次完整核验中取得。
             from knowledge.local_rag.course_retrieval import warm
@@ -267,7 +289,7 @@ class FixedBookRuntime:
             await self.close()
             raise
         self.start_seconds = time.monotonic() - self.started
-        trace.record('fixed_book.start.complete', parent='fixed_book', seconds=self.start_seconds)
+        trace.record('fixed_book.start.complete', parent='fixed_book', seconds=time.perf_counter() - entry_at)
 
     async def close(self):
         self.ready = False
@@ -288,7 +310,7 @@ async def start():
         raise RuntimeError('固定教材模式仅适用于当前心理学教材')
     from knowledge.startup_trace import current
     trace = current()
-    began = time.monotonic()
+    began = time.perf_counter()
     runtime = FixedBookRuntime()
     try:
         await runtime.start()
@@ -296,7 +318,7 @@ async def start():
         await runtime.close()
         runtime = None
         trace.record('fixed_book.start.failed', parent='fixed_book',
-                     seconds=time.monotonic() - began,
+                     seconds=time.perf_counter() - began,
                      status='cancelled' if isinstance(exc, asyncio.CancelledError) else 'failed',
                      error=type(exc).__name__)
         raise

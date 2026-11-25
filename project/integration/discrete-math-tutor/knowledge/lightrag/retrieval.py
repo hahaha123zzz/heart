@@ -149,46 +149,81 @@ class LightRagBackend:
         self.source_root=Path(source_root) if source_root is not None else None
 
     def validate(self, course_id, *, snapshot=None):
-        if course_id not in self.authorized_course_ids or course_id!=COURSE:
-            raise PermissionError("当前请求未授权此教材")
-        manifest=json.loads((self.candidate/"input_manifest.json").read_text(encoding="utf-8"))
-        state=json.loads((self.candidate/"progress.json").read_text(encoding="utf-8"))
-        if not self.allow_candidate: raise RuntimeError("LightRAG 候选索引尚未由集成窗口激活")
-        if state["state"]!="candidate_complete" or len(state["chapters"])!=11 or not all(e.get("complete") for e in state["chapters"].values()):
-            raise RuntimeError("LightRAG 全书候选索引未完整就绪")
-        if manifest["course_id"]!=course_id: raise PermissionError("候选教材身份不符")
-        index_files=self.candidate/"index_files.json"
-        if not index_files.is_file(): raise RuntimeError("候选索引缺少源签名文件")
-        from . import storage as _storage
-        _storage.verify_manifest(self.candidate/"index",source_signature=digest(index_files))
-        verify(self.candidate/"input",manifest["files"])
-        if self.source_root is None:
-            verify(Path(manifest["source_root"]),manifest["files"])
-        else:
-            extras=verify_active(self.source_root,manifest["files"])
-            if snapshot is not None: snapshot["additional_host_files"]={"count":len(extras),"sha256":_fingerprint(extras),"evidence_eligible":False}
-        if snapshot is not None:
-            snapshot['control_hashes']={name:digest(self.candidate/name) for name in
-                ('input_manifest.json','progress.json','index_files.json','policy.json','source_map.json')}
-        return manifest
+        from knowledge.startup_trace import current
+        trace = current()
+        with trace.timed('lightrag.manifest', parent='fixed_book') as detail:
+            if course_id not in self.authorized_course_ids or course_id!=COURSE:
+                raise PermissionError("当前请求未授权此教材")
+            with trace.timed('lightrag.manifest.control_files', parent='lightrag.manifest') as control:
+                manifest=json.loads((self.candidate/"input_manifest.json").read_text(encoding="utf-8"))
+                state=json.loads((self.candidate/"progress.json").read_text(encoding="utf-8"))
+                control['chapters']=len(state.get("chapters") or {})
+                control['complete']=sum(bool(e.get("complete")) for e in (state.get("chapters") or {}).values())
+            if not self.allow_candidate: raise RuntimeError("LightRAG 候选索引尚未由集成窗口激活")
+            if state["state"]!="candidate_complete" or len(state["chapters"])!=11 or not all(e.get("complete") for e in state["chapters"].values()):
+                raise RuntimeError("LightRAG 全书候选索引未完整就绪")
+            if manifest["course_id"]!=course_id: raise PermissionError("候选教材身份不符")
+            index_files=self.candidate/"index_files.json"
+            if not index_files.is_file(): raise RuntimeError("候选索引缺少源签名文件")
+            from . import storage as _storage
+            with trace.timed('lightrag.index_manifest', parent='lightrag.manifest') as index:
+                entries=_storage.verify_manifest(self.candidate/"index",source_signature=digest(index_files),
+                    trace=trace, parent='lightrag.index_manifest')
+                index['namespaces']=len(entries)
+            with trace.timed('lightrag.manifest.frozen_input', parent='lightrag.manifest') as frozen:
+                verify(self.candidate/"input",manifest["files"])
+                frozen['root']='candidate_input'
+                frozen['files']=len(manifest["files"])
+            if self.source_root is None:
+                with trace.timed('lightrag.manifest.indexed_source', parent='lightrag.manifest') as host:
+                    verify(Path(manifest["source_root"]),manifest["files"])
+                    host['root']='indexed_source'
+                    host['files']=len(manifest["files"])
+            else:
+                with trace.timed('lightrag.manifest.host_textbook', parent='lightrag.manifest') as host:
+                    extras=verify_active(self.source_root,manifest["files"])
+                    if snapshot is not None: snapshot["additional_host_files"]={"count":len(extras),"sha256":_fingerprint(extras),"evidence_eligible":False}
+                    host['root']='host_textbook'
+                    host['files']=len(manifest["files"])+len(extras)
+                    host['extra_files']=len(extras)
+            if snapshot is not None:
+                with trace.timed('lightrag.manifest.control_digest', parent='lightrag.manifest') as control:
+                    snapshot['control_hashes']={name:digest(self.candidate/name) for name in
+                        ('input_manifest.json','progress.json','index_files.json','policy.json','source_map.json')}
+                    control['files']=len(snapshot['control_hashes'])
+            detail['files']=len(manifest["files"])
+            return manifest
 
     def load_source_map(self):
-        source_map=json.loads((self.candidate/"source_map.json").read_text(encoding="utf-8"))
-        registry=json.loads((self.candidate/"input/pdf_manifest.json").read_text(encoding="utf-8"))
-        for name,doc in source_map.items():
-            chapter=doc["chapter_id"]
-            if not isinstance(chapter,int) or not 1<=chapter<=11 or name!=f"chapter_{chapter:02d}.generated.pdf":
-                raise engine.LightRagContractError("来源映射章节身份错误")
-            raw_path=self.candidate/"input/chapters"/f"chapter_{chapter:02d}"/"document.json"
-            original=json.loads(raw_path.read_text(encoding="utf-8"))
-            pdf=next(r for r in registry if r["chapter_id"]==chapter)
-            if digest(raw_path)!=doc["document_sha256"] or doc["source"]!=original["source"] or doc["document_id"]!=pdf["document_id"] or doc["version"]!=pdf["version"]:
-                raise engine.LightRagContractError("来源映射版本不符合冻结原文")
-            if len(original["blocks"])!=len(doc["blocks"]): raise engine.LightRagContractError("来源映射块数不符")
-            for block,raw in zip(doc["blocks"],original["blocks"]):
-                if any(block.get(k)!=raw.get(k) for k in ("block_index","text","rows","section_id","section","kind","image_ids","formula_ids")):
-                    raise engine.LightRagContractError("来源映射不是冻结原文")
-        return source_map
+        from knowledge.startup_trace import current
+        trace=current()
+        with trace.timed('lightrag.source_map', parent='fixed_book') as detail:
+            source_map=json.loads((self.candidate/"source_map.json").read_text(encoding="utf-8"))
+            registry=json.loads((self.candidate/"input/pdf_manifest.json").read_text(encoding="utf-8"))
+            slowest=(None,0.0)
+            for name,doc in source_map.items():
+                chapter=doc.get("chapter_id")
+                began=time.perf_counter()
+                with trace.timed('lightrag.source_map.chapter', parent='lightrag.source_map',
+                                 chapter=chapter) as row:
+                    if not isinstance(chapter,int) or not 1<=chapter<=11 or name!=f"chapter_{chapter:02d}.generated.pdf":
+                        raise engine.LightRagContractError("来源映射章节身份错误")
+                    raw_path=self.candidate/"input/chapters"/f"chapter_{chapter:02d}"/"document.json"
+                    original=json.loads(raw_path.read_text(encoding="utf-8"))
+                    pdf=next(r for r in registry if r["chapter_id"]==chapter)
+                    if digest(raw_path)!=doc["document_sha256"] or doc["source"]!=original["source"] or doc["document_id"]!=pdf["document_id"] or doc["version"]!=pdf["version"]:
+                        raise engine.LightRagContractError("来源映射版本不符合冻结原文")
+                    if len(original["blocks"])!=len(doc["blocks"]): raise engine.LightRagContractError("来源映射块数不符")
+                    for block,raw in zip(doc["blocks"],original["blocks"]):
+                        if any(block.get(k)!=raw.get(k) for k in ("block_index","text","rows","section_id","section","kind","image_ids","formula_ids")):
+                            raise engine.LightRagContractError("来源映射不是冻结原文")
+                    row['blocks']=len(doc['blocks'])
+                elapsed=time.perf_counter()-began
+                if elapsed>slowest[1]: slowest=(chapter,elapsed)
+            detail['chapters']=len(source_map)
+            detail['slowest_chapter']=slowest[0]
+            detail['slowest_seconds']=round(slowest[1],4)
+            return source_map
 
     async def search(self, query, *, course_id, mode="hybrid", limit=6, chapter_id=None, section_id=None, cancellation=None):
         trace=[];metrics=Metrics();binding=None;source_binding=None;started=time.monotonic()
