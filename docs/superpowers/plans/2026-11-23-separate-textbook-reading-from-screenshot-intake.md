@@ -48,4 +48,6 @@
 - 真实检索回归：`科学方法的特点` 命中第 1 章原文，生成的角标为 `[教材第1章第1页](…-locator-1?quote=…)`。
 - 本机 8000 浏览器（发行 `textbook-rag-citations-20261123`）打开教材后提问原问题：未出现「截图识别已暂停」，发送帧中无图片附件，中文回答带 4 个角标，阅读器保持打开；点击角标 `citation-target` 返回 200，跳到第 7 页并显示原文高亮。
 - 尚未在浏览器实际验证：划词提问、跨章问题触发 RAG 后点击角标、主动框选/上传图片入口。
+- 追加（引用精度）：日志确认 RAG 角标曾用章节起始页（`locator=1`、`locator=33`），而引文实际在第 7、6 页，`citation-target` 因此返回 0 个矩形。已改为优先取证据矩形页，发行 `citation-page-precision-20261123`；实测跨章角标打开第 3 章第 18 页并高亮，`rects=2`。
+- 追加（回答长度）：会话记录里没有任何教学偏好字段；native 路径未安装 `teaching_prompt_adapter`（`host_teaching_style` 块不再注入，见 `docs/research/2026-11-08-deeptutor-complete-runtime/NATIVE_132_IMPLEMENTATION_PLAN.md`），且 `style_instructions` 的长度分支已于 2026-11-02 移除。回答长度现由原生提示词与模型决定。
 

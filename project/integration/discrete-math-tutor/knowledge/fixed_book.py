@@ -296,6 +296,6 @@ def select_evidence(payload):
         identity = item['quote']
         if identity not in seen:
             chosen.append(item['evidence_id']);seen.add(identity)
-        if len(chosen) == 3:
+        if len(chosen) == 4:
             break
     return {'evidence_ids':chosen}

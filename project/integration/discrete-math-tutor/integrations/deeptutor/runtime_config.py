@@ -53,6 +53,13 @@ async def native_lifespan(app):
                 if time.monotonic() >= deadline:
                     raise RuntimeError("原生 worker 在 60 秒内未就绪")
                 await asyncio.sleep(.25)
+        # Warm the course index in the background so the first student turn
+        # does not pay the embedding/rerank load. Never blocks startup.
+        try:
+            from .heart_rag import warm_course_retrieval
+            app.state.native_warmup = asyncio.create_task(asyncio.to_thread(warm_course_retrieval))
+        except Exception:
+            pass
         yield
     finally:
         if process is not None and process.poll() is None:

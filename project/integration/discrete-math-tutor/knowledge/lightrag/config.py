@@ -249,8 +249,15 @@ class HostEmbedding:
 
 def query_kwargs_from_settings():
     # 固定SDK先分配图谱摘要预算；显式留出原文空间，避免成功返回却0个教材块。
-    return {"top_k": 20, "chunk_top_k": 12, "max_entity_tokens": 2000,
-            "max_relation_tokens": 2000, "max_total_tokens": 10000, "enable_rerank": False}
+    # 普通概念题用较小的原文窗口；跨章样本可在部署环境调回更大值做对照。
+    try:
+        chunk_top_k = int(os.getenv("LIGHTRAG_QUERY_CHUNK_TOP_K", "8"))
+    except ValueError:
+        chunk_top_k = 8
+    return {"top_k": 20, "chunk_top_k": min(20, max(3, chunk_top_k)),
+            "max_entity_tokens": 2000, "max_relation_tokens": 2000,
+            "max_total_tokens": 10000,
+            "enable_rerank": os.getenv("LIGHTRAG_QUERY_ENABLE_RERANK") == "1"}
 
 def indexing_kwargs_from_settings(): return {"max_parallel_parse_native": 1}
 

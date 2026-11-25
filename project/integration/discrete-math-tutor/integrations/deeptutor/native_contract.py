@@ -113,6 +113,30 @@ class CourseSearchRequest(NativeTaskCheck):
         return value
 
 
+class NativeUserCourseSearchRequest(BaseModel):
+    """原生登录用户的教材检索；由桥接服务和用户/工作区/会话三方核验。"""
+    model_config = ConfigDict(extra="forbid")
+    student_id: Identifier
+    username: Identifier
+    course_id: Identifier
+    session_id: Identifier
+    request_id: Identifier
+    query: str = Field(min_length=1, max_length=4000)
+    mode: Literal["naive", "local", "global", "hybrid", "mix"] = "naive"
+    limit: StrictInt = Field(default=6, ge=1, le=12)
+    chapter_id: StrictInt | None = Field(default=None, ge=1, le=11)
+    section_id: StrictInt | None = Field(default=None, ge=1, le=64)
+    # 空字符串是原生默认工作区；显式工作区才带 id。
+    workspace_id: str = Field(default="", max_length=100)
+
+    @field_validator("query")
+    @classmethod
+    def nonblank(cls, value):
+        if not value.strip():
+            raise ValueError("检索问题不能为空")
+        return value
+
+
 class NativeTurnStart(NativeTaskCheck, NativeTurnOptions):
     course_title: str = Field(min_length=1, max_length=60)
     content: str = Field(min_length=1, max_length=4000)

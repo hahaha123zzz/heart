@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+from urllib.error import HTTPError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
@@ -47,6 +48,15 @@ class DeepTutorBackend:
             if not isinstance(result, dict):
                 raise ValueError("响应不是对象")
             return result
+        except HTTPError as exc:
+            # 保留宿主状态码，调用方才能区分未就绪、超时和拒绝。
+            error = BackendUnavailable("DeepTutor 后端暂未就绪")
+            error.status = exc.code
+            raise error from exc
+        except TimeoutError as exc:
+            error = BackendUnavailable("DeepTutor 后端响应超时")
+            error.status = 504
+            raise error from exc
         except (OSError, ValueError) as exc:
             raise BackendUnavailable("DeepTutor 后端暂未就绪") from exc
 
@@ -141,6 +151,45 @@ class DeepTutorBackend:
                            "description": str(manifest.get("description", "")),
                            "model_execution_verified": False})
         return result
+
+    async def _post_async(self, path, payload):
+        """Cancellable host query: a cancelled turn closes the connection."""
+        import httpx
+
+        token = os.getenv('DEEPTUTOR_BRIDGE_TOKEN', '')
+        if len(token) < 32:
+            raise BackendUnavailable('DeepTutor 宿主接入凭据未配置')
+        # 宿主的查询预算是 120 秒；客户端多留余量，让宿主先给出 504。
+        timeout = httpx.Timeout(max(self.timeout, 130))
+        try:
+            async with httpx.AsyncClient(timeout=timeout, trust_env=False) as client:
+                response = await client.post(
+                    self.base_url + path, json=payload,
+                    headers={'X-Heart-Bridge-Token': token, 'Accept': 'application/json'})
+        except httpx.TimeoutException as exc:
+            error = BackendUnavailable('宿主教材检索超时')
+            error.status = 504
+            raise error from exc
+        except httpx.HTTPError as exc:
+            raise BackendUnavailable('DeepTutor 后端暂未就绪') from exc
+        if response.status_code >= 400:
+            error = BackendUnavailable('DeepTutor 后端暂未就绪')
+            error.status = response.status_code
+            raise error
+        try:
+            result = response.json()
+        except ValueError as exc:
+            raise BackendUnavailable('宿主教材检索响应无效') from exc
+        if (not isinstance(result, dict) or not isinstance(result.get('sources'), list)
+                or not isinstance(result.get('status'), str)):
+            raise BackendUnavailable('宿主教材检索响应无效')
+        return result
+
+    async def native_course_search(self, payload):
+        return await self._post_async('/internal/heart/native/course-search', payload)
+
+    async def native_user_course_search(self, payload):
+        return await self._post_async('/internal/heart/native/course-search-native', payload)
 
     def native_catalog(self, scope):
         self.timeout = max(self.timeout, 120)
