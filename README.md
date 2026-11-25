@@ -24,7 +24,7 @@
 | 缺少项 | 位置 / 说明 |
 | --- | --- |
 | 前端构建产物 `.next/`、`node_modules` | `project/vendor/DeepTutor/.gitignore` 排除，必须自己 `npm ci && npm run build` |
-| 教材资产（阅读版 PDF、插图、正文切分、题库） | `knowledge/courses/experimental-psychology-3/` 约 2793 文件 / 147 MB，不入库；仓库只带 `kc_registry.json` |
+| 教材资产（阅读版 PDF、插图、正文切分、题库） | `knowledge/courses/experimental-psychology-3/` 约 2793 文件 / 130 MB，不入库；由组长单独发给每位组员，仓库只带 `kc_registry.json` |
 | PostgreSQL 数据 | `heart`（旧业务空库）、`heart_psychology`（账本/卡片/mem0）、`heart_rag`（LightRAG 11 张表，11 文档 / 1239 chunks） |
 | 厂家 `DEEPTUTOR_HOME` | 身份、会话、练习、路径、附件；含 `data/system/auth/users.json` 与 `auth_secret` |
 | 密钥与运行配置 | `.env`、`private/runtime.env`：模型 Key、PG 口令、`HEART_MODEL_ENCRYPTION_KEY`、`DEEPTUTOR_BRIDGE_TOKEN`、auth 口令哈希 |
@@ -64,9 +64,62 @@ npm run build
 
 三服务模式用的是构建后的 `.next/standalone/server.js` 与 `.next/static`，源码不能直接当运行包。
 
-## 4. 教材资产
+## 4. 教材接入（单独分发，不入库）
 
-仓库不含教材正文。把完整资产目录（阅读版 PDF、插图、正文切分、题库）放到任意外部路径，用 `TUTOR_PSYCHOLOGY_DIR` 指向它；`setup_student_local.py --assets` 也接这个路径。缺失时阅读、引用、图谱和题库页面为空。
+教材资产约 130 MB / 2793 个文件，因版权和体积不进 Git，**由组长单独发给每位组员**。整包原样使用：不要改名、裁切、重新导出 PDF——`manifest.json` 里的 `version` 是 PDF 的 sha256，内容一变，阅读器还能打开但引用定位会报“教材已更新 / 版本不一致”。
+
+包内关键内容（缺一项对应功能就是空的）：
+
+| 文件 / 目录 | 作用 |
+| --- | --- |
+| `manifest.json` | 11 章与节的结构（目录、标题、页码） |
+| `pdf_manifest.json` | 阅读器文档元数据（document_id、version、page_count、sections、source） |
+| `chapters/chapter_01..11/chapter_XX.generated.pdf` | 阅读版 PDF，按章提供 |
+| `crops/` | 选区提问用的裁图缓存 |
+| `rag_index.sqlite3` | 教材检索本地索引 |
+| `source/` | 原始教材 PDF（定位与校验用） |
+| `kc_registry*.json`、`kc_entity_map.json` | 知识点注册与实体映射（`kc_registry.json` 已入库，其余随包） |
+
+约 130 MB 的构成：`chapters/` 97 MB、`crops/` 15 MB、`sample/` 11 MB、`source/` 7 MB。
+
+### 放哪里（两种都行）
+
+**A. 默认位置（零配置）**——整个目录拷到这里即可，`knowledge/course_config.py` 默认就找它：
+
+```
+project/integration/discrete-math-tutor/knowledge/courses/experimental-psychology-3/
+```
+
+**B. 仓库外路径**——放别处，设 `TUTOR_PSYCHOLOGY_DIR` 为绝对路径（`.env` 或三服务的 `private/runtime.env`）：
+
+```ini
+TUTOR_PSYCHOLOGY_DIR=D:\textbook\experimental-psychology-3
+```
+
+### 接线与授权
+
+- 单服务（方式 A）：设好 `TUTOR_PSYCHOLOGY_DIR`（用默认位置可省），重启宿主即可。
+- 三服务（方式 B）：初始化时带 `--assets`，脚本会把路径写进 `private/runtime.env`，并调 `scripts/assign_review_reading.py` 给 10 个账号授权全部章节：
+
+```powershell
+python deploy/setup_student_local.py --root <deploy> --project-env .env `
+    --assets <教材目录> --python <python.exe> --node <node.exe>
+```
+
+- 已有部署换目录：改 `<deploy>/private/runtime.env` 的 `TUTOR_PSYCHOLOGY_DIR`，再 `python deploy/manage_student_local.py restart --root <deploy>`。同一份包换目录一般仍可阅读（授权按 material_id）；重新导入过教材则要重新核对授权和版本。
+
+### 验证
+
+1. 登录后 对话 → 打开教材：能看到 11 章、能切章、翻页、缩放。
+2. 带登录 cookie 请求 `/api/heart/legacy-reader/chapters`，应返回 11 条；返回空 = 路径或授权没接上。
+3. 选教材里一段文字提问，回答里的引用能点击跳回原页；点不动或提示版本变化 = PDF 被改过，或 manifest 与文件不匹配。
+4. 图谱 / 题库页能列出章节 = `kc_registry*` 等随包文件齐全。
+
+### 注意
+
+- 不要提交教材资产（`.gitignore` 已忽略 `knowledge/courses/*/*`，只保留 `kc_registry.json`），也不要放进公开链接或 Git LFS。
+- 换电脑 / 换路径必须同步改 `TUTOR_PSYCHOLOGY_DIR`；启动脚本用 `resolve(strict=True)` 校验，目录不存在会直接失败。
+- 每位组员要用同一份包：`version` 一致，引用、题库、图谱才对得上；不同版本混用会出现“页面能开但引用错位”。
 
 ## 5. PostgreSQL
 
@@ -82,6 +135,15 @@ TEST_POSTGRES_ADMIN_URL=...
 `heart_rag` 的 LightRAG 索引要单独重建（重跑教材建库）或从备份恢复；只有表结构没有索引时，回答里的引用检索不可用。
 
 方式 A 直接连这三个库；方式 B 的 `setup_student_local.py` 会另建一对 `heart_local8000_*` 隔离库，只需要给它一个可建库的管理连接（`TEST_POSTGRES_ADMIN_URL`）。
+
+### 易错点：建了空库 ≠ 有数据
+
+- `CREATE DATABASE` + `CREATE EXTENSION vector` 只是把空房间建出来；会话、学习进度、记忆卡片在表数据里，空库打开就是空白页面。
+- 本机 8000 实际连接的是 `heart_local8000_<hash>` 和 `heart_local8000_course_<hash>`（`setup_student_local.py` 自动创建），**不是** `heart_psychology`；手工建 `heart_psychology` 不会复现本机内容。
+- `heart_rag` 只建库和扩展还不够：LightRAG 的 11 张表要初始化，教材索引（11 文档 / 1239 chunks）要重建或从备份恢复，否则引用检索为空。
+- 旧 `heart` 库里的记录不会自动迁移到新库；把 `.env` 改指向新库后，旧数据看起来就像丢了。
+- 想复现本机内容要恢复 `heart_psychology`、`heart_rag` 的 `pg_dump -Fc`，再恢复 `DEEPTUTOR_HOME` 和 `private/runtime.env`；只建库只能得到可打开的空白页面。
+- 不要手工建库写 `.env` 与 `setup_student_local.py` 混用：会同时存在 `heart_psychology` 和 `heart_local8000_*` 两套库，数据各存一半，排查时极易误判为丢失。
 
 ## 6. `.env` 与密钥
 

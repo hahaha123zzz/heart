@@ -53,6 +53,20 @@ class OfficialQueryTests(unittest.TestCase):
             with self.subTest(endpoint=endpoint),self.assertRaises(ValueError):self.roles()
         self.write('https://api.deepseek.com',key='')
         with patch.dict(os.environ,DEEPSEEK_API_KEY='project-fixture'),self.assertRaises(ValueError):self.roles()
+    def test_query_candidate_params_are_env_tunable_and_bounded(self):
+        from knowledge.lightrag.config import query_kwargs_from_settings
+        with patch.dict(os.environ, {'LIGHTRAG_QUERY_CHUNK_TOP_K': '8',
+                                     'LIGHTRAG_QUERY_ENABLE_RERANK': '1'}):
+            params = query_kwargs_from_settings()
+        self.assertEqual(params['chunk_top_k'], 8)
+        self.assertTrue(params['enable_rerank'])
+        with patch.dict(os.environ, {'LIGHTRAG_QUERY_CHUNK_TOP_K': '999'}):
+            self.assertEqual(query_kwargs_from_settings()['chunk_top_k'], 20)
+        with patch.dict(os.environ, {'LIGHTRAG_QUERY_CHUNK_TOP_K': 'bad'}):
+            self.assertEqual(query_kwargs_from_settings()['chunk_top_k'], 8)
+        with patch.dict(os.environ, {'LIGHTRAG_QUERY_ENABLE_RERANK': '0'}):
+            self.assertFalse(query_kwargs_from_settings()['enable_rerank'])
+
     def test_query_instance_cannot_extract_or_accept_indexing_snapshot(self):
         calls=self.roles()
         with patch.object(engine,'_controlled_class',return_value=SimpleNamespace):

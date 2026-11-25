@@ -48,7 +48,7 @@ def native_learning_policy(existing=None):
     policy.update({
         "age_band": policy.get("age_band") or "9-12",
         "locked_persona": "teacher",
-        "allowed_capabilities": ["chat", "immersive_reading"],
+        "allowed_capabilities": ["chat", "ask_questions", "immersive_reading", "mastery_path"],
         "default_capability": "chat",
         "allowed_surfaces": ["chat", "reading"],
         "reading": {

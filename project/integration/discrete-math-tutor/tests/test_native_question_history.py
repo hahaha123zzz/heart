@@ -51,6 +51,14 @@ class QuestionHistoryTests(unittest.IsolatedAsyncioTestCase):
         with patch('integrations.deeptutor.learning_tool_adapter.current_learning_context',return_value=SimpleNamespace(session_id='other')):
             self.assertEqual((await self.store.get_messages_for_context('s'))[-1]['content'],'现在为你出题。')
 
+    async def test_historical_tool_output_is_not_reinjected_into_model_context(self):
+        # 旧会话恢复只回放 user/assistant/system；巨型目录工具结果不得再进模型输入。
+        await self.store.add_message('s', 'tool', '页面正文哨兵' * 100000)
+        rows = await self.store.get_messages_for_context('s')
+
+        self.assertTrue(all(row['role'] != 'tool' for row in rows))
+        self.assertFalse(any('页面正文哨兵' in row['content'] for row in rows))
+
     async def test_edit_branch_does_not_import_sibling_question(self):
         branch=await self.store.add_message('s','user','新分支',parent_message_id=None)
         rows=await self.store.get_messages_for_context('s',leaf_message_id=branch)

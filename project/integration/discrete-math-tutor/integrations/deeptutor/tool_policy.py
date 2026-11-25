@@ -44,6 +44,24 @@ def visible(name):
     return canonical not in hidden_names()
 
 
+def preferred_first_tool(context):
+    """First loop round must read the textbook for course questions."""
+    viewport = (getattr(context, 'metadata', None) or {}).get('reading_viewport') or {}
+    if viewport.get('locator'):
+        return 'read_material'
+    from .course_scope import is_course_question
+    return 'rag' if is_course_question(getattr(context, 'user_message', '')) else None
+
+
+def apply_first_tool_choice(pipeline, context, names):
+    """Set the forced first tool unless the capability already chose one."""
+    if getattr(pipeline, 'initial_tool_choice', None):
+        return
+    choice = preferred_first_tool(context)
+    if choice and choice in names:
+        pipeline.initial_tool_choice = choice
+
+
 def install_tool_policy():
     from deeptutor.runtime.registry.tool_registry import ToolRegistry
     from deeptutor.agents.loop.pipeline import AgenticLoopPipeline
@@ -109,6 +127,7 @@ def install_tool_policy():
                     and (context.allowed_builtin_tools is None or 'read_source' in context.allowed_builtin_tools)
                     and pipeline.tool_lookup.get('read_source') is not None):
                 names = list(dict.fromkeys([*names, 'read_source']))
+            apply_first_tool_choice(pipeline, context, names)
         return names
 
     get._heart_tool_policy = True

@@ -202,11 +202,24 @@ class NativeTurnExecutor:
                     context={"native_turn": binding, "document_versions": versions}, memory_repo=self.memory.repo)
                 mark("save_executing")
                 from .native_grounding import prepare_selection
-                sources, materials = prepare_selection(request, self.orchestrator)
                 if request.selection is None:
+                    try:
+                        sources, materials = prepare_selection(request, self.orchestrator)
+                    except (OSError, RuntimeError, ValueError):
+                        # Chat without a selected passage can still run its
+                        # bound RAG tool after this preflight has no usable
+                        # evidence. A selected passage, by contrast, must stay
+                        # fail-closed and raise below.
+                        logging.getLogger(__name__).warning(
+                            "native chat pre-retrieval did not produce evidence",
+                            exc_info=True,
+                        )
+                        sources, materials = [], []
                     prefetched_sources, prefetched_materials = _prefetched_course_grounding(request.message)
                     sources = [*sources, *prefetched_sources]
                     materials = [*materials, *prefetched_materials]
+                else:
+                    sources, materials = prepare_selection(request, self.orchestrator)
                 mark("prepare_selection")
                 binding["sources"] = sources
                 preferences = request.style_overrides.model_dump(exclude_none=True) if request.style_overrides else None
@@ -232,6 +245,9 @@ class NativeTurnExecutor:
             return {"reply": str(exc), "answer_status": exc.code, "step_advanced": False,
                     **({"task_id": request.task_id, "task_revision": request.task_revision} if request.task_id else {})}
         except (ValueError, OSError) as exc:
+            logging.getLogger(__name__).warning(
+                "native turn validation failed: %s", exc, exc_info=True
+            )
             task = locals().get("task")
             if task:
                 _, result = self.repo.save(task=task, receipt_id=locals().get("receipt") or locals().get("binding", {}).get("receipt_id"), status="failed",

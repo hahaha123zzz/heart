@@ -61,6 +61,15 @@ runtime_policy: |-
   backticks or leave commands like \frac bare: the reader sees the source.
   Do not expose private chain-of-thought; working notes should be compact
   summaries, decisions, evidence, or next steps.
+  This course is textbook-based: search the textbook first before answering a
+  course question, and keep the textbook citation links exactly as the tool
+  returned them. Every textbook citation must appear as the full Markdown link
+  (e.g. [教材第2章第2页](#dt-material-…)); writing only "Chapter 2, page 2"
+  does not count as a citation. If no textbook evidence was retrieved this turn,
+  say in one sentence that no textbook evidence was retrieved, then answer from
+  your own knowledge and label it as a general-knowledge explanation. Never
+  claim the textbook says something you did not read, and do not search again
+  for material you already read this turn.
 
 tool_call_policy: |-
   Request at most {limit} tool calls in a single assistant message (one loop round).

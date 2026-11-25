@@ -196,6 +196,11 @@ class LightRagBackend:
             if not isinstance(query,str) or not query.strip() or len(query)>4000: raise ValueError("检索问题无效或过长")
             if isinstance(limit,bool) or not isinstance(limit,int) or not 1<=limit<=40: raise ValueError("结果数必须为1到40")
             if mode not in ("naive","local","global","hybrid","mix"): raise ValueError("检索模式不支持")
+            from .config import query_kwargs_from_settings
+            params=query_kwargs_from_settings()
+            metrics.stages.append({'stage':'query.params','mode':mode,
+                'chunk_top_k':params['chunk_top_k'],'enable_rerank':params['enable_rerank'],
+                'includes_children':False})
             if cancellation is not None and cancellation.is_cancelled(): raise asyncio.CancelledError()
             snapshot={}
             if course_id not in self.authorized_course_ids or course_id != COURSE:
@@ -218,7 +223,7 @@ class LightRagBackend:
                     if fixed is None: raise RuntimeError('retrieval_not_ready')
                     expected=fixed.policy;binding=fixed.model_binding
                     source_binding['sidecars']=self.resident.sidecars
-                    metrics.stages.append({'stage':'engine.cache_hit','seconds':0,'outcome':'ok','includes_children':False})
+                    metrics.stages.append({'stage':'engine.resident_ready','seconds':0,'outcome':'ok','includes_children':False})
                     async def job(bridge):
                         return await self.resident.query(query,mode,metrics,bridge)
                 else:

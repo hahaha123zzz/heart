@@ -40,3 +40,6 @@ Thumbs.db
 .playwright-mcp/
 .codex-remote-attachments/
 project/integration/discrete-math-tutor/data/user/settings/
+
+# 教材资产由组长单独分发（约 130 MB），不入库；保留 kc_registry.json
+project/integration/discrete-math-tutor/knowledge/courses/*/*
