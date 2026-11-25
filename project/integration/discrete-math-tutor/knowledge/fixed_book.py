@@ -268,28 +268,28 @@ class FixedBookRuntime:
         try:
             # 快速路径同样预热，缓存签名从本次完整核验中取得。
             from knowledge.local_rag.course_retrieval import warm
-            with trace.timed('warmup.local_index', parent='warmup'):
+            with trace.timed('warmup.local_index', parent='fixed_book'):
                 await asyncio.to_thread(warm)
             from knowledge.hybrid_retrieval import _reranker_on_device
             from knowledge.inference_runtime import configured_device
             device = configured_device('RERANK')
-            with trace.timed('warmup.reranker', parent='warmup', device=device):
+            with trace.timed('warmup.reranker', parent='fixed_book', device=device):
                 await asyncio.to_thread(_reranker_on_device, 'BAAI/bge-reranker-base', device)
             from knowledge.local_rag.course_retrieval import retrieve
             sample = {}
-            with trace.timed('warmup.sample_query', parent='warmup', query_class='fixed_sample') as detail:
+            with trace.timed('warmup.sample_query', parent='fixed_book', query_class='fixed_sample') as detail:
                 await asyncio.to_thread(retrieve, '自变量是什么', limit=4, trace=sample)
                 detail.update({key: sample.get(key) for key in ('embedding_seconds', 'recall_seconds',
                     'rerank_seconds', 'corpus_size', 'embedding_device', 'rerank_status')})
             from llm.transport import borrow
             client = self.roles['query'].config.client
-            with trace.timed('warmup.client_pool', parent='warmup',
+            with trace.timed('warmup.client_pool', parent='fixed_book',
                              model=getattr(client, 'model', None), mock=getattr(client, 'mock', None)):
                 with borrow(client.api_key, client.base_url):
                     pass
             from knowledge.figures import load_figures
             from knowledge.textbook import terms_for
-            with trace.timed('warmup.image_terms', parent='warmup') as detail:
+            with trace.timed('warmup.image_terms', parent='fixed_book') as detail:
                 figures = await asyncio.to_thread(load_figures)
                 self.image_terms = {f.id: terms_for(f.caption + ' ' + f.context) for f in figures}
                 detail['figures'] = len(figures)

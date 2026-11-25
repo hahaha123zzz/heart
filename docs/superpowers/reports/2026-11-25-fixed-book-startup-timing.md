@@ -6,14 +6,22 @@
 
 ## 状态
 
-本轮完成了分段计时、控制脚本并行探测、汇总报告器和首问采样器，代码与测试已提交。
-真实启动采样按用户决定 **暂缓**：采样需要把本分支打成新发行并重启本机 18000/18001/8000，
-而当前工作树另有会话在修改 textbook-prefetch 相关文件、且本机测试环境正在被使用。
+分段计时、控制脚本并行探测、汇总报告器和首问采样器已完成，代码与测试已提交。
 
-因此本文只给出可复核的静态证据、计时口径和采样步骤；**没有实测数字被提前填入**。
-采样完成后用 `deploy/startup_report.py` 生成本文第 5 节的表格，再补齐第 6 节三个结论。
+本机做了真实启动尝试，结论分三部分：
 
-现有基线（来自计划与既有记录，非本轮实测）：固定教材初始化 98.72 秒；另一次独立复跑中
+1. **3 次受控重启验收未完成**：干净计时发行在“先 host、后 worker”的现有控制顺序下，
+   宿主在 60 秒内等不到 worker 就绪而退出。worker 的 `warm_retrieval` 单次 49.21 秒，
+   冷启动实测 96.4 秒；同时控制脚本对三个服务各做一次发行包全量校验（2.61 / 16.09 / 18.26 秒）。
+   这条失败轨迹本身已由分段记录定位（见第 5.1 节）。
+2. **拿到一次可用的宿主单样本**：先把 worker 启动并就绪（96.4 秒），再由受控脚本启动 host/web；
+   固定教材初始化 33.48 秒，分项见第 5 节。样本是 `os-warm`、`textbook-prefetch-20261125` 发行、
+   且编排顺序与控制脚本默认不同，**不能当作 98.72 秒基线的同条件对照**。
+3. **首问未采样**：采样器未运行，因此“就绪→首答”仍为空。
+
+本机测试环境已恢复到采样前的 `textbook-prefetch-20261125` 发行并确认 `ready`。
+
+现有基线（来自计划与既有记录，非本轮同条件对照）：固定教材初始化 98.72 秒；另一次独立复跑中
 第二次正式教材目录扫描 0.43 秒，旧本地检索样例查询 28.64 秒（含 28.30 秒原文重排）。
 
 ## 1. 计时口径
@@ -138,15 +146,15 @@ Copy-Item "$Prev\public" "$Web\public" -Recurse -Force
 & $Python "$Clean\project\integration\discrete-math-tutor\deploy\student_release.py" select `
   --root $Deploy --release $Release --expected-current lightrag-native-v4-20261124
 
-# 4) 用本分支的控制脚本与报告器覆盖 private/control
-Copy-Item "$Worktree\project\integration\discrete-math-tutor\deploy\manage_student_local.py" "$Deploy\private\control\" -Force
-Copy-Item "$Worktree\project\integration\discrete-math-tutor\deploy\run_student_release.py" "$Deploy\private\control\" -Force
-Copy-Item "$Worktree\project\integration\discrete-math-tutor\deploy\startup_report.py" "$Deploy\private\control\" -Force
+# 4) 用本分支的控制脚本与报告器覆盖 control（注意目录是 control，不是 private/control）
+Copy-Item "$Worktree\project\integration\discrete-math-tutor\deploy\manage_student_local.py" "$Deploy\control\" -Force
+Copy-Item "$Worktree\project\integration\discrete-math-tutor\deploy\run_student_release.py" "$Deploy\control\" -Force
+Copy-Item "$Worktree\project\integration\discrete-math-tutor\deploy\startup_report.py" "$Deploy\control\" -Force
 
 # 5) 至少三次进程重启；第一次标 process-cold，其余标 os-warm
-& $Python "$Deploy\private\control\manage_student_local.py" restart --root $Deploy --label cold-1 --cache-state process-cold
-& $Python "$Deploy\private\control\manage_student_local.py" restart --root $Deploy --label warm-1 --cache-state os-warm
-& $Python "$Deploy\private\control\manage_student_local.py" restart --root $Deploy --label warm-2 --cache-state os-warm
+& $Python "$Deploy\control\manage_student_local.py" restart --root $Deploy --label cold-1 --cache-state process-cold
+& $Python "$Deploy\control\manage_student_local.py" restart --root $Deploy --label warm-1 --cache-state os-warm
+& $Python "$Deploy\control\manage_student_local.py" restart --root $Deploy --label warm-2 --cache-state os-warm
 ```
 
 每次 restart 的输出带 `startup_id` 与 `trace` 目录。随后跑同一道教材题两次（同一会话）：
@@ -162,7 +170,7 @@ Copy-Item "$Worktree\project\integration\discrete-math-tutor\deploy\startup_repo
 生成汇总（原始 JSONL 保留在同一目录；表格写到单独文件，避免覆盖本文方法说明）：
 
 ```powershell
-& $Python "$Deploy\private\control\startup_report.py" --root $Deploy `
+& $Python "$Deploy\control\startup_report.py" --root $Deploy `
   --output "$Worktree\docs\superpowers\reports\2026-11-25-fixed-book-startup-timing-tables.md"
 ```
 
@@ -182,22 +190,101 @@ Copy-Item "$Worktree\project\integration\discrete-math-tutor\deploy\startup_repo
 - 采集器开关对照：同一发行连续两次启动，一次设置 `STARTUP_TRACE_DIR`，一次不设置，核对调用次数、
   顺序和 `/health` 总秒数没有变化。
 
-## 5. 汇总表（采样后自动生成）
+## 5. 单次成功样本（非三次重启验收）
 
-采样完成后，`deploy/startup_report.py` 会输出：
+- 发行：`textbook-prefetch-20261125`（包含本次计时改动和并发会话的 prefetch 改动；不是干净计时发行）。
+- 编排：先手动启动 worker 并等到 `/health/ready`（96.4 秒），再 `manage start` 启动 host/web。
+  因此控制脚本的“顺序就绪”从 host 开始算，worker 的真实冷启动不在这一列的 41.78 秒内。
+- 缓存：`os-warm`（worker 已就绪、模型已加载）。
+- 原始记录：`.runtime/student-release-20261122/private/startup-traces/20261125T200344-26504/`
+  （`host-36532.jsonl`、`control-26504.jsonl`、`probe-26504.jsonl`；worker 记录在 `recovery-worker/`）。
+- 首问采样未运行。
 
-1. 时间线：每个 startup_id 的缓存状态、控制脚本总计、固定教材初始化、`/health` 首次、第一问、第二问。
-2. 顺序就绪与并行探测对照：区分“实际可用”与“控制脚本首次观测到可用”。
-3. 阶段耗时：位置（service）、阶段、调用次数、中位数与范围（单样本列实测值）、占固定教材初始化比例。
-4. 重复目录遍历：`verify_active` 与再次 inventory 的实测秒数、文件数和可合并上限。
+### 时间线
 
-## 6. 待采样后补写的三个结论
+| 启动 | 缓存状态 | 控制脚本总计 | 固定教材初始化 | health 首次（自模块初始化） | 就绪→首问 | 首问耗时 | 第二问 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 20261125T200344-26504 | os-warm | 51.79 | 33.48 | 41.09 | — | — | — |
 
-1. 耗时最大的三个阶段及多次样本的变化范围（以阶段汇总表为准）。
-2. 可确认的重复工作、输入与耗时，以及是否影响就绪（静态证据见第 3 节；耗时范围待第 5 节）。
-3. 就绪到首条教材回答的时间差，以及首问是否仍在加载或首次推理（见时间线的“就绪→首问”列，
-   由 `sample.turn(at) − host.health.first_ok(at)` 计算；首问耗时与第二问同题耗时单列，
-   对比缓存与常驻模型影响）。
+顺序就绪（相对控制脚本起点）与并行探测对照：
+
+| 启动 | 顺序 host | 顺序 worker | 顺序 web | 探测 host | 探测 worker | 探测 web |
+| --- | --- | --- | --- | --- | --- | --- |
+| 20261125T200344-26504 | 51.75 | 51.77 | 51.79 | 51.53 | 0.82 | 11.12 |
+
+控制脚本分段（不参与宿主阶段排名）：
+
+| 启动 | 发行校验合计 | 进程创建合计 | 顺序就绪等待合计 |
+| --- | --- | --- | --- |
+| 20261125T200344-26504 | 9.73 | 0.03 | 41.78 |
+
+### 阶段自身耗时（前 12）
+
+自身耗时 = 该阶段总耗时 − 同启动内子阶段合计；占比按固定教材初始化 33.48 秒计算。
+
+| 位置 | 阶段 | 父阶段 | 调用 | 实测自身耗时 | 占固定教材 |
+| --- | --- | --- | --- | --- | --- |
+| host | warmup.sample_query | warmup | 1 | 11.88 | 35.5% |
+| host | lightrag.manifest.host_textbook | lightrag.manifest | 1 | 6.35 | 19.0% |
+| host | lightrag.manifest.frozen_input | lightrag.manifest | 1 | 5.94 | 17.7% |
+| host | lightrag.provenance.bundle | lightrag.provenance.chapter_01 | 11 | 1.65 | 4.9% |
+| host | warmup.local_index | warmup | 1 | 1.35 | 4.0% |
+| host | lightrag.sdk.build | lightrag.resident.start | 1 | 0.87 | 2.6% |
+| host | fixed_book.outline | fixed_book | 1 | 0.83 | 2.5% |
+| host | fixed_book.hashes | fixed_book | 1 | 0.60 | 1.8% |
+| host | fixed_book.release | fixed_book | 1 | 0.36 | 1.1% |
+| host | lightrag.pg.tables | lightrag.index_manifest | 1 | 0.31 | 0.9% |
+| host | lightrag.sdk.initialize | lightrag.resident.start | 1 | 0.31 | 0.9% |
+| host | lightrag.resident.start | lightrag.resident.schedule | 1 | 0.29 | 0.9% |
+
+注：该样本来自旧发行，`warmup.*` 的 `parent` 仍记为 `warmup`；干净发行已改为 `fixed_book`，
+报告对两种写法都做对账。完整阶段表由 `startup_report.py` 生成。
+
+### 串行阶段对账
+
+| 启动 | 固定教材总耗时 | 顶层阶段合计 | 未计时剩余 |
+| --- | --- | --- | --- |
+| 20261125T200344-26504 | 33.48 | 32.27 | 1.21 |
+
+### 重复目录遍历
+
+| 启动 | verify_active | 再次 inventory | 文件数 | 可合并范围 |
+| --- | --- | --- | --- | --- |
+| 20261125T200344-26504 | 6.35 | 0.60 | 409 / 409 | 0.60 |
+
+## 5.1 三次重启验收受阻（关键发现）
+
+干净计时发行 `fixed-book-startup-timing-20261125` 连续三次 `restart` 均在宿主就绪处失败。
+失败轨迹（`private/startup-traces/20261125T195101-36552` 等）：
+
+- `control.release_verify`：2.61 / 16.09 / 18.26 秒（host / worker / web 各做一次全量发行校验）。
+- worker 分段：`worker.entry` 0、`vendor_import` 0.24、`app_import` 2.16 后停在
+  `install_native_bridge`，60 秒窗口内没有 `warm_retrieval` 记录。
+- 宿主日志：`原生 worker 在 60 秒内未就绪`。`control.failed` 的 `target=host` 定位到最后阶段。
+- 手工单跑 worker：`warm_retrieval` 49.21 秒，`ready_to_listen` 54.86 秒；另一次冷启动
+  `/health/ready` 96.4 秒。
+
+原因链：宿主先启动并硬编码等待 worker 60 秒；控制脚本对三个服务顺序做发行校验，worker 被推迟
+数十秒才 spawn；worker 自身预热已接近或超过 60 秒。三者叠加时宿主必然超时。
+
+要让三次重启验收可执行，需在下列方案中选一个（属于后续优化计划，不在本轮计时改动内）：
+1. 控制脚本校验一次发行包并复用结果（第 3 节第 2 条，预计可省 2.6–18.3 秒 × 2）；
+2. 改为 worker 先就绪、再启动 host；
+3. 放宽宿主 60 秒的 worker 就绪预算，并说明对就绪定义的影响。
+
+## 6. 三个结论（按现有证据）
+
+1. **耗时最大的三个阶段**：单样本（os-warm、worker 先行）为
+   `warmup.sample_query` 11.88 秒（35.5%）、`lightrag.manifest.host_textbook` 6.35 秒（19.0%）、
+   `lightrag.manifest.frozen_input` 5.94 秒（17.7%）。多次样本的范围尚未取得；
+   98.72 秒基线与本样本 33.48 秒不是同条件对照（发行、缓存、编排均不同）。
+2. **可确认的重复工作**：同一 409 个正式教材文件的 `verify_active` 6.35 秒与再次 inventory 0.60 秒
+   可共享结果，保守可合并范围 ≤0.60 秒/次启动；三个服务的发行包全量校验每次 2.61–18.26 秒，
+   一次校验即可服务三个服务；图表/词表目录由候选、宿主、发行快照和图片词表分别读取。
+   重复校验不仅耗时可观，还通过推迟 worker 启动**直接影响就绪**（第 5.1 节）。
+3. **就绪到首条教材回答**：未测。固定教材的预热（旧索引、样例查询、图片词表）都在
+   `fixed_book.ready_flag` 之后、`fixed_book.start.complete` 之前完成，因此不会推迟到第一问；
+   第一问的剩余成本是模型与检索推理，需要采样器运行后才能给出时间差。
 
 对账要求：`fixed_book.entry` 到 `fixed_book.start.complete` 的总秒数应与串行子阶段之和一致；
-若出现明显剩余，报告需补出未计时区间或注明来源（例如 `policy.json` 读取与阶段之间的 Python 开销）。
+本例为 33.48 ≈ 32.27 + 1.21，剩余为 `policy.json` 读取与阶段之间的 Python 开销。

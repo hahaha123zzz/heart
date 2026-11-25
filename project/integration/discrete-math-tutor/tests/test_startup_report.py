@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from deploy.startup_report import duplicates, load, reconciliation, render, summaries, timeline
+from deploy.startup_report import control_stages, duplicates, load, reconciliation, render, summaries, timeline
 
 
 def write(directory, sid, rows):
@@ -61,9 +61,15 @@ class StartupReportTests(unittest.TestCase):
         summary, _ = summaries(load(self.folder.name))
         stages = {row['stage'] for row in summary}
         for marker in ('fixed_book.start.complete', 'fixed_book.ready_flag', 'control.done',
-                       'host.health.first_ok', 'sample.turn'):
+                       'host.health.first_ok', 'sample.turn', 'control.ready'):
             self.assertNotIn(marker, stages)
         self.assertEqual(summary[0]['stage'], 'lightrag.manifest.host_textbook')
+
+    def test_control_stages_are_reported_separately(self):
+        controls = {row['startup_id']: row for row in control_stages(load(self.folder.name))}
+        self.assertEqual(controls['s1']['stages']['control.ready'], 5)
+        self.assertEqual(controls['s1']['stages'].get('control.release_verify', 0), 0)
+        self.assertNotIn('control.begin', controls['s1']['stages'])
 
     def test_failed_startup_stages_do_not_shift_the_stage_table(self):
         rows = load(self.folder.name)
@@ -112,6 +118,22 @@ class StartupReportTests(unittest.TestCase):
         report = render(rows)
         self.assertIn('实测自身耗时', report)
         self.assertIn('| host | fixed_book.hashes | fixed_book | 1 | 7.00 | 7.8% |', report)
+
+    def test_old_resident_parent_is_normalized_to_schedule(self):
+        with TemporaryDirectory() as folder:
+            write(folder, 'old', [
+                row('old', 'host', 'fixed_book.start.complete', 10),
+                row('old', 'host', 'lightrag.resident.schedule', 4, parent='fixed_book'),
+                row('old', 'host', 'lightrag.resident.start', 3, parent='fixed_book'),
+                row('old', 'host', 'lightrag.sdk.build', 2, parent='lightrag.resident.start'),
+            ])
+            summary, _ = summaries(load(folder))
+            by_stage = {item['stage']: item for item in summary}
+            self.assertEqual(by_stage['lightrag.resident.schedule']['median'], 1)  # 4 − 3
+            self.assertEqual(by_stage['lightrag.resident.start']['median'], 1)  # 3 − 2
+            found = reconciliation(load(folder))[0]
+            self.assertEqual(found['stages'], 4)  # schedule 只算一次
+            self.assertEqual(found['residual'], 6)
 
     def test_load_skips_partial_jsonl_lines(self):
         with TemporaryDirectory() as folder:

@@ -40,15 +40,25 @@ def _seconds(value):
     return '—' if value is None else ('%.2f' % value)
 
 
+def _effective_parent(row, rows):
+    """旧发行把 resident.start 直接挂在 fixed_book；有 schedule 时归到 schedule，避免重复计入顶层。"""
+    if row['stage']=='lightrag.resident.start' and any(
+            other['startup_id']==row['startup_id'] and other['service']==row['service']
+            and other['stage']=='lightrag.resident.schedule' for other in rows):
+        return 'lightrag.resident.schedule'
+    return row['parent']
+
+
 def summaries(rows):
     """只统计成功启动：先按 startup 汇总同名阶段，再对自身耗时取中位数。"""
     complete=complete_ids(rows);per={}
     for row in rows:
         if row['startup_id'] not in complete or row['status']!='ok':continue
-        if row['service'] in ('probe','sample'):continue
+        if row['service'] in ('probe','sample','control'):continue
         if row['stage'] in MARKERS or row['stage'].startswith(('sample.','probe.')):continue
         key=(row['startup_id'],row['service'],row['stage'])
-        entry=per.setdefault(key,{'seconds':0.0,'calls':0,'parent':row['parent']})
+        parent=_effective_parent(row,rows)
+        entry=per.setdefault(key,{'seconds':0.0,'calls':0,'parent':parent})
         entry['seconds']+=row['seconds'];entry['calls']+=1
     children={}
     for (sid,service,stage),entry in per.items():
@@ -79,7 +89,7 @@ def reconciliation(rows):
         items=[row for row in rows if row['startup_id']==sid and row['service']=='host' and row['status']=='ok']
         total=next((row['seconds'] for row in items if row['stage']=='fixed_book.start.complete'),None)
         top=sum(row['seconds'] for row in items
-                if row['parent']=='fixed_book' and row['stage'] not in MARKERS)
+                if _effective_parent(row,rows) in ('fixed_book','warmup') and row['stage'] not in MARKERS)
         result.append({'startup_id':sid,'total':total,'stages':top,
                        'residual':(total-top) if total is not None else None})
     return result
@@ -131,6 +141,18 @@ def duplicates(rows):
     return sorted(result,key=lambda row:row['startup_id'])
 
 
+def control_stages(rows):
+    result=[]
+    for sid,items in group(rows).items():
+        entries={}
+        for row in items:
+            if row['service']!='control' or row['status']!='ok':continue
+            if row['stage'] in ('control.begin','control.done','control.failed'):continue
+            entries[row['stage']]=entries.get(row['stage'],0.0)+row['seconds']
+        if entries:result.append({'startup_id':sid,'stages':entries})
+    return sorted(result,key=lambda row:row['startup_id'])
+
+
 def render(rows,title='固定教材启动分段报告'):
     grouped=group(rows);complete=complete_ids(rows);single=len(complete)==1
     lines=['# '+title,'','样本数：%d（成功就绪 %d）' % (len(grouped),len(complete)),'','## 时间线','']
@@ -147,6 +169,14 @@ def render(rows,title='固定教材启动分段报告'):
         lines.append('| %s | %s | %s | %s | %s | %s | %s |' % (row['startup_id'],
             _seconds(row['ready'].get('host')),_seconds(row['ready'].get('worker')),_seconds(row['ready'].get('web')),
             _seconds(row['probed'].get('host')),_seconds(row['probed'].get('worker')),_seconds(row['probed'].get('web'))))
+    lines+=['','控制脚本分段（不参与宿主阶段排名）：','']
+    lines.append('| 启动 | 发行校验合计 | 进程创建合计 | 顺序就绪等待合计 |')
+    lines.append('| --- | --- | --- | --- |')
+    for row in control_stages(rows):
+        lines.append('| %s | %s | %s | %s |' % (row['startup_id'],
+            _seconds(row['stages'].get('control.release_verify',0)),
+            _seconds(row['stages'].get('control.process_start',0)),
+            _seconds(row['stages'].get('control.ready',0))))
     summary,baseline=summaries(rows)
     lines+=['','## 阶段自身耗时','','自身耗时 = 该阶段总耗时 − 同启动内子阶段合计；总量和里程碑不参与排名。',
             '占固定教材初始化比例按 %s s 计算。' % _seconds(baseline),'']
