@@ -75,10 +75,11 @@ async def run_turn(ws, record, question: str, session_id=None, label='first'):
         row = marks(message)
         found['events'] += 1
         found['chars'] += row.get('chars', 0)
-        record('sample.event', parent='sample.turn', seconds=seconds, turn=label, **row)
         kind = row['kind']
         if kind == 'session' and not found['session_id']:
-            found['session_id'] = message.get('session_id') or (message.get('metadata') or {}).get('session_id')
+            metadata = message.get('metadata')
+            found['session_id'] = message.get('session_id') or (
+                metadata.get('session_id') if isinstance(metadata, dict) else None)
         for mark, condition in (
                 ('first_event', True),
                 ('first_text', kind == 'content' and row.get('chars', 0) > 0),
@@ -107,32 +108,38 @@ async def run(args):
     began = time.perf_counter()
     trace.record('sample.begin', parent='sample', seconds=0, base=args.base,
                  question_class='fixed_sample_textbook')
-    password = password_from(args.creds, args.username)
-    cookie = login(args.base, args.username, password)
-    trace.record('sample.login', parent='sample', seconds=time.perf_counter() - began)
     try:
-        import websockets
-    except ImportError:
-        raise SystemExit('websockets 未安装，无法连接 /ws')
-    headers = {'Cookie': cookie, 'Origin': args.base}
-    try:
-        connect = websockets.connect
-        ws = await connect(args.ws, additional_headers=headers, open_timeout=30, max_size=8_000_000)
-    except TypeError:
-        ws = await websockets.connect(args.ws, extra_headers=headers, open_timeout=30, max_size=8_000_000)
-    async with ws:
-        trace.record('sample.connected', parent='sample', seconds=time.perf_counter() - began)
-        first = await run_turn(ws, trace.record, args.question, label='first')
-        trace.record('sample.turn', parent='sample', seconds=first['seconds'], turn='first',
-                     events=first['events'], chars=first['chars'])
-        second = await run_turn(ws, trace.record, args.question, first['session_id'], label='second')
-        trace.record('sample.turn', parent='sample', seconds=second['seconds'], turn='second',
-                     events=second['events'], chars=second['chars'])
-    trace.record('sample.done', parent='sample', seconds=time.perf_counter() - began,
-                 first_seconds=first['seconds'], second_seconds=second['seconds'])
-    print(json.dumps({'startup_id': trace.startup_id, 'first': first['seconds'],
-                      'second': second['seconds'], 'first_events': first['events'],
-                      'first_chars': first['chars']}, ensure_ascii=False))
+        password = password_from(args.creds, args.username)
+        cookie = login(args.base, args.username, password)
+        trace.record('sample.login', parent='sample', seconds=time.perf_counter() - began)
+        try:
+            import websockets
+        except ImportError:
+            raise SystemExit('websockets 未安装，无法连接 /ws')
+        headers = {'Cookie': cookie, 'Origin': args.base}
+        try:
+            connect = websockets.connect
+            ws = await connect(args.ws, additional_headers=headers, open_timeout=30, max_size=8_000_000)
+        except TypeError:
+            ws = await websockets.connect(args.ws, extra_headers=headers, open_timeout=30, max_size=8_000_000)
+        async with ws:
+            trace.record('sample.connected', parent='sample', seconds=time.perf_counter() - began)
+            first = await run_turn(ws, trace.record, args.question, label='first')
+            trace.record('sample.turn', parent='sample', seconds=first['seconds'], turn='first',
+                         events=first['events'], chars=first['chars'])
+            second = await run_turn(ws, trace.record, args.question, first['session_id'], label='second')
+            trace.record('sample.turn', parent='sample', seconds=second['seconds'], turn='second',
+                         events=second['events'], chars=second['chars'])
+        trace.record('sample.done', parent='sample', seconds=time.perf_counter() - began,
+                     first_seconds=first['seconds'], second_seconds=second['seconds'])
+        print(json.dumps({'startup_id': trace.startup_id, 'first': first['seconds'],
+                          'second': second['seconds'], 'first_events': first['events'],
+                          'first_chars': first['chars']}, ensure_ascii=False))
+    except BaseException as exc:
+        trace.record('sample.failed', parent='sample', seconds=time.perf_counter() - began,
+                     status='cancelled' if type(exc).__name__ == 'CancelledError' else 'failed',
+                     error=type(exc).__name__)
+        raise
 
 
 def main():

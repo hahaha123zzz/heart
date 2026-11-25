@@ -92,6 +92,15 @@ class StartupTraceTests(unittest.TestCase):
             written, = list(Path(folder).glob('worker-*.jsonl'))
             self.assertEqual(rows(written)[0]['stage'], 'worker.entry')
 
+    def test_write_failure_is_swallowed_so_startup_never_depends_on_telemetry(self):
+        with TemporaryDirectory() as folder:
+            target = Path(folder) / 'not-a-directory'
+            target.write_text('x', encoding='utf-8')
+            trace = startup_trace.Trace('host', path=target / 'host.jsonl', sid='startup-h')
+            with self.assertLogs('knowledge.startup_trace', level='WARNING'):
+                row = trace.record('fixed_book.entry', parent='fixed_book', seconds=0)
+            self.assertEqual(row['stage'], 'fixed_book.entry')
+
     def test_trace_is_silent_on_disk_when_no_directory_is_configured(self):
         with patch.dict(os.environ, {'STARTUP_ID': 'startup-g'}, clear=False):
             os.environ.pop('STARTUP_TRACE_DIR', None)

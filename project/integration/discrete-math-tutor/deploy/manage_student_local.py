@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse,json,os,socket,subprocess,threading,time
 from datetime import datetime
 from pathlib import Path
-import httpx
 import psutil
 from dotenv import dotenv_values
 from filelock import FileLock
@@ -51,6 +50,7 @@ def recorder(directory, sid, name):
 
 def probe(record,ports,origin):
  # 独立并行探测三个端口，与控制脚本顺序阻塞的就绪检查分开计时。
+ import httpx
  stop_event=threading.Event()
  def watch(service,path):
   client=httpx.Client(trust_env=False,timeout=3);attempts=0
@@ -91,15 +91,20 @@ def main():
          host_port=ports["host"],worker_port=ports["worker"],web_port=ports["web"])
   os.environ["STARTUP_ID"]=sid;os.environ["STARTUP_TRACE_DIR"]=str(directory)
   keeper=probe(probe_record,ports,origin)
-  status="ok"
+  status="ok";target=None
   try:
    for service in ("host","worker","web"):
+    target=service
     if service in records and matching(records[service]) is not None:continue
     with socket.socket() as sock:sock.bind(("127.0.0.1",ports[service]))
-    timing={};began=time.perf_counter()
-    command,cwd,env=plan(root,service,values,timing)
-    record("control.release_verify",parent="control.service",seconds=timing.get("release_seconds",time.perf_counter()-began),
-           target=service,release_id=timing.get("release_id"),files=timing.get("file_count"))
+    timing={};began=time.perf_counter();planned=False
+    try:
+     command,cwd,env=plan(root,service,values,timing);planned=True
+    finally:
+     record("control.release_verify",parent="control.service",
+            seconds=timing.get("release_seconds",time.perf_counter()-began),
+            target=service,release_id=timing.get("release_id"),files=timing.get("file_count"),
+            status="ok" if planned else "failed")
     env["STARTUP_SERVICE"]=service
     spawn_at=time.perf_counter()
     with (logs/(service+".log")).open("ab") as log:
@@ -107,6 +112,7 @@ def main():
     owner=psutil.Process(process.pid);records[service]={"pid":process.pid,"created_at":owner.create_time(),"command":owner.cmdline()};file.write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding="utf-8")
     record("control.process_start",parent="control.service",seconds=time.perf_counter()-spawn_at,
            target=service,pid=process.pid)
+   import httpx
    with httpx.Client(trust_env=False,timeout=3) as client:
     for service,path in PROBES:
      began=time.perf_counter();attempts=0
@@ -120,11 +126,11 @@ def main():
       time.sleep(1)
      else:raise RuntimeError("readiness_timeout:"+service)
      record("control.ready",parent="control.service",seconds=time.perf_counter()-began,
-            target=service,attempts=attempts)
+            elapsed_since_origin=time.perf_counter()-origin,target=service,attempts=attempts)
   except BaseException as exc:
    status="cancelled" if type(exc).__name__=="CancelledError" else "failed"
    record("control.failed",parent="control",seconds=time.perf_counter()-origin,
-          status=status,error=type(exc).__name__)
+          status=status,target=target,error=type(exc).__name__)
    raise
   finally:
    keeper.set()

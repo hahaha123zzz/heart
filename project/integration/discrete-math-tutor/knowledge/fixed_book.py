@@ -71,7 +71,7 @@ class ResidentGraph:
     async def start(self):
         from knowledge.startup_trace import current
         trace = current()
-        with trace.timed('lightrag.resident.start', parent='fixed_book') as detail:
+        with trace.timed('lightrag.resident.start', parent='lightrag.resident.schedule') as detail:
             from knowledge.lightrag import engine
             from lightrag.utils import EmbeddingFunc
             adapters = {role: self.dispatch(role) for role in self.roles}
@@ -101,7 +101,9 @@ class ResidentGraph:
                             manifest, bundle = load_verified_bundle(working, name)
                         with trace.timed('lightrag.provenance.document', parent=stage):
                             full = await self.rag.full_docs.get_by_id(engine._document_id(name))
-                        raw = json.loads((bundle / manifest['blocks']['path']).read_text(encoding='utf8'))
+                        with trace.timed('lightrag.provenance.blocks', parent=stage) as blocks:
+                            raw = json.loads((bundle / manifest['blocks']['path']).read_text(encoding='utf8'))
+                            blocks['blocks'] = len(raw)
                         modalities = {}
                         for kind in ('drawings', 'tables', 'equations'):
                             sidecar = sidecar_modality_path((full or {}).get('sidecar_location'), kind)

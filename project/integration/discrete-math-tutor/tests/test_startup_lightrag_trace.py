@@ -72,6 +72,22 @@ class LightRagStartupTraceTests(unittest.TestCase):
             self.assertEqual(recorded['lightrag.pg.tables']['fields']['tables'], 1)
             self.assertEqual(recorded['lightrag.pg.tables']['fields']['rows'], 2)
 
+    def test_verify_manifest_failure_keeps_traversed_postgres_stages(self):
+        with TemporaryDirectory() as folder:
+            trace = startup_trace.Trace('host', path=Path(folder) / 'host.jsonl', sid='lightrag-pg-fail')
+            entry = {'row_count': 2, 'id_sha256': 'x', 'source_signature': 'other'}
+            with (patch('knowledge.lightrag.storage.read_manifest', return_value={'LIGHTRAG_DOC_FULL': entry}),
+                  patch('knowledge.lightrag.storage._workspace', return_value='w'),
+                  patch('knowledge.lightrag.storage._pg_connect'),
+                  patch('knowledge.lightrag.storage.table_fingerprint',
+                        return_value={'row_count': 2, 'id_sha256': 'x'})):
+                with self.assertRaisesRegex(RuntimeError, '源签名'):
+                    verify_manifest(Path(folder), source_signature='s', trace=trace)
+            recorded = rows(folder)
+            self.assertEqual(recorded['lightrag.pg.baseline']['status'], 'ok')
+            self.assertEqual(recorded['lightrag.pg.tables']['status'], 'failed')
+            self.assertEqual(recorded['lightrag.pg.tables']['fields']['error'], 'RuntimeError')
+
     def test_source_map_records_each_chapter_and_the_slowest(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)
@@ -127,11 +143,12 @@ class LightRagStartupTraceTests(unittest.TestCase):
             self.assertEqual(recorded['lightrag.resident.start']['fields']['chapters'], 1)
             self.assertEqual(recorded['lightrag.resident.start']['fields']['slowest_chapter'], 1)
             self.assertEqual(recorded['lightrag.resident.start']['status'], 'ok')
+            self.assertEqual(recorded['lightrag.resident.start']['parent'], 'lightrag.resident.schedule')
             chapter = recorded['lightrag.provenance.chapter_01']
             self.assertEqual(chapter['parent'], 'lightrag.resident.start')
             self.assertEqual(chapter['fields']['chapter'], 1)
             for child in ('lightrag.provenance.bundle', 'lightrag.provenance.document',
-                          'lightrag.provenance.sidecar'):
+                          'lightrag.provenance.blocks', 'lightrag.provenance.sidecar'):
                 self.assertEqual(recorded[child]['parent'], 'lightrag.provenance.chapter_01')
             self.assertEqual(recorded['lightrag.provenance.sidecar']['fields']['modality'], 'tables')
             self.assertEqual(recorded['lightrag.sdk.build']['parent'], 'lightrag.resident.start')

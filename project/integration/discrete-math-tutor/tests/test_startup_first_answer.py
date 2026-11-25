@@ -29,6 +29,12 @@ class FirstAnswerSampleTests(unittest.IsolatedAsyncioTestCase):
             'kind': 'tool_call', 'event_stage': 'retrieval', 'event_source': '', 'tool': 'rag'})
         self.assertEqual(marks({'type': 'sources', 'metadata': {'sources': [1, 2]}})['source_count'], 2)
 
+    def test_marks_drop_oversized_stage_and_source(self):
+        long = 'x' * 81
+        row = marks({'type': 'progress', 'stage': long, 'source': long})
+        self.assertEqual(row['event_stage'], '')
+        self.assertEqual(row['event_source'], '')
+
     def test_password_reads_the_last_line_for_the_account(self):
         with TemporaryDirectory() as folder:
             creds = Path(folder) / 'accounts.txt'
@@ -61,6 +67,13 @@ class FirstAnswerSampleTests(unittest.IsolatedAsyncioTestCase):
         text = next(item for item in recorded if item['stage'] == 'sample.first_text')
         self.assertEqual(text['chars'], 5)
         self.assertNotIn('第一段正文', json.dumps(recorded, ensure_ascii=False))
+
+    async def test_second_turn_sends_the_session_id(self):
+        ws = FakeWebSocket([{'type': 'done'}])
+        await run_turn(ws, lambda stage, **fields: None, '同一道题', 'session-9', label='second')
+        self.assertEqual(ws.sent, [{'type': 'start_turn', 'protocol_version': '2.0',
+                                    'client_submission_id': 'second-1', 'content': '同一道题',
+                                    'session_id': 'session-9'}])
 
 
 if __name__ == '__main__':

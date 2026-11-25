@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import os
+import threading
 import time
 from typing import Optional
 from pathlib import Path
@@ -76,6 +77,7 @@ recover_interrupted_submissions()
 _PURGED = orchestrator.memory.cleanup_expired() if os.getenv('CLEANUP_EXPIRED_ON_STARTUP', '1') == '1' else 0
 _PROCESS_STARTED = time.perf_counter()
 _HEALTH_RECORDED = False
+_HEALTH_LOCK = threading.Lock()
 
 
 from models.chat_request import ChatRequest
@@ -95,11 +97,13 @@ def health():
     from knowledge.startup_trace import current, startup_id
     fixed = active()
     if not _HEALTH_RECORDED:
-        _HEALTH_RECORDED = True
-        current().record('host.health.first_ok', parent='host',
-                         seconds=time.perf_counter() - _PROCESS_STARTED,
-                         fixed_ready=fixed is not None,
-                         startup_seconds=getattr(fixed, 'start_seconds', None))
+        with _HEALTH_LOCK:
+            if not _HEALTH_RECORDED:
+                _HEALTH_RECORDED = True
+                current().record('host.health.first_ok', parent='host',
+                                 seconds=time.perf_counter() - _PROCESS_STARTED,
+                                 fixed_ready=fixed is not None,
+                                 startup_seconds=getattr(fixed, 'start_seconds', None))
     return {
         "status": "ok",
         "course_id":COURSE_ID,

@@ -37,7 +37,7 @@
 | 控制脚本开始 | `control.begin` | label、cache_state、三个端口 |
 | 各服务发行校验 | `control.release_verify` | 只计 `student_release.verify()`；release_id、文件数 |
 | 服务进程创建 | `control.process_start` | pid、目标服务 |
-| 顺序就绪检查 | `control.ready` | 目标服务、探测次数（会阻塞后续服务探测） |
+| 顺序就绪检查 | `control.ready` | 目标服务、探测次数、`elapsed_since_origin`（与并行探测同起点）；`seconds` 是本次等待时长 |
 | 并行辅助探测 | `probe.first_ok` / `probe.stopped` | 独立线程每 0.2 s 探测三个端口，单独文件 |
 | 控制脚本总计 | `control.done` | 含失败状态；失败另记 `control.failed` |
 | 宿主固定教材入口 | `fixed_book.entry` | 起点 |
@@ -67,6 +67,7 @@
 | └ 逐章来源绑定 | `lightrag.provenance.chapter_XX` | 章号、块数、素材类数；聚合章数与最慢章 |
 | │ ├ 入库包校验 | `lightrag.provenance.bundle` | — |
 | │ ├ 文档元数据 | `lightrag.provenance.document` | — |
+| │ ├ 原文块文件 | `lightrag.provenance.blocks` | 块数 |
 | │ └ 图表公式 sidecar | `lightrag.provenance.sidecar` | modality |
 | 图谱标签装载 | `lightrag.labels` | 标签数、实体词数 |
 | self.ready 赋值 | `fixed_book.ready_flag` | 相对入口秒数 |
@@ -77,7 +78,7 @@
 | 图片词表 | `warmup.image_terms` | 图片数 |
 | 固定教材完成 | `fixed_book.start.complete` | 总秒数 |
 | `/health` 首次通过 | `host.health.first_ok` | fixed_ready、startup_seconds |
-| worker 启动 | `worker.entry/vendor_import/app_import/warm_retrieval/warm_worker/listen` | 相对 worker 入口秒数 |
+| worker 启动 | `worker.entry/vendor_import/app_import/warm_retrieval/warm_worker/ready_to_listen` | 相对 worker 入口秒数；`ready_to_listen` 不代表端口已监听成功 |
 | 第一问 | `sample.login/connected/first_*/done/turn` | 事件类型、阶段、字符数、工具名、来源数 |
 
 ## 3. 已确认的重复工作（静态证据）
@@ -158,12 +159,17 @@ Copy-Item "$Worktree\project\integration\discrete-math-tutor\deploy\startup_repo
   --question "自变量是什么"
 ```
 
-生成汇总（原始 JSONL 保留在同一目录）：
+生成汇总（原始 JSONL 保留在同一目录；表格写到单独文件，避免覆盖本文方法说明）：
 
 ```powershell
 & $Python "$Deploy\private\control\startup_report.py" --root $Deploy `
-  --output "$Worktree\docs\superpowers\reports\2026-11-25-fixed-book-startup-timing.md"
+  --output "$Worktree\docs\superpowers\reports\2026-11-25-fixed-book-startup-timing-tables.md"
 ```
+
+再把 `-tables.md` 的时间线、阶段自身耗时、串行对账和重复遍历四张表粘回本文第 5 节。
+阶段表只统计成功就绪的启动，先按 `startup_id` 汇总同名阶段，再对“自身耗时
+（阶段总耗时 − 同启动内子阶段合计）”取中位数；总量与里程碑（`*.start.complete`、`*.ready_flag`、
+`worker.*` 导入里程碑、`sample.*`、`probe.*`）不参与排名，避免总耗时冒充最慢阶段。
 
 回退：`student_release.py select --release <上一版> --expected-current fixed-book-startup-timing-20261125`，
 再 `manage_student_local.py restart --root $Deploy`。若宿主无法就绪，按 `private/logs/host.log` 定位；
@@ -189,8 +195,9 @@ Copy-Item "$Worktree\project\integration\discrete-math-tutor\deploy\startup_repo
 
 1. 耗时最大的三个阶段及多次样本的变化范围（以阶段汇总表为准）。
 2. 可确认的重复工作、输入与耗时，以及是否影响就绪（静态证据见第 3 节；耗时范围待第 5 节）。
-3. 就绪到首条教材回答的时间差，以及首问是否仍在加载或首次推理（看第一问的
-   `sample.first_tool_call/first_text/done` 相对 `host.health.first_ok` 的差值；第二问同题对比缓存与常驻模型影响）。
+3. 就绪到首条教材回答的时间差，以及首问是否仍在加载或首次推理（见时间线的“就绪→首问”列，
+   由 `sample.turn(at) − host.health.first_ok(at)` 计算；首问耗时与第二问同题耗时单列，
+   对比缓存与常驻模型影响）。
 
 对账要求：`fixed_book.entry` 到 `fixed_book.start.complete` 的总秒数应与串行子阶段之和一致；
 若出现明显剩余，报告需补出未计时区间或注明来源（例如 `policy.json` 读取与阶段之间的 Python 开销）。

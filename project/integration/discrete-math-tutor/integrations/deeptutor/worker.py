@@ -111,7 +111,7 @@ def main() -> None:
         warm_worker()
     install_worker_warmup(app)
     app.add_middleware(HostBridgeBoundary)
-    trace.record('worker.listen', parent='worker', seconds=time.perf_counter() - began)
+    trace.record('worker.ready_to_listen', parent='worker', seconds=time.perf_counter() - began)
     uvicorn.run(app, host="127.0.0.1", port=args.port,
                 proxy_headers=False, access_log=False)
 

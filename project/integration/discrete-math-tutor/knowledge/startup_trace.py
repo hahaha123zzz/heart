@@ -39,11 +39,15 @@ class Trace:
                    'status': status,
                    'at': datetime.now().astimezone().isoformat(timespec='milliseconds'),
                    'fields': fields}
-            if self.path:
-                self.path.parent.mkdir(parents=True, exist_ok=True)
-                with self.path.open('a', encoding='utf-8') as stream:
-                    stream.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + '\n')
-            LOG.info('startup_trace %s', json.dumps(row, ensure_ascii=False, sort_keys=True))
+            try:
+                if self.path:
+                    self.path.parent.mkdir(parents=True, exist_ok=True)
+                    with self.path.open('a', encoding='utf-8') as stream:
+                        stream.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + '\n')
+                LOG.info('startup_trace %s', json.dumps(row, ensure_ascii=False, sort_keys=True))
+            except Exception as exc:
+                # 计时是旁路；目录只读/占满不能让启动或健康检查失败。
+                LOG.warning('startup_trace 记录失败：%s', type(exc).__name__)
             return row
 
     @contextmanager
