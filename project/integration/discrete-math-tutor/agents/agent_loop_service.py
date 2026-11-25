@@ -671,7 +671,8 @@ def run_agent_loop_turn(*, orchestrator: Any, request: Any, context: TaskContext
         progress('loop-' + kind, labels.get(kind, '处理中'), detail_text[:300])
 
     from llm.client import answer_max_tokens
-    round_tokens = answer_max_tokens() if teaching_skills_enabled else max(1200, budget.max_tokens)
+    # 旧 Q4 循环保留自己的每轮上限；未显式配置时不再继承 8000。
+    round_tokens = answer_max_tokens() or budget.max_tokens or 1200
     tool_seconds = 120  # 共享活动预算还会取剩余时间的较小值。
     loop = LocalAgentLoop(llm or orchestrator.llm, max_round_tokens=round_tokens)
     cancellation = register(request.task_id or request.request_id)

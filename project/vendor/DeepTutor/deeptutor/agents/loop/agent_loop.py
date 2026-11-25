@@ -123,7 +123,7 @@ async def _bounded_stream_chunks(stream: Any):
             raise LLMProviderTransportError("The model provider stream timed out.") from None
 
 
-def _reasoning_budget_exhausted(result: "LLMCallResult", max_tokens: int) -> bool:
+def _reasoning_budget_exhausted(result: "LLMCallResult", max_tokens: int | None) -> bool:
     """Detect a round that spent its output budget without taking action."""
     if result.tool_calls or result.visible_text.strip():
         return False
@@ -141,7 +141,7 @@ def _reasoning_budget_exhausted(result: "LLMCallResult", max_tokens: int) -> boo
     if _finish_was_truncated(result.finish_reason):
         return True
     completion_tokens = result.usage.get("completion_tokens")
-    if completion_tokens is None or completion_tokens < max(1, int(max_tokens)):
+    if max_tokens is None or completion_tokens is None or completion_tokens < max(1, int(max_tokens)):
         return False
     # Some gateways omit the terminal reason and report an incomplete
     # reasoning response with a zero/absent reasoning-token detail.  Once the
@@ -1041,7 +1041,7 @@ class AgentLoop:
         label: str,
         call_kind: str,
         trace_role: str,
-        max_tokens: int,
+        max_tokens: int | None,
         tool_schemas: list[dict[str, Any]] | None = None,
         defer_visible_output: bool = False,
         tool_choice: str | None = None,
@@ -1613,7 +1613,8 @@ class AgentLoop:
             and str(finish_reason or "").strip().lower() != "content_filter"
             and (
                 truncated_round
-                or (usage_details.get("completion_tokens", 0) >= max(1, int(max_tokens)))
+                or (max_tokens is not None
+                    and usage_details.get("completion_tokens", 0) >= max(1, int(max_tokens)))
             )
         )
         completion_metadata: dict[str, Any] = {
@@ -1631,7 +1632,7 @@ class AgentLoop:
             # explicitly retracts (see ``_discard_deferred_output``).
             "answer_visible": True,
             "finish_reason": finish_reason or "stop",
-            "requested_max_tokens": int(max_tokens),
+            "requested_max_tokens": max_tokens,
             "usage_reported": bool(usage_details),
             "output_chars": output_chars,
             "reasoning_chars": reasoning_chars,
@@ -1645,7 +1646,7 @@ class AgentLoop:
             completion_metadata["reasoning_budget_exhausted"] = True
         log_line = (
             "agent_loop_round_complete model=%s call_id=%s finish_reason=%s "
-            "requested_max_tokens=%d usage_reported=%s prompt_tokens=%s "
+            "requested_max_tokens=%s usage_reported=%s prompt_tokens=%s "
             "completion_tokens=%s reasoning_tokens=%s output_chars=%d "
             "reasoning_chars=%d content_chars=%d tool_call_chars=%d tool_call_count=%d"
         )
@@ -1653,7 +1654,7 @@ class AgentLoop:
             self.pipeline.model,
             call_id,
             finish_reason or "stop",
-            int(max_tokens),
+            "provider-default" if max_tokens is None else int(max_tokens),
             bool(usage_details),
             usage_details.get("prompt_tokens", "unavailable"),
             usage_details.get("completion_tokens", "unavailable"),

@@ -420,7 +420,8 @@ class _ProviderOpenAIAdapter:
         temperature = kwargs.pop("temperature", 0.7)
         max_tokens = kwargs.pop("max_completion_tokens", None)
         if max_tokens is None:
-            max_tokens = kwargs.pop("max_tokens", 4096)
+            # 调用方未给预算时不补项目默认值，交给服务商。
+            max_tokens = kwargs.pop("max_tokens", None)
         reasoning_effort = kwargs.pop("reasoning_effort", None)
         kwargs.pop("stream_options", None)
 
@@ -706,13 +707,13 @@ def build_completion_kwargs(
     *,
     temperature: float,
     model: str | None,
-    max_tokens: int,
+    max_tokens: int | None,
     binding: str | None = None,
     reasoning_effort: str | None = None,
 ) -> dict[str, Any]:
     """Compose temperature + per-model token-limit kwargs into one dict."""
     kwargs: dict[str, Any] = {"temperature": temperature}
-    if model:
+    if model and max_tokens is not None:
         kwargs.update(get_token_limit_kwargs(model, max_tokens))
     kwargs.update(
         build_provider_extra_kwargs(

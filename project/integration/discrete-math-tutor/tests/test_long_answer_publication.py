@@ -20,7 +20,7 @@ class LongAnswerPublicationTests(unittest.TestCase):
             task_execution=TaskExecution(learning_intents=["explain"]))
         self.assertEqual(result, reply)
         self.assertGreaterEqual(len(result), 6000)
-        self.assertEqual(llm.chat.call_args.kwargs["max_tokens"], 8000)
+        self.assertIsNone(llm.chat.call_args.kwargs["max_tokens"])
         self.assertEqual(QualityChecker._rule_check(result, plan, {}), [])
 
 

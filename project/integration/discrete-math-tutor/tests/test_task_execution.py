@@ -44,7 +44,7 @@ class TaskExecutionTests(unittest.TestCase):
         with patch('agents.response_generator._library_guides',return_value={}):
             response=ResponseGenerator(llm).generate(StudentState(),plan,'比较两种设计的条件、适用情境和控制问题',[],task_execution=execution)
         self.assertEqual(response,answer)
-        self.assertEqual(llm.chat.call_args.kwargs['max_tokens'],8000)
+        self.assertIsNone(llm.chat.call_args.kwargs['max_tokens'])
         self.assertEqual(QualityChecker._rule_check(response,plan,{'task_comparison':True}),[])
         execution.answer_constraints=['hint_only']
     def plan(self): return TeachingPlan(goal='解释',strategy='worked_example',action='explain',difficulty='medium')
@@ -110,7 +110,7 @@ class TaskExecutionTests(unittest.TestCase):
         system=llm.chat.call_args.args[0][0]['content']
         self.assertIn('仅给一个知识点',system)
         self.assertNotIn('本轮明确请求完整证明思路',system)
-        self.assertEqual(llm.chat.call_args.kwargs['max_tokens'],8000)
+        self.assertIsNone(llm.chat.call_args.kwargs['max_tokens'])
 
     def test_semantic_quality_sees_task_constraints(self):
         llm=Mock();llm.mock=True;llm.chat_json.return_value={'passed':False,'issues':['提示泄露完整结论'],'suggestions':''}
@@ -178,7 +178,7 @@ class TaskExecutionTests(unittest.TestCase):
         execution=TaskExecution(learning_intents=['proof']);execution.align(plan)
         with patch('agents.response_generator._library_guides',return_value={}):
             response=ResponseGenerator(llm).generate(StudentState(),plan,'解释这个步骤',[],task_execution=execution)
-        self.assertEqual(response,'推理。'*100);self.assertEqual(llm.chat.call_args.kwargs['max_tokens'],8000)
+        self.assertEqual(response,'推理。'*100);self.assertIsNone(llm.chat.call_args.kwargs['max_tokens'])
         self.assertNotIn('本轮明确请求完整证明思路',llm.chat.call_args.args[0][0]['content'])
 
     def test_hint_still_does_not_request_full_proof(self):

@@ -290,7 +290,8 @@ DEFAULT_CHAT_PARAMS: dict[str, Any] = {
     # without tool calls ends the loop early — the normal exit).
     "max_rounds": 8,
     "exploring": {"max_tokens": 1600},
-    "responding": {"max_tokens": 8000},
+    # 未配置时不发送项目默认上限，由服务商决定。
+    "responding": {"max_tokens": None},
 }
 
 # A capability that makes several different LLM calls cannot be described by
@@ -380,7 +381,12 @@ def get_chat_params() -> dict[str, Any]:
     every caller already spells it this way; the behaviour is
     :func:`get_capability_params` with ``"chat"``.
     """
-    return get_capability_params("chat")
+    params = get_capability_params("chat")
+    responding = params.get("responding")
+    if isinstance(responding, dict) and responding.get("max_tokens") == 8000:
+        # 旧版本自动写入的 8000 是项目默认，不是学生聊天的显式预算。
+        responding["max_tokens"] = None
+    return params
 
 
 __all__ = [

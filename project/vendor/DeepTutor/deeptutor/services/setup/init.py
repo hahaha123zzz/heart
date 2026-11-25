@@ -93,7 +93,8 @@ DEFAULT_AGENTS_SETTINGS: dict[str, Any] = {
         "book": {"temperature": 0.5, "max_tokens": 12000},
         "chat": {
             "temperature": 0.2,
-            "responding": {"max_tokens": 8000},
+            # 不写输出上限：未显式配置时由服务商决定。
+            "responding": {},
         },
     },
     "tools": {

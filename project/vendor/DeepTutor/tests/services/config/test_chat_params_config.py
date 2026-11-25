@@ -42,7 +42,7 @@ class TestGetChatParams:
         assert params["temperature"] == DEFAULT_CHAT_PARAMS["temperature"]
         assert params["max_rounds"] == DEFAULT_CHAT_PARAMS["max_rounds"]
         assert params["exploring"]["max_tokens"] == 1600
-        assert params["responding"]["max_tokens"] == 8000
+        assert params["responding"]["max_tokens"] is None
 
     def test_overrides_specific_stage_only(self, tmp_path: Path, monkeypatch):
         project_root = _write_agents_yaml(
@@ -71,7 +71,18 @@ class TestGetChatParams:
         monkeypatch.setattr(loader_module, "PROJECT_ROOT", project_root)
         params = get_chat_params()
         assert params["temperature"] == 0.7
-        assert params["responding"]["max_tokens"] == 8000
+        assert params["responding"]["max_tokens"] is None
+
+    def test_legacy_shipped_8000_is_not_sent(self, tmp_path: Path, monkeypatch):
+        project_root = _write_agents_yaml(
+            tmp_path,
+            {
+                "capabilities": {"chat": {"responding": {"max_tokens": 8000}}},
+            },
+        )
+        monkeypatch.setattr(loader_module, "PROJECT_ROOT", project_root)
+        params = get_chat_params()
+        assert params["responding"]["max_tokens"] is None
 
     def test_full_chat_block_round_trip(self, tmp_path: Path, monkeypatch):
         project_root = _write_agents_yaml(

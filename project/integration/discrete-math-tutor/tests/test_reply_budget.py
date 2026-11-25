@@ -26,7 +26,7 @@ class ReplyBudgetTests(unittest.TestCase):
         budget = reply_budget("我想学习第一章的主要内容")
         self.assertIsNone(budget.target)
         self.assertIsNone(budget.maximum)
-        self.assertEqual(budget.max_tokens, 8000)
+        self.assertIsNone(budget.max_tokens)
         self.assertNotIn("不超过", budget.instructions())
         self.assertIn("不设字数上限", budget.instructions())
 
@@ -36,7 +36,7 @@ class ReplyBudgetTests(unittest.TestCase):
 
     def test_detailed_plan_budget_is_shared_and_hint_is_uncapped(self):
         budget = reply_budget('请给出全书详细学习计划', preferences={'answer_length': 0})
-        self.assertEqual((budget.target, budget.maximum, budget.max_tokens), (None, None, 8000))
+        self.assertEqual((budget.target, budget.maximum, budget.max_tokens), (None, None, None))
         hint = reply_budget('全书详细学习计划，只给提示', action='give_hint')
         self.assertIsNone(hint.maximum)
         self.assertIn('不设字数上限', hint.instructions())

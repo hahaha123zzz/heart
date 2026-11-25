@@ -111,7 +111,7 @@ IMAGE_TOKEN_GUARD_RESERVE = 4096
 _DispatchOutcome = DispatchOutcome
 
 
-def _read_int(cfg: Any, *, key: str, default: int) -> int:
+def _read_int(cfg: Any, *, key: str, default: int | None) -> int | None:
     if isinstance(cfg, dict):
         value = cfg.get(key, default)
     else:
@@ -287,7 +287,7 @@ class AgenticLoopPipeline:
             chat_cfg.get("exploring"), key="max_tokens", default=1600
         )
         self._respond_max_tokens = _read_int(
-            chat_cfg.get("responding"), key="max_tokens", default=8000
+            chat_cfg.get("responding"), key="max_tokens", default=None
         )
         # Per-capability overrides (e.g. deep solve forwards its own round
         # budget / temperature / answer-token cap, read from the solve
@@ -380,17 +380,18 @@ class AgenticLoopPipeline:
         return max(128, self._exploring_max_tokens)
 
     @property
-    def respond_max_tokens(self) -> int:
-        return max(256, self._respond_max_tokens)
+    def respond_max_tokens(self) -> int | None:
+        # 未显式配置时不发送项目默认上限，由服务商决定。
+        return None if self._respond_max_tokens is None else max(256, self._respond_max_tokens)
 
     @property
-    def loop_max_tokens(self) -> int:
+    def loop_max_tokens(self) -> int | None:
         """Single per-round token budget for the merged loop.
 
         The loop has no separate exploring/respond split, so every round —
         including the round that writes the final answer — uses one budget.
-        It must be large enough for a full answer; the responding budget is
-        that ceiling (tool-only rounds rarely approach it).
+        ``None`` means the request carries no project default and the provider
+        decides; an explicit config value is still that ceiling.
         """
         return self.respond_max_tokens
 
@@ -1730,7 +1731,7 @@ class AgenticLoopPipeline:
     def _build_openai_client(self):
         return build_openai_client(self._client_config)
 
-    def _completion_kwargs(self, max_tokens: int) -> dict[str, Any]:
+    def _completion_kwargs(self, max_tokens: int | None) -> dict[str, Any]:
         return build_completion_kwargs(
             temperature=self._chat_temperature,
             model=self.model,

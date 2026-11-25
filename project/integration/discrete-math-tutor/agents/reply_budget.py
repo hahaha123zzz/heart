@@ -3,7 +3,7 @@ import os
 import re
 from dataclasses import dataclass
 
-ANSWER_MAX_TOKENS = 8000
+ANSWER_MAX_TOKENS = None
 
 
 def requests_proof_overview(text):
@@ -21,11 +21,14 @@ class ReplyBudget:
 
     @property
     def max_tokens(self):
-        # 仅作模型 API 技术上限，不是回答字符门禁。
+        # 仅作模型 API 技术上限；未配置时不发送项目默认值。
+        raw = os.getenv("ANSWER_MAX_TOKENS", "").strip()
+        if not raw:
+            return None
         try:
-            return int(os.getenv("ANSWER_MAX_TOKENS", str(ANSWER_MAX_TOKENS)))
+            return int(raw)
         except (TypeError, ValueError):
-            return ANSWER_MAX_TOKENS
+            return None
 
     def instructions(self):
         return ("不设字数上限。按问题需要完整回答，优先保证结构、覆盖、依据和可执行性；"

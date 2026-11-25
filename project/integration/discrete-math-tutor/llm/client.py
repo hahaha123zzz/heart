@@ -40,12 +40,15 @@ class LLMJSONError(LLMError):
     """模型已返回内容，但 JSON 结构不可解析。"""
 
 
-def answer_max_tokens() -> int:
-    """模型 API 的技术输出上限；不是回答字符门禁。"""
+def answer_max_tokens() -> int | None:
+    """模型 API 的技术输出上限；未显式配置时不发送项目默认值。"""
+    raw = os.getenv("ANSWER_MAX_TOKENS", "").strip()
+    if not raw:
+        return None
     try:
-        return int(os.getenv("ANSWER_MAX_TOKENS", "8000"))
+        return int(raw)
     except (TypeError, ValueError):
-        return 8000
+        return None
 
 
 @dataclass
@@ -115,19 +118,22 @@ class LLMClient:
 
     @pooled_call
     def _one_call(
-        self, messages: List[Dict[str, Any]], temperature: float, max_tokens: int,
+        self, messages: List[Dict[str, Any]], temperature: float, max_tokens: int | None,
         model: str | None = None, timeout: float | None = None,
         reasoning_effort: str | None = None,
         json_mode: bool = False,
     ) -> tuple[str, str | None]:
         if os.getenv("DEEPTUTOR_LLM_ENABLED", "0") == "1":
             from integrations.deeptutor.client import DeepTutorBackend
+            bounded = {"max_tokens": max_tokens} if max_tokens is not None else {}
             return DeepTutorBackend().generate(messages, model=model or self.model,
-                temperature=temperature, max_tokens=max_tokens, timeout=timeout, reasoning_effort=reasoning_effort)
+                temperature=temperature, timeout=timeout, reasoning_effort=reasoning_effort, **bounded)
         args: dict[str, Any] = {
             "model": model or self.model, "messages": messages,
-            "temperature": temperature, "max_tokens": max_tokens,
+            "temperature": temperature,
         }
+        if max_tokens is not None:
+            args["max_tokens"] = max_tokens
         if reasoning_effort is not None:
             if reasoning_effort not in {"low", "high", "max"}:
                 raise LLMError("不支持的 reasoning_effort")
@@ -287,9 +293,12 @@ class LLMClient:
             visual = bool(image_paths)
             request_messages = self._with_images(messages, image_paths) if visual else messages
             if on_delta is not None:
-                result = self._stream_call({"messages": request_messages,
+                payload = {"messages": request_messages,
                     "model": self.vision_model if visual else self.model,
-                    "temperature": temperature, "max_tokens": max_tokens, **reasoning},
+                    "temperature": temperature, **reasoning}
+                if max_tokens is not None:
+                    payload["max_tokens"] = max_tokens
+                result = self._stream_call(payload,
                     on_delta, timeout=timeout, guard=stream_guard)
                 if not result.text.strip() or result.tool_calls:
                     raise LLMError("模型未返回完整正文")
@@ -311,7 +320,8 @@ class LLMClient:
                                               **({'json_mode': True} if json_mode else {}), **reasoning)
             )
             if not content and reason == "length" and timeout is None and current_budget.get() is None:
-                retry_tokens = max(max_tokens * 2, 1200)
+                # 无显式上限时没有可翻倍的阈值，交给服务商重试一次。
+                retry_tokens = max((max_tokens or 0) * 2, 1200)
                 content, reason = (
                     self._one_call(request_messages, temperature, retry_tokens, self.vision_model, timeout=timeout, **reasoning)
                     if visual else self._one_call(request_messages, temperature, retry_tokens, timeout=timeout, **reasoning)

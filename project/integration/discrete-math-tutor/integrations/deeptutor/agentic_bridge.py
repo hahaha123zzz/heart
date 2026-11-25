@@ -11,16 +11,19 @@ from .generation_bridge import GenerationRequest, model_config
 from .session_bridge import require_bridge_token
 
 
-def _answer_max_tokens() -> int:
-    """模型 API 的技术输出上限；不是回答字符门禁。"""
+def _answer_max_tokens() -> int | None:
+    """模型 API 的技术输出上限；未显式配置时不发送项目默认值。"""
+    raw = os.getenv("ANSWER_MAX_TOKENS", "").strip()
+    if not raw:
+        return None
     try:
-        return int(os.getenv("ANSWER_MAX_TOKENS", "8000"))
+        return int(raw)
     except (TypeError, ValueError):
-        return 8000
+        return None
 
 
 class AgenticRequest(GenerationRequest):
-    max_tokens: int = Field(default_factory=_answer_max_tokens, ge=256)
+    max_tokens: int | None = Field(default_factory=_answer_max_tokens, ge=256)
     evidence: str = Field(min_length=1, max_length=100000)
     max_characters: int | None = None
 
