@@ -41,8 +41,11 @@ def login(base: str, username: str, password: str) -> str:
 def marks(message: dict) -> dict:
     """只保留可报告的字段，避免把正文或凭据写进分段记录。"""
     kind = message.get('type')
-    row = {'kind': kind, 'event_stage': message.get('stage') or '',
-           'event_source': message.get('source') or ''}
+    stage = message.get('stage') or ''
+    source = message.get('source') or ''
+    row = {'kind': kind,
+           'event_stage': stage if isinstance(stage, str) and len(stage) <= 80 else '',
+           'event_source': source if isinstance(source, str) and len(source) <= 80 else ''}
     content = message.get('content')
     if isinstance(content, str):
         row['chars'] = len(content)
@@ -107,7 +110,10 @@ async def run(args):
     password = password_from(args.creds, args.username)
     cookie = login(args.base, args.username, password)
     trace.record('sample.login', parent='sample', seconds=time.perf_counter() - began)
-    import websockets
+    try:
+        import websockets
+    except ImportError:
+        raise SystemExit('websockets 未安装，无法连接 /ws')
     headers = {'Cookie': cookie, 'Origin': args.base}
     try:
         connect = websockets.connect

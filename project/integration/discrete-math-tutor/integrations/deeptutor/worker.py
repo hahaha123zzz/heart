@@ -43,7 +43,8 @@ def use_cpu_inference_when_needed() -> None:
 
 
 def main() -> None:
-    sys.path.insert(0, str(HOST_ROOT))
+    if str(HOST_ROOT) not in sys.path:
+        sys.path.insert(0, str(HOST_ROOT))
     from knowledge.startup_trace import current
     trace = current()
     began = time.perf_counter()
