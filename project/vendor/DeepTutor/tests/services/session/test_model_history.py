@@ -10,6 +10,7 @@ from deeptutor.services.session.context_builder import ContextBuilder, _ContextS
 from deeptutor.services.session.model_history import (
     complete_tool_results,
     normalize_model_turn,
+    replay_group,
     replay_history,
 )
 from deeptutor.services.session.provider_response_state import redact_private_message_metadata
@@ -204,3 +205,21 @@ async def test_branch_replay_and_public_export_are_isolated(tmp_path):
     )
     tool_results = [m["content"] for m in built.model_history if m["role"] == "tool"]
     assert tool_results == ["A only"]
+
+def test_replayed_tool_bodies_are_compacted_without_breaking_pairing():
+    body = "目录条目" * 124_000  # 约 50 万字符的旧目录结果
+    record = turn_record(body)
+    rows_in = rows(record)
+
+    messages = replay_group(rows_in)
+
+    tool = [m for m in messages if m.get("role") == "tool"][0]
+    assert len(tool["content"]) < 5000
+    assert "历史工具正文已省略" in tool["content"]
+    assert "read_source" in tool["content"]
+    # 调用与结果仍然配对，记录本身不被回放改写。
+    assert normalize_model_turn({"version": 1, "messages": messages}) is not None
+    assert record["messages"][2]["content"] == body
+
+    short = replay_group(rows(turn_record("短结果")))
+    assert [m["content"] for m in short if m.get("role") == "tool"] == ["短结果"]

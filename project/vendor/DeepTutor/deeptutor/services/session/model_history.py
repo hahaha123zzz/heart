@@ -139,7 +139,7 @@ def replay_group(
                         message.pop(key, None)
                     for call in message.get("tool_calls") or []:
                         call.pop("extra_content", None)
-            return messages
+            return _compact_tool_bodies(messages)
     messages = []
     for row in rows:
         expanded = expand_message_context(row)
@@ -151,6 +151,26 @@ def replay_group(
             if state:
                 expanded[-1]["_provider_response_state"] = state
         messages.extend(expanded)
+    return _compact_tool_bodies(messages)
+
+
+# 旧版目录工具正文可达数十万字符；回放时只保留开头，其余留给按需补读。
+HISTORY_TOOL_BODY_LIMIT = 4000
+
+
+def _compact_tool_bodies(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """历史工具正文按上限收窄；保留 tool_call_id，调用与结果仍然配对。"""
+    for message in messages:
+        if message.get("role") != "tool":
+            continue
+        content = message.get("content")
+        if not isinstance(content, str) or len(content) <= HISTORY_TOOL_BODY_LIMIT:
+            continue
+        omitted = len(content) - HISTORY_TOOL_BODY_LIMIT
+        message["content"] = (
+            content[:HISTORY_TOOL_BODY_LIMIT].rstrip()
+            + f"\n...[历史工具正文已省略 {omitted} 字符；需要时按来源 ID 重新检索或用 read_source 补读]"
+        )
     return messages
 
 
