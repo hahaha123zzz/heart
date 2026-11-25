@@ -38,9 +38,15 @@ def _course_documents(asset_root: Path | None = None):
                 raise ValueError("教材文件不在指定目录内")
         if not path.is_file():
             raise ValueError(f"教材 PDF 不存在：{path.name}")
-        with path.open('rb') as stream:
-            if file_digest(stream, 'sha256').hexdigest() != record['version']:
-                raise ValueError('教材 PDF 与正式版本不一致')
+        if asset_root is None:
+            # 固定教材由启动核验决定身份，请求内不再重读整份 PDF。
+            from knowledge.fixed_book import digest
+            current = digest(path)
+        else:
+            with path.open('rb') as stream:
+                current = file_digest(stream, 'sha256').hexdigest()
+        if current != record['version']:
+            raise ValueError('教材 PDF 与正式版本不一致')
         rows.append({"document_id": record["document_id"], "version": record['version'], "chapter_id": record.get("chapter_id"),
                      "title": record.get("title") or path.stem, "path": path,
                      "page_map": record.get("page_map") or {str(p["page"]): p["page"] for p in record.get("pages", [])}})

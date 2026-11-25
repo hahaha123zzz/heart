@@ -3,6 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -51,6 +52,16 @@ class SourceProjectionTests(unittest.TestCase):
             source_pointers({"selection": {**self.payload["selection"], "version": "0" * 64}}, {})
         self.path.write_bytes(b"changed textbook")
         with self.assertRaises(ValueError): source_pointers(self.payload, {})
+
+    def test_fixed_textbook_pointer_uses_startup_digest(self):
+        from knowledge import fixed_book
+        state = SimpleNamespace(ready=True, source_root=Path(self.temp.name),
+                                hashes={str(self.path.resolve()): self.version})
+        with (patch.dict("os.environ", FIXED_BOOK_RETRIEVAL_ENABLED="1"),
+              patch.object(fixed_book, "runtime", state)):
+            self.path.write_bytes(b"changed after startup")
+            pointers = source_pointers(self.payload, {}, {"published-chapter": self.version})
+        self.assertEqual(pointers[0].version, self.version)
 
     def test_location_without_historical_version_cannot_claim_current_revision(self):
         with self.assertRaises(ValueError):

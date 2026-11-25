@@ -53,7 +53,9 @@ def source_pointers(payload, result, document_versions=None):
         if record is None or record["version"] != version:
             raise ValueError("教材版本已变化")
         if document_id not in checked:
-            if hashlib.sha256(pdf_path(record).read_bytes()).hexdigest() != version:
+            from knowledge.fixed_book import digest
+            # 固定教材用启动核验摘要；其他材料仍读取实际文件。
+            if digest(pdf_path(record)) != version:
                 raise ValueError("教材文件已变化")
             checked[document_id] = record
         return record
