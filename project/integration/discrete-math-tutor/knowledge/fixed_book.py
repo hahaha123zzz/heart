@@ -141,6 +141,9 @@ class FixedBookRuntime:
         self.started = time.monotonic()
 
     async def start(self):
+        from knowledge.startup_trace import current
+        trace = current()
+        trace.record('fixed_book.entry', parent='fixed_book', seconds=0)
         from knowledge.course_config import PSYCHOLOGY_DIR, COURSE_ID
         self.source_root = PSYCHOLOGY_DIR
         from knowledge.lightrag.course_input import inventory
@@ -152,72 +155,119 @@ class FixedBookRuntime:
         from knowledge.course_release import validate
         if not os.getenv('LIGHTRAG_CANDIDATE_PATH'):
             raise RuntimeError('固定教材启动缺少 LIGHTRAG_CANDIDATE_PATH')
-        self.backend = LightRagBackend(os.environ['LIGHTRAG_CANDIDATE_PATH'],
-            authorized_course_ids={COURSE_ID}, allow_candidate=os.getenv('LIGHTRAG_ALLOW_CANDIDATE') == '1',
-            source_root=PSYCHOLOGY_DIR)
+        with trace.timed('fixed_book.backend', parent='fixed_book'):
+            self.backend = LightRagBackend(os.environ['LIGHTRAG_CANDIDATE_PATH'],
+                authorized_course_ids={COURSE_ID}, allow_candidate=os.getenv('LIGHTRAG_ALLOW_CANDIDATE') == '1',
+                source_root=PSYCHOLOGY_DIR)
         snapshot = {}
         self.backend.manifest = await asyncio.to_thread(self.backend.validate, COURSE_ID, snapshot=snapshot)
         self.backend.startup_snapshot = snapshot
         self.backend.source_map = await asyncio.to_thread(self.backend.load_source_map)
         from knowledge.lightrag.course_input import visual_inventory
-        self.backend.visual_map = (await asyncio.to_thread(visual_inventory, self.backend.candidate / 'input'))[0]
-        self.release = await asyncio.to_thread(validate)
+        with trace.timed('fixed_book.visual_map', parent='fixed_book') as detail:
+            self.backend.visual_map = (await asyncio.to_thread(visual_inventory,
+                self.backend.candidate / 'input'))[0]
+            detail['visuals'] = len(self.backend.visual_map)
+        with trace.timed('fixed_book.release', parent='fixed_book') as detail:
+            self.release = await asyncio.to_thread(validate)
+            detail['release_id'] = self.release.get('release_id')
+            detail['ready'] = self.release.get('ready')
         from knowledge.course_navigation import outline
-        self.outline = await asyncio.to_thread(outline)
+        with trace.timed('fixed_book.outline', parent='fixed_book') as detail:
+            self.outline = await asyncio.to_thread(outline)
+            detail['entries'] = len(self.outline)
         from knowledge.source_visuals import load_visuals
-        self.visuals = {v.id: v for v in (await asyncio.to_thread(load_visuals))[0]}
-        files = await asyncio.to_thread(inventory, PSYCHOLOGY_DIR)
-        self.hashes = {str((PSYCHOLOGY_DIR / name).resolve()): sha for name, sha in files.items()}
+        with trace.timed('fixed_book.visuals', parent='fixed_book') as detail:
+            self.visuals = {v.id: v for v in (await asyncio.to_thread(load_visuals))[0]}
+            detail['visuals'] = len(self.visuals)
+        with trace.timed('fixed_book.hashes', parent='fixed_book',
+                         purpose='formal_textbook_inventory') as detail:
+            files = await asyncio.to_thread(inventory, PSYCHOLOGY_DIR)
+            self.hashes = {str((PSYCHOLOGY_DIR / name).resolve()): sha for name, sha in files.items()}
+            detail['root'] = 'host_textbook'
+            detail['files'] = len(files)
         # 坐标索引是衍生数据，独立保存，不修改教材或已封存图谱。
         from knowledge.citation_index import build_index
         from knowledge.grounded_citations import settings
-        self.citation_path = settings()
-        if self.citation_path == 'live':
-            self.citation_path = Path('.runtime/fixed-book') / self.release['release_id'] / 'citations.sqlite3'
-            if not self.citation_path.is_file():
-                from uuid import uuid4
-                pending = self.citation_path.with_name(uuid4().hex + '.sqlite3')
-                try:
-                    await asyncio.to_thread(build_index, pending, PSYCHOLOGY_DIR)
-                    os.replace(pending, self.citation_path)
-                finally:
-                    pending.unlink(missing_ok=True)
-            self.citation_path = self.citation_path.resolve()
+        with trace.timed('fixed_book.citation', parent='fixed_book') as detail:
+            self.citation_path = settings()
+            branch = 'fixed_path'
+            if self.citation_path == 'live':
+                self.citation_path = Path('.runtime/fixed-book') / self.release['release_id'] / 'citations.sqlite3'
+                if self.citation_path.is_file():
+                    branch = 'version_cache'
+                else:
+                    branch = 'build'
+                    from uuid import uuid4
+                    with trace.timed('fixed_book.citation.build', parent='fixed_book.citation') as built:
+                        pending = self.citation_path.with_name(uuid4().hex + '.sqlite3')
+                        try:
+                            await asyncio.to_thread(build_index, pending, PSYCHOLOGY_DIR)
+                            os.replace(pending, self.citation_path)
+                        finally:
+                            pending.unlink(missing_ok=True)
+                        built['root'] = 'citation_index'
+                self.citation_path = self.citation_path.resolve()
+            detail['branch'] = branch
         import json
         self.policy = json.loads((self.backend.candidate / 'policy.json').read_text(encoding='utf8'))
-        embedding = await embedding_config()
-        storage.require_compatible_embedding(self.backend.candidate / 'index', embedding)
-        self.roles = resolve_query_roles()
-        self.model_binding = query_binding(self.policy, self.roles)
+        with trace.timed('lightrag.embedding.config', parent='fixed_book') as detail:
+            embedding = await embedding_config()
+            detail['model'] = getattr(embedding, 'model', None)
+            detail['dim'] = getattr(embedding, 'dim', None)
+        with trace.timed('lightrag.embedding.compat', parent='fixed_book'):
+            storage.require_compatible_embedding(self.backend.candidate / 'index', embedding)
+        with trace.timed('lightrag.roles', parent='fixed_book') as detail:
+            self.roles = resolve_query_roles()
+            self.model_binding = query_binding(self.policy, self.roles)
+            detail['roles'] = sorted(self.roles)
+            detail['binding'] = self.model_binding.get('mode')
         self.backend.resident = ResidentGraph(self.backend, embedding, self.roles)
-        await run_in_worker_loop(lambda _: self.backend.resident.start())
-        labels = await run_in_worker_loop(
-            lambda _: self.backend.resident.rag.chunk_entity_relation_graph.get_all_labels())
-        self.backend.entity_terms = tuple(sorted(
-            {name for name in labels if isinstance(name, str) and 2 <= len(name) <= 80},
-            key=lambda s: (-len(s), s)))
+        with trace.timed('lightrag.resident.schedule', parent='fixed_book'):
+            await run_in_worker_loop(lambda _: self.backend.resident.start())
+        with trace.timed('lightrag.labels', parent='fixed_book') as detail:
+            labels = await run_in_worker_loop(
+                lambda _: self.backend.resident.rag.chunk_entity_relation_graph.get_all_labels())
+            self.backend.entity_terms = tuple(sorted(
+                {name for name in labels if isinstance(name, str) and 2 <= len(name) <= 80},
+                key=lambda s: (-len(s), s)))
+            detail['labels'] = len(labels)
+            detail['entity_terms'] = len(self.backend.entity_terms)
         self.ready = True
+        trace.record('fixed_book.ready_flag', parent='fixed_book', seconds=time.monotonic() - self.started)
         try:
             # 快速路径同样预热，缓存签名从本次完整核验中取得。
             from knowledge.local_rag.course_retrieval import warm
-            await asyncio.to_thread(warm)
+            with trace.timed('warmup.local_index', parent='warmup'):
+                await asyncio.to_thread(warm)
             from knowledge.hybrid_retrieval import _reranker_on_device
             from knowledge.inference_runtime import configured_device
-            await asyncio.to_thread(_reranker_on_device, 'BAAI/bge-reranker-base', configured_device('RERANK'))
+            device = configured_device('RERANK')
+            with trace.timed('warmup.reranker', parent='warmup', device=device):
+                await asyncio.to_thread(_reranker_on_device, 'BAAI/bge-reranker-base', device)
             from knowledge.local_rag.course_retrieval import retrieve
-            await asyncio.to_thread(retrieve, '自变量是什么', limit=4)
+            sample = {}
+            with trace.timed('warmup.sample_query', parent='warmup', query_class='fixed_sample') as detail:
+                await asyncio.to_thread(retrieve, '自变量是什么', limit=4, trace=sample)
+                detail.update({key: sample.get(key) for key in ('embedding_seconds', 'recall_seconds',
+                    'rerank_seconds', 'corpus_size', 'embedding_device', 'rerank_status')})
             from llm.transport import borrow
             client = self.roles['query'].config.client
-            with borrow(client.api_key, client.base_url):
-                pass
+            with trace.timed('warmup.client_pool', parent='warmup',
+                             model=getattr(client, 'model', None), mock=getattr(client, 'mock', None)):
+                with borrow(client.api_key, client.base_url):
+                    pass
             from knowledge.figures import load_figures
             from knowledge.textbook import terms_for
-            self.image_terms = {f.id: terms_for(f.caption + ' ' + f.context)
-                                for f in await asyncio.to_thread(load_figures)}
+            with trace.timed('warmup.image_terms', parent='warmup') as detail:
+                figures = await asyncio.to_thread(load_figures)
+                self.image_terms = {f.id: terms_for(f.caption + ' ' + f.context) for f in figures}
+                detail['figures'] = len(figures)
         except BaseException:
             await self.close()
             raise
         self.start_seconds = time.monotonic() - self.started
+        trace.record('fixed_book.start.complete', parent='fixed_book', seconds=self.start_seconds)
 
     async def close(self):
         self.ready = False
@@ -236,12 +286,19 @@ async def start():
     from knowledge.course_config import PSYCHOLOGY
     if not PSYCHOLOGY:
         raise RuntimeError('固定教材模式仅适用于当前心理学教材')
+    from knowledge.startup_trace import current
+    trace = current()
+    began = time.monotonic()
     runtime = FixedBookRuntime()
     try:
         await runtime.start()
-    except BaseException:
+    except BaseException as exc:
         await runtime.close()
         runtime = None
+        trace.record('fixed_book.start.failed', parent='fixed_book',
+                     seconds=time.monotonic() - began,
+                     status='cancelled' if isinstance(exc, asyncio.CancelledError) else 'failed',
+                     error=type(exc).__name__)
         raise
 
 
