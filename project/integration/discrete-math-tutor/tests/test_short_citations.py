@@ -65,6 +65,13 @@ class ShortCitationTests(unittest.TestCase):
         self.assertEqual(stream.feed("正文[S1"), "正文")
         self.assertEqual(stream.flush(), "[S1")
 
+    def test_stream_reads_sources_registered_after_it_starts(self):
+        mapping = {}
+        stream = ShortCitationStream(lambda: mapping)
+        self.assertEqual(stream.feed("准备[S1]"), "准备[S1]")
+        mapping["S1"] = {"short_id": "S1", "reader_citation": citation(5, 5)}
+        self.assertEqual(stream.feed("继续[S1]"), f"继续{citation(5, 5)}")
+
     def test_numeric_markers_follow_turn_indices(self):
         text = "对比[S1, S2]，示例 `[S9]`，无据[S9]。"
         self.assertEqual(to_numeric(text, SOURCES),

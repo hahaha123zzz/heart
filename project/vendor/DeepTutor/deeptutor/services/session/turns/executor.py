@@ -81,13 +81,13 @@ def set_completion_preparer(preparer):
 
 
 def _short_citation_stream(metadata):
-    """宿主教材短引用只在宿主存在时按流解析；独立安装不受影响。"""
+    """宿主教材短引用只在宿主存在时按流解析；映射可随本轮工具调用后补。"""
     try:
         from integrations.deeptutor.short_citations import ShortCitationStream
     except ImportError:
         return None
-    sources = (metadata or {}).get("_heart_short_sources") or {}
-    return ShortCitationStream(sources) if sources else None
+    metadata = metadata or {}
+    return ShortCitationStream(lambda: metadata.get("_heart_short_sources") or {})
 
 
 class TurnExecutor:

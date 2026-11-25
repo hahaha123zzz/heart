@@ -109,18 +109,26 @@ def _hold_start(text: str) -> int:
 
 
 class ShortCitationStream:
-    """逐块发布：完整短 ID 立即替换；跨块标记和代码块暂存到可判定时。"""
+    """逐块发布：完整短 ID 立即替换；跨块标记和代码块暂存到可判定时。
+
+    ``sources`` 可以是映射、列表或返回当前映射的函数；预检索和后续 rag
+    会在流开始后才登记短 ID，所以这里必须每次读取最新映射。
+    """
 
     def __init__(self, sources):
-        self.sources = sources
+        self._sources = sources
         self.buffer = ""
+
+    def current(self):
+        value = self._sources() if callable(self._sources) else self._sources
+        return value or {}
 
     def feed(self, chunk: str) -> str:
         self.buffer += str(chunk or "")
         keep = _hold_start(self.buffer)
         emit, self.buffer = self.buffer[:keep], self.buffer[keep:]
-        return resolve(emit, self.sources) if emit else ""
+        return resolve(emit, self.current()) if emit else ""
 
     def flush(self) -> str:
         text, self.buffer = self.buffer, ""
-        return resolve(text, self.sources) if text else ""
+        return resolve(text, self.current()) if text else ""
