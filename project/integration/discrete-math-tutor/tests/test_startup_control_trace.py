@@ -45,6 +45,15 @@ class ControlTraceTests(unittest.TestCase):
         self.assertEqual([name for kind, name in events if kind == 'spawn'], ['worker', 'host', 'web'])
         self.assertEqual([name for kind, name in events if kind == 'ready'], ['worker', 'host', 'web'])
 
+    def test_host_first_order_reproduces_the_old_control_sequence(self):
+        events = []
+        launch(['worker', 'host', 'web'],
+               lambda service: events.append(('spawn', service)),
+               lambda service: events.append(('ready', service)), host_first=True)
+        self.assertEqual([name for kind, name in events if kind == 'spawn'], ['host', 'worker', 'web'])
+        self.assertEqual([name for kind, name in events if kind == 'ready'], ['host', 'worker', 'web'])
+        self.assertLess(events.index(('spawn', 'host')), events.index(('ready', 'worker')))
+
     def test_running_worker_does_not_delay_host_or_web(self):
         events = []
         launch(['host', 'web'],

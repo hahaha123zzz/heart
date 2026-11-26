@@ -82,7 +82,13 @@ def pending_services(records, release_id):
   pending.append(service)
  return pending
 
-def launch(pending, spawn, ready):
+def launch(pending, spawn, ready, *, host_first=False):
+ # host_first 只用于和旧编排做受控对照：先全部创建，再按 host、worker、web 顺序等待就绪。
+ if host_first:
+  ordered=sorted(pending,key=lambda service:("host","worker","web").index(service))
+  for service in ordered:spawn(service)
+  for service in ordered:ready(service)
+  return
  # worker 预热接近或超过宿主的 60 秒等待预算，必须先独立就绪再启动宿主与 Web。
  for service in pending:
   if service=="worker":spawn(service);ready(service)
@@ -94,6 +100,7 @@ def launch(pending, spawn, ready):
 def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("action",choices=["start","stop","restart","status"]);parser.add_argument("--root",type=Path,required=True)
  parser.add_argument("--label",default=None);parser.add_argument("--cache-state",choices=["process-cold","os-warm","unknown"],default="process-cold")
+ parser.add_argument("--order",choices=["worker-first","host-first"],default="worker-first")
  args=parser.parse_args();root=args.root.resolve(strict=True);private=root/"private";file=private/"services.json"
  with FileLock(str(private/"services.lock"),timeout=0):
   records=json.loads(file.read_text("utf-8")) if file.exists() else {}
@@ -107,7 +114,7 @@ def main():
   directory=private/"startup-traces"/sid
   record=recorder(directory,sid,"control");probe_record=recorder(directory,sid,"probe")
   origin=time.perf_counter()
-  record("control.begin",parent="control",seconds=0,label=args.label,cache_state=args.cache_state,
+  record("control.begin",parent="control",seconds=0,label=args.label,cache_state=args.cache_state,order=args.order,
          host_port=ports["host"],worker_port=ports["worker"],web_port=ports["web"])
   os.environ["STARTUP_ID"]=sid;os.environ["STARTUP_TRACE_DIR"]=str(directory)
   keeper=probe(probe_record,ports,origin)
@@ -151,7 +158,7 @@ def main():
      else:raise RuntimeError("readiness_timeout:"+service)
      record("control.ready",parent="control.service",seconds=time.perf_counter()-began,
             elapsed_since_origin=time.perf_counter()-origin,target=service,attempts=attempts)
-    launch(pending,spawn,ready)
+    launch(pending,spawn,ready,host_first=args.order=="host-first")
   except BaseException as exc:
    status="cancelled" if type(exc).__name__=="CancelledError" else "failed"
    record("control.failed",parent="control",seconds=time.perf_counter()-origin,
