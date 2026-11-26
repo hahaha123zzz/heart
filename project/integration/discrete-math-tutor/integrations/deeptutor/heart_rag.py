@@ -386,20 +386,7 @@ def install_heart_tools() -> None:
 
 
 def warm_retrieval() -> None:
-    """worker 启动时加载本地 embedding，避免首个 rag 请求等待模型加载。"""
+    """旧 SQLite 检索已退役；固定教材的 LightRAG 就绪由宿主启动核验。"""
     import logging
-    import time
 
-    logger = logging.getLogger(__name__)
-    started = time.perf_counter()
-    try:
-        from knowledge.hybrid_retrieval import INDEX, _vectors
-
-        _vectors(str(INDEX), INDEX.stat().st_mtime_ns)
-        from knowledge import psychology_retrieval
-
-        psychology_retrieval.retrieve("自变量和因变量", [], limit=1)
-    except Exception:  # noqa: BLE001 - 预热失败不应阻止服务启动
-        logger.warning("教材检索预热失败，将在首次请求时重试", exc_info=True)
-    else:
-        logger.info("教材检索预热完成 %.1fs", time.perf_counter() - started)
+    logging.getLogger(__name__).info("旧教材索引已退役，跳过旧检索预热")
