@@ -42,6 +42,8 @@ verify 上一版完整运行包；select --release <old> --expected-current <new
 
 用户指定先在本机 8000 测试，测试完成后再进入线上。本轮使用 HEART_WEB_PORT=8000、HEART_HOST_PORT=18000、HEART_WORKER_PORT=18001，均绑定 127.0.0.1，公网/ECS 不切换。HEART_RUNTIME_PYTHON 与 HEART_RUNTIME_EXTRA_PATHS 可明确复用本机已验证依赖环境；线上仍需目标 OS 的依赖与构建。后续线上切换另行决定。
 
+2026-11-26 本机 Web 入口改为 800（HEART_WEB_PORT=800），host 18000、worker 18001 不变；只改部署 `private/runtime.env` 并重启，安装脚本的新装默认仍为 8000，避免非 root 的 Linux 目标绑定低端口。
+
 本机实际控制程序位于部署根的 control 目录，版本与应用发行快照分别登记。Python 服务工作目录固定到外部 DEEPTUTOR_HOME，PYTHONPATH 指向所选 H/厂家源码；教材坐标缓存、mem0 历史等相对运行文件因此保留在数据目录，不写入发行源码。此处复用的是已验证的 Windows 依赖与生产构建，不宣称已验证 Linux 线上部署。
 
 ## 本机控制脚本与重排设备（2026-11-26）
