@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -44,8 +45,10 @@ def install(root, textbook, candidate, *, release_id, source_map, citation_build
     hashes = inventory(textbook)
     extras = verify_active(textbook, manifest['files'])
     sizes = {rel: (textbook / rel).stat().st_size for rel in hashes}
-    frozen_sizes = {rel: (candidate / 'input' / rel).stat().st_size for rel in manifest['files']}
     root.mkdir(parents=True, exist_ok=True)
+    published_input = root / 'input'
+    shutil.copytree(candidate / 'input', published_input, dirs_exist_ok=True)
+    frozen_sizes = {rel: (published_input / rel).stat().st_size for rel in manifest['files']}
     citation = root / 'citations.sqlite3'
     pending = root / ('citations.' + os.urandom(8).hex() + '.sqlite3')
     try:
@@ -62,6 +65,7 @@ def install(root, textbook, candidate, *, release_id, source_map, citation_build
         'control': _control(candidate),
         'textbook': {'files': hashes, 'sizes': sizes},
         'frozen': {'files': dict(manifest['files']), 'sizes': frozen_sizes},
+        'input_root': str(published_input),
         'host_extras': {'count': len(extras), 'sha256': _digest_of(extras)},
         'citation': {'path': str(citation), 'sha256': _digest(citation), 'size': citation_size},
         'source_map': source_map,
@@ -100,6 +104,9 @@ def load(root, textbook, candidate):
     candidate = Path(candidate).resolve(strict=True)
     if record.get('textbook_root') != str(textbook) or record.get('candidate') != str(candidate):
         raise AssetsMismatch('教材资产与当前教材或 LightRAG 索引路径不一致，请重新安装教材资产')
+    input_root = Path(record.get('input_root') or '')
+    if input_root.resolve() != (Path(root) / 'input').resolve():
+        raise AssetsMismatch('教材资产的冻结输入位置无效，请重新安装教材资产')
     if record.get('control') != _control(candidate):
         raise AssetsMismatch('教材资产与当前 LightRAG 索引不一致，请重新安装教材资产')
     citation = record.get('citation') or {}
@@ -108,7 +115,7 @@ def load(root, textbook, candidate):
         raise AssetsMismatch('教材资产缺少引用坐标索引，请重新安装教材资产')
     for label, base, sizes in (
             ('教材', textbook, record['textbook']['sizes']),
-            ('冻结输入', candidate / 'input', record['frozen']['sizes'])):
+            ('冻结输入', input_root, record['frozen']['sizes'])):
         for relative, expected in sizes.items():
             file = base / relative
             if not file.is_file() or file.stat().st_size != expected:

@@ -233,9 +233,11 @@ class FixedBookRuntime:
             self.backend.source_map = await asyncio.to_thread(self.backend.load_source_map)
         from knowledge.lightrag.course_input import visual_inventory
         with trace.timed('fixed_book.visual_map', parent='fixed_book') as detail:
-            self.backend.visual_map = (await asyncio.to_thread(visual_inventory,
-                self.backend.candidate / 'input'))[0]
+            visual_root = (Path(self.assets['input_root']) if self.assets
+                           else self.backend.candidate / 'input')
+            self.backend.visual_map = (await asyncio.to_thread(visual_inventory, visual_root))[0]
             detail['visuals'] = len(self.backend.visual_map)
+            detail['source'] = 'install' if self.assets else 'candidate_input'
         with trace.timed('fixed_book.release', parent='fixed_book') as detail:
             self.release = await asyncio.to_thread(validate)
             detail['release_id'] = self.release.get('release_id')

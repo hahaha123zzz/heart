@@ -1,6 +1,7 @@
 """教材资产安装：完整核对后发布，普通加载只核对身份和文件大小。"""
 import hashlib
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -104,6 +105,15 @@ def test_load_rejects_a_missing_citation_asset(tmp_path):
     (assets / "citations.sqlite3").unlink()
     with pytest.raises(AssetsMismatch, match="引用坐标索引"):
         load(assets, textbook, candidate)
+
+
+def test_load_survives_the_original_frozen_input_being_removed(tmp_path):
+    candidate, textbook = fixture(tmp_path)
+    assets = tmp_path / "assets"
+    install(assets, textbook, candidate, release_id="r", source_map={}, citation_builder=build_citation)
+    shutil.rmtree(candidate / "input")
+    record = load(assets, textbook, candidate)
+    assert (Path(record["input_root"]) / "manifest.json").is_file()
 
 
 def test_prepare_citation_uses_the_install_asset(tmp_path):
