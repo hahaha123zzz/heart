@@ -38,3 +38,5 @@ artifacts/cuda-cache-*/
 # Restored external release fixtures remain local.
 knowledge/courses/experimental-psychology-3/*
 !knowledge/courses/experimental-psychology-3/kc_registry.json
+# 候选知识图谱由 scripts/build_graph_candidate.py 从正式教材生成，体积大且含教材原文，单独分发。
+knowledge/graph/psychology-candidate/

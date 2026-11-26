@@ -1,0 +1,298 @@
+/* ============================================================
+   教材学习平台 · 主题层
+   最后加载：先覆盖既有设计变量，再按组件微调视觉。
+   不改动任何 JS 依赖的 class 钩子与 DOM 结构。
+   ============================================================ */
+
+:root{
+  /* 底色与墨色 */
+  --surface:#ffffff;
+  --sidebar:#16222f;          /* 左侧导航深墨色 */
+  --paper-backdrop:#eceff2;
+  --text:#17212b;
+  --muted:#5d6b79;
+  --line:#e4eaf0;
+
+  /* 强调色：学术蓝 + 引文琥珀 */
+  --accent:#1f5fa8;
+  --accent-strong:#164a86;
+  --accent-soft:#eaf1f9;
+  --selected:#e9f0f8;
+  --user-message:#e9f1fb;
+  --warm:#9a6b18;
+  --warm-soft:#fdf6e8;
+  --warm-line:#f0e2c4;
+  --ok:#1c7a5b;
+  --warn-bg:#fff8ec;
+
+  /* 结构 */
+  --radius-sm:8px;
+  --radius:12px;
+  --radius-lg:18px;
+  --shadow-1:0 1px 2px rgba(16,32,48,.05),0 1px 3px rgba(16,32,48,.04);
+  --shadow-2:0 8px 24px rgba(16,32,48,.08),0 2px 6px rgba(16,32,48,.04);
+  --rail:64px;
+
+  /* 字体 */
+  --font-ui:"Inter","Segoe UI","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  --font-display:"Source Han Serif SC","Noto Serif CJK SC","Songti SC",SimSun,Georgia,serif;
+  --font-mono:"JetBrains Mono","Cascadia Mono",Consolas,monospace;
+
+  font-family:var(--font-ui);
+  color:var(--text);
+  background:var(--surface);
+  -webkit-font-smoothing:antialiased;
+}
+
+body{color:var(--text);background:var(--paper-backdrop)}
+
+/* ---------- 左侧导航：深墨竖栏 ---------- */
+.app-shell{grid-template-columns:var(--rail) 240px minmax(0,1fr)}
+.app-shell>.sidebar{background:var(--sidebar);border-right:0;box-shadow:inset -1px 0 0 rgba(255,255,255,.06)}
+.sidebar-brand{height:64px}
+.sidebar-brand>svg{color:#cfe0f2}
+.sidebar .nav-item{border-radius:10px;color:#93a5b6;transition:background .16s,color .16s}
+.sidebar .nav-item svg{stroke-width:1.7}
+.sidebar .nav-item:hover{background:rgba(255,255,255,.08);color:#eaf1f8}
+.sidebar .nav-item.active{background:rgba(255,255,255,.12);color:#fff;box-shadow:inset 2px 0 0 #7fb0e8,inset 0 0 0 1px rgba(255,255,255,.06)}
+.sidebar .nav-item:is(:hover,:focus-visible)::after{background:#0d1722;box-shadow:var(--shadow-2);font-size:12px}
+.sidebar .sidebar-footer{border-top:1px solid rgba(255,255,255,.08);padding:12px 0}
+
+/* ---------- 会话列表 ---------- */
+.conversation-sidebar{background:#f7f9fb;border-right:1px solid var(--line)}
+.conversation-sidebar>header{height:64px;font-size:15px;letter-spacing:-.01em}
+.conversation-sidebar>header strong{font-weight:600}
+.new-conversation{margin:2px 0 6px;padding:10px 12px;border:1px dashed #c8d6e4;border-radius:10px;background:#fff;color:var(--accent);font-size:13px;font-weight:600;transition:background .15s,border-color .15s}
+.new-conversation:hover{background:var(--accent-soft);border-color:#a9c3de}
+.conversation-list-heading{margin-top:14px;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#8b99a7}
+.conversation-list button{padding:10px 11px;border-radius:9px;font-size:13px;color:#45525f}
+.conversation-list button:hover{background:#eef3f8}
+.conversation-list button[aria-current=true]{background:#fff;color:var(--text);font-weight:600;box-shadow:var(--shadow-1),inset 2px 0 0 var(--accent)}
+.conversation-list p{font-size:12px;line-height:1.7}
+
+/* ---------- 顶部条 ---------- */
+.workspace-header{height:56px;padding:0 20px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.86);backdrop-filter:blur(8px);gap:12px}
+#content-subtitle{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.chat-panel>.workspace-header{border-bottom:1px solid var(--line)}
+.reader-toggle{padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--muted);font-size:12px;font-weight:500}
+.reader-toggle:hover{background:var(--accent-soft);border-color:#c3d5e6;color:var(--accent)}
+.layout-menu summary{font-size:12px;color:var(--muted);padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.layout-menu summary:hover{background:var(--accent-soft);color:var(--accent)}
+
+/* ---------- 目录浮层 ---------- */
+.sidebar-library{border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-2);padding:16px}
+.directory-heading strong{font-size:13px;letter-spacing:.02em}
+#course-tree{font-size:13px}
+.chapter-toggle{font-weight:600;color:var(--text)}
+
+/* ---------- 阅读视图 ---------- */
+.reader-view{background:#fbfcfd}
+#chapter-content{max-width:820px;margin:0 auto;padding:34px 40px 56px;font-size:16px;line-height:1.95;color:#1b2733}
+#chapter-content h1,#chapter-content h2,#chapter-content h3{font-family:var(--font-display);color:#101c28;letter-spacing:-.01em;line-height:1.5}
+#chapter-content h1{font-size:30px;margin:0 0 20px}
+#chapter-content h2{font-size:22px;margin:34px 0 14px;padding-bottom:8px;border-bottom:1px solid #eef2f6}
+#chapter-content h3{font-size:17px;margin:24px 0 10px}
+#chapter-content p{margin:0 0 1.1em}
+#chapter-content p:first-of-type::first-letter{font-family:var(--font-display);font-size:1.15em}
+#chapter-content blockquote,.chapter-content blockquote{margin:18px 0;padding:12px 18px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0;color:#274158}
+#chapter-content table{border-collapse:collapse;width:100%;font-size:14px;margin:16px 0}
+#chapter-content th,#chapter-content td{border:1px solid var(--line);padding:8px 12px;text-align:left}
+#chapter-content th{background:#f5f8fb;font-weight:600}
+.reading-practice{padding:12px 24px;border-top:1px solid var(--line);background:rgba(255,255,255,.92);backdrop-filter:blur(6px);font-size:12px;color:var(--muted)}
+
+/* ---------- 页面容器 ---------- */
+.page-view{padding:34px clamp(20px,3.4vw,48px) 56px;max-width:1240px;margin:0 auto;width:100%;background:#fff}
+.page-title{margin:0 0 26px;max-width:70ch}
+.page-kicker{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);opacity:.85}
+.page-title h1{font-family:var(--font-display);font-size:32px;line-height:1.35;font-weight:600;letter-spacing:-.015em;margin:8px 0 6px;color:#101c28}
+.page-title p{font-size:14px;line-height:1.75;color:var(--muted);margin:0}
+.page-title .secondary-button{margin-top:14px}
+
+/* ---------- 卡片 ---------- */
+.card,.page-panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-1);padding:22px 24px;margin:0 0 18px}
+.page-panel h2,.card h2{font-size:15px;font-weight:650;letter-spacing:.01em;color:#1a2732;margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid #f0f4f8}
+.page-two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.stats-columns{gap:16px}
+.resource-note{position:relative;padding:14px 16px 14px 18px;background:#f7f9fc;border:1px solid #e8eef5;border-left:3px solid #b9cde2;border-radius:10px;color:#54677a;font-size:13px;line-height:1.8}
+.resource-note strong{color:#21384f;font-weight:650}
+
+/* ---------- 统计卡 ---------- */
+.stats-summary{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:18px}
+.summary-tile{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 16px;box-shadow:var(--shadow-1);transition:transform .18s,box-shadow .18s}
+.summary-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+.summary-tile span{display:block;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.01em}
+.summary-tile strong{display:block;margin-top:10px;font-size:30px;font-weight:650;letter-spacing:-.02em;color:#122032;font-variant-numeric:tabular-nums}
+
+/* ---------- 图表与进度 ---------- */
+.activity-chart{height:210px;gap:14px;padding:18px 4px 4px;border-top:1px dashed #eef2f7}
+.day-bar{font-size:11px;color:#84929f;gap:8px}
+.bar-track{max-width:34px;height:150px;background:#f0f4f9;border-radius:8px;position:relative;overflow:hidden}
+.bar-track>*{background:linear-gradient(180deg,#4d86bd,#1f5fa8);border-radius:8px}
+.score-list{margin-top:2px}
+.score-row{grid-template-columns:minmax(96px,132px) 1fr 48px;gap:12px;font-size:13px;margin:16px 0;color:#3a4a58}
+.score-track{height:8px;background:#eef3f8;border-radius:999px}
+.score-fill{background:linear-gradient(90deg,#4d86bd,#1f5fa8);border-radius:999px;transition:width .4s ease}
+.score-row strong{font-variant-numeric:tabular-nums;font-weight:600;color:#22303d}
+
+/* ---------- 表单 ---------- */
+.select-field,.field-label{font-size:13px}
+.select-field{padding:9px 12px;border:1px solid #d8e1ea;border-radius:9px;background:#fff;color:var(--text);min-width:200px;transition:border-color .15s,box-shadow .15s}
+.select-field:hover{border-color:#b9cadd}
+.select-field:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(31,95,168,.12);outline:none}
+.settings-form label{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 0;border-bottom:1px solid #f1f5f9}
+.settings-form label:last-child{border-bottom:0}
+.settings-form label strong{display:block;font-size:14px;font-weight:600;color:#1c2a36}
+.settings-form label small{display:block;margin-top:3px;font-size:12px;color:var(--muted);line-height:1.6}
+
+/* ---------- 按钮 ---------- */
+.primary-button{background:var(--accent);border:1px solid var(--accent);border-radius:9px;padding:10px 16px;font-size:13px;font-weight:600;box-shadow:0 1px 2px rgba(16,32,48,.08);transition:background .15s,transform .12s}
+.primary-button:hover{background:var(--accent-strong);filter:none}
+.primary-button:active{transform:translateY(1px)}
+.secondary-button{border:1px solid #dbe4ee;background:#fff;border-radius:9px;color:#3d5163;padding:8px 13px;font-size:13px;font-weight:500;transition:background .15s,border-color .15s,color .15s}
+.secondary-button:hover{background:var(--accent-soft);border-color:#b9cee2;color:var(--accent)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- 对话区 ---------- */
+.chat-panel{background:#fff}
+.chat-context{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#93a1ae;padding:12px 24px 0}
+.chat-welcome h1{font-family:var(--font-display);font-size:34px;font-weight:600;letter-spacing:-.02em;color:#13202c}
+.chat-welcome p{font-size:13.5px;color:#7a8896}
+.chat-messages{padding:20px 24px 10px;gap:0}
+.message.assistant{margin:0 0 26px;padding:0 0 0 14px;border-left:2px solid #e6eef6}
+.message.assistant>.message-body:before{content:"助教";display:block;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;opacity:.9}
+.message-body,.message-body p{font-size:15px;line-height:1.88;color:#1e2b38}
+.message.user{margin:0 0 30px}
+.message.user .message-body{background:var(--user-message);border:1px solid #dbe8f6;border-radius:14px 14px 4px 14px;padding:11px 15px;color:#1b344f;font-size:14.5px;max-width:74%}
+.message-source{font-size:11.5px;color:var(--muted);margin:10px 0 2px}
+.citation-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.citation-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9aa7b3;width:100%}
+.pdf-citation,.legacy-citation{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border:1px solid var(--warm-line);border-radius:999px;background:var(--warm-soft);color:var(--warm);font-size:12px;font-weight:500;box-shadow:none;transition:background .15s,border-color .15s}
+.pdf-citation:hover,.legacy-citation:hover{background:#fbeed2;border-color:#e6d0a4;color:#7d5510}
+.message-components .resource-note{background:var(--warn-bg);border-color:#f2e3c6;border-left-color:#d9a441;color:#7a5a1c;font-size:12.5px}
+
+/* 输入区 */
+.chat-input{border:1px solid #dde6ef;border-radius:16px;background:#fff;padding:12px 14px 10px;box-shadow:var(--shadow-1);transition:border-color .15s,box-shadow .15s}
+.chat-input:focus-within{border-color:#b9cee3;box-shadow:0 0 0 3px rgba(31,95,168,.10),var(--shadow-1)}
+.chat-input textarea{font-size:15px;line-height:1.7;color:var(--text)}
+.chat-input textarea::placeholder{color:#9aa7b3}
+.composer-actions>span{font-size:11px;color:#9aa7b3}
+.chat-input .composer-actions button{width:36px;height:36px;min-width:36px;border:0;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;box-shadow:0 2px 8px rgba(31,95,168,.28);transition:background .15s,transform .12s}
+.chat-input .composer-actions button:hover{background:var(--accent-strong)}
+.chat-input .composer-actions button:active{transform:scale(.96)}
+.chat-input .composer-actions button svg{width:17px;height:17px}
+.chat-style-controls>.secondary-button{font-size:11px;color:#93a1ae}
+#suggestion-list button{color:#5d6f7f;border-radius:8px;padding:9px 10px;transition:background .15s,color .15s}
+#suggestion-list button:hover{background:#f4f8fc;color:var(--accent)}
+
+/* ---------- 空态 ---------- */
+.empty-state{padding:64px 24px;color:#8492a0;background:#fbfcfe;border:1px dashed #dde6ef;border-radius:var(--radius);margin:8px 0}
+.empty-state h3{font-size:15px;color:#41525f;margin:14px 0 6px}
+.empty-state p{font-size:13px;line-height:1.75;max-width:46ch;margin:0 auto}
+.quiz-area{min-height:220px;display:flex;flex-direction:column;justify-content:center}
+.textbook-exercises{min-height:120px}
+
+/* ---------- 移动端 ---------- */
+@media(max-width:1023px){
+  .app-shell,.sidebar-collapsed.app-shell{grid-template-columns:56px minmax(0,1fr)}
+  .page-view{padding:22px 16px 40px}
+  .page-title h1{font-size:26px}
+  .stats-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .summary-tile strong{font-size:24px}
+  .page-two-col{grid-template-columns:minmax(0,1fr)}
+  #chapter-content{padding:20px 18px 44px;font-size:15.5px}
+  .chat-messages{padding:14px 16px 6px}
+  .chat-welcome h1{font-size:26px}
+  .message.user .message-body{max-width:88%}
+}
+@media(max-width:560px){
+  .card,.page-panel{padding:16px 16px}
+  .score-row{grid-template-columns:88px 1fr 40px}
+}
+
+/* ============ 组件精修：进度、引用、提示、页面编排 ============ */
+
+/* 回答进度：从“卡片”降为一行轻量状态，避免抢正文注意力 */
+.turn-progress{border:0!important;background:transparent!important;border-radius:0;padding:0;margin:0 0 10px}
+.turn-progress>summary.progress-heading{padding:0;display:inline-flex;align-items:center;gap:7px;color:#8494a2;font-size:11.5px;background:transparent;border:0}
+.turn-progress .progress-check{width:15px;height:15px;min-width:15px;border-radius:50%;background:#e7f2ec;color:var(--ok);display:grid;place-items:center;font-size:9px;line-height:1}
+.turn-progress .progress-title{font-size:11.5px;font-weight:600;color:#7d8d9b;letter-spacing:.02em}
+.turn-progress .progress-chevron{opacity:.5;font-size:11px}
+.turn-progress .progress-steps{margin:8px 0 4px;padding:10px 14px;background:#f8fafc;border:1px solid #eef2f6;border-radius:10px;font-size:11.5px;color:#7e8d9b;gap:4px}
+.turn-progress .progress-steps li{display:flex;gap:8px;align-items:center}
+
+/* 行内引用：上标小徽标 */
+.citation-group{display:inline;margin:0 0 0 2px;vertical-align:super;line-height:0}
+.citation-group button[data-tutor-citation]{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;margin-left:3px;border:1px solid #e3cfa4;border-radius:5px;background:var(--warm-soft);color:var(--warm);font-size:10px;font-weight:700;line-height:1;vertical-align:super;box-shadow:none;transition:background .15s}
+.citation-group button[data-tutor-citation]:hover{background:#f9ebcd;border-color:#dcc08f;color:#6d4a0d}
+
+/* 图解/降级提示 */
+.visualization-notice{margin:12px 0 4px;padding:9px 13px;background:var(--warn-bg);border:1px solid #f3e4c8;border-left:3px solid #d9a441;border-radius:8px;color:#7a5a1c;font-size:12px;line-height:1.7}
+.message-components .resource-note{background:#f7f9fc;border-color:#e8eef5;border-left-color:#b9cde2;color:#54677a}
+
+/* 正文 markdown 排版 */
+.md-renderer.answer-text{font-size:15px;line-height:1.9;color:#1e2b38}
+.md-renderer.answer-text p{margin:0 0 12px}
+.md-renderer.answer-text :is(h1,h2,h3,h4){font-family:var(--font-display);color:#12202c;letter-spacing:-.01em;margin:22px 0 10px;line-height:1.5}
+.md-renderer.answer-text h1{font-size:22px}.md-renderer.answer-text h2{font-size:19px}.md-renderer.answer-text h3{font-size:16.5px}
+.md-renderer.answer-text :is(ul,ol){margin:0 0 12px;padding-left:1.35em}
+.md-renderer.answer-text li{margin:3px 0}
+.md-renderer.answer-text strong{font-weight:650;color:#12202c}
+.md-renderer.answer-text code{font-family:var(--font-mono);font-size:.9em;background:#f2f5f9;border:1px solid #e6ecf3;border-radius:5px;padding:1px 5px}
+.md-renderer.answer-text pre{background:#0f1b26;color:#e6eef6;border-radius:10px;padding:14px 16px;overflow:auto;font-size:13px;line-height:1.7}
+.md-renderer.answer-text table{border-collapse:collapse;width:100%;font-size:13.5px;margin:12px 0}
+.md-renderer.answer-text th,.md-renderer.answer-text td{border:1px solid #e4eaf1;padding:7px 11px;text-align:left}
+.md-renderer.answer-text th{background:#f6f9fc;font-weight:600}
+
+/* 设置页：两列，避免右侧大片留白 */
+.settings-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 44px}
+.settings-form label{padding:15px 0}
+.settings-form>button,.settings-form>p{grid-column:1/-1;justify-self:start}
+
+/* 练习页：主区 + 说明侧栏 */
+.quiz-layout{display:grid;grid-template-columns:minmax(0,1fr) 316px;gap:18px;align-items:start}
+.quiz-guide{background:#fbfcfe;border:1px solid var(--line);border-radius:var(--radius);padding:22px 22px 20px;box-shadow:var(--shadow-1)}
+.quiz-guide h2{font-size:14px;font-weight:650;margin:0 0 14px;color:#1a2732}
+.quiz-guide ol{margin:0 0 16px;padding-left:1.15em;color:#4a5c6b;font-size:13px;line-height:1.9}
+.quiz-guide ol li{margin-bottom:6px}
+.quiz-guide p{font-size:12.5px;line-height:1.75;color:#7b8896;margin:0 0 14px}
+.quiz-guide .primary-button{width:100%}
+.quiz-area{min-height:180px;justify-content:flex-start;padding-top:6px}
+@media(max-width:1180px){.quiz-layout{grid-template-columns:minmax(0,1fr)}.settings-form{grid-template-columns:minmax(0,1fr)}}
+
+/* 设置页：标签不被挤压 */
+.settings-form{max-width:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 40px}
+.settings-form label{display:grid;grid-template-columns:minmax(0,1fr) 150px;align-items:center;gap:16px}
+.settings-form label>span{min-width:0}
+.settings-form label strong{white-space:normal;line-height:1.45}
+.settings-form .select-field{width:100%;min-width:0}
+.settings-form>button{grid-column:1/-1;justify-self:start;margin-top:20px}
+
+/* 练习空态：居中提示，而不是贴顶一行 */
+#quiz-view .quiz-area{min-height:250px;align-items:center;justify-content:center}
+#quiz-view .quiz-area>.resource-note{max-width:560px;width:100%;text-align:center;border:1px dashed #dbe5ef;border-left:1px dashed #dbe5ef;background:#fbfcfe;padding:26px 24px;line-height:1.9}
+#quiz-view .textbook-exercises:empty{min-height:0}
+
+/* 能力与工具：从黑色胶囊降为轻量胶囊 */
+.native-controls>summary{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#5d6f7f;font-size:11.5px;font-weight:500;box-shadow:none;list-style:none;cursor:pointer}
+.native-controls>summary::-webkit-details-marker{display:none}
+.native-controls>summary::before{content:"＋";font-size:12px;color:#8ea0b0;font-weight:600}
+.native-controls>summary:hover{border-color:#c3d5e6;background:var(--accent-soft);color:var(--accent)}
+.native-controls[open]>summary{border-color:#b9cee2;background:var(--accent-soft);color:var(--accent)}
+.native-controls-body{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fbfcfe;font-size:12.5px}
+
+/* 阅读器激活时让 PDF 占满中栏，不再套用正文的阅读宽度与内边距 */
+#chapter-content.pdf-active,#chapter-content:has(.pdf-reader-host){max-width:none;padding:0;font-size:inherit;line-height:normal}
+#quiz-view .quiz-area{min-height:200px}
+
+/* 图表空态 */
+.chart-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:28px 16px;border:1px dashed #e0e8f0;border-radius:12px;background:#fbfcfe}
+.chart-empty strong{font-size:13.5px;font-weight:600;color:#44586a}
+.chart-empty span{font-size:12px;color:#8494a4;line-height:1.7;max-width:40ch}
+
+/* 行内引用微调：更小、更轻 */
+.citation-group button[data-tutor-citation]{min-width:14px;height:14px;padding:0 3px;border:0;border-radius:4px;background:#f7e8c9;color:#8a5a12;font-size:9.5px;font-weight:700}
+.citation-group button[data-tutor-citation]:hover{background:#f0dbb2;color:#6d4a0d}
+
+/* 侧栏导航里的外链项（知识图谱）与按钮保持一致 */
+.sidebar a.nav-item{text-decoration:none}
+.sidebar a.nav-item svg{flex:0 0 auto}

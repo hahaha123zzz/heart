@@ -28,7 +28,19 @@ def explain(llm, question, sources):
     evidence = [{'id':str(i), 'text':source['text'], 'section':source['section']}
                 for i, source in enumerate(sources, 1)]
     if llm.mock:
-        return {'status':'unavailable', 'answer':'当前为离线模式，不能进行真实教材问答核验。', 'citations':[]}
+        # 离线演示：不调用模型，直接摘录本章证据原文并给出可定位引用，明确标注未经模型核对。
+        kept = [source for source in sources if source.get('text','').strip()][:2]
+        if not kept:
+            return {'status':'rejected', 'answer':'样章内没有检索到与问题相关的原文，请换一个更贴近第四章的提问。', 'citations':[]}
+        quote = re.sub(r'\s+', ' ', kept[0]['text']).strip()[:420]
+        answer = ('（离线演示模式：未调用真实模型。以下为第四章教材原文摘录，可点击引用定位原文。）\n\n'
+                  + quote + '[1]')
+        if len(kept) > 1:
+            answer += '\n\n另见：' + re.sub(r'\s+', ' ', kept[1]['text']).strip()[:200] + '[2]'
+        ids = [str(i) for i in range(1, len(kept) + 1)]
+        return {'status':'completed', 'answer':answer,
+                'reason':'离线演示：直接摘录教材原文，未经模型生成与核对。',
+                'citations':[{'id':i, **kept[int(i)-1]} for i in ids]}
     decision = ContextSufficiency(llm, system=GATE).check(question, evidence, topic='第四章 被试间设计')
     if not decision.allowed:
         return {'status':decision.status, 'answer':decision.reply(), 'citations':[], 'reason':decision.reason,

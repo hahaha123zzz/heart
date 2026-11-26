@@ -1,4 +1,29 @@
-.pdf-reader{height:100%;display:flex;flex-direction:column;min-width:0}.pdf-toolbar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:7px 2px;color:#435575;font-size:12px}.pdf-toolbar button,.pdf-toolbar select{border:1px solid #dbe4f2;border-radius:6px;background:#fff;color:#34577f;padding:6px 8px}.pdf-toolbar button.active{background:#e9f2ff;border-color:#83b1ff;color:#1761c5}.pdf-toolbar input{width:42px;border:1px solid #dbe4f2;border-radius:4px;padding:4px;font-size:12px}.pdf-hint{font-size:11px;color:#7788a3;padding:2px 3px 8px}.pdf-surface{position:relative;flex:1;min-height:360px;background:#e9edf3;overflow:hidden;border-radius:7px}.pdf-surface .PdfHighlighter{position:absolute!important;inset:0;overflow:auto}.pdf-surface .pdfViewer{--page-margin:8px auto;--page-border:0}.pdf-surface .pdfViewer .page{margin:8px auto;border:0;box-shadow:0 1px 6px #25354b20}.pdf-loading{padding:40px 15px;text-align:center;color:#7184a0}.pdf-selection-menu,.pdf-touch-menu{display:flex;gap:5px;padding:6px;border:1px solid #d4e3fa;border-radius:8px;background:#fff;box-shadow:0 4px 18px #1c365830}.pdf-selection-menu button,.pdf-touch-menu button{border:0;background:#2879ee;color:#fff;border-radius:5px;padding:7px 10px;font:12px 'Microsoft YaHei',sans-serif;white-space:nowrap}.pdf-selection-menu button+button,.pdf-touch-menu button+button{color:#687b97;background:#f0f4fa}.pdf-surface.area-mode{touch-action:none}.pdf-touch-selection{position:absolute;border:2px solid #4287ef;background:#5098ef20;pointer-events:none;z-index:10}.pdf-touch-menu{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:12}.pdf-surface .AreaHighlight{pointer-events:none}.pdf-surface .Highlight__part{background:#ffd76070}.pdf-reader-host{height:580px}.chapter-content.pdf-active{padding:2px;max-height:none;overflow:hidden}.page-panel .pdf-reader-host{height:75vh;min-height:500px}@media(max-width:780px){.pdf-reader-host{height:65vh;min-height:420px}.page-panel .pdf-reader-host{height:65vh;min-height:420px}.pdf-toolbar{gap:4px}.pdf-toolbar button,.pdf-toolbar select{padding:6px;font-size:11px}}
+/* 阅读器外观：与主站设计系统同源（深蓝主色、纸感底、细线框） */
+.pdf-reader{height:100%;display:flex;flex-direction:column;min-width:0;background:#fff}
+.pdf-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:9px 12px;color:#42556a;font-size:12px;background:#fff;border-bottom:1px solid #e9eef4}
+.pdf-toolbar button,.pdf-toolbar select{border:1px solid #dde6ef;border-radius:8px;background:#fff;color:#3a4f63;padding:6px 10px;font-size:12px;transition:background .15s,border-color .15s,color .15s}
+.pdf-toolbar button:hover,.pdf-toolbar select:hover{background:#f2f7fb;border-color:#c3d5e6;color:#1f5fa8}
+.pdf-toolbar button.active{background:#eaf1f9;border-color:#a9c6e0;color:#1f5fa8;font-weight:600}
+.pdf-toolbar input{width:46px;border:1px solid #dde6ef;border-radius:7px;padding:5px 7px;font-size:12px;color:#3a4f63;text-align:center}
+.pdf-toolbar input:focus{border-color:#1f5fa8;outline:none;box-shadow:0 0 0 3px #1f5fa81a}
+.pdf-hint{font-size:11px;color:#8494a4;padding:8px 12px 6px;letter-spacing:.01em}
+.pdf-surface{position:relative;flex:1;min-height:360px;background:#eef1f5;overflow:hidden;border-radius:0;box-shadow:inset 0 1px 0 #e6ebf1}
+.pdf-surface .PdfHighlighter{position:absolute!important;inset:0;overflow:auto}
+.pdf-surface .pdfViewer{--page-margin:10px auto;--page-border:0}
+.pdf-surface .pdfViewer .page{margin:10px auto;border:1px solid #e3e8ee;border-radius:2px;box-shadow:0 2px 10px rgba(20,38,56,.08);background:#fff}
+.pdf-loading{padding:48px 15px;text-align:center;color:#7b8b9c;font-size:13px}
+.pdf-selection-menu,.pdf-touch-menu{display:flex;gap:6px;padding:7px;border:1px solid #dbe6f1;border-radius:10px;background:#fff;box-shadow:0 10px 28px rgba(20,42,66,.18)}
+.pdf-selection-menu button,.pdf-touch-menu button{border:0;background:#1f5fa8;color:#fff;border-radius:7px;padding:7px 12px;font:12px 'Microsoft YaHei',sans-serif;white-space:nowrap;box-shadow:0 2px 8px rgba(31,95,168,.24)}
+.pdf-selection-menu button+button,.pdf-touch-menu button+button{color:#4c6072;background:#f1f5f9;box-shadow:none}
+.pdf-surface.area-mode{touch-action:none}
+.pdf-touch-selection{position:absolute;border:2px solid #3f7fc0;background:#3f7fc020;pointer-events:none;z-index:10}
+.pdf-touch-menu{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:12}
+.pdf-surface .AreaHighlight{pointer-events:none}
+.pdf-surface .Highlight__part{background:#ffd76070;border-radius:2px}
+.pdf-reader-host{height:580px}
+.chapter-content.pdf-active{padding:2px;max-height:none;overflow:hidden}
+.page-panel .pdf-reader-host{height:75vh;min-height:500px}
+@media(max-width:780px){.pdf-reader-host{height:65vh;min-height:420px}.page-panel .pdf-reader-host{height:65vh;min-height:420px}.pdf-toolbar{gap:5px;padding:8px}.pdf-toolbar button,.pdf-toolbar select{padding:6px 7px;font-size:11px}}
 
 /* 触屏手势在 PDF 内部滚动容器判定，需要在此层关闭默认拖动滚动。 */
 .area-mode .PdfHighlighter,.area-mode .pdfViewer,.area-mode .textLayer{touch-action:none}

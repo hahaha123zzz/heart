@@ -53,6 +53,8 @@ from learning_cards_api import router as learning_cards_router
 app.include_router(learning_cards_router)
 from review_api import router as review_router
 app.include_router(review_router)
+from course_preview_api import router as course_preview_router
+app.include_router(course_preview_router)
 if not PSYCHOLOGY:
     from visualization_api import router as visualization_router
     app.include_router(visualization_router)
@@ -62,6 +64,17 @@ if not PSYCHOLOGY:
     app.include_router(relation_router)
 FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
+# 只读候选知识图谱：仓库原有的 graph_viewer 页面，挂到主站同一端口。
+# 候选目录缺失或版本校验失败时不影响主站启动，只在日志里说明。
+GRAPH_CANDIDATE = Path(os.getenv("TUTOR_GRAPH_CANDIDATE",
+                                 str(Path(__file__).resolve().parent / "knowledge/graph/psychology-candidate")))
+if GRAPH_CANDIDATE.is_dir():
+    try:
+        from graph_viewer import attach as attach_graph_viewer
+        app.state.graph_view = attach_graph_viewer(app, GRAPH_CANDIDATE, "/knowledge-graph")
+    except (OSError, ValueError, RuntimeError) as exc:
+        print(f"[graph] 候选图谱未启用：{exc}")
 from agents.intent_policy import IntentPolicy
 # 配置错误在初始化业务服务前暴露，不静默开放灰度。
 IntentPolicy.from_env()

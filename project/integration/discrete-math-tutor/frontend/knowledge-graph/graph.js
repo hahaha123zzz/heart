@@ -14,8 +14,8 @@ function el(tag, text, className) {
 }
 function status(text) { $('status').textContent = text; }
 function arrange() {
-  const layout = cy.layout({name: 'cose', animate: false, randomize: true, nodeRepulsion: 800000,
-    idealEdgeLength: 100, numIter: 500, padding: 40});
+  const layout = cy.layout({name: 'cose', animate: false, randomize: true, nodeRepulsion: 2400000,
+    idealEdgeLength: 130, nodeOverlap: 24, componentSpacing: 40, gravity: 3, numIter: 1400, padding: 40});
   const done = layout.promiseOn('layoutstop');
   layout.run();
   return done;
@@ -24,7 +24,7 @@ async function loadGraph(name = null, append = false) {
   const request = ++graphRequest;
   status('正在读取关系…');
   try {
-    const data = await api('neighborhood?limit=60' + (name === null ? '' : '&name=' + encodeURIComponent(name)));
+    const data = await api('neighborhood?limit=120' + (name === null ? '' : '&name=' + encodeURIComponent(name)));
     if (request !== graphRequest) return;
     const incoming = data.elements.filter(item => !cy.getElementById(item.data.id).length);
     if (append && cy.nodes().length + incoming.filter(item => !item.data.source).length > 350) append = false;
@@ -106,8 +106,9 @@ async function search() {
 async function init() {
   try {
     cy = cytoscape({container: $('graph'), minZoom: .1, maxZoom: 4, style: [
-      {selector: 'node', style: {'background-color': '#509183', 'label': 'data(label)', 'color': '#294c43',
-        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 7, 'text-wrap': 'ellipsis', 'text-max-width': 115,
+      {selector: 'node', style: {'background-color': '#4f9184', 'label': 'data(label)', 'color': '#223d37',
+        'font-size': 10.5, 'text-valign': 'bottom', 'text-margin-y': 6, 'text-wrap': 'ellipsis', 'text-max-width': 92,
+        'text-background-color': '#ffffff', 'text-background-opacity': .82, 'text-background-padding': 2,
         'width': 'mapData(degree, 1, 400, 18, 48)', 'height': 'mapData(degree, 1, 400, 18, 48)',
         'border-width': 2, 'border-color': '#fff'}},
       {selector: 'edge', style: {'width': 1, 'line-color': '#b5cbc1', 'opacity': .65, 'curve-style': 'bezier'}},

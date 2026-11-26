@@ -291,6 +291,10 @@ def choose_evidence(llm,message,sources,index_path,*,selection=None,feedback=Non
             '只输出JSON：{"evidence_ids":["提供的ID"],"reason":"具体支持范围或缺口，不补充教材外事实"}。')
     result=selection_fn(payload) if selection_fn else llm.chat_json([{'role':'system','content':instruction},
         {'role':'user','content':json.dumps(payload,ensure_ascii=False)}],temperature=0,max_tokens=1600 if coverage else 1300,retries=0)
+    if getattr(llm,'mock',False) and not (isinstance(result,dict) and result.get('evidence_ids')):
+        # mock 模式不产出真实选择，按检索顺序自动挑选候选（优先教材选区目标）；后续逐项核验照常执行。
+        ranked=[c for c,_ in candidates if c['selected_target']] or [c for c,_ in candidates]
+        result={'evidence_ids':[c['evidence_id'] for c in ranked[:min(4,len(ranked))]]}
     selected=(CoverageEvidenceSelection if coverage is not None else EvidenceSelection).model_validate(result)
     allowed={item['evidence_id']:(item,source) for item,source in candidates}
     if len(set(selected.evidence_ids))!=len(selected.evidence_ids) or not set(selected.evidence_ids)<=allowed.keys():

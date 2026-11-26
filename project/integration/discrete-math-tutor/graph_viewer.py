@@ -154,13 +154,19 @@ class GraphView:
 
 
 def create_app(candidate: Path) -> FastAPI:
-    view = GraphView(candidate)
     app = FastAPI(title="候选知识图谱 · 只读浏览", docs_url=None, redoc_url=None)
+    attach(app, candidate, "/")
+    return app
+
+
+def attach(app: FastAPI, candidate: Path, page_path: str = "/") -> GraphView:
+    """把只读候选图谱挂到任意 FastAPI 应用（独立启动与主站内嵌共用同一套路由）。"""
+    view = GraphView(candidate)
     frontend = Path(__file__).parent / "frontend"
     app.mount("/assets", StaticFiles(directory=frontend / "knowledge-graph"), name="assets")
     app.mount("/vendor", StaticFiles(directory=frontend / "vendor/cytoscape"), name="vendor")
 
-    @app.get("/")
+    @app.get(page_path)
     def page():
         return FileResponse(frontend / "knowledge-graph/index.html")
 
@@ -199,7 +205,7 @@ def create_app(candidate: Path) -> FastAPI:
         except (OSError, ValueError, RuntimeError):
             raise HTTPException(409, "来源缺失或版本失效，不能打开")
 
-    return app
+    return view
 
 
 if __name__ == "__main__":

@@ -15,6 +15,12 @@ def _field(content: str, name: str) -> str:
     return match.group(1).strip() if match else ""
 
 
+def _first_evidence(content: str) -> str:
+    """从提示词中取 [1] 号教材证据的正文首行（用于课程感知 mock 回复）。"""
+    match = re.search(r"\[1\]\s*实验心理学[^\n]*\n([^\n\[]+)", content)
+    return match.group(1).strip() if match else ""
+
+
 def mock_reply(messages: list[dict[str, str]], json_mode: bool) -> Any:
     system = next((m.get("content", "") for m in messages if m.get("role") == "system"), "")
     tag_match = re.search(r"\[AGENT:(\w+)\]", system)
@@ -22,8 +28,19 @@ def mock_reply(messages: list[dict[str, str]], json_mode: bool) -> Any:
     content = _last_user(messages)
     student = _field(content, "学生最新输入：") or _field(content, "学生最新发言：") or content
     stuck = any(x in student for x in ("不知道", "不懂", "不会", "没思路"))
+    concept_match = re.search(r"什么是(.+?)？", student)
+    concept = concept_match.group(1) if concept_match else ""
 
     if not json_mode:
+        if "实验心理学" in content:
+            quote = _first_evidence(content)
+            if quote:
+                topic = concept or "这个概念"
+                if stuck:
+                    return ("没关系，我们退一步，只看教材里这句定义："
+                            f"“{quote[:120]}”。先说说你读到了什么？[1]")
+                return (f"我们先看教材对{topic}的说明：“{quote[:120]}”。"
+                        f"理解这个定义后，你能不能用自己的话复述一遍{topic}的关键点？[1]")
         if tag == "social_reply":
             return "好的，需要时再回来学离散数学。"
         if stuck:

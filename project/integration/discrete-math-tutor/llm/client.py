@@ -358,6 +358,13 @@ class LLMClient:
         execute tools and does not start an upstream application.
         """
         if self.mock:
+            # mock 兼容教学技能读取阶段：模拟 read_skill 工具调用与 SKILLS_READY 收尾。
+            if any(isinstance(m.get('content'), str) and '第一个调用必须是 read_skill' in m['content'] for m in messages):
+                if any(m.get('role') == 'tool' for m in messages):
+                    return ChatToolResult(text='SKILLS_READY', finish_reason="stop")
+                return ChatToolResult(text="", finish_reason="tool_calls", tool_calls=[
+                    ChatToolCall(id="mock-read-skill-1", name="read_skill",
+                                 arguments={"name": "teaching-skills", "file": "SKILL.md"})])
             text = str(mock_reply(messages, json_mode=False))
             return ChatToolResult(text=text, finish_reason="stop")
         try:

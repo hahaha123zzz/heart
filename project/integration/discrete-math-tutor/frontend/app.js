@@ -685,11 +685,13 @@ async function restoreLearningCards(){
   }));
   if(owner===studentId&&session===tabSessionId)renderChat();
 }
+const artifactsApiEnabled=(window.TutorCourse?.id||'')!=='experimental-psychology-3';
 const graphArtifacts = new Map();
 const tableArtifacts = new Map();
 const relationArtifacts = new Map();
 let relationCreateRequest;
 async function restoreRelations(){
+  if(!artifactsApiEnabled)return;
   try{const artifacts=await api('/api/relations?'+new URLSearchParams({student_id:studentId,session_id:tabSessionId}));
     if(!Array.isArray(artifacts))return;relationArtifacts.clear();artifacts.forEach(artifact=>relationArtifacts.set(artifact.conversation_id,artifact));renderChat();
   }catch{ /* 历史文字保持兼容。 */ }
@@ -707,6 +709,7 @@ async function openRelation(mode='explore',correctionOf=null){
 }
 let tableCreateRequest;
 async function restoreTables() {
+  if(!artifactsApiEnabled)return;
   try {
     const artifacts=await api('/api/truth-tables?'+new URLSearchParams({student_id:studentId,session_id:tabSessionId}));
     if(!Array.isArray(artifacts))return;
@@ -736,6 +739,7 @@ let graphCreateRequest;
 async function restoreGraphs() {
   await restoreRelations();
   await restoreTables();
+  if(!artifactsApiEnabled)return;
   try {
     const artifacts=await api('/api/visualizations?'+new URLSearchParams({student_id:studentId,session_id:tabSessionId}));
     if(!Array.isArray(artifacts)) return;
@@ -1018,7 +1022,10 @@ async function refreshStats() {
     ];
     $("#stats-summary").innerHTML = metrics.map(([label,value]) => `<div class="summary-tile"><span>${label}</span><strong>${esc(value)}</strong></div>`).join("");
     const maxCount = Math.max(1, ...data.activity.map((d) => d.count));
-    $("#activity-chart").innerHTML = data.activity.map((d) => `<div class="day-bar"><span>${d.count}</span><div class="bar-track"><div class="bar-fill" style="height:${Math.max(2,Math.round(d.count/maxCount*100))}%"></div></div><span>${esc(d.day.slice(5))}</span></div>`).join("");
+    const activityTotal = data.activity.reduce((sum, d) => sum + d.count, 0);
+    $("#activity-chart").innerHTML = activityTotal
+      ? data.activity.map((d) => `<div class="day-bar"><span>${d.count}</span><div class="bar-track"><div class="bar-fill" style="height:${d.count ? Math.max(8, Math.round(d.count / maxCount * 100)) : 0}%"></div></div><span>${esc(d.day.slice(5))}</span></div>`).join("")
+      : '<div class="chart-empty"><strong>近 7 天还没有学习活动</strong><span>向助教提问或完成一次练习后，这里会显示每天的学习记录。</span></div>';
     $("#chapter-scores").innerHTML = data.chapter_scores.length ? data.chapter_scores.map((row) => `<div class="score-row"><span>${esc(row.title)}</span><div class="score-track"><div class="score-fill" style="width:${row.score}%"></div></div><strong>${row.score} 分</strong></div>`).join("") : '<div class="resource-note">尚无基础自测成绩。教材逐题作答进度和规则评分见上方；AI 参考评分保存在各题反馈中。</div>';
     const knowledge = data.knowledge || [];
     const errors = data.common_errors || [];

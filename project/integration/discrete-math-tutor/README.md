@@ -4,21 +4,25 @@
 
 ## 启动与使用
 
-Windows 双击 `3-start-api.bat`，或在本目录运行：
+Windows 双击 `3-start-api.bat`，或在已建好虚拟环境的目录运行：
 
 ```powershell
-.venv-gpu/Scripts/python.exe -X utf8 -m scripts.start_server --port 8000
+.venv/Scripts/python.exe -X utf8 -m scripts.start_server --port 8000
 ```
 
-打开 http://127.0.0.1:8000/ 。配置保存在本机 `.env`，不要分享密钥。真实模型要求 `LLM_MOCK=0`；当前重排模型运行在GPU，embedding运行在CPU。
+打开 http://127.0.0.1:8000/ 。配置保存在本机 `.env`，不要分享密钥。真实模型要求 `LLM_MOCK=0`，并正确填写 `OPENAI_BASE_URL`、`OPENAI_MODEL`（DeepSeek 官方模型名为 `deepseek-chat`，不是 `deepseek-flash`）。
 
-教材共11章、37节，阅读版PDF共376页。页码标注为生成阅读版页码，不能作为印刷版页码引用。支持教材圈选提问、回答引用定位与高亮；教学需要时自动调用实验流程、变量关系和设计矩阵图解，学生只需点击上一步或下一步。
+`3-start-api.bat` 会自动挑选解释器：存在 `.venv-gpu\gpu-verified.json` 时使用 `.venv-gpu` 并把重排与 embedding 切到 CUDA；否则退回 `.venv`，两者都用 CPU。本机当前走 CPU 路径（`RAG_RERANK_DEVICE=cpu`、`RAG_EMBED_DEVICE=cpu`），没有 GPU 也能完整运行，只是检索重排稍慢。
+
+教材共11章、37节（另有11篇章导言，共48个小节节点），阅读版PDF共323页。页码标注为生成阅读版页码，不能作为印刷版页码引用。支持教材圈选提问、回答引用定位与高亮；教学需要时自动调用实验流程、变量关系和设计矩阵图解，学生只需点击上一步或下一步。
+
+四个入口：主平台 `http://127.0.0.1:8000/`、教材样章 `http://127.0.0.1:8000/textbook-preview/psychology`（单栏阅读版式，由 `course_preview_api.py` 提供）、只读知识图谱 `http://127.0.0.1:8000/knowledge-graph`、平台内左侧「教材」的 PDF 阅读器。本分支的改动范围与数据重建步骤见 `docs/psychology-platform-branch.md`。
 
 当前提供的教材未发现独立习题栏。实验目的与实验程序保留在阅读器中；练习页不展示其他教材题目，也不虚构官方题目或答案。
 
 ## 数据与验收
 
-正式教材和索引：`knowledge/courses/experimental-psychology-3/`。
+正式教材和索引：`knowledge/courses/experimental-psychology-3/`。该目录含整本教材正文与 PDF，按仓库既有 `.gitignore` 约定不纳入提交，克隆后只剩 `kc_registry.json`；需在本机用原始教材文本重建，命令见 `docs/psychology-platform-branch.md`（`scripts/rebuild_psych_book.py`、`scripts/make_psych_sample.py`、`scripts/build_psychology_sample_index.py --all`）。
 
 存储已迁到本机 PostgreSQL 18（`docs/postgres-setup.md`）：
 
@@ -36,20 +40,43 @@ Windows 双击 `3-start-api.bat`，或在本目录运行：
 
 验收脚本：`scripts/check_postgres_mem0.py`（库、pgvector、计数、mem0 增删查）与 `scripts/check_lightrag_pg_parity.py`（文件/PG 检索对照）。
 
-教材替换计划及验收详情见 `docs/原项目教材替换实施计划.md` 和 `docs/正式教材迁移实施记录.md`。旧教材资源和旧说明归档于 `artifacts/archive/discrete-math-20261015/`，不会经静态教材目录提供或进入当前检索；原库切换前备份位于 `artifacts/service-backups/before-psychology-cutover-20261015.sqlite`。
+教材替换计划及验收详情见 `docs/原项目教材替换实施计划.md` 和 `docs/正式教材迁移实施记录.md`。旧教材资源和旧说明归档于 `artifacts/archive/discrete-math-20261015/`，不会经静态教材目录提供或进入当前检索；原库切换前备份位于 `artifacts/service-backups/before-psychology-cutover-20261015.sqlite`。这两处 `artifacts/` 归档只在原始开发机上保留，不随仓库分发，克隆后该目录为空属正常。
 
 已验证代表性概念、随机区组设计、表格图解、文本选区及跨章引用；尚未逐页人工复核全部版面，也未覆盖全部统计公式和纯图片问答。图解核验失败时保留文字回答，不展示未通过的图解。
 
 连续对话质量样本（Q1）：
 
 ```powershell
-.venv-gpu/Scripts/python.exe -B scripts/check_conversation_quality.py
-.venv-gpu/Scripts/python.exe -B scripts/check_conversation_quality.py --live --case simplify_without_switching
+.venv/Scripts/python.exe -B scripts/check_conversation_quality.py
+.venv/Scripts/python.exe -B scripts/check_conversation_quality.py --live --case simplify_without_switching
 ```
 
 默认只做结构与追问契约自检，不调用模型；`--live` 使用本机模型和隔离数据库运行本地链路，报告写入 `.runtime/conversation-quality/`。`--include-golden` 可加入 9 类心理学黄金集中的文本案例。
 
+## 教材知识图谱（只读候选）
+
+页面：`http://127.0.0.1:8000/knowledge-graph`（主站左侧导航第四项「知识图谱」，位于「学习记录」下方，新标签页打开）。路由由
+`graph_viewer.attach()` 挂进 `main.py`，静态资源走 `/assets`、`/vendor/cytoscape`，接口为 `/api/graph/*`，
+全部只读，不写入索引或学习记录。
+
+候选数据在 `knowledge/graph/psychology-candidate/`，由 `scripts/build_graph_candidate.py` 从正式教材生成：
+
+```powershell
+.venv/Scripts/python.exe scripts/build_graph_candidate.py
+```
+
+生成内容：11 章 + 48 个小节节点、约 220 个概念实体、约 2,200 条关系（章节归属 / 概念出现 / 段落共现），
+以及 4,200 余条原文片段。实体与关系由本地规则抽取（术语表 + 定义句式 + 段落共现），**不是大模型或 LightRAG 抽取结果**，
+所以页面标注「候选 · 只读」，关系摘要只作浏览线索，不作为已核验事实。
+
+`index_files.json` 记录每个索引文件的 sha256，`input/pdf_manifest.json` 的 `version` 必须等于对应 PDF 的 sha256；
+任何一项不一致，`GraphView` 会拒绝读取（页面提示来源缺失/版本失效）。候选目录缺失时主站照常启动，只是没有图谱页。
+
+独立运行（不启动助教）：`python graph_viewer.py --candidate knowledge/graph/psychology-candidate --port 8001`。
+
 ## DeepTutor 整体接入
+
+以下 DeepTutor 接入属于上游可选能力，相关开关（`DEEPTUTOR_*`、`RAG_RETRIEVAL_ENGINE`）默认均为 `0`/`legacy`，不启用也不影响主平台的对话、练习与引用链路；本分支未改动这部分代码，也未重新验证。
 
 实施计划与进度：[实施计划](../../docs/research/2026-10-18-deeptutor-full-reuse/IMPLEMENTATION_PLAN.md)、[执行记录](../../docs/research/2026-10-18-deeptutor-full-reuse/EXECUTION_LOG.md)。完整上游源码位于 `../../vendor/DeepTutor`，包含前后端源码、提示词、测试与部署文件。
 

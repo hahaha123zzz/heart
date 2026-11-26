@@ -3,6 +3,69 @@
 <link rel="stylesheet" href="/static/pdf-reader/reader.css">
 <style>
 body{margin:0;font-family:'Microsoft YaHei',sans-serif;color:#293943}header{padding:14px 20px;border-bottom:1px solid #ddd;display:flex;gap:16px;align-items:center}header a{margin-left:auto}main{display:grid;grid-template-columns:360px 1fr;height:calc(100dvh - 58px)}aside{padding:18px;overflow:auto;background:#f5f7f8}button,input,textarea{font:inherit;padding:8px;border:1px solid #cbd4da;border-radius:5px;background:white}button{cursor:pointer}button:disabled{cursor:wait;opacity:.6}.section-button{display:block;width:100%;text-align:left;margin-bottom:8px}#reader{min-width:0;min-height:0;height:100%}.hit,#answer{margin:14px 0;padding:10px;background:white;border:1px solid #ddd;border-radius:6px}.hit p{white-space:pre-wrap;font-size:13px;max-height:160px;overflow:auto}small,summary{color:#667782}form{display:flex;gap:6px}input{min-width:0;flex:1}#ask{flex-direction:column}textarea{resize:vertical;min-height:64px}#selection-note{font-size:13px}.answer-text{white-space:pre-wrap;line-height:1.8;font-size:14px}.citation{display:block;margin:8px 0;text-align:left;font-size:13px}mark{background:#fff1a8}summary{cursor:pointer;font-size:13px}details p{font-size:13px}#answer:empty{display:none}@media(max-width:700px){main{grid-template-columns:1fr;grid-template-rows:280px 1fr}header{font-size:13px;flex-wrap:wrap}}
+</style>
+<style>
+:root{--ink:#17212b;--muted:#5d6b79;--line:#e4eaf0;--accent:#1f5fa8;--accent-strong:#164a86;--soft:#eaf1f9;--warm:#9a6b18;--warm-soft:#fdf6e8;--warm-line:#f0e2c4}
+body{margin:0;background:#eef1f5;color:var(--ink);font-family:"Inter","Segoe UI","Microsoft YaHei",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+header{height:62px;padding:0 22px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;position:relative;z-index:5}
+header:before{content:"";width:4px;height:26px;border-radius:2px;background:var(--accent)}
+header strong{font-family:"Source Han Serif SC","Noto Serif CJK SC","Songti SC",SimSun,serif;font-size:16px;font-weight:600;letter-spacing:-.01em}
+header small{font-size:11px;color:var(--muted);padding:3px 9px;border:1px solid var(--line);border-radius:999px;background:#f8fafc}
+header a{margin-left:auto;font-size:12px;color:var(--accent);text-decoration:none;padding:7px 12px;border:1px solid #cfdded;border-radius:8px;background:#fff;transition:background .15s}
+header a:hover{background:var(--soft)}
+main{display:grid;grid-template-columns:372px minmax(0,1fr);height:calc(100dvh - 62px)}
+aside{padding:18px 16px 28px;overflow:auto;background:#fff;border-right:1px solid var(--line)}
+aside h3{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8b99a7;margin:22px 0 10px}
+aside h3:first-of-type{margin-top:6px}
+#sections{display:flex;flex-direction:column;gap:6px}
+.section-button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;margin:0;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#33465a;font-size:13px;line-height:1.5;transition:background .15s,border-color .15s,color .15s}
+.section-button:hover{border-color:#b9cee2;background:var(--soft);color:var(--accent)}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:wait;opacity:.6}
+button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+form{display:flex;gap:8px}
+input,textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #d8e1ea;border-radius:9px;background:#fff;color:var(--ink);font-size:13px;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px #1f5fa81a}
+#search button,#submit-question{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:9px;padding:0 16px;font-size:13px;font-weight:600;white-space:nowrap;transition:background .15s}
+#search button:hover,#submit-question:hover{background:var(--accent-strong)}
+#status,#qa-status,#selection-note{font-size:12px;color:var(--muted);line-height:1.7;margin:10px 0}
+#hits{display:flex;flex-direction:column;gap:10px}
+.hit,#answer{margin:0;padding:14px;background:#fbfcfe;border:1px solid var(--line);border-radius:11px}
+.hit strong{display:block;font-size:12px;color:var(--accent);margin-bottom:6px}
+.hit p{white-space:pre-wrap;font-size:12.5px;line-height:1.8;color:#4b5d6d;max-height:150px;overflow:auto;margin:0 0 10px}
+.hit button{border:1px solid #dbe4ee;background:#fff;color:#3d5163;border-radius:8px;padding:6px 11px;font-size:12px}
+.hit button:hover{background:var(--soft);border-color:#b9cee2;color:var(--accent)}
+#ask{flex-direction:column;margin-top:4px}
+textarea{resize:vertical;min-height:76px;line-height:1.7}
+#submit-question{padding:10px 14px;margin-top:2px}
+small,summary{color:var(--muted)}
+#clear-selection{border:1px solid #dbe4ee;background:#fff;border-radius:8px;padding:5px 10px;font-size:11.5px}
+#answer{border-left:3px solid var(--accent);background:#fff;box-shadow:0 1px 2px rgba(16,32,48,.04)}
+#answer:empty{display:none}
+.answer-text{white-space:pre-wrap;line-height:1.9;font-size:14.5px;color:#1e2b38}
+.citation{display:inline-flex;align-items:center;gap:6px;margin:10px 6px 0 0;padding:5px 11px;border:1px solid var(--warm-line);border-radius:999px;background:var(--warm-soft);color:var(--warm);font-size:12px;text-align:left}
+.citation:hover{background:#f9ebcd;border-color:#dcc08f}
+mark{background:#ffe9a8;color:#5c4410;border-radius:3px;padding:0 2px}
+.citation-group{display:inline;margin-left:2px;vertical-align:super;line-height:0}
+.citation-group button[data-tutor-citation]{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;margin-left:3px;border:1px solid #e3cfa4;border-radius:5px;background:#fdf6e8;color:#9a6b18;font-size:10px;font-weight:700;line-height:1;vertical-align:super}
+.citation-group button[data-tutor-citation]:hover{background:#f9ebcd;border-color:#dcc08f;color:#6d4a0d}
+.answer-text :is(h1,h2,h3,h4){font-family:"Source Han Serif SC","Noto Serif CJK SC","Songti SC",SimSun,serif;color:#12202c;line-height:1.55}
+.answer-text ul,.answer-text ol{padding-left:1.3em}
+.answer-text table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+.answer-text th,.answer-text td{border:1px solid #e4eaf1;padding:6px 10px;text-align:left}
+summary{cursor:pointer;font-size:12px}
+details{margin:8px 0}
+details p{font-size:12px;color:#7b8896}
+#reader{min-width:0;min-height:0;height:100%;background:#eef1f5}
+@media(max-width:860px){
+  main{display:block;height:auto}
+  aside{border-right:0;border-bottom:1px solid var(--line);max-height:none;padding:14px 14px 22px}
+  #reader{height:62vh;min-height:380px;border-top:1px solid var(--line)}
+  header{font-size:13px;padding:0 14px;gap:10px;height:56px}
+  header strong{font-size:14px}
+  header small{display:none}
+}
 </style></head><body>
 <header><strong>实验心理学（第3版）· 第四章样章</strong><small>生成阅读版页码</small></header>
 <main><aside><nav id="sections"></nav>
