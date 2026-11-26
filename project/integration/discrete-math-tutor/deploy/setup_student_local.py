@@ -4,6 +4,13 @@ import argparse,json,os,secrets,subprocess,sys,hashlib
 from pathlib import Path
 from urllib.parse import urlsplit
 
+def rerank_settings(private, python, *, run=subprocess.run):
+ """新装重排配置；CUDA 时把 ONNX JIT 缓存固定在部署私有目录，避免写进发行包。"""
+ device=rerank_device(python,run=run)
+ settings={"RAG_RERANK_DEVICE":device}
+ if device=="cuda":settings["CUDA_CACHE_PATH"]=str(Path(private)/"cuda-cache")
+ return settings
+
 def rerank_device(python, *, run=subprocess.run):
  """新装只在本机目标解释器能启用 CUDA 时才把正式教材重排切到 GPU。"""
  try:
@@ -34,9 +41,10 @@ def main():
     if connection.execute("SELECT 1 FROM pg_database WHERE datname=%s",(name,)).fetchone():raise ValueError("unowned_local_database_exists")
    for name in names:connection.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
   _ensure_extensions(names)
-  values={**project,"DATABASE_URL":_psycopg_url(urlsplit(base),names[0]).replace("postgresql://","postgresql+psycopg://",1),"COURSE_DATABASE_URL":_psycopg_url(urlsplit(base),names[1]).replace("postgresql://","postgresql+psycopg://",1),"DEEPTUTOR_HOME":str(private/"worker-home"),"TUTOR_PSYCHOLOGY_DIR":str(args.assets.resolve(strict=True)),"HEART_MODEL_ENCRYPTION_KEY":Fernet.generate_key().decode(),"DEEPTUTOR_BRIDGE_TOKEN":secrets.token_urlsafe(40),"HEART_HOST_PORT":"18000","HEART_WORKER_PORT":"18001","HEART_WEB_PORT":"8000","HEART_RUNTIME_PYTHON":str(args.python.resolve(strict=True)),"HEART_RUNTIME_NODE":str(args.node.resolve(strict=True)),"HEART_RUNTIME_EXTRA_PATHS":os.pathsep.join(args.extra_path),"AUTH_ENABLED":"true","NEXT_PUBLIC_AUTH_ENABLED":"true","DEEPTUTOR_AUTH_ENABLED":"true","AUTH_USERNAME":"","AUTH_PASSWORD_HASH":"","POCKETBASE_URL":"","DEEPTUTOR_NATIVE_ENABLED":"1","DEEPTUTOR_AUTOSTART":"0","CLEANUP_EXPIRED_ON_STARTUP":"0","RAG_EMBED_DEVICE":"cpu","RAG_RERANK_DEVICE":rerank_device(args.python),"MEM0_ENABLED":"1","MEM0_HISTORY_PATH":str(private/"worker-home/.runtime/mem0/history.sqlite")}
+  rerank=rerank_settings(private,args.python)
+  values={**project,"DATABASE_URL":_psycopg_url(urlsplit(base),names[0]).replace("postgresql://","postgresql+psycopg://",1),"COURSE_DATABASE_URL":_psycopg_url(urlsplit(base),names[1]).replace("postgresql://","postgresql+psycopg://",1),"DEEPTUTOR_HOME":str(private/"worker-home"),"TUTOR_PSYCHOLOGY_DIR":str(args.assets.resolve(strict=True)),"HEART_MODEL_ENCRYPTION_KEY":Fernet.generate_key().decode(),"DEEPTUTOR_BRIDGE_TOKEN":secrets.token_urlsafe(40),"HEART_HOST_PORT":"18000","HEART_WORKER_PORT":"18001","HEART_WEB_PORT":"8000","HEART_RUNTIME_PYTHON":str(args.python.resolve(strict=True)),"HEART_RUNTIME_NODE":str(args.node.resolve(strict=True)),"HEART_RUNTIME_EXTRA_PATHS":os.pathsep.join(args.extra_path),"AUTH_ENABLED":"true","NEXT_PUBLIC_AUTH_ENABLED":"true","DEEPTUTOR_AUTH_ENABLED":"true","AUTH_USERNAME":"","AUTH_PASSWORD_HASH":"","POCKETBASE_URL":"","DEEPTUTOR_NATIVE_ENABLED":"1","DEEPTUTOR_AUTOSTART":"0","CLEANUP_EXPIRED_ON_STARTUP":"0","RAG_EMBED_DEVICE":"cpu",**rerank,"MEM0_ENABLED":"1","MEM0_HISTORY_PATH":str(private/"worker-home/.runtime/mem0/history.sqlite")}
   config.write_text("".join(k+"="+json.dumps(v,ensure_ascii=False)+"\n" for k,v in sorted(values.items())),encoding="utf-8")
-  marker.write_text(json.dumps({"kind":"local8000","databases":names,"home":values["DEEPTUTOR_HOME"]},indent=2),encoding="utf-8")
+  marker.write_text(json.dumps({"kind":"local8000","databases":names,"home":values["DEEPTUTOR_HOME"],"rerank":rerank},indent=2),encoding="utf-8")
  values={k:v for k,v in dotenv_values(config).items() if isinstance(v,str)}
  values.update(HEART_RUNTIME_EARLY_PATHS=os.pathsep.join(args.early_path),HEART_RUNTIME_EXTRA_PATHS=os.pathsep.join(args.extra_path),HEART_RUNTIME_PYTHON=str(args.python.resolve(strict=True)),HEART_RUNTIME_NODE=str(args.node.resolve(strict=True)))
  config.write_text("".join(k+"="+json.dumps(v,ensure_ascii=False)+"\n" for k,v in sorted(values.items())),encoding="utf-8")

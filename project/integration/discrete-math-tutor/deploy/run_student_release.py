@@ -8,8 +8,18 @@ try:
 except ImportError:
  from student_release import inspect,HROOT,VROOT
 
-def plan(root:Path,service:str,values:dict,timing:dict|None=None):
- root=root.resolve(strict=True);active=json.loads((root/"active-release.json").read_text("utf-8"));release=Path(active["release_path"]).resolve(strict=True)
+def active_release(root:Path):
+ """一次启动只解析一次发行指针；三个服务共用同一份已解析结果。"""
+ root=root.resolve(strict=True);active=json.loads((root/"active-release.json").read_text("utf-8"))
+ if not isinstance(active.get("release_id"),str):raise ValueError("invalid_active_release")
+ release=Path(active["release_path"]).resolve(strict=True)
+ if not release.is_relative_to(root/"releases"):raise ValueError("invalid_active_release")
+ return active,release
+
+def plan(root:Path,service:str,values:dict,timing:dict|None=None,active=None):
+ root=root.resolve(strict=True)
+ if active is None:active,release=active_release(root)
+ else:active,release=active
  if not release.is_relative_to(root/"releases"):raise ValueError("invalid_active_release")
  began=time.perf_counter()
  manifest=inspect(release)

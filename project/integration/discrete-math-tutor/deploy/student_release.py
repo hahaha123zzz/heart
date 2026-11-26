@@ -43,7 +43,7 @@ def bundle(repo,output,release_id):
 def _inventory(root):
  actual=set()
  for directory,dirs,names in os.walk(root,followlinks=False):
-  dirs[:]=[d for d in dirs if d not in {"node_modules",".next","__pycache__"}]
+  dirs[:]=[d for d in dirs if d not in {"node_modules",".next",".cache","__pycache__"}]
   for name in names:
    file=Path(directory)/name
    if file!=root/"release.json":actual.add(file.relative_to(root).as_posix())
@@ -51,24 +51,29 @@ def _inventory(root):
 
 def _manifest(root):
  manifest=json.loads((root/"release.json").read_text("utf-8"));label(manifest["release_id"])
- if manifest.get("format")!=1 or manifest.get("mutable_stores_included") is not False:raise ValueError("invalid_manifest")
+ if manifest.get("format")!=1 or manifest.get("mutable_stores_included") is not False or not isinstance(manifest.get("files"),dict):raise ValueError("invalid_manifest")
  return manifest
+
+def _listed_files(root,manifest):
+ for rel in manifest["files"]:
+  if not (root/rel).is_file():raise ValueError("release_file_missing:"+rel)
+ return set(manifest["files"])
 
 def inspect(root):
  """只核对清单、路径与文件是否存在；逐文件哈希留给显式 verify。"""
- root=root.resolve(strict=True);manifest=_manifest(root)
- if _inventory(root)!=set(manifest["files"]):raise ValueError("release_file_inventory_changed")
- for rel in manifest["files"]:
+ root=root.resolve(strict=True);manifest=_manifest(root);listed=_listed_files(root,manifest)
+ if _inventory(root)!=listed:raise ValueError("release_file_inventory_changed")
+ for rel in listed:
   p=root/rel
-  if not p.resolve().is_relative_to(root) or p.resolve()!=p.absolute() or not p.is_file():raise ValueError("release_file_missing:"+rel)
+  if not p.resolve().is_relative_to(root) or p.resolve()!=p.absolute():raise ValueError("release_file_missing:"+rel)
  return manifest
 
 def verify(root):
- root=root.resolve(strict=True);manifest=_manifest(root)
- if _inventory(root)!=set(manifest["files"]):raise ValueError("release_file_inventory_changed")
+ root=root.resolve(strict=True);manifest=_manifest(root);listed=_listed_files(root,manifest)
+ if _inventory(root)!=listed:raise ValueError("release_file_inventory_changed")
  for rel,expected in manifest["files"].items():
   p=root/rel
-  if not p.resolve().is_relative_to(root) or p.resolve()!=p.absolute() or not p.is_file() or digest(p)!=expected:raise ValueError("release_hash_mismatch:"+rel)
+  if not p.resolve().is_relative_to(root) or p.resolve()!=p.absolute() or digest(p)!=expected:raise ValueError("release_hash_mismatch:"+rel)
  return manifest
 
 def select(root,release,expected_current):

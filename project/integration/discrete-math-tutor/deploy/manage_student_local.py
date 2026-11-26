@@ -7,9 +7,9 @@ import psutil
 from dotenv import dotenv_values
 from filelock import FileLock
 try:
- from .run_student_release import plan
+ from .run_student_release import active_release,plan
 except ImportError:
- from run_student_release import plan
+ from run_student_release import active_release,plan
 
 PROBES=(("host","/health"),("worker","/health/ready"),("web","/login"))
 
@@ -71,6 +71,17 @@ def probe(record,ports,origin):
   threading.Thread(target=watch,args=(service,path),daemon=True).start()
  return stop_event
 
+def pending_services(records, release_id):
+ # 已登记且仍存活的服务只有在同一发行上才能直接复用。
+ pending=[]
+ for service in ("worker","host","web"):
+  if service in records and matching(records[service]) is not None:
+   if records[service].get("release_id") not in (None,release_id):
+    raise RuntimeError("service_on_other_release:"+service+";run_stop_then_start")
+   continue
+  pending.append(service)
+ return pending
+
 def launch(pending, spawn, ready):
  # worker 预热接近或超过宿主的 60 秒等待预算，必须先独立就绪再启动宿主与 Web。
  for service in pending:
@@ -102,15 +113,15 @@ def main():
   keeper=probe(probe_record,ports,origin)
   status="ok";target=None
   try:
-   pending=[service for service in ("worker","host","web")
-            if not (service in records and matching(records[service]) is not None)]
+   active=active_release(root)
+   pending=pending_services(records,active[0]["release_id"])
    def spawn(service):
     nonlocal target
     target=service
     with socket.socket() as sock:sock.bind(("127.0.0.1",ports[service]))
     timing={};began=time.perf_counter();planned=False
     try:
-     command,cwd,env=plan(root,service,values,timing);planned=True
+     command,cwd,env=plan(root,service,values,timing,active=active);planned=True
     finally:
      record("control.release_verify",parent="control.service",
             seconds=timing.get("release_seconds",time.perf_counter()-began),
@@ -120,7 +131,7 @@ def main():
     spawn_at=time.perf_counter()
     with (logs/(service+".log")).open("ab") as log:
      process=subprocess.Popen(command,cwd=cwd,env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW if os.name=="nt" else 0,start_new_session=os.name!="nt")
-    owner=psutil.Process(process.pid);records[service]={"pid":process.pid,"created_at":owner.create_time(),"command":owner.cmdline()};file.write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding="utf-8")
+    owner=psutil.Process(process.pid);records[service]={"pid":process.pid,"created_at":owner.create_time(),"command":owner.cmdline(),"release_id":active[0]["release_id"]};file.write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding="utf-8")
     record("control.process_start",parent="control.service",seconds=time.perf_counter()-spawn_at,
            target=service,pid=process.pid)
    import httpx
