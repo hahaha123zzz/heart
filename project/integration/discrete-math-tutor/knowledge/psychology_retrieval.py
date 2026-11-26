@@ -26,6 +26,8 @@ def documents():
     return [json.loads((PSYCHOLOGY_DIR/'chapters'/f'chapter_{n:02d}'/'document.json').read_text(encoding='utf-8')) for n in range(1,12)]
 
 def retrieve(query,fallback_chunks,*,limit=6,preferred_types=()):
+    from knowledge.legacy_retirement import require
+    require()
     query=query.replace('配对设计','配对组设计')
     engine = os.getenv('RAG_RETRIEVAL_ENGINE', 'legacy')
     if engine not in ('legacy', 'local_llamaindex'): raise ValueError('RAG_RETRIEVAL_ENGINE无效')

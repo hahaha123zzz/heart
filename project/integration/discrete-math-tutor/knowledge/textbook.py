@@ -59,6 +59,8 @@ def terms_for(text: str) -> frozenset[str]:
 
 @lru_cache(maxsize=4)
 def load_textbook(directory: Path = TEXTBOOK_DIR) -> list[TextbookChunk]:
+    from knowledge.legacy_retirement import require
+    require()
     if PSYCHOLOGY and directory==TEXTBOOK_DIR:
         path=PSYCHOLOGY_DIR/'rag_index.sqlite3'
         if not path.is_file():raise FileNotFoundError('正式教材索引尚未构建，不能回退旧数学教材')

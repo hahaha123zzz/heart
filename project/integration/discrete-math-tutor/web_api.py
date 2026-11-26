@@ -49,6 +49,9 @@ def course_reading_map():
 
 @router.get('/course/session-plan')
 def current_session_plan(student_id: str, session_id: str):
+    from knowledge.legacy_retirement import enabled
+    if not enabled():
+        return {'session_plan': None, 'retired': True}
     from agents.q5_runtime import Q5Runtime, q5_enabled
     _student_id(student_id); _student_id(session_id)
     if not q5_enabled():

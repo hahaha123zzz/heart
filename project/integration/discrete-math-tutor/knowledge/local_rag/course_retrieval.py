@@ -16,6 +16,7 @@ from llama_index.core.schema import QueryBundle, TextNode
 
 from knowledge.hybrid_retrieval import INDEX, _as_chunk, _embedder
 from knowledge.inference_runtime import configured_device
+from knowledge.legacy_retirement import require
 from .config import retrieval_config_from_settings
 from .rerank import rerank_nodes
 from .retrievers import build_retriever
@@ -33,6 +34,7 @@ class StoredEmbedding(BaseEmbedding):
 
 
 def index_signature(path):
+    require()
     if Path(str(path) + '-wal').exists(): raise ValueError('教材索引正在写入，拒绝混用版本')
     from knowledge.fixed_book import digest
     return digest(path)
@@ -73,6 +75,7 @@ def _stack(path, signature, config, candidate_top_k):
 
 
 def warm():
+    require()
     import os
     os.environ.setdefault('RAG_RERANK_MODEL', 'BAAI/bge-reranker-base')
     config = retrieval_config_from_settings()
@@ -80,6 +83,7 @@ def warm():
 
 
 def retrieve(query, *, limit=6, preferred_types=(), index_path=None, trace=None, chapter_id=None, section_id=None):
+    require()
     if not isinstance(query, str) or len(query) > 4000: raise ValueError('检索问题无效或过长')
     if not 1 <= limit <= 40: raise ValueError('检索结果数量必须为1到40')
     if not query.strip(): return []

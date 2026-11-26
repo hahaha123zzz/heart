@@ -92,6 +92,8 @@ def _as_chunk(row: sqlite3.Row, *, text: str | None = None) -> TextbookChunk:
 
 @lru_cache(maxsize=2)
 def _vectors(path: str, modified: int) -> tuple[str | None, list[tuple[str, array, float]]]:
+    from knowledge.legacy_retirement import require
+    require()
     with closing(sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True)) as db:
         model_row = db.execute("SELECT value FROM metadata WHERE key='embedding_model'").fetchone()
         if not model_row:
@@ -252,6 +254,8 @@ def _lexical_supported(db: sqlite3.Connection, query: str, rows: list[sqlite3.Ro
 
 def retrieve_hybrid(query: str, fallback_chunks: list[TextbookChunk], *, limit: int = 3,
                     trace: dict | None = None, preferred_types=(), index_path: Path | None = None) -> list[TextbookChunk]:
+    from knowledge.legacy_retirement import require
+    require()
     """索引缺失时沿用旧检索；模型缺失时仍可用 BM25。"""
     if trace is not None:
         trace.clear()

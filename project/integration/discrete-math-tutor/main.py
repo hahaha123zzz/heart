@@ -32,6 +32,15 @@ from integrations.deeptutor.runtime_config import application_lifespan
 from knowledge.course_config import COURSE_TITLE,COURSE_ID,PSYCHOLOGY
 
 app = FastAPI(title=COURSE_TITLE+" AI 助教", version="0.8.0", lifespan=application_lifespan)
+
+@app.middleware("http")
+async def retire_legacy_chat(request, call_next):
+    from knowledge.legacy_retirement import MESSAGE, enabled
+    if request.url.path in ("/api/chat", "/api/chat/stream") and not enabled():
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=410, content={"detail": MESSAGE})
+    return await call_next(request)
+
 app.include_router(web_router)
 from auth_api import router as auth_router
 app.include_router(auth_router)
@@ -154,6 +163,9 @@ def figure_image(figure_id: str, sha256: str | None = None, version: str | None 
 
 @app.post("/api/chat")
 def chat(request: ChatRequest):
+    from knowledge.legacy_retirement import MESSAGE, enabled
+    if not enabled():
+        raise HTTPException(410, MESSAGE)
     _validate_pdf_request(request)
     return _run_turn(request)
 
@@ -282,6 +294,9 @@ def _execute_task_turn(request, context, resolved, intercept, guard, progress, *
 
 @app.post("/api/chat/stream")
 async def chat_stream(request: ChatRequest):
+    from knowledge.legacy_retirement import MESSAGE, enabled
+    if not enabled():
+        raise HTTPException(410, MESSAGE)
     _validate_pdf_request(request)
     async def events():
         loop = asyncio.get_running_loop()
