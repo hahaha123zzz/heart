@@ -312,9 +312,15 @@ class FixedBookRuntime:
             from knowledge.figures import load_figures
             from knowledge.textbook import terms_for
             with trace.timed('warmup.image_terms', parent='fixed_book') as detail:
-                figures = await asyncio.to_thread(load_figures)
-                self.image_terms = {f.id: terms_for(f.caption + ' ' + f.context) for f in figures}
-                detail['figures'] = len(figures)
+                if self.assets and self.assets.get('image_terms'):
+                    self.image_terms = {figure_id: set(terms)
+                                        for figure_id, terms in self.assets['image_terms'].items()}
+                    detail['source'] = 'install'
+                else:
+                    figures = await asyncio.to_thread(load_figures)
+                    self.image_terms = {f.id: terms_for(f.caption + ' ' + f.context) for f in figures}
+                    detail['source'] = 'scan'
+                detail['figures'] = len(self.image_terms)
         except BaseException:
             await self.close()
             raise

@@ -25,6 +25,17 @@ def _control(candidate):
             ('input_manifest.json', 'progress.json', 'index_files.json', 'policy.json', 'source_map.json')}
 
 
+def _existing_record(root):
+    for name in (RECORD, 'assets.previous.json'):
+        path = Path(root) / name
+        if path.is_file():
+            try:
+                return json.loads(path.read_text(encoding='utf-8'))
+            except ValueError:
+                continue
+    return None
+
+
 def assets_root():
     value = os.getenv('HEART_TEXTBOOK_ASSETS')
     if value:
@@ -33,7 +44,8 @@ def assets_root():
     return Path(home).parent / 'textbook-assets' if home else Path('.runtime/textbook-assets')
 
 
-def install(root, textbook, candidate, *, release_id, source_map, citation_builder=None):
+def install(root, textbook, candidate, *, release_id, source_map, citation_builder=None,
+            image_terms=None):
     """完整核对教材、冻结输入和活动索引后一次性发布；失败保留上一份记录。"""
     from knowledge.lightrag.course_input import inventory, verify, verify_active
 
@@ -41,14 +53,30 @@ def install(root, textbook, candidate, *, release_id, source_map, citation_build
     textbook = Path(textbook).resolve(strict=True)
     candidate = Path(candidate).resolve(strict=True)
     manifest = json.loads((candidate / 'input_manifest.json').read_text(encoding='utf-8'))
-    verify(candidate / 'input', manifest['files'])
+    root.mkdir(parents=True, exist_ok=True)
+    published_input = root / 'input'
+    if (candidate / 'input').is_dir():
+        verify(candidate / 'input', manifest['files'])
+        shutil.copytree(candidate / 'input', published_input, dirs_exist_ok=True)
+        frozen_files = dict(manifest['files'])
+        frozen_sizes = {rel: (published_input / rel).stat().st_size for rel in manifest['files']}
+    else:
+        # 冻结输入已移出在线目录；复用上一次已核验的副本和来源映射。
+        prior = _existing_record(root)
+        if (prior is None or prior.get('candidate') != str(candidate)
+                or prior.get('control') != _control(candidate)):
+            raise AssetsMismatch('冻结输入已移出且没有可复用的安装记录，请从原始输入重新安装教材资产')
+        frozen_files = prior['frozen']['files']
+        frozen_sizes = prior['frozen']['sizes']
+        if source_map is None:
+            source_map = prior['source_map']
+        for relative, expected in frozen_sizes.items():
+            file = published_input / relative
+            if not file.is_file() or file.stat().st_size != expected:
+                raise AssetsMismatch('已发布的冻结输入缺失或已变化：' + relative)
     hashes = inventory(textbook)
     extras = verify_active(textbook, manifest['files'])
     sizes = {rel: (textbook / rel).stat().st_size for rel in hashes}
-    root.mkdir(parents=True, exist_ok=True)
-    published_input = root / 'input'
-    shutil.copytree(candidate / 'input', published_input, dirs_exist_ok=True)
-    frozen_sizes = {rel: (published_input / rel).stat().st_size for rel in manifest['files']}
     citation = root / 'citations.sqlite3'
     pending = root / ('citations.' + os.urandom(8).hex() + '.sqlite3')
     try:
@@ -64,10 +92,11 @@ def install(root, textbook, candidate, *, release_id, source_map, citation_build
         'textbook_root': str(textbook),
         'control': _control(candidate),
         'textbook': {'files': hashes, 'sizes': sizes},
-        'frozen': {'files': dict(manifest['files']), 'sizes': frozen_sizes},
+        'frozen': {'files': frozen_files, 'sizes': frozen_sizes},
         'input_root': str(published_input),
         'host_extras': {'count': len(extras), 'sha256': _digest_of(extras)},
         'citation': {'path': str(citation), 'sha256': _digest(citation), 'size': citation_size},
+        'image_terms': dict(image_terms or {}),
         'source_map': source_map,
         'created_at': datetime.now().astimezone().isoformat(timespec='seconds'),
     }
@@ -78,6 +107,14 @@ def install(root, textbook, candidate, *, release_id, source_map, citation_build
     pending.write_text(json.dumps(record, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     os.replace(pending, target)
     return record
+
+
+def build_image_terms():
+    from knowledge.figures import load_figures
+    from knowledge.textbook import terms_for
+
+    return {figure.id: sorted(terms_for(figure.caption + ' ' + figure.context))
+            for figure in load_figures()}
 
 
 def _build_citation(target, textbook):

@@ -56,8 +56,9 @@ def test_install_then_load_uses_the_published_record(tmp_path):
     assets = tmp_path / "private/textbook-assets"
     record = install(assets, textbook, candidate, release_id="release-a",
                      source_map={"chapter_01.generated.pdf": {"chapter_id": 1}},
-                     citation_builder=build_citation)
+                     citation_builder=build_citation, image_terms={"figure-1": ["自变量", "控制变量"]})
     assert record["release_id"] == "release-a"
+    assert record["image_terms"] == {"figure-1": ["自变量", "控制变量"]}
     assert record["citation"]["size"] == len(b"citation")
     assert record["host_extras"]["count"] == 1
     loaded = load(assets, textbook, candidate)
@@ -114,6 +115,25 @@ def test_load_survives_the_original_frozen_input_being_removed(tmp_path):
     shutil.rmtree(candidate / "input")
     record = load(assets, textbook, candidate)
     assert (Path(record["input_root"]) / "manifest.json").is_file()
+
+
+def test_install_after_the_original_input_is_removed_reuses_the_published_copy(tmp_path):
+    candidate, textbook = fixture(tmp_path)
+    assets = tmp_path / "assets"
+    first = install(assets, textbook, candidate, release_id="r", source_map={}, citation_builder=build_citation)
+    shutil.rmtree(candidate / "input")
+    second = install(assets, textbook, candidate, release_id="r2", source_map=None,
+                     citation_builder=build_citation)
+    assert second["frozen"] == first["frozen"]
+    assert second["source_map"] == first["source_map"]
+
+
+def test_install_after_input_removal_without_a_record_is_rejected(tmp_path):
+    candidate, textbook = fixture(tmp_path)
+    assets = tmp_path / "assets"
+    shutil.rmtree(candidate / "input")
+    with pytest.raises(AssetsMismatch, match="没有可复用的安装记录"):
+        install(assets, textbook, candidate, release_id="r", source_map=None, citation_builder=build_citation)
 
 
 def test_prepare_citation_uses_the_install_asset(tmp_path):

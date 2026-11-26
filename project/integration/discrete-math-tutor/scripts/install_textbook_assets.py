@@ -16,7 +16,7 @@ def main():
     parser.add_argument('--candidate', type=Path, default=None)
     args = parser.parse_args()
     from knowledge.course_release import validate
-    from knowledge.fixed_book_assets import assets_root, install
+    from knowledge.fixed_book_assets import assets_root, build_image_terms, install
     from knowledge.lightrag.course_input import COURSE
     from knowledge.lightrag.retrieval import LightRagBackend
 
@@ -25,9 +25,10 @@ def main():
     release = validate(refresh=True)
     backend = LightRagBackend(candidate, authorized_course_ids={COURSE}, allow_candidate=True,
                               source_root=textbook)
-    source_map = backend.load_source_map()
+    source_map = backend.load_source_map() if (candidate / 'input').is_dir() else None
     root = args.assets or assets_root()
-    record = install(root, textbook, candidate, release_id=release['release_id'], source_map=source_map)
+    record = install(root, textbook, candidate, release_id=release['release_id'], source_map=source_map,
+                     image_terms=build_image_terms())
     print(json.dumps({'assets': str(root), 'release_id': record['release_id'],
                       'textbook_files': len(record['textbook']['files']),
                       'frozen_files': len(record['frozen']['files']),
