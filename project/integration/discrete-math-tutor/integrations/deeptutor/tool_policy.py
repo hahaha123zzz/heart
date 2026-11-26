@@ -139,7 +139,9 @@ def install_tool_policy():
 
     @wraps(original_execute)
     async def execute(registry, name, /, **kwargs):
-        if active_scope() and not visible(name):
+        if not active_scope():
+            return await original_execute(registry, name, **kwargs)
+        if not visible(name):
             raise KeyError('工具未在当前教学项目中启用')
         try:
             disclosure.require_loaded(disclosure.current_loader(), name)
@@ -153,18 +155,22 @@ def install_tool_policy():
         context.metadata['heart_skip_kb_seed'] = skip_kb_seed(context)
         context.metadata.setdefault('_heart_citation_offset', _citation_offset.get())
         names = original_compose(pipeline, context)
+        direct = ()
         if active_scope():
             names = [name for name in names if visible(name)]
             # 宿主教材使用已有索引，不依赖原生 KB 记录；仍遵守阶段白名单和独占能力。
             if not pipeline._exclusive_capability_active(context):
-                wanted = textbook_tools(context)
+                scene = textbook_tools(context)
                 for name in ('rag', 'kb_files'):
-                    if name not in wanted:
+                    if name not in scene:
                         # 目录题不携带正文，短问也不挂教材工具。
                         names = [item for item in names if item != name]
                     elif (context.allowed_builtin_tools is None or name in context.allowed_builtin_tools) and pipeline.tool_lookup.get(name) is not None:
                         names.append(name)
                 names = list(dict.fromkeys(names))
+                # 目录题只有 kb_files 时直接可调用，避免为此多一轮发现往返。
+                if scene == {'kb_files'}:
+                    direct = ('kb_files',)
             has_source_index = bool(context.metadata.get('_heart_short_index')) or any(
                 key.startswith('rag-') for key in context.metadata.get('source_index', {}))
             # 原生循环在回合开始时固定 schema，检索和补读必须同时挂载。
@@ -174,24 +180,33 @@ def install_tool_policy():
                 names = list(dict.fromkeys([*names, 'read_source']))
             elif not has_source_index:
                 names = [name for name in names if name != 'read_source']
-        if active_scope():
-            disclosure.prepare(pipeline, context, names)
+            disclosure.prepare(pipeline, context, names, direct=direct)
+        else:
+            disclosure.reset()
         return names
 
     @wraps(original_schemas)
     def schemas(pipeline, enabled_tools, context):
+        if not active_scope():
+            return original_schemas(pipeline, enabled_tools, context)
         return disclosure.filter_schemas(
             disclosure.current_loader(), original_schemas(pipeline, enabled_tools, context))
 
     @wraps(original_manifest)
     def manifest(pipeline, enabled_tools):
-        text = original_manifest(pipeline, enabled_tools)
-        loader = disclosure.current_loader()
-        if loader is not None:
-            pending = sorted(loader.deferred - loader.loaded)
-            if pending:
-                text += "\n按需工具（调用前先用 load_tools 加载）：" + "、".join(
-                    f"`{name}`" for name in pending)
+        loader = disclosure.current_loader() if active_scope() else None
+        if loader is None:
+            return original_manifest(pipeline, enabled_tools)
+        visible_names = [name for name in enabled_tools if name not in loader.deferred]
+        text = original_manifest(pipeline, visible_names)
+        pending = sorted(loader.deferred - loader.loaded)
+        if pending:
+            try:
+                lines = pipeline.tool_lookup.build_prompt_text(
+                    pending, format="list", language=getattr(pipeline, 'language', 'zh'))
+            except Exception:
+                lines = "\n".join(f"- `{name}`" for name in pending)
+            text += "\n按需工具（这里只列名称和用途；调用前先用 load_tools 加载）：\n" + lines
         return text
 
     get._heart_tool_policy = True
@@ -212,5 +227,6 @@ def teaching_tool_scope(citation_offset=0):
     try:
         yield
     finally:
+        disclosure.reset()
         _citation_offset.reset(citation_token)
         _active.reset(token)

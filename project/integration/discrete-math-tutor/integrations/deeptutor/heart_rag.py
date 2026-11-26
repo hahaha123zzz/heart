@@ -89,7 +89,8 @@ class HeartCourseRagTool(BaseTool):
         if result.get("cache_hit") and result.get("content"):
             # 同一回合相同查询：原文已在模型上下文里，只提示短 ID。
             _attach_citations(evidence, context)
-            return ToolResult(content=_evidence_content(result, evidence, kwargs.get("budget_chars")),
+            return ToolResult(content=_evidence_content(result, evidence, kwargs.get("budget_chars"),
+                                                       cache_hit=True),
                               sources=evidence,
                               metadata={"query": query, "backend": result.get("backend"),
                                         "mode": result.get("mode"), "cache_hit": True})
@@ -107,13 +108,19 @@ class HeartCourseRagTool(BaseTool):
                                     "mode": result.get("mode"), "cache_hit": result.get("cache_hit")})
 
 
-def _evidence_content(result, evidence, budget_chars):
+def _evidence_content(result, evidence, budget_chars, *, cache_hit=False):
     """只把能生成正式链接的证据写成短 ID；混合结果不留无法解析的编号。"""
     from .course_rag_provider import source_content
-    content = str(result.get("content") or "") or source_content(evidence, budget_chars)
+    content = str(result.get("content") or "")
+    linked = [source for source in evidence if source.get("reader_citation")]
+    if cache_hit and content:
+        # 命中回合缓存时只补提示，不把整段原文再次展开。
+        if result.get("backend") == "lightrag" and 0 < len(linked) < len(evidence):
+            content += f"\n\n另有 {len(evidence) - len(linked)} 条原文未通过阅读版本核验，不作为引用。"
+        return content
+    content = content or source_content(evidence, budget_chars)
     if result.get("backend") != "lightrag":
         return content
-    linked = [source for source in evidence if source.get("reader_citation")]
     if not linked or len(linked) == len(evidence):
         return content
     dropped = len(evidence) - len(linked)

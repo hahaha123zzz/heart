@@ -343,6 +343,9 @@ class NativeTurnExecutor:
         result = {**publication, "engine": "deeptutor_app", "capability": capability,
             "native_turn_id": binding.get("turn_id"), "native_event_seq": binding.get("after_seq", 0),
             "native_result": _public_result(state.get("result") or {}, task, binding, state.get("sources") or [], capability=capability), "answer_status": "answered", "step_advanced": False}
+        if isinstance(result.get("native_result"), dict):
+            # 内嵌结果也发布已解析正文，避免客户端读到裸短 ID。
+            result["native_result"]["response"] = text
         if state.get('mastery_events'):
             result['native_result']['mastery_events'] = deepcopy(state['mastery_events'])
         if state.get('reader_actions'):

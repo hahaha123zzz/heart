@@ -23,17 +23,18 @@ _LOADER: ContextVar['ToolDisclosure | None'] = ContextVar('heart_tool_disclosure
 class ToolDisclosure:
     """单个回合内的按需工具加载器；每轮从空开始。"""
 
-    def __init__(self, registry, names):
+    def __init__(self, registry, names, *, delegate=None, direct=()):
         self.registry = registry
-        self.deferred = frozenset(name for name in names if name in DEFERRED_TOOLS)
+        self.mounted = frozenset(names)
+        self.direct = frozenset(direct)
+        self.deferred = frozenset(
+            name for name in names if name in DEFERRED_TOOLS and name not in self.direct)
+        self.delegate = delegate
         self.loaded: set[str] = set()
         self.schemas: list[dict] | None = None
 
     def bind(self, schemas: list[dict]) -> None:
         self.schemas = schemas
-
-    def initial_schemas(self) -> list[dict]:
-        return []
 
     def load(self, names) -> dict:
         loaded, already, unknown = [], [], []
@@ -41,7 +42,17 @@ class ToolDisclosure:
             if name in self.loaded:
                 already.append(name)
                 continue
-            if name not in self.deferred or self.registry.get(name) is None:
+            if name not in self.deferred:
+                # MCP/CLI 扩展工具仍交给上游加载器，避免按需层把它们挡住。
+                if self.delegate is not None:
+                    outcome = self.delegate.load([name])
+                    loaded.extend(outcome.get('loaded') or [])
+                    already.extend(outcome.get('already_loaded') or [])
+                    unknown.extend(outcome.get('unknown') or [])
+                else:
+                    unknown.append(name)
+                continue
+            if self.registry.get(name) is None:
                 unknown.append(name)
                 continue
             schema = self.registry.get(name).get_definition().to_openai_schema()
@@ -57,22 +68,34 @@ def current_loader() -> ToolDisclosure | None:
     return _LOADER.get()
 
 
-def prepare(pipeline, context, names: list[str]) -> bool:
+def reset() -> None:
+    _LOADER.set(None)
+
+
+def prepare(pipeline, context, names: list[str], *, direct=()) -> bool:
     """为本轮建立加载器；返回是否挂载了 load_tools。"""
     if not names or getattr(pipeline, '_exclusive_capability_active', lambda _: False)(context):
         _LOADER.set(None)
         return False
-    loader = ToolDisclosure(pipeline.tool_lookup, names)
+    loader = ToolDisclosure(pipeline.tool_lookup, names,
+                            delegate=getattr(pipeline, '_deferred_loader', None),
+                            direct=direct)
     if not loader.deferred:
         _LOADER.set(None)
         return False
     allowed = getattr(context, 'allowed_builtin_tools', None)
-    if ('load_tools' not in names and (allowed is None or 'load_tools' in allowed)
-            and pipeline.tool_lookup.get('load_tools') is not None):
+    can_mount = ('load_tools' in names
+                 or ((allowed is None or 'load_tools' in allowed)
+                     and pipeline.tool_lookup.get('load_tools') is not None))
+    if not can_mount:
+        # 发不出 load_tools 时不能只藏 schema，否则工具会被静默锁死。
+        _LOADER.set(None)
+        return False
+    if 'load_tools' not in names:
         names.append('load_tools')
-        loader.loaded.discard('load_tools')
+    loader.mounted = frozenset(names)
     _LOADER.set(loader)
-    return 'load_tools' in names
+    return True
 
 
 def filter_schemas(loader: ToolDisclosure | None, schemas: list[dict]) -> list[dict]:
@@ -90,6 +113,10 @@ def filter_schemas(loader: ToolDisclosure | None, schemas: list[dict]) -> list[d
 
 
 def require_loaded(loader: ToolDisclosure | None, name: str) -> None:
-    """模型直接调用未加载的按需工具时拒绝；已加载或非按需工具放行。"""
-    if loader is not None and name in loader.deferred and name not in loader.loaded:
+    """只允许执行本轮挂载过的工具；按需工具还须先加载。"""
+    if loader is None:
+        return
+    if name not in loader.mounted:
+        raise KeyError('工具未在本轮挂载')
+    if name in loader.deferred and name not in loader.loaded:
         raise KeyError('工具需要先用 load_tools 加载')

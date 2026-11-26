@@ -223,3 +223,10 @@ def test_replayed_tool_bodies_are_compacted_without_breaking_pairing():
 
     short = replay_group(rows(turn_record("短结果")))
     assert [m["content"] for m in short if m.get("role") == "tool"] == ["短结果"]
+
+def test_history_replay_removes_previous_short_ids():
+    record = turn_record()
+    record["messages"][3]["content"] = "旧答案[S1]，见[citation:S2]。"
+    messages = replay_group(rows(record))
+    answer = [m for m in messages if m.get("role") == "assistant"][-1]["content"]
+    assert "[S1]" not in answer and "[citation:" not in answer

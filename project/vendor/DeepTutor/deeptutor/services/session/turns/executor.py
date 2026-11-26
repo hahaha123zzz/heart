@@ -1345,7 +1345,8 @@ class TurnExecutor:
             if short_stream is not None:
                 partial_content += short_stream.flush()
                 short_stream = None
-            partial_content = _resolve_short_text(partial_content, context.metadata)
+            partial_content = _resolve_short_text(
+                partial_content, context.metadata if context is not None else None)
             if partial_content or generated_attachments or assistant_events:
                 with contextlib.suppress(Exception):
                     assistant_message_id = await asyncio.shield(

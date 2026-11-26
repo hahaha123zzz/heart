@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 import json
+import re
 from typing import Any
 
 MODEL_TURN_KEY = "model_turn"
@@ -158,12 +159,21 @@ def replay_group(
 HISTORY_TOOL_BODY_LIMIT = 4000
 
 
+# 旧回合的短 ID 不能进入本轮上下文：模型会复用失效编号。
+_HISTORY_CITATION = re.compile(
+    r'\[(?:S\d+(?:\s*[,，、]\s*S\d+)*)\]|\[citation:\s*S\d+(?:\s*[,，、]\s*S\d+)*\]',
+    re.IGNORECASE)
+
+
 def _compact_tool_bodies(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """历史工具正文按上限收窄；保留 tool_call_id，调用与结果仍然配对。"""
+    """历史工具正文按上限收窄；旧短 ID 从回答里移除，调用与结果仍配对。"""
     for message in messages:
+        content = message.get("content")
+        if message.get("role") == "assistant" and isinstance(content, str):
+            message["content"] = _HISTORY_CITATION.sub('', content)
+            continue
         if message.get("role") != "tool":
             continue
-        content = message.get("content")
         if not isinstance(content, str) or len(content) <= HISTORY_TOOL_BODY_LIMIT:
             continue
         omitted = len(content) - HISTORY_TOOL_BODY_LIMIT

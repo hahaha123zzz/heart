@@ -9,7 +9,10 @@ from contextvars import ContextVar
 
 # [S1] / [S1, S2] / [S2、S3]
 _SHORT = re.compile(r'\[(S\d+(?:\s*[,，、]\s*S\d+)*)\]')
-_BACKTICK = re.compile(r'```')
+# 模型偶发输出的内部形式 [citation:S1]；发布边界同样要收口。
+_CITATION = re.compile(r'\[citation:\s*(S\d+(?:\s*[,，、]\s*S\d+)*)\]', re.IGNORECASE)
+# 流式输出末尾可能是短 ID 的前缀（"[", "[S1, " 等）。
+_SHORT_TAIL = re.compile(r'\[(?:[\s,，、]*(?:S\d*)?)*$')
 
 # 本轮 worker 内的短 ID → 已核验链接映射；由宿主 rag 工具写入。
 current_short_sources: ContextVar[dict] = ContextVar('heart_short_sources', default={})
@@ -34,47 +37,90 @@ def _links(sources) -> dict[str, str]:
     return links
 
 
+def _split_ids(value: str) -> list[str]:
+    return [part.strip() for part in re.split(r'[,，、]', value) if part.strip()]
+
+
 def _replace(chunk: str, links: dict[str, str]) -> str:
     def render(match):
-        parts = [part.strip() for part in re.split(r'[,，、]', match.group(1))]
+        parts = _split_ids(match.group(1))
         known = [links[part] for part in parts if part in links]
         unknown = [part for part in parts if part not in links]
-        # 未知 ID 保持可见；没有已披露来源就不生成正式链接。
+        # 已知来源生成链接；未知 ID 保持可见，方便核对模型输出。
         if not known:
             return match.group(0)
         return ''.join(known) + ''.join(f'[{part}]' for part in unknown)
-    return _SHORT.sub(render, chunk)
+
+    def citation(match):
+        # [citation:Sx] 是内部形式；只保留已知来源，未知形式直接丢弃。
+        return ''.join(links[part] for part in _split_ids(match.group(1)) if part in links)
+
+    return _SHORT.sub(render, _CITATION.sub(citation, chunk))
+
+
+def _strip_markers(chunk: str) -> str:
+    """本轮没有已披露来源时，任何短 ID 都不能成为正式引用。"""
+    return _SHORT.sub('', _CITATION.sub('', chunk))
+
+
+def _open_code_start(text: str) -> int | None:
+    """返回未闭合行内代码/代码围栏的起点；都已闭合时返回 None。"""
+    index = 0
+    while index < len(text):
+        tick = text.find('`', index)
+        if tick < 0:
+            return None
+        run = 1
+        while tick + run < len(text) and text[tick + run] == '`':
+            run += 1
+        if run >= 3:
+            closing = re.search(r'`{3,}', text[tick + run:])
+            if closing is None:
+                return tick
+            index = tick + run + closing.end()
+        else:
+            end = text.find('`' * run, tick + run)
+            if end < 0:
+                return tick
+            index = end + run
+    return None
 
 
 def _protect(text: str, render) -> str:
-    """代码块和行内代码不解析；未闭合的 ``` 视为延续到正文末尾。"""
-    out, last = [], 0
-    while last < len(text):
-        if text.startswith('```', last):
-            end = text.find('```', last + 3)
-            end = len(text) if end == -1 else end + 3
-            out.append(text[last:end])
-            last = end
+    """代码块和行内代码不解析；未闭合的代码延续到正文末尾。"""
+    out, index = [], 0
+    while index < len(text):
+        if text[index] == '`':
+            run = 1
+            while index + run < len(text) and text[index + run] == '`':
+                run += 1
+            if run >= 3:
+                closing = re.search(r'`{3,}', text[index + run:])
+                end = len(text) if closing is None else index + run + closing.end()
+            else:
+                closing_at = text.find('`' * run, index + run)
+                if closing_at < 0:
+                    out.append(text[index:])
+                    break
+                end = closing_at + run
+            out.append(text[index:end])
+            index = end
             continue
-        if text[last] == '`':
-            end = text.find('`', last + 1)
-            if end != -1:
-                out.append(text[last:end + 1])
-                last = end + 1
-                continue
-        nxt = text.find('`', last)
-        if nxt == -1:
-            nxt = len(text)
-        out.append(render(text[last:nxt]))
-        last = nxt
+        tick = text.find('`', index)
+        if tick < 0:
+            tick = len(text)
+        out.append(render(text[index:tick]))
+        index = tick
     return ''.join(out)
 
 
 def resolve(text: str, sources) -> str:
     """替换正文中的完整短 ID；代码块保持原样。"""
-    links = _links(sources)
-    if not text or not links:
+    if not text:
         return text
+    links = _links(sources)
+    if not links:
+        return _protect(text, _strip_markers)
     return _protect(text, lambda chunk: _replace(chunk, links))
 
 
@@ -89,27 +135,21 @@ def to_numeric(text: str, sources) -> str:
         index[str(identifier)] = int(source['index'])
 
     def render(match):
-        numbers = [index[part.strip()] for part in re.split(r'[,，、]', match.group(1))
-                   if part.strip() in index]
-        return ''.join(f'[{number}]' for number in numbers) if numbers else match.group(0)
+        numbers = [index[part] for part in _split_ids(match.group(1)) if part in index]
+        return ''.join(f'[{number}]' for number in numbers)
 
-    return _protect(text, lambda chunk: _SHORT.sub(render, chunk))
+    return _protect(text, lambda chunk: _SHORT.sub(render, _CITATION.sub(render, chunk)))
 
 
 def _hold_start(text: str) -> int:
-    """流式输出中暂不发布的尾部：可能的短 ID 前缀或未闭合的代码块。"""
+    """流式输出中暂不发布的尾部：可能的短 ID 前缀或未闭合的代码。"""
     start = len(text)
-    # token 流可能停在 "[", "[S", "[S1," 等前缀上，等下一块再判定。
-    tail = re.search(r'\[(?:S\d*(?:\s*[,，、]\s*S\d*)?)?$', text)
+    tail = _SHORT_TAIL.search(text)
     if tail:
         start = tail.start()
-    # 末尾的反引号可能是尚未到齐的代码围栏。
-    ticks = re.search(r'`+$', text[:start])
-    if ticks:
-        start = min(start, ticks.start())
-    fences = [match.start() for match in _BACKTICK.finditer(text[:start])]
-    if len(fences) % 2:
-        start = min(start, fences[-1])
+    open_code = _open_code_start(text[:start])
+    if open_code is not None:
+        start = min(start, open_code)
     return start
 
 
@@ -132,7 +172,13 @@ class ShortCitationStream:
         self.buffer += str(chunk or "")
         keep = _hold_start(self.buffer)
         emit, self.buffer = self.buffer[:keep], self.buffer[keep:]
-        return resolve(emit, self.current()) if emit else ""
+        if not emit:
+            return ""
+        current = self.current()
+        if not current:
+            # 映射还没登记（工具尚未返回）时不丢弃标记，保存前还有整体解析。
+            return emit
+        return resolve(emit, current)
 
     def flush(self) -> str:
         text, self.buffer = self.buffer, ""

@@ -44,8 +44,19 @@ class ToolDisclosureTests(unittest.TestCase):
     def _turn(self):
         return teaching_tool_scope()
 
-    def test_catalog_turn_lists_kb_files_but_sends_schema_only_after_load(self):
+    def test_catalog_turn_keeps_kb_files_direct(self):
         context = UnifiedContext(user_message='教材目录')
+        with self._turn():
+            names = module.AgenticLoopPipeline._compose_enabled_tools(self.pipeline, context)
+            self.assertIn('kb_files', names)
+            self.assertNotIn('load_tools', names)
+            schemas = module.AgenticLoopPipeline._build_llm_tool_schemas(
+                self.pipeline, names, context)
+            self.assertIn('kb_files', {item['function']['name'] for item in schemas})
+            self.assertNotIn('按需工具', module.AgenticLoopPipeline._tool_manifest(self.pipeline, names))
+
+    def test_mixed_catalog_turn_defers_catalog_tool_until_loaded(self):
+        context = UnifiedContext(user_message='教材目录里解释一下自变量')
         with self._turn():
             names = module.AgenticLoopPipeline._compose_enabled_tools(self.pipeline, context)
             self.assertIn('kb_files', names)
@@ -57,7 +68,8 @@ class ToolDisclosureTests(unittest.TestCase):
             self.assertIn('load_tools', sent)
             manifest = module.AgenticLoopPipeline._tool_manifest(self.pipeline, names)
             self.assertIn('按需工具', manifest)
-            self.assertIn('`kb_files`', manifest)
+            self.assertIn('kb_files', manifest)
+            self.assertEqual(manifest.count('kb_files'), 1)
 
             loader = tool_disclosure.current_loader()
             self.assertIsNotNone(loader)
@@ -67,7 +79,7 @@ class ToolDisclosureTests(unittest.TestCase):
             self.assertEqual(loader.load(['rag'])['unknown'], ['rag'])
 
     def test_unloaded_on_demand_tool_is_refused_at_execution(self):
-        context = UnifiedContext(user_message='教材目录')
+        context = UnifiedContext(user_message='教材目录里解释一下自变量')
         tool = self.registry.get('kb_files')
         with self._turn(), patch.object(tool, 'execute', new=AsyncMock(return_value=ToolResult(content='目录'))):
             module.AgenticLoopPipeline._compose_enabled_tools(self.pipeline, context)
@@ -104,9 +116,9 @@ class ToolDisclosureTests(unittest.TestCase):
             self.assertNotIn('reading_list_tabs', sent)
 
     def test_next_turn_starts_without_the_previous_loads(self):
-        catalog = UnifiedContext(user_message='教材目录')
+        mixed = UnifiedContext(user_message='教材目录里解释一下自变量')
         with self._turn():
-            module.AgenticLoopPipeline._compose_enabled_tools(self.pipeline, catalog)
+            module.AgenticLoopPipeline._compose_enabled_tools(self.pipeline, mixed)
             self.assertIsNotNone(tool_disclosure.current_loader())
             greeting = UnifiedContext(user_message='你好')
             names = module.AgenticLoopPipeline._compose_enabled_tools(self.pipeline, greeting)
