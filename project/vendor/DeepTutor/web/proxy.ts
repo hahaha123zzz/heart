@@ -62,8 +62,8 @@ export function proxy(req: NextRequest): NextResponse {
     return new NextResponse(null, { status: 404 });
   }
 
-  // 教材图谱由宿主 H 提供（LightRAG 数据在 H 侧的 PG 里），不是厂家接口。
-  if (pathname.startsWith("/api/graph")) {
+  // 教材图谱和教材原图由宿主 H 提供（LightRAG/图表数据在 H 侧），不是厂家接口。
+  if (pathname.startsWith("/api/graph") || pathname.startsWith("/api/figures")) {
     return NextResponse.rewrite(new URL(pathname + search, HEART_API_BASE_URL), {
       request: { headers: prepareBackendForwardHeaders(req.headers) },
     });
