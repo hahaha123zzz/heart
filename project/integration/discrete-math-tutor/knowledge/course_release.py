@@ -12,6 +12,7 @@ from functools import lru_cache
 from copy import deepcopy
 import hashlib
 import json
+import re
 from pathlib import Path
 
 from knowledge.course_config import PSYCHOLOGY_DIR
@@ -47,6 +48,26 @@ def chapter_source_identity(chapter_id, manifest, assets):
         actual.append((str(path.relative_to(PSYCHOLOGY_DIR)), expected, digest))
     return hashlib.sha256(json.dumps(actual, ensure_ascii=False).encode()).hexdigest(), (
         bool(source.get('docx')) and bool(actual) and bool(actual[0][1]) and actual[0][1] == actual[0][2])
+
+
+def _legacy_index_pin() -> str | None:
+    """旧 SQLite 索引移出后，用已验证的版本记录保持发行身份不变。"""
+    path = PSYCHOLOGY_DIR / "retrieval_identity.json"
+    try:
+        value = json.loads(path.read_text(encoding="utf-8")).get("legacy_index_sha256")
+    except (OSError, ValueError):
+        return None
+    return value if isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) else None
+
+
+def index_identity() -> tuple[str | None, str | None]:
+    sha = _sha256(PSYCHOLOGY_DIR / "rag_index.sqlite3")
+    if sha:
+        return sha, None
+    pin = _legacy_index_pin()
+    if pin:
+        return pin, None
+    return None, "检索索引 rag_index.sqlite3 缺失"
 
 
 @lru_cache(maxsize=1)
@@ -90,10 +111,9 @@ def snapshot() -> dict:
             "assets_sha256": assets_sha,
             "source_version": source_version,
         })
-    index_path = PSYCHOLOGY_DIR / "rag_index.sqlite3"
-    index_sha = _sha256(index_path)
-    if not index_sha:
-        gaps.append("检索索引 rag_index.sqlite3 缺失")
+    index_sha, index_gap = index_identity()
+    if index_gap:
+        gaps.append(index_gap)
     try:
         from knowledge.source_visuals import stats as visual_stats
         visuals = visual_stats()

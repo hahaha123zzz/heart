@@ -1,5 +1,9 @@
 """Q2.5：课程发布身份、索引与换版校验。"""
+import json
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from knowledge import course_release
 
@@ -29,6 +33,22 @@ class CourseReleaseTests(unittest.TestCase):
         self.assertEqual(course_release.validate(state)["release_id"], state["release_id"])
         with self.assertRaisesRegex(ValueError, "发布版本已变化"):
             course_release.validate({"release_id": "0" * 64})
+
+    def test_index_identity_falls_back_to_the_verified_legacy_pin(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            pinned = "a" * 64
+            with patch.object(course_release, "PSYCHOLOGY_DIR", root):
+                self.assertEqual(course_release.index_identity(),
+                                 (None, "检索索引 rag_index.sqlite3 缺失"))
+                (root / "retrieval_identity.json").write_text(
+                    json.dumps({"legacy_index_sha256": pinned}), encoding="utf-8")
+                self.assertEqual(course_release.index_identity(), (pinned, None))
+                (root / "rag_index.sqlite3").write_bytes(b"index")
+                actual, gap = course_release.index_identity()
+                self.assertIsNone(gap)
+                self.assertEqual(actual, course_release._sha256(root / "rag_index.sqlite3"))
+                self.assertNotEqual(actual, pinned)
 
 
 if __name__ == "__main__":
