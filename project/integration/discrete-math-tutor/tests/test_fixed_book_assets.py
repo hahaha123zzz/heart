@@ -136,6 +136,17 @@ def test_install_after_input_removal_without_a_record_is_rejected(tmp_path):
         install(assets, textbook, candidate, release_id="r", source_map=None, citation_builder=build_citation)
 
 
+def test_visual_map_roundtrips_through_the_asset_record():
+    from pathlib import Path
+
+    from knowledge.fixed_book_assets import _visual_record, visual_from
+    from knowledge.source_visuals import SourceVisual
+
+    visual = SourceVisual("figure-1", 2, 3, 4, "image", Path("a.png"), "sha", "source",
+                          "source-sha", ("图2-1",), "context", "section", "approved", (1, 2))
+    assert visual_from(_visual_record(visual)) == visual
+
+
 def test_prepare_citation_uses_the_install_asset(tmp_path):
     import asyncio
 

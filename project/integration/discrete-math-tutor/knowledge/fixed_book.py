@@ -218,7 +218,7 @@ class FixedBookRuntime:
             self.backend = LightRagBackend(os.environ['LIGHTRAG_CANDIDATE_PATH'],
                 authorized_course_ids={COURSE_ID}, allow_candidate=os.getenv('LIGHTRAG_ALLOW_CANDIDATE') == '1',
                 source_root=PSYCHOLOGY_DIR)
-        from knowledge.fixed_book_assets import AssetsMismatch, assets_root, load as load_assets
+        from knowledge.fixed_book_assets import AssetsMismatch, assets_root, load as load_assets, visual_from
         with trace.timed('fixed_book.assets', parent='fixed_book') as detail:
             self.assets = await asyncio.to_thread(load_assets, assets_root(), PSYCHOLOGY_DIR,
                                                   self.backend.candidate)
@@ -233,11 +233,16 @@ class FixedBookRuntime:
             self.backend.source_map = await asyncio.to_thread(self.backend.load_source_map)
         from knowledge.lightrag.course_input import visual_inventory
         with trace.timed('fixed_book.visual_map', parent='fixed_book') as detail:
-            visual_root = (Path(self.assets['input_root']) if self.assets
-                           else self.backend.candidate / 'input')
-            self.backend.visual_map = (await asyncio.to_thread(visual_inventory, visual_root))[0]
+            if self.assets and self.assets.get('visual_map'):
+                self.backend.visual_map = {visual_id: visual_from(record)
+                                           for visual_id, record in self.assets['visual_map'].items()}
+                detail['source'] = 'install'
+            else:
+                visual_root = (Path(self.assets['input_root']) if self.assets
+                               else self.backend.candidate / 'input')
+                self.backend.visual_map = (await asyncio.to_thread(visual_inventory, visual_root))[0]
+                detail['source'] = 'scan'
             detail['visuals'] = len(self.backend.visual_map)
-            detail['source'] = 'install' if self.assets else 'candidate_input'
         with trace.timed('fixed_book.release', parent='fixed_book') as detail:
             self.release = await asyncio.to_thread(validate)
             detail['release_id'] = self.release.get('release_id')

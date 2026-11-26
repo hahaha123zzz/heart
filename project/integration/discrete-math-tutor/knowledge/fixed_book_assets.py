@@ -44,8 +44,33 @@ def assets_root():
     return Path(home).parent / 'textbook-assets' if home else Path('.runtime/textbook-assets')
 
 
+def _visual_record(visual):
+    return {
+        'id': visual.id, 'chapter_id': visual.chapter_id, 'section_id': visual.section_id,
+        'block_index': visual.block_index, 'kind': visual.kind, 'path': str(visual.path),
+        'sha256': visual.sha256, 'source': visual.source, 'source_sha256': visual.source_sha256,
+        'labels': list(visual.labels), 'context': visual.context, 'section': visual.section,
+        'review_status': visual.review_status, 'occurrences': list(visual.occurrences),
+    }
+
+
+def visual_from(record):
+    from knowledge.source_visuals import SourceVisual
+
+    return SourceVisual(**{**record, 'path': Path(record['path']),
+                           'labels': tuple(record['labels']),
+                           'occurrences': tuple(record.get('occurrences') or ())})
+
+
+def build_visual_map(root):
+    from knowledge.lightrag.course_input import visual_inventory
+
+    return {visual_id: _visual_record(visual)
+            for visual_id, visual in visual_inventory(root)[0].items()}
+
+
 def install(root, textbook, candidate, *, release_id, source_map, citation_builder=None,
-            image_terms=None):
+            image_terms=None, visual_map=None):
     """完整核对教材、冻结输入和活动索引后一次性发布；失败保留上一份记录。"""
     from knowledge.lightrag.course_input import inventory, verify, verify_active
 
@@ -97,6 +122,7 @@ def install(root, textbook, candidate, *, release_id, source_map, citation_build
         'host_extras': {'count': len(extras), 'sha256': _digest_of(extras)},
         'citation': {'path': str(citation), 'sha256': _digest(citation), 'size': citation_size},
         'image_terms': dict(image_terms or {}),
+        'visual_map': visual_map if visual_map is not None else build_visual_map(published_input),
         'source_map': source_map,
         'created_at': datetime.now().astimezone().isoformat(timespec='seconds'),
     }
