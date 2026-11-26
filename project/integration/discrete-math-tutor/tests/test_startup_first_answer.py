@@ -3,9 +3,12 @@ import asyncio
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import time
 import unittest
 
-from scripts.sample_startup_first_answer import await_acceptable, marks, password_from, run_turn
+from scripts.sample_startup_first_answer import (
+    TurnRejected, await_acceptable, marks, password_from, run_second_turn, run_turn,
+)
 
 
 class FakeWebSocket:
@@ -109,10 +112,22 @@ class FirstAnswerSampleTests(unittest.IsolatedAsyncioTestCase):
 
         failing = FakeWebSocket([{'type': 'protocol_error', 'error_code': 'turn_rejected'}])
         recorded = []
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(TurnRejected):
             await run_turn(failing, lambda stage, **fields: recorded.append({'stage': stage, **fields}),
                            '题', submission='run-2')
         self.assertEqual(recorded[-1]['error_code'], 'turn_rejected')
+
+    async def test_second_turn_retries_a_rejected_lease_until_accepted(self):
+        ws = FakeWebSocket([
+            {'type': 'protocol_error', 'error_code': 'start_turn_rejected'},
+            {'type': 'done'},
+        ])
+        recorded = []
+        await run_second_turn(ws, lambda stage, **fields: recorded.append({'stage': stage, **fields}),
+                              '同一道题', 'session-1', 'run-1', done_at=time.perf_counter())
+        self.assertEqual(len([row for row in recorded if row['stage'] == 'sample.second_retry']), 1)
+        self.assertEqual([row for row in recorded if row['stage'] == 'sample.second_accepted'][-1]['attempts'], 2)
+        self.assertEqual(len([sent for sent in ws.sent if sent['type'] == 'start_turn']), 2)
 
     async def test_acceptable_is_measured_from_done_until_no_active_turn(self):
         ws = FakeWebSocket([{'type': 'active_turn_info', 'status': 'none'}])
@@ -120,9 +135,17 @@ class FirstAnswerSampleTests(unittest.IsolatedAsyncioTestCase):
         waited = await await_acceptable(ws, 'session-1',
                                         lambda stage, **fields: recorded.append({'stage': stage, **fields}),
                                         since=0.0)
-        self.assertEqual(ws.sent, [{'type': 'check_active_turn', 'session_id': 'session-1'}])
+        self.assertEqual(ws.sent, [{'type': 'check_active_turn', 'protocol_version': '2.0',
+                                    'session_id': 'session-1'}])
         self.assertGreaterEqual(waited, 0)
         self.assertEqual(recorded[-1]['stage'], 'sample.acceptable')
+
+    async def test_acceptable_records_a_protocol_error_instead_of_blocking(self):
+        ws = FakeWebSocket([{'type': 'protocol_error', 'error_code': 'invalid_command'}])
+        recorded = []
+        await await_acceptable(ws, 'session-1',
+                               lambda stage, **fields: recorded.append({'stage': stage, **fields}))
+        self.assertEqual(recorded[-1]['status'], 'protocol_error:invalid_command')
 
 
 if __name__ == '__main__':

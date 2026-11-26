@@ -72,16 +72,34 @@ async def await_acceptable(ws, session_id, record, *, label='first', since=None,
     if not session_id:
         return 0.0
     began = time.perf_counter() if since is None else since
-    while True:
-        await ws.send(json.dumps({'type': 'check_active_turn', 'session_id': session_id}))
-        message = json.loads(await asyncio.wait_for(ws.recv(), timeout=timeout))
+    deadline = time.perf_counter() + timeout
+    status = 'no_response'
+    while time.perf_counter() < deadline:
+        await ws.send(json.dumps({'type': 'check_active_turn', 'protocol_version': '2.0',
+                                  'session_id': session_id}))
+        try:
+            message = json.loads(await asyncio.wait_for(ws.recv(), timeout=5))
+        except (asyncio.TimeoutError, TimeoutError):
+            status = 'no_response'
+            break
+        if message.get('type') == 'protocol_error':
+            status = 'protocol_error:' + str(message.get('error_code') or '')
+            break
         if message.get('type') != 'active_turn_info':
             continue
-        if (message.get('status') or 'none') == 'none':
-            waited = time.perf_counter() - began
-            record('sample.acceptable', parent='sample.turn', seconds=waited, turn=label, status='none')
-            return waited
+        status = str(message.get('status') or 'none')
+        if status in ('none', 'completed', 'failed', 'cancelled'):
+            break
         await asyncio.sleep(.2)
+    waited = time.perf_counter() - began
+    record('sample.acceptable', parent='sample.turn', seconds=waited, turn=label, status=status)
+    return waited
+
+
+class TurnRejected(RuntimeError):
+    def __init__(self, code):
+        super().__init__(code)
+        self.code = code
 
 
 async def run_turn(ws, record, question: str, session_id=None, label='first', submission=None):
@@ -125,7 +143,7 @@ async def run_turn(ws, record, question: str, session_id=None, label='first', su
         if kind == 'protocol_error' or kind == 'error':
             record('sample.protocol_error', parent='sample.turn', seconds=seconds, turn=label,
                    kind=kind, error_code=str(message.get('error_code') or '')[:80])
-            raise SystemExit('回合失败：%s %s' % (message.get('error_code'), message.get('message')))
+            raise TurnRejected(str(message.get('error_code') or kind))
         if kind == 'done':
             found['done_at'] = time.perf_counter()
             record('sample.usage', parent='sample.turn', seconds=seconds, turn=label,
@@ -135,6 +153,25 @@ async def run_turn(ws, record, question: str, session_id=None, label='first', su
             break
     found['seconds'] = time.perf_counter() - sent
     return found
+
+
+async def run_second_turn(ws, record, question, session_id, submission, done_at, deadline=60):
+    """上一回合 done 后协调租约可能仍在；用同一提交 ID 重试直到服务真正接收。"""
+    attempts = 0
+    while True:
+        attempts += 1
+        try:
+            found = await run_turn(ws, record, question, session_id, label='second', submission=submission)
+            record('sample.second_accepted', parent='sample.turn',
+                   seconds=time.perf_counter() - done_at, turn='second', attempts=attempts)
+            return found
+        except TurnRejected as exc:
+            waited = time.perf_counter() - done_at
+            record('sample.second_retry', parent='sample.turn', seconds=waited, turn='second',
+                   attempts=attempts, error_code=exc.code)
+            if waited >= deadline:
+                raise
+            await asyncio.sleep(.25)
 
 
 async def run(args):
@@ -174,8 +211,8 @@ async def run(args):
                          prompt_tokens=first.get('prompt_tokens'),
                          completion_tokens=first.get('completion_tokens'),
                          done_to_acceptable=accepted)
-            second = await run_turn(ws, trace.record, args.question, first['session_id'], label='second',
-                                    submission=run_id + '-second')
+            second = await run_second_turn(ws, trace.record, args.question, first['session_id'],
+                                           run_id + '-second', first.get('done_at'))
             trace.record('sample.turn', parent='sample', seconds=second['seconds'], turn='second',
                          events=second['events'], chars=second['chars'],
                          tool_calls=second['tool_calls'], sources=second['sources'],
