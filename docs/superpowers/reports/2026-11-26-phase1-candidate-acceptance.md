@@ -86,6 +86,19 @@
 - 两次点击都没有控制台错误；截图保存在
   `C:\Users\free\AppData\Local\Temp\opencode\pw\before-click.png`、`after-click.png`、`citation-2.png`。
 
+### 3.4 旧入口停用（Task 1）
+
+- 新增 `knowledge/legacy_retirement.py`：运行时默认停用旧索引，消息为“旧教材索引已退役，请使用固定教材 LightRAG 或原文读取入口”。
+- 旧检索入口在默认配置下直接抛退役错误：
+  `local_rag.course_retrieval` 的 `retrieve/warm/index_signature`、`textbook.load_textbook`、
+  `hybrid_retrieval.retrieve_hybrid/_vectors`、`psychology_retrieval.retrieve`。
+- 旧聊天路由 `/api/chat`、`/api/chat/stream` 返回 410；`/api/course/session-plan` 返回
+  `{"session_plan": null, "retired": true}`。
+- 候选运行验证：两个聊天路由 410、Q5 无安排；随后教材问答仍正常
+  （首问 24.64 秒、第二问 13.90 秒、4 条来源），说明停用的是旧入口，不影响固定教材 LightRAG。
+- `tests/conftest.py` 为测试与离线工具显式设置 `HEART_LEGACY_INDEX_ENABLED=1`；
+  部署不设置，默认关闭。相关专项 41 项通过。
+
 尚未在浏览器里验证：页码高亮覆盖层、图表/公式来源、选区提问、练习/测评页面。
 
 四类问题在候选（仍带 input）也跑过：问候 27.16/3.22 秒、原题 15.11/6.16 秒、
@@ -100,6 +113,11 @@
 - `825f5c4a` 固定教材资产安装与启动加载
 - `9d32904f` 引用坐标索引随资产发布，启动不再预热旧索引
 - `ce724235` 资产自带冻结输入副本，启动不再读候选 input
+- `28bd6053` 旧索引移出后用已验证摘要保持教材发行身份
+- `9a6b61ef` 图表检索词表随资产发布；冻结输入移出后仍可重装
+- `60e2373a` 版本记录兼容 BOM，安装脚本复用来源映射
+- `318c8152` worker 启动不再预热旧索引
+- `50d45403` 旧索引入口默认停用，旧聊天与 Q5 入口返回退役状态
 
 验收：
 
@@ -119,28 +137,36 @@
 - 固定教材教材问答、来源、图表词表已不读旧索引；候选在无索引、无冻结输入的副本上完成问答。
 - 旧回答数据不再需要兼容，`retrieval_identity.json` 的发行身份固定仅用于教材版本一致性，不承担旧引用迁移。
 
-剩余旧调用（可直接删除/停用，不需要迁移）：
+旧入口已按“停用”处理（运行时默认关闭）：
 
-| 调用方 | 处理 |
+| 入口 | 处理 |
 | --- | --- |
-| `agents/agent_loop_service.py`、`agents/q5_runtime.py`、`agents/course_search.py` | 旧聊天/旧检索入口，停用并从路由移除 |
-| `knowledge/psychology_retrieval.py` 的旧 retrieve | 固定教材不再使用；保留 `HEADING` 等纯函数 |
-| `knowledge/hybrid_retrieval.py` 的 `INDEX`/`_vectors`/`retrieve_hybrid`、`knowledge/textbook.py` 的 `load_textbook` | 旧全文检索；只保留 `_reranker_on_device` 等固定教材需要的能力 |
-| `integrations/deeptutor/knowledge_client.py`、`published_course.py`、`course_preview_api.py` | 预览/发布工具；改为显式归档路径或停用 |
-| 脚本 `check_local_rag.py`、`check_course_navigation.py`、`check_deeptutor_sessions.py` 等 | 离线工具，改归档路径或标记退役 |
+| `/api/chat`、`/api/chat/stream` | 返回 410，旧聊天退役 |
+| `/api/course/session-plan` | 返回 `{"session_plan": null, "retired": true}` |
+| `local_rag.course_retrieval` 的 `retrieve/warm/index_signature` | 默认抛“旧教材索引已退役” |
+| `textbook.load_textbook` | 同上 |
+| `hybrid_retrieval.retrieve_hybrid/_vectors` | 同上 |
+| `psychology_retrieval.retrieve` | 同上 |
+| `agents/agent_loop_service`、`agents/course_search`、`agents/q5_runtime` | 经上述函数停用；入口不可达或返回退役状态 |
+| 预览/发布/离线脚本 | 需要显式设置 `HEART_LEGACY_INDEX_ENABLED=1` 才能使用归档索引 |
+
+运行时不设置 `HEART_LEGACY_INDEX_ENABLED`，默认关闭；`tests/conftest.py` 为测试和离线工具设为 `1`。
 
 其余未完成：
 
 | 项 | 状态 |
 | --- | --- |
-| 候选最后一次打包（worker 启动不再预热旧索引） | 进行中：`phase1-candidate-20261126f` |
-| 引用跳页/图表/选区/练习/旧会话回归 | 旧回答数据已决定丢弃，只需验证新回答的页码与跳页；尚未跑浏览器 |
+| 候选最后一次打包 | 完成：`phase1-candidate-20261126h` |
+| 引用/图表/选区/练习回归 | 部分：引用跳页已通过浏览器验证；高亮、图表、选区、练习未跑 |
+| 图表 `visual_map` 预生成 | 未做；启动仍遍历资产内的教材副本（0.5–4.8 秒） |
+| 资产缺失/版本不一致的运行时报错 | 单元测试覆盖，未在运行环境实际触发 |
 | 在线教材目录移出旧索引 | 未执行（按决定先只改线下） |
 | 候选 LightRAG PG 独立 | 不做（功能验收不需要） |
 
 ## 6. 当前运行
 
-- 基线 8000 部署保持原位、可访问。
-- 候选 28000/28001/28002 正在运行，指向 `candidate-phase1-noinput`（199.2 MiB，无 input），
-  资产目录含冻结输入副本（约 100 MiB）和引用索引。
+- 8000 基线暂时停止，给候选的 CUDA 重排让出显存。
+- 候选 28000/28001/28002 正在运行发行 `phase1-candidate-20261126h`，
+  指向 `candidate-phase1-noinput`（无 input）和 `phase1-textbook-noindex`（无旧索引）；
+  资产目录含冻结输入副本和引用索引。
 - 候选停止：`manage_student_local.py stop --root .runtime/phase1-candidate-20261126`。
