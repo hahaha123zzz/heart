@@ -107,9 +107,10 @@
   点“向 AI 提问”后，输入框被填充为 `请结合教材解释这段内容：\n<选中原文>`，发送成功。
 - **图表**：`/api/figures/image-01-0002/image` 在 28002 原本 404（Next 把 `/api/*` 全转发给 worker）；
   已在 `web/proxy.ts` 把 `/api/figures` 并入宿主代理，候选发行热修后返回 200 `image/jpeg` 64,312 字节。
-  但本轮模型回答没有主动附图，图表“来源”只验证到图片接口和阅读器页面。
+  两次带“图9-19/原图”的提问中，模型都没有主动附图，图表“来源”目前只验证到图片接口和阅读器页面。
 - **练习**：`/learning/practice` 正常渲染（0 道待复习、开始今日复习、题库/统计），无控制台错误；
-  “管理题库”预取 `/space/questions` 返回 404（单独的前端路由缺口，与教材索引无关）。
+  “管理题库”旧链接 `/space/questions` 原来 404，现由代理层 307 重定向到 `/learning/practice`，
+  候选热修后已验证；源码同时增加了同路径页面重定向。
 - **资产错误**：
   - 把 `assets.json` 的 release_id 改成全零后启动，宿主日志明确报
     `AssetsMismatch: 教材资产绑定的发行与当前教材版本不一致，请重新安装教材资产`，控制脚本报 `service_stopped:host`。
@@ -117,8 +118,10 @@
     `AssetsMismatch: 教材资产缺少引用坐标索引，请重新安装教材资产`。
   - 恢复资产后候选重启正常。
 
-注意：候选发行 `phase1-candidate-20261126i` 的 `middleware.js` 是测试用热修，发行清单哈希已不一致；
-正式发行需要重新构建 Web，把 `proxy.ts` 的修复打进 `.next`。
+注意：候选发行 `phase1-candidate-20261126i` 的 `middleware.js` 是测试用热修，发行清单哈希已不一致。
+正式 Web 构建在本机被依赖环境挡住：Turbopack 拒绝指向主工作区 `node_modules` 的目录联接，
+改用 webpack 又缺 `@react-sigma/core` 和 `graphology-layout-forceatlas2/worker`。
+需要先补齐 Web 构建依赖，或复制一份完整 `node_modules` 再构建。
 
 四类问题在候选（仍带 input）也跑过：问候 27.16/3.22 秒、原题 15.11/6.16 秒、
 明确小节 41.18/4.52 秒（7 工具、16 来源）、无教材证据 6.97/5.17 秒。明确小节题比阶段 0 少 2 次工具、
@@ -181,7 +184,7 @@
 | 资产缺失/版本不一致的运行时报错 | 完成：版本不一致和引用索引缺失都在宿主日志明确报错 |
 | 在线教材目录移出旧索引 | 未执行（按决定先只改线下） |
 | 候选 LightRAG PG 独立 | 不做（功能验收不需要） |
-| 正式发行 Web 构建 | 未做：`proxy.ts` 的 `/api/figures` 修复需要重新构建 `.next` |
+| 正式发行 Web 构建 | 受阻：Turbopack 拒绝 `node_modules` 目录联接；webpack 缺 `@react-sigma/core`、`graphology-layout-forceatlas2/worker`。候选用热修中间件验证，正式包需补齐依赖后重建 |
 
 ## 6. 当前运行
 
