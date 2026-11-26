@@ -85,6 +85,18 @@ def test_runtime_plan_keeps_secrets_out_of_frontend_and_rejects_missing_build(tm
  with pytest.raises(ValueError,match="mutable_resource_inside_release"):plan(root,"web",env)
 
 
+def test_local_setup_selects_cuda_rerank_only_when_target_python_has_it(tmp_path):
+ from deploy.setup_student_local import rerank_device
+ from types import SimpleNamespace
+ ok=lambda *a,**k:SimpleNamespace(returncode=0,stdout="1\n")
+ cpu=lambda *a,**k:SimpleNamespace(returncode=0,stdout="0\n")
+ def missing(*a,**k):raise OSError("python missing")
+ python=tmp_path/"python.exe"
+ assert rerank_device(python,run=ok)=="cuda"
+ assert rerank_device(python,run=cpu)=="cpu"
+ assert rerank_device(python,run=missing)=="cpu"
+
+
 def test_knowledge_python_and_release_metadata_are_code_but_course_assets_stay_external(tmp_path):
  source=tmp_path/"source"
  for root in (HROOT,VROOT):(source/root).mkdir(parents=True)
