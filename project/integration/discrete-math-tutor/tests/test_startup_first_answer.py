@@ -5,7 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from scripts.sample_startup_first_answer import marks, password_from, run_turn
+from scripts.sample_startup_first_answer import await_acceptable, marks, password_from, run_turn
 
 
 class FakeWebSocket:
@@ -28,6 +28,14 @@ class FirstAnswerSampleTests(unittest.IsolatedAsyncioTestCase):
                                 'metadata': {'name': 'rag', 'query': '原文'}}), {
             'kind': 'tool_call', 'event_stage': 'retrieval', 'event_source': '', 'tool': 'rag'})
         self.assertEqual(marks({'type': 'sources', 'metadata': {'sources': [1, 2]}})['source_count'], 2)
+
+    def test_marks_keep_token_counts_from_the_final_summary(self):
+        self.assertEqual(marks({'type': 'done', 'metadata': {'cost_summary': {
+            'prompt_tokens': 120, 'completion_tokens': 30}}}), {
+            'kind': 'done', 'event_stage': '', 'event_source': '',
+            'prompt_tokens': 120, 'completion_tokens': 30})
+        self.assertEqual(marks({'type': 'done', 'metadata': {'usage_summary': {
+            'prompt_tokens': 7, 'completion_tokens': 3}}})['completion_tokens'], 3)
 
     def test_marks_drop_oversized_stage_and_source(self):
         long = 'x' * 81
@@ -55,7 +63,7 @@ class FirstAnswerSampleTests(unittest.IsolatedAsyncioTestCase):
         ])
         recorded = []
         found = await run_turn(ws, lambda stage, **fields: recorded.append({'stage': stage, **fields}),
-                               '自变量是什么')
+                               '自变量是什么', submission='first-1')
         self.assertEqual(ws.sent, [{'type': 'start_turn', 'protocol_version': '2.0',
                                     'client_submission_id': 'first-1', 'content': '自变量是什么'}])
         self.assertEqual(found['session_id'], 'session-1')
@@ -70,10 +78,51 @@ class FirstAnswerSampleTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_second_turn_sends_the_session_id(self):
         ws = FakeWebSocket([{'type': 'done'}])
-        await run_turn(ws, lambda stage, **fields: None, '同一道题', 'session-9', label='second')
+        await run_turn(ws, lambda stage, **fields: None, '同一道题', 'session-9', label='second',
+                       submission='second-1')
         self.assertEqual(ws.sent, [{'type': 'start_turn', 'protocol_version': '2.0',
                                     'client_submission_id': 'second-1', 'content': '同一道题',
                                     'session_id': 'session-9'}])
+
+    async def test_omitted_submission_ids_are_unique_so_no_turn_is_replayed(self):
+        first, second = FakeWebSocket([{'type': 'done'}]), FakeWebSocket([{'type': 'done'}])
+        await run_turn(first, lambda stage, **fields: None, '同一道题')
+        await run_turn(second, lambda stage, **fields: None, '同一道题')
+        self.assertNotEqual(first.sent[0]['client_submission_id'],
+                            second.sent[0]['client_submission_id'])
+
+    async def test_turn_records_usage_counts_and_protocol_error_code(self):
+        ws = FakeWebSocket([
+            {'type': 'tool_call', 'metadata': {'name': 'rag'}},
+            {'type': 'content', 'content': '第一段'},
+            {'type': 'sources', 'metadata': {'sources': ['a', 'b', 'c']}},
+            {'type': 'tool_call', 'metadata': {'name': 'read'}},
+            {'type': 'done', 'metadata': {'cost_summary': {'prompt_tokens': 50, 'completion_tokens': 9}}},
+        ])
+        recorded = []
+        found = await run_turn(ws, lambda stage, **fields: recorded.append({'stage': stage, **fields}),
+                               '题', submission='run-1')
+        self.assertEqual((found['tool_calls'], found['sources'], found['prompt_tokens'],
+                          found['completion_tokens']), (2, 3, 50, 9))
+        usage = next(item for item in recorded if item['stage'] == 'sample.usage')
+        self.assertEqual((usage['tool_calls'], usage['sources']), (2, 3))
+
+        failing = FakeWebSocket([{'type': 'protocol_error', 'error_code': 'turn_rejected'}])
+        recorded = []
+        with self.assertRaises(SystemExit):
+            await run_turn(failing, lambda stage, **fields: recorded.append({'stage': stage, **fields}),
+                           '题', submission='run-2')
+        self.assertEqual(recorded[-1]['error_code'], 'turn_rejected')
+
+    async def test_acceptable_is_measured_from_done_until_no_active_turn(self):
+        ws = FakeWebSocket([{'type': 'active_turn_info', 'status': 'none'}])
+        recorded = []
+        waited = await await_acceptable(ws, 'session-1',
+                                        lambda stage, **fields: recorded.append({'stage': stage, **fields}),
+                                        since=0.0)
+        self.assertEqual(ws.sent, [{'type': 'check_active_turn', 'session_id': 'session-1'}])
+        self.assertGreaterEqual(waited, 0)
+        self.assertEqual(recorded[-1]['stage'], 'sample.acceptable')
 
 
 if __name__ == '__main__':

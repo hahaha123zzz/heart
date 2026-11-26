@@ -11,6 +11,7 @@ from pathlib import Path
 import sys
 import time
 import urllib.request
+from uuid import uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -57,17 +58,41 @@ def marks(message: dict) -> dict:
             break
     if isinstance(metadata.get('sources'), list):
         row['source_count'] = len(metadata['sources'])
+    summary = metadata.get('cost_summary') or metadata.get('usage_summary')
+    if isinstance(summary, dict):
+        for key in ('prompt_tokens', 'completion_tokens'):
+            value = summary.get(key)
+            if isinstance(value, int):
+                row[key] = value
     return row
 
 
-async def run_turn(ws, record, question: str, session_id=None, label='first'):
+async def await_acceptable(ws, session_id, record, *, label='first', since=None, timeout=60):
+    """从 done 起询问活跃回合，直到服务报告没有活跃回合。"""
+    if not session_id:
+        return 0.0
+    began = time.perf_counter() if since is None else since
+    while True:
+        await ws.send(json.dumps({'type': 'check_active_turn', 'session_id': session_id}))
+        message = json.loads(await asyncio.wait_for(ws.recv(), timeout=timeout))
+        if message.get('type') != 'active_turn_info':
+            continue
+        if (message.get('status') or 'none') == 'none':
+            waited = time.perf_counter() - began
+            record('sample.acceptable', parent='sample.turn', seconds=waited, turn=label, status='none')
+            return waited
+        await asyncio.sleep(.2)
+
+
+async def run_turn(ws, record, question: str, session_id=None, label='first', submission=None):
     sent = time.perf_counter()
     payload = {'type': 'start_turn', 'protocol_version': '2.0',
-               'client_submission_id': label + '-1', 'content': question}
+               'client_submission_id': submission or label + '-' + uuid4().hex[:12],
+               'content': question}
     if session_id:
         payload['session_id'] = session_id
     await ws.send(json.dumps(payload, ensure_ascii=False))
-    found = {'session_id': session_id, 'events': 0, 'chars': 0}
+    found = {'session_id': session_id, 'events': 0, 'chars': 0, 'tool_calls': 0, 'sources': 0}
     seen = set()
     while True:
         message = json.loads(await asyncio.wait_for(ws.recv(), timeout=300))
@@ -76,6 +101,13 @@ async def run_turn(ws, record, question: str, session_id=None, label='first'):
         found['events'] += 1
         found['chars'] += row.get('chars', 0)
         kind = row['kind']
+        if kind == 'tool_call':
+            found['tool_calls'] += 1
+        if row.get('source_count'):
+            found['sources'] = max(found['sources'], row['source_count'])
+        for key in ('prompt_tokens', 'completion_tokens'):
+            if key in row:
+                found[key] = row[key]
         if kind == 'session' and not found['session_id']:
             metadata = message.get('metadata')
             found['session_id'] = message.get('session_id') or (
@@ -91,8 +123,15 @@ async def run_turn(ws, record, question: str, session_id=None, label='first'):
                 seen.add(key)
                 record('sample.' + mark, parent='sample.turn', seconds=seconds, turn=label, **row)
         if kind == 'protocol_error' or kind == 'error':
+            record('sample.protocol_error', parent='sample.turn', seconds=seconds, turn=label,
+                   kind=kind, error_code=str(message.get('error_code') or '')[:80])
             raise SystemExit('回合失败：%s %s' % (message.get('error_code'), message.get('message')))
         if kind == 'done':
+            found['done_at'] = time.perf_counter()
+            record('sample.usage', parent='sample.turn', seconds=seconds, turn=label,
+                   events=found['events'], chars=found['chars'], tool_calls=found['tool_calls'],
+                   sources=found['sources'], prompt_tokens=found.get('prompt_tokens'),
+                   completion_tokens=found.get('completion_tokens'))
             break
     found['seconds'] = time.perf_counter() - sent
     return found
@@ -107,7 +146,7 @@ async def run(args):
     trace = current()
     began = time.perf_counter()
     trace.record('sample.begin', parent='sample', seconds=0, base=args.base,
-                 question_class='fixed_sample_textbook')
+                 question_class=args.question_class)
     try:
         password = password_from(args.creds, args.username)
         cookie = login(args.base, args.username, password)
@@ -124,17 +163,33 @@ async def run(args):
             ws = await websockets.connect(args.ws, extra_headers=headers, open_timeout=30, max_size=8_000_000)
         async with ws:
             trace.record('sample.connected', parent='sample', seconds=time.perf_counter() - began)
-            first = await run_turn(ws, trace.record, args.question, label='first')
+            run_id = uuid4().hex[:12]
+            first = await run_turn(ws, trace.record, args.question, label='first',
+                                   submission=run_id + '-first')
+            accepted = await await_acceptable(ws, first['session_id'], trace.record, label='first',
+                                              since=first.get('done_at'))
             trace.record('sample.turn', parent='sample', seconds=first['seconds'], turn='first',
-                         events=first['events'], chars=first['chars'])
-            second = await run_turn(ws, trace.record, args.question, first['session_id'], label='second')
+                         events=first['events'], chars=first['chars'],
+                         tool_calls=first['tool_calls'], sources=first['sources'],
+                         prompt_tokens=first.get('prompt_tokens'),
+                         completion_tokens=first.get('completion_tokens'),
+                         done_to_acceptable=accepted)
+            second = await run_turn(ws, trace.record, args.question, first['session_id'], label='second',
+                                    submission=run_id + '-second')
             trace.record('sample.turn', parent='sample', seconds=second['seconds'], turn='second',
-                         events=second['events'], chars=second['chars'])
+                         events=second['events'], chars=second['chars'],
+                         tool_calls=second['tool_calls'], sources=second['sources'],
+                         prompt_tokens=second.get('prompt_tokens'),
+                         completion_tokens=second.get('completion_tokens'))
         trace.record('sample.done', parent='sample', seconds=time.perf_counter() - began,
                      first_seconds=first['seconds'], second_seconds=second['seconds'])
         print(json.dumps({'startup_id': trace.startup_id, 'first': first['seconds'],
                           'second': second['seconds'], 'first_events': first['events'],
-                          'first_chars': first['chars']}, ensure_ascii=False))
+                          'first_chars': first['chars'], 'first_tools': first['tool_calls'],
+                          'first_sources': first['sources'],
+                          'first_prompt_tokens': first.get('prompt_tokens'),
+                          'first_completion_tokens': first.get('completion_tokens')},
+                         ensure_ascii=False))
     except BaseException as exc:
         trace.record('sample.failed', parent='sample', seconds=time.perf_counter() - began,
                      status='cancelled' if type(exc).__name__ == 'CancelledError' else 'failed',
@@ -151,6 +206,7 @@ def main():
     parser.add_argument('--startup-id', default=None)
     parser.add_argument('--username', default='heart-review-01')
     parser.add_argument('--question', default='自变量是什么')
+    parser.add_argument('--question-class', default='fixed_sample_textbook')
     asyncio.run(run(parser.parse_args()))
 
 
