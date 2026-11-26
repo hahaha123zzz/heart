@@ -156,10 +156,18 @@ class ResidentGraph:
             self.rag = None
 
 
-async def prepare_citation(trace, release_id, course_dir):
-    """坐标索引分支：已有固定路径、命中按版本缓存、缺失后新建并原子发布。"""
+async def prepare_citation(trace, release_id, course_dir, assets=None):
+    """坐标索引分支：已安装资产、已有固定路径、命中按版本缓存、缺失后新建并原子发布。"""
     from knowledge.citation_index import build_index
+    from knowledge.fixed_book_assets import AssetsMismatch
     from knowledge.grounded_citations import settings
+    if assets is not None:
+        path = Path(assets['citation']['path'])
+        if not path.is_file():
+            raise AssetsMismatch('教材资产缺少引用坐标索引，请重新安装教材资产')
+        with trace.timed('fixed_book.citation', parent='fixed_book') as detail:
+            detail['branch'] = 'install_asset'
+        return path
     with trace.timed('fixed_book.citation', parent='fixed_book') as detail:
         path = settings()
         branch = 'fixed_path'
@@ -258,7 +266,8 @@ class FixedBookRuntime:
                 detail['root'] = 'host_textbook'
                 detail['files'] = len(files)
         # 坐标索引是衍生数据，独立保存，不修改教材或已封存图谱。
-        self.citation_path = await prepare_citation(trace, self.release['release_id'], PSYCHOLOGY_DIR)
+        self.citation_path = await prepare_citation(trace, self.release['release_id'], PSYCHOLOGY_DIR,
+                                                    assets=self.assets)
         import json
         self.policy = json.loads((self.backend.candidate / 'policy.json').read_text(encoding='utf8'))
         with trace.timed('lightrag.embedding.config', parent='fixed_book') as detail:
@@ -286,21 +295,12 @@ class FixedBookRuntime:
         self.ready = True
         trace.record('fixed_book.ready_flag', parent='fixed_book', seconds=time.perf_counter() - entry_at)
         try:
-            # 快速路径同样预热，缓存签名从本次完整核验中取得。
-            from knowledge.local_rag.course_retrieval import warm
-            with trace.timed('warmup.local_index', parent='fixed_book'):
-                await asyncio.to_thread(warm)
+            # 正式教材检索走 LightRAG；旧 SQLite 索引不再在启动时预热或跑样例查询。
             from knowledge.hybrid_retrieval import _reranker_on_device
             from knowledge.inference_runtime import configured_device
             device = configured_device('RERANK')
             with trace.timed('warmup.reranker', parent='fixed_book', device=device):
                 await asyncio.to_thread(_reranker_on_device, 'BAAI/bge-reranker-base', device)
-            from knowledge.local_rag.course_retrieval import retrieve
-            sample = {}
-            with trace.timed('warmup.sample_query', parent='fixed_book', query_class='fixed_sample') as detail:
-                await asyncio.to_thread(retrieve, '自变量是什么', limit=4, trace=sample)
-                detail.update({key: sample.get(key) for key in ('embedding_seconds', 'recall_seconds',
-                    'rerank_seconds', 'corpus_size', 'embedding_device', 'rerank_status')})
             from llm.transport import borrow
             client = self.roles['query'].config.client
             with trace.timed('warmup.client_pool', parent='fixed_book',

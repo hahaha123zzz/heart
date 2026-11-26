@@ -12,6 +12,10 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def build_citation(target, textbook):
+    Path(target).write_bytes(b"citation")
+
+
 def tree(root, files):
     for relative, content in files.items():
         path = root / relative
@@ -50,8 +54,10 @@ def test_install_then_load_uses_the_published_record(tmp_path):
     candidate, textbook = fixture(tmp_path)
     assets = tmp_path / "private/textbook-assets"
     record = install(assets, textbook, candidate, release_id="release-a",
-                     source_map={"chapter_01.generated.pdf": {"chapter_id": 1}})
+                     source_map={"chapter_01.generated.pdf": {"chapter_id": 1}},
+                     citation_builder=build_citation)
     assert record["release_id"] == "release-a"
+    assert record["citation"]["size"] == len(b"citation")
     assert record["host_extras"]["count"] == 1
     loaded = load(assets, textbook, candidate)
     assert loaded["textbook"]["files"]["manifest.json"] == digest(textbook / "manifest.json")
@@ -61,7 +67,7 @@ def test_install_then_load_uses_the_published_record(tmp_path):
 def test_load_fails_when_a_required_textbook_file_changed_or_missing(tmp_path):
     candidate, textbook = fixture(tmp_path)
     assets = tmp_path / "assets"
-    install(assets, textbook, candidate, release_id="r", source_map={})
+    install(assets, textbook, candidate, release_id="r", source_map={}, citation_builder=build_citation)
     (textbook / "rag_index.sqlite3").unlink()
     with pytest.raises(AssetsMismatch, match="教材资产缺失或已变化"):
         load(assets, textbook, candidate)
@@ -70,7 +76,7 @@ def test_load_fails_when_a_required_textbook_file_changed_or_missing(tmp_path):
 def test_load_fails_when_the_candidate_index_changed(tmp_path):
     candidate, textbook = fixture(tmp_path)
     assets = tmp_path / "assets"
-    install(assets, textbook, candidate, release_id="r", source_map={})
+    install(assets, textbook, candidate, release_id="r", source_map={}, citation_builder=build_citation)
     (candidate / "progress.json").write_text('{"state":"rebuilt"}', encoding="utf-8")
     with pytest.raises(AssetsMismatch, match="与当前 LightRAG 索引不一致"):
         load(assets, textbook, candidate)
@@ -84,11 +90,35 @@ def test_load_without_a_record_falls_back_to_scanning(tmp_path):
 def test_failed_install_keeps_the_previous_record(tmp_path):
     candidate, textbook = fixture(tmp_path)
     assets = tmp_path / "assets"
-    first = install(assets, textbook, candidate, release_id="old", source_map={})
+    first = install(assets, textbook, candidate, release_id="old", source_map={}, citation_builder=build_citation)
     (candidate / "input/manifest.json").write_text("{}", encoding="utf-8")
     with pytest.raises(Exception):
-        install(assets, textbook, candidate, release_id="new", source_map={})
+        install(assets, textbook, candidate, release_id="new", source_map={}, citation_builder=build_citation)
     assert json.loads((assets / "assets.json").read_text(encoding="utf-8")) == first
+
+
+def test_load_rejects_a_missing_citation_asset(tmp_path):
+    candidate, textbook = fixture(tmp_path)
+    assets = tmp_path / "assets"
+    install(assets, textbook, candidate, release_id="r", source_map={}, citation_builder=build_citation)
+    (assets / "citations.sqlite3").unlink()
+    with pytest.raises(AssetsMismatch, match="引用坐标索引"):
+        load(assets, textbook, candidate)
+
+
+def test_prepare_citation_uses_the_install_asset(tmp_path):
+    import asyncio
+
+    from knowledge.fixed_book import prepare_citation
+    from knowledge.startup_trace import Trace
+
+    candidate, textbook = fixture(tmp_path)
+    assets = tmp_path / "assets"
+    install(assets, textbook, candidate, release_id="r", source_map={}, citation_builder=build_citation)
+    record = load(assets, textbook, candidate)
+    trace = Trace("host", path=tmp_path / "host.jsonl", sid="assets")
+    path = asyncio.run(prepare_citation(trace, "release-a", textbook, assets=record))
+    assert path == Path(record["citation"]["path"])
 
 
 def test_validate_uses_the_install_record_without_scanning(tmp_path, monkeypatch):

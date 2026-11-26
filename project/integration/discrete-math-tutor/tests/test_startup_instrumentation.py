@@ -71,6 +71,7 @@ class FixedBookStartupTraceTests(unittest.TestCase):
             with ExitStack() as stack:
                 stack.enter_context(patch.dict(os.environ, STARTUP_ID='startup-start', STARTUP_SERVICE='host',
                     STARTUP_TRACE_DIR=folder, LIGHTRAG_CANDIDATE_PATH=str(root),
+                    HEART_TEXTBOOK_ASSETS=str(Path(folder) / 'textbook-assets'),
                     FIXED_BOOK_RETRIEVAL_ENABLED='1'))
                 for target, value in replacements.items():
                     stack.enter_context(patch(target, new=value))

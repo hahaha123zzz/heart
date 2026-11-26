@@ -32,7 +32,7 @@ def assets_root():
     return Path(home).parent / 'textbook-assets' if home else Path('.runtime/textbook-assets')
 
 
-def install(root, textbook, candidate, *, release_id, source_map):
+def install(root, textbook, candidate, *, release_id, source_map, citation_builder=None):
     """完整核对教材、冻结输入和活动索引后一次性发布；失败保留上一份记录。"""
     from knowledge.lightrag.course_input import inventory, verify, verify_active
 
@@ -45,6 +45,15 @@ def install(root, textbook, candidate, *, release_id, source_map):
     extras = verify_active(textbook, manifest['files'])
     sizes = {rel: (textbook / rel).stat().st_size for rel in hashes}
     frozen_sizes = {rel: (candidate / 'input' / rel).stat().st_size for rel in manifest['files']}
+    root.mkdir(parents=True, exist_ok=True)
+    citation = root / 'citations.sqlite3'
+    pending = root / ('citations.' + os.urandom(8).hex() + '.sqlite3')
+    try:
+        (citation_builder or _build_citation)(pending, textbook)
+        citation_size = pending.stat().st_size
+        os.replace(pending, citation)
+    finally:
+        pending.unlink(missing_ok=True)
     record = {
         'format': FORMAT,
         'release_id': release_id,
@@ -54,10 +63,10 @@ def install(root, textbook, candidate, *, release_id, source_map):
         'textbook': {'files': hashes, 'sizes': sizes},
         'frozen': {'files': dict(manifest['files']), 'sizes': frozen_sizes},
         'host_extras': {'count': len(extras), 'sha256': _digest_of(extras)},
+        'citation': {'path': str(citation), 'sha256': _digest(citation), 'size': citation_size},
         'source_map': source_map,
         'created_at': datetime.now().astimezone().isoformat(timespec='seconds'),
     }
-    root.mkdir(parents=True, exist_ok=True)
     target = root / RECORD
     if target.is_file():
         (root / 'assets.previous.json').write_bytes(target.read_bytes())
@@ -65,6 +74,12 @@ def install(root, textbook, candidate, *, release_id, source_map):
     pending.write_text(json.dumps(record, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     os.replace(pending, target)
     return record
+
+
+def _build_citation(target, textbook):
+    from knowledge.citation_index import build_index
+
+    build_index(target, textbook)
 
 
 def _digest_of(extras):
@@ -87,6 +102,10 @@ def load(root, textbook, candidate):
         raise AssetsMismatch('教材资产与当前教材或 LightRAG 索引路径不一致，请重新安装教材资产')
     if record.get('control') != _control(candidate):
         raise AssetsMismatch('教材资产与当前 LightRAG 索引不一致，请重新安装教材资产')
+    citation = record.get('citation') or {}
+    citation_path = Path(citation.get('path') or '')
+    if not citation.get('path') or not citation_path.is_file() or citation_path.stat().st_size != citation.get('size'):
+        raise AssetsMismatch('教材资产缺少引用坐标索引，请重新安装教材资产')
     for label, base, sizes in (
             ('教材', textbook, record['textbook']['sizes']),
             ('冻结输入', candidate / 'input', record['frozen']['sizes'])):
