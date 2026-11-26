@@ -71,6 +71,15 @@ def probe(record,ports,origin):
   threading.Thread(target=watch,args=(service,path),daemon=True).start()
  return stop_event
 
+def launch(pending, spawn, ready):
+ # worker 预热接近或超过宿主的 60 秒等待预算，必须先独立就绪再启动宿主与 Web。
+ for service in pending:
+  if service=="worker":spawn(service);ready(service)
+ for service in pending:
+  if service!="worker":spawn(service)
+ for service in pending:
+  if service!="worker":ready(service)
+
 def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("action",choices=["start","stop","restart","status"]);parser.add_argument("--root",type=Path,required=True)
  parser.add_argument("--label",default=None);parser.add_argument("--cache-state",choices=["process-cold","os-warm","unknown"],default="process-cold")
@@ -93,9 +102,11 @@ def main():
   keeper=probe(probe_record,ports,origin)
   status="ok";target=None
   try:
-   for service in ("host","worker","web"):
+   pending=[service for service in ("worker","host","web")
+            if not (service in records and matching(records[service]) is not None)]
+   def spawn(service):
+    nonlocal target
     target=service
-    if service in records and matching(records[service]) is not None:continue
     with socket.socket() as sock:sock.bind(("127.0.0.1",ports[service]))
     timing={};began=time.perf_counter();planned=False
     try:
@@ -114,8 +125,10 @@ def main():
            target=service,pid=process.pid)
    import httpx
    with httpx.Client(trust_env=False,timeout=3) as client:
-    for service,path in PROBES:
-     began=time.perf_counter();attempts=0
+    def ready(service):
+     nonlocal target
+     target=service
+     path=dict(PROBES)[service];began=time.perf_counter();attempts=0
      for attempt in range(180):
       attempts=attempt+1
       if matching(records[service]) is None:raise RuntimeError("service_stopped:"+service+";inspect_private_logs")
@@ -127,6 +140,7 @@ def main():
      else:raise RuntimeError("readiness_timeout:"+service)
      record("control.ready",parent="control.service",seconds=time.perf_counter()-began,
             elapsed_since_origin=time.perf_counter()-origin,target=service,attempts=attempts)
+    launch(pending,spawn,ready)
   except BaseException as exc:
    status="cancelled" if type(exc).__name__=="CancelledError" else "failed"
    record("control.failed",parent="control",seconds=time.perf_counter()-origin,

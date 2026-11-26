@@ -7,7 +7,7 @@ import threading
 import time
 import unittest
 
-from deploy.manage_student_local import PROBES, probe, recorder
+from deploy.manage_student_local import PROBES, launch, probe, recorder
 
 
 class _Ok(BaseHTTPRequestHandler):
@@ -34,6 +34,24 @@ class ControlTraceTests(unittest.TestCase):
             self.assertEqual(second['fields'], {'target': 'host', 'attempts': 13})
             self.assertEqual(second['status'], 'ok')
             self.assertIn('at', second)
+
+    def test_worker_is_ready_before_other_services_start(self):
+        events = []
+        launch(['worker', 'host', 'web'],
+               lambda service: events.append(('spawn', service)),
+               lambda service: events.append(('ready', service)))
+        self.assertLess(events.index(('ready', 'worker')), events.index(('spawn', 'host')))
+        self.assertLess(events.index(('ready', 'worker')), events.index(('spawn', 'web')))
+        self.assertEqual([name for kind, name in events if kind == 'spawn'], ['worker', 'host', 'web'])
+        self.assertEqual([name for kind, name in events if kind == 'ready'], ['worker', 'host', 'web'])
+
+    def test_running_worker_does_not_delay_host_or_web(self):
+        events = []
+        launch(['host', 'web'],
+               lambda service: events.append(('spawn', service)),
+               lambda service: events.append(('ready', service)))
+        self.assertEqual(events, [('spawn', 'host'), ('spawn', 'web'),
+                                  ('ready', 'host'), ('ready', 'web')])
 
     def test_probe_records_first_availability_for_each_port(self):
         server = HTTPServer(('127.0.0.1', 0), _Ok)
