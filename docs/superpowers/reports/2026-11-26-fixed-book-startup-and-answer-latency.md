@@ -71,7 +71,8 @@
   `CUDA_CACHE_PATH` 放在发行目录外并预热。
 - `nvidia-smi` 显示重排会话约占 1.7 GiB 显存（2105 → 3812/4067 MiB）。
 - `/health` 显示 `configured.reranker=cuda`，会话 providers 含 `CUDAExecutionProvider`；
-  CUDA 不可用时仍由现有 `verify_device` 明确报错，不会静默回退 CPU。
+  正式教材 LightRAG 原文重排路径由现有 `verify_device` 明确报错，不会静默按 CPU 使用。旧本地检索路径
+  （`knowledge/local_rag/rerank.py`）另有捕获异常后关闭重排的旧行为，不在本次范围内。
 
 ## 4. 首问
 
@@ -105,6 +106,9 @@
   `install_learning_binding_adapter` 会拒绝。本轮验收因此只在已验证发行上替换控制脚本与运行配置。
   阶段 3 移除上游匹配检查后，这项阻塞才会消失；在那之前做整包计时需先核对或更新快照。
 - `inspect()` 不再核对文件内容，同名篡改文件会通过启动检查；显式 `verify` 仍能发现。
+- 发行清单沿用旧口径：`node_modules`、`.next`、`__pycache__`、`.cache` 不参与清单核对。发行现在是唯一入口门禁，
+  这些目录里的注入文件不会被发现；`.cache` 是按本次 CUDA JIT 缓存需要新增的排除项。
+- 已登记且仍存活的旧服务只按进程身份判断；若进程卡死但端口仍开，`start` 不会重新探测它。
 - 首问采样器不保证新会话：第一问可能回放上一回合，报告时须区分回放与真实回答。
 
 ## 7. 回退

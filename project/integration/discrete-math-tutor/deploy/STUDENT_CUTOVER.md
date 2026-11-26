@@ -43,3 +43,11 @@ verify 上一版完整运行包；select --release <old> --expected-current <new
 用户指定先在本机 8000 测试，测试完成后再进入线上。本轮使用 HEART_WEB_PORT=8000、HEART_HOST_PORT=18000、HEART_WORKER_PORT=18001，均绑定 127.0.0.1，公网/ECS 不切换。HEART_RUNTIME_PYTHON 与 HEART_RUNTIME_EXTRA_PATHS 可明确复用本机已验证依赖环境；线上仍需目标 OS 的依赖与构建。后续线上切换另行决定。
 
 本机实际控制程序位于部署根的 control 目录，版本与应用发行快照分别登记。Python 服务工作目录固定到外部 DEEPTUTOR_HOME，PYTHONPATH 指向所选 H/厂家源码；教材坐标缓存、mem0 历史等相对运行文件因此保留在数据目录，不写入发行源码。此处复用的是已验证的 Windows 依赖与生产构建，不宣称已验证 Linux 线上部署。
+
+## 本机控制脚本与重排设备（2026-11-26）
+
+control 目录中的 `manage_student_local.py`、`run_student_release.py`、`student_release.py`、`startup_report.py`
+必须一起更新：`run_student_release.py` 导入 `student_release.py` 的 `active_release` 与 `inspect`，只覆盖前两个会在导入阶段让所有服务失败。启动顺序改为 worker 先就绪、再启动 host 与 Web；一次启动只解析一次 `active-release.json`，三个服务共用同一发行。
+
+本机重排设备由 `setup_student_local.py` 在安装时探测目标解释器：具备 `CUDAExecutionProvider` 时写 `RAG_RERANK_DEVICE=cuda`，并把 `CUDA_CACHE_PATH` 固定到 `<deployment>/private/cuda-cache`，不允许 ONNX JIT 缓存写进发行目录。该探测只证明 onnxruntime 构建包含 CUDA；安装后必须打开 `http://127.0.0.1:18000/health`，确认 `rag_runtime.sessions.reranker.providers` 含 `CUDAExecutionProvider`，否则按设备校验错误处理，不要静默按 CPU 使用。
+
