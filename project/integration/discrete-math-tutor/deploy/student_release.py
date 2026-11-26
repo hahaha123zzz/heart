@@ -40,16 +40,32 @@ def bundle(repo,output,release_id):
  (output/"release.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
  verify(output);return manifest
 
-def verify(root):
- root=root.resolve(strict=True);manifest=json.loads((root/"release.json").read_text("utf-8"));label(manifest["release_id"])
- if manifest.get("format")!=1 or manifest.get("mutable_stores_included") is not False:raise ValueError("invalid_manifest")
+def _inventory(root):
  actual=set()
  for directory,dirs,names in os.walk(root,followlinks=False):
   dirs[:]=[d for d in dirs if d not in {"node_modules",".next","__pycache__"}]
   for name in names:
    file=Path(directory)/name
    if file!=root/"release.json":actual.add(file.relative_to(root).as_posix())
- if actual!=set(manifest["files"]):raise ValueError("release_file_inventory_changed")
+ return actual
+
+def _manifest(root):
+ manifest=json.loads((root/"release.json").read_text("utf-8"));label(manifest["release_id"])
+ if manifest.get("format")!=1 or manifest.get("mutable_stores_included") is not False:raise ValueError("invalid_manifest")
+ return manifest
+
+def inspect(root):
+ """只核对清单、路径与文件是否存在；逐文件哈希留给显式 verify。"""
+ root=root.resolve(strict=True);manifest=_manifest(root)
+ if _inventory(root)!=set(manifest["files"]):raise ValueError("release_file_inventory_changed")
+ for rel in manifest["files"]:
+  p=root/rel
+  if not p.resolve().is_relative_to(root) or p.resolve()!=p.absolute() or not p.is_file():raise ValueError("release_file_missing:"+rel)
+ return manifest
+
+def verify(root):
+ root=root.resolve(strict=True);manifest=_manifest(root)
+ if _inventory(root)!=set(manifest["files"]):raise ValueError("release_file_inventory_changed")
  for rel,expected in manifest["files"].items():
   p=root/rel
   if not p.resolve().is_relative_to(root) or p.resolve()!=p.absolute() or not p.is_file() or digest(p)!=expected:raise ValueError("release_hash_mismatch:"+rel)
@@ -59,7 +75,7 @@ def select(root,release,expected_current):
  """只修改代码选择文件；由受控服务启动器重启，不恢复数据备份。"""
  root=root.resolve(strict=True);release=release.resolve(strict=True)
  if not release.is_relative_to(root/"releases"):raise ValueError("release_outside_deployment")
- manifest=verify(release);pointer=root/"active-release.json"
+ manifest=inspect(release);pointer=root/"active-release.json"
  from filelock import FileLock
  with FileLock(str(root/".release-select.lock"),timeout=0):
   current=json.loads(pointer.read_text("utf-8")) if pointer.exists() else None

@@ -2,7 +2,7 @@
 import json,sqlite3
 from pathlib import Path
 import pytest
-from deploy.student_release import bundle,verify,select,HROOT,VROOT
+from deploy.student_release import bundle,inspect,verify,select,HROOT,VROOT
 
 def test_release_roundtrip_keeps_new_records_and_rejects_tampering(tmp_path):
  source=tmp_path/"source"
@@ -34,11 +34,29 @@ def test_release_rejects_unlisted_code_and_wrong_destination(tmp_path):
  with pytest.raises(ValueError,match="output_inside_source"):bundle(source,source/HROOT/"output","bad")
 
 
+def test_switch_uses_inventory_without_rehashing_release_files(tmp_path):
+ source=tmp_path/"source"
+ for root in (HROOT,VROOT):
+  (source/root).mkdir(parents=True);(source/root/"main.py").write_text("version=1")
+ deploy=tmp_path/"deployment";old=deploy/"releases/old";new=deploy/"releases/new"
+ bundle(source,old,"old");bundle(source,new,"new");select(deploy,old,None)
+ (new/HROOT/"main.py").write_text("tampered")
+ assert inspect(new)["release_id"]=="new"
+ with pytest.raises(ValueError,match="release_hash_mismatch"):verify(new)
+ # 切换只核对清单与路径；完整哈希校验留给显式 verify 命令。
+ select(deploy,new,"old")
+ (new/HROOT/"injected.py").write_text("unlisted")
+ with pytest.raises(ValueError,match="release_file_inventory_changed"):inspect(new)
+
+
 def test_runtime_plan_keeps_secrets_out_of_frontend_and_rejects_missing_build(tmp_path,monkeypatch):
  import importlib.util,sys,os
  deploy_path=Path(__file__).resolve().parents[1]/"deploy"
  monkeypatch.syspath_prepend(str(deploy_path))
  from run_student_release import plan
+ import run_student_release
+ monkeypatch.setattr(run_student_release,"verify",
+  lambda *a,**k:(_ for _ in ()).throw(AssertionError("runtime plan rehashed release")),raising=False)
  source=tmp_path/"source"
  for root in (HROOT,VROOT):
   (source/root).mkdir(parents=True);(source/root/"main.py").write_text("safe")

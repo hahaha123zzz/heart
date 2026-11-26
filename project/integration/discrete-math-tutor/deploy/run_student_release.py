@@ -4,15 +4,15 @@ import argparse,json,os,sys,time
 from pathlib import Path
 from dotenv import dotenv_values
 try:
- from .student_release import verify,HROOT,VROOT
+ from .student_release import inspect,HROOT,VROOT
 except ImportError:
- from student_release import verify,HROOT,VROOT
+ from student_release import inspect,HROOT,VROOT
 
 def plan(root:Path,service:str,values:dict,timing:dict|None=None):
  root=root.resolve(strict=True);active=json.loads((root/"active-release.json").read_text("utf-8"));release=Path(active["release_path"]).resolve(strict=True)
  if not release.is_relative_to(root/"releases"):raise ValueError("invalid_active_release")
  began=time.perf_counter()
- manifest=verify(release)
+ manifest=inspect(release)
  if timing is not None:timing.update(release_seconds=time.perf_counter()-began,
   file_count=len(manifest["files"]),release_id=manifest["release_id"],service=service)
  if manifest["release_id"]!=active["release_id"]:raise ValueError("active_identity_mismatch")
