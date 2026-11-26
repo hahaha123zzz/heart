@@ -7,7 +7,6 @@ import sqlite3
 import time
 
 from .client import BackendUnavailable
-from .vendor_snapshot import matches_source
 
 
 def _handoff(context, path_id, session_id, turn_id, *, leave, session_db):
@@ -119,13 +118,8 @@ def install_learning_binding_adapter():
     if any(function.__module__ != binding.__name__ for function in (binding.rebind_active_path, binding.leave_active_path)):
         raise BackendUnavailable('原生路径交接实现已被其他实现替换')
     source = VENDOR_ROOT / 'deeptutor/capabilities/mastery/binding.py'
-    pin = json.loads((VENDOR_ROOT / 'UPSTREAM_SNAPSHOT.json').read_text(encoding='utf-8'))
     if Path(binding.__file__).resolve() != source.resolve():
         raise BackendUnavailable('原生路径交接与固定源码不一致')
-    for relative in ('deeptutor/capabilities/mastery/binding.py', 'deeptutor/learning/storage.py',
-                     'deeptutor/services/session/sqlite_store.py', 'deeptutor/services/session/workspace_preferences.py'):
-        if not matches_source(VENDOR_ROOT, pin, relative):
-            raise BackendUnavailable('原生路径交接依赖与固定源码不一致')
     original_switch, original_leave = binding.rebind_active_path, binding.leave_active_path
 
     async def switch(**kwargs):

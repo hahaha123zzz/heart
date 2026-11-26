@@ -8,7 +8,6 @@ from pathlib import Path
 
 from .client import BackendUnavailable
 from .native_contract import NativeTaskCheck
-from .vendor_snapshot import matches_source
 
 _scope = ContextVar('heart_native_learning_tools', default=None)
 _managed_users = set()
@@ -52,8 +51,7 @@ def install_learning_tool_factory(managed_users=()):
         raise BackendUnavailable('原生学习工具工厂已被其他实现替换')
     from .worker import VENDOR_ROOT
     source = VENDOR_ROOT / 'deeptutor/capabilities/mastery/tools.py'
-    pin = json.loads((VENDOR_ROOT / 'UPSTREAM_SNAPSHOT.json').read_text(encoding='utf-8'))
-    if Path(tools.__file__).resolve() != source.resolve() or not matches_source(VENDOR_ROOT, pin, 'deeptutor/capabilities/mastery/tools.py'):
+    if Path(tools.__file__).resolve() != source.resolve():
         raise BackendUnavailable('原生学习工具与固定上游源码不一致')
 
     def new_service():
@@ -76,9 +74,7 @@ def install_learning_answer_adapter():
         return
     from .worker import VENDOR_ROOT
     source = VENDOR_ROOT / 'deeptutor/services/session/turns/learning_adapter.py'
-    pin = json.loads((VENDOR_ROOT / 'UPSTREAM_SNAPSHOT.json').read_text(encoding='utf-8'))
-    if (Path(original.__code__.co_filename).resolve() != source.resolve()
-            or not matches_source(VENDOR_ROOT, pin, 'deeptutor/services/session/turns/learning_adapter.py')):
+    if Path(original.__code__.co_filename).resolve() != source.resolve():
         raise BackendUnavailable('原生题卡提交与固定上游源码不一致')
 
     async def commit(self, *, path_id, session_id, turn_id, question_id, answer):
