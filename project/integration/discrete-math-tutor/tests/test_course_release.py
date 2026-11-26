@@ -44,6 +44,9 @@ class CourseReleaseTests(unittest.TestCase):
                 (root / "retrieval_identity.json").write_text(
                     json.dumps({"legacy_index_sha256": pinned}), encoding="utf-8")
                 self.assertEqual(course_release.index_identity(), (pinned, None))
+                (root / "retrieval_identity.json").write_text(
+                    "\ufeff" + json.dumps({"legacy_index_sha256": pinned}), encoding="utf-8")
+                self.assertEqual(course_release.index_identity(), (pinned, None))
                 (root / "rag_index.sqlite3").write_bytes(b"index")
                 actual, gap = course_release.index_identity()
                 self.assertIsNone(gap)

@@ -54,7 +54,7 @@ def _legacy_index_pin() -> str | None:
     """旧 SQLite 索引移出后，用已验证的版本记录保持发行身份不变。"""
     path = PSYCHOLOGY_DIR / "retrieval_identity.json"
     try:
-        value = json.loads(path.read_text(encoding="utf-8")).get("legacy_index_sha256")
+        value = json.loads(path.read_text(encoding="utf-8-sig")).get("legacy_index_sha256")
     except (OSError, ValueError):
         return None
     return value if isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) else None

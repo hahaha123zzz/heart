@@ -32,7 +32,7 @@ def main():
     print(json.dumps({'assets': str(root), 'release_id': record['release_id'],
                       'textbook_files': len(record['textbook']['files']),
                       'frozen_files': len(record['frozen']['files']),
-                      'chapters': len(source_map)}, ensure_ascii=False))
+                      'chapters': len(record['source_map'])}, ensure_ascii=False))
 
 
 if __name__ == '__main__':
