@@ -148,7 +148,7 @@ class LightRagBackend:
         self.allow_candidate=bool(allow_candidate)
         self.source_root=Path(source_root) if source_root is not None else None
 
-    def validate(self, course_id, *, snapshot=None):
+    def validate(self, course_id, *, snapshot=None, assets=None):
         from knowledge.startup_trace import current
         trace = current()
         with trace.timed('lightrag.manifest', parent='fixed_book') as detail:
@@ -174,9 +174,13 @@ class LightRagBackend:
                 index['signature']=signature
                 index['source_files']=len(manifest["files"])
             with trace.timed('lightrag.manifest.frozen_input', parent='lightrag.manifest') as frozen:
-                verify(self.candidate/"input",manifest["files"])
-                frozen['root']='candidate_input'
-                frozen['files']=len(manifest["files"])
+                if assets is not None:
+                    frozen['root']='install_snapshot'
+                    frozen['files']=len(assets['frozen']['files'])
+                else:
+                    verify(self.candidate/"input",manifest["files"])
+                    frozen['root']='candidate_input'
+                    frozen['files']=len(manifest["files"])
             if self.source_root is None:
                 with trace.timed('lightrag.manifest.indexed_source', parent='lightrag.manifest') as host:
                     verify(Path(manifest["source_root"]),manifest["files"])
@@ -184,11 +188,19 @@ class LightRagBackend:
                     host['files']=len(manifest["files"])
             else:
                 with trace.timed('lightrag.manifest.host_textbook', parent='lightrag.manifest') as host:
-                    extras=verify_active(self.source_root,manifest["files"])
-                    if snapshot is not None: snapshot["additional_host_files"]={"count":len(extras),"sha256":_fingerprint(extras),"evidence_eligible":False}
-                    host['root']='host_textbook'
-                    host['files']=len(manifest["files"])+len(extras)
-                    host['extra_files']=len(extras)
+                    if assets is not None:
+                        extras=assets['host_extras']
+                        if snapshot is not None: snapshot["additional_host_files"]={**extras,"evidence_eligible":False}
+                        host['root']='host_textbook'
+                        host['source']='install_snapshot'
+                        host['files']=len(manifest["files"])+extras['count']
+                        host['extra_files']=extras['count']
+                    else:
+                        extras=verify_active(self.source_root,manifest["files"])
+                        if snapshot is not None: snapshot["additional_host_files"]={"count":len(extras),"sha256":_fingerprint(extras),"evidence_eligible":False}
+                        host['root']='host_textbook'
+                        host['files']=len(manifest["files"])+len(extras)
+                        host['extra_files']=len(extras)
             if snapshot is not None:
                 with trace.timed('lightrag.manifest.control_digest', parent='lightrag.manifest') as control:
                     snapshot['control_hashes']={name:digest(self.candidate/name) for name in

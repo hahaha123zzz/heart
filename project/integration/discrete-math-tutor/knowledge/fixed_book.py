@@ -210,10 +210,19 @@ class FixedBookRuntime:
             self.backend = LightRagBackend(os.environ['LIGHTRAG_CANDIDATE_PATH'],
                 authorized_course_ids={COURSE_ID}, allow_candidate=os.getenv('LIGHTRAG_ALLOW_CANDIDATE') == '1',
                 source_root=PSYCHOLOGY_DIR)
+        from knowledge.fixed_book_assets import AssetsMismatch, assets_root, load as load_assets
+        with trace.timed('fixed_book.assets', parent='fixed_book') as detail:
+            self.assets = await asyncio.to_thread(load_assets, assets_root(), PSYCHOLOGY_DIR,
+                                                  self.backend.candidate)
+            detail['source'] = 'install' if self.assets else 'scan'
         snapshot = {}
-        self.backend.manifest = await asyncio.to_thread(self.backend.validate, COURSE_ID, snapshot=snapshot)
+        self.backend.manifest = await asyncio.to_thread(self.backend.validate, COURSE_ID, snapshot=snapshot,
+                                                        assets=self.assets)
         self.backend.startup_snapshot = snapshot
-        self.backend.source_map = await asyncio.to_thread(self.backend.load_source_map)
+        if self.assets:
+            self.backend.source_map = self.assets['source_map']
+        else:
+            self.backend.source_map = await asyncio.to_thread(self.backend.load_source_map)
         from knowledge.lightrag.course_input import visual_inventory
         with trace.timed('fixed_book.visual_map', parent='fixed_book') as detail:
             self.backend.visual_map = (await asyncio.to_thread(visual_inventory,
@@ -223,6 +232,8 @@ class FixedBookRuntime:
             self.release = await asyncio.to_thread(validate)
             detail['release_id'] = self.release.get('release_id')
             detail['ready'] = self.release.get('ready')
+        if self.assets and self.assets.get('release_id') != self.release.get('release_id'):
+            raise AssetsMismatch('教材资产绑定的发行与当前教材版本不一致，请重新安装教材资产')
         from knowledge.course_navigation import outline
         with trace.timed('fixed_book.outline', parent='fixed_book') as detail:
             self.outline = await asyncio.to_thread(outline)
@@ -231,12 +242,21 @@ class FixedBookRuntime:
         with trace.timed('fixed_book.visuals', parent='fixed_book') as detail:
             self.visuals = {v.id: v for v in (await asyncio.to_thread(load_visuals))[0]}
             detail['visuals'] = len(self.visuals)
-        with trace.timed('fixed_book.hashes', parent='fixed_book',
-                         purpose='formal_textbook_inventory') as detail:
-            files = await asyncio.to_thread(inventory, PSYCHOLOGY_DIR)
-            self.hashes = {str((PSYCHOLOGY_DIR / name).resolve()): sha for name, sha in files.items()}
-            detail['root'] = 'host_textbook'
-            detail['files'] = len(files)
+        if self.assets:
+            with trace.timed('fixed_book.hashes', parent='fixed_book',
+                             purpose='formal_textbook_inventory') as detail:
+                self.hashes = {str((PSYCHOLOGY_DIR / name).resolve()): sha
+                               for name, sha in self.assets['textbook']['files'].items()}
+                detail['root'] = 'host_textbook'
+                detail['source'] = 'install_snapshot'
+                detail['files'] = len(self.hashes)
+        else:
+            with trace.timed('fixed_book.hashes', parent='fixed_book',
+                             purpose='formal_textbook_inventory') as detail:
+                files = await asyncio.to_thread(inventory, PSYCHOLOGY_DIR)
+                self.hashes = {str((PSYCHOLOGY_DIR / name).resolve()): sha for name, sha in files.items()}
+                detail['root'] = 'host_textbook'
+                detail['files'] = len(files)
         # 坐标索引是衍生数据，独立保存，不修改教材或已封存图谱。
         self.citation_path = await prepare_citation(trace, self.release['release_id'], PSYCHOLOGY_DIR)
         import json
