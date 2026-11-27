@@ -49,7 +49,7 @@ def plan(root:Path,service:str,values:dict,timing:dict|None=None,active=None):
  if service in {"host","worker"}:
   if not python.is_file():raise ValueError("target_python_environment_missing")
   if service=="host":
-   args=["uvicorn","main:app","--host","127.0.0.1","--port",host_port]
+   args=["uvicorn","main:asgi" if single else "main:app","--host","127.0.0.1","--port",host_port]
    entry="runpy.run_module('uvicorn',run_name='__main__')"
   else:
    args=[str(host/"integrations/deeptutor/worker.py"),"--home",env["DEEPTUTOR_HOME"],"--port",worker_port]

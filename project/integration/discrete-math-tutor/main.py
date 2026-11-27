@@ -464,6 +464,7 @@ def cancel_task(task_id: str, request: TaskCancelRequest):
     except TaskConflict as exc:
         return {"reply": str(exc), "answer_status": exc.code, "step_advanced": False}
 # 单进程后端：宿主与原生运行时共用一个端口；启用时由组合应用分派路由。
+# 保留 `app` 为宿主 FastAPI，端点里的 app.state 依赖不能换成组合对象。
 from integrations.deeptutor.single_backend import install as _install_single_backend
 
-app = _install_single_backend(app)
+asgi = _install_single_backend(app)
