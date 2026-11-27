@@ -56,7 +56,24 @@ class AnswerMediaTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'原图'):
                 selected_media('解释图1-4',sources,asset_id='凭空生成的资源')
 
-    def test_plain_comparison_does_not_attach_section_images(self):
+    def test_explicit_figure_number_attaches_with_a_chapter_source(self):
+        from knowledge.answer_media import selected_media
+        from types import SimpleNamespace
+        figure = SimpleNamespace(id='image-09-0019', label='图9-19', chapter_id=9, section_id=4,
+            is_valid=lambda: True,
+            public=lambda: {'id': 'image-09-0019', 'document_id': 'doc', 'version': 'v',
+                            'sha256': 'hash', 'image_url': '/api/figures/image-09-0019/image'})
+        sources = [{'chapter_id': 9, 'section_id': 7, 'document_id': 'doc', 'version': 'v',
+                    'text': '原文', 'location': {}}]
+        with patch('knowledge.answer_media.get_figure', return_value=None), \
+                patch('knowledge.answer_media.retrieve_figures', return_value=[figure]), \
+                patch('knowledge.visual_locations.resolve_figure',
+                      return_value={'status': 'section', 'basis': 'test', 'selection_ref': None}):
+            media = selected_media('图9-19是什么', sources)
+        self.assertEqual(media[0]['id'], 'image-09-0019')
+
+
+
         self.assertEqual(retrieve_figures('用对照表比较被试内与被试间设计', []), [])
 
     def test_qr_is_not_an_experimental_figure(self):

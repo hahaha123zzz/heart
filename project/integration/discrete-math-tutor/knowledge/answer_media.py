@@ -28,6 +28,8 @@ def selected_media(query, sources, *, asset_id=None):
     for figure in figures[:media_limit]:
         source = next((s for s in sources if (s.get('chapter_id'), s.get('section_id')) ==
                        (figure.chapter_id, figure.section_id)), None)
+        if source is None and re.search(r'(?:图|表)\s*\d+[.．-]\d+', query):
+            source = next((s for s in sources if s.get('chapter_id') == figure.chapter_id), None)
         if source is None:
             continue
         item = figure.public()
