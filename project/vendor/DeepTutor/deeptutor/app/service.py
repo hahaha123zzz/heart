@@ -107,8 +107,8 @@ class TurnApplicationService:
                 "question_notebook_references": list(
                     payload.get("question_notebook_references") or []
                 ),
-                **({"knowledge_bases": list(payload["knowledge_bases"] or [])}
-                   if "knowledge_bases" in payload else {}),
+                **({"knowledge_bases": list(payload["knowledge_bases"])}
+                   if payload.get("knowledge_bases") else {}),
                 "partner_group_references": list(payload.get("partner_group_references") or []),
             },
         )

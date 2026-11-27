@@ -337,6 +337,10 @@ async def test_course_knowledge_selection_survives_two_application_turns(submiss
     courses.attach_resource(course.id, kind="knowledge_base", ref_id="course-book")
     session = await store.ensure_session("course-inheritance")
     expected = ["course-book"] if selection is None else selection
+    # An empty list is an untouched composer (old browsers serialize unset that
+    # way), so it inherits the course instead of clearing it.
+    if not selection:
+        expected = ["course-book"]
     for index in range(2):
         payload = {"content": "解释自变量", "session_id": session["id"], "course_id": course.id}
         if index == 0 and selection is not None:
