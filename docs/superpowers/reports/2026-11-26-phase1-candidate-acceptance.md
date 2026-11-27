@@ -189,7 +189,42 @@
 ## 6. 当前运行
 
 - 8000 基线暂时停止，给候选的 CUDA 重排让出显存。
-- 候选 28000/28001/28002 正在运行发行 `phase1-candidate-20261126h`，
+- 候选 28000/28001/28002 正在运行发行 `phase1-candidate-20261126o`，
   指向 `candidate-phase1-noinput`（无 input）和 `phase1-textbook-noindex`（无旧索引）；
   资产目录含冻结输入副本和引用索引。
 - 候选停止：`manage_student_local.py stop --root .runtime/phase1-candidate-20261126`。
+
+## 7. 回答主动附教材原图（2026-11-27 补验）
+
+问题：模型从不在回答里展示教材原图，即使文字检索命中图注。
+
+原因与修复：
+
+| 现象 | 原因 | 修复 |
+| --- | --- | --- |
+| 检索结果只有正文，没有可展示的图片身份 | 原生 rag 结果未披露教材原图 ID | 检索结果附带该章已核对的原图 ID（`course_rag_provider.source_content`） |
+| 模型写出 `media:` 地址后前端不显示 | Markdown 渲染只接受普通 URL，`media:` 不在允许列表 | 渲染前把 `media:<id>` 转成 `/api/figures/<id>/image`（`markdown-display.ts` 与两个 renderer） |
+| 明确图号但检索零结果时回答“无权限” | 零结果被当成越权，返回 403 | 只有“有结果但全部越权”才 403；零结果按 `no_evidence` 返回 |
+| 只报图号（如“图2-1”）时检索命中不到 | 短查询检索为空，模型没有别的入口 | 零结果且问题点名图号时，直接给出该图的登记原图与教材说明 |
+
+浏览器实测（发行 `phase1-candidate-20261126o`，账号 `heart-review-02`）：
+
+| 问题 | 结果 |
+| --- | --- |
+| 图9-19 双耳分听实验装置图，直接给我看原图 | 显示 `image-09-0021`（628×537），回答带页码引用 |
+| 图2-1 是什么图，直接给我看原图 | 显示 `image-02-0003`（729×511），并按教材原文说明罗森塔尔实验 |
+| 什么是额外变量（`heart-review-01`） | 不附图，无 `media:` 残留 |
+
+回归测试：`test_course_rag_provider.py`（含新增两条）27 项通过；
+`test_native_grounding`、`test_answer_media`、`test_rag_media_hint`、
+`test_grounded_citations`、`test_heart_rag_citations`、`test_short_citations`
+合计 91 项通过，仅 `test_generator_does_not_reuse_previous_turn_citation_numbers`
+失败（`SimpleNamespace` 缺 `chat_with_tools`，在改动前同样失败）。
+
+仍待决策：
+
+| 项 | 状态 |
+| --- | --- |
+| 线上 8000 | 未部署，仍是旧版本；本次附图修复只在候选 |
+| 正式部署 | 待确认后把 `phase1-candidate-20261126o` 推到线上 |
+
