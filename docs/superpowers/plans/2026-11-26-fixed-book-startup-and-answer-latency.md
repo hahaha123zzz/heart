@@ -61,6 +61,30 @@
 - [ ] 第一期启动整改完成后，将现有宿主与 worker 的路由、对话服务、教材检索及后台任务接入同一个后端应用。将适合合并的本机 HTTP 桥接替换为服务内调用。
 - [ ] 验证登录、WebSocket 流式输出、会话恢复、账号隔离、教材与来源权限、后台任务和资源关闭。对比桥接往返、首个正式正文和回答完成耗时。
 
+### 2026-11-27 实测基线与执行顺序
+
+桥接成本（发行 u，同一回合四次检索的分段）：`worker.host_roundtrip - host.backend - worker.client_init`
+依次为 0.24s、0.56s、0.06s、0.01s；`worker.client_init` 约 0.037s。
+同回合首正文 2.5–4.8s，完成 12.8–24.6s，检索 0.22–2.06s。合并的目标是消掉这 0.01–0.56s 的桥接与一次进程启动，
+而不是再动检索本身。
+
+执行顺序（每步单独验收，保留回退）：
+
+1. 把 `integrations/deeptutor/worker.py` 的主装配置抽成 `build_app(home, port)`，默认入口行为不变。
+2. 新增组合 ASGI 应用：按两个应用的路由表分派，WebSocket 一律给 worker；
+   宿主自己的 `/api/auth`、`/api/practice`、`/api/figures`、`/api/graph`、`/api/course`、`/api/memory`、`/api/review` 与
+   `web_api` 路由优先，其余 `/api/*`、`/ws` 归 worker。两个 lifespan 顺序启动、逆序关闭。
+3. worker→宿主桥接改服务内调用：`integrations/deeptutor/client.py` 现在是同步 urllib，
+   需要换成异步通道或线程 + portal；未合并时保留 HTTP 回退。
+4. Web 代理只指向一个端口（`/api/*`、`/ws/*` 与图表同源）。
+5. 并行候选（28100/28101/28102）验证登录、WS 流式、会话恢复、账号隔离、教材与来源权限、
+   assessment/attachment 后台任务、进程退出回收，再切换 28002。
+
+已知阻碍：vendor 应用在真实启动环境里依赖 `HEART_RUNTIME_EXTRA_PATHS` 追加（不能前置，否则会覆盖宿主 pydantic），
+且 `from deeptutor.api.main import app` 在裸 Python 里会因 `rpds` 等二进制依赖失败；
+合并必须复用 worker 的 `prepare()` 路径，不能另拼 sys.path。
+
+
 
 ## 回退
 
