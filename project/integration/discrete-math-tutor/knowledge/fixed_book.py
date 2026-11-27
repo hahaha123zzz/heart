@@ -342,11 +342,12 @@ class FixedBookRuntime:
             device = configured_device('RERANK')
             with trace.timed('warmup.reranker', parent='fixed_book', device=device):
                 _backend, model = await asyncio.to_thread(_reranker_on_device, 'BAAI/bge-reranker-base', device)
-            # 首推理放到就绪之后的后台线程，首个问题不再多等约 7 秒。
-            task = asyncio.create_task(asyncio.to_thread(
-                _warm_rerank, _backend, model, self.assets))
-            _warm_tasks.add(task)
-            task.add_done_callback(_warm_tasks.discard)
+                # 首推理放在启动里跑完；GPU 异常时最多等 30 秒，剩下的交给后台。
+                warm = asyncio.create_task(asyncio.to_thread(
+                    _warm_rerank, _backend, model, self.assets))
+                _warm_tasks.add(warm)
+                warm.add_done_callback(_warm_tasks.discard)
+                await asyncio.wait({warm}, timeout=30)
             from llm.transport import borrow
             client = self.roles['query'].config.client
             with trace.timed('warmup.client_pool', parent='fixed_book',
