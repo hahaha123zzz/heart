@@ -17,14 +17,22 @@ def test_warm_rerank_runs_one_inference_and_swallows_failures():
             calls.append((query, len(texts)))
             return [0.5]
 
-    fixed_book._warm_rerank(Model())
-    assert calls and calls[0][1] == 1
+    fixed_book._warm_rerank(Model(), ['段落一' * 200, '段落二' * 200])
+    assert calls == [('教材检索预热', 2)]
+
+    fixed_book._warm_rerank(Model())  # 没有样本时不预热，也不报错
 
     class Broken:
         def rerank(self, *args, **kwargs):
             raise RuntimeError('cuda unavailable')
 
-    fixed_book._warm_rerank(Broken())
+    fixed_book._warm_rerank(Broken(), ['段落' * 200])
+
+
+def test_warm_texts_only_takes_long_blocks():
+    assets = {'source_map': {'a.pdf': {'blocks': [
+        {'text': '短句'}, {'text': '长段落' * 200}]}}}
+    assert list(fixed_book._warm_texts(assets)) == ['长段落' * 200]
 
 
 class FixedBookValidationTests(unittest.TestCase):

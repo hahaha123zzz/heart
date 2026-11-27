@@ -26,14 +26,24 @@ def active():
 _warm_tasks = set()
 
 
-def _warm_rerank(model) -> None:
+def _warm_texts(assets):
+    """取教材真实段落做预热样本；短段落不能覆盖千字原文的算子形状。"""
+    for doc in ((assets or {}).get('source_map') or {}).values():
+        for block in doc.get('blocks') or []:
+            text = (block.get('text') or '').strip()
+            if len(text) >= 600:
+                yield text
+
+
+def _warm_rerank(model, texts=()) -> None:
     """首个真实检索不必承担 CUDA 首推理的句柄与算子编译成本。"""
     if not hasattr(model, 'rerank'):
         return
+    texts = [text for text in texts if text][:4]
+    if not texts:
+        return
     try:
-        list(model.rerank('教材检索预热', [
-            '实验心理学教材原文预热：自变量是研究者有意操纵的因素，因变量是研究者要观察和测定的指标，'
-            '额外变量需要在实验中加以控制，否则无法判断因变量的变化是否由自变量造成。'], batch_size=1))
+        list(model.rerank('教材检索预热', texts, batch_size=4))
     except Exception:  # noqa: BLE001 - 预热失败不影响启动，真实请求仍报原错
         import logging
         logging.getLogger(__name__).warning('warm rerank failed', exc_info=True)
@@ -325,7 +335,8 @@ class FixedBookRuntime:
             with trace.timed('warmup.reranker', parent='fixed_book', device=device):
                 _backend, model = await asyncio.to_thread(_reranker_on_device, 'BAAI/bge-reranker-base', device)
             # 首推理放到就绪之后的后台线程，首个问题不再多等约 7 秒。
-            task = asyncio.create_task(asyncio.to_thread(_warm_rerank, model))
+            task = asyncio.create_task(asyncio.to_thread(
+                _warm_rerank, model, list(_warm_texts(self.assets))))
             _warm_tasks.add(task)
             task.add_done_callback(_warm_tasks.discard)
             from llm.transport import borrow
