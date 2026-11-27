@@ -9,7 +9,25 @@ from unittest.mock import patch
 from knowledge import fixed_book
 
 
-class FixedBookTests(unittest.TestCase):
+def test_warm_rerank_runs_one_inference_and_swallows_failures():
+    calls = []
+
+    class Model:
+        def rerank(self, query, texts, batch_size=1):
+            calls.append((query, len(texts)))
+            return [0.5]
+
+    fixed_book._warm_rerank(Model())
+    assert calls and calls[0][1] == 1
+
+    class Broken:
+        def rerank(self, *args, **kwargs):
+            raise RuntimeError('cuda unavailable')
+
+    fixed_book._warm_rerank(Broken())
+
+
+class FixedBookValidationTests(unittest.TestCase):
     def test_tool_release_validation_uses_startup_snapshot_and_rejects_wrong_id(self):
         from knowledge.course_release import validate
         state=SimpleNamespace(release={'release_id':'frozen','ready':False,'gaps':['pending']})

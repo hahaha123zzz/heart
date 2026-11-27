@@ -23,6 +23,22 @@ def active():
     return runtime if enabled() and runtime is not None and runtime.ready else None
 
 
+_warm_tasks = set()
+
+
+def _warm_rerank(model) -> None:
+    """首个真实检索不必承担 CUDA 首推理的句柄与算子编译成本。"""
+    if not hasattr(model, 'rerank'):
+        return
+    try:
+        list(model.rerank('教材检索预热', [
+            '实验心理学教材原文预热：自变量是研究者有意操纵的因素，因变量是研究者要观察和测定的指标，'
+            '额外变量需要在实验中加以控制，否则无法判断因变量的变化是否由自变量造成。'], batch_size=1))
+    except Exception:  # noqa: BLE001 - 预热失败不影响启动，真实请求仍报原错
+        import logging
+        logging.getLogger(__name__).warning('warm rerank failed', exc_info=True)
+
+
 def digest(path):
     path = Path(path)
     state = active()
@@ -307,7 +323,11 @@ class FixedBookRuntime:
             from knowledge.inference_runtime import configured_device
             device = configured_device('RERANK')
             with trace.timed('warmup.reranker', parent='fixed_book', device=device):
-                await asyncio.to_thread(_reranker_on_device, 'BAAI/bge-reranker-base', device)
+                _backend, model = await asyncio.to_thread(_reranker_on_device, 'BAAI/bge-reranker-base', device)
+            # 首推理放到就绪之后的后台线程，首个问题不再多等约 7 秒。
+            task = asyncio.create_task(asyncio.to_thread(_warm_rerank, model))
+            _warm_tasks.add(task)
+            task.add_done_callback(_warm_tasks.discard)
             from llm.transport import borrow
             client = self.roles['query'].config.client
             with trace.timed('warmup.client_pool', parent='fixed_book',
