@@ -28,22 +28,30 @@ _warm_tasks = set()
 
 def _warm_texts(assets):
     """取教材真实段落做预热样本；短段落不能覆盖千字原文的算子形状。"""
-    for doc in ((assets or {}).get('source_map') or {}).values():
-        for block in doc.get('blocks') or []:
-            text = (block.get('text') or '').strip()
-            if len(text) >= 600:
-                yield text
+    source_map = (assets or {}).get('source_map')
+    if not isinstance(source_map, dict):
+        return
+    for doc in source_map.values():
+        if not isinstance(doc, dict):
+            continue
+        for block in doc.get('blocks') or ():
+            text = block.get('text') if isinstance(block, dict) else None
+            if isinstance(text, str) and len(text.strip()) >= 600:
+                yield text.strip()
 
 
-def _warm_rerank(model, texts=()) -> None:
+def _warm_rerank(backend, model, assets=None) -> None:
     """首个真实检索不必承担 CUDA 首推理的句柄与算子编译成本。"""
-    if not hasattr(model, 'rerank'):
-        return
-    texts = [text for text in texts if text][:4]
-    if not texts:
-        return
     try:
-        list(model.rerank('教材检索预热', texts, batch_size=4))
+        texts = [text for text in _warm_texts(assets)][:4]
+        if not texts:
+            return
+        if backend == 'flag':
+            if not hasattr(model, 'compute_score'):
+                return
+            model.compute_score([['教材检索预热', text] for text in texts])
+        elif hasattr(model, 'rerank'):
+            list(model.rerank('教材检索预热', texts, batch_size=4))
     except Exception:  # noqa: BLE001 - 预热失败不影响启动，真实请求仍报原错
         import logging
         logging.getLogger(__name__).warning('warm rerank failed', exc_info=True)
@@ -336,7 +344,7 @@ class FixedBookRuntime:
                 _backend, model = await asyncio.to_thread(_reranker_on_device, 'BAAI/bge-reranker-base', device)
             # 首推理放到就绪之后的后台线程，首个问题不再多等约 7 秒。
             task = asyncio.create_task(asyncio.to_thread(
-                _warm_rerank, model, list(_warm_texts(self.assets))))
+                _warm_rerank, _backend, model, self.assets))
             _warm_tasks.add(task)
             task.add_done_callback(_warm_tasks.discard)
             from llm.transport import borrow
@@ -365,6 +373,10 @@ class FixedBookRuntime:
 
     async def close(self):
         self.ready = False
+        # to_thread 里的推理无法中断，取消只让本任务不再等待它的结果。
+        for task in list(_warm_tasks):
+            task.cancel()
+        _warm_tasks.clear()
         if self.backend and getattr(self.backend, 'resident', None):
             from knowledge.lightrag.worker import run_in_worker_loop
             await run_in_worker_loop(lambda _: self.backend.resident.close())

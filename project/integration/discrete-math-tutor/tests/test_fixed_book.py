@@ -11,22 +11,46 @@ from knowledge import fixed_book
 
 def test_warm_rerank_runs_one_inference_and_swallows_failures():
     calls = []
+    assets = {'source_map': {'a.pdf': {'blocks': [
+        {'text': '短句'}, {'text': '长段落' * 200}, {'text': '长段落二' * 200}]}}}
 
     class Model:
         def rerank(self, query, texts, batch_size=1):
             calls.append((query, len(texts)))
             return [0.5]
 
-    fixed_book._warm_rerank(Model(), ['段落一' * 200, '段落二' * 200])
+    fixed_book._warm_rerank('fastembed', Model(), assets)
     assert calls == [('教材检索预热', 2)]
 
-    fixed_book._warm_rerank(Model())  # 没有样本时不预热，也不报错
+    fixed_book._warm_rerank('fastembed', Model())  # 没有样本时不预热，也不报错
 
     class Broken:
         def rerank(self, *args, **kwargs):
             raise RuntimeError('cuda unavailable')
 
-    fixed_book._warm_rerank(Broken(), ['段落' * 200])
+    fixed_book._warm_rerank('fastembed', Broken(), assets)
+
+
+def test_warm_rerank_supports_flag_backend():
+    calls = []
+
+    class FlagModel:
+        def compute_score(self, pairs):
+            calls.append(len(pairs))
+            return [0.1] * len(pairs)
+
+    assets = {'source_map': {'a.pdf': {'blocks': [{'text': '长段落' * 200}]}}}
+    fixed_book._warm_rerank('flag', FlagModel(), assets)
+    assert calls == [1]
+
+
+def test_warm_rerank_ignores_malformed_assets():
+    class Model:
+        def rerank(self, *args, **kwargs):
+            raise AssertionError('malformed assets must not reach inference')
+
+    fixed_book._warm_rerank('fastembed', Model(), {'source_map': {'a': {'blocks': [None, {'text': 5}]}}})
+    fixed_book._warm_rerank('fastembed', Model(), {'source_map': 'broken'})
 
 
 def test_warm_texts_only_takes_long_blocks():
