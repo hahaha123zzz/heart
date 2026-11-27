@@ -133,13 +133,18 @@ async def test_compaction_preserves_whole_tool_turns_and_reuses_the_old_prefix()
         llm_config=SimpleNamespace(
             model="gpt-test",
             max_tokens=512,
-            context_window=4096,
+            # Small enough that the compacted tool body still exceeds the budget.
+            context_window=600,
         ),
     )
     request = builder._summarize.call_args.kwargs["replay_request"]
+    # Replayed history is compacted (old tool bodies are narrowed), and the
+    # tool_call/tool result pair stays whole.
+    expected_old = replay_history(rows(old))
+    assert expected_old[1]["tool_calls"][0]["id"] == expected_old[2]["tool_call_id"]
     assert request["messages"] == [
         {"role": "system", "content": recent["system"]},
-        *old["messages"],
+        *expected_old,
     ]
     assert request["tools"] == recent["tools"]
     store.update_summary.assert_awaited_once_with("s", "Summary preserving the evidence", 2)

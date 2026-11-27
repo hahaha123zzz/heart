@@ -155,7 +155,7 @@ class PublicationTests(unittest.TestCase):
         calls=[]
         try:
             with patch.object(db,'SessionLocal',sessionmaker(bind=engine,expire_on_commit=False)):
-                memory=MemoryManager();service=TaskService(SimpleNamespace(memory=memory))
+                memory=MemoryManager();service=TaskService(SimpleNamespace(memory=memory,llm=Mock()))
                 request=ChatRequest(student_id='publication',session_id='tab',request_id='r1',message='解释条件')
                 def execute(request,context,resolved,intercept,guard,progress):
                     calls.append(1)
@@ -165,6 +165,7 @@ class PublicationTests(unittest.TestCase):
                 first=service.run(request,execute)
                 replay=service.run(request,execute)
                 history=memory.repo.get_conversation_with_figures('publication')[-1]
+                self.assertTrue(replay.pop('reader_action_replay', False))
                 self.assertEqual(first,replay)
                 self.assertEqual(calls,[1])
                 self.assertEqual(history['content'],reply)
