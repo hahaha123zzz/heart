@@ -31,6 +31,11 @@ def test_page_or_chapter_lookup_still_retrieves():
         assert tool_policy.skip_kb_seed(_context(message, kbs=[canonical_kb_name()])) is False
 
 
+def test_comparison_question_prefetches():
+    assert tool_policy.skip_kb_seed(
+        _context('比较信度和效度的区别', kbs=[canonical_kb_name()])) is False
+
+
 def test_courtesy_and_short_followups_skip_prefetch():
     for message in ('谢谢', '继续', '你好呀', '好的'):
         assert tool_policy.skip_kb_seed(_context(message, kbs=[canonical_kb_name()])) is True
