@@ -121,7 +121,10 @@ def _named_figure_content(query):
     if not figures:
         return ""
     lines = ["用户点名的教材原图（教材登记原图，正文用 media: 直接展示，不要说无法提供）："]
-    lines.extend(f"![{figure.label}](media:{figure.id}) {figure.caption}" for figure in figures)
+    for figure in figures:
+        note = " ".join((figure.context or "").split())[:160]
+        lines.append(f"![{figure.label}](media:{figure.id})"
+                     + (f"（教材说明：{note}）" if note else ""))
     return "\n".join(lines)
 
 

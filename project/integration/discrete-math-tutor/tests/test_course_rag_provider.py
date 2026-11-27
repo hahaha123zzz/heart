@@ -320,7 +320,8 @@ def test_rag_tool_answers_named_figure_without_retrieval_hits(monkeypatch):
     class Figure:
         id = "image-02-0001"
         label = "图2-1"
-        caption = "图2-1 一个七年级学生焦虑的…"
+        caption = "图2-1"
+        context = "一个七年级学生焦虑程度的条形图"
 
     monkeypatch.setattr(provider, "search_course", empty)
     monkeypatch.setattr("knowledge.figures.retrieve_figures", lambda *a, **k: [Figure()])
@@ -328,6 +329,7 @@ def test_rag_tool_answers_named_figure_without_retrieval_hits(monkeypatch):
 
     assert result.success is not False
     assert "![图2-1](media:image-02-0001)" in result.content
+    assert "教材说明：一个七年级学生焦虑程度的条形图" in result.content
 
 
 def test_rag_tool_allows_more_than_two_searches_per_turn(monkeypatch):
