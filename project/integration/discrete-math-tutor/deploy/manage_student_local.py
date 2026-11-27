@@ -48,7 +48,10 @@ def recorder(directory, sid, name):
   return row
  return record
 
-def probe(record,ports,origin):
+def service_names(values):
+ return ("host","web") if values.get("HEART_SINGLE_BACKEND")=="1" else ("worker","host","web")
+
+def probe(record,ports,origin,names=None):
  # 独立并行探测三个端口，与控制脚本顺序阻塞的就绪检查分开计时。
  import httpx
  stop_event=threading.Event()
@@ -68,13 +71,14 @@ def probe(record,ports,origin):
     stop_event.wait(.2)
   finally:client.close()
  for service,path in PROBES:
+  if names is not None and service not in names:continue
   threading.Thread(target=watch,args=(service,path),daemon=True).start()
  return stop_event
 
-def pending_services(records, release_id):
+def pending_services(records, release_id, names=("worker","host","web")):
  # 已登记且仍存活的服务只有在同一发行上才能直接复用。
  pending=[]
- for service in ("worker","host","web"):
+ for service in names:
   if service in records and matching(records[service]) is not None:
    if records[service].get("release_id") not in (None,release_id):
     raise RuntimeError("service_on_other_release:"+service+";run_stop_then_start")
@@ -108,6 +112,7 @@ def main():
   if args.action in {"stop","restart"}:stop(records);records={};file.write_text("{}",encoding="utf-8")
   if args.action=="stop":print('{"stopped":true}');return
   values={k:v for k,v in dotenv_values(private/"runtime.env").items() if isinstance(v,str)}
+  services=service_names(values)
   ports={"host":int(values.get("HEART_HOST_PORT","8000")),"worker":int(values.get("HEART_WORKER_PORT","18001")),"web":int(values.get("HEART_WEB_PORT","3782"))}
   logs=private/"logs";logs.mkdir(exist_ok=True)
   sid=os.getenv("STARTUP_ID") or time.strftime("%Y%m%dT%H%M%S")+"-"+str(os.getpid())
@@ -117,11 +122,11 @@ def main():
   record("control.begin",parent="control",seconds=0,label=args.label,cache_state=args.cache_state,order=args.order,
          host_port=ports["host"],worker_port=ports["worker"],web_port=ports["web"])
   os.environ["STARTUP_ID"]=sid;os.environ["STARTUP_TRACE_DIR"]=str(directory)
-  keeper=probe(probe_record,ports,origin)
+  keeper=probe(probe_record,ports,origin,services)
   status="ok";target=None
   try:
    active=active_release(root)
-   pending=pending_services(records,active[0]["release_id"])
+   pending=pending_services(records,active[0]["release_id"],services)
    def spawn(service):
     nonlocal target
     target=service

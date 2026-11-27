@@ -12,6 +12,15 @@ class BackendUnavailable(RuntimeError):
     pass
 
 
+_INPROCESS_APP = None
+
+
+def install_inprocess(app) -> None:
+    """单进程后端里宿主与原生运行时同循环，检索直接走 ASGI，不再绕本机端口。"""
+    global _INPROCESS_APP
+    _INPROCESS_APP = app
+
+
 class _NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, request, response, code, message, headers, new_url):
         return None
@@ -163,10 +172,14 @@ class DeepTutorBackend:
             raise BackendUnavailable('DeepTutor 宿主接入凭据未配置')
         # 宿主的查询预算是 120 秒；客户端多留余量，让宿主先给出 504。
         timeout = httpx.Timeout(max(self.timeout, 130))
+        app = _INPROCESS_APP
+        transport = httpx.ASGITransport(app=app) if app is not None else None
+        url = ('http://inprocess' if transport is not None else self.base_url) + path
         try:
-            async with httpx.AsyncClient(timeout=timeout, trust_env=False) as client:
+            async with httpx.AsyncClient(timeout=timeout, trust_env=False,
+                                         transport=transport) as client:
                 response = await client.post(
-                    self.base_url + path, json=payload,
+                    url, json=payload,
                     headers={'X-Heart-Bridge-Token': token, 'Accept': 'application/json'})
         except httpx.TimeoutException as exc:
             error = BackendUnavailable('宿主教材检索超时')

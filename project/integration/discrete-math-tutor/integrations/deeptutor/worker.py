@@ -13,7 +13,7 @@ VENDOR_ROOT = HOST_ROOT.parents[1] / "vendor" / "DeepTutor"
 DEFAULT_HOME = HOST_ROOT / ".runtime" / "deeptutor"
 
 
-def prepare(home: Path, port: int) -> None:
+def prepare(home: Path, port: int, *, chdir: bool = True) -> None:
     if not 1 <= port <= 65535:
         raise ValueError("端口必须在 1 到 65535 之间")
     if not (VENDOR_ROOT / "UPSTREAM_SNAPSHOT.json").is_file():
@@ -27,7 +27,8 @@ def prepare(home: Path, port: int) -> None:
     os.environ.setdefault("DEEPTUTOR_VERSION_CHECK_ENABLED", "false")
     os.environ.setdefault("DEEPTUTOR_SANDBOX_ALLOW_SUBPROCESS", "false")
     sys.path.insert(0, str(VENDOR_ROOT))
-    os.chdir(home)
+    if chdir:
+        os.chdir(home)
 
 
 def use_cpu_inference_when_needed() -> None:
@@ -42,24 +43,18 @@ def use_cpu_inference_when_needed() -> None:
     os.environ["RAG_RERANK_DEVICE"] = "cpu"
 
 
-def main() -> None:
+def build_app(home: Path, port: int, *, chdir: bool = True):
+    """装配原生运行时；独立进程与单进程后端共用同一装配路径。"""
     if str(HOST_ROOT) not in sys.path:
         sys.path.insert(0, str(HOST_ROOT))
     from knowledge.startup_trace import current
     trace = current()
     began = time.perf_counter()
     trace.record('worker.entry', parent='worker', seconds=0)
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", type=int, default=18001)
-    parser.add_argument("--home", type=Path, default=DEFAULT_HOME)
-    args = parser.parse_args()
-    args.home = args.home.resolve()
     from dotenv import load_dotenv
     load_dotenv(HOST_ROOT / ".env", override=False)
-    prepare(args.home, args.port)
+    prepare(Path(home).resolve(), port, chdir=chdir)
     use_cpu_inference_when_needed()
-    if sys.platform == "win32":
-        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
     import deeptutor
     trace.record('worker.vendor_import', parent='worker', seconds=time.perf_counter() - began)
     if not Path(deeptutor.__file__).resolve().is_relative_to(VENDOR_ROOT.resolve()):
@@ -81,11 +76,11 @@ def main() -> None:
     from integrations.deeptutor.heart_model_api import install_heart_model
     from integrations.deeptutor.heart_memory_api import install_heart_memory
     from integrations.deeptutor.knowledge_bridge import install_knowledge_bridge
-    sessions = install_session_bridge(app, args.home)
+    sessions = install_session_bridge(app, home)
     install_turn_bridge(app, sessions)
     install_generation_bridge(app)
     install_agentic_bridge(app)
-    install_heart_model(app, args.home)
+    install_heart_model(app, home)
     from integrations.deeptutor.legacy_reader_api import install_legacy_reader
     install_legacy_reader(app)
     from integrations.deeptutor.catalog_binding import install_catalog_binding
@@ -99,7 +94,7 @@ def main() -> None:
     install_heart_memory(app)
     from integrations.deeptutor.attachment_retention import install as install_attachment_retention
     install_attachment_retention(app)
-    install_knowledge_bridge(app, args.home.resolve())
+    install_knowledge_bridge(app, home)
     if os.getenv('DEEPTUTOR_NATIVE_ENABLED', '1') == '1':
         from integrations.deeptutor.native_bridge import install_native_bridge
         install_native_bridge(app, sessions)
@@ -111,7 +106,22 @@ def main() -> None:
         warm_worker()
     install_worker_warmup(app)
     app.add_middleware(HostBridgeBoundary)
-    trace.record('worker.ready_to_listen', parent='worker', seconds=time.perf_counter() - began)
+    trace.record('worker.app_ready', parent='worker', seconds=time.perf_counter() - began)
+    return app
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--port", type=int, default=18001)
+    parser.add_argument("--home", type=Path, default=DEFAULT_HOME)
+    args = parser.parse_args()
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    began = time.perf_counter()
+    app = build_app(args.home, args.port)
+    from knowledge.startup_trace import current
+    current().record('worker.ready_to_listen', parent='worker', seconds=time.perf_counter() - began)
+    import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=args.port,
                 proxy_headers=False, access_log=False)
 

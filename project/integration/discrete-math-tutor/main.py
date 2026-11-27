@@ -463,3 +463,7 @@ def cancel_task(task_id: str, request: TaskCancelRequest):
         return repository.cancel(request.student_id, request.session_id, task_id, request.task_revision)
     except TaskConflict as exc:
         return {"reply": str(exc), "answer_status": exc.code, "step_advanced": False}
+# 单进程后端：宿主与原生运行时共用一个端口；启用时由组合应用分派路由。
+from integrations.deeptutor.single_backend import install as _install_single_backend
+
+app = _install_single_backend(app)

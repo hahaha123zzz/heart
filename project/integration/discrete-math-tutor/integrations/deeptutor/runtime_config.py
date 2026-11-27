@@ -18,6 +18,10 @@ async def native_lifespan(app):
     process = None
     log = None
     app.state.native_runtime = {"enabled": native_enabled(), "managed": False, "ready": False}
+    if os.getenv("HEART_SINGLE_BACKEND", "0").strip() == "1":
+        # 单进程后端在组合应用里装配原生运行时，这里不再起子进程。
+        yield
+        return
     try:
         if native_enabled():
             from .client import DeepTutorBackend

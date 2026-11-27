@@ -41,8 +41,9 @@ def plan(root:Path,service:str,values:dict,timing:dict|None=None,active=None):
  if len(set(ports))!=3 or any(not 1<=port<=65535 for port in ports):raise ValueError("invalid_service_ports")
  host_port,worker_port,web_port=map(str,ports)
  host_url="http://127.0.0.1:"+host_port;worker_url="http://127.0.0.1:"+worker_port
+ single=values.get("HEART_SINGLE_BACKEND")=="1"
  host=release/HROOT;vendor=release/VROOT
- env.update(DEEPTUTOR_NATIVE_ENABLED="1",DEEPTUTOR_AUTOSTART="0",CLEANUP_EXPIRED_ON_STARTUP="0",DEEPTUTOR_BACKEND_URL=worker_url,DEEPTUTOR_HOST_URL=host_url)
+ env.update(DEEPTUTOR_NATIVE_ENABLED="1",DEEPTUTOR_AUTOSTART="0",CLEANUP_EXPIRED_ON_STARTUP="0",DEEPTUTOR_BACKEND_URL=(host_url if single else worker_url),DEEPTUTOR_HOST_URL=host_url)
  env["PYTHONPATH"]=os.pathsep.join([str(host),str(vendor),*filter(None,env.get("HEART_RUNTIME_EARLY_PATHS","").split(os.pathsep))])
  python=Path(env["HEART_RUNTIME_PYTHON"]) if env.get("HEART_RUNTIME_PYTHON") else root/"environments"/manifest["release_id"]/("Scripts/python.exe" if os.name=="nt" else "bin/python")
  if service in {"host","worker"}:
@@ -62,7 +63,7 @@ def plan(root:Path,service:str,values:dict,timing:dict|None=None,active=None):
  # 网页进程只拿代理与鉴权所需配置，不继承 PG、加密密钥和项目模型 Key。
  keep={"PATH","SYSTEMROOT","TEMP","TMP","HOME","LANG","NODE_EXTRA_CA_CERTS"}
  front={key:value for key,value in env.items() if key in keep or key.startswith(("HEART_PRIVATE_LOGIN_","DEEPTUTOR_AUTH_"))}
- front.update(PORT=web_port,HOSTNAME="127.0.0.1",NODE_ENV="production",DEEPTUTOR_API_BASE_URL=worker_url,DEEPTUTOR_BACKEND_URL=worker_url,HEART_API_BASE_URL=host_url,DEEPTUTOR_HOST_URL=host_url,DEEPTUTOR_BRIDGE_TOKEN=env["DEEPTUTOR_BRIDGE_TOKEN"],NEXT_PUBLIC_AUTH_ENABLED="true",DEEPTUTOR_AUTH_ENABLED="true")
+ front.update(PORT=web_port,HOSTNAME="127.0.0.1",NODE_ENV="production",DEEPTUTOR_API_BASE_URL=(host_url if single else worker_url),DEEPTUTOR_BACKEND_URL=(host_url if single else worker_url),HEART_API_BASE_URL=host_url,DEEPTUTOR_HOST_URL=host_url,DEEPTUTOR_BRIDGE_TOKEN=env["DEEPTUTOR_BRIDGE_TOKEN"],NEXT_PUBLIC_AUTH_ENABLED="true",DEEPTUTOR_AUTH_ENABLED="true")
  return [str(node),"server.js"],web,front
 
 def main():
