@@ -156,6 +156,14 @@ def source_content(sources, budget_chars=None):
             continue
         lines.append(block)
         used += len(block)
+    figures = []
+    for source in sources:
+        for image in source.get('image_refs') or []:
+            if image.get('id'):
+                figures.append(f"![{image.get('label') or image['id']}](media:{image['id']})")
+    if figures:
+        lines.append('可展示的教材原图（仅在回答确需配图时使用，不得编造其他图片地址）：\n'
+                     + '\n'.join(dict.fromkeys(figures)))
     return '\n\n'.join(lines)
 
 

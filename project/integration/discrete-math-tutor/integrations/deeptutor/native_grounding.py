@@ -60,4 +60,15 @@ def prepare_retrieval(query, chunks, context, kb_name):
             'short_id':short_id, 'chunk_id':original.chunk_id, 'rag_source_id':read_id}
         metadata.setdefault('_heart_short_sources', {})[short_id] = row
         output.append(row)
+    try:
+        from knowledge.answer_media import selected_media
+        media = selected_media(query, output)
+    except (ValueError, OSError, KeyError, TypeError, RuntimeError):
+        media = []
+    for item in media:
+        for source in output:
+            if (source.get('chapter_id'), source.get('section_id')) == (
+                    item.get('chapter_id'), item.get('section_id')):
+                source.setdefault('image_refs', []).append(item)
+                break
     return output

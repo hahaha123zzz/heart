@@ -398,6 +398,9 @@ export default function SimpleMarkdownRenderer({
       );
     },
     img: ({ node, src, alt, ...props }: any) => {
+      if (typeof src === "string" && src.startsWith("media:")) {
+        src = `/api/figures/${encodeURIComponent(src.slice("media:".length))}/image`;
+      }
       const attachmentName = parseAttachmentHref(src);
       const className = `${gap} inline-block max-w-full rounded-lg border border-[var(--border)]`;
       if (attachmentName) {
