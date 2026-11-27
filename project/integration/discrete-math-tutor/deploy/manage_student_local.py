@@ -86,7 +86,12 @@ def pending_services(records, release_id, names=("worker","host","web")):
   pending.append(service)
  return pending
 
-def launch(pending, spawn, ready, *, host_first=False):
+def launch(pending, spawn, ready, *, host_first=False, single=False):
+ # 单进程后端：先等宿主（含教材与原生运行时）就绪再起 Web，避免 Web 先可用却连不上后端。
+ if single:
+  for service in ("host","web"):
+   if service in pending:spawn(service);ready(service)
+  return
  # host_first 只用于和旧编排做受控对照：先全部创建，再按 host、worker、web 顺序等待就绪。
  if host_first:
   ordered=sorted(pending,key=lambda service:("host","worker","web").index(service))
@@ -163,7 +168,7 @@ def main():
      else:raise RuntimeError("readiness_timeout:"+service)
      record("control.ready",parent="control.service",seconds=time.perf_counter()-began,
             elapsed_since_origin=time.perf_counter()-origin,target=service,attempts=attempts)
-    launch(pending,spawn,ready,host_first=args.order=="host-first")
+    launch(pending,spawn,ready,host_first=args.order=="host-first",single=services==("host","web"))
   except BaseException as exc:
    status="cancelled" if type(exc).__name__=="CancelledError" else "failed"
    record("control.failed",parent="control",seconds=time.perf_counter()-origin,
