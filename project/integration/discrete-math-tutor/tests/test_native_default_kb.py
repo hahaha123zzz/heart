@@ -21,6 +21,18 @@ def test_saved_kb_is_kept():
     assert result['knowledge_bases'] == ['mine']
 
 
+def test_empty_request_kb_list_uses_course_default():
+    # Old browsers serialize an untouched selection as []; that is not an
+    # explicit choice and must inherit the course's own textbook.
+    result = _apply_course_defaults({'knowledge_bases': []}, _course('course-kb'))
+    assert result['knowledge_bases'] == ['course-kb']
+
+
+def test_course_without_readable_kb_stays_empty():
+    result = _apply_course_defaults({'knowledge_bases': []}, _course())
+    assert result['knowledge_bases'] == []
+
+
 def test_empty_request_kb_is_not_forwarded():
     request = SimpleNamespace(model_dump=lambda **_: {'capability': 'chat', 'knowledge_bases': []})
     assert 'knowledge_bases' not in start_options(request)
