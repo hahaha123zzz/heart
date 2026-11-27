@@ -207,6 +207,9 @@ export function markdownUrlTransform(
   key?: string,
   node?: unknown,
 ): string {
+  if (value.startsWith("media:")) {
+    return `/api/figures/${encodeURIComponent(value.slice("media:".length))}/image`;
+  }
   if (
     isMarkdownImageSrc(key, node) &&
     SAFE_RASTER_DATA_IMAGE_REGEX.test(value)
