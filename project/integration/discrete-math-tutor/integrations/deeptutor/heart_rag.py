@@ -96,7 +96,8 @@ class HeartCourseRagTool(BaseTool):
                                                        cache_hit=True),
                               sources=evidence,
                               metadata={"query": query, "backend": result.get("backend"),
-                                        "mode": result.get("mode"), "cache_hit": True})
+                                        "mode": result.get("mode"), "cache_hit": True,
+                                        "usage": result.get("usage") or {}})
         linked = _attach_citations(evidence, context)
         if result.get("backend") == "lightrag" and not linked:
             # 默认 LightRAG 路径必须给可点击角标；本地索引路径保留 read_source 兜底。
@@ -108,7 +109,8 @@ class HeartCourseRagTool(BaseTool):
                     len(content), result.get("cache_hit"))
         return ToolResult(content=content, sources=evidence,
                           metadata={"query": query, "backend": result.get("backend"),
-                                    "mode": result.get("mode"), "cache_hit": result.get("cache_hit")})
+                                    "mode": result.get("mode"), "cache_hit": result.get("cache_hit"),
+                                    "usage": result.get("usage") or {}})
 
 
 def _named_figure_content(query):

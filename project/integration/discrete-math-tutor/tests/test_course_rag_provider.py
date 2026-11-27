@@ -354,6 +354,20 @@ def test_rag_tool_allows_more_than_two_searches_per_turn(monkeypatch):
     assert len(third.sources) == 1
 
 
+def test_rag_tool_records_retrieval_stage_timings(monkeypatch):
+    from integrations.deeptutor import heart_rag
+
+    async def found(*args, **kwargs):
+        return {"sources": [_source()], "backend": "lightrag", "mode": "naive",
+                "usage": {"stages": [{"stage": "host.backend", "seconds": 3.2}]}}
+
+    monkeypatch.setattr(provider, "search_course", found)
+    monkeypatch.setattr(heart_rag, "_reader_citation", lambda source: "[教材第1章第3页](#dt-material-x)")
+    result = asyncio.run(heart_rag.HeartCourseRagTool().execute(query="自变量是什么"))
+
+    assert result.metadata["usage"]["stages"][0]["seconds"] == 3.2
+
+
 def test_rag_tool_keeps_local_index_only_when_no_native_scope(monkeypatch):
     from integrations.deeptutor import heart_rag
 
