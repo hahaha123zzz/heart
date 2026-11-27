@@ -83,6 +83,9 @@ class HeartCourseRagTool(BaseTool):
                               success=False, metadata={"query": query, "error": error})
         evidence = result.get("sources") or []
         if not evidence:
+            named = _named_figure_content(query)
+            if named:
+                return ToolResult(content=named, metadata={"query": query, "figures_only": True})
             return ToolResult(content="本轮没有检索到可核验的教材原文；不要编造依据。",
                               metadata={"query": query, "backend": result.get("backend"),
                                         "mode": result.get("mode"), "cache_hit": result.get("cache_hit")})
@@ -106,6 +109,20 @@ class HeartCourseRagTool(BaseTool):
         return ToolResult(content=content, sources=evidence,
                           metadata={"query": query, "backend": result.get("backend"),
                                     "mode": result.get("mode"), "cache_hit": result.get("cache_hit")})
+
+
+def _named_figure_content(query):
+    """明确点名的图号即使检索没命中，也直接给出已登记原图。"""
+    from knowledge.figures import retrieve_figures
+    try:
+        figures = retrieve_figures(query, [])
+    except (ValueError, OSError, KeyError):
+        return ""
+    if not figures:
+        return ""
+    lines = ["用户点名的教材原图（教材登记原图，正文用 media: 直接展示，不要说无法提供）："]
+    lines.extend(f"![{figure.label}](media:{figure.id}) {figure.caption}" for figure in figures)
+    return "\n".join(lines)
 
 
 def _evidence_content(result, evidence, budget_chars, *, cache_hit=False):

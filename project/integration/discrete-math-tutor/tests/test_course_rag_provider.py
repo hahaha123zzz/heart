@@ -311,6 +311,25 @@ def test_rag_tool_refuses_when_no_source_can_be_linked(monkeypatch):
     assert "不提供引用" in result.content
 
 
+def test_rag_tool_answers_named_figure_without_retrieval_hits(monkeypatch):
+    from integrations.deeptutor import heart_rag
+
+    async def empty(*args, **kwargs):
+        return {"sources": [], "backend": "lightrag", "mode": "naive"}
+
+    class Figure:
+        id = "image-02-0001"
+        label = "图2-1"
+        caption = "图2-1 一个七年级学生焦虑的…"
+
+    monkeypatch.setattr(provider, "search_course", empty)
+    monkeypatch.setattr("knowledge.figures.retrieve_figures", lambda *a, **k: [Figure()])
+    result = asyncio.run(heart_rag.HeartCourseRagTool().execute(query="图2-1 是什么图，直接给我看原图"))
+
+    assert result.success is not False
+    assert "![图2-1](media:image-02-0001)" in result.content
+
+
 def test_rag_tool_allows_more_than_two_searches_per_turn(monkeypatch):
     from integrations.deeptutor import heart_rag
 
@@ -476,6 +495,29 @@ def test_native_course_search_filters_unassigned_versions(monkeypatch):
     result = asyncio.run(api.course_search_native(_native_endpoint_payload(), None))
 
     assert [source["version"] for source in result["sources"]] == ["a" * 64]
+
+
+def test_native_course_search_returns_empty_instead_of_denying(monkeypatch):
+    """检索没有命中不是越权：授权范围正常时返回空结果，不能报 403。"""
+    from integrations.deeptutor import course_search_api as api
+
+    class Backend:
+        async def search(self, query, **kwargs):
+            return {"provider": "lightrag", "sdk": "1.5.7", "status": "no_evidence",
+                    "mode": kwargs["mode"], "sources": [],
+                    "usage": {}, "trace": [], "source_binding": {}}
+
+    _endpoint(monkeypatch, Backend())
+
+    async def scope(payload):
+        return ({"a" * 16},
+                {"preferences": {"workspace_id": payload.workspace_id}},
+                {"id": "turn-1"})
+
+    monkeypatch.setattr(api, "_native_scope", scope)
+    result = asyncio.run(api.course_search_native(_native_endpoint_payload(), None))
+
+    assert result["sources"] == []
 
 
 def test_native_course_search_rejects_expired_turn_and_unauthorized_material(monkeypatch):

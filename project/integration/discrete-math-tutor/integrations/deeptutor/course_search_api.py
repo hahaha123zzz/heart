@@ -159,10 +159,11 @@ async def course_search_native(payload: NativeUserCourseSearchRequest, request: 
     if str((session.get('preferences') or {}).get('workspace_id') or '') != payload.workspace_id:
         raise HTTPException(409, detail={'code': 'workspace_changed', 'message': '原生会话工作区已变化'})
     result = await _run_search(payload, request)
+    raw_sources = result.get('sources') or []
     if allowed is not None:
-        sources = [source for source in result.get('sources') or []
+        sources = [source for source in raw_sources
                    if str(source.get('version') or '')[:16] in allowed]
-        if not sources:
+        if raw_sources and not sources:
             raise HTTPException(403, detail={'code': 'not_authorized', 'message': '教材原文超出当前账号授权范围'})
         result = {**result, 'sources': sources}
     return result
