@@ -212,14 +212,6 @@ def course_evidence(query: str, limit: int = 3, context=None) -> list[dict]:
     return evidence[:limit]
 
 
-def warm_course_retrieval() -> None:
-    """Load embedding/rerank indexes before the first student turn."""
-    try:
-        _retrieve_rows("自变量和因变量")
-    except Exception:
-        logger.warning("course retrieval warmup failed", exc_info=True)
-
-
 def _authorized_course_rows(rows):
     """Remove passages from chapters the current learner cannot open."""
     from deeptutor.multi_user.context import get_current_user_or_none

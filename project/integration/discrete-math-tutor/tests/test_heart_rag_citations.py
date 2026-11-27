@@ -171,16 +171,6 @@ def test_course_evidence_degrades_to_empty_on_retrieval_error(monkeypatch):
     assert heart_rag.course_evidence("自变量是什么") == []
 
 
-def test_warm_course_retrieval_swallows_errors(monkeypatch):
-    from integrations.deeptutor import heart_rag
-
-    def boom(query):
-        raise RuntimeError("cold")
-
-    monkeypatch.setattr(heart_rag, "_retrieve_rows", boom)
-    heart_rag.warm_course_retrieval()
-
-
 def test_reader_citation_uses_section_page_for_retrieved_evidence(monkeypatch):
     import deeptutor.reading
     from knowledge import pdf_reader
