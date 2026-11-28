@@ -336,11 +336,9 @@ async def test_course_knowledge_selection_survives_two_application_turns(submiss
     course = courses.create(name="教材继承回归")
     courses.attach_resource(course.id, kind="knowledge_base", ref_id="course-book")
     session = await store.ensure_session("course-inheritance")
-    expected = ["course-book"] if selection is None else selection
     # An empty list is an untouched composer (old browsers serialize unset that
     # way), so it inherits the course instead of clearing it.
-    if not selection:
-        expected = ["course-book"]
+    expected = selection or ["course-book"]
     for index in range(2):
         payload = {"content": "解释自变量", "session_id": session["id"], "course_id": course.id}
         if index == 0 and selection is not None:
@@ -350,3 +348,33 @@ async def test_course_knowledge_selection_survives_two_application_turns(submiss
         saved = await store.get_session(session["id"])
         assert saved["preferences"]["knowledge_bases"] == expected
         assert saved["preferences"]["workspace_dependencies"]["knowledge_bases"] == expected
+
+
+@pytest.mark.asyncio
+async def test_learning_policy_clearing_client_kbs_still_gets_the_course_textbook(
+    submission_service, monkeypatch
+):
+    from deeptutor.multi_user import learning_access
+    from deeptutor.services.courses import CourseService
+
+    service, store, _coordinator, _registry, _calls = submission_service
+    monkeypatch.setattr(
+        learning_access,
+        "apply_learning_policy",
+        lambda payload: {**payload, "knowledge_bases": [], "persona": ""},
+    )
+    courses = CourseService()
+    course = courses.create(name="教材策略回归")
+    courses.attach_resource(course.id, kind="knowledge_base", ref_id="course-book")
+    session = await store.ensure_session("course-policy")
+    _, turn = await service.start_turn(
+        {
+            "content": "解释自变量",
+            "session_id": session["id"],
+            "course_id": course.id,
+            "knowledge_bases": [],
+        }
+    )
+    [event async for event in service.subscribe_turn(turn["id"])]
+    saved = await store.get_session(session["id"])
+    assert saved["preferences"]["knowledge_bases"] == ["course-book"]
