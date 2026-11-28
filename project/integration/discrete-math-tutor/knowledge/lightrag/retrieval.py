@@ -1,6 +1,6 @@
 """LightRAG 结构化检索及原文映射；不生成正式回答或引用卡。"""
 from pathlib import Path
-import asyncio,json,math,time
+import asyncio,json,logging,math,time
 from . import engine,storage
 from .trace import stage
 from .course_input import verify,verify_active,digest,COURSE
@@ -13,6 +13,8 @@ from .indexing_policy import _fingerprint
 from knowledge.source_mapping import source_spans,block_text
 from knowledge.grounding_text import normalized
 from knowledge.textbook import TextbookChunk,terms_for
+
+logger=logging.getLogger(__name__)
 
 
 async def attach_provenance(rag, working, records, prepared=None):
@@ -112,17 +114,25 @@ def as_textbook_chunk(source):
 
 def rank_sources(query, sources, trace=None):
     if not sources: return []
-    from knowledge.hybrid_retrieval import _reranker_on_device
-    from knowledge.local_rag.rerank import _sigmoid
+    from knowledge.local_rag.rerank import _sigmoid,api_rerank_scores
     from knowledge.inference_runtime import configured_device
-    backend,model=_reranker_on_device("BAAI/bge-reranker-base",configured_device("RERANK"))
     texts=[source["text"] for source in sources]
-    values=list(model.rerank(query,texts,batch_size=4)) if backend=="fastembed" else model.compute_score([[query,t] for t in texts])
-    if len(values)!=len(sources) or not all(math.isfinite(float(v)) for v in values):
+    scores=None
+    try:
+        scores=api_rerank_scores(query,texts)
+    except Exception:
+        logger.warning("remote rerank failed; using local cross-encoder",exc_info=True)
+    if scores is None:
+        from knowledge.hybrid_retrieval import _reranker_on_device
+        backend,model=_reranker_on_device("BAAI/bge-reranker-base",configured_device("RERANK"))
+        raw=list(model.rerank(query,texts,batch_size=4)) if backend=="fastembed" else model.compute_score([[query,t] for t in texts])
+        if len(raw)!=len(texts) or not all(math.isfinite(float(v)) for v in raw):
+            raise ValueError("原文重排分数不符合契约")
+        scores=[_sigmoid(float(v)) for v in raw]
+    if len(scores)!=len(sources) or not all(math.isfinite(float(v)) for v in scores):
         raise ValueError("原文重排分数不符合契约")
-    # 与 Q2 相同的未经概率校准门槛；失败明确上抛，不回退旧引擎。
-    ranked=sorted(zip(values,sources),key=lambda pair:float(pair[0]),reverse=True)
-    scored=[dict(source,score=_sigmoid(float(value))) for value,source in ranked]
+    ranked=sorted(zip(scores,sources),key=lambda pair:float(pair[0]),reverse=True)
+    scored=[dict(source,score=float(score)) for score,source in ranked]
     selected=[source for source in scored if source['score']>=.15]
     stage(trace,'rerank_threshold',scored,selected,'below_rerank_threshold',threshold=.15,query=query)
     return selected

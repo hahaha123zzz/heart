@@ -4,10 +4,13 @@
 from __future__ import annotations
 
 from collections import OrderedDict
+import json
 import logging
 import math
+import os
 from threading import Lock
 from typing import Any, Callable
+import urllib.request
 
 from llama_index.core.schema import MetadataMode, NodeWithScore
 
@@ -22,6 +25,44 @@ def clear_reranker_cache() -> None:
     """Drop cached reranker models (used by tests and settings changes)."""
     with _RERANKER_CACHE_LOCK:
         _RERANKER_CACHE.clear()
+
+
+def api_rerank_scores(query: str, texts: list[str]) -> list[float] | None:
+    """Score query/text pairs on a remote rerank endpoint when configured.
+
+    Returns probabilities in input order, or None when no endpoint is
+    configured so callers keep the local cross-encoder path.
+    """
+    url = os.environ.get("HEART_RERANK_API_URL", "").strip()
+    key = os.environ.get("HEART_RERANK_API_KEY", "").strip()
+    if not url or not key or not texts:
+        return None
+    model = os.environ.get("HEART_RERANK_API_MODEL", "BAAI/bge-reranker-v2-m3").strip()
+    timeout = float(os.environ.get("HEART_RERANK_API_TIMEOUT", "15"))
+    body = {
+        "model": model,
+        "query": query,
+        "documents": list(texts),
+        "top_n": len(texts),
+        "return_documents": False,
+    }
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(body, ensure_ascii=False).encode(),
+        headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
+    )
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    scores: list[float | None] = [None] * len(texts)
+    for item in payload.get("results") or []:
+        index = item.get("index")
+        score = item.get("relevance_score")
+        if not isinstance(index, int) or not 0 <= index < len(texts) or not isinstance(score, (int, float)):
+            raise ValueError("重排API返回无效结果")
+        scores[index] = float(score)
+    if any(score is None for score in scores):
+        raise ValueError("重排API返回结果不完整")
+    return scores
 
 
 def _load_cross_encoder(model_name: str) -> Any:
