@@ -1,6 +1,8 @@
 "use client";
 
 import { apiFetch } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -10,6 +12,7 @@ interface MemoryPayload { preferences: Entry[]; profile: Entry[]; has_more?: boo
 const EMPTY: MemoryPayload = { preferences: [], profile: [] };
 
 export default function StudentMemory() {
+  const router = useRouter();
   const [data, setData] = useState<MemoryPayload>(EMPTY);
   const [text, setText] = useState("");
   const [query, setQuery] = useState("");
@@ -47,6 +50,9 @@ export default function StudentMemory() {
     </section>;
   }
   return <div className="mx-auto w-full max-w-3xl px-6 py-8">
+    <button type="button" onClick={() => { if (window.history.length > 1) router.back(); else router.push('/chat'); }} className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+      <ArrowLeft size={16} />返回
+    </button>
     <h1 className="text-xl font-semibold">我的记忆</h1>
     <p className="mt-2 text-sm text-muted-foreground">查看、删除记忆，或主动添加学习偏好。长期记忆开关请到设置页调整；关闭后仍可管理这里的内容。</p>
     <label className="mt-6 block text-sm">搜索记忆<input aria-label="搜索记忆" value={query} maxLength={100} onChange={event => setQuery(event.target.value)} className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2" /></label>

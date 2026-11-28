@@ -48,23 +48,28 @@ class HeartCourseRagTool(BaseTool):
         except (TypeError, ValueError):
             limit = 6
         context = kwargs.get("_heart_context")
-        from .client import BackendUnavailable
-        from .course_rag_provider import search_course, source_content
-        try:
-            result = await search_course(query, limit=limit, context=context,
-                                         budget_chars=kwargs.get("budget_chars"))
-        except BackendUnavailable:
-            logger.warning("course search lacks a native task scope", exc_info=True)
-            return ToolResult(content="当前账号缺少教材检索授权；不要编造依据。", success=False,
-                              metadata={"query": query})
-        except Exception:  # noqa: BLE001 - 工具异常不得中断回合
-            logger.warning("course search failed", exc_info=True)
-            return ToolResult(content="教材检索暂不可用，请稍后重试；不要编造依据。",
-                              success=False, metadata={"query": query})
-        if result is None:
-            # 非原生入口（无任务授权上下文）沿用宿主本地索引。
-            evidence = await asyncio.to_thread(_verified_sources, query, limit, context)
-            result = {"sources": evidence}
+        from knowledge.course_config import PSYCHOLOGY
+        if not PSYCHOLOGY:
+            evidence = await asyncio.to_thread(_discrete_sources, query, limit)
+            result = {"sources": evidence, "backend": "local", "mode": "sqlite"}
+        else:
+            from .client import BackendUnavailable
+            from .course_rag_provider import search_course, source_content
+            try:
+                result = await search_course(query, limit=limit, context=context,
+                                             budget_chars=kwargs.get("budget_chars"))
+            except BackendUnavailable:
+                logger.warning("course search lacks a native task scope", exc_info=True)
+                return ToolResult(content="当前账号缺少教材检索授权；不要编造依据。", success=False,
+                                  metadata={"query": query})
+            except Exception:  # noqa: BLE001 - 工具异常不得中断回合
+                logger.warning("course search failed", exc_info=True)
+                return ToolResult(content="教材检索暂不可用，请稍后重试；不要编造依据。",
+                                  success=False, metadata={"query": query})
+            if result is None:
+                # 非原生入口（无任务授权上下文）沿用宿主本地索引。
+                evidence = await asyncio.to_thread(_verified_sources, query, limit, context)
+                result = {"sources": evidence}
         error = result.get("error_type")
         if error in ("not_ready", "unavailable"):
             return ToolResult(content="教材检索后端暂不可用，请稍后重试；不要编造依据。",
@@ -157,6 +162,40 @@ def _retrieve_rows(query: str) -> list:
     # Retrieve a wider candidate set so course permissions and evidence checks
     # run before any passage reaches the model.
     return psychology_retrieval.retrieve(query, [], limit=40)
+
+
+def _discrete_sources(query: str, limit: int = 6) -> list[dict]:
+    """Local sqlite retrieval for the discrete textbook (no LightRAG)."""
+    import hashlib
+
+    from knowledge.hybrid_retrieval import retrieve_hybrid
+    from knowledge.pdf_reader import document_for_chapter
+
+    rows: list[dict] = []
+    for index, chunk in enumerate(retrieve_hybrid(query, [], limit=max(limit, 3)), start=1):
+        chapter = int(chunk.chapter_id or 0)
+        document = document_for_chapter(chapter) or {}
+        page = chunk.page
+        if not isinstance(page, int) or page < 1:
+            for section in document.get("sections") or []:
+                if str(section.get("id")) == str(chunk.section_id):
+                    page = section.get("page")
+                    break
+        rows.append({
+            "index": index,
+            "short_id": f"S{index}",
+            "rag_source_id": "rag-" + hashlib.sha256(
+                ((chunk.chunk_id or "") + "\0" + chunk.text).encode()).hexdigest()[:24],
+            "text": chunk.text,
+            "quote": _short_quote(chunk.text),
+            "chapter_id": chapter,
+            "section_id": chunk.section_id,
+            "location": {"section": chunk.section or ""},
+            "document_id": document.get("document_id", ""),
+            "version": document.get("version", ""),
+            "page": page if isinstance(page, int) else None,
+        })
+    return rows[:limit]
 
 
 def _verified_sources(query: str, limit: int = 3, context=None) -> list[dict]:

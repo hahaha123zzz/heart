@@ -444,7 +444,7 @@ type Action =
   | { type: "SET_SUBMISSION_PERSISTENCE"; key: string; submissionId: string; saved: boolean }
   | { type: "POP_LAST_ASSISTANT"; key: string }
   | { type: "RESTORE_ASSISTANT"; key: string; message: MessageItem }
-  | { type: "STREAM_START"; key: string; startedAt: number }
+  | { type: "STREAM_START"; key: string; startedAt: number; capability?: string | null }
   | { type: "STREAM_TOUCH"; key: string }
   | { type: "STREAM_EVENT"; key: string; event: StreamEvent }
   | {
@@ -920,7 +920,7 @@ function reducer(state: ProviderState, action: Action): ProviderState {
                 events: [],
                 // Include connection and provider latency before the first frame (#1435).
                 trace: { started_at: action.startedAt },
-                capability: session.activeCapability || "",
+                capability: (action.capability === undefined ? session.activeCapability : action.capability) || "",
                 parentMessageId: tip?.id ?? null,
               },
             ],
@@ -2998,7 +2998,7 @@ export function ChatStateAdapterProvider({
           failedSubmissionId: submissionId,
         });
       }
-      dispatch({ type: "STREAM_START", key, startedAt: Date.now() / 1000 });
+      dispatch({ type: "STREAM_START", key, startedAt: Date.now() / 1000, capability: effectiveCapability });
       const {
         _persist_user_message: legacyPersistUserMessage,
         _course_id: _legacyCourseId,

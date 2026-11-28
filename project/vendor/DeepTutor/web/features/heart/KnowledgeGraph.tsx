@@ -16,7 +16,7 @@ const GraphViewer=dynamic(()=>import('./graph/GraphViewer'),{ssr:false,loading:(
 const button='rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50'
 export default function KnowledgeGraph(){
   const router=useRouter(),params=useSearchParams(),auth=useAuthStatus()
-  const chapterValue=Number(params.get('chapter')||1),chapter=chapterValue>=1&&chapterValue<=11?chapterValue:1
+  const chapterValue=Number(params.get('chapter')||1),chapter=chapterValue>=1&&chapterValue<=10?chapterValue:1
   const query=params.get('q')||'',focus=params.get('focus')||''
   const [draft,setDraft]=useState(query),[revision,setRevision]=useState(0),[filter,setFilter]=useState('all')
   const [detail,setDetail]=useState<NodeDetail>(),[detailError,setDetailError]=useState(''),[detailRevision,setDetailRevision]=useState(0)
@@ -40,9 +40,9 @@ export default function KnowledgeGraph(){
     if(!detail||busy)return;setBusy(true);setActionError('')
     try{
       const kc=detail.node.state.knowledge_point_id
-      if(!kc){setPendingPrompt(`请根据《实验心理学》第${chapter}章讲解“${selected}”。该实体尚无唯一确认的知识点映射，仅作讲解，不计入掌握。`,'chat');router.push('/chat');return}
+      if(!kc){setPendingPrompt(`请根据《离散数学》第${chapter}章讲解“${selected}”。该实体尚无唯一确认的知识点映射，仅作讲解，不计入掌握。`,'chat');router.push('/chat');return}
       const source=detail.sources.map(s=>s.text).join('\n').slice(0,7500)
-      const response=await apiFetch('/api/mastery-paths/topics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:selected,goal:`${practice?'练习':'学习'}《实验心理学》第${chapter}章的${selected}`,sources:[{client_ref:'graph-source',kind:'file',source_id:detail.document.id,label:`第${chapter}章教材原文`,excerpt:source,metadata:{document_id:detail.document.id,version:detail.document.version,graph_release_id:detail.release_id,mapping_version:detail.mapping_version}}],modules:[{name:selected,knowledge_points:[{id:kc,name:selected,type:'concept',topic_source_refs:['graph-source']}]}]})})
+      const response=await apiFetch('/api/mastery-paths/topics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:selected,goal:`${practice?'练习':'学习'}《离散数学》第${chapter}章的${selected}`,sources:[{client_ref:'graph-source',kind:'file',source_id:detail.document.id,label:`第${chapter}章教材原文`,excerpt:source,metadata:{document_id:detail.document.id,version:detail.document.version,graph_release_id:detail.release_id,mapping_version:detail.mapping_version}}],modules:[{name:selected,knowledge_points:[{id:kc,name:selected,type:'concept',topic_source_refs:['graph-source']}]}]})})
       if(!response.ok)throw new Error('辅导路径创建失败，请重试。')
       const topic=await response.json();setPendingPrompt(`请${practice?'围绕这个知识点出一道题，等我作答后按教材依据反馈':'依据教材讲解这个知识点，先了解我已经会什么'}。知识点 ID：${kc}。`,'mastery_path');router.push('/learning/mastery/'+encodeURIComponent(topic.path_id)+'/sessions')
     }catch(reason){setActionError(reason instanceof Error?reason.message:'无法打开辅导，请重试。')}finally{setBusy(false)}
@@ -50,7 +50,7 @@ export default function KnowledgeGraph(){
   const filtered=data?.nodes.filter(n=>filter==='all'||(filter==='due'?n.state.review_due:n.state.kind===filter))??[]
   return <LearningShell title="教材知识图谱" subtitle="教材结构由固定图谱提供；学习状态只展示当前账号已同步的厂家结论，关联关系不代表先修或掌握。">
     <div className="flex flex-wrap items-end gap-3">
-      <label className="text-sm">章节<select aria-label="章节" value={chapter} onChange={e=>navigate({chapter:e.target.value,q:'',focus:'',node:''})} className={'ml-2 '+button}>{Array.from({length:11},(_,i)=><option key={i+1} value={i+1}>第 {i+1} 章</option>)}</select></label>
+      <label className="text-sm">章节<select aria-label="章节" value={chapter} onChange={e=>navigate({chapter:e.target.value,q:'',focus:'',node:''})} className={'ml-2 '+button}>{Array.from({length:10},(_,i)=><option key={i+1} value={i+1}>第 {i+1} 章</option>)}</select></label>
       <form className="flex min-w-0 flex-wrap gap-2" onSubmit={e=>{e.preventDefault();navigate({q:draft,focus:''})}}><input aria-label="搜索概念" value={draft} onChange={e=>setDraft(e.target.value)} maxLength={64} className={'min-w-0 max-w-full '+button}/><button className={button}>搜索</button></form>
       <button className={button} onClick={()=>setRevision(v=>v+1)}>刷新图谱与状态</button>
       {focus&&<button className={button} onClick={()=>navigate({focus:''})}>返回章节范围</button>}

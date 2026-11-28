@@ -150,10 +150,25 @@ def install_heart_model(app, home: Path) -> None:
     @router.get("/learning/chapter-progress")
     def read_chapter_progress(response: Response, chapter: int = Query(ge=1, le=11),
                               payload: TokenPayload = Depends(require_auth)) -> dict:
-        from integrations.deeptutor.learning_projection import chapter_progress
+        from knowledge.course_config import PSYCHOLOGY, ROOT
         if not payload or not payload.user_id:
             raise HTTPException(401, "请先登录")
         response.headers["Cache-Control"] = "no-store"
+        if not PSYCHOLOGY:
+            import json
+            from pathlib import Path as _Path
+            records = json.loads((_Path(ROOT) / "knowledge/pdf_sections.json").read_text("utf-8"))
+            record = next((item for item in records if int(item["id"]) == chapter), None)
+            chapter_title = "".join(str((record or {}).get("title") or "").split())
+            chapter_label = f"第{chapter}章{chapter_title}"
+            points = [{"id": f"d{chapter}-{section['id']}",
+                       "name": " ".join(str(section["title"]).split()),
+                       "snapshot": None, "practice_review": None,
+                       "sync_pending": False, "sync_blocked": False}
+                      for section in (record or {}).get("sections") or []
+                      if "".join(str(section["title"]).split()) not in {chapter_label, chapter_title}]
+            return {"catalog_available": True, "points": points}
+        from integrations.deeptutor.learning_projection import chapter_progress
         return chapter_progress(payload.username, payload.user_id, chapter)
 
     @router.get("/learning/evidence/{job_id}")

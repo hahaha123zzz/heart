@@ -62,7 +62,7 @@ def write_policy(username: str, material_id: str, *, allow_upload: bool = False)
     wanted = {
         "age_band": "9-12",
         "locked_persona": "teacher",
-        "allowed_capabilities": ["chat", "immersive_reading", "mastery_path"],
+        "allowed_capabilities": ["chat", "immersive_reading", "mastery_path", "visualize"],
         "default_capability": "chat",
         "allowed_surfaces": ["chat", "reading"],
         "reading": {

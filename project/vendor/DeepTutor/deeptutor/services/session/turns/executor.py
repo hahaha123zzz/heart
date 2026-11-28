@@ -486,6 +486,11 @@ class TurnExecutor:
                         exc,
                     )
 
+            reader_crop_filename = ""
+            if payload.get("reading_viewport"):
+                from integrations.deeptutor.legacy_reader_turn import verified_reader_crop_filename
+
+                reader_crop_filename = verified_reader_crop_filename(payload["reading_viewport"])
             attachments = [
                 Attachment(
                     type=r.get("type", "file"),
@@ -496,7 +501,9 @@ class TurnExecutor:
                     id=r.get("id", ""),
                     extracted_text=r.get("extracted_text", ""),
                     origin=(
-                        "user_submission"
+                        "reading_viewport"
+                        if reader_crop_filename and r.get("type") == "image" and r.get("filename") == reader_crop_filename
+                        else "user_submission"
                         if str(r.get("id") or "") in user_submission_attachment_ids
                         else "document_extraction"
                     ),
@@ -582,13 +589,45 @@ class TurnExecutor:
                     return
                 await self._publish_live_event(execution, event)
 
-            history_result = await builder.build(
-                session_id=session_id,
-                llm_config=llm_config,
-                language=payload.get("language", "en"),
-                on_event=_emit_context_event,
-                leaf_message_id=branch_parent_id,
-            )
+            standalone = False
+            previous_evidence = {}
+            if capability_name in (None, "", "chat", "immersive_reading") and not selection_tutor_context:
+                try:
+                    from integrations.deeptutor.tool_policy import learning_course_scope
+                except ImportError:
+                    learning_course_scope = None
+
+                if learning_course_scope is not None and learning_course_scope():
+                    from integrations.deeptutor import history_evidence
+
+                    standalone = (
+                        not followup_question_context
+                        and history_evidence.standalone_question(raw_user_content, payload)
+                    )
+                    if (history_evidence.asks_for_previous_evidence(raw_user_content)
+                            and not (branch_parent_explicit and branch_parent_id is None)):
+                        branch = await self.store.get_messages_for_context(
+                            session_id, leaf_message_id=branch_parent_id
+                        )
+                        try:
+                            previous_evidence = await asyncio.to_thread(
+                                history_evidence.restore_cited_evidence, branch
+                            )
+                        except (OSError, RuntimeError, ValueError):
+                            logger.warning("Unable to recover prior textbook citations", exc_info=True)
+
+            if standalone:
+                from deeptutor.services.session.context_builder import ContextBuildResult
+
+                history_result = ContextBuildResult([], "", "", [], 0, 0, model_history=[])
+            else:
+                history_result = await builder.build(
+                    session_id=session_id,
+                    llm_config=llm_config,
+                    language=payload.get("language", "en"),
+                    on_event=_emit_context_event,
+                    leaf_message_id=branch_parent_id,
+                )
             memory_store = get_memory_store()
             memory_context = memory_store.read_l3_concat() if memory_references else ""
 
@@ -926,7 +965,7 @@ class TurnExecutor:
                     **parent_kwargs,
                 )
 
-            if not selection_tutor_context:
+            if not selection_tutor_context and not standalone:
                 from deeptutor.services.task_board import get_task_board_store
                 from deeptutor.services.workspace.context import current_workspace_id
 
@@ -936,6 +975,15 @@ class TurnExecutor:
                     session_id,
                 )
                 source_manifest_text += task_context
+            if previous_evidence:
+                available = "、".join(
+                    f"{key}（第{row['chapter_id']}章第{row['page']}页）"
+                    for key, row in previous_evidence.items()
+                )
+                source_manifest_text += (
+                    f"\n上一答复的可读教材引用（按引用顺序）：{available}。"
+                    "解释上一轮引用时，先用 read_source 读取所指 ID 的核验原文。\n"
+                )
 
             context = UnifiedContext(
                 session_id=session_id,
@@ -944,9 +992,9 @@ class TurnExecutor:
                 enabled_tools=payload.get("tools"),
                 # Selected-text tutoring must stay isolated from global
                 # memory and every other auto-mounted built-in.
-                allowed_builtin_tools=[] if selection_tutor_context else None,
-                active_capability=payload.get("capability"),
-                knowledge_bases=payload.get("knowledge_bases", []),
+                allowed_builtin_tools=[] if selection_tutor_context or standalone else None,
+                active_capability="chat" if standalone else payload.get("capability"),
+                knowledge_bases=[] if standalone else payload.get("knowledge_bases", []),
                 attachments=attachments,
                 config_overrides=request_config,
                 language=payload.get("language", "en"),
@@ -1009,15 +1057,15 @@ class TurnExecutor:
                     # Immersive reading: the open material activates the reading
                     # capability and binds its tools; the viewport tells the
                     # model where the user is actually looking.
-                    "reading_material_id": _reading_material_id(payload.get("reading_material_id")),
+                    "reading_material_id": "" if standalone else _reading_material_id(payload.get("reading_material_id")),
                     "reading_material_revision": _reading_material_revision(
                         payload.get("reading_material_revision")
                     ),
                     "reading_workspace_id": _reading_workspace_id(
                         payload.get("reading_workspace_id")
                     ),
-                    "immersive_reading_mode": workspace_mode == WORKSPACE_MODE_READING,
-                    "reading_viewport": _reading_viewport(payload.get("reading_viewport")),
+                    "immersive_reading_mode": not standalone and workspace_mode == WORKSPACE_MODE_READING,
+                    "reading_viewport": {} if standalone else _reading_viewport(payload.get("reading_viewport")),
                     "book_context": book_context,
                     "book_context_warnings": book_context_result.warnings,
                     "memory_references": memory_references,
@@ -1035,6 +1083,11 @@ class TurnExecutor:
                     # pipeline's tool kwargs injector, and — a non-empty value
                     # here specifically — by the explore_context pre-pass.
                     "source_index": source_index,
+                    **({
+                        "_heart_short_index": {key: row["text"] for key, row in previous_evidence.items()},
+                        "_heart_short_sources": previous_evidence,
+                        "_heart_citation_offset": max(int(key[1:]) for key in previous_evidence),
+                    } if previous_evidence else {}),
                     # A mastery topic's materials, read on demand by the
                     # tutor's own read_source calls (see
                     # ``MasteryLoopCapability.augment_kwargs``). Kept separate

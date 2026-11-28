@@ -296,7 +296,7 @@ export function LegacyTextbook({
             onAsk("请结合教材解释我圈出的图、公式或表格。", context);
           } else {
             if (!result.text) throw new Error();
-            onAsk(`请结合教材解释这段内容：\n${result.text}`, context);
+            onAsk("请结合教材解释这段内容。", context);
           }
         } catch {
           setError("选区验证失败，请重新选择。");

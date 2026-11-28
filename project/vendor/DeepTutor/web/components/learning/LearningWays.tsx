@@ -47,7 +47,7 @@ export function LearningWays() {
         <h2 id={id} className="sr-only">
           {t('Ways to learn')}
         </h2>
-        <div className={pageGridClass(5)}>
+        <div className={pageGridClass(2)}>
           {!loading && surfaces.map(surface => {
             const opened = openKind === surface.kind
             return (

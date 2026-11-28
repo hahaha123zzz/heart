@@ -5,6 +5,16 @@ import asyncio
 import base64
 
 
+def verified_reader_crop_filename(viewport) -> str:
+    """提取经过应用入口核验的教材区域附件名。"""
+    if not isinstance(viewport, dict) or not viewport.get('document_id'):
+        return ''
+    selection = viewport.get('legacy_reader_selection')
+    if not isinstance(selection, dict) or selection.get('kind') != 'area':
+        return ''
+    return str(selection.get('attachment_filename') or '')
+
+
 async def verify_legacy_reader_turn(payload: dict) -> dict:
     viewport = payload.get('reading_viewport')
     if not isinstance(viewport, dict) or not viewport.get('document_id'):
@@ -43,6 +53,10 @@ async def verify_legacy_reader_turn(payload: dict) -> dict:
             result = await asyncio.to_thread(resolve_selection, selection)
             clean_viewport['locator'] = selection.rects[0].page
             clean_viewport['selection'] = result['text']
+            if selection.kind == 'text' and result['text']:
+                legacy_prompt = f"请结合教材解释这段内容：\n{result['text']}"
+                if payload.get('content') == legacy_prompt:
+                    payload = {**payload, 'content': '请结合教材解释这段内容。'}
             clean_viewport['legacy_reader_selection'] = {
                 **selection.model_dump(exclude={'text'}),
                 **({'attachment_filename': selected.get('attachment_filename')}
