@@ -14,8 +14,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi import HTTPException
-from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import mimetypes
 # Windows 注册表可能将 .js 标成 text/plain；模块与 PDF worker 需要正确 MIME。
 mimetypes.add_type("application/javascript", ".js")
@@ -69,8 +68,6 @@ if not PSYCHOLOGY:
     app.include_router(truth_table_router)
     from relation_api import router as relation_router
     app.include_router(relation_router)
-FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
-app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 from agents.intent_policy import IntentPolicy
 # 配置错误在初始化业务服务前暴露，不静默开放灰度。
 IntentPolicy.from_env()
@@ -125,25 +122,6 @@ def health():
                        "startup_id": startup_id()},
         "memory_worker": app.state.memory_worker.status() if getattr(app.state, "memory_worker", None) else {"enabled": False, "running": False},
     }
-
-
-@app.get("/login", include_in_schema=False)
-def login_page():
-    return FileResponse(FRONTEND_DIR / 'login.html')
-
-
-@app.get("/", include_in_schema=False)
-def home():
-    import json
-    from knowledge.course_config import public_course
-    html=(FRONTEND_DIR/'index.html').read_text(encoding='utf-8')
-    # Force browsers holding the prior chat bundle to load the current client.
-    html=html.replace('app.js?v=20261019-markdown','app.js?v=20261024-new-chat')
-    if PSYCHOLOGY:
-        import re
-        html=re.sub(r'<script src="/static/visualizations/(?:graph|truth-table|relation-closure|relation)\.js[^\"]*" defer></script>', '', html)
-    config=json.dumps(public_course(),ensure_ascii=False).replace('<','\\u003c')
-    return HTMLResponse(html.replace('<head>','<head><script>window.TutorCourse='+config+';</script>',1))
 
 
 @app.get("/api/figures/{figure_id}/image", include_in_schema=False)

@@ -14,9 +14,8 @@ from knowledge.course_config import COURSE_ID
 from knowledge.exercise_mapping import resolve_mapping
 assert COURSE_ID == 'experimental-psychology-3'
 client = TestClient(app)
-home = client.get('/').text
-assert '/static/visualizations/graph.js' not in home
-assert '/static/visualizations/guided.js' in home
+assert client.get('/').status_code == 404
+assert client.get('/login').status_code == 404
 assert client.get('/static/textbook/manifest.json').status_code == 404
 assert resolve_mapping('old-question','1','old-version') is None
 paths = app.openapi()['paths']

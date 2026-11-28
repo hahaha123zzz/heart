@@ -49,7 +49,7 @@ CASES = {
 
 def source_digest():
     paths = []
-    for folder in ('agents', 'integrations', 'models', 'llm', 'database', 'memory', 'knowledge', 'frontend', 'tests', 'scripts'):
+    for folder in ('agents', 'integrations', 'models', 'llm', 'database', 'memory', 'knowledge', 'tests', 'scripts'):
         paths.extend(p for p in (ROOT/folder).rglob('*') if p.is_file() and p.suffix in ('.py', '.js', '.cjs', '.css', '.html')
                      and not any(part in ('node_modules', '__pycache__', 'textbook', 'dist', 'build') for part in p.parts))
     paths.extend(ROOT.glob('*.py'))

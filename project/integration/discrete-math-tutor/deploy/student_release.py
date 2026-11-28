@@ -6,7 +6,7 @@ from pathlib import Path
 HROOT=Path("project/integration/discrete-math-tutor")
 VROOT=Path("project/vendor/DeepTutor")
 EXCLUDE={"node_modules",".next",".git",".runtime","__pycache__",".pytest_cache",".venv",".venv-runtime",".venv-deeptutor","artifacts",".cache"}
-H_FOLDERS={"agents","database","deploy","frontend","integrations","llm","memory","models","reader","scripts","knowledge","third_party","visualization","visualization-client"}
+H_FOLDERS={"agents","database","deploy","integrations","llm","memory","models","scripts","knowledge","third_party","visualization"}
 V_FOLDERS={"deeptutor","deeptutor_cli","config","configs","web","LOCAL_PATCHES","assets","deeptutor_web","packaging","requirements","scripts"}
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def label(value):

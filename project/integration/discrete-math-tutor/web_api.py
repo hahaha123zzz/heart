@@ -42,9 +42,8 @@ def course_chapters():
 
 @router.get('/course/reading-map')
 def course_reading_map():
-    import json
-    from knowledge.course_config import PSYCHOLOGY,ROOT
-    return {} if PSYCHOLOGY else json.loads((ROOT/'frontend/textbook/manifest.json').read_text(encoding='utf-8'))
+    # 旧壳教材清单随旧壳一并删除；正式阅读入口走固定教材接口。
+    return {}
 
 
 @router.get('/course/session-plan')
