@@ -32,6 +32,18 @@ interface VisualizeConfigPanelProps {
   onToggleCollapsed?: () => void;
 }
 
+// Built-in renderers ship with the app; an extension catalog failure must not
+// mark them unavailable or leak an admin-only error into a learner's composer.
+const BUILTIN_RENDER_MODES = new Set([
+  "chartjs",
+  "svg",
+  "mermaid",
+  "mindmap",
+  "html",
+  "manim_video",
+  "manim_image",
+]);
+
 export default memo(function VisualizeConfigPanel({
   value,
   onChange,
@@ -127,6 +139,7 @@ export default memo(function VisualizeConfigPanel({
             </>
           )}
           {value.render_mode !== "auto" &&
+          !BUILTIN_RENDER_MODES.has(value.render_mode) &&
           !enabledTypes.some((item) => item.id === value.render_mode) ? (
             <option value={value.render_mode} disabled>
               {value.render_mode} ({t("Unavailable")})
@@ -166,6 +179,7 @@ export default memo(function VisualizeConfigPanel({
         </>
       ) : null}
 
+      {!catalogError ? (
       <Field label={t("Visualizer Types")} width="min-w-[210px] flex-1">
         <div className="flex min-h-8 flex-wrap items-center gap-1.5">
           {installableTypes.map((item) => (
@@ -256,10 +270,8 @@ export default memo(function VisualizeConfigPanel({
             </span>
           ) : null}
         </div>
-        {catalogError ? (
-          <p className="mt-1 text-[10px] text-red-500">{catalogError}</p>
-        ) : null}
       </Field>
+      ) : null}
     </>
   );
 
