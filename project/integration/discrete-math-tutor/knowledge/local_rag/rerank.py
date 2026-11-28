@@ -10,7 +10,6 @@ import math
 import os
 from threading import Lock
 from typing import Any, Callable
-import urllib.request
 
 from llama_index.core.schema import MetadataMode, NodeWithScore
 
@@ -19,12 +18,53 @@ logger = logging.getLogger(__name__)
 _RERANKER_CACHE: "OrderedDict[tuple[str, str], Any]" = OrderedDict()
 _RERANKER_CACHE_LOCK = Lock()
 _RERANKER_CACHE_MAXSIZE = 2
+_RERANK_CLIENT: Any = None
+_RERANK_CLIENT_LOCK = Lock()
 
 
 def clear_reranker_cache() -> None:
     """Drop cached reranker models (used by tests and settings changes)."""
     with _RERANKER_CACHE_LOCK:
         _RERANKER_CACHE.clear()
+
+
+def clear_rerank_api_client() -> None:
+    """Drop the keep-alive HTTP client (used by tests and settings changes)."""
+    global _RERANK_CLIENT
+    with _RERANK_CLIENT_LOCK:
+        client, _RERANK_CLIENT = _RERANK_CLIENT, None
+    if client is not None:
+        client.close()
+
+
+def _rerank_http_client() -> Any:
+    global _RERANK_CLIENT
+    with _RERANK_CLIENT_LOCK:
+        if _RERANK_CLIENT is None:
+            import httpx
+
+            _RERANK_CLIENT = httpx.Client(
+                limits=httpx.Limits(max_connections=8, max_keepalive_connections=4))
+        return _RERANK_CLIENT
+
+
+def _post_rerank(url: str, key: str, body: dict, timeout: float) -> dict:
+    response = _rerank_http_client().post(
+        url, json=body, headers={"Authorization": "Bearer " + key}, timeout=timeout)
+    response.raise_for_status()
+    return response.json()
+
+
+def warm_rerank_api() -> None:
+    """Open the rerank API connection before the first student question."""
+    if not os.environ.get("HEART_RERANK_API_URL", "").strip():
+        return
+    if not os.environ.get("HEART_RERANK_API_KEY", "").strip():
+        return
+    try:
+        api_rerank_scores("warmup", ["warmup"])
+    except Exception:
+        logger.warning("rerank api warmup failed", exc_info=True)
 
 
 def api_rerank_scores(query: str, texts: list[str]) -> list[float] | None:
@@ -46,13 +86,7 @@ def api_rerank_scores(query: str, texts: list[str]) -> list[float] | None:
         "top_n": len(texts),
         "return_documents": False,
     }
-    request = urllib.request.Request(
-        url,
-        data=json.dumps(body, ensure_ascii=False).encode(),
-        headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        payload = json.loads(response.read().decode("utf-8"))
+    payload = _post_rerank(url, key, body, timeout)
     scores: list[float | None] = [None] * len(texts)
     for item in payload.get("results") or []:
         index = item.get("index")

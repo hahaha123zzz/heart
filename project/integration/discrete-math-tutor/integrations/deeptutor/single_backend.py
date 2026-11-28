@@ -6,8 +6,11 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 WORKER_RETIRED = ('/api/chat', '/api/chat/stream')
 # 浏览器今天走 worker 的表面：宿主即使定义了同名路由也让给原生运行时。
@@ -64,6 +67,26 @@ class SingleBackend:
             return
         await self._target(scope)(scope, receive, send)
 
+    async def _warm_course_retrieval(self) -> None:
+        """Open the resident LightRAG engine and rerank API before readiness."""
+        from knowledge.course_config import COURSE_ID
+        from knowledge.fixed_book import active
+        from knowledge.local_rag.rerank import warm_rerank_api
+
+        fixed = active()
+        backend = getattr(fixed, 'backend', None) if fixed is not None else None
+        if backend is not None:
+            try:
+                await asyncio.wait_for(
+                    backend.search('课程教材预热', course_id=COURSE_ID, mode='naive', limit=1),
+                    timeout=30)
+            except Exception:
+                logger.warning("course retrieval warmup failed", exc_info=True)
+        try:
+            await asyncio.to_thread(warm_rerank_api)
+        except Exception:
+            logger.warning("rerank api warmup failed", exc_info=True)
+
     async def _lifespan(self, receive, send):
         message = await receive()
         while message['type'] != 'lifespan.startup':
@@ -74,6 +97,7 @@ class SingleBackend:
                 async with self.worker.router.lifespan_context(self.worker):
                     self.host.state.native_runtime = {
                         'enabled': True, 'managed': True, 'ready': True, 'in_process': True}
+                    await self._warm_course_retrieval()
                     await send({'type': 'lifespan.startup.complete'})
                     message = await receive()
                     while message['type'] != 'lifespan.shutdown':

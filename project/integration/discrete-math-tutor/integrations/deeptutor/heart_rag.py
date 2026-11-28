@@ -443,3 +443,6 @@ def warm_retrieval() -> None:
     import logging
 
     logging.getLogger(__name__).info("旧教材索引已退役，跳过旧检索预热")
+    from knowledge.local_rag.rerank import warm_rerank_api
+
+    warm_rerank_api()
