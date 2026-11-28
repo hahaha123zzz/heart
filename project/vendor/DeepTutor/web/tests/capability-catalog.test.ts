@@ -11,6 +11,7 @@ import {
   mergeCapabilityPresentations,
   visibleCapabilityPresentations,
 } from "../features/capabilities/presentation";
+import { filterAllowedCapabilities } from "../features/capabilities/learning-policy";
 
 test("backend descriptors own identity, availability, manifest, and schema", () => {
   const catalog = parseCapabilityCatalogPayload({
@@ -164,5 +165,48 @@ test("component-owned capability types cannot return", () => {
   assert.equal(
     fs.existsSync(path.resolve(process.cwd(), "lib/chat-capabilities.ts")),
     false,
+  );
+});
+
+test("learner policy keeps visualize and hides surface-owned capabilities", () => {
+  const catalog = parseCapabilityCatalogPayload({
+    capabilities: [
+      "chat",
+      "visualize",
+      "immersive_reading",
+      "mastery_path",
+      "deep_solve",
+    ],
+  });
+  const filtered = filterAllowedCapabilities(catalog, [
+    "chat",
+    "visualize",
+    "immersive_reading",
+    "mastery_path",
+  ]);
+
+  assert.deepEqual(
+    filtered.map((item) => item.id),
+    ["chat", "visualize"],
+  );
+});
+
+test("no learner policy leaves the capability catalog untouched", () => {
+  const catalog = parseCapabilityCatalogPayload({
+    capabilities: ["chat", "visualize", "deep_solve"],
+  });
+
+  assert.deepEqual(filterAllowedCapabilities(catalog, undefined), catalog);
+  assert.deepEqual(filterAllowedCapabilities(catalog, null), catalog);
+});
+
+test("a policy that only allows surface-owned capabilities keeps the chat fallback", () => {
+  const catalog = parseCapabilityCatalogPayload({
+    capabilities: ["chat", "visualize", "immersive_reading"],
+  });
+
+  assert.deepEqual(
+    filterAllowedCapabilities(catalog, ["immersive_reading"]),
+    [],
   );
 });

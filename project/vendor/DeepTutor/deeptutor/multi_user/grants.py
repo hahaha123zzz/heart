@@ -201,7 +201,7 @@ def learner_grant(user_id: str) -> dict[str, Any]:
             "learning_policy": {
                 "age_band": "9-12",
                 "locked_persona": "teacher",
-                "allowed_capabilities": ["chat", "immersive_reading"],
+                "allowed_capabilities": ["chat", "visualize", "immersive_reading"],
                 "default_capability": "immersive_reading",
                 "allowed_surfaces": ["chat", "reading"],
                 "reading": {

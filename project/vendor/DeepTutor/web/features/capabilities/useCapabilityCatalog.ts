@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { fetchAuthStatus } from "@/lib/auth";
 
 import { fetchCapabilityCatalog } from "./api";
+import { filterAllowedCapabilities } from "./learning-policy";
 import type { CapabilityDescriptor } from "./model";
 import {
   mergeCapabilityPresentations,
@@ -31,9 +32,18 @@ export function useCapabilityCatalog() {
 
   useEffect(() => {
     let cancelled = false;
-    void fetchAuthStatus().then((status) =>
-      status?.learning_policy ? fallbackDescriptors() : fetchCapabilityCatalog(),
-    )
+    void fetchAuthStatus()
+      .then(async (status) => {
+        const allowed = status?.learning_policy?.allowed_capabilities;
+        try {
+          const catalog = await fetchCapabilityCatalog();
+          const filtered = filterAllowedCapabilities(catalog, allowed);
+          return filtered.length > 0 ? filtered : fallbackDescriptors();
+        } catch (reason) {
+          if (allowed) return fallbackDescriptors();
+          throw reason;
+        }
+      })
       .then((next) => {
         if (cancelled) return;
         setDescriptors(next.length > 0 ? next : fallbackDescriptors());

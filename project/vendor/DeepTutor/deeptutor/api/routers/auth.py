@@ -683,7 +683,7 @@ def _learning_surface_for_path(
     # Choosing the model for a chat turn is part of chat. The handler is
     # already grant-filtered. Match this exact path only: a prefix of
     # /api/settings would also open catalog writes on the same router (#1222).
-    if method.upper() == "GET" and normalized in {"/api/settings/llm-options", "/api/learning-journal", "/api/dashboard/learning-library/mastery",
+    if method.upper() == "GET" and normalized in {"/api/settings/llm-options", "/api/learning-journal", "/api/capabilities/registered", "/api/dashboard/learning-library/mastery",
         "/api/dashboard/learning-library/practice", "/api/dashboard/source-library/notebooks",
         "/api/dashboard/source-library/chats", "/api/dashboard/source-library/practice"}:
         return "chat"
