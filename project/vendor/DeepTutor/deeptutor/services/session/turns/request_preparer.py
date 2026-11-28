@@ -343,6 +343,12 @@ class TurnRequestPreparer:
             payload = apply_learning_policy({**payload, "capability": capability})
         except PermissionError as exc:
             raise RuntimeError(str(exc)) from exc
+        if bound_course is not None and not payload.get("knowledge_bases"):
+            # Account policy clears every client-selected KB for learners (and
+            # the course may simply have none). The bound course's own textbook
+            # is still the one source a learner may search, so inherit it from
+            # the same course defaults as before.
+            payload = _apply_course_defaults(payload, bound_course)
 
         payload.pop("timed_media_id", None)
         payload.pop("timed_media_viewport", None)

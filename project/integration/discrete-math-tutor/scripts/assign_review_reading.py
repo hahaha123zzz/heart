@@ -40,7 +40,7 @@ def assign(home: Path, assets: Path):
             ids = [item["material_id"] for item in reading["materials"]]
             policy = learner_grant(user_id)["learning_policy"]
             policy["default_capability"] = "chat"
-            policy["allowed_capabilities"] = ["chat", "immersive_reading", "mastery_path"]
+            policy["allowed_capabilities"] = ["chat", "immersive_reading", "mastery_path", "visualize"]
             policy["reading"]["material_ids"] = ids
             policy["reading"]["extensions"] = ["read_aloud"]
             grant = load_grant(user_id)

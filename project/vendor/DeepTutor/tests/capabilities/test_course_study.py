@@ -883,9 +883,16 @@ def test_course_defaults_fill_absent_fields_and_preserve_explicit_choices() -> N
     explicit = {
         "capability": "chat",
         "persona": "",
-        "knowledge_bases": [],
+        "knowledge_bases": ["chosen-kb"],
     }
     assert _apply_course_defaults(explicit, course) == explicit
+
+    # An empty list is an untouched composer, not an explicit clear.
+    untouched = {"capability": "chat", "persona": "", "knowledge_bases": []}
+    assert _apply_course_defaults(untouched, course)["knowledge_bases"] == [
+        "algebra-kb",
+        "exercises-kb",
+    ]
 
     active_session = _apply_course_defaults(
         {"content": "continue"},

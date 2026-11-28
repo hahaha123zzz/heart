@@ -6,6 +6,7 @@ import { fetchAuthStatus } from "@/lib/auth";
 export interface LearningPolicyState {
   /** Surfaces this account may open. Everything else is hidden, not a 403. */
   allowedSurfaces: string[];
+  allowedCapabilities?: string[];
 }
 
 export interface AuthStatusState {
@@ -47,7 +48,10 @@ function learningPolicyFromStatus(
   const surfaces = (policy.allowed_surfaces ?? ["chat", "reading"]).filter(
     (surface) => surface.trim().length > 0,
   );
-  return { allowedSurfaces: surfaces.length ? surfaces : ["chat", "reading"] };
+  return {
+    allowedSurfaces: surfaces.length ? surfaces : ["chat", "reading"],
+    allowedCapabilities: policy.allowed_capabilities,
+  };
 }
 
 /**

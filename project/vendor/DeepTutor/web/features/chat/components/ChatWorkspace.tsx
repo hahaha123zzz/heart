@@ -2055,7 +2055,20 @@ export default function ChatWorkspace() {
           ];
         }
       }
-      if (isVisualizeMode) config = buildVisualizeWSConfig(visualizeConfig);
+      const turnReaderContext = legacyReaderContextRef.current;
+      const useSvg =
+        !authLoading &&
+        !turnReaderContext &&
+        !state.workspaceMode &&
+        (!activeCap.value || activeCap.value === "chat") &&
+        (!learningPolicy || learningPolicy.allowedCapabilities?.includes("visualize")) &&
+        /\bsvg\b/i.test(content) &&
+        /画|绘|生成|制作|展示|图解|可视化|\b(?:draw|create|generate|render|show|visualize)\b/i.test(content);
+      if (useSvg || isVisualizeMode) {
+        config = buildVisualizeWSConfig(
+          useSvg ? { ...visualizeConfig, render_mode: "svg" } : visualizeConfig,
+        );
+      }
       if (isResearchMode) {
         if (!researchValidation.valid) return;
         config = buildResearchWSConfig(researchConfig);
@@ -2097,7 +2110,6 @@ export default function ChatWorkspace() {
       // Persona is NOT passed per-call here: it is a session-level
       // preference (state.personaSelection) that sendMessage resolves and
       // sends with every turn.
-      const turnReaderContext = legacyReaderContextRef.current;
       sendMessage(
         messageContent,
         extraAttachments,
@@ -2112,7 +2124,7 @@ export default function ChatWorkspace() {
                 capability: "immersive_reading",
                 legacyReaderContext: turnReaderContext,
               }
-            : {}),
+            : useSvg ? { capability: "visualize" } : {}),
         },
         questionNotebookReferencesPayload,
         undefined,
@@ -2136,6 +2148,7 @@ export default function ChatWorkspace() {
     },
     [
       draftTaskIds, state.sessionId, resourceReuse, state.knowledgeBases, state.resourceSelection, agentNameSet, setKBs, setPersonaSelection, setResourceSelection,
+      activeCap.value, authLoading, learningPolicy, state.workspaceMode,
       attachments,
       bookReferencesPayload,
       courseId,

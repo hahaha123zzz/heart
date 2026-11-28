@@ -60,7 +60,8 @@ def skip_kb_seed(context):
 
 
 CATALOG_INTENT = re.compile(r"目录|章节|章名|有哪些章|哪几章|共.{0,3}章|全书(?:结构|目录|章节)")
-EXPLAIN_INTENT = re.compile(r"解释|讲解|定义|概念|为什么|怎么|如何|比较|区别|原理|推导|什么|哪|在哪|是什么|多少|是否|吗")
+# 单个“哪”不再算讲解：目录问句里的“哪些/哪几章”必须保持纯目录。
+EXPLAIN_INTENT = re.compile(r"解释|讲解|定义|概念|为什么|怎么|如何|比较|区别|原理|推导|什么|在哪|哪一章|哪一节|哪一页|哪几页|是什么|多少|是否|吗|讲|涉及")
 
 
 def textbook_tools(context):

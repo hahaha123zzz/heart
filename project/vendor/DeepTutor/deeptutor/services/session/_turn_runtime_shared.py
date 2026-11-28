@@ -744,12 +744,16 @@ def _apply_course_defaults(
     *,
     preferences: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Fill missing fields while preserving active session preferences."""
+    """Fill missing fields while preserving active session preferences.
+
+    An empty ``knowledge_bases`` list is an untouched composer selection, not
+    an explicit clear, so it inherits the same way a missing field does.
+    """
     updated = dict(payload)
     saved = preferences or {}
-    if "knowledge_bases" not in payload and saved.get("knowledge_bases"):
+    if not payload.get("knowledge_bases") and saved.get("knowledge_bases"):
         updated["knowledge_bases"] = saved["knowledge_bases"]
-    elif "knowledge_bases" not in payload:
+    elif not payload.get("knowledge_bases"):
         knowledge_bases: list[str] = []
         seen: set[str] = set()
         for resource in _course_field(course, "resources", []) or []:

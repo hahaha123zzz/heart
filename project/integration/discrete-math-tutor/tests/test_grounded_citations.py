@@ -12,6 +12,18 @@ from knowledge.source_mapping import source_spans
 from knowledge.textbook import TextbookChunk
 
 
+def _skills_aware_llm(**attributes):
+    """Offline LLM that answers the pre-generation teaching-skill read."""
+    def chat_with_tools(messages, tools, **kwargs):
+        if isinstance(kwargs.get("tool_choice"), dict):
+            return SimpleNamespace(tool_calls=[SimpleNamespace(
+                id="skill-1", name="read_skill",
+                arguments={"name": "teaching-skills", "file": "SKILL.md"},
+                extra_content=None)], text="", finish_reason="tool_calls")
+        return SimpleNamespace(tool_calls=[], text="SKILLS_READY", finish_reason="stop")
+    return SimpleNamespace(chat_with_tools=chat_with_tools, **attributes)
+
+
 class GroundingTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
@@ -197,7 +209,7 @@ class GroundingTests(unittest.TestCase):
         from agents.response_generator import ResponseGenerator
         from agents.teaching_planner import TeachingPlan
         from models.student_state import StudentState
-        llm=SimpleNamespace(mock=False,chat=Mock(return_value='解释。[1]'))
+        llm=_skills_aware_llm(mock=False,chat=Mock(return_value='解释。[1]'))
         history=[{'role':'assistant','content':'上一轮定义。[9]'}]
         ResponseGenerator(llm).generate(StudentState(),TeachingPlan(goal='条件',strategy='worked_example',action='explain',difficulty='easy'),
             '继续解释',history,None,'',textbook_excerpts='[1] fixture｜条件｜证据ID:stable\n'+self.quote)
