@@ -48,10 +48,10 @@ export function ChapterProgress({ chapter }: { chapter: number }) {
           {point.sync_pending && <p>有评估结果待同步</p>}
           {point.sync_blocked && <p>有评估结果同步受阻</p>}
           {point.snapshot ? <>
-            <p>{point.snapshot.assessed_mastered ? "最近同步时已达到掌握要求" : point.snapshot.learning_stage === "practiced_with_help" ? "最近同步时有辅助练习记录" : "最近同步时尚未达到掌握要求"}</p>
+            <p>{point.snapshot.assessed_mastered ? "已掌握" : point.snapshot.learning_stage === "practiced_with_help" ? "还没掌握（有辅助练习记录）" : "还没掌握"}</p>
             {point.snapshot.next_review_at && <p>记录中的复习时间：<time dateTime={point.snapshot.next_review_at}>{new Date(point.snapshot.next_review_at).toLocaleString("zh-CN")}</time></p>}
             <p className="text-muted-foreground">同步于 <time dateTime={point.snapshot.synced_at}>{new Date(point.snapshot.synced_at).toLocaleString("zh-CN")}</time></p>
-          </> : <p className="text-muted-foreground">暂无已同步的学习状态</p>}
+          </> : <p className="text-muted-foreground">暂无学习记录</p>}
           {point.practice_review && <p>
             最近同步的题库复习：{point.practice_review.self_report ? "学生自评" : point.practice_review.correct === true ? "答对" : point.practice_review.correct === false ? "答错" : "未判分"}{point.practice_review.assistance_status === "assisted" ? "（已查看答案）" : ""}。题库下次复习：<time dateTime={point.practice_review.next_review_at}>{new Date(point.practice_review.next_review_at).toLocaleString("zh-CN")}</time>
           </p>}

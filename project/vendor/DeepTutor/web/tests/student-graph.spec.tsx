@@ -14,7 +14,7 @@ const payload={course_id:'experimental-psychology-3',release_id:'version',releas
 beforeEach(()=>{vi.clearAllMocks();mocks.query='chapter=3';useGraphStore.getState().reset();mocks.fetch.mockImplementation(async(url:string)=>new Response(JSON.stringify(url.startsWith('/api/graph/node')?{...payload,node:payload.nodes[0],sources:[{id:'source',text:'可核对原文',file:'chapter_03.generated.pdf',heading:'相关设计'}],mappings:[{id:'M004',kc_id:'kc-3-1',objective_id:'kc-3-1',document_version:'pdf-version'}]}:payload)))})
 it('keeps unknown and pending statuses explicit and reads details only on selection',async()=>{
  render(<KnowledgeGraph/>);expect(await screen.findByText(/部分显示/)).toBeInTheDocument();expect(mocks.fetch.mock.calls.some(([url])=>String(url).includes('/node?'))).toBe(false)
- fireEvent.click(screen.getByRole('button',{name:/相关设计.*无已同步测评/}));expect(await screen.findByText('教材说明')).toBeInTheDocument();expect(screen.getByText(/当前仍为上次同步记录/)).toBeInTheDocument();expect(screen.getByRole('link',{name:'打开本章教材 PDF'})).toHaveAttribute('href',expect.stringContaining('release_id=version'));expect(screen.getByRole('button',{name:'练习此知识点'})).toBeInTheDocument()
+ fireEvent.click(screen.getByRole('button',{name:/相关设计.*暂无测评记录/}));expect(await screen.findByText('教材说明')).toBeInTheDocument();expect(screen.getByText(/当前仍为上次同步记录/)).toBeInTheDocument();expect(screen.getByRole('link',{name:'打开本章教材 PDF'})).toHaveAttribute('href',expect.stringContaining('release_id=version'));expect(screen.getByRole('button',{name:'练习此知识点'})).toBeInTheDocument()
  expect(mocks.fetch.mock.calls.some(([url])=>String(url).includes('/node?'))).toBe(true)
 })
 it('shows a request error and can refresh to an actual empty graph',async()=>{

@@ -12,7 +12,7 @@ it("distinguishes waiting for sync from the last recorded state and flags a fail
   ] }).mockRejectedValueOnce(new Error("offline"));
   render(<ChapterProgress chapter={2} />);
   expect(await screen.findByText("有评估结果待同步")).toBeInTheDocument();
-  expect(screen.getByText("暂无已同步的学习状态")).toBeInTheDocument();
+  expect(screen.getByText("暂无学习记录")).toBeInTheDocument();
   expect(screen.queryByText(/尚未达到掌握要求/)).toBeNull();
   expect(request.mock.calls[0][0]).toContain("chapter=2");
   fireEvent.click(screen.getByRole("button", { name: "刷新学习状态" }));
